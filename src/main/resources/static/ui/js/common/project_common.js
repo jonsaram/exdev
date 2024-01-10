@@ -1,0 +1,1150 @@
+var C_COM = {
+	 mousePos 	: { x : 0, y : 0 }
+	,lateFn		: {}
+	,keypressListenerCallbackFn : {}
+	,KEY_CODE	: {
+		 "ENTER" 	: 13
+		,"DEL"		: 46
+	 }
+	,_DEFAULT_FIX : 0	// 소수점 기본 자리수
+	 // Session저장
+	,init : function() {
+		$(window).bind("mousedown", function(e){
+			C_COM.mousePos.x = e.pageX;
+			C_COM.mousePos.y = e.pageY;
+		});
+		// 키 입력에 대한 Event 처리
+		$(window).bind("keyup",function() {
+			var pageId 	= C_PM.getCurrentPageId();
+			var cFn		= C_COM.keypressListenerCallbackFn[pageId];
+			if(typeof cFn == "function") cFn(event.keyCode);
+		});	
+	 }
+	,addKeypressListener : function(pageId, callback) {
+		if(typeof callback != "function") {
+			alert('addKeypressListener 호출시 함수를 전달해야 합니다.');
+			return;
+		}
+		C_COM.keypressListenerCallbackFn[pageId] = callback;
+	 }
+	,getClickPosition : function() {
+		return C_COM.mousePos;
+	 }
+	,saveSessionData : function(sessionId, sessionData)
+	 {
+		if(	Object.prototype.toString.call(sessionData) == '[object Object]' || 
+			Object.prototype.toString.call(sessionData) == '[object Array]'  )
+		{
+			sessionData = JSON.stringify(sessionData)
+		}
+		sessionStorage.setItem(sessionId, sessionData);
+	 }
+	 // Session Load
+	,loadSessionData : function (sessionId, valid)
+	 {
+		var result = sessionStorage.getItem(sessionId);
+
+		if(valid == true) sessionStorage.removeItem(sessionId);
+		try {
+			var retObj = JSON.parse(result);
+			return retObj;
+		} catch (e) {
+			return result;
+		}
+	 }
+	 // 로컬 스토리지에 정보 저장
+	,saveLocalData : function(localId, localData) {
+		if(	Object.prototype.toString.call(localData) == '[object Object]' || 
+			Object.prototype.toString.call(localData) == '[object Array]'  )
+		{
+			localData = JSON.stringify(localData)
+		}
+		localStorage.setItem(localId, localData);
+	 }
+	 // 로컬 스토리지에서 정보 읽기
+	,loadLocalData : function (localId, valid) {
+		var result = localStorage.getItem(localId);
+
+		if(valid == true) localStorage.removeItem(localId);
+		try {
+			var retObj = JSON.parse(result);
+			return retObj;
+		} catch (e) {
+			return result;
+		}
+	 }
+	,deleteLocalData : function (localId) {
+		localStorage.removeItem(localId);
+	 }
+	 // Service 요청
+	,requestService		: function(parm, callback, errCallback) {
+		// 서버 전송 Info
+		try{
+			if(isEmpty(parm)) parm = {};
+			
+			var sendParm = {
+				 targetUrl 	: _WEB_ROOT_URL + "/requestService.do"
+				,data		: parm
+			}
+			// LoadingBar 사용 옵션 추가 20210219
+			ajaxRequest(sendParm, function(resultData) {
+				if(resultData.state == "S") {
+					if(typeof callback == "function") callback(resultData);
+				} else {
+					if(resultData.STATUS == "FAIL") {
+						C_POP.alert(resultData.STATUS_MESSAGE);
+						if(resultData.STATUS_MESSAGE == "No Authority Request.") location.reload();
+					} else {
+						if(typeof errCallback == "function") {
+							errCallback(resultData);
+						} else {
+							C_POP.alert(resultData.msg);
+						}
+					}
+					return null;
+				}
+			});
+		} catch(e){
+			alert(e);
+		}
+	 }
+	 // Service 요청
+	,requestQuery		: function(parm, callback, errCallback) {
+		// 서버 전송 Info
+		try{
+			if(isEmpty(parm)) parm = {};
+			
+			var targetUrl = _WEB_ROOT_URL + "/requestQuery.do"
+			
+			// 여러 쿼리를 동시에 가져올 경우
+			if(isValid(parm.queryGroup)) {
+				targetUrl = _WEB_ROOT_URL + "/requestQueryGroup.do"
+			}
+			
+			var sendParm = {
+				 targetUrl 	: targetUrl
+				,data		: parm
+			}
+			
+			ajaxRequest(sendParm, function(resultData) {
+				if(resultData.state == "S") {
+					if(typeof callback == "function") callback(resultData);
+				} else {
+					if(resultData.STATUS == "FAIL") {
+						C_POP.alert(resultData.STATUS_MESSAGE);
+						if(resultData.STATUS_MESSAGE == "No Authority Request.") location.reload();
+					} else {
+						if(typeof errCallback == "function") {
+							errCallback(resultData);
+						} else {
+							C_POP.alert(resultData.msg);
+						}
+					}
+					return null;
+				}
+			});
+		} catch(e){
+
+		}
+	 }
+	,getHtmlFile : function(path) {
+		var url  = _WEB_ROOT_URL + "/" + path;
+		var parm = {
+			 targetUrl 	: url
+			,dataType	: "text"
+			,method		: "get"
+		}
+		var html = ajaxRequest(parm);
+		return html;
+	 }
+	,getTxtFile : function(path) {
+		var url  = _WEB_ROOT_URL + path;
+		
+		var parm = {
+			 targetUrl 	: url
+			,dataType 	: "text"	
+		}
+		var html = ajaxRequest(parm);
+		return html;
+	 }
+	// table rendering
+	,renderHtml : function(pid, parm) {
+		if(isEmpty(parm.templateId)) parm.templateId = parm.targetId;
+		
+		if(isValid(parm.listColumn)) {
+			parm.list = parm[parm.listColumn]; // 기본 지정 리트스 컬럼
+		} 
+		
+		if(isEmpty(parm.list)) parm.list = [];
+		
+		if(isValid(parm.maxrow)) {
+			parm.list = parm.list.slice(0, parm.maxrow);
+		}
+		if(isValid(parm.targetTotalId)) {
+			$("#" + pid + " #" + parm.targetTotalId).html(addComma(parm.list.length));
+		}
+		var html = "";
+		var noDataTemplateCnt = $("#" + pid + " #" + parm.templateId + "_noData_template").length;
+		if( parm.list.length > 0 || noDataTemplateCnt == 0) html = $("#" + pid + " #" + parm.templateId + "_template"			).render(parm);
+		else {
+			if($("#" + pid + " #" + parm.templateId + "_noData_template"	).length > 0) {
+				html = $("#" + pid + " #" + parm.templateId + "_noData_template"	).render(parm);
+			}
+		}
+		
+		if(parm.append == "Y") {
+			$("#" + pid + " #" + parm.targetId).append(html);
+		} else if(parm.prepend == "Y") {
+			$("#" + pid + " #" + parm.targetId).prepend(html);
+		} else {
+			$("#" + pid + " #" + parm.targetId).html(html);
+		}
+		
+		C_COM.makeNumberTypeToInput("#" + pid + " #" + parm.targetId);
+		
+//		$("#" + pid + " #" + parm.targetId + " input[type=number]").bind("change", function() {
+//			var v = addComma($(this).val());
+//			$(this).val(v);
+//		});
+		
+	}
+	// 공통 코드 요청하기
+	,requestCodeList : function(groupCodes, callback) {
+		C_CODE.requestCodeList(groupCodes, callback);
+	 }
+	// 공통 코드 가져오기
+	,getCodeList : function(pCd, callback) {
+		return C_CODE.getCodeList(pCd, callback);
+	 }
+	// 입력 창을 숫자만 입력되도록 처리
+	,makeNumberTypeToInput : function(domObj) {
+		$(domObj).find("input[number]").each(function() {
+			$(this).addClass	("tr"			);
+			$(this).attr		("maxlength", 15);
+			$(this).unbind		("keydown"		);
+			$(this).bind		("keydown", function() {
+				var val = $(this).val();
+				if(val == "" || isNumber(val)) $(this).attr("preval", val);
+			});
+			$(this).unbind		("keyup"		);
+			$(this).bind		("keyup", function() {
+				var val = $(this).val();
+				if(val != "-" && val != "" && !isNumber(val)) {
+					var preval = $(this).attr("preval");
+					$(this).val(preval);
+				} else if( val != "" && val != "-" && val != "-0") {
+					val = val.replaceAll(",", "");
+					var lastCharCheck = val.substring(val.length - 1);
+					var fix = $(this).attr("fix");
+					if(isEmpty(fix)) fix = C_COM._DEFAULT_FIX;
+					if(lastCharCheck == "."){
+						if(fix == 0) {
+							var preval = $(this).attr("preval");
+							$(this).val(preval);
+						}
+					} else {
+						// 소수점 아래에서 0이 입력됬을 경우
+						var narr = val.split(".");
+						if(isValid(narr[1]) && lastCharCheck == "0" && fix > 0) {
+							val = narr[0] + "." + narr[1].substring(0, fix);
+						} else {
+							var xx1	= Math.pow(10, fix);
+							
+							// PC 계산 오류에 의한 버그 방어 코드(floor를 사용할 경우 10.12 -> 10.199999999.. -> 10.11 오류 발생)
+							var xx2	= xx1 + 0.0000000001;		
+							
+							// 붙여넣기 여부 확인
+							var pasteCheck = $(this).attr("paste");
+							if(pasteCheck == "Y") {
+								// 붙여 넣기 인경우 반올림  처리
+								val = Math.round(val * xx2) / xx1;
+								$(this).attr("paste", "");
+							} else {
+								// 일반 입력시 버림 처리(음수인경우 역으로 계산)
+								if(val < 0)	val = Math.ceil (val * xx2) / xx1;
+								else		val = Math.floor(val * xx2) / xx1;
+							}
+						}
+						//$(this).val(addComma(val));
+					}
+				}
+			});
+			$(this).unbind		("paste"		);
+			$(this).bind		("paste", function(event) {
+				// 붙여 넣기를 할경우 Flag Setting하여 반올림 처리하도록 함.
+				$(this).attr("paste", "Y");
+			});
+		});
+	 }
+	,registLateFn : function(fnId, fn, waitTime) {
+		C_COM.lateFn[fnId] = fn;
+		setTimeout(function() {
+			if(isValid(C_COM.lateFn[fnId])) C_COM.lateFn[fnId] = undefined;
+		}, waitTime);
+	 }
+	,excuteLateFn : function(fnId) {
+		if(typeof C_COM.lateFn[fnId] == "function") C_COM.lateFn[fnId]();
+		C_COM.lateFn[fnId] = undefined;
+	 }
+	,excelDownloadFromTable : function(domId) {
+		var html = $("#" + domId).html();
+		
+		$("#excelCopyTmpTable").html(html);
+		
+		$("#excelCopyTmpTable a").each(function() {
+			$(this).wrap("<span></span>");
+			var val = $(this).html();
+			$(this).parent().html(val);
+		});
+		$("#excelCopyTmpTable").show();
+		copyToClipboard("excelCopyTmpTable");
+		$("#xcelCopyTmpTable").hide();
+		C_POP.alert('본문이 클립보드에 복사되었습니다.\n엑셀에 붙여넣기 하여 사용하세요.');
+		$("#excelCopyTmpTable").html("");
+	 }
+	,showLoadingBar : function() {
+		$("#loadingBar").show();
+	 }
+	,hideLoadingBar : function() {
+		$("#loadingBar").hide();
+	 }
+	,showUploadingBar : function() {
+		$("#uploadingBar").show();
+	 }
+	,hideUploadingBar : function() {
+		$("#uploadingBar").hide();
+	 }
+}
+
+/**
+ * 작성자 : 위성열 
+ * 작성일 : 
+ * Page 관리 Class
+ */
+var C_PM = {
+	 eventFn 		: {}
+	,currentPageId 	: ""
+	,pageParmInfo	: {}
+	,homeId			: _ROOT_PAGEID
+	/*
+	 * 작성자 : 위성열 
+	 * 작성일 : 
+	 * 설  명 : Page를 이동한다.
+	 * Paramter 설명
+	 * - pageId : 이동할 Page ID
+	 */
+	,movePage : function(pageId, parm) {
+		if(parm == undefined) parm = {};
+		parm.pageId = pageId;
+		
+		var clearCheck = parm.clearCheck;
+		
+		if(!isValid(pageId)) {
+			alert('Page ID가 없습니다.');
+			return;
+		}
+		// Page ID에 해당하는 Url의 html을 가져온다.
+		var urlBody	= pageId.replaceAll("_", "/");
+		var url 	= "ui/" + urlBody + ".html";
+		var html 	= C_COM.getHtmlFile(url);
+		
+		if(html == "error") {
+			alert("메뉴 화면이 없거나, 메뉴 이동 중 오류가 발생 했습니다. <br/><br/> 관리자에게 문의 하세요.");
+			return;
+		}
+		var token = html.split("/");
+		
+		// 다른 Page를 Import해서 사용할 수 있도록 한다.
+		if(token[0] == "import") {
+			urlBody	= token[1].replaceAll("_", "/");
+			url 	= "ui/" + urlBody + ".html";
+			html 	= C_COM.getHtmlFile(url);
+			if(isValid(token[2])) {
+				eval("parm = $.extend(parm, " + token[2] + ");");
+			}
+		}
+
+		C_PM.pageParmInfo[pageId] = parm;
+		
+		var prePageId = this.getCurrentPageId();
+		
+		if(isValid(prePageId)) {
+			eval("if (typeof " + prePageId + ".destroy == 'function') " + prePageId + ".destroy();");
+		}
+		
+		// 현재 Page 등록
+		this.setCurrentPageId(pageId);
+		
+		// 가상의 Document에 가져온 html 을 Setting한다.
+		var docDiv = $("<div></div>");
+		$(docDiv).html(html);
+		
+		// html에서 최상위Div에 pageId를 id로 부여한다.(unique값)
+		$("div", docDiv).eq(0).attr("id"	, pageId);
+		// html에서 최상위Div에 Page Block이라는 Name을 부여한다.(전체 page 동일값 pageBlockDiv);
+		$("div", docDiv).eq(0).attr("name"	, "pageBlockDiv");
+
+		// 기존 Page는 숨긴다.
+		$("div[name=pageBlockDiv]").hide();
+		
+		// 동일한 PageId로 이미 Loading되어 있으면 삭제한다.
+		$("#" + pageId).remove();
+
+		// 이동할 Page를 Load 한다.
+		var htmlSrc = $(docDiv).html();
+		
+		htmlSrc = htmlSrc.render("<@", ">", parm);
+		
+		$("#bodyBlock").append(htmlSrc);
+		
+		// 이동할 Page의 Page Set Object를 가져온다.
+		//var pageObj = fn_getObjectFromString(pageId);
+		
+		// 현재 Page를 저장한다.
+		C_PM.setCurrentPageId(pageId);
+		
+		// 페이지 이동에 대한 History저장
+		C_HM.pushPageStack(pageId);
+		
+		// 현재 구성된 Page의 스크립트 실행전 공통 초기화
+		C_PM.preInitPage(pageId);
+
+		// onLoadPage로 설정된 Function 실행
+		if(typeof C_PM.eventFn[pageId] == "function") C_PM.eventFn[pageId](parm);
+		
+		// 현재 구성된 Page의 스크립트 실행 후 공통 초기화
+		C_PM.afterInitPage(pageId);
+	}
+	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
+	,preInitPage : function(pageId, targetDomId) {
+		var domId = "#" + pageId;
+		if(isValid(targetDomId)) domId += " #" + targetDomId;
+		
+		// 달력 Component가 있으면 초기화
+		$(domId + " span[class=date] input, " + "#" + pageId + " span[dateType=Y] input").each(function() {
+			var domId	 	= $(this).attr("id");
+			C_UICOM.makeWeekCalendar(pageId, domId);
+			$(this).prop("readonly", true);
+		});
+		C_COM.makeNumberTypeToInput("#" + pageId);
+	}
+	// Page에 Load시 스크립트 실행 후 공통 설정을 한다.
+	,afterInitPage : function(pageId) {
+
+	 }
+	,setCurrentPageId : function(pageId) {
+		C_COM.saveSessionData("PAGE_ID", pageId);
+	 }
+	,getCurrentPageId : function() {
+		return C_COM.loadSessionData("PAGE_ID");
+	 }
+	,onLoadPage : function(pageId, callback) {
+		C_PM.eventFn[pageId] = callback;
+	 }
+	,goHome : function() {
+		C_HM.clear();
+		C_PM.movePage(C_PM.homeId);
+	 }
+	,reloadPage : function() {
+		var cPageId = C_PM.getCurrentPageId(); 
+		var pageId = C_HM.historyBack();
+		var parm = C_PM.pageParmInfo[cPageId];
+		C_PM.movePage(cPageId, parm);
+	 }
+	,replacePage : function(pageId, parm) {
+		C_HM.historyBack();
+		C_PM.movePage(pageId, parm);
+	 }
+};
+// C_PM 초기화 루틴
+(function() {
+	C_COM.saveSessionData("PAGE_ID", "");
+})();
+
+// Page History 관리 프로세스 
+var C_HM = {
+	 eventFn		: {}	
+	,pageStack 		: []
+	,running		: false
+	,pushPageStack	: function(pageId) {
+		var newList = [];
+		$.each(C_HM.pageStack, function() {
+			var item = this + "";
+			if(item != pageId) newList.push(item);
+		});
+		newList.push(pageId);
+		C_HM.pageStack = newList;
+	 }
+	,popPageStack	: function() {
+		var tStack= C_HM.pageStack.slice(0, -1);
+		if(tStack.length > 0) {
+			C_HM.pageStack = tStack;
+			var pageId = C_HM.pageStack[C_HM.pageStack.length - 1];
+			return pageId;
+		} else {
+			return null;
+		}
+	 }
+	,historyBack	: function(returnParm) {
+		if(C_HM.running) return;
+		C_HM.running = true;
+
+		var pageId = C_HM.popPageStack();
+
+		if(isEmpty(pageId)) {
+			C_HM.running = false;
+			return;
+		}
+		var csPageId = C_PM.getCurrentPageId();
+		// 현재 Page의 Destory를 실행한다.
+		eval("var pObj = " + csPageId);
+		if(typeof pObj.destroy == "function") pObj.destroy();
+		
+		// 현재 Page를 Resource에서 삭제한다.
+		$("#" + csPageId).remove();
+		
+		C_PM.setCurrentPageId(pageId);
+		
+		$("#" + pageId).show();
+		
+		if(isEmpty(returnParm)) returnParm = {};
+		
+		if(typeof C_HM.eventFn[pageId] == "function") C_HM.eventFn[pageId](csPageId, returnParm);
+
+		C_HM.running = false;
+	 }
+	,onReturn 	: function(pageId, callback) {
+		C_HM.eventFn[pageId] = callback;
+	 }
+	,clear		: function() {
+		var csPageId = C_PM.getCurrentPageId();
+		// 현재 Page의 Destory를 실행한다.
+		eval("var pObj = " + csPageId);
+		if(typeof pObj.destroy == "function") pObj.destroy();
+		// 현재 Page를 Resource에서 삭제한다.
+		$("#" + csPageId).remove();
+		
+		var pageId = C_HM.popPageStack();
+		while(pageId != null) {
+			
+			eval("var pObj = " + pageId);
+			if(typeof pObj.destroy == "function") pObj.destroy();
+			// 현재 Page를 Resource에서 삭제한다.
+			$("#" + pageId).remove();
+			
+			pageId = C_HM.popPageStack();
+		}
+	 }
+}
+
+// Popup
+var C_POP = {
+	 eventFn 			: {}
+	,activeCnt 			: 0 
+	,popupStack			: []
+	,callbackMap		: {}
+	,normalSizeMap		: {}
+	,open	: function(popupId, parm, callback) {
+		if(parm == undefined) parm = {};
+
+		parm.popupId = popupId;
+		
+		C_POP.callbackMap[popupId] = callback;
+		
+		// Popup ID에 해당하는 Url의 html을 가져온다.
+		var urlBody	= popupId.replaceAll("_", "/");
+		var url 	= "ui/" + urlBody + ".html";
+		var html 	= C_COM.getHtmlFile(url);
+		
+		// 가상의 Document에 가져온 html 을 Setting한다.
+		var docDiv = $("<div></div>");
+		$(docDiv).html(html);
+		// html에서 최상위Div에 popupId를 id로 부여한다.(unique값)
+		$("div", docDiv).eq(0).attr("id"	, popupId);
+		
+		// 동일한 popupId로 이미 Loading되어 있으면 삭제한다.
+		$("#" + popupId).remove();
+
+		// 이동할 Popup를 Load 한다.
+		var htmlSrc = $(docDiv).html();
+		htmlSrc = htmlSrc.render("<@", ">", parm);
+		
+		$("body").append(htmlSrc);
+		
+		C_POP.pushPopupStack(popupId);
+		
+		$("#" + popupId).fadeIn();
+
+		// onLoadPopup로 설정된 Function 실행
+		if(typeof C_POP.eventFn[popupId] == "function") C_POP.eventFn[popupId](parm);
+		
+		// Page 내의 처리는 Popup도 Page와 동일하기 떄문에 C_PM의 initPage를 사용한다.
+		C_POP.preInitPopup(popupId);
+	 }
+	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
+	,preInitPopup : function(popupId) {
+		// 달력 Component가 있으면 초기화
+		$("#" + popupId + " span[class=date] input").each(function() {
+			var domId	 	= $(this).attr("id");
+			C_UICOM.makeWeekCalendar(popupId, domId);
+		});
+	 }
+	,close	: function(returnData) {
+		var popupId = C_POP.getCurrentPopupId();
+		C_POP.popPopupStack();
+
+		$("#" + popupId).removeClass("active");
+		if(typeof C_POP.callbackMap[popupId] == "function") C_POP.callbackMap[popupId](returnData);
+		C_POP.callbackMap[popupId] = undefined;
+		
+		$("#" + popupId).remove();
+		eval(popupId + " = undefined");
+	 }
+	,onLoadPopup : function(popupId, callback) {
+		C_POP.eventFn[popupId] = callback;
+	 }
+	,pushPopupStack	: function(popupId) {
+		var newList = [];
+		$.each(C_POP.popupStack, function() {
+			var item = this + "";
+			if(item != popupId) newList.push(item);
+		});
+		newList.push(popupId);
+		C_POP.popupStack = newList;
+	 }
+	,popPopupStack	: function() {
+		C_POP.popupStack = C_POP.popupStack.slice(0, -1);
+		if(C_POP.popupStack.length > 0) {
+			var popupId = C_POP.popupStack[C_POP.popupStack.length - 1];
+			return popupId;
+		} else {
+			return null;
+		}
+	 }
+	,getCurrentPopupId : function() {
+		if(C_POP.popupStack.length == 0 ) 	return null;
+		else 								return C_POP.popupStack[C_POP.popupStack.length - 1];
+	 }
+	,getPopupState : function() {
+		if(C_POP.popupStack.length > 0)	return "on";
+		else							return "off";
+	 }
+	,alert : function(msg, callback) {
+		alert(msg);
+		if(typeof callback == "function") callback();
+	 }
+	,confirm : function(msg, okFn) {
+		var flag = confirm(msg);
+		if(flag) {
+			if(typeof okFn == "function") okFn();
+		}
+	 }
+	,maxSize : function(popupId, maxDomId, normalDomId) {
+		// 창크기 최대화
+		var normalWidth 	= $("#" + popupId + " .modal").css("width");
+		var normalHeight 	= $("#" + popupId + " .modal").css("height");
+			
+		$("#" + popupId + " .modal").css("width"	, "100%");
+		$("#" + popupId + " .modal").css("height"	, "100%");
+		
+		if(isEmpty(C_POP.normalSizeMap[popupId])) C_POP.normalSizeMap[popupId] = {};
+		if(C_POP.normalSizeMap[popupId].popupState != "M") {
+			C_POP.normalSizeMap[popupId] = {
+				 normalWidth	: normalWidth
+				,normalHeight	: normalHeight
+				,popupState		: "M"
+			}
+		}
+		//if(isValid(maxDomId)	) $("#" + popupId + "#" + maxDomId		).hide();
+		//if(isValid(normalDomId)	) $("#" + popupId + "#" + normalDomId	).show();
+	 }
+	,normalSize : function(popupId, maxDomId, normalDomId) {
+		// 창크기 복원
+		var normalWidth 	= C_POP.normalSizeMap[popupId].normalWidth;
+		var normalHeight 	= C_POP.normalSizeMap[popupId].normalHeight;
+
+		$("#" + popupId + " .modal").css("width"	, normalWidth);
+		$("#" + popupId + " .modal").css("height"	, normalHeight);
+		
+		C_POP.normalSizeMap[popupId] = {
+			 normalWidth	: normalWidth
+			,normalHeight	: normalHeight
+			,popupState		: "N"
+		}
+		//if(isValid(maxDomId)	) $("#" + popupId + " #" + maxDomId		).show();
+		//if(isValid(normalDomId)	) $("#" + popupId + " #" + normalDomId	).hide();
+	 }
+}		
+
+// UI 관련 공통
+var C_UICOM = {
+	 calendarParm 	: {}
+	,commonDataMap 	: {
+		"MTB" : {} // 멀티 박스용 Data 저장소
+	 }
+	,makeSelectBox 	: function(parm) {
+		var pageId			= parm.pageId		;
+		var domId       	= parm.domId        ;
+		var itemList		= parm.itemList     ;
+		var defaultItem		= parm.defaultItem  ;
+		var targetColumns	= parm.targetColumns;
+		
+		var tList = fn_copyArray(itemList);
+		
+		if(isEmpty(tList)) tList = [];
+		
+		if(isValid(targetColumns)) {
+			var cdnm = targetColumns[0];
+			var nmnm = targetColumns[1];
+			$.each(tList, function() {
+				this.CD = this[cdnm];
+				this.NM = this[nmnm];
+			});
+		}
+		if(isValid(defaultItem)) {
+			tList.splice(0,0, {CD : "", NM : defaultItem});
+		}
+	
+		html = $("#select_template").render({list : tList});
+		$("#" + pageId + " #" + domId).html(html);
+	 }
+/*
+	,makeWeekCalendar : function(pageId, domId, parm) {
+		var domObj = "#" + pageId + " #" + domId;
+		if(isEmpty(parm)) parm = {};
+		parm.domId	 		= $(domObj).attr("id"			);
+		parm.showWeek 		= $(domObj).attr("showWeek"		);
+		parm.selectWeek 	= $(domObj).attr("selectWeek"	);
+		parm.dateType 		= $(domObj).attr("dateType"		);
+		parm.defaultDate	= $(domObj).attr("defaultDate"	);
+
+		(parm.showWeek 		== "Y") ? parm.showWeek 	= true : parm.showWeek 		= false;
+		(parm.selectWeek 	== "Y") ? parm.selectWeek	= true : parm.selectWeek	= false;
+
+		if(parm.defaultDate == "today"	) parm.defaultDate 	= getToday(8,"-");
+		
+		if(isEmpty(parm.defaultDate	)) parm.defaultDate	= ""	;
+		if(isEmpty(parm.dateType	)) parm.dateType 	= "N"	;
+		if(isEmpty(parm.showWeek	)) parm.showWeek 	= false	;
+		if(isEmpty(parm.selectWeek	)) parm.selectWeek 	= false	;
+		
+		C_UICOM.calendarParm[pageId + domId] = parm;
+		
+		$("#" + pageId + " #" + domId).datepicker({
+			 changeMonth 		: true
+			,changeYear 		: true
+			,firstDay 			: 7
+			,dateFormat 		: "yy-mm-dd"
+			,showOtherMonths	: true //빈 공간에 현재월의 앞뒤월의 날짜를 표시
+	        ,showMonthAfterYear	: true //년도 먼저 나오고, 뒤에 월 표시
+			,monthNamesShort	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] //달력의 월 부분 Tooltip 텍스트
+	        ,dayNamesMin		: ["SUN","MON","TUE","WED","THU","FRI","SAT"] //달력의 요일 부분 텍스트
+	        ,dayNames			: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]//달력의 요일 부분 Tooltip 텍스트
+	        ,showWeek			: parm.showWeek
+	        ,selectWeek			: parm.selectWeek
+		    ,onSelect: function(dateText, inst) 
+		    {
+		    	var date 	= $(this).val();
+		    	var obj 	= makeDateWeekCnt(date)
+		    	var parm 	= C_UICOM.calendarParm[pageId + domId];
+		    	
+		    	if(parm.selectWeek && obj.overYear) {
+			    	obj = makeDateWeekCnt(obj.nyyyymmdd)
+		    	}
+		    	if		(parm.dateType == "D"	) $(this).val(obj.date);
+		    	else if	(parm.dateType == "W"	) $(this).val(obj.week);
+		    	else					  		  $(this).val(date);
+		    	$(this).trigger("change");
+		    }		    
+		});
+    	if		(parm.dateType == "D"	) $("#" + pageId + " #" + domId).val(makeDateWeekCnt(parm.defaultDate).date);
+    	else if	(parm.dateType == "W"	) $("#" + pageId + " #" + domId).val(makeDateWeekCnt(parm.defaultDate).week);
+    	else					  	  	  $("#" + pageId + " #" + domId).val(parm.defaultDate);
+	 }
+	,getValFromWeekCalendar : function(pageId, domId) {
+		var val = $("#" + pageId + " #" + domId).val();
+		return val.split("(")[0];
+	 }
+*/
+	,init : function() {
+		var html = "";
+		html += '	<script type="text/x-jsrender" id="select_template">                											\n';
+		html += '		{{for list}}                                                    											\n';
+		html += '		<option value="{{:CD}}">{{:NM}}</option>                        											\n';
+		html += '		{{/for}}                                                        											\n';
+		html += '	</' + 'script>                                                      											\n';	
+
+		$("body").append(html);
+	 }
+	,tableScrolling : function(pid, subId) {
+		if(isEmpty(subId)) subId = "";
+		$("#" + pid + " #nonScrollTable" + subId).prop("scrollTop"	, $("#" + pid + " #scrollTable" + subId).prop("scrollTop"	));
+		$("#" + pid + " #topTable"		 + subId).prop("scrollLeft"	, $("#" + pid + " #scrollTable" + subId).prop("scrollLeft"	));
+	 } 
+}
+
+var C_PAGING = {
+	 defaultListRange 	: 10
+	,defaultPageRange 	: 10
+	,listRange			: {}	// 리스트 범위
+	,pageRange			: {}	// Page 범위
+	,listDomId			: {}	// 리스트가 표시되는 Dom Id
+	,pagingDomId		: {}	// Page가 표시되는 Dom Id
+	,queryId			: {}
+	,parmObj			: {}
+	,parmFn				: {}
+	,onPageClickCallback: {}
+	,makeListFn			: {}
+	,create 			: function(parm) {
+		var pageId 		= parm.pageId;
+		var listDomId 	= parm.listDomId;
+		var key = pageId + listDomId;
+		if(isEmpty(parm.listRange)) parm.listRange = C_PAGING.defaultListRange;
+		if(isEmpty(parm.pageRange)) parm.pageRange = C_PAGING.defaultPageRange;
+
+		C_PAGING.listRange				[key] = parm.listRange 			; 
+		C_PAGING.pageRange				[key] = parm.pageRange 			;
+		C_PAGING.listDomId				[key] = parm.listDomId     		;
+		C_PAGING.pagingDomId			[key] = parm.pagingDomId     	;
+		C_PAGING.queryId				[key] = parm.queryId   			;
+		C_PAGING.parmObj				[key] = parm.parmObj		   	;
+		C_PAGING.parmFn					[key] = parm.parmFn			   	;
+		C_PAGING.onPageClickCallback	[key] = parm.onPageClickCallback;
+		C_PAGING.makeListFn				[key] = parm.makeListFn			;
+		
+		C_PAGING.makePageList(pageId, listDomId, 1);
+	 }
+	,goSearch		: function(pageId, listDomId) {
+		C_PAGING.makePageList(pageId, listDomId, 1);
+	 }
+	,makePageList	: function(pageId, listDomId, pageIdx) {
+		var key = pageId + listDomId;
+		
+		var pagingDomId = C_PAGING.pagingDomId[key];
+		
+		var option = {
+			 currentPage	: Number(pageIdx)
+			,listRange		: C_PAGING.listRange[key]
+			,pageRange		: C_PAGING.pageRange[key]
+		}
+		
+		// 호출한 페이지에서 제공하는 Parm을 option에 Setting한다.
+		if(isValid(C_PAGING.parmObj[key])) {
+			option.parm = C_PAGING.parmObj[key];
+		} else if(typeof C_PAGING.parmFn[key] == "function") {
+			option.parm = C_PAGING.parmFn[key]();
+		} else {
+			option.parm = {};
+		}
+		var parm = {
+			 serviceId 	: "CommonService.getPagingList"
+			,requestParm: {
+				 queryId	: C_PAGING.queryId[key]
+				,option 	: option
+			 }
+			,useLoadingBar	: true
+		}
+		C_COM.requestService(parm, function(resultData) {
+			var totalPage = resultData.data.totalPage;
+
+			var maxNextPage 	= Math.floor(totalPage / option.pageRange)
+			var startPageIdx	= Math.floor((pageIdx - 1) / option.pageRange) * option.pageRange + 1
+			var	endPageIdx		= startPageIdx + option.pageRange - 1;
+			if(endPageIdx > totalPage) endPageIdx = totalPage;
+			
+			var prevPageIdx		= startPageIdx 	- 1;
+			var nextPageIdx		= endPageIdx 	+ 1;
+			
+			
+			var pageListHtml	 = "";
+			pageListHtml	 	 = '<div class="paging">';
+			if(pageIdx > 1) {
+				pageListHtml 	+= '	<a href="javascript:C_PAGING.makePageList(\''+pageId+'\', \''+listDomId+'\', 1)">&laquo;</a>';
+			}
+			if(startPageIdx > option.pageRange) {
+				pageListHtml 	+= '	<a href="javascript:C_PAGING.makePageList(\''+pageId+'\', \''+listDomId+'\', '+prevPageIdx+')">Prev</a>';
+			}
+			for(var ii = startPageIdx; ii <= endPageIdx; ii++) {
+				var acrive = "";
+				if(ii == pageIdx) acrive = 'class="active"';
+				pageListHtml 	+= '	<a href="javascript:C_PAGING.makePageList(\''+pageId+'\', \''+listDomId+'\', '+ii+')" '+acrive+'>'+ii+'</a>';
+			}
+			if(endPageIdx < totalPage) {
+				pageListHtml	+= '	<a href="javascript:C_PAGING.makePageList(\''+pageId+'\', \''+listDomId+'\', '+nextPageIdx+')">Next</a>';
+			}
+			if(pageIdx < totalPage) {
+				pageListHtml 	+= '	<a href="javascript:C_PAGING.makePageList(\''+pageId+'\', \''+listDomId+'\', '+totalPage+')">&raquo;</a>';
+			}
+			pageListHtml 		+= '</div>';
+			
+			$("#" + pageId + " #" + pagingDomId).html(pageListHtml);
+			
+			var list = resultData.data.pageList;
+			if(typeof C_PAGING.makeListFn[key] == "function") list = C_PAGING.makeListFn[key](list);
+			
+			var rparm = {
+				 targetId 		: C_PAGING.listDomId[key]
+				,list			: resultData.data.pageList
+			}
+			C_COM.renderHtml(pageId, rparm);
+			
+			if(typeof C_PAGING.onPageClickCallback[key] == "function") C_PAGING.onPageClickCallback[key](resultData.data);
+		});
+	 }
+}
+
+// Table Widht 동적 조절 처리
+// 사용법
+// 사용할 Td에 
+var C_GRID = {
+	 GAP			: 0
+	,MIN_WIDTH		: 30
+	,baseX			: 0
+	,mouseDownState : false
+	,targetTd		: {
+		 leftDomGrp 	: undefined
+		,rightDomGrp	: undefined
+	 }
+	,cell_left 	: function(obj) {
+		if (event.offsetX < 5 && obj.cellIndex != 0) 	return true;
+		else											return false;
+	 }
+	,cell_right : function(obj) {
+		var width = $(obj).css("width").replaceAll("px", "");
+		if (event.offsetX > Number(width) - 4) return true;
+		else return false;
+	 }
+	,setDomInfo : function (domObj) {
+		var itemColspanCnt		= $(domObj  ).attr("colspan");
+		var itemTargetColId		= $(domObj	).attr("targetCol");
+		var itemColDom			= $("#" + itemTargetColId);
+		var itemColWidth		= $("#" + itemTargetColId).css("width");
+		
+		var itemDomGrp			= {};
+		
+		itemColWidth = itemColWidth.replace("%","").replace("px","");
+		if(isValid(itemColspanCnt)) {
+			var colObjArr 	= [itemColDom];
+			var rateArr		= [itemColWidth];
+			
+			var nowDomObj	= itemColDom;
+			var totalRate	= Number(itemColWidth);
+			for(var ii=1;ii<itemColspanCnt;ii++) {
+				nowDomObj = $(nowDomObj).next()[0];
+				colObjArr.push(nowDomObj);
+				var wd = $(nowDomObj).css("width").replace("%","").replace("px","");
+				rateArr  .push(wd);
+				totalRate += Number(wd);
+			}
+			$.each(rateArr, function(idx) {
+				rateArr[idx] = this / totalRate * 100;
+			});
+			itemDomGrp = {
+				 tdDomObj	: domObj
+				,baseWidth	: addPx($(domObj).css("width"), C_GRID.GAP)
+				,colspanCnt	: colObjArr.length
+			 	,colDomArr	: colObjArr
+			 	,rateArr	: rateArr
+			}
+		} else {
+			itemDomGrp = {
+				 tdDomObj	: domObj
+				,baseWidth	: addPx($(domObj).css("width"), C_GRID.GAP)
+				,colspanCnt	: 1
+			 	,colDomArr	: [itemColDom]
+			 	,rateArr	: [100]
+			}
+		}
+		return itemDomGrp;
+	 }
+	,TCstartColResize : function(leftDom, rightDom) {
+		C_GRID.mouseDownState	= true;
+		
+		C_GRID.targetTd.leftDomGrp	= C_GRID.setDomInfo(leftDom);
+		C_GRID.targetTd.rightDomGrp	= C_GRID.setDomInfo(rightDom);
+	 }
+	,TCmoveColResize : function(e) {
+		if (C_GRID.mouseDownState) {
+			var distX = e.pageX - C_GRID.baseX; //이동한 간격
+			
+			if(isValid(C_GRID.targetTd.leftDomGrp) && isValid(C_GRID.targetTd.rightDomGrp)) {
+				var ld_grp 			= C_GRID.targetTd.leftDomGrp;
+				var leftWidth 		= ld_grp.baseWidth;
+				var ajLeftWidth		= addPx(leftWidth	,distX);
+				
+				var rd_grp 			= C_GRID.targetTd.rightDomGrp;
+				var rightWidth 		= rd_grp.baseWidth;
+				var ajRightWidth	= addPx(rightWidth	,-distX);
+				
+				var leftMinWidth	= C_GRID.MIN_WIDTH * ld_grp.colspanCnt;
+				var rightMinWidth	= C_GRID.MIN_WIDTH * rd_grp.colspanCnt;
+				
+				if(pxToInt(ajLeftWidth)  < leftMinWidth) return; 
+				if(pxToInt(ajRightWidth) < rightMinWidth) return; 
+				
+				for(var ii=0;ii<ld_grp.colspanCnt;ii++) {
+					var tint 	= Number(ajLeftWidth.replace("px", ""));
+					var wd 		= Number(ld_grp.rateArr[ii]) * tint / 100;
+					$(ld_grp.colDomArr[ii]).css("width", wd + "px"	);
+				}
+
+				for(var ii=0;ii<rd_grp.colspanCnt;ii++) {
+					var tint 	= Number(ajRightWidth.replace("px", ""));
+					var wd 		= Number(rd_grp.rateArr[ii]) * tint / 100;
+					$(rd_grp.colDomArr[ii]).css("width", wd + "px"	);
+				}
+			}
+		}
+	 }
+	,TCstopColResize : function(e) {
+		C_GRID.mouseDownState 	= false;
+		C_GRID.destroy();
+	 }
+	,destroy : function() {
+		C_GRID.baseX = 0;
+		if(isValid(C_GRID.targetTd.leftDomGrp)) {
+			C_GRID.targetTd.leftDomGrp.tdDomObj.style.cursor = "";
+		}
+		if(isValid(C_GRID.targetTd.rightDomGrp)) {
+			C_GRID.targetTd.rightDomGrp.tdDomObj.style.cursor = "";
+		}
+		C_GRID.targetTd = {};			
+	 }
+	,init : function() {
+		$(window).bind("mousemove",function(e) {
+			try {
+				var tgtElement = window.event.srcElement;
+				var targetCol = $(tgtElement).attr("targetCol");
+				if (isValid(targetCol)) {
+					//셀의 가장자리면 마우스 커서 변경
+					if (C_GRID.cell_left(tgtElement)) {
+						tgtElement.style.cursor = "col-resize";
+					} else if(C_GRID.cell_right(tgtElement)) {
+						var rightDom = $(tgtElement).next()[0];
+						if(isValid(rightDom)) 	tgtElement.style.cursor = "col-resize";
+						else					tgtElement.style.cursor = "";
+					} else {
+						if(!C_GRID.mouseDownState) tgtElement.style.cursor = "";
+					}
+					C_GRID.TCmoveColResize(e);
+				} else {
+					tgtElement.style.cursor = "";
+				}
+			} catch (e) {
+				return true;
+			}
+		});
+		$(window).bind("mousedown",function(e) {
+			try {
+				var tgtElement 	= window.event.srcElement;
+				var leftDom;
+				var rightDom;
+				var targetCol = $(tgtElement).attr("targetCol");
+				if (isValid(targetCol)) {
+					if (C_GRID.cell_left(tgtElement)) {
+						leftDom 	= $(tgtElement).prev()[0];
+						rightDom	= tgtElement;
+					} else if (C_GRID.cell_right(tgtElement)) {
+						leftDom		= tgtElement;
+						rightDom	= $(tgtElement).next()[0];
+					} else {
+						return true;//오른쪽도 왼쪽도 아니면 사이즈 조절 안함
+					}
+					C_GRID.baseX = e.pageX;
+					C_GRID.TCstartColResize(leftDom, rightDom);
+				}
+			} catch (e) {
+				dalert(e.message);
+				return true;
+			}
+		});
+		$(window).bind("mouseup",function(e) {
+			try {
+				var tgtElement = window.event.srcElement;
+				var targetCol = $(tgtElement).attr("targetCol");
+				if (isValid(targetCol)) {
+					C_GRID.TCstopColResize(e);
+				} else {
+					C_GRID.mouseDownState 	= false;
+					C_GRID.destroy();
+				}
+			} catch (e) {
+				C_GRID.mouseDownState 	= false;
+				C_GRID.destroy();
+				return true;
+			}
+		});
+		//리사이즈 도중 텍스트 선택 금지
+		$(document).bind("selectstart", function() {
+			try {
+				if(isValid(C_GRID.targetTd.leftDomGrp) || isValid(C_GRID.targetTd.rightDomGrp)) {
+					return false;
+				}
+			} catch (e) {
+				return true;
+			}
+		});
+	 }
+}
+
+
+// rs render 사용자 정의 function
+//jsrender 사용자 정의 함수
+$.views.converters({
+	 // DateFormat 
+	 dt 	: function(value) {return getDateFormat(value, 8);}								//YYYY-MM-dd HH:mm:ss
+	,numb 	: function(value) {
+		if(typeof value == "string" || typeof value == "number" ) 	return addComma(value);
+		else														return nvl(value, "");
+	 }
+	,fix	: function(value) {
+		if(typeof value == "number") {
+			return value.toFixed(2)
+		} else {
+			return value
+		}
+	 }
+});
+
+
+// 숫자인경우 구두점 넣어서 입력됨, 구두점 제거 후 리턴됨
+$.fn.nval = function(value){
+	if(isValid(value)) {
+		if(isNumber(value)) {
+			$(this).val(addComma(value));
+		} else {
+			$(this).val(value);
+		}
+	} else {
+		var val = $(this).val();
+		if(typeof val == "string") 	return val.replaceAll(",", "");
+		else						return val;
+	}
+};
+
+
+//
+// 최초 공통 설정 사항
+//
+
+
+// Browser 뒤로가기 방지
+
+history.pushState(null, null, location.href);
+
+var dupCheck = false;
+window.onpopstate = function () {
+	if(dupCheck) return;
+	dupCheck = true;
+    history.go(1);
+    C_HM.historyBack();
+    setTimeout(function() {
+    	dupCheck = false;
+    }, 500);
+};
+
+$(function() {
+	C_COM.init();
+	C_UICOM.init();
+	C_GRID.init()
+});

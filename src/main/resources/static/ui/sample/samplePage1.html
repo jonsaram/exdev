@@ -1,0 +1,51 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@pageId> = {
+		callService : function() {
+			var parm = {
+				 serviceId 				: "SampleService.getSample"
+				,requestParm			: {parm : "XXX"}
+			}
+			
+			C_COM.requestService(parm, function(resultData) {
+				dalert(resultData);
+			});
+		 }
+		,callQuery : function() {
+			var parm = {
+				 queryId 		: "Sample.getSample"
+				,requestParm	: {parm : "XXX"}
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				dalert(resultData);
+			});
+		 }
+/*		
+		,openPopup : function() {
+			C_POP.open('popupid', {}, function(retData) {
+				dalert(retData);
+			});
+		 }
+*/		 
+	}
+	// Page Load가 완료된후 실행 된다.
+	C_PM.onLoadPage("<@pageId>", function() {
+
+		//$( "#abc" ).datepicker( "option", "weekHeader", "W" );
+
+	});
+	// History back으로 이동해왔을 경우 이루틴이 실행된다.
+	C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+	});
+</script>
+<div>
+	
+	<a class="a_search" href="javascript:<@pageId>.callService()">call service</a>
+	
+	<br/>
+	<br/>
+
+	<a class="a_search" href="javascript:<@pageId>.callQuery()">call query</a>
+
+</div>

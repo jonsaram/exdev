@@ -1,0 +1,80 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@pageId> = {
+		render : function() {
+			var rparm = {
+				 targetId 		: "tableDomId"
+				,list			: []
+			}
+			C_COM.renderHtml("<@pageId>", rparm);
+		}
+		,afterProcess : function() {
+			var parm = {
+				 serviceId 				: "ProjectService.approvalAfterProcessAboutIssue"
+				,requestParm			: {pjt_id : "XXXX"}
+			}
+			
+			C_COM.requestService(parm, function(resultData) {
+				dalert(resultData);
+			});
+		 }
+		,callQuery : function() {
+			var parm = {
+				 queryId 		: "Common.getDebug"
+				,requestParm	: {sql : "SELECT CONTENT FROM VIST_ESB_MAIL_MASTER WHERE EMAIL_NO = '20210108171008176E10BAF051F2BF2D'"}
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				dwrite(resultData.data[0].CONTENT);
+			});
+		 }
+		,mailTest : function() {
+			var parm = {
+				 serviceId 				: "MailService.requestRegistStatusSendMail"
+				,requestParm			: {}
+			}
+			
+			C_COM.requestService(parm, function(resultData) {
+				dwrite(resultData);
+			});
+		 }
+		,chartUrl : function() {
+			var parm = {
+				 serviceId 				: "SampleService.getSample2"
+				,requestParm			: {pjt_id : "XXXX"}
+			}
+			
+			C_COM.requestService(parm, function(resultData) {
+				dalert(resultData);
+			});
+		 }
+	}
+	// Page Load가 완료된후 실행 된다.
+	C_PM.onLoadPage("<@pageId>", function() {
+		//alert(_WEB_ROOT_URL);		
+	});
+	// History back으로 이동해왔을 경우 이루틴이 실행된다.
+	C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+	});
+</script>
+<div class="conWrap">
+	<!--section -->
+	<section id="bd">
+	<div id="h2i" canvasItem=Y>
+	<@pageId> 페이지입니다1.(s2)<br/><br/>
+	
+	<br/><br/> <a href="javascript:<@pageId>.afterProcess()">과제 후처리</a>
+
+	<br/><br/> <a href="javascript:<@pageId>.callQuery()">Sql Debug</a>
+
+	<br/><br/> <a href="javascript:<@pageId>.mailTest()">Mail Test</a>
+	
+	<br/><br/> <a href="javascript:<@pageId>.chartUrl()">chartUrl</a>
+	
+	<br/><br/> <a href="javascript:C_PM.movePage('sample_highchart')">chart sample</a>
+	
+	</div>
+	
+	</section>
+	<!--//section -->
+</div>

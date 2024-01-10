@@ -1,0 +1,205 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@pageId> = {
+		testChart1 : function() {
+		    Highcharts.chart('container1', {
+		        title: {
+		            text: "계획/실적"
+		        },
+		        exporting: {
+		            buttons : {
+		                contextButton : {
+		                    enabled : false
+		                }
+		            }
+		        },
+		        xAxis: {
+		            categories: ['4', '8', '12', '16', '20', '24', '28', '32', '36', '40', '44', '48', '52', '56', '80', '88', '96']
+		        },
+		        yAxis: {
+		            min: -12,
+		            max: 12,
+		            title: {
+		                text: 'Gap'
+		            }
+		        },
+		        series: [{
+		            type: 'line',
+		            name: 'KP200',
+		            color:'#FF0000',
+		            data:  [1,2,3,4,5,6,7,8] // Max 100
+		        }, {
+		            type: 'line',
+		            name: 'KD150',
+		            color:'#00FF00',
+		            data:  [-1,-2,-1,-2,-1,-2,-1,-2,-1,-2,-1,-2]  // Max 100
+		        }, {
+		            type: 'line',
+		            name: 'T-GAP',
+		            color:'#0000FF',
+		            data:  [-1,2,-1,2,-1,-2,1,-2,-1,-2,-1,-2]  // Max 100
+		        }]
+		    });
+		 }
+		,testChart2 : function() {
+			
+		    Highcharts.chart('container2', {
+		        chart: {
+		            plotBackgroundColor: null,
+		            plotBorderWidth: 0,
+		            plotShadow: false
+		        },
+		        title: {
+		            text: 'SSAIM'
+		        },
+		        exporting: {
+		            buttons : {
+		                contextButton : {
+		                    enabled : false
+		                }
+		            }
+		        },
+		        tooltip: {
+		            pointFormat: '{point.name}: {point.y}<b>({point.percentage:.1f}%)</b>'
+		        },
+		        plotOptions: {
+		            pie: {
+		                dataLabels: {
+		                    enabled: true,
+		                    distance: -30,
+		                    style: {
+		                        fontWeight: 'bold',
+		                        color: 'white'
+		                    }
+		                },
+		                startAngle: 0,
+		                endAngle: 360,
+		                center: ['50%', '50%'],
+		                size: '100%'
+		            }
+		        },
+		        series: [{
+		            type: 'pie',
+		            name: 'Share',
+		            innerSize: '0%',
+		            data: [
+		                ['S', 158],
+		                ['S', 213],
+		                ['A', 130],
+		                ['I', 213],
+		                ['M', 119]
+		            ],
+		            dataLabels: {
+		                formatter: function () {
+		                    return this.y > 1 ? '<b>' + this.point.name + ':</b> ' + this.y + ' 건' : null;
+		                }
+		            }
+		        }]
+		    });
+		 }
+		,testChart3 : function() {
+			var parm = {
+				queryGroup : [
+					 {
+						 queryId 		: "Chart.getProjectChartTgtData"
+						,requestParm	: {pjt_id : "1752fb2c2bf463a92000", kpi_type : "E"}
+					 }
+					,{
+						 queryId 		: "Chart.getProjectChartRecdData"
+						,requestParm	: {pjt_id : "1752fb2c2bf463a92000"}
+					 }
+				]
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				var cTgtList 		= resultData.data["Chart.getProjectChartTgtData"];
+				// Chart List에서 TOTAL정보만 가져옴
+				var totalTgtList 	= fn_searchJsonObjectArray(cTgtList, "PART_CD", "TOTAL", "E");
+				// WK 오름차순으로 정렬
+				totalTgtList.orderBy("YEAR_WEEK", "ASC");
+				
+				var cRecdList 		= resultData.data["Chart.getProjectChartRecdData"];
+				// Chart List에서 TOTAL정보만 가져옴
+				var totalRecdList 	= fn_searchJsonObjectArray(cRecdList, "PART_CD", "TOTAL", "E");
+				// 주차별 정보 Map 형태로 변환
+				totalTgtMap		= arrayToMap(totalRecdList, "WK");
+				
+				var parm = {
+					 targetDomId	: "execChart"
+					,title 			: "실행기준"
+					,categories		: []
+					,unitStr		: "(억원/10K)"
+					,targetList 	: []
+					,realList 		: []
+				}
+				var lastRecd = 0;
+				$.each(totalTgtList, function() {
+					var wk = this.YEAR_WEEK.split(" ")[1];
+					parm.categories	.push(wk);
+					parm.targetList	.push(this.TGT_ACCUMULATED_RECD);
+					var recdMap = totalTgtMap[this.YEAR_WEEK];
+					if(isValid(recdMap) && isValid(recdMap.SUM_SAVE_RECD)) lastRecd = recdMap.SUM_SAVE_RECD;
+					parm.realList	.push(lastRecd);
+				});
+				
+				<@pageId>.showChart(parm);
+			});
+		}
+		,showChart : function(parm) {
+
+			Highcharts.chart(parm.targetDomId, {
+			    chart: {
+			        type: 'line'
+			    },
+			    title: {
+			        text: parm.title
+			    },
+			    xAxis: {
+			        categories: parm.categories
+			    },
+			    yAxis: {
+			    	 title: {
+			    		 rotation : 0
+			    		,x :  40
+			    		,y : -20
+			    		,align : "high"
+			            ,text: parm.unitStr
+			         }
+			    },
+			    plotOptions: {
+			        line: {
+			            dataLabels: {
+			                enabled: true
+			            },
+			            enableMouseTracking: false
+			        }
+			    },
+			    series: [
+			    	 {
+				         name: '목표'
+				       	,color:'#888888'
+				        ,data: parm.targetList
+			    	 }
+			    	,{
+				        name: '실적'
+				        ,data: parm.realList
+			    	 }
+			    ]
+			});
+			
+		 }
+	}
+	// Page Load가 완료된후 실행 된다.
+	C_PM.onLoadPage("<@pageId>", function() {
+		<@pageId>.testChart1();
+	});
+	// History back으로 이동해왔을 경우 이루틴이 실행된다.
+	C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+	});
+</script>
+<div>
+	hichart 입니다.<br/>
+	<div id="execChart" style="min-width: 310px; height: 353px; margin: 5px auto 20px;"></div><br/>		
+	<div id="container1" style="min-width: 310px; height: 353px; margin: 5px auto 20px;"></div><br/>		
+	<div id="container2" style="min-width: 310px; height: 353px; margin: 5px auto 20px;"></div><br/>		
+</div>
