@@ -87,23 +87,39 @@ var C_COM = {
 				,data		: parm
 			}
 			// LoadingBar 사용 옵션 추가 20210219
-			ajaxRequest(sendParm, function(resultData) {
+			
+			if(isValid(callback)) {
+				ajaxRequest(sendParm, function(resultData) {
+					if(resultData.state == "S") {
+						if(typeof callback == "function") callback(resultData);
+					} else {
+						if(resultData.STATUS == "FAIL") {
+							C_POP.alert(resultData.STATUS_MESSAGE);
+							if(resultData.STATUS_MESSAGE == "No Authority Request.") location.reload();
+						} else {
+							if(typeof errCallback == "function") {
+								errCallback(resultData);
+							} else {
+								C_POP.alert(resultData.msg);
+							}
+						}
+						return null;
+					}
+				});
+			} else {
+				var resultData = ajaxRequest(sendParm);
 				if(resultData.state == "S") {
-					if(typeof callback == "function") callback(resultData);
+					return resultData;
 				} else {
 					if(resultData.STATUS == "FAIL") {
 						C_POP.alert(resultData.STATUS_MESSAGE);
 						if(resultData.STATUS_MESSAGE == "No Authority Request.") location.reload();
 					} else {
-						if(typeof errCallback == "function") {
-							errCallback(resultData);
-						} else {
-							C_POP.alert(resultData.msg);
-						}
+						C_POP.alert(resultData.msg);
 					}
 					return null;
 				}
-			});
+			}
 		} catch(e){
 			alert(e);
 		}
@@ -126,23 +142,38 @@ var C_COM = {
 				,data		: parm
 			}
 			
-			ajaxRequest(sendParm, function(resultData) {
+			if(isValid(callback)) {
+				ajaxRequest(sendParm, function(resultData) {
+					if(resultData.state == "S") {
+						if(typeof callback == "function") callback(resultData);
+					} else {
+						if(resultData.STATUS == "FAIL") {
+							C_POP.alert(resultData.STATUS_MESSAGE);
+							if(resultData.STATUS_MESSAGE == "No Authority Request.") location.reload();
+						} else {
+							if(typeof errCallback == "function") {
+								errCallback(resultData);
+							} else {
+								C_POP.alert(resultData.msg);
+							}
+						}
+						return null;
+					}
+				});
+			} else {
+				var resultData = ajaxRequest(sendParm);
 				if(resultData.state == "S") {
-					if(typeof callback == "function") callback(resultData);
+					return resultData;
 				} else {
 					if(resultData.STATUS == "FAIL") {
 						C_POP.alert(resultData.STATUS_MESSAGE);
 						if(resultData.STATUS_MESSAGE == "No Authority Request.") location.reload();
 					} else {
-						if(typeof errCallback == "function") {
-							errCallback(resultData);
-						} else {
-							C_POP.alert(resultData.msg);
-						}
+						C_POP.alert(resultData.msg);
 					}
 					return null;
 				}
-			});
+			}
 		} catch(e){
 
 		}
@@ -275,6 +306,15 @@ var C_COM = {
 				$(this).attr("paste", "Y");
 			});
 		});
+	 }
+	,makeUniqueId : function() {
+		var parm = {
+			 serviceId 				: "ExdevCommonService.makeUniqueId"
+			,requestParm			: {}
+		}
+		
+		var retData = C_COM.requestService(parm);
+		return retData.data.id;
 	 }
 	,registLateFn : function(fnId, fn, waitTime) {
 		C_COM.lateFn[fnId] = fn;
