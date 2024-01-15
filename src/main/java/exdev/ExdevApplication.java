@@ -19,6 +19,14 @@ public class ExdevApplication extends SpringBootServletInitializer {
 	public static void main(String[] args) {
 		//SpringApplication.run(ExdevApplication.class, args);
 		SpringApplication application = new SpringApplication(ExdevApplication.class);
+		
+		//SpringApplication.run(ExdevApplication.class, args);
+//		SpringApplication application = new SpringApplicationBuilder(ExdevApplication.class)
+//											.listeners(new ApplicationPidFileWriter("./application.pid"))
+//											.build();
+		
+		
+		
 		application.run(args);
 	}
 	@Override
