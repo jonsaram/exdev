@@ -31,33 +31,7 @@
 			});
 		 }
 */		 
-		,uploadExcel : function () {
-
-			var fileInput = $('#excelFileInput')[0];
-		    var file = fileInput.files[0];
-
-		    var formData = new FormData();
-		    formData.append('file', file);
-
-		    $.ajax({
-		        url: '/excelService.do',
-		        type: 'POST',
-		        data: formData,
-		        contentType: false,
-		        processData: false,
-		        success: function(response) {
-		        	const data = JSON.parse(response.excelJson);
-		        	let newData = "";
-		        	data.forEach( datum => {
-		        		newData += JSON.stringify(datum) +"<br>";
-		        	})
-		            $("#result").html ( newData );
-		        },
-		        error: function(error) {
-		        	 $("#result").html ( '업로드 실패' );
-		        }
-		    });			
-		}	
+	
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -81,9 +55,5 @@
 	<br/><br/> <a href="javascript:C_PM.movePage('sample_highchart')">chart sample</a>
 	
 	<br/><br/> <a href="javascript:C_PM.movePage('sample_dateweek')">dateweek</a>
-	
-	<input type="file" id="excelFileInput" />
-    <button onclick="<@pageId>.uploadExcel()">Upload</button>
-	<div id="result"/>
 
 </div>

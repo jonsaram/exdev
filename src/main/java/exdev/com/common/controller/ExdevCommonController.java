@@ -160,15 +160,16 @@ public class ExdevCommonController {
 
             Gson gson = new Gson();
             String json = gson.toJson(excelDataMapList);
-            resultMap.put("msg","S");
-    		resultMap.put("excelJson",json);
+            resultMap.put("msg","");
+    		resultMap.put("data",json);
+            resultMap.put("state","S");
     		
             return resultMap;
             
         } catch (Exception e) {
             e.printStackTrace();
-            resultMap.put("msg","E");
-    		resultMap.put("err","ERROR");
+            resultMap.put("msg","");
+            resultMap.put("state","");
 
             return resultMap;
         }
