@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 package exdev.com.common.controller;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.google.gson.Gson;
 
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.service.ExdevCommonService;
@@ -105,5 +111,66 @@ public class ExdevCommonController {
 //		
 //		return resultMap;
 		return null;
+	}
+	
+
+	@SuppressWarnings({ "unused", "rawtypes" })
+	@RequestMapping("/excelService.do")
+	public @ResponseBody Map ExcelService(@RequestParam("file") MultipartFile file,HttpSession session) throws Exception {
+		
+		SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
+		Map map = new HashMap();
+		map.put("sessionVo", sessionVo);
+		map.put("filename", file.getOriginalFilename());
+
+		Map resultMap = new HashMap();
+		resultMap.put("msg",null);
+				
+	  try {
+
+            Workbook workbook = WorkbookFactory.create(file.getInputStream());
+
+            Sheet sheet = workbook.getSheetAt(0);
+            
+            List<Map<String, Object>> excelDataMapList = new ArrayList<>();
+            List<String> headerList = new ArrayList<>();
+            boolean headerRow = true;
+            
+            for (Row row : sheet) {
+            	Map<String,Object> cellMap = new HashMap();
+            	if( headerRow) {
+           
+                    for (Cell cell : row) {
+                        System.out.print(cell.toString() + "\t");
+                        headerList.add(cell.toString()); 
+                    }
+            		headerRow=false;
+            	}else {
+
+            		for (Cell cell : row) {
+            			System.out.print(cell.toString() + "\t");
+            			cellMap.put(headerList.get(cell.getColumnIndex()), cell.toString());
+            		}
+            		excelDataMapList.add( cellMap);
+            	}
+            	System.out.println();
+            }
+
+            workbook.close();
+
+            Gson gson = new Gson();
+            String json = gson.toJson(excelDataMapList);
+            resultMap.put("msg","S");
+    		resultMap.put("excelJson",json);
+    		
+            return resultMap;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("msg","E");
+    		resultMap.put("err","ERROR");
+
+            return resultMap;
+        }
 	}
 }
