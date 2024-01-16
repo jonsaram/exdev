@@ -142,6 +142,16 @@ public class ExdevCommonService extends ExdevBaseService
 		return pageInfo;
 	}
 
+	public Object makeUniqueId(Map map) throws Exception {
+		
+		String id = ExdevCommonAPI.makeUniqueID(16);
+		
+		map.put("id", id);
+		
+		return map;
+	}
+	
+	
 
 	//	@Scheduled(cron = "* * * * * ?") // 매월 15일 오전 10시 15분에 실행
 //	public void batchClearRealTimeTable() {

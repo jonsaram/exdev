@@ -26,7 +26,7 @@ public class ExdevSampleService extends ExdevBaseService{
 		List<Map> list = commonDao.getList("Sample.getSample", map);
 		
 		map.put("list", list);
-		
+		System.out.println("ExdevSampleService.getSample 11");
 		return map;
 	}
 }

@@ -3,7 +3,7 @@
 	var <@pageId> = {
 		callService : function() {
 			var parm = {
-				 serviceId 				: "SampleService.getSample"
+				 serviceId 				: "ExdevSampleService.getSample"
 				,requestParm			: {parm : "XXX"}
 			}
 			
@@ -20,6 +20,10 @@
 				dalert(resultData);
 			});
 		 }
+		,makeUniqueId : function() {
+			var id = C_COM.makeUniqueId();
+			alert(id);
+		 }
 /*		
 		,openPopup : function() {
 			C_POP.open('popupid', {}, function(retData) {
@@ -27,6 +31,7 @@
 			});
 		 }
 */		 
+	
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -41,11 +46,14 @@
 </script>
 <div>
 	
-	<a class="a_search" href="javascript:<@pageId>.callService()">call service</a>
+	<br/><br/> <a class="a_search" href="javascript:<@pageId>.callService()">call service</a>
 	
-	<br/>
-	<br/>
+	<br/><br/> <a class="a_search" href="javascript:<@pageId>.callQuery()">call query</a>
 
-	<a class="a_search" href="javascript:<@pageId>.callQuery()">call query</a>
+	<br/><br/> <a class="a_search" href="javascript:<@pageId>.makeUniqueId()">make Unique Id</a>
+
+	<br/><br/> <a href="javascript:C_PM.movePage('sample_highchart')">chart sample</a>
+	
+	<br/><br/> <a href="javascript:C_PM.movePage('sample_dateweek')">dateweek</a>
 
 </div>

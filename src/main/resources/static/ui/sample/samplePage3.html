@@ -1,0 +1,19 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@pageId> = {
+        
+	}
+	// Page Load가 완료된후 실행 된다.
+	C_PM.onLoadPage("<@pageId>", function(parm) {
+		dalert(parm);
+		const id = crypto.randomUUID(); 
+		dalert(id);
+	});
+	// History back으로 이동해왔을 경우 이루틴이 실행된다.
+	C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+	});
+</script>
+<div>
+	Page 내용 <@test1>
+</div>
