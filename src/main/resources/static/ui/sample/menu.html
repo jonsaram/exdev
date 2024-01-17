@@ -8,7 +8,7 @@ var <@pageId> = {
 
 				var parm = {
 					 queryId 		: "admin.getMenuList"
-					,requestParm	: {}
+					,requestParm	: {USE_YN:'Y'}
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 
@@ -43,6 +43,7 @@ var <@pageId> = {
 				
 				const valuesArray = updateItems.map(function() {
 					if( this.name == "MENU_ID" && this.value =="" )this.value = menuId;
+					if( this.name == "USE_YN" && this.value =="" )this.value = "Y";
 				    return { name: this.name, value: ""+$(this).val() };
 				}).get();
 				valuesArray.forEach(function(item) {
@@ -89,19 +90,19 @@ var <@pageId> = {
 		        $("#menuList").on('click', 'tr', function () {
 		            const rowId = $(this)[0].id;
 		            if (rowId) {
-		            	const tds = $("#menuList>#"+rowId+" td");
-		            	if( tds ){
-		            		$(tds).each( (idx,td) => {
-		            			const name = td.getAttribute("id");
-		            			const value = td.getAttribute("value");
-		            			$("#<@pageId>_updateItems input").each((idx,obj)=>{
-		            				if(obj.name == name){
-		            					obj.value = value;
-		            				}
-		            			})
-		            		})
-		            	}
+	            		$($("#menuList>#"+rowId+" td")).each( (idx,td) => {
+	            			const name = td.getAttribute("id");
+	            			const value = td.getAttribute("value");
+	            			$("#<@pageId>_updateItems input").each((idx,obj)=>{
+				  				if(obj.name == name){
+				  					obj.value = value;
+				  				}
+	            			})
+	            		})
 		            }
+		            
+		            const parentMenuSelect = $("select[name='PARENT_MENU_ID']");
+	            	parentMenuSelect.prop("disabled", $("#<@pageId>_updateItems input[name='MENU_DEPTH']").val() == "0");
 		        });		
    				
    			    $("select[name='PARENT_MENU_ID']").on('change', function() {
@@ -156,35 +157,129 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
     .side {
         display: flex;
         align-items: center;
-        margin-bottom: 10px; 
+        margin-bottom: 10px;
+        flex-wrap: wrap;
     }
 
-    .button {
-        margin-left: 10px; 
+    button {
+        margin-top: 10px;
+        background-color: #555; 
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 5px;
+    }
+
+    button:hover {
+        background-color: #333; /* 더 어두운 회색 계열 */
+    }
+
+    .tb {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .tb th, .tb td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .tb th {
+        background-color: #f2f2f2;
+    }
+
+    .tb tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .side input,
+    .side select,
+    .side button {
+        margin: 5px;
+        padding: 8px;
+    }
+
+    .side select {
+        width: 150px;
+    }
+
+    .side button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .side button:hover {
+        background-color: #45a049;
+    }
+
+    .tb tr td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        position: relative;
+    }
+    
+    .tb tr td:hover {
+        overflow: visible;
+    }
+
+    .tb tr td span.tooltip {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 5px;
+        z-index: 100000;
+        bottom: 30%;
+        left: 0;
+        width: max-content;
+        
+    }
+
+    .tb tr td:hover .tooltip {
+        display: block;
+        overflow: visible;
     }
 </style>
+
 
 <div>
      <div class='side' id='<@pageId>_updateItems'>
 					<input type='hidden' name='MENU_ID' > 
 		MENU NM : 	<input type='text' name='MENU_NM' > 
-		MENU_DEPTH:	<input type='text' name='MENU_DEPTH' readonly style='background-color:rgb(200, 200, 200)'> 
+		MENU_DEPTH:	<input type='text' name='MENU_DEPTH' readonly style='background-color:#F2F2F2'> 
 		MENU DESC : <input type='text' name='MENU_DESC' > 
 		PAGE ID : 	<input type='text' name='PAGE_ID' >
 		PARENT MENU :<select id="PARENT_MENU_ID" name="PARENT_MENU_ID"/>
-
-	     <button id='<@pageId>_insertMenu'>추가</button>
-	     <button id='<@pageId>_deleteMenu'>삭제</button>
-	     <button id='<@pageId>_saveMenu'>저장</button>
+					<input type='hidden' name='USE_YN' value="Y">
      </div>
-           <table>
+	     <button id='<@pageId>_insertMenu'	>추가</button>
+	     <button id='<@pageId>_deleteMenu'	>삭제</button>
+	     <button id='<@pageId>_saveMenu'	>저장</button>
+           <table class='tb'>
              <thead>
                  <tr>
-                     <th>ck</th>
-                     <th>#번호</th>
+                     <th style='width:20px;'>ck</th>
+                     <th style='width:50px;'>#번호</th>
                      <th>MENU_ID</th>
-                     <th>MENU_NM</th>
-                     <th>PARENT_MENU_ID</th>
+                     <th style='width:150px;'>MENU_NM</th>
+                     <th style='width:150px;'>PARENT_MENU_ID</th>
                      <th>MENU_DEPTH</th>
                      <th>MENU_DESC</th>
                      <th>PAGE_ID</th>
@@ -198,15 +293,15 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				{{for list}}
 				<tr id="menuId_{{:#index}}">
  					<td><input type='checkbox' id="<@pageId>.ck_{{:#index}}" value='{{:MENU_ID}}'></td>
- 					<td id='index' value='{{:#index}}'>#{{:#index}}</td>
- 					<td id='MENU_ID' value='{{:MENU_ID}}' style='width:100px'>{{:MENU_ID}}</td>
- 					<td id='MENU_NM' value='{{:MENU_NM}}'>{{:MENU_NM}}</td>
- 					<td id='PARENT_MENU_ID' value='{{:PARENT_MENU_ID}}'>{{:PARENT_MENU_ID}}</td>
- 					<td id='MENU_DEPTH' value='{{:MENU_DEPTH}}'>{{:MENU_DEPTH}}</td>
- 					<td id='MENU_DESC' value='{{:MENU_DESC}}'>{{:MENU_DESC}}</td>
- 					<td id='PAGE_ID' value='{{:PAGE_ID}}'>{{:PAGE_ID}}</td>
- 					<td id='UPDATE_USER' value='{{:UPDATE_USER}}'>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE' value='{{:UPDATE_DATE}}'>{{:UPDATE_DATE}}</td>
+ 					<td id='index' 			value='{{:#index}}'		>#{{:#index}}	</td>
+ 					<td id='MENU_ID' 		value='{{:MENU_ID}}'	><span  class="tooltip">{{:MENU_ID}}</span>{{:MENU_ID}}</td>
+ 					<td id='MENU_NM' 		value='{{:MENU_NM}}'	><span  class="tooltip">{{:MENU_NM}}</span>{{:MENU_NM}}	</td>
+ 					<td id='PARENT_MENU_ID' value='{{:PARENT_MENU_ID}}'><span  class="tooltip">{{:PARENT_MENU_ID}}</span>{{:PARENT_MENU_ID}}</td>
+ 					<td id='MENU_DEPTH' 	value='{{:MENU_DEPTH}}'	><span  class="tooltip">{{:MENU_DEPTH}}</span>{{:MENU_DEPTH}}</td>
+ 					<td id='MENU_DESC' 		value='{{:MENU_DESC}}'	><span  class="tooltip">{{:MENU_DESC}}</span>{{:MENU_DESC}}	</td>
+ 					<td id='PAGE_ID' 		value='{{:PAGE_ID}}'	><span  class="tooltip">{{:PAGE_ID}}</span>{{:PAGE_ID}}	</td>
+ 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'><span  class="tooltip">{{:UPDATE_USER}}</span>{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE' 	value='{{:UPDATE_DATE}}'><span  class="tooltip">{{:UPDATE_DATE}}</span>{{:UPDATE_DATE}}</td>
 				</tr>
 				{{/for}}
 </script>

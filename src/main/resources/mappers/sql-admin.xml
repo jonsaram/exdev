@@ -10,11 +10,16 @@
 		/*	admin.getMenuList
 			메뉴 리스트 조회 
 		*/
-		SELECT MENU_ID
+		SELECT MENU_ID 
 		,MENU_NM,PARENT_MENU_ID,MENU_DEPTH
-		,MENU_DESC,PAGE_ID,UPDATE_USER,TO_DATE( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+		,MENU_DESC,PAGE_ID
+		,USE_YN
+		,UPDATE_USER
+		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
 		FROM ADMIN.TBL_EXP_MENU 
 		WHERE 1 = 1
+		AND USE_YN = NVL( #{USE_YN}, 'Y')
+		ORDER BY SORT_ORDER
 	</select>
 	
 	<update id="updateMenu" parameterType="java.util.HashMap"  >
@@ -29,6 +34,18 @@
 		         #{MENU_DEPTH} AS MENU_DEPTH,
 		         #{MENU_DESC} AS MENU_DESC,
 		         #{PAGE_ID} AS PAGE_ID,
+		        <if test="USE_YN != null">
+		         NVL(#{USE_YN},'Y') AS USE_YN,
+		        </if>
+		        <if test="USE_YN == null">
+		         'Y' AS USE_YN,
+		        </if>
+		        <if test="SORT_ORDER != null">
+		         TO_NUMBER(#{SORT_ORDER}) AS SORT_ORDER,
+		        </if>
+		        <if test="SORT_ORDER == null">
+		         100 AS SORT_ORDER,
+		        </if>
 		         'admin' AS UPDATE_USER,
 		         SYSDATE AS UPDATE_DATE
 		  FROM dual
@@ -41,11 +58,13 @@
 		    T.MENU_DEPTH = S.MENU_DEPTH,
 		    T.MENU_DESC = S.MENU_DESC,
 		    T.PAGE_ID = S.PAGE_ID,
+		    T.USE_YN = S.USE_YN,
+		    T.SORT_ORDER = S.SORT_ORDER,
 		    T.UPDATE_USER = S.UPDATE_USER,
 		    T.UPDATE_DATE = S.UPDATE_DATE
 		WHEN NOT MATCHED THEN 
-		  INSERT (  MENU_ID,   MENU_NM,   PARENT_MENU_ID,   MENU_DEPTH,   MENU_DESC,   PAGE_ID,   UPDATE_USER,   UPDATE_DATE)
-		  VALUES (S.MENU_ID, S.MENU_NM, S.PARENT_MENU_ID, S.MENU_DEPTH, S.MENU_DESC, S.PAGE_ID, S.UPDATE_USER, S.UPDATE_DATE)
+		  INSERT (  MENU_ID,   MENU_NM,   PARENT_MENU_ID,   MENU_DEPTH,   MENU_DESC,   PAGE_ID,   USE_YN,   SORT_ORDER,   UPDATE_USER,   UPDATE_DATE)
+		  VALUES (S.MENU_ID, S.MENU_NM, S.PARENT_MENU_ID, S.MENU_DEPTH, S.MENU_DESC, S.PAGE_ID, S.USE_YN, S.SORT_ORDER, S.UPDATE_USER, S.UPDATE_DATE)
 	</update>
 	
 	<delete id="deleteMenu" parameterType="java.util.HashMap"  >
