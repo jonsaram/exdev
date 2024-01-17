@@ -106,13 +106,13 @@ var <@pageId> = {
 		        });		
    				
    			    $("select[name='PARENT_MENU_ID']").on('change', function() {
-					debugger;
+
    			        const selectedValue = $(this).val();
    			        console.log("Selected PARENT_MENU_ID value: " + selectedValue);
    			        
    			     	<@pageId>.menuList.forEach( menu => {
    			     		if( menu.MENU_ID == selectedValue){
-   			     			debugger;
+
    			     			$("#<@pageId>_updateItems input[name='PARENT_MENU_ID']").val(menu.MENU_ID);
    			     			const menuDept = Number(menu.MENU_DEPTH) + 1;
    			     			$("#<@pageId>_updateItems input[name='MENU_DEPTH']").val(menuDept);
