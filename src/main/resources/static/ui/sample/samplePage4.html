@@ -5,7 +5,7 @@
 		,filesArr : []
 		,uploadMultiFile : function () {
 
-		    var groupId = $("#groupId").val();
+		    var groupId = $("#<@pageId> #groupId").val();
 		    alert("groupId =>"+groupId);
 		    
 		    if (groupId.length < 1) {
@@ -15,7 +15,8 @@
 		    }
 		    
 		    // 폼데이터 담기
-		    var form = document.querySelector("form");
+		    var form = document.querySelector("#<@pageId> form");
+		    
 		    var formData = new FormData(form);
 		    
 		    for (var i = 0; i < <@pageId>.filesArr.length; i++) {
@@ -73,14 +74,15 @@
 		            htmlData += '   <p class="name">' + file.name + '</p>';
 		            htmlData += '   <a class="delete" onclick="<@pageId>.deleteFile(' + <@pageId>.fileNo + ');"><i class="far fa-minus-square"></i></a>';
 		            htmlData += '</div>';
-		            $('.file-list').append(htmlData);
+		            $('#<@pageId> .file-list').append(htmlData);
 		            <@pageId>.fileNo++;
 		        } else {
 		            continue;
 		        }
 		    }
 		    // 초기화
-		    document.querySelector("input[type=file]").value = "";
+		    //document.querySelector("input[type=file]").value = "";
+		    $("#<@pageId> input[type=file]").val("");
 		 }
 		/* 첨부파일 검증 */
 		,validation : function(obj){
@@ -103,7 +105,7 @@
 		 }
 		/* 첨부파일 삭제 */
 		,deleteFile : function(num) {
-		    document.querySelector("#file" + num).remove();
+		    $("#<@pageId> #file" + num).remove();
 		    <@pageId>.filesArr[num].is_delete = true;
 		 }
 	}
@@ -122,7 +124,7 @@
 </script>
 <div>
 	<div class="insert">
-	    <form method="POST" onsubmit="return false;" enctype="multipart/form-data">
+	    <form method="POST" id="theForm" onsubmit="return false;" enctype="multipart/form-data">
 	        파일그룹 ID : <input type="text" name="groupId" id="groupId"><br>
 	        <input type="file" onchange="<@pageId>.addFile(this);" multiple />
 	        <div class="file-list"></div>
