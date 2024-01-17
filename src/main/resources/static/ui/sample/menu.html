@@ -1,0 +1,174 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+var <@pageId> = {
+			
+		selectedCheck : []
+		,adminMenu : () => {
+
+				var parm = {
+					 queryId 		: "admin.getMenuList"
+					,requestParm	: {}
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+
+					var rparm = {
+							 targetId 		: "menuList"
+							,list			: resultData.data
+						}
+				
+					C_COM.renderHtml("<@pageId>", rparm);
+					
+  					$("#<@pageId>_updateItems input").each( (idx, obj) => {
+						$(obj).val("");
+					});  
+					
+					<@pageId>.setHandler();
+				});
+								
+		}
+		,updateMenu : (menuId) => {
+				
+				const requestParm = {};
+				const updateItems = $("#<@pageId>_updateItems input");
+				
+				const valuesArray = updateItems.map(function() {
+					if( this.name == "MENU_ID" && this.value =="" )this.value = menuId;
+				    return { name: this.name, value: ""+$(this).val() };
+				}).get();
+				valuesArray.forEach(function(item) {
+					requestParm[item.name] = item.value;
+				});
+				
+				var parm = {
+						 queryId 		: "admin.updateMenu"
+						,requestParm	: requestParm
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					if( resultData.state == 'S'){
+						<@pageId>.adminMenu();
+						alert("메뉴 입력 성공");
+					}				
+				});
+		}  
+		,deleteMenu : (item) => {
+
+				var parm = {
+						 queryId 		: "admin.deleteMenu"
+						,requestParm	: {"MENU_ID":item}
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					if( resultData.state == 'S'){
+						<@pageId>.adminMenu();
+						alert("메뉴 삭제 성공")
+					}				
+				});				
+		}  
+		,setHandler : () => {
+				
+   				$("[id^='<@pageId>.ck_']").on('change', function () {
+
+					const checkedCheckboxes = $("[id^='<@pageId>.ck_']:checked");
+					if( checkedCheckboxes && checkedCheckboxes.length>0){
+				        <@pageId>.selectedCheck = [];
+				        checkedCheckboxes.each(function() {
+				            <@pageId>.selectedCheck.push($(this).val());
+				        });
+					}
+				})   
+		}
+}
+
+// Page Load가 완료된후 실행 된다.
+C_PM.onLoadPage("<@pageId>", function(parm) {
+
+		<@pageId>.adminMenu();
+			
+		//추가/저장 버튼		
+		$('#<@pageId>_insertMenu,#<@pageId>_saveMenu').on('click', function (e) {
+		
+			const id = "DDXXFDSFDdFSDFS" ;//crypto.randomUUID(); 
+			<@pageId>.updateMenu(id);
+		})
+		
+		//삭제 버튼		
+		$('#<@pageId>_deleteMenu').on('click', function (e) {
+		
+			<@pageId>.selectedCheck.forEach( item =>
+				<@pageId>.deleteMenu(item)
+			)
+		}) 
+		
+});
+	
+// History back으로 이동해왔을 경우 이루틴이 실행된다.
+C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+});
+</script>
+<style>
+    .side {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px; 
+    }
+
+    .button {
+        margin-left: 10px; 
+    }
+</style>
+
+<div>
+     <div class='side' id='<@pageId>_updateItems'>
+					<input type='hidden' name='MENU_ID' > 
+		MENU NM : 	<input type='text' name='MENU_NM' > 
+					<input type='hidden' name='PARENT_MENU_ID' > 
+					<input type='hidden' name='MENU_DEPTH' > 
+		MENU DESC : <input type='text' name='MENU_DESC' > 
+		PAGE ID : 	<input type='text' name='PAGE_ID' >
+
+	     <button id='<@pageId>_insertMenu'>추가</button>
+	     <button id='<@pageId>_updateMenu'>수정</button>
+	     <button id='<@pageId>_deleteMenu'>삭제</button>
+	     <button id='<@pageId>_saveMenu'>저장</button>
+     </div>
+           <table>
+             <thead>
+                 <tr>
+                     <th>ck</th>
+                     <th>#번호</th>
+                     <th>MENU_ID</th>
+                     <th>MENU_NM</th>
+                     <th>PARENT_MENU_ID</th>
+                     <th>MENU_DEPTH</th>
+                     <th>MENU_DESC</th>
+                     <th>PAGE_ID</th>
+                     <th>UPDATE_USER</th>
+                     <th>UPDATE_DATE</th>
+                 </tr>
+             </thead>
+             <tbody id="menuList">
+             </tbody>
+<script type="text/x-jsrender" id="menuList_template">	
+				{{for list}}
+				<tr id="menuId_{{:#index}}">
+ 					<td><input type='checkbox' id="<@pageId>.ck_{{:#index}}" value='{{:MENU_ID}}'></td>
+ 					<td>#{{:#index}}</td>
+ 					<td>{{:MENU_ID}}</td>
+ 					<td>{{:MENU_NM}}</td>
+ 					<td>{{:PARENT_MENU_ID}}</td>
+ 					<td>{{:MENU_DEPTH}}</td>
+ 					<td>{{:MENU_DESC}}</td>
+ 					<td>{{:PAGE_ID}}</td>
+ 					<td>{{:UPDATE_USER}}</td>
+ 					<td>{{:UPDATE_DATE}}</td>
+				</tr>
+				{{/for}}
+</script>
+<script type="text/x-jsrender" id="menuList_noData_template">	
+				<tr>	
+					<td colspan=7>자료가 없습니다.</td>	
+				</tr>
+</script>
+           </table>
+    </div>
+</div>

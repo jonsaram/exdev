@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="admin">
+
+	<cache />
+	
+	<select id="getMenuList" resultType="java.util.HashMap">
+		/*	admin.getMenuList
+			메뉴 리스트 조회 
+		*/
+		SELECT MENU_ID,MENU_NM,PARENT_MENU_ID,MENU_DEPTH
+		,MENU_DESC,PAGE_ID,UPDATE_USER,TO_DATE( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+		FROM ADMIN.TBL_EXP_MENU 
+		WHERE 1 = 1
+	</select>
+	
+	<update id="updateMenu" parameterType="java.util.HashMap"  >
+		/*	admin.updateMenu
+			메뉴 저장
+		*/
+		MERGE INTO ADMIN.TBL_EXP_MENU T
+		USING (
+		  SELECT #{MENU_ID} AS MENU_ID,
+		         #{MENU_NM} AS MENU_NM,
+		         #{PARENT_MENU_ID} AS PARENT_MENU_ID,
+		         #{MENU_DEPTH} AS MENU_DEPTH,
+		         #{MENU_DESC} AS MENU_DESC,
+		         #{PAGE_ID} AS PAGE_ID,
+		         'admin' AS UPDATE_USER,
+		         SYSDATE AS UPDATE_DATE
+		  FROM dual
+		) S
+		ON (T.MENU_ID = S.MENU_ID)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.MENU_NM = S.MENU_NM,
+		    T.PARENT_MENU_ID = S.PARENT_MENU_ID,
+		    T.MENU_DEPTH = S.MENU_DEPTH,
+		    T.MENU_DESC = S.MENU_DESC,
+		    T.PAGE_ID = S.PAGE_ID,
+		    T.UPDATE_USER = S.UPDATE_USER,
+		    T.UPDATE_DATE = S.UPDATE_DATE
+		WHEN NOT MATCHED THEN 
+		  INSERT (  MENU_ID,   MENU_NM,   PARENT_MENU_ID,   MENU_DEPTH,   MENU_DESC,   PAGE_ID,   UPDATE_USER,   UPDATE_DATE)
+		  VALUES (S.MENU_ID, S.MENU_NM, S.PARENT_MENU_ID, S.MENU_DEPTH, S.MENU_DESC, S.PAGE_ID, S.UPDATE_USER, S.UPDATE_DATE)
+	</update>
+	
+	<delete id="deleteMenu" parameterType="java.util.HashMap"  >
+		/*	admin.deleteMenu
+			메뉴 삭제
+		*/
+		DELETE FROM ADMIN.TBL_EXP_MENU 
+		WHERE MENU_ID = #{MENU_ID} 
+	</delete>
+</mapper>
