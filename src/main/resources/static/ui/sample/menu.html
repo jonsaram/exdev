@@ -1,8 +1,9 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@pageId> = {
-			
-		selectedCheck : []
+		
+		menuList : []	
+		,selectedCheck : []
 		,adminMenu : () => {
 
 				var parm = {
@@ -11,6 +12,8 @@ var <@pageId> = {
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 
+					<@pageId>.menuList = resultData.data;
+					
 					var rparm = {
 							 targetId 		: "menuList"
 							,list			: resultData.data
@@ -21,6 +24,13 @@ var <@pageId> = {
   					$("#<@pageId>_updateItems input").each( (idx, obj) => {
 						$(obj).val("");
 					});  
+  					
+  					$("#PARENT_MENU_ID option").remove();
+  					const parentOption = resultData.data.filter( option => option.MENU_DEPTH == 0);
+  					$("#PARENT_MENU_ID").append("<option value=''>Select Parent Menu</option>");
+  					parentOption.forEach(menu => {
+  						$("#PARENT_MENU_ID").append("<option value='" + menu.MENU_ID + "'>" + menu.MENU_DESC + "</option>");
+  					});
 					
 					<@pageId>.setHandler();
 				});
@@ -29,7 +39,7 @@ var <@pageId> = {
 		,updateMenu : (menuId) => {
 				
 				const requestParm = {};
-				const updateItems = $("#<@pageId>_updateItems input");
+				const updateItems = $("#<@pageId>_updateItems input,#<@pageId>_updateItems select");
 				
 				const valuesArray = updateItems.map(function() {
 					if( this.name == "MENU_ID" && this.value =="" )this.value = menuId;
@@ -46,7 +56,7 @@ var <@pageId> = {
 				C_COM.requestQuery(parm, function(resultData) {
 					if( resultData.state == 'S'){
 						<@pageId>.adminMenu();
-						alert("메뉴 입력 성공");
+						alert("메뉴 저장 성공");
 					}				
 				});
 		}  
@@ -75,7 +85,44 @@ var <@pageId> = {
 				        });
 					}
 				})   
+				
+		        $("#menuList").on('click', 'tr', function () {
+		            const rowId = $(this)[0].id;
+		            if (rowId) {
+		            	const tds = $("#menuList>#"+rowId+" td");
+		            	if( tds ){
+		            		$(tds).each( (idx,td) => {
+		            			const name = td.getAttribute("id");
+		            			const value = td.getAttribute("value");
+		            			$("#<@pageId>_updateItems input").each((idx,obj)=>{
+		            				if(obj.name == name){
+		            					obj.value = value;
+		            				}
+		            			})
+		            		})
+		            	}
+		            }
+		        });		
+   				
+   			    $("select[name='PARENT_MENU_ID']").on('change', function() {
+					debugger;
+   			        const selectedValue = $(this).val();
+   			        console.log("Selected PARENT_MENU_ID value: " + selectedValue);
+   			        
+   			     	<@pageId>.menuList.forEach( menu => {
+   			     		if( menu.MENU_ID == selectedValue){
+   			     			debugger;
+   			     			$("#<@pageId>_updateItems input[name='PARENT_MENU_ID']").val(menu.MENU_ID);
+   			     			const menuDept = Number(menu.MENU_DEPTH) + 1;
+   			     			$("#<@pageId>_updateItems input[name='MENU_DEPTH']").val(menuDept);
+   			     			
+   			     			
+   			     		}
+   			     	})
+   			    });   				
+   				
 		}
+
 }
 
 // Page Load가 완료된후 실행 된다.
@@ -86,7 +133,7 @@ C_PM.onLoadPage("<@pageId>", function(parm) {
 		//추가/저장 버튼		
 		$('#<@pageId>_insertMenu,#<@pageId>_saveMenu').on('click', function (e) {
 		
-			const id = "DDXXFDSFDdFSDFS" ;//crypto.randomUUID(); 
+			const id = "dontWork" ;//crypto.randomUUID(); 
 			<@pageId>.updateMenu(id);
 		})
 		
@@ -121,13 +168,12 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
      <div class='side' id='<@pageId>_updateItems'>
 					<input type='hidden' name='MENU_ID' > 
 		MENU NM : 	<input type='text' name='MENU_NM' > 
-					<input type='hidden' name='PARENT_MENU_ID' > 
-					<input type='hidden' name='MENU_DEPTH' > 
+		MENU_DEPTH:	<input type='text' name='MENU_DEPTH' readonly style='background-color:rgb(200, 200, 200)'> 
 		MENU DESC : <input type='text' name='MENU_DESC' > 
 		PAGE ID : 	<input type='text' name='PAGE_ID' >
+		PARENT MENU :<select id="PARENT_MENU_ID" name="PARENT_MENU_ID"/>
 
 	     <button id='<@pageId>_insertMenu'>추가</button>
-	     <button id='<@pageId>_updateMenu'>수정</button>
 	     <button id='<@pageId>_deleteMenu'>삭제</button>
 	     <button id='<@pageId>_saveMenu'>저장</button>
      </div>
@@ -152,15 +198,15 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				{{for list}}
 				<tr id="menuId_{{:#index}}">
  					<td><input type='checkbox' id="<@pageId>.ck_{{:#index}}" value='{{:MENU_ID}}'></td>
- 					<td>#{{:#index}}</td>
- 					<td>{{:MENU_ID}}</td>
- 					<td>{{:MENU_NM}}</td>
- 					<td>{{:PARENT_MENU_ID}}</td>
- 					<td>{{:MENU_DEPTH}}</td>
- 					<td>{{:MENU_DESC}}</td>
- 					<td>{{:PAGE_ID}}</td>
- 					<td>{{:UPDATE_USER}}</td>
- 					<td>{{:UPDATE_DATE}}</td>
+ 					<td id='index' value='{{:#index}}'>#{{:#index}}</td>
+ 					<td id='MENU_ID' value='{{:MENU_ID}}' style='width:100px'>{{:MENU_ID}}</td>
+ 					<td id='MENU_NM' value='{{:MENU_NM}}'>{{:MENU_NM}}</td>
+ 					<td id='PARENT_MENU_ID' value='{{:PARENT_MENU_ID}}'>{{:PARENT_MENU_ID}}</td>
+ 					<td id='MENU_DEPTH' value='{{:MENU_DEPTH}}'>{{:MENU_DEPTH}}</td>
+ 					<td id='MENU_DESC' value='{{:MENU_DESC}}'>{{:MENU_DESC}}</td>
+ 					<td id='PAGE_ID' value='{{:PAGE_ID}}'>{{:PAGE_ID}}</td>
+ 					<td id='UPDATE_USER' value='{{:UPDATE_USER}}'>{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE' value='{{:UPDATE_DATE}}'>{{:UPDATE_DATE}}</td>
 				</tr>
 				{{/for}}
 </script>
