@@ -26,4 +26,7 @@ public class ExdevCommonDao {
 	public int update(String queryId, Object obj) throws Exception {
 		return sqlMainSession.update(queryId, obj);
 	}
+	public int insert(String queryId, Object obj) throws Exception {
+		return sqlMainSession.insert(queryId, obj);
+	}
 }

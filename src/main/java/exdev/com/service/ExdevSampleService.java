@@ -29,4 +29,12 @@ public class ExdevSampleService extends ExdevBaseService{
 		System.out.println("ExdevSampleService.getSample 11");
 		return map;
 	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Object setFile(Map map) throws Exception {
+		int result = commonDao.insert("Sample.setFile", map);
+		map.put("insert", "SUCCESS");
+		System.out.println("ExdevSampleService.setFile");
+		return map;
+	}
 }

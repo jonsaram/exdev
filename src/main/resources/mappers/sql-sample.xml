@@ -12,5 +12,31 @@
 		FROM TEST 
 		WHERE 1 = 1
 	</select>
-	
+
+    <insert id="setFile" parameterType="map" useGeneratedKeys="true" keyProperty="userId">
+       INSERT INTO TBL_EX_FILEMNG(
+             UUID
+            ,GRP_ID
+            ,ORG_FILE_NAME
+            ,STORED_FILE_NAME
+            ,FILE_PATH
+
+            ,FILE_SIZE
+            ,FILE_TYPE
+            ,CREATE_USER
+            ,CREATE_DATE
+        )
+        VALUES(
+            #{uuid},
+            #{grpId},
+            #{orgFileName},
+            #{storedFileName},
+            #{filePath},
+            
+            TO_NUMBER(#{fileSize}),
+            #{fileType},
+            #{createUser},
+            (TO_DATE(#{createDate} , 'yyyy/mm/dd hh24:mi:ss') )
+        )
+    </insert>
 </mapper>
