@@ -30,7 +30,43 @@ public class FileService extends ExdevBaseService{
 	
 	@Autowired
 	private ExdevCommonDao commonDao;
-	
+
+
+    /** 
+     * 멀티 파일삭제 서비스
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 01. 18 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자   :
+     */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+    public Map fileDeleteMulti(String[] uuidArry) throws Exception {
+	    
+	    Map<String, String> returnMap = new HashMap<String, String>();
+	    try {
+            for(  String uuid:uuidArry ) {
+                System.out.println("FileService uuid =>"+uuid); 
+                Map uuidMap = new HashMap();
+                uuidMap.put("uuid" , uuid  );
+                List<Map> list = commonDao.getList("Sample.getFile", uuidMap);
+                int result = 0;
+                
+                for(Map fileMap : list) {
+                    new File(fileMap.get("FILEPATH") + "\\" + fileMap.get("STOREDFILENAME")).delete();
+                    result += commonDao.delete("Sample.deleteFile", uuidMap);
+                    
+                }
+            }
+        
+            returnMap.put("msg","SUCCESS");
+	    } catch (Exception e) {
+            e.printStackTrace();
+            returnMap.put("msg","FAILE");
+        }
+        return returnMap;
+    }
+    
 	/** 
 	 * 멀티 파일저장 서비스
 	 * @생 성 자   : 이응규
@@ -40,7 +76,7 @@ public class FileService extends ExdevBaseService{
 	 * @수 정 자
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Map fileUploadMulti( List<MultipartFile> multiFileList, String  path , String  grpId) throws Exception {
+	public Map fileUploadMulti( List<MultipartFile> multiFileList, String  path , String  grpId,String[] uuids) throws Exception {
 		
 		Map returnMap = new HashMap();
 		File fileCheck = new File(path);
@@ -53,12 +89,15 @@ public class FileService extends ExdevBaseService{
 			long fileSize = multiFileList.get(i).getSize();
 			System.out.println("fileSize 1 ==>"+fileSize);
 			String ext = originFile.substring(originFile.lastIndexOf("."));
-			String changeFile = UUID.randomUUID().toString() + ext;
+			String uuid = uuids[i];
+			
+			String changeFile = uuid + ext;
 			
 			System.out.println("originFile : " + originFile);
 			System.out.println("changeFile : " + changeFile);
 			System.out.println("ext : " + ext);
 			Map<String, String> map = new HashMap<>();
+			map.put("uuid", uuid);
 			map.put("originFile", originFile);
 			map.put("changeFile", changeFile);
 			map.put("filePath", path);
@@ -67,7 +106,7 @@ public class FileService extends ExdevBaseService{
 			fileList.add(map);
 		}
 		int result = 0;
-			// 파일업로드
+		// 파일업로드
 		try {
 			for(int i = 0; i < multiFileList.size(); i++) {
 				File uploadFile = new File(path + "\\" + fileList.get(i).get("changeFile"));
@@ -79,7 +118,7 @@ public class FileService extends ExdevBaseService{
 				String strDate = dateFormat.format(Calendar.getInstance().getTime());
 				
 				HashMap<String,String> insertMap = new HashMap<String,String>();
-				insertMap.put("uuid", fileList.get(i).get("changeFile"));
+				insertMap.put("uuid", fileList.get(i).get("uuid"));
 				insertMap.put("grpId", grpId);
 				insertMap.put("orgFileName", fileList.get(i).get("originFile"));
 				insertMap.put("storedFileName", fileList.get(i).get("changeFile"));

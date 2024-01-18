@@ -191,11 +191,16 @@ public class ExdevCommonController {
         }
 	}
 
-	/**
-	 * 내용 : 다중 첨부파일 업로드 샘플
-	 * 작성자 : 이응규
-	 * 2024.01.16_01 : 최초작성
-	 */
+    /** 
+     * 내용        : 다중 첨부파일 업로드 샘플
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 01. 16 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+
+    @SuppressWarnings({ "unused", "rawtypes" })
 	@PostMapping("/multiFileUpload.do")
 	public @ResponseBody Map  multiFileUpload(@RequestParam("attach_file") List<MultipartFile> multiFileList,			
             HttpServletRequest request, HttpSession session)  throws Exception {
@@ -206,12 +211,13 @@ public class ExdevCommonController {
         
 		// 받아온것 출력 확인
 		System.out.println("multiFileList : " + multiFileList);
-		 String grpId = request.getParameter("groupId");
+		String grpId = request.getParameter("groupId");
+		String[] uuids = request.getParameterValues("uuids");
 		
 		// path 가져오기
 		String path = request.getSession().getServletContext().getRealPath("resources");
 		String root = path + "\\" + "uploadFiles";
-		returnMap = fileService.fileUploadMulti( multiFileList, root , grpId);
+		returnMap = fileService.fileUploadMulti( multiFileList, root , grpId, uuids);
 		
 		String msg = returnMap.get("msg").toString();
 		if( "SUCCESS".equals(msg)) {
@@ -222,94 +228,37 @@ public class ExdevCommonController {
 		
 		return returnMap;
 	}
-	
-	/**
-	 * 내용 : 다중 첨부파일 업로드 샘플
-	 * 작성자 : 이응규
-	 * 2024.01.16_01 : 최초작성
-	 */
-	@PostMapping("/multiFileUpload1.do")
-	public @ResponseBody Map  multiFileUpload1(@RequestParam("attach_file") List<MultipartFile> multiFileList,			
-            HttpServletRequest request, HttpSession session)  {
-		
+
+    /** 
+     * 내용        : 다중 첨부파일 삭제 샘플
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 01. 18 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+
+    @SuppressWarnings({ "unused", "rawtypes" })
+    @PostMapping("/fileDelete.do")
+    public @ResponseBody Map  fileDelete(HttpServletRequest request, HttpSession session)  throws Exception {
+        
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
         
-        Map returnMap = new HashMap();
+        Map<String, String> returnMap = new HashMap<String, String>();
+            
+        String[] delete_file_list = request.getParameterValues("delete_file_list");
+ 
+        returnMap = fileService.fileDeleteMulti( delete_file_list );
         
-		// 받아온것 출력 확인
-		System.out.println("multiFileList : " + multiFileList);
-		 String grpId = request.getParameter("groupId");
-		
-		// path 가져오기
-		String path = request.getSession().getServletContext().getRealPath("resources");
-		String root = path + "\\" + "uploadFiles";
-		
-		File fileCheck = new File(root);
-		
-		if(!fileCheck.exists()) fileCheck.mkdirs();
-
-		List<Map<String, String>> fileList = new ArrayList<>();
-		
-		for(int i = 0; i < multiFileList.size(); i++) {
-			String originFile = multiFileList.get(i).getOriginalFilename();
-			long fileSize = multiFileList.get(i).getSize();
-			System.out.println("fileSize 1 ==>"+fileSize);
-			String ext = originFile.substring(originFile.lastIndexOf("."));
-			String changeFile = UUID.randomUUID().toString() + ext;
-			
-			System.out.println("originFile : " + originFile);
-			System.out.println("changeFile : " + changeFile);
-			System.out.println("ext : " + ext);
-			Map<String, String> map = new HashMap<>();
-			map.put("originFile", originFile);
-			map.put("changeFile", changeFile);
-			map.put("filePath", root);
-			map.put("fileType", ext);
-			map.put("fileSize", Long.toString(fileSize));
-			fileList.add(map);
-		}
-		
-		// 파일업로드
-		try {
-			for(int i = 0; i < multiFileList.size(); i++) {
-				File uploadFile = new File(root + "\\" + fileList.get(i).get("changeFile"));
-				multiFileList.get(i).transferTo(uploadFile);
-				
-				/***************************************************************************/
-				/* 테이블 입력    테이블 입력    테이블 입력    테이블 입력    테이블 입력    */
-				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
-				String strDate = dateFormat.format(Calendar.getInstance().getTime());
-				
-				HashMap<String,String> insertMap = new HashMap<String,String>();
-				insertMap.put("uuid", fileList.get(i).get("changeFile"));
-				insertMap.put("grpId", grpId);
-				insertMap.put("orgFileName", fileList.get(i).get("originFile"));
-				insertMap.put("storedFileName", fileList.get(i).get("changeFile"));
-				insertMap.put("filePath", fileList.get(i).get("filePath"));
-				insertMap.put("fileSize", fileList.get(i).get("fileSize"));
-				insertMap.put("fileType", fileList.get(i).get("fileType"));
-				insertMap.put("createUser", "createUser");
-				insertMap.put("createDate", strDate);
-				
-				Map resultMap = (Map)sampleService.setFile(insertMap);
-				String resultMsg = resultMap.get("insert").toString();
-
-				System.out.println("resultMsg : " + resultMsg);
-
-				/* 테이블 입력    테이블 입력    테이블 입력    테이블 입력    테이블 입력    */
-				/***************************************************************************/
-			}
-			returnMap.put("msg","파일 업로드에 성공하였습니다.");
-		} catch (Exception e) {
-			// 만약 업로드 실패하면 파일 삭제
-			for(int i = 0; i < multiFileList.size(); i++) {
-				new File(root + "\\" + fileList.get(i).get("changeFile")).delete();
-			}
-			e.printStackTrace();
-			returnMap.put("msg","파일 업로드에 실패하였습니다.");
-		}
-		
-		return returnMap;
-	}
+        String msg = returnMap.get("msg").toString();
+        if( "SUCCESS".equals(msg)) {
+            returnMap.put("msg","파일 삭제에 성공하였습니다.");
+        }else{
+            returnMap.put("msg","파일 삭제에 실패하였습니다.");
+        }
+        
+        return returnMap;
+    }
+	
 
 }

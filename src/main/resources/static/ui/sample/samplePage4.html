@@ -6,7 +6,6 @@
 		,uploadMultiFile : function () {
 
 		    var groupId = $("#<@pageId> #groupId").val();
-		    alert("groupId =>"+groupId);
 		    
 		    if (groupId.length < 1) {
 		        alert("파일그룹 ID를 입력해 주세요.");
@@ -23,6 +22,7 @@
 		        // 삭제되지 않은 파일만 폼데이터에 담기
 		        if (!<@pageId>.filesArr[i].is_delete) {
 		            formData.append("attach_file", <@pageId>.filesArr[i]);
+		            formData.append("uuids", C_COM.makeUniqueId());
 		        }
 		    }
 
@@ -109,7 +109,7 @@
 		    <@pageId>.filesArr[num].is_delete = true;
 		 }
 	}
-	// Page Load가 완료된후 실행 된다.
+	// Page Load가 완료된후 실행 된다.s
 	C_PM.onLoadPage("<@pageId>", function(parm) {
 		//alert 창띄우기
 		//dalert(parm);
@@ -132,4 +132,7 @@
 	    <button onclick="<@pageId>.uploadMultiFile()">Upload</button>
 		<div id="result"/>
 	</div>
+	
+    
 </div>
+

@@ -14,6 +14,7 @@
 	</select>
 
     <insert id="setFile" parameterType="map" useGeneratedKeys="true" keyProperty="userId">
+        /* Sample.setFile */
        INSERT INTO TBL_EX_FILEMNG(
              UUID
             ,GRP_ID
@@ -39,4 +40,41 @@
             (TO_DATE(#{createDate} , 'yyyy/mm/dd hh24:mi:ss') )
         )
     </insert>
+    <!-- 첨부파일 조회 -->
+	<select id="getFile" resultType="java.util.HashMap">
+	    /* Sample.getFile */
+        SELECT UUID             AS uuid           
+              ,GRP_ID           AS grpId          
+              ,ORG_FILE_NAME    AS orgFileName    
+              ,STORED_FILE_NAME AS storedFileName 
+              ,FILE_PATH        AS filePath       
+              ,FILE_SIZE        AS fileSize       
+              ,FILE_TYPE        AS fileType       
+              ,UPDATE_USER      AS updateUser     
+              ,UPDATE_DATE      AS updateDate     
+              ,CREATE_USER      AS createUser     
+              ,CREATE_DATE      AS createDate
+        FROM   TBL_EX_FILEMNG
+        WHERE    1 = 1
+        <if test=" grpId != null and grpId != '' " >
+          AND    GRP_ID = #{grpId}
+        </if><if test=" uuid != null and uuid != '' " >
+          AND    UUID = #{uuid}
+        </if>
+        ORDER BY CREATE_DATE DESC
+	</select>
+	
+	<!-- 첨부파일 삭제 -->
+    <delete id="deleteFile" parameterType="java.util.HashMap"  >
+        /* Sample.deleteFile */
+        DELETE FROM TBL_EX_FILEMNG
+        WHERE  1 = 1
+        <if test=" grpId != null and grpId != '' " >
+          AND    GRP_ID = #{grpId}
+        </if>
+        <if test=" uuid != null and uuid != '' " >
+          AND    UUID = #{uuid}
+        </if>
+    </delete>
+    
 </mapper>
