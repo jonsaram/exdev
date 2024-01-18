@@ -58,28 +58,10 @@ var <@pageId> = {
 								
 		}
 		,updateMenu : () => {
-			
-				const requestParm = {};
-				const updateItems = $("#<@pageId>_updateItems input:not([type='radio']),#<@pageId>_updateItems select");
-				
-				const valuesArray = updateItems.map(function() {
-					
-					if( this.name == "MENU_ID" && this.value =="" )this.value = C_COM.makeUniqueId();
-				    return { name: this.name, value: ""+$(this).val() };
-				}).get();
-				
-				valuesArray.forEach(function(item) {
-					requestParm[item.name] = item.value;
-				});
-				
-				const radioName = 'USE_YN';
-				requestParm[radioName] = <@pageId>.fnRadioCheckValue(radioName);
-				
-				
-				
+
 				var parm = {
 						 queryId 		: "admin.updateMenu"
-						,requestParm	: requestParm
+						,requestParm	: <@pageId>.getItems()
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 					
@@ -161,7 +143,7 @@ var <@pageId> = {
 						$(obj).val("");
 				}); 
 
-				<@pageId>.fnRadioCheckValue("USE_YN","Y");
+				<@pageId>.fnRadioCheckValue("USE_YN","");
 				$("select[name='PARENT_MENU_ID']").val("");
 				
 		}
@@ -204,13 +186,16 @@ var <@pageId> = {
 			
 				if( gubun == "updateMenu"){
 					const menuId = $("#<@pageId>_updateItems input[name='MENU_NM']").val();
-					alert("저장할 데이터를 확인하여 주십시오.")
+					if( isEmpty(menuId)){
+						alert("저장할 데이터를 확인하여 주십시오.");
+					}
 					return isEmpty(menuId) ? false:true;
 				}
 				if( gubun == "deleteMenu"){
 					const deleItemsCnt = <@pageId>.selectedCheck.length;
-					if( deleItemsCnt == 0 )
-					alert("삭제할 데이터를 확인하여 주십시오.")
+					if( deleItemsCnt == 0 ){
+						alert("삭제할 데이터를 확인하여 주십시오.")
+					}
 					return deleItemsCnt == 0 ? false:true;
 				}
 		}
@@ -367,7 +352,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 		<div class='detail' >PAGE ID: 	<input type='text' name='PAGE_ID' >                      </div>
 		<div class='detail' >MENU DESC:	<input type='text' name='MENU_DESC' >                    </div>
 		<div class='detail' >USE_YN: 	
-								<label><input type='radio' name='USE_YN' value="Y" checked/>Yes</label>
+								<label><input type='radio' name='USE_YN' value="" checked/>ALL</label>
+								<label><input type='radio' name='USE_YN' value="Y" />Yes</label>
 								<label><input type='radio' name='USE_YN' value="N"  />No</label></div>
 		<div class='detail' >PARENT MENU:<select id="PARENT_MENU_ID" name="PARENT_MENU_ID"/>	</div>
 		<div class='detail' >MENU_DEPTH:<input type='text' name='MENU_DEPTH' readonly style='width:40px;background-color:#F2F2F2'></div> 
