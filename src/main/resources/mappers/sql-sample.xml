@@ -15,7 +15,7 @@
 
     <insert id="setFile" parameterType="map" useGeneratedKeys="true" keyProperty="userId">
         /* Sample.setFile */
-       INSERT INTO TBL_EX_FILEMNG(
+       INSERT INTO TBL_EXP_FILEMNG(
              UUID
             ,GRP_ID
             ,ORG_FILE_NAME
@@ -54,7 +54,7 @@
               ,UPDATE_DATE      AS updateDate     
               ,CREATE_USER      AS createUser     
               ,CREATE_DATE      AS createDate
-        FROM   TBL_EX_FILEMNG
+        FROM   TBL_EXP_FILEMNG
         WHERE    1 = 1
         <if test=" grpId != null and grpId != '' " >
           AND    GRP_ID = #{grpId}
@@ -67,7 +67,7 @@
 	<!-- 첨부파일 삭제 -->
     <delete id="deleteFile" parameterType="java.util.HashMap"  >
         /* Sample.deleteFile */
-        DELETE FROM TBL_EX_FILEMNG
+        DELETE FROM TBL_EXP_FILEMNG
         WHERE  1 = 1
         <if test=" grpId != null and grpId != '' " >
           AND    GRP_ID = #{grpId}
