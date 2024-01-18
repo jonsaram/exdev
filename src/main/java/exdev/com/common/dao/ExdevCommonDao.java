@@ -29,4 +29,7 @@ public class ExdevCommonDao {
 	public int insert(String queryId, Object obj) throws Exception {
 		return sqlMainSession.insert(queryId, obj);
 	}
+    public int delete(String queryId, Object obj) throws Exception {
+        return sqlMainSession.delete(queryId, obj);
+    }
 }
