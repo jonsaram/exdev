@@ -6,7 +6,7 @@
 
 	<cache />
 	
-	<select id="getMenuList" resultType="java.util.HashMap">
+	<select id="getMenuList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	admin.getMenuList
 			메뉴 리스트 조회 
 		*/
@@ -16,19 +16,41 @@
 		,USE_YN
 		,UPDATE_USER
 		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
-		FROM ADMIN.TBL_EXP_MENU 
+		,SORT_ORDER
+		FROM ADMIN.TBL_EXP_MENU T
 		WHERE 1 = 1
-		AND USE_YN = NVL( #{USE_YN}, 'Y')
+		<if test=" MENU_NM != null and MENU_NM != '' ">
+		AND T.MENU_NM like '%' || #{MENU_NM} || '%'
+		</if>
+		<if test=" PARENT_MENU_ID != null and PARENT_MENU_ID != '' ">
+		AND T.PARENT_MENU_ID like  '%' || #{PARENT_MENU_ID} || '%'
+		</if>
+		<if test=" MENU_DEPTH != null and MENU_DEPTH != '' ">
+		AND T.MENU_DEPTH = #{MENU_DEPTH}
+		</if>
+		<if test=" MENU_DESC != null and MENU_DESC != '' ">
+		AND T.MENU_DESC like '%' || #{MENU_DESC} || '%'
+		</if>
+		<if test=" PAGE_ID != null and PAGE_ID != '' ">
+		AND T.PAGE_ID like '%' || #{PAGE_ID} || '%'
+		</if>
+		<if test="USE_YN != null and USE_YN != '' ">
+		AND T.USE_YN = #{USE_YN}
+		</if>
+		<if test=" SORT_ORDER != null and SORT_ORDER != '' ">
+		AND T.SORT_ORDER = #{SORT_ORDER}
+		</if>
 		ORDER BY SORT_ORDER
 	</select>
+	 
 	
-	<update id="updateMenu" parameterType="java.util.HashMap"  >
+	<update id="updateMenu" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	admin.updateMenu
 			메뉴 저장
 		*/
 		MERGE INTO ADMIN.TBL_EXP_MENU T
 		USING (
-		  SELECT SYS_GUID() AS MENU_ID,
+		  SELECT #{MENU_ID} AS MENU_ID,
 		         #{MENU_NM} AS MENU_NM,
 		         #{PARENT_MENU_ID} AS PARENT_MENU_ID,
 		         #{MENU_DEPTH} AS MENU_DEPTH,
@@ -67,7 +89,7 @@
 		  VALUES (S.MENU_ID, S.MENU_NM, S.PARENT_MENU_ID, S.MENU_DEPTH, S.MENU_DESC, S.PAGE_ID, S.USE_YN, S.SORT_ORDER, S.UPDATE_USER, S.UPDATE_DATE)
 	</update>
 	
-	<delete id="deleteMenu" parameterType="java.util.HashMap"  >
+	<delete id="deleteMenu" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	admin.deleteMenu
 			메뉴 삭제
 		*/
