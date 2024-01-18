@@ -111,8 +111,6 @@ var <@pageId> = {
 		            const parentMenuSelect = $("select[name='PARENT_MENU_ID']");
 	            	parentMenuSelect.prop("disabled", $("#<@pageId>_updateItems input[name='MENU_DEPTH']").val() == "0");
 	            	
-	            	$("select[name='PARENT_MENU_ID']").val(desiredValue);
-	            	
 	            	$('#<@pageId>_insertMenu').hide();
 		        });		
 
@@ -347,7 +345,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 
 <div>
      <div class='side' id='<@pageId>_updateItems'>
-		<div			  	>			<input type='hidden' name='MENU_ID' >                    </div>
+		<div class='detail' >ROW NO:	<input type='text' name='index' readonly style='width:50px;background-color:#F2F2F2'></div>
+		<div class='detail' >MENU ID:	<input type='text' name='MENU_ID' readonly style='width:200px;background-color:#F2F2F2'></div>
 		<div class='detail' >MENU NM : 	<input type='text' name='MENU_NM' >                      </div>
 		<div class='detail' >PAGE ID: 	<input type='text' name='PAGE_ID' >                      </div>
 		<div class='detail' >MENU DESC:	<input type='text' name='MENU_DESC' >                    </div>
@@ -372,8 +371,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
                <th style='width:50px;'>#번호</th>
                <th>MENU_ID</th>
                <th style='width:150px;'>MENU_NM</th>
-               <th style='width:150px;'>PARENT_MENU_ID</th>
-               <th style='width:110px;'>MENU_DEPTH</th>
+               <th style='width:150px;'>PARENT_ID</th>
+               <th style='width:110px;'>DEPTH</th>
                <th>MENU_DESC</th>
                <th>PAGE_ID</th>
                <th>UPDATE_USER</th>
