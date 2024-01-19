@@ -9,7 +9,6 @@
 	<link rel="stylesheet" type="text/css" href="./css/common.css"/>
 	<script type="text/javascript" src="./js/libs/jquery-1.12.4.min.js"></script>
 	<script type="text/javascript" src="./js/libs/jquery-ui.js"></script>
-	<script type="text/javascript" src="./js/common.js"></script>
 	<script type="text/javascript" src="./js/libs/highcharts.js"></script>
 
 	<script type="text/javascript" 	src="./ui/js/lib/jquery-1.9.0.min.js"		></script>
@@ -34,6 +33,11 @@
 			
 		});
 		var sessionInfo = {}
+		
+		function goPage(pageId) {
+			C_PM.movePage(pageId);
+		}
+		
 	</script>
 
 
@@ -50,7 +54,7 @@
 					<li><a href="javascript:;">실적랭킹</a></li>
 					<li><a href="javascript:;">캘린더</a></li>
 					<li><a href="javascript:;">자문 진행 현황</a></li>
-					<li class="active"><a href="javascript:;">고객리스트</a></li>
+					<li class="active"><a href="javascript:goPage('customer_customerList');">고객리스트</a></li>
 					<li><a href="javascript:;">고객 대쉬보드</a></li>
 					<li><a href="javascript:;">급여정보</a></li>
 					<li><a href="javascript:;">실적입력</a></li>

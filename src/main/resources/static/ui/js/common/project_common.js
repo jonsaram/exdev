@@ -470,7 +470,80 @@ var C_PM = {
 	}
 	// Page에 Load시 스크립트 실행 후 공통 설정을 한다.
 	,afterInitPage : function(pageId) {
+		var pageWebId = "#" + pageId + " ";
+	    /*========= 싱글 선택 ==========*/
+	    $.fn.dropdown = function(){
+	        var $btn_click = $(pageWebId + '.radio');
+	        var $open_ul = $(pageWebId + 'ul.select_lst');
+	        $( $btn_click ).next().addClass("viewHide");
+	        $( $btn_click ).on("click", function(){
+	            $( this ).next().removeClass("viewHide");
+	        });
+	        $($open_ul).find(pageWebId + "input[type=radio]").on("click", function(){
+	            var $var = $( this ).next().text();
+	            $( this ).parent().parent().prev().children().text( $var );
+	            $( this ).parent().parent().prev().children().addClass( "active" );
+	            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
+	            $( this ).parent().parent().addClass("viewHide");
+	        });
+	        $($open_ul).find(pageWebId + "input[type=radio]").on("focus", function(){
+	            var $var = $( this ).next().text();
+	            $( this ).parent().parent().prev().children().text( $var );
+	            $( this ).parent().parent().prev().children().addClass( "active" );
+	            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
+	        });
+	        $($open_ul).find(pageWebId + "input[type=radio]").on("blur", function(){
+	            $( this ).parent().parent().prev().children().removeClass( "active" );
+	        });
+	        $( $btn_click ).next().on("mouseleave", function(){
+	            $( $btn_click ).next().addClass( "viewHide" );
+	        });
+	    };
 
+
+	    /*============= 멀티선택 ================*/
+	    $(document).on("click", pageWebId + ".dropdown button", function(){
+	        $(this).parent().children().find("ul").slideToggle('fast');
+	    });
+
+	    // 외부 링크
+	    $(document).bind('click', function(e) {
+	      var $clicked = $(e.target);
+	      if (!$clicked.parents().hasClass("dropdown")) {
+	        $(pageWebId + ".dropdown ul").hide();
+	      };
+	    });
+
+	    //체크박스 체크할때
+	    $(document).on("click", pageWebId + ".mutliSelect input[type='checkbox']", function(){
+	      var title = $(this).closest(pageWebId + '.mutliSelect').find(pageWebId + 'input[type="checkbox"]').val(),
+	        title = $(this).val() + ",";
+
+	      if ($(this).is(':checked')) {
+	        var html = '<span title="' + title + '">' + title + '</span>';
+	        $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").append(html);
+	        $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".hida").hide();
+	      }
+	      else {
+	        $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").find('span[title="' + title + '"]').remove();
+	        var checkLength = $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").find('span').length;
+	        if(checkLength == 0){
+	            $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".hida").show();
+	        }
+	      }
+	    });
+
+	    /*====== 달력 =======*/
+	    $(function () {
+	        $(pageWebId + ".datepicker").datepicker({
+	          showOn: "button",
+	          buttonImage: "./img/icon_calendar.png",
+	          buttonImageOnly: true,
+	          buttonText: "Select date",
+	        });
+	    });
+		
+		$(pageWebId + '.select_box').dropdown();
 	 }
 	,setCurrentPageId : function(pageId) {
 		C_COM.saveSessionData("PAGE_ID", pageId);
