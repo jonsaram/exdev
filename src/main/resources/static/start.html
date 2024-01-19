@@ -1,71 +1,114 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>Manual Trading</title>
-	
-<link rel="stylesheet" type="text/css" href="./css/common.css">
-<link rel="stylesheet" type="text/css" href="./css/main.css">
-<link rel="stylesheet" type="text/css" href="./css/font.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Start Asset</title>
+	<link rel="stylesheet" type="text/css" href="./css/libs/jquery-ui.css"/>
+	<link rel="stylesheet" type="text/css" href="./css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="./css/common.css"/>
+	<script type="text/javascript" src="./js/libs/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="./js/libs/jquery-ui.js"></script>
+	<script type="text/javascript" src="./js/common.js"></script>
+	<script type="text/javascript" src="./js/libs/highcharts.js"></script>
 
-<link rel="stylesheet" type="text/css" href="./ui/css/jquery/jquery-ui.css">
-
-
-<script type="text/javascript" 	src="./ui/js/lib/jquery-1.9.0.min.js"		></script>
-<script type="text/javascript" 	src="./ui/js/lib/jquery-ui.js"				></script>
-<script type="text/javascript" 	src="./ui/js/lib/jsrender.js"				></script>
-<script type="text/javascript" 	src="./ui/js/common/config.js"				></script>
-<script type="text/javascript" 	src="./ui/js/common/function_ajax.js"		></script>
-<script type="text/javascript" 	src="./ui/js/common/function_common.js"		></script>
-<script type="text/javascript" 	src="./ui/js/common/project_common.js"		></script>
-	
-<script type="text/javascript" 	src="./js/highcharts/highcharts.js"		 ></script>
-<script type="text/javascript" 	src="./js/highcharts/draggable-points.js"></script>
-<script type="text/javascript" 	src="./js/highcharts/exporting.js"		 ></script>
-<script type="text/javascript" 	src="./js/highcharts/customEvents.min.js"></script>
-
-<script type="text/javascript">
-	$(function() {
-		//
-		C_PM.movePage("sample_index");
+	<script type="text/javascript" 	src="./ui/js/lib/jquery-1.9.0.min.js"		></script>
+	<script type="text/javascript" 	src="./ui/js/lib/jquery-ui.js"				></script>
+	<script type="text/javascript" 	src="./ui/js/lib/jsrender.js"				></script>
+	<script type="text/javascript" 	src="./ui/js/common/config.js"				></script>
+	<script type="text/javascript" 	src="./ui/js/common/function_ajax.js"		></script>
+	<script type="text/javascript" 	src="./ui/js/common/function_common.js"		></script>
+	<script type="text/javascript" 	src="./ui/js/common/project_common.js"		></script>
 		
-	});
-	var sessionInfo = {}
-</script>
+	<script type="text/javascript" 	src="./js/highcharts/highcharts.js"		 ></script>
+	<script type="text/javascript" 	src="./js/highcharts/draggable-points.js"></script>
+	<script type="text/javascript" 	src="./js/highcharts/exporting.js"		 ></script>
+	<script type="text/javascript" 	src="./js/highcharts/customEvents.min.js"></script>
+
+	<script type="text/javascript">
+		$(function() {
+			//
+			C_PM.movePage("sample_index");
+			
+		});
+		var sessionInfo = {}
+	</script>
 
 
 </head>
-<body>
-
-<!-- headerWrap -->
-<div class="headerWrap" id="headBlock">
-	<header>
-		<!--topmenu-->
-		<ul class="topmenu">
-			상단
-		</ul>
-		<!--//topmenu-->
+<body class="main">
+	<header id="header">
+		<div class="wrap" id="headerBlock">
+			<h1 class="logo"><a href="#">Start Asset</a></h1>
+			<nav class="gnb">
+				<ul>
+					<li><a href="javascript:;">성과관리</a></li>
+					<li><a href="javascript:;">FA 대쉬보드</a></li>
+					<li><a href="javascript:;">인사정보</a></li>
+					<li><a href="javascript:;">실적랭킹</a></li>
+					<li><a href="javascript:;">캘린더</a></li>
+					<li><a href="javascript:;">자문 진행 현황</a></li>
+					<li class="active"><a href="javascript:;">고객리스트</a></li>
+					<li><a href="javascript:;">고객 대쉬보드</a></li>
+					<li><a href="javascript:;">급여정보</a></li>
+					<li><a href="javascript:;">실적입력</a></li>
+					<li><a href="javascript:;">전자결재</a></li>
+					<li><a href="javascript:;">ERP</a></li>
+					<li><a href="javascript:;">사내게시판</a></li>
+					<li><a href="javascript:;">작업 히스토리</a></li>
+				</ul>
+			</nav>
+			<div class="header_right">
+				<div class="head-btn-wrap">
+			        <button class="menu-btn">
+			            <span class="line line1"></span>
+			            <span class="line line2"></span>
+			            <span class="line line3"></span>
+			        </button>
+			    </div>
+				<button type="button" class="btn_arrow"></button>
+				<a href="#" class="alarm">알림</a>
+				<a href="#" class="user_login"><span>이희성</span></a>
+				<ul class="user_menu">
+					<li><i class="icon_admin"></i>관리자 페이지</li>
+					<li><i class="icon_pwEdit"></i>비밀번호 변경</li>
+					<li><i class="icon_logout"></i>로그아웃</li>
+				</ul>
+			</div>
+		</div>
 	</header>
-</div>
-<!-- //headerWrap -->
+	<div class="container">
+		<nav class="lnb">
+			<div class="lnb_tit01">솔루션 관리</div>
+			<ul>
+				<li>
+					<ul>
+						<li class="active"><a href="#">Main</a></li>
+						<li><div class="lnb_tit02">&lt; 대분류 &gt;</div></li>
+						<li><a href="javascript:;">일반 컨설팅</a></li>
+						<li><a href="javascript:;">일반 컨설팅</a></li>
+					</ul>
+				</li>
+				<li>
+					<ul>
+						<li><div class="lnb_tit02">&lt; 소분류 &gt;</div></li>
+						<li><a href="javascript:;">법인전환</a></li>
+						<li><a href="javascript:;">CEO플랜</a></li>
+						<li><a href="javascript:;">연구소 및 특허</a></li>
+						<li><a href="javascript:;">정책자금</a></li>
+						<li><a href="javascript:;">대출컨설팅</a></li>
+						<li><a href="javascript:;">대출컨설팅</a></li>
+					</ul>
+				</li>
+			</ul>
+		</nav>
+		<div class="cont_wrap" id="bodyBlock">
+		</div>
 
-<!-- conWrap -->
-<div class="conWrap">
-	
-	<!--section -->
-	<section id="bodyBlock">
-		본문
-	</section>
-	<!--//section -->
-</div>
-<!--// conWrap -->
-	
-<!--  footer -->
-<footer id="footBlock">
-    하단
-</footer>
-<!-- // footer  -->
 
+		<div class="cont_wrap" id="footerBlock">
+		</div>
+
+	</div>
 </body>
 </html>
