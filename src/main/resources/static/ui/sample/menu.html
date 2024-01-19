@@ -350,13 +350,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 		<div class='detail' >MENU NM : 	<input type='text' name='MENU_NM' >                      </div>
 		<div class='detail' >PAGE ID: 	<input type='text' name='PAGE_ID' >                      </div>
 		<div class='detail' >MENU DESC:	<input type='text' name='MENU_DESC' >                    </div>
-		<div class='detail' >USE_YN: 	
+		<div class='detail' >USE YN: 	
 								<label><input type='radio' name='USE_YN' value="" checked/>ALL</label>
 								<label><input type='radio' name='USE_YN' value="Y" />Yes</label>
 								<label><input type='radio' name='USE_YN' value="N"  />No</label></div>
 		<div class='detail' >PARENT MENU:<select id="PARENT_MENU_ID" name="PARENT_MENU_ID"/>	</div>
-		<div class='detail' >MENU_DEPTH:<input type='text' name='MENU_DEPTH' readonly style='width:40px;background-color:#F2F2F2'></div> 
-		<div class='detail' >SORT ORDER:<input type='text' name='SORT_ORDER' style='width:40px;'></div>
+		<div class='detail' >MENU DEPTH:<input type='text' name='MENU_DEPTH' readonly style='width:40px;background-color:#F2F2F2'></div> 
+		<div class='detail' >SORT ORDER:<input type='text' name='SORT_ORDER' style='width:40px;' oninput="this.value = this.value.replace(/[^0-9]/g, '');"></div>
      </div>
      
      <button id='<@pageId>_insertMenu'	>추가</button>
@@ -372,12 +372,12 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
                <th>MENU_ID</th>
                <th style='width:150px;'>MENU_NM</th>
                <th style='width:150px;'>PARENT_ID</th>
-               <th style='width:110px;'>DEPTH</th>
+               <th style='width:60px;'>DEPTH</th>
                <th>MENU_DESC</th>
                <th>PAGE_ID</th>
                <th>UPDATE_USER</th>
                <th>UPDATE_DATE</th>
-               <th style='width:80px;'>ORDER</th>
+               <th style='width:70px;'>ORDER</th>
                <th style='width:60px;'>USE_YN</th>
            </tr>
        </thead>
@@ -391,13 +391,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
  					<td id='MENU_ID' 		value='{{:MENU_ID}}'	><span  class="tooltip">{{:MENU_ID}}</span>{{:MENU_ID}}</td>
  					<td id='MENU_NM' 		value='{{:MENU_NM}}'	><span  class="tooltip">{{:MENU_NM}}</span>{{:MENU_NM}}	</td>
  					<td id='PARENT_MENU_ID' value='{{:PARENT_MENU_ID}}'><span  class="tooltip">{{:PARENT_MENU_ID}}</span>{{:PARENT_MENU_ID}}</td>
- 					<td id='MENU_DEPTH' 	value='{{:MENU_DEPTH}}'	><span  class="tooltip">{{:MENU_DEPTH}}</span>{{:MENU_DEPTH}}</td>
+ 					<td id='MENU_DEPTH' 	value='{{:MENU_DEPTH}}'	>{{:MENU_DEPTH}}</td>
  					<td id='MENU_DESC' 		value='{{:MENU_DESC}}'	><span  class="tooltip">{{:MENU_DESC}}</span>{{:MENU_DESC}}	</td>
  					<td id='PAGE_ID' 		value='{{:PAGE_ID}}'	><span  class="tooltip">{{:PAGE_ID}}</span>{{:PAGE_ID}}	</td>
- 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'><span  class="tooltip">{{:UPDATE_USER}}</span>{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'>{{:UPDATE_USER}}</td>
  					<td id='UPDATE_DATE' 	value='{{:UPDATE_DATE}}'><span  class="tooltip">{{:UPDATE_DATE}}</span>{{:UPDATE_DATE}}</td>
- 					<td id='SORT_ORDER' 	value='{{:SORT_ORDER}}' ><span  class="tooltip">{{:SORT_ORDER}}</span>{{:SORT_ORDER}}</td>
- 					<td id='USE_YN' 		value='{{:USE_YN}}' 	><span  class="tooltip">{{:USE_YN}}</span>{{:USE_YN}}</td>
+ 					<td id='SORT_ORDER' 	value='{{:SORT_ORDER}}' >{{:SORT_ORDER}}</td>
+ 					<td id='USE_YN' 		value='{{:USE_YN}}' 	>{{:USE_YN}}</td>
 				</tr>
 				{{/for}}
 </script>
