@@ -1,0 +1,46 @@
+<meta charset="utf-8">
+
+<script type="text/javascript">
+    var <@pageId> = {
+
+    }
+    
+    // Page Load가 완료된후 실행 된다.
+    C_PM.onLoadPage("<@pageId>", function(parm) {
+    
+        ClassicEditor.create( document.querySelector( '#<@pageId> #board_content' ) )
+        .then( editor => {
+            console.log( editor );
+        } )
+        .catch( error => {
+            console.error( error );
+        } );
+
+    });
+        
+</script>
+<div>
+    CKEditor 샘플
+    
+    <div>
+        <div>
+            <div>
+                <label for="board_subject">제목</label>
+                <input type="text" id="board_subject" name="board_subject" class="form-control"/>
+            </div>
+            <div>
+                <label for="board_content">내용</label>
+                <textarea id="board_content" name="board_content" class="form-control" rows="10" style="resize:none"></textarea>
+            </div>
+            <div>
+                <label for="board_file">첨부 이미지</label>
+                <input type="file" id="board_file" name="board_file" class="form-control" accept="image/*"/>
+            </div>
+            <div>
+                <div class="text-right">
+                    <button type="submit" class="btn btn-primary">작성하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

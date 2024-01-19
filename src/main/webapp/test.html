@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/translations/ko.js"></script>
+</head>
+<body>
+<form action="/save" method="POST">
+<div id="editor">
+    <p>Here goes the initial content of the editor.</p>
+</div>
+</form>
+<script>
+	    
+	ClassicEditor.create( document.querySelector( '#editor' ) )
+	.then( editor => {
+	    console.log( editor );
+	} )
+	.catch( error => {
+	    console.error( error );
+	} );
+	        
+</script>
+</body>
+</html>
+
