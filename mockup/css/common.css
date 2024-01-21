@@ -49,6 +49,8 @@ a { text-decoration: none; cursor: pointer; color: #333; }
 button {border: 0 none; background: none; cursor: pointer; }
 .btn,input[type="search"]{padding:0 12px;line-height:33px;height:33px;font-size:12px;font-weight:600;border:1px solid #dadada;border-radius:4px;background:#fff;}
 .btn.select{color:#fff;border:1px solid #3C3E8A;background:#3C3E8A}
+.btn a{display:block;}
+.btn.select a{color:#fff}
 input[type="search"]{padding:0 12px 0 30px}
 button::-moz-focus-inner, input::-moz-focus-inner { border: 0; padding: 0; }
 button, input, select, textarea { font-family:'Noto Sans KR', sans-serif; vertical-align: middle; }
@@ -74,7 +76,13 @@ audio[controls], canvas, video { display: inline-block; }
 
 /* box-sizing */
 * { -webkit-box-sizing: border-box; box-sizing: border-box; }
-
+/* scroll */
+::-webkit-scrollbar {width:8px;height:8px;border-radius:8px;}
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment {display:block;width:1px;height:1px;}
+::-webkit-scrollbar-track {background:#fff;}
+::-webkit-scrollbar-thumb {border-radius:8px;background:#ccc;}
+html,body,.tbl_scroll{scrollbar-width:thin;scrollbar-color:white;}
 
 /**/
 .mt0{margin-top:0!important}
@@ -87,6 +95,7 @@ audio[controls], canvas, video { display: inline-block; }
 .flex{display:flex;}
 .back60{background:rgba(60,62,138,.6)!important;}
 .back50{background:rgba(60,62,138,.5)!important;}
+.back100{background:#3C3E8A!important;}
 .tl{text-align:left!important;}
 .fl{float:left!important;}
 .fr{float:right!important;}
