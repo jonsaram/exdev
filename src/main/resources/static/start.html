@@ -111,6 +111,31 @@
 
 		<div id="footerBlock">
 		</div>
+		
+		<!--  각종 Template -->
+		
+		<!--  
+			Multibox Template
+			
+			
+			 
+		-->
+		<script type="text/x-jsrender" id="_comMultibox_template">	
+			<button type="button" class="btn arrow">
+				<span class="hida">Select</span>
+				<p class="multiSel"></p>
+			</button>
+		    <div class="mutliSelect">
+		        <ul>
+				{{for list ~targetId=targetId}}
+		            <li>
+		                <input type="checkbox" value="{{:CD}}" id="mutli{{:~targetId}}{{:#index}}"><label for="mutli{{:~targetId}}{{:#index}}">{{:NM}}</label>
+		    		</li>
+				{{/for}}
+		        </ul>
+		    </div>
+		</script>
+				
 
 	</div>
 </body>

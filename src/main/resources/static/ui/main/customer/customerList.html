@@ -5,7 +5,18 @@
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
-		
+		var multiboxList = [
+			 { 
+				 data : [
+				 		 ["1111", "고객번호"	]
+				 		,["2222", "고객번호1"	]
+				 		,["3333", "고객번호2"	]
+				 		,["4444", "고객명"		]
+				 ]
+			 	,targetId : "customerType" 
+			 }
+		]
+		C_UICOM.makeSelectBox("<@pageId>", multiboxList);
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -24,28 +35,9 @@
 					<!-- 멀티 선택 -->
 					<div class="fl">
 						<button type="button" class="btn fl"><i class="icon_trash"></i>삭제</button>
-						<div class="dropdown fl" style="width:200px;">
-							<button type="button" class="btn arrow">
-								<span class="hida">Select</span>
-								<p class="multiSel"></p>
-							</button>
-						    <div class="mutliSelect">
-						        <ul>
-						            <li>
-						                <input type="checkbox" value="고객번호" id="mutli01"><label for="mutli01">고객번호</label>
-						    		</li>
-						            <li>
-						                <input type="checkbox" value="고객명" id="mutli02"><label for="mutli02">고객명</label>
-						    		</li>
-						            <li>
-						                <input type="checkbox" value="담당자" id="mutli03"><label for="mutli03">담당자</label>
-						    		</li>
-						            <li>
-						                <input type="checkbox" value="본점주소" id="mutli04"><label for="mutli04">본점주소</label>
-						    		</li>
-						        </ul>
-						    </div>
-						</div>
+
+						<div style="width:200px;" id="customerType"></div>
+
 						<div class="search_inputWrap">
 							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
 						</div>
@@ -336,5 +328,4 @@
 					<a href="#none" class="btn_pg_last">마지막 페이지</a>
 				</div>
 			</section>
-
 </div>

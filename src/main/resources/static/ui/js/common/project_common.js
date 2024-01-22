@@ -471,68 +471,6 @@ var C_PM = {
 	// Page에 Load시 스크립트 실행 후 공통 설정을 한다.
 	,afterInitPage : function(pageId) {
 		var pageWebId = "#" + pageId + " ";
-	    /*========= 싱글 선택 ==========*/
-	    $.fn.dropdown = function(){
-	        var $btn_click = $(pageWebId + '.radio');
-	        var $open_ul = $(pageWebId + 'ul.select_lst');
-	        $( $btn_click ).next().addClass("viewHide");
-	        $( $btn_click ).on("click", function(){
-	            $( this ).next().removeClass("viewHide");
-	        });
-	        $($open_ul).find(pageWebId + "input[type=radio]").on("click", function(){
-	            var $var = $( this ).next().text();
-	            $( this ).parent().parent().prev().children().text( $var );
-	            $( this ).parent().parent().prev().children().addClass( "active" );
-	            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
-	            $( this ).parent().parent().addClass("viewHide");
-	        });
-	        $($open_ul).find(pageWebId + "input[type=radio]").on("focus", function(){
-	            var $var = $( this ).next().text();
-	            $( this ).parent().parent().prev().children().text( $var );
-	            $( this ).parent().parent().prev().children().addClass( "active" );
-	            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
-	        });
-	        $($open_ul).find(pageWebId + "input[type=radio]").on("blur", function(){
-	            $( this ).parent().parent().prev().children().removeClass( "active" );
-	        });
-	        $( $btn_click ).next().on("mouseleave", function(){
-	            $( $btn_click ).next().addClass( "viewHide" );
-	        });
-	    };
-
-
-	    /*============= 멀티선택 ================*/
-	    $(document).on("click", pageWebId + ".dropdown button", function(){
-	        $(this).parent().children().find("ul").slideToggle('fast');
-	    });
-
-	    // 외부 링크
-	    $(document).bind('click', function(e) {
-	      var $clicked = $(e.target);
-	      if (!$clicked.parents().hasClass("dropdown")) {
-	        $(pageWebId + ".dropdown ul").hide();
-	      };
-	    });
-
-	    //체크박스 체크할때
-	    $(document).on("click", pageWebId + ".mutliSelect input[type='checkbox']", function(){
-	      var title = $(this).closest(pageWebId + '.mutliSelect').find(pageWebId + 'input[type="checkbox"]').val(),
-	        title = $(this).val() + ",";
-
-	      if ($(this).is(':checked')) {
-	        var html = '<span title="' + title + '">' + title + '</span>';
-	        $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").append(html);
-	        $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".hida").hide();
-	      }
-	      else {
-	        $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").find('span[title="' + title + '"]').remove();
-	        var checkLength = $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").find('span').length;
-	        if(checkLength == 0){
-	            $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".hida").show();
-	        }
-	      }
-	    });
-
 	    /*====== 달력 =======*/
 	    $(function () {
 	        $(pageWebId + ".datepicker").datepicker({
@@ -542,8 +480,6 @@ var C_PM = {
 	          buttonText: "Select date",
 	        });
 	    });
-		
-		$(pageWebId + '.select_box').dropdown();
 	 }
 	,setCurrentPageId : function(pageId) {
 		C_COM.saveSessionData("PAGE_ID", pageId);
@@ -790,7 +726,112 @@ var C_POP = {
 }		
 
 // UI 관련 공통
+
 var C_UICOM = {
+	 init : function() {
+		
+	 }
+	,makeSelectBox : function(pageId, mboxList) {
+		 $.each(mboxList, function() {
+			 C_UICOM.makeSelectBoxExec(this.data, this.targetId, "multi")	 
+		 });
+		 C_UICOM.initMultiBox(pageId);
+	 }
+	,makeSelectBoxExec : function(list, tid, type) {
+		if( type == "single") {
+			
+		} else {
+			var rlist = [];
+			$.each(list, function() {
+				rlist.push({"CD":this[0], "NM":this[1]});
+			});
+			var rparm = {
+				 targetId 		: tid
+				,list			: rlist
+			}
+			
+			var html = $("#_comMultibox_template").render(rparm)
+
+			$("#" + tid).addClass("dropdown").addClass("fl");
+
+			$("#" + tid).html(html);
+
+			
+		}
+	 }
+	,initMultiBox : function(pageId) {
+
+		var pageWebId = "#" + pageId + " ";
+	    /*========= 싱글 선택 ==========*/
+	    $.fn.dropdown = function(){
+	        var $btn_click = $(pageWebId + '.radio');
+	        var $open_ul = $(pageWebId + 'ul.select_lst');
+	        $( $btn_click ).next().addClass("viewHide");
+	        $( $btn_click ).on("click", function(){
+	            $( this ).next().removeClass("viewHide");
+	        });
+	        $($open_ul).find("input[type=radio]").on("click", function(){
+	            var $var = $( this ).next().text();
+	            $( this ).parent().parent().prev().children().text( $var );
+	            $( this ).parent().parent().prev().children().addClass( "active" );
+	            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
+	            $( this ).parent().parent().addClass("viewHide");
+	        });
+	        $($open_ul).find("input[type=radio]").on("focus", function(){
+	            var $var = $( this ).next().text();
+	            $( this ).parent().parent().prev().children().text( $var );
+	            $( this ).parent().parent().prev().children().addClass( "active" );
+	            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
+	        });
+	        $($open_ul).find("input[type=radio]").on("blur", function(){
+	            $( this ).parent().parent().prev().children().removeClass( "active" );
+	        });
+	        $( $btn_click ).next().on("mouseleave", function(){
+	            $( $btn_click ).next().addClass( "viewHide" );
+	        });
+	    };
+
+	    /*============= 멀티선택 ================*/
+		$(pageWebId + ".dropdown button").unbind("click");
+	    $(pageWebId + ".dropdown button").bind("click", function(){
+	        $(this).parent().children().find("ul").slideToggle('fast');
+	    });
+
+	    // 외부 링크
+		$(document).unbind('click');
+	    $(document).bind('click', function(e) {
+	      var $clicked = $(e.target);
+	      if (!$clicked.parents().hasClass("dropdown")) {
+	        $(pageWebId + ".dropdown ul").hide();
+	      };
+	    });
+
+	    //체크박스 체크할때
+	    $(document).on("click", pageWebId + ".mutliSelect input[type='checkbox']", function(){
+	    	var title = $(this).closest(pageWebId + '.mutliSelect').find('input[type="checkbox"]').val()
+			dlog(title + ":" + $(this).val() );
+	        title = $(this).val() + ",";
+
+	      	if ($(this).is(':checked')) {
+		        var html = '<span title="' + title + '">' + title + '</span>';
+		        $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").append(html);
+		        $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".hida").hide();
+	      	}
+	      	else {
+	        	$(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").find('span[title="' + title + '"]').remove();
+	        	var checkLength = $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").find('span').length;
+	        	if(checkLength == 0){
+	        	    $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".hida").show();
+	        	}
+	      	}
+	    });
+		$(pageWebId + '.select_box').dropdown();
+		
+	 }
+}
+
+
+var C_UICOM_backup = {
 	 calendarParm 	: {}
 	,commonDataMap 	: {
 		"MTB" : {} // 멀티 박스용 Data 저장소
