@@ -87,6 +87,37 @@
         });
     });
 
+    /*====== 레이어 파업 열고 닫기 =======*/
+    $(function ($) {
+        var $modal = $('.modal_wrap');
+
+        // Modal Anchor Click
+        $('a[href^="#modal-"]').click(function(){
+            var $this = $(this);
+            var $target = $($this.attr('href'));
+            $this.addClass('active');
+            $target.appendTo('body').attr('tabindex','0').fadeIn(200).focus(); // Target is move to body, and show.
+            return false;
+        });
+
+        // Close modal window and bg
+        function closeModal(){
+            $('a[href^="#modal-"].active').focus().removeClass('active');
+        };
+        // Close button
+        $('.btn_close,.modal_footer button').click(function(){
+            $(this).parent().parent().parent().fadeOut(200);
+        });
+        $modal.find('.btn_close').click(function(){
+            closeModal();
+        });
+        // ESC button
+        $(document).keydown(function(e){
+            if(e.keyCode != 27) return true;
+            return closeModal();
+        });
+    });
+
 
 })(window, window.jQuery);
 
