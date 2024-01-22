@@ -5,7 +5,9 @@
 <mapper namespace="admin">
 
 	<cache />
-	
+	<!--
+	MENU 관리 
+	 -->	
 	<select id="getMenuList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	admin.getMenuList
 			메뉴 리스트 조회 
@@ -42,7 +44,6 @@
 		</if>
 		ORDER BY SORT_ORDER
 	</select>
-	 
 	
 	<update id="updateMenu" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	admin.updateMenu
@@ -96,4 +97,150 @@
 		DELETE FROM ADMIN.TBL_EXP_MENU 
 		WHERE MENU_ID = #{MENU_ID} 
 	</delete>
+
+	<!--
+	CODE 관리 
+	 -->	
+	<select id="getGrpCodeList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	admin.getGrpCodeList
+			그룹 코드 리스트 조회 
+		*/
+		SELECT 
+		GRP_CODE_ID,GRP_CODE_NM,CODE_DESC,USE_YN,DEL_YN,SORT_ORDER
+		,UPDATE_USER,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE
+		,( SELECT COUNT(*) FROM ADMIN.TBL_EXP_CODE I WHERE I.GRP_CODE_ID = T.GRP_CODE_ID ) EXP_CODE_CNT
+		FROM ADMIN.TBL_EXP_GRPCODE T
+		WHERE 1 = 1
+		<if test=" GRP_CODE_ID != null and GRP_CODE_ID != '' ">
+		AND T.GRP_CODE_ID like '%' || #{GRP_CODE_ID} || '%'
+		</if>
+		<if test=" CODE_NM != null and CODE_NM != '' ">
+		AND T.GRP_CODE_NM like '%' || #{CODE_NM} || '%'
+		</if>
+		<if test=" CODE_DESC != null and CODE_DESC != '' ">
+		AND T.CODE_DESC like '%' || #{CODE_DESC} || '%'
+		</if>
+		<if test=" S_USE_YN != null and S_USE_YN != '' ">
+		AND T.USE_YN = #{S_USE_YN}
+		</if>
+		<if test=" S_DEL_YN != null and S_DEL_YN != '' ">
+		AND T.DEL_YN = #{S_DEL_YN}
+		</if>
+		
+		
+		ORDER BY SORT_ORDER
+	</select>
+	
+	<select id="getCodeList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	admin.getCodeList
+			코드 리스트 조회 
+		*/
+		SELECT 
+		T.GRP_CODE_ID,T.CODE_ID,T.CODE_NM,T.CODE_DESC,T.USE_YN,T.DEL_YN,T.SORT_ORDER,T.UPDATE_USER,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE
+		FROM ADMIN.TBL_EXP_CODE T 
+		WHERE 1 = 1
+		<if test=" GRP_CODE_ID != null and GRP_CODE_ID != '' ">
+		AND T.GRP_CODE_ID like '%' || #{GRP_CODE_ID} || '%'
+		</if>
+		<if test=" CODE_ID != null and CODE_ID != '' ">
+		AND T.CODE_ID = #{CODE_ID} 
+		</if>
+		<if test=" CODE_NM != null and CODE_NM != '' ">
+		AND T.CODE_NM like '%' || #{CODE_NM} || '%'
+		</if>
+		<if test=" CODE_DESC != null and CODE_DESC != '' ">
+		AND T.CODE_DESC like '%' || #{CODE_DESC} || '%'
+		</if>
+		<if test=" S_USE_YN != null and S_USE_YN != '' ">
+		AND T.USE_YN = #{S_USE_YN}
+		</if>
+		<if test=" S_DEL_YN != null and S_DEL_YN != '' ">
+		AND T.DEL_YN = #{S_DEL_YN}
+		</if>
+		ORDER BY SORT_ORDER	
+	</select>
+
+	<update id="updateGrpCode" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.updateGrpCode
+			그룹 코드 저장
+		*/
+		MERGE INTO ADMIN.TBL_EXP_GRPCODE T
+		USING (
+		  SELECT #{GRP_CODE_ID} AS GRP_CODE_ID,
+				 #{GRP_CODE_NM} AS GRP_CODE_NM,
+				 #{GRP_CODE_DESC} 	AS CODE_DESC,
+				 #{GRP_USE_YN} 		AS USE_YN,
+				 #{GRP_DEL_YN} 		AS DEL_YN,
+				 #{GRP_SORT_ORDER} 	AS SORT_ORDER,
+				 'admin'		AS UPDATE_USER,
+				 SYSDATE 		AS UPDATE_DATE 
+		  FROM dual
+		) S
+		ON (T.GRP_CODE_ID = S.GRP_CODE_ID)
+		WHEN MATCHED THEN
+		  UPDATE SET
+			T.GRP_CODE_NM  =S.GRP_CODE_NM,  
+			T.CODE_DESC    =S.CODE_DESC,    
+			T.USE_YN       =S.USE_YN,       
+			T.DEL_YN       =S.DEL_YN,       
+			T.SORT_ORDER   =S.SORT_ORDER,   
+			T.UPDATE_USER  =S.UPDATE_USER,  
+			T.UPDATE_DATE  =S.UPDATE_DATE   
+ 		WHEN NOT MATCHED THEN 
+		  INSERT (  GRP_CODE_ID,  GRP_CODE_NM,  CODE_DESC,  USE_YN, DEL_YN,   SORT_ORDER,  UPDATE_USER,  UPDATE_DATE) 
+		  VALUES (S.GRP_CODE_ID,S.GRP_CODE_NM,S.CODE_DESC,S.USE_YN,S.DEL_YN,S.SORT_ORDER,S.UPDATE_USER,S.UPDATE_DATE)
+	</update>
+
+	<update id="updateCode" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.updateCode
+			코드 저장
+		*/
+		MERGE INTO ADMIN.TBL_EXP_CODE T
+		USING (
+		  SELECT #{GRP_CODE_ID}	AS GRP_CODE_ID, 
+				 #{CODE_ID} 	AS CODE_ID, 
+				 #{CODE_NM} 	AS CODE_NM, 
+				 #{CODE_DESC}	AS CODE_DESC,   
+				 #{USE_YN}		AS USE_YN,      
+				 #{DEL_YN}		AS DEL_YN,      
+				 #{SORT_ORDER} 	AS SORT_ORDER,  
+				 'admin'		AS UPDATE_USER, 
+				 SYSDATE		AS UPDATE_DATE  
+		  FROM dual
+		) S
+		ON (T.GRP_CODE_ID = S.GRP_CODE_ID
+		AND T.CODE_ID	  = S.CODE_ID)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		  		T.CODE_NM		= S.CODE_NM,
+				T.CODE_DESC		= S.CODE_DESC, 
+				T.USE_YN		= S.USE_YN,    
+				T.DEL_YN		= S.DEL_YN,    
+				T.SORT_ORDER 	= S.SORT_ORDER,
+				T.UPDATE_USER	= S.UPDATE_USER,
+				T.UPDATE_DATE	= S.UPDATE_DATE
+
+		WHEN NOT MATCHED THEN 
+		  INSERT (  GRP_CODE_ID,  CODE_ID,  CODE_NM,  CODE_DESC,  USE_YN,  DEL_YN,  SORT_ORDER,  UPDATE_USER,  UPDATE_DATE) 
+		  VALUES (S.GRP_CODE_ID,S.CODE_ID,S.CODE_NM,S.CODE_DESC,S.USE_YN,S.DEL_YN,S.SORT_ORDER,S.UPDATE_USER,S.UPDATE_DATE) 
+ 	</update>
+ 	
+	<delete id="deleteGrpCode" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.deleteGrpCode
+			그룹 코드 삭제
+		*/
+		DELETE FROM ADMIN.TBL_EXP_GRPCODE 
+		WHERE GRP_CODE_ID = #{GRP_CODE_ID} 
+	</delete>
+
+	<delete id="deleteCode" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.deleteCode
+			코드 삭제
+		*/
+		DELETE FROM ADMIN.TBL_EXP_CODE 
+		WHERE GRP_CODE_ID 	= #{GRP_CODE_ID} 
+		AND 	CODE_ID 	= #{CODE_ID} 
+	</delete>
+
+
 </mapper>
