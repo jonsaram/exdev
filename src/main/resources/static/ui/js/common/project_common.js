@@ -809,7 +809,6 @@ var C_UICOM = {
 	    //체크박스 체크할때
 	    $(document).on("click", pageWebId + ".mutliSelect input[type='checkbox']", function(){
 	    	var title = $(this).closest(pageWebId + '.mutliSelect').find('input[type="checkbox"]').val()
-			dlog(title + ":" + $(this).val() );
 	        title = $(this).val() + ",";
 
 	      	if ($(this).is(':checked')) {
