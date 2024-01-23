@@ -24,14 +24,12 @@
 			var id = C_COM.makeUniqueId();
 			alert(id);
 		 }
-/*		
+		
 		,openPopup : function() {
-			C_POP.open('popupid', {}, function(retData) {
+			C_POP.open('popup_samplePopup', {}, function(retData) {
 				dalert(retData);
 			});
 		 }
-*/		 
-	
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -54,6 +52,6 @@
 
 	<br/><br/> <a href="javascript:C_PM.movePage('sample_highchart')">chart sample</a>
 	
-	<br/><br/> <a href="javascript:C_PM.movePage('sample_dateweek')">dateweek</a>
+	<br/><br/> <a href="javascript:<@pageId>.openPopup()">open popup</a>
 
 </div>
