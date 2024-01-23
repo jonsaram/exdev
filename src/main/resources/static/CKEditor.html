@@ -1,0 +1,30 @@
+<meta charset="utf-8">
+
+<script type="text/javascript"    src="./js/ckeditor/build/ckeditor.js"    ></script>
+<script type="text/javascript"    src="./js/ckeditor/build/UploadAdapter.js"    ></script>
+<script> 
+
+    function MyCustomUploadAdapterPlugin(editor) {
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+            return new UploadAdapter(loader)
+        }
+    }  
+    
+</script>
+<div>
+    CKEditor 샘플11
+    <div>
+        <div>
+                <input name="title" type="text" placeholder="제목"/><br>
+                <textarea name="content" id="content"></textarea><br>
+                <input type="button" value="등록">
+    </div>
+</div>
+<script>
+
+  ClassicEditor.create( document.querySelector( '#content' ), {
+    extraPlugins: [MyCustomUploadAdapterPlugin],
+    language: "ko"
+  } );
+  
+</script>

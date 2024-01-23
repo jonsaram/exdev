@@ -1,0 +1,84 @@
+<meta charset="utf-8">
+
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<script type="text/javascript"    src="./js/smartEditor/js/HuskyEZCreator.js"    ></script>
+<script>
+	
+	$(document).ready(function(){
+	    smartEditor();
+	});
+
+	let oEditors = [];
+	
+	smartEditor = function () { 
+	
+	    nhn.husky.EZCreator.createInIFrame({
+	        oAppRef: oEditors,
+	        elPlaceHolder: "editorTxt",
+	        sSkinURI: "./js/smartEditor/SmartEditor2Skin.html",
+	        fCreator: "createSEditor2"
+	    })          
+	}      
+	
+	fn_reload = function (aPhotoData) { 
+        
+        sContents = "";
+        
+        for(var i = 0; i <aPhotoData.length; i++){              
+            htData = aPhotoData[i];
+            //editorFiles\2024012311235118677454-82eb-4193-87ea-74a1642c8b98.jpg
+            //alert("2222 htData.sFileURL =>"+htData.sFileURL);
+            alert("2222 htData.sFileURL.toString() =>"+htData.sFileURL.toString());
+            
+            //var sHTML1 = htData.sFileUR.toString();
+            alert("1");
+            var sHTML = '<img src="http://localhost:8083/smartEditor/"'+htData.sFileUR+'"">';
+            
+            console.log(typeof htData.sFileURL); //Number
+            
+            oEditors.getById["editorTxt"].exec("PASTE_HTML", [sHTML]);    
+            
+            /*
+            if(!htData.sAlign){
+                htData.sAlign = "";
+            }
+            
+            aPhotoInfo = {
+                sName : htData.sFileName || "",
+                sOriginalImageURL : htData.sFileURL,
+                bNewLine : htData.bNewLine || false 
+            };
+            
+            sContents += this._getPhotoTag(aPhotoInfo);
+            */
+        }
+        
+		      
+    }       
+</script>
+<div>
+    smartEditor 샘플
+    <div>
+        <div>
+        <form method="POST" id="theForm" onsubmit="return false;" enctype="multipart/form-data">
+            <div>
+                <label>제목</label>
+                <input type="text" id="board_subject" name="board_subject" />
+            </div>
+            <div>
+                <label>내용</label>
+                <textarea id="editorTxt" name="editorTxt" rows="40" cols="200"></textarea>
+            </div>
+            <div>
+                <label>첨부 이미지</label>
+                <input type="file" id="board_file" name="board_file"/>
+            </div>
+            <div>
+                <div class="text-right">
+                    <button onclick="fn_reload()" class="btn btn-primary">작성하기</button>
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>

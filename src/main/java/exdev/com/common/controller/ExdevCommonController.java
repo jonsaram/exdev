@@ -15,15 +15,19 @@
  */
 package exdev.com.common.controller;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -31,6 +35,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.tomcat.util.http.fileupload.FileItem;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
+import org.apache.tomcat.util.http.fileupload.RequestContext;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
 
 import com.google.gson.Gson;
 
@@ -259,6 +269,82 @@ public class ExdevCommonController {
         
         return returnMap;
     }
-	
+
+    /** 
+     * 내용        : CKEditor 저장 샘플
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 01. 22 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+
+    @SuppressWarnings({ "unused", "rawtypes" })
+    @PostMapping("/editImageUpload1.do")
+    public @ResponseBody Map  editImageUpload1( 
+            MultipartRequest request,  HttpSession session,HttpServletRequest httpServletRequest)  throws Exception {
+        
+        Map<String, Object> returnMap = new HashMap<>();
+        SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
+        
+        
+        String localLocation = httpServletRequest.getSession().getServletContext().getRealPath("resources")+ "\\" + "editorFiles";
+
+        MultipartFile file = request.getFile("upload");
+        String fileName = file.getOriginalFilename();
+        String ext = fileName.substring(fileName.indexOf("."));
+
+        String uuidFileName = UUID.randomUUID() + ext;
+        String localPath = localLocation +"\\"+ uuidFileName;
+        System.out.println("localPath ===>"+localPath); 
+        File localFile = new File(localPath);
+        if(!localFile.exists()) {
+            localFile.mkdirs();
+        }
+        file.transferTo(localFile);
+        
+        returnMap.put("uploaded", true); 
+        returnMap.put("url", localPath); 
+        
+        //returnMap.put("uploaded", false);
+        return returnMap;
+    }
+
+    /** 
+     * 내용        : CKEditor 저장 샘플
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 01. 22 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+
+    @SuppressWarnings({ "unused", "rawtypes" })
+    @PostMapping("/editImageUpload.do")
+    public @ResponseBody Map  editImageUpload( 
+            MultipartRequest request,  HttpSession session,HttpServletRequest httpServletRequest)  throws Exception {
+        
+        Map returnMap = new HashMap();
+        SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
+        
+        
+        String localLocation = httpServletRequest.getSession().getServletContext().getRealPath("resources")+ "\\" + "editorFiles";
+
+        MultipartFile file = request.getFile("upload");
+        String fileName = file.getOriginalFilename();
+        String ext = fileName.substring(fileName.indexOf("."));
+
+        String uuidFileName = UUID.randomUUID() + ext;
+        String localPath = localLocation +"\\"+ uuidFileName;
+        System.out.println("localPath ===>"+localPath); 
+        File localFile = new File(localPath);
+        if(!localFile.exists()) {
+            localFile.mkdirs();
+        }
+        file.transferTo(localFile);
+        
+  
+        return returnMap;
+    }
 
 }
