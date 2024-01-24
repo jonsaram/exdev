@@ -14,6 +14,7 @@ import org.thymeleaf.context.Context;
 
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.service.ExdevBaseService;
+import exdev.com.util.GMailer;
 
 @Service("EmailService")
 public class EmailService  extends ExdevBaseService{
@@ -23,6 +24,8 @@ public class EmailService  extends ExdevBaseService{
 
     @Autowired
     private TemplateEngine templateEngine;
+    
+    private GMailer mailer;
     
     private String emilPath = ExdevConstants.EMAIL_TEMPLATE_PATH;
     
@@ -54,8 +57,16 @@ public class EmailService  extends ExdevBaseService{
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
 
+            
             // javaMailSender.send(mimeMessage);
-
+            try {
+            	mailer = new GMailer();
+				mailer.sendMail(subject, recipient, htmlBody);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            
             System.out.println("HTML 이메일 전송 성공!");
             resultInfo = makeResult(ExdevBaseService.REQUEST_SUCCESS, "", mailObj);
 

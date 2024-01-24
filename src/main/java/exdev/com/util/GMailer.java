@@ -1,4 +1,4 @@
-package exdev.com.common;
+package exdev.com.util;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -30,7 +30,7 @@ import static javax.mail.Message.RecipientType.TO;
 
 public class GMailer {
 
-    private static final String TEST_EMAIL = "trigger7kr@gmail.com";
+    private String TEST_EMAIL = "trigger7kr@gmail.com";
     private final Gmail service;
 
     public GMailer() throws Exception {
@@ -55,14 +55,20 @@ public class GMailer {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    public void sendMail(String subject, String message) throws Exception {
+    public void sendMail(String subject, String receiver, String message) throws Exception {
+
+        if (receiver == null || "".equals(receiver)) {
+            receiver = TEST_EMAIL;
+        }
+
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);
         MimeMessage email = new MimeMessage(session);
-        email.setFrom(new InternetAddress(TEST_EMAIL));
-        email.addRecipient(TO, new InternetAddress(TEST_EMAIL));
+        email.setFrom(new InternetAddress(receiver));
+        email.addRecipient(TO, new InternetAddress(receiver));
         email.setSubject(subject);
-        email.setText(message);
+
+        email.setContent(message, "text/html; charset=utf-8");
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         email.writeTo(buffer);
@@ -84,9 +90,4 @@ public class GMailer {
             }
         }
     }
-
-    public static void main(String[] args) throws Exception {
-        new GMailer().sendMail("지메일 테스트", "성공");
-    }
-
 }

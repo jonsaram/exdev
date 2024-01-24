@@ -77,8 +77,16 @@
 			    <@pageId>.rdoHandler();
 			    
 			    $("#<@pageId>_insert").click(function(){
-			    	
-					<@pageId>.insertItem()
+			    	debugger;
+			    	const id = 10;
+					C_POP.open('popup_roleUpdatePopup', {id: id}, function(retData) {
+						
+						if(isValid(retData)){
+							
+							<@pageId>.insertItem();
+						}
+					});
+
 			    })
 			    
 			    $("#<@pageId>_delete").click(function(){
@@ -221,7 +229,7 @@
 						</tbody>
 <script type="text/x-jsrender" id="userRoleList_template">	
 				{{for list}}
-				<tr id="spCustomer_{{:#index}}">
+				<tr id="role_{{:#index}}">
 					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:ROLE_ID}}'></td>
 					<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		>{{:SP_CSTM_ID}}</td>
  					<td id='ROLE_ID'		value='{{:ROLE_ID}}'		>{{:ROLE_ID}}</td>
