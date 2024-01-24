@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome Email</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+    h1 {
+        color: #007BFF;
+    }
+    p {
+        line-height: 1.6;
+    }
+</style>
+<body>
+    <div class="container">
+        <h1 th:text="'안녕하세요, ' + ${cxt_name1} + '님! 환영합니다.'"></h1>
+        <p>
+            회원 가입해 주셔서 감사합니다.
+			<h1 th:text="${cxt_name2}"></h1>를 기다리고 있었어요.
+            프로그램을 자유롭게 즐겨보시고 궁금한 점이 있으면 언제든지 문의해 주세요.
+        </p>
+        <p>좋은 하루 보내세요,<br/>Explan Team</p>    
+	</div>
+</body>
+</html>

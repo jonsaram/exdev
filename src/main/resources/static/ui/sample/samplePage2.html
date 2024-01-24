@@ -29,8 +29,14 @@
 		 }
 		,mailTest : function() {
 			var parm = {
-				 serviceId 				: "MailService.requestRegistStatusSendMail"
-				,requestParm			: {}
+				 serviceId 				: "EmailService.sendHtmlEmail"
+				,requestParm			: {
+											recipient:"trigger7@naver.com",
+											subject:"Welcome to Join me",
+											templateName:"welcome-email",
+											cxt_name1:"라이더",
+											cxt_name2:"트리거",
+										   }
 			}
 			
 			C_COM.requestService(parm, function(resultData) {
