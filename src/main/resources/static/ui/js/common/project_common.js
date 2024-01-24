@@ -732,7 +732,12 @@ var C_POP = {
 // UI 관련 공통
 
 var C_UICOM = {
-	 selectedDataListMap : {} 	// selectBox 에서 선택한 내용 담기
+	 dataListMap : {} 	// selectBox 에서 선택한 내용 담기
+	,getData : function(targetId, pageId){
+		if(isEmpty(pageId)) pageId = C_PM.getCurrentPageId()
+		var pageTargetId = pageId + targetId;
+		return C_UICOM.dataListMap[pageTargetId];
+	 }
 	,init : function() {
 		
 	 }
@@ -746,6 +751,8 @@ var C_UICOM = {
 		
 		var pageId = C_PM.getCurrentPageId();
 		var pageTargetId = pageId + targetId;
+		
+		C_UICOM.dataListMap[pageTargetId] = undefined;
 		
 		if( type == "single") {
 			
@@ -792,19 +799,19 @@ var C_UICOM = {
 		
 		var viewtext 	= "";
 		var valList		= [];
-		var selectCnt   = 0;
+		var selectCnt   = -1;
 		$(pageWebId + " input[type=checkbox]:checked").each(function(idx) {
 			var val  = $(this).val();
 			var name = $(this).attr("nametext");
 			if(viewtext == "") viewtext = name;
-			valList.puah(val);
+			valList.push(val);
 			selectCnt = idx;
 		});
-		if(selectCnt == 0) viewtext = "선택";
-		if(selectCnt == 1) viewtext = viewtext + " 외" + (selectCnt - 1);
+		if(selectCnt < 0) viewtext = "선택";
+		if(selectCnt > 0) viewtext = viewtext + " 외 " + selectCnt;
 		
 		$(pageWebId + " .hida").html(viewtext);
-		C_UICOM.selectedDataListMap[pageTargetId] = valList;
+		C_UICOM.dataListMap[pageTargetId] = valList;
 	 }
 }
 

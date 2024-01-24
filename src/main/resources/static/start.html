@@ -130,14 +130,14 @@
 		-->
 		<script type="text/x-jsrender" id="_comMultibox_template">	
 			<button type="button" class="btn arrow">
-				<span class="hida">Select</span>
+				<span class="hida">선택</span>
 				<p class="multiSel"></p>
 			</button>
 		    <div class="mutliSelect">
 		        <ul>
 				{{for list ~targetId=targetId}}
 		            <li>
-		                <input type="checkbox" value="{{:CD}}" id="mutli{{:~targetId}}{{:#index}}"><label for="mutli{{:~targetId}}{{:#index}}">{{:NM}}</label>
+		                <input type="checkbox" nametext="{{:NM}}" value="{{:CD}}" id="mutli{{:~targetId}}{{:#index}}" onClick="C_UICOM.clickMultiBox('{{:~targetId}}')"><label for="mutli{{:~targetId}}{{:#index}}">{{:NM}}</label>
 		    		</li>
 				{{/for}}
 		        </ul>
