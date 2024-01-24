@@ -422,4 +422,93 @@
 		AND	  USER_ID	 = #{USER_ID}
 	</delete>
 	
+	
+	<!--
+	권한매핑 관리 ( 사용자 - 권한 )
+	 -->	
+	<select id="getAuthList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	admin.getAuthList
+			권한매핑 리스트 조회 
+		*/
+		SELECT SP_CSTM_ID 
+		,USER_ID
+		,ROLE_ID
+		FROM ADMIN.TBL_EXP_AUTH T
+		WHERE 1 = 1
+	</select>
+	
+	<update id="updateAuth" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.updateAuth
+			권한 매핑 Auth  저장
+		*/
+		MERGE INTO ADMIN.TBL_EXP_AUTH T
+		USING (
+		  SELECT #{ROLE_ID} 	AS ROLE_ID
+		  FROM dual
+		) S
+		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+		AND T.USER_ID 		= S.USER_ID
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.ROLE_ID 		= S.ROLE_ID
+		WHEN NOT MATCHED THEN 
+    		INSERT (  SP_CSTM_ID,   USER_ID,   ROLE_ID)
+   			INSERT (S.SP_CSTM_ID, S.USER_ID, S.ROLE_ID)
+	</update>
+	
+	<delete id="deleteAuth" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.deleteAuth
+			권한매핑 Auth 삭제
+		*/
+		DELETE FROM ADMIN.TBL_EXP_AUTH 
+		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		AND	  USER_ID	 = #{USER_ID}
+	</delete>
+	
+	<!--
+	롤/매뉴 매핑 관리
+	 -->	
+	<select id="getAuthList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	admin.getAuthList
+			권한매핑 리스트 조회 
+		*/
+		SELECT SP_CSTM_ID 
+		,USER_ID
+		,ROLE_ID
+		FROM ADMIN.TBL_EXP_ROLEMENU T
+		WHERE 1 = 1
+	</select>
+	
+	<update id="updateAuth" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.updateAuth
+			권한 매핑 Auth  저장
+		*/
+		MERGE INTO ADMIN.TBL_EXP_ROLEMENU T
+		USING (
+		  SELECT #{ROLE_ID} 	AS ROLE_ID
+		  FROM dual
+		) S
+		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+		AND T.ROLE_ID 		= S.ROLE_ID
+		AND T.MENU_ID 		= S.MENU_ID
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.AUTH_TYPE		= S.AUTH_TYPE
+		WHEN NOT MATCHED THEN 
+    		INSERT (  SP_CSTM_ID,   ROLE_ID,   MENU_ID,	  AUTH_TYPE)
+   			INSERT (S.SP_CSTM_ID, S.ROLE_ID, S.MENU_ID, S.AUTH_TYPE)
+	</update>
+	
+	<delete id="deleteAuth" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.deleteAuth
+			권한매핑 Auth 삭제
+		*/
+		DELETE FROM ADMIN.TBL_EXP_ROLEMENU 
+		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		AND	  ROLE_ID	 = #{ROLE_ID}
+		AND	  MENU_ID	 = #{MENU_ID}
+	</delete>
+	
 </mapper>
