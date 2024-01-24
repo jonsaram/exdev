@@ -1,3 +1,7 @@
+var G_VAL = {
+	SP_CSTM_ID : ""
+}
+
 var C_COM = {
 	 mousePos 	: { x : 0, y : 0 }
 	,lateFn		: {}
@@ -728,7 +732,8 @@ var C_POP = {
 // UI 관련 공통
 
 var C_UICOM = {
-	 init : function() {
+	 selectedDataListMap : {} 	// selectBox 에서 선택한 내용 담기
+	,init : function() {
 		
 	 }
 	,makeSelectBox : function(pageId, mboxList) {
@@ -737,7 +742,11 @@ var C_UICOM = {
 		 });
 		 C_UICOM.initMultiBox(pageId);
 	 }
-	,makeSelectBoxExec : function(list, tid, type) {
+	,makeSelectBoxExec : function(list, targetId, type) {
+		
+		var pageId = C_PM.getCurrentPageId();
+		var pageTargetId = pageId + targetId;
+		
 		if( type == "single") {
 			
 		} else {
@@ -746,15 +755,15 @@ var C_UICOM = {
 				rlist.push({"CD":this[0], "NM":this[1]});
 			});
 			var rparm = {
-				 targetId 		: tid
+				 targetId 		: targetId
 				,list			: rlist
 			}
 			
 			var html = $("#_comMultibox_template").render(rparm)
 
-			$("#" + tid).addClass("dropdown").addClass("fl");
+			$("#" + targetId).addClass("dropdown").addClass("fl");
 
-			$("#" + tid).html(html);
+			$("#" + targetId).html(html);
 
 			
 		}
@@ -762,41 +771,11 @@ var C_UICOM = {
 	,initMultiBox : function(pageId) {
 
 		var pageWebId = "#" + pageId + " ";
-	    /*========= 싱글 선택 ==========*/
-	    $.fn.dropdown = function(){
-	        var $btn_click = $(pageWebId + '.radio');
-	        var $open_ul = $(pageWebId + 'ul.select_lst');
-	        $( $btn_click ).next().addClass("viewHide");
-	        $( $btn_click ).on("click", function(){
-	            $( this ).next().removeClass("viewHide");
-	        });
-	        $($open_ul).find("input[type=radio]").on("click", function(){
-	            var $var = $( this ).next().text();
-	            $( this ).parent().parent().prev().children().text( $var );
-	            $( this ).parent().parent().prev().children().addClass( "active" );
-	            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
-	            $( this ).parent().parent().addClass("viewHide");
-	        });
-	        $($open_ul).find("input[type=radio]").on("focus", function(){
-	            var $var = $( this ).next().text();
-	            $( this ).parent().parent().prev().children().text( $var );
-	            $( this ).parent().parent().prev().children().addClass( "active" );
-	            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
-	        });
-	        $($open_ul).find("input[type=radio]").on("blur", function(){
-	            $( this ).parent().parent().prev().children().removeClass( "active" );
-	        });
-	        $( $btn_click ).next().on("mouseleave", function(){
-	            $( $btn_click ).next().addClass( "viewHide" );
-	        });
-	    };
-
 	    /*============= 멀티선택 ================*/
 		$(pageWebId + ".dropdown button").unbind("click");
 	    $(pageWebId + ".dropdown button").bind("click", function(){
 	        $(this).parent().children().find("ul").slideToggle('fast');
 	    });
-
 	    // 외부 링크
 		$(document).unbind('click');
 	    $(document).bind('click', function(e) {
@@ -805,27 +784,27 @@ var C_UICOM = {
 	        $(pageWebId + ".dropdown ul").hide();
 	      };
 	    });
-
-	    //체크박스 체크할때
-	    $(document).on("click", pageWebId + ".mutliSelect input[type='checkbox']", function(){
-	    	var title = $(this).closest(pageWebId + '.mutliSelect').find('input[type="checkbox"]').val()
-	        title = $(this).val() + ",";
-
-	      	if ($(this).is(':checked')) {
-		        var html = '<span title="' + title + '">' + title + '</span>';
-		        $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").append(html);
-		        $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".hida").hide();
-	      	}
-	      	else {
-	        	$(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").find('span[title="' + title + '"]').remove();
-	        	var checkLength = $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".multiSel").find('span').length;
-	        	if(checkLength == 0){
-	        	    $(this).closest(pageWebId + '.mutliSelect').parent().children().find(".hida").show();
-	        	}
-	      	}
-	    });
-		$(pageWebId + '.select_box').dropdown();
+	 }
+	,clickMultiBox : function(targetId) {
+		var pageId = C_PM.getCurrentPageId();
+		var pageWebId = "#" + pageId + " #" + targetId + " ";
+		var pageTargetId = pageId + targetId;
 		
+		var viewtext 	= "";
+		var valList		= [];
+		var selectCnt   = 0;
+		$(pageWebId + " input[type=checkbox]:checked").each(function(idx) {
+			var val  = $(this).val();
+			var name = $(this).attr("nametext");
+			if(viewtext == "") viewtext = name;
+			valList.puah(val);
+			selectCnt = idx;
+		});
+		if(selectCnt == 0) viewtext = "선택";
+		if(selectCnt == 1) viewtext = viewtext + " 외" + (selectCnt - 1);
+		
+		$(pageWebId + " .hida").html(viewtext);
+		C_UICOM.selectedDataListMap[pageTargetId] = valList;
 	 }
 }
 
