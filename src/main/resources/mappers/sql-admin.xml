@@ -297,5 +297,218 @@
 		AND 	CODE_ID 	= #{CODE_ID} 
 	</delete>
 
+	<!--
+	ROLE 관리 
+	 -->	
+	<select id="getRoleList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	admin.getRoleList
+			Role 리스트 조회 
+		*/
+		SELECT SP_CSTM_ID 
+		,ROLE_ID
+		,ROLE_NM
+		,ROLE_DESC
+		,USE_YN
+		,DEL_YN
+		,SORT_ORDER
+		,UPDATE_USER
+		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+		FROM ADMIN.TBL_EXP_ROLE T
+		WHERE 1 = 1
+	</select>
+	
+	<update id="updateRole" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.updateRole
+			Role  저장
+		*/
+		MERGE INTO ADMIN.TBL_EXP_ROLE T
+		USING (
+		  SELECT #{ROLE_NM} AS ROLE_NM,
+		         #{ROLE_DESC} AS ROLE_DESC,
+		         #{USE_YN} AS USE_YN,
+		         #{DEL_YN} AS DEL_YN,
+		         #{SORT_ORDER} AS SORT_ORDER,
+		         'admin' AS UPDATE_USER,
+		         SYSDATE AS UPDATE_DATE
+		  FROM dual
+		) S
+		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+		AND T.ROLE_ID 		= S.ROLE_ID
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.SP_CSTM_NM = S.SP_CSTM_NM,
+		    T.SP_CSTM_DESC = S.SP_CSTM_DESC,
+		    T.USE_YN = S.USE_YN,
+		    T.DEL_YN = S.DEL_YN,
+		    T.UPDATE_USER = S.UPDATE_USER,
+		    T.UPDATE_DATE = S.UPDATE_DATE
+		WHEN NOT MATCHED THEN 
+    		INSERT (  SP_CSTM_ID,   ROLE_ID,   ROLE_NM,   ROLE_DESC,   USE_YN,   DEL_YN,   SORT_ORDER,   UPDATE_USER,   UPDATE_DATE )
+   			INSERT (S.SP_CSTM_ID, S.ROLE_ID, S.ROLE_NM, S.ROLE_DESC, S.USE_YN, S.DEL_YN, S.SORT_ORDER, S.UPDATE_USER, S.UPDATE_DATE )
+	</update>
+	
+	<delete id="deleteRole" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.deleteRole
+			Role 삭제
+		*/
+		DELETE FROM ADMIN.TBL_EXP_ROLE 
+		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		AND	  ROLE_ID	 = #{ROLE_ID}
+	</delete>
+	
 
+	<!--
+	USER 관리 
+	 -->	
+	<select id="getUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	admin.getUserList
+			User 리스트 조회 
+		*/
+		SELECT SP_CSTM_ID 
+		,USER_ID
+		,USER_NM
+		,USER_DESC
+		,E_MAIL
+		,PHONE_NUM
+		,USE_YN
+		,DEL_YN
+		,UPDATE_USER
+		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+		FROM ADMIN.TBL_EXP_USER T
+		WHERE 1 = 1
+	</select>
+	
+	<update id="updateUser" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.updateUser
+			User  저장
+		*/
+		MERGE INTO ADMIN.TBL_EXP_USER T
+		USING (
+		  SELECT #{USER_NM} 	AS USER_NM,
+		         #{USER_DESC} 	AS USER_DESC,
+		         #{E_MAIL} 		AS E_MAIL,
+		         #{PHONE_NUM} 	AS PHONE_NUM,
+		         #{USE_YN} 		AS USE_YN,
+		         #{DEL_YN} 		AS DEL_YN,
+		         'admin' 		AS UPDATE_USER,
+		         SYSDATE 		AS UPDATE_DATE
+		  FROM dual
+		) S
+		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+		AND T.USER_ID 		= S.USER_ID
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.USER_NM 		= S.USER_NM,
+		    T.USER_DESC 	= S.USER_DESC,
+		    T.E_MAIL 		= S.E_MAIL,
+		    T.PHONE_NUM 	= S.PHONE_NUM,
+		    T.USE_YN 		= S.USE_YN,
+		    T.DEL_YN 		= S.DEL_YN,
+		    T.UPDATE_USER 	= S.UPDATE_USER,
+		    T.UPDATE_DATE 	= S.UPDATE_DATE
+		WHEN NOT MATCHED THEN 
+    		INSERT (  SP_CSTM_ID,   USER_ID,   USER_NM,   USER_DESC,   E_MAIL,   PHONE_NUM,   USE_YN,   DEL_YN,  UPDATE_USER,   UPDATE_DATE )
+   			INSERT (S.SP_CSTM_ID, S.USER_ID, S.USER_NM, S.USER_DESC, S.E_MAIL, S.PHONE_NUM, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE )
+	</update>
+	
+	<delete id="deleteUser" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.deleteUser
+			User 삭제
+		*/
+		DELETE FROM ADMIN.TBL_EXP_USER 
+		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		AND	  USER_ID	 = #{USER_ID}
+	</delete>
+	
+	
+	<!--
+	권한매핑 관리 ( 사용자 - 권한 )
+	 -->	
+	<select id="getAuthList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	admin.getAuthList
+			권한매핑 리스트 조회 
+		*/
+		SELECT SP_CSTM_ID 
+		,USER_ID
+		,ROLE_ID
+		FROM ADMIN.TBL_EXP_AUTH T
+		WHERE 1 = 1
+	</select>
+	
+	<update id="updateAuth" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.updateAuth
+			권한 매핑 Auth  저장
+		*/
+		MERGE INTO ADMIN.TBL_EXP_AUTH T
+		USING (
+		  SELECT #{ROLE_ID} 	AS ROLE_ID
+		  FROM dual
+		) S
+		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+		AND T.USER_ID 		= S.USER_ID
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.ROLE_ID 		= S.ROLE_ID
+		WHEN NOT MATCHED THEN 
+    		INSERT (  SP_CSTM_ID,   USER_ID,   ROLE_ID)
+   			INSERT (S.SP_CSTM_ID, S.USER_ID, S.ROLE_ID)
+	</update>
+	
+	<delete id="deleteAuth" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.deleteAuth
+			권한매핑 Auth 삭제
+		*/
+		DELETE FROM ADMIN.TBL_EXP_AUTH 
+		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		AND	  USER_ID	 = #{USER_ID}
+	</delete>
+	
+	<!--
+	롤/매뉴 매핑 관리
+	 -->	
+	<select id="getRoleMenuMapList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	admin.getRoleMenuMapList
+			권한매핑 리스트 조회 
+		*/
+		SELECT SP_CSTM_ID 
+		,USER_ID
+		,ROLE_ID
+		FROM ADMIN.TBL_EXP_ROLEMENU T
+		WHERE 1 = 1
+	</select>
+	
+	<update id="updateRoleMenuMap" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.updateRoleMenuMap
+			권한 매핑 Auth  저장
+		*/
+		MERGE INTO ADMIN.TBL_EXP_ROLEMENU T
+		USING (
+		  SELECT #{ROLE_ID} 	AS ROLE_ID
+		  FROM dual
+		) S
+		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+		AND T.ROLE_ID 		= S.ROLE_ID
+		AND T.MENU_ID 		= S.MENU_ID
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.AUTH_TYPE		= S.AUTH_TYPE
+		WHEN NOT MATCHED THEN 
+    		INSERT (  SP_CSTM_ID,   ROLE_ID,   MENU_ID,	  AUTH_TYPE)
+   			INSERT (S.SP_CSTM_ID, S.ROLE_ID, S.MENU_ID, S.AUTH_TYPE)
+	</update>
+	
+	<delete id="deleteRoleMenuMap" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	admin.deleteRoleMenuMap
+			권한매핑 Auth 삭제
+		*/
+		DELETE FROM ADMIN.TBL_EXP_ROLEMENU 
+		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		AND	  ROLE_ID	 = #{ROLE_ID}
+		AND	  MENU_ID	 = #{MENU_ID}
+	</delete>
+	
 </mapper>

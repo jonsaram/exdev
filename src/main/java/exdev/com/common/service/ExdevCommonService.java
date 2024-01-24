@@ -17,6 +17,7 @@ import exdev.com.ExdevCommonAPI;
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.common.vo.SessionVO;
+import exdev.com.service.EmailService;
 import exdev.com.service.ExdevSampleService;
 
 @Service("ExdevCommonService")
@@ -26,6 +27,9 @@ public class ExdevCommonService extends ExdevBaseService
 {
 	@Autowired
 	private ExdevSampleService 	sampleService;
+	
+	@Autowired
+	private EmailService 	emailService;
 	
 	@Autowired
 	private ExdevCommonDao commonDao;
@@ -56,6 +60,9 @@ public class ExdevCommonService extends ExdevBaseService
 		} else if("ExdevSampleService".equals(classId)) {
 			targetService = sampleService;
 			targetMethod = ExdevSampleService.class.getMethod(methodId, Map.class);
+		} else if("EmailService".equals(classId)) {
+			targetService = emailService;
+			targetMethod = EmailService.class.getMethod(methodId, Map.class);
 		}
 			
 		Object resultObject = (Object)targetMethod.invoke(targetService, requestParm);

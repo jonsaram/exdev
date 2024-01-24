@@ -29,8 +29,14 @@
 		 }
 		,mailTest : function() {
 			var parm = {
-				 serviceId 				: "MailService.requestRegistStatusSendMail"
-				,requestParm			: {}
+				 serviceId 				: "EmailService.sendHtmlEmail"
+				,requestParm			: {
+											recipient:"trigger7kr@gmail.com",
+											subject:"Welcome to Join me",
+											templateName:"welcome-email",
+											cxt_name1:"라이더",
+											cxt_name2:"트리거",
+										   }
 			}
 			
 			C_COM.requestService(parm, function(resultData) {
@@ -105,6 +111,10 @@
 	<br/><br/> <a href="javascript:C_PM.movePage('sample_code')">[CODE] sample</a>
 	
 	<br/><br/> <a href="javascript:C_PM.movePage('sample_spCustom')">[TBL_EXP_SP_CSTM] sample</a>
+	
+	<br/><br/> <a href="javascript:C_PM.movePage('sample_role')">[TBL_EXP_ROLE] sample</a>
+	
+	<br/><br/> <a href="javascript:C_PM.movePage('sample_user')">[TBL_EXP_USER] sample</a>
 	
 	<br/><br/> <div style='border:1px solid black;margin-left:200px;'>
 				<input type="file" id="excelFileInput" />
