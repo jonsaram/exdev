@@ -1,0 +1,117 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+			
+		 recvData : []	
+		 ,close : function(returnData) {
+			 
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+		 ,apply : () =>{
+
+			 let returnData = {};
+			 const $inputs = $("#<@popupId>_items input");
+			 $.each( $inputs, function(){
+				 
+				 const key = $(this).attr("id");
+				 const val = $(this).val();
+				 if(key)
+				 	returnData[key] = val;
+			 })
+			 returnData["USE_YN"] = <@popupId>.fnRadioCheckValue("USE_YN");
+			 returnData["DEL_YN"] = <@popupId>.fnRadioCheckValue("DEL_YN");
+			 <@popupId>.close(returnData);
+		 }		
+		 ,fnRadioCheckValue : (name , pValue) => {
+
+				const radioButtons = $("#<@popupId>_items input[name='"+name+"']");
+				if( pValue ){
+				 
+					const theRadioBtn = radioButtons.filter("[value='"+pValue+"']");
+					 theRadioBtn.prop('checked',true);
+				}else{
+				
+					const selectedValue = radioButtons.filter(":checked").val();
+					return selectedValue;
+				 }
+		}
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+
+		$("#<@popupId>_items #SP_CSTM_ID").val(G_VAL.SP_CSTM_ID);
+		
+		<@popupId>.recvData = data.param;
+		
+		<@popupId>.recvData.forEach( item =>{
+			
+			$("#<@popupId>_items #"+item.key).val(item.val);
+			
+		});
+
+ 		if( <@popupId>.recvData.length > 0 ){
+ 			
+  			const useYnVal = <@popupId>.recvData.find(item => item.key === "USE_YN")?.val;
+ 			const delYnVal = <@popupId>.recvData.find(item => item.key === "DEL_YN")?.val;
+			<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
+			<@popupId>.fnRadioCheckValue("DEL_YN",delYnVal);
+		}else{
+			
+			<@popupId>.fnRadioCheckValue("USE_YN","Y");
+			<@popupId>.fnRadioCheckValue("DEL_YN","N");
+		}
+		
+	});
+</script>
+
+<style>
+.bgr dt {
+	width: 100px;
+}
+</style>
+
+<div class="modal_wrap">
+	<div class="modal" style="width:430px;height:1000px;">
+		<div class="modal_header">
+			<strong class="tit">User 등록</strong>
+			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<dl class="info_wrap bgr" id="<@popupId>_items">
+				<dt>USER_ID</dt>
+				<dd><input type="text"  id="USER_ID" disabled></dd>
+  				<dt>USER_NM</dt>
+				<dd><input type="text"  id="USER_NM"></dd>
+				<dt>USER_DESC</dt>
+				<dd><input type="text"  id="USER_DESC"></dd>
+				<dt>E_MAIL</dt>
+				<dd><input type="text"  id="E_MAIL"></dd>
+				<dt>PHONE_NUM</dt>
+				<dd><input type="text"  id="PHONE_NUM"></dd>
+				<dt>USE YN</dt>
+				<dd><div class='rdoGrp' > 	
+								<label><input type='radio' name='USE_YN' value="Y" />Yes</label>
+								<label><input type='radio' name='USE_YN' value="N"  />No</label>
+					</div>
+				</dd>
+				<dt>DEL YN</dt>
+				<dd><div class='rdoGrp' >
+								<label><input type='radio' name='DEL_YN' value="Y" />Yes</label>
+								<label><input type='radio' name='DEL_YN' value="N"  />No</label>
+					</div>
+				</dd>
+				<dt>UPDATE_USER</dt>
+				<dd><input type="text"  id="UPDATE_USER" disabled ></dd>
+				<dt>UPDATE_DATE</dt>
+				<dd><input type="text"  id="UPDATE_DATE" disabled ></dd>
+				
+			</dl>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select" onclick="<@popupId>.apply()" >확인</button>
+			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+		</div>
+	</div>
+</div>
+

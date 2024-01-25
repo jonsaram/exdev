@@ -12,12 +12,15 @@
 							 		,["3333", "고객번호2"	]
 							 		,["4444", "고객명"		]
 							 ]
-						 	,targetId : "customerType" 
+						 	,targetId : "<@pageId>_multiSelect" 
 						 }
 					]
 					C_UICOM.makeSelectBox("<@pageId>", multiboxList);
 				 
 			 }
+			,setSpCstmId : (dataList) =>{
+				if( dataList && dataList.length > 0 && G_VAL.SP_CSTM_ID=="")G_VAL.SP_CSTM_ID = dataList[0].SP_CSTM_ID;
+			}
 			,searchList : () => {
 				
 				const requestParm = {};
@@ -27,10 +30,12 @@
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 				
+					<@pageId>.setSpCstmId(resultData.data);
 					var rparm = {
 							 targetId 		: "userList"
 							,list			: resultData.data
 					}
+					
 				
 					C_COM.renderHtml("<@pageId>", rparm);
 
@@ -38,13 +43,13 @@
 				});
 				
 			}
-			,insertItem : () => {
+			,updateItem : (param) => {
 
-				<@pageId>.updateItem();
-			}  
-			,updateItem : () => {
-
-				const requestParm = {};
+				const requestParm = param ? param : {} ;
+				requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
+				if( !requestParm["USER_ID"] || requestParm["USER_ID"] == ''){
+					requestParm["USER_ID"] = C_COM.makeUniqueId();
+				}
 				var parm = {
 						 queryId 		: "admin.updateUser"
 						,requestParm	: requestParm
@@ -70,29 +75,68 @@
 						console.log("Item 삭제 성공")
 					}				
 				});				
-			} 			
+			}
+			,openPopup : ($tds) => {
+
+				let param = [];	
+				$.each( $tds , function(){
+					console.log(""+this)
+					const key = $(this).attr("id");
+					const val = $(this).attr("value");
+					param.push( { "key": key, "val": val } );
+					
+				})
+				
+				C_POP.open('popup_userUpdatePopup', {param:param}, function(retData) {
+					
+					if(isValid(retData)){
+						<@pageId>.updateItem(retData);
+					}
+				});
+				
+			}
+			, deleteOne : (key) =>{
+				
+	    		const SP_CSTM_ID 	= key.split("||")[0];
+	    		const USER_ID 		= key.split("||")[1];
+	    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,USER_ID:USER_ID})
+	    		
+			}
 			,setHandler : () => {
-			    
+				
 				<@pageId>.chkHandler();
-			    <@pageId>.rdoHandler();
 			    
 			    $("#<@pageId>_insert").click(function(){
 			    	
-					<@pageId>.insertItem()
+					<@pageId>.openPopup();
+
 			    })
 			    
 			    $("#<@pageId>_delete").click(function(){
 			    	
-			    	<@pageId>.checkedItems.forEach( item =>{
-			    		const SP_CSTM_ID 	= item.split("||")[0];
-			    		const USER_ID 		= item.split("||")[1];
-			    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,USER_ID:USER_ID})
+			    	<@pageId>.checkedItems.forEach( key =>{
+						<@pageId>.deleteOne(key);
 			    	})
+			    	
 			    })
 			    
 			    $("#<@pageId>_excelDownload").click(function(){
 			    	
 			    	console.log("엑셀 다운로드");
+			    })
+			    
+			    $("[id^='<@pageId>_modify_']").click(function(){
+			    	
+			    	const index = $(this).attr("index");
+					const $tds = $("#tr_"+index+" td");
+					<@pageId>.openPopup($tds);
+					
+			    })
+			    
+			    $("[id^='<@pageId>_delete_']").click(function(){
+
+			    	const key = $(this).attr("key");
+					<@pageId>.deleteOne(key);
 			    })
 			    
 			}
@@ -107,7 +151,7 @@
 				    <@pageId>.checkedItems = isAllChk ? ckboxes.map(function() { return this.value; }).get() : [];
 
 			    });
-			    $("[id^='<@pageId>_ck_'").click(function(){
+			    $("[id^='<@pageId>_ck_']").click(function(){
 			    	
   			        if ($(this).prop("checked")){<@pageId>.checkedItems.push($(this).val());}
 			    	else { <@pageId>.checkedItems = <@pageId>.checkedItems.filter(item => item !== $(this).val());}  
@@ -118,12 +162,6 @@
 			        
 			    });
 			    
-			}
-			,rdoHandler : () => {
-				
-				 $('input[type="radio"]').on('click', function() {
-					 console.log( $(this).attr("name") + $(this).val() );
- 			    });
 			}
 	}
 	// Page Load가 완료된후 실행 된다.
@@ -151,7 +189,7 @@
 					<div class="fl">
 						<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 
-						<div style="width:200px;" id="customerType"></div>
+						<div style="width:200px;" id="<@pageId>_multiSelect"></div>
 
 						<div class="search_inputWrap">
 							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
@@ -159,14 +197,8 @@
 					</div>
 
 					<div class="search_right">
-						<button type="button" class="btn select fl" id="<@pageId>_insert"><a href="#modal-ex"><i class="icon_user_plus"></i>상담 고객 추가</a></button>
-						<button type="button" class="btn fl"><i class="icon_letter"></i>고객 문서 전달</button>
+						<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button>
 						<button type="button" class="btn fl"  id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
-						<SPAN>USE YN: 	
-								<label><input type='radio' name='USE_YN' value=""  id="useYn_All" checked/>ALL</label>
-								<label><input type='radio' name='USE_YN' value="Y" id="useYn_Y"			 />Yes</label>
-								<label><input type='radio' name='USE_YN' value="N" id="useYn_N" 		 />No</label>
-						</SPAN>
 						<!-- 싱글 선택 -->
 						<div class="select_box fl" style="width:132px">
 							<button type="button" class="btn radio"><span>50개 보기</span></button>
@@ -193,7 +225,6 @@
 						<caption>TBL_EXP_USER</caption>
 						<colgroup>
 							<col style="width:40px;"/>
-							<col style="width:80px;">
 							<col style="width:100px;"/>
 							<col style="width:80px;"/>
 							<col style="width:110px;"/>
@@ -203,11 +234,11 @@
 							<col style="width:100px;"/>
 							<col style="width:100px;"/>
 							<col style="width:100px;"/>
+							<col style="width:80px;"/>
 						</colgroup>
 						<thead>
 							<tr>
 								<th scope="col"><input type="checkbox" id="<@pageId>_ckAll"></th>
-								<th scope="col">SP_CSTM_ID</th>
 								<th scope="col">USER_ID</th>
 								<th scope="col">USER_NM</th>
 								<th scope="col">USER_DESC</th>
@@ -217,15 +248,15 @@
 								<th scope="col">DEL_YN</th>
 								<th scope="col">UPDATE_USER</th>
 								<th scope="col">UPDATE_DATE</th>
+								<th scope="col"></th>
 							</tr>
 						</thead>
 						<tbody  id="userList">
 						</tbody>
 <script type="text/x-jsrender" id="userList_template">	
 				{{for list}}
-				<tr id="user_{{:#index}}">
+				<tr id="tr_{{:#index}}">
 					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'></td>
-					<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		>{{:SP_CSTM_ID}}</td>
  					<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
  					<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
  					<td id='USER_DESC'		value='{{:USER_DESC}}' 		>{{:USER_DESC}}</td>
@@ -235,12 +266,15 @@
  					<td id='DEL_YN' 		value='{{:DEL_YN}}'			>{{:DEL_YN}}</td>
  					<td id='UPDATE_USER'	value='{{:UPDATE_USER}}' 	>{{:UPDATE_USER}}</td>
  					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
+ 					<td><button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
+						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:USER_ID}}'><i class="icon_trash"></i></button>
+					</td>
 				</tr>
 				{{/for}}
 </script>
 <script type="text/x-jsrender" id="userList_noData_template">	
 				<tr>	
-					<td colspan=11>자료가 없습니다.</td>	
+					<td colspan=10>자료가 없습니다.</td>	
 				</tr>
 </script>
 					</table>

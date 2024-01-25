@@ -315,6 +315,7 @@
 		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
 		FROM ADMIN.TBL_EXP_ROLE T
 		WHERE 1 = 1
+		ORDER BY SORT_ORDER
 	</select>
 	
 	<update id="updateRole" parameterType="java.util.HashMap"  flushCache="true" >
@@ -323,7 +324,9 @@
 		*/
 		MERGE INTO ADMIN.TBL_EXP_ROLE T
 		USING (
-		  SELECT #{ROLE_NM} AS ROLE_NM,
+		  SELECT #{SP_CSTM_ID} AS SP_CSTM_ID,
+		         #{ROLE_ID} AS ROLE_ID,
+		         #{ROLE_NM} AS ROLE_NM,
 		         #{ROLE_DESC} AS ROLE_DESC,
 		         #{USE_YN} AS USE_YN,
 		         #{DEL_YN} AS DEL_YN,
@@ -337,15 +340,15 @@
 		)
 		WHEN MATCHED THEN
 		  UPDATE SET
-		    T.SP_CSTM_NM = S.SP_CSTM_NM,
-		    T.SP_CSTM_DESC = S.SP_CSTM_DESC,
+		    T.ROLE_NM = S.ROLE_NM,
+		    T.ROLE_DESC = S.ROLE_DESC,
 		    T.USE_YN = S.USE_YN,
 		    T.DEL_YN = S.DEL_YN,
 		    T.UPDATE_USER = S.UPDATE_USER,
 		    T.UPDATE_DATE = S.UPDATE_DATE
 		WHEN NOT MATCHED THEN 
     		INSERT (  SP_CSTM_ID,   ROLE_ID,   ROLE_NM,   ROLE_DESC,   USE_YN,   DEL_YN,   SORT_ORDER,   UPDATE_USER,   UPDATE_DATE )
-   			INSERT (S.SP_CSTM_ID, S.ROLE_ID, S.ROLE_NM, S.ROLE_DESC, S.USE_YN, S.DEL_YN, S.SORT_ORDER, S.UPDATE_USER, S.UPDATE_DATE )
+   			VALUES (S.SP_CSTM_ID, S.ROLE_ID, S.ROLE_NM, S.ROLE_DESC, S.USE_YN, S.DEL_YN, S.SORT_ORDER, S.UPDATE_USER, S.UPDATE_DATE )
 	</update>
 	
 	<delete id="deleteRole" parameterType="java.util.HashMap"  flushCache="true" >
@@ -385,7 +388,9 @@
 		*/
 		MERGE INTO ADMIN.TBL_EXP_USER T
 		USING (
-		  SELECT #{USER_NM} 	AS USER_NM,
+		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID,
+		         #{USER_ID} 	AS USER_ID,
+		         #{USER_NM} 	AS USER_NM,
 		         #{USER_DESC} 	AS USER_DESC,
 		         #{E_MAIL} 		AS E_MAIL,
 		         #{PHONE_NUM} 	AS PHONE_NUM,
@@ -410,7 +415,7 @@
 		    T.UPDATE_DATE 	= S.UPDATE_DATE
 		WHEN NOT MATCHED THEN 
     		INSERT (  SP_CSTM_ID,   USER_ID,   USER_NM,   USER_DESC,   E_MAIL,   PHONE_NUM,   USE_YN,   DEL_YN,  UPDATE_USER,   UPDATE_DATE )
-   			INSERT (S.SP_CSTM_ID, S.USER_ID, S.USER_NM, S.USER_DESC, S.E_MAIL, S.PHONE_NUM, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE )
+   			VALUES (S.SP_CSTM_ID, S.USER_ID, S.USER_NM, S.USER_DESC, S.E_MAIL, S.PHONE_NUM, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE )
 	</update>
 	
 	<delete id="deleteUser" parameterType="java.util.HashMap"  flushCache="true" >
@@ -443,7 +448,9 @@
 		*/
 		MERGE INTO ADMIN.TBL_EXP_AUTH T
 		USING (
-		  SELECT #{ROLE_ID} 	AS ROLE_ID
+		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID
+				#{USER_ID} 	AS USER_ID
+				#{ROLE_ID} 	AS ROLE_ID
 		  FROM dual
 		) S
 		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
@@ -454,7 +461,7 @@
 		    T.ROLE_ID 		= S.ROLE_ID
 		WHEN NOT MATCHED THEN 
     		INSERT (  SP_CSTM_ID,   USER_ID,   ROLE_ID)
-   			INSERT (S.SP_CSTM_ID, S.USER_ID, S.ROLE_ID)
+   			VALUES (S.SP_CSTM_ID, S.USER_ID, S.ROLE_ID)
 	</update>
 	
 	<delete id="deleteAuth" parameterType="java.util.HashMap"  flushCache="true" >
@@ -486,7 +493,9 @@
 		*/
 		MERGE INTO ADMIN.TBL_EXP_ROLEMENU T
 		USING (
-		  SELECT #{ROLE_ID} 	AS ROLE_ID
+		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID
+				#{ROLE_ID} 	AS ROLE_ID
+				#{MENU_ID} 	AS MENU_ID
 		  FROM dual
 		) S
 		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
@@ -498,7 +507,7 @@
 		    T.AUTH_TYPE		= S.AUTH_TYPE
 		WHEN NOT MATCHED THEN 
     		INSERT (  SP_CSTM_ID,   ROLE_ID,   MENU_ID,	  AUTH_TYPE)
-   			INSERT (S.SP_CSTM_ID, S.ROLE_ID, S.MENU_ID, S.AUTH_TYPE)
+   			VALUES (S.SP_CSTM_ID, S.ROLE_ID, S.MENU_ID, S.AUTH_TYPE)
 	</update>
 	
 	<delete id="deleteRoleMenuMap" parameterType="java.util.HashMap"  flushCache="true" >
