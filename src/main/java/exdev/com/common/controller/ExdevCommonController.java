@@ -202,6 +202,54 @@ public class ExdevCommonController {
 	}
 
     /** 
+     * 내용        : 결재상신
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 01. 25 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+
+    @SuppressWarnings({ "unused", "rawtypes" })
+    @PostMapping("/approvalSave.do")
+    public @ResponseBody Map  approvalSave(@RequestParam("attach_file") List<MultipartFile> multiFileList,           
+            HttpServletRequest request, HttpSession session)  throws Exception {
+        
+        SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
+        
+        Map returnMap = new HashMap();
+        
+        // 받아온것 출력 확인
+        System.out.println("multiFileList : " + multiFileList);
+        String grpId = request.getParameter("groupId");
+        
+        String title = request.getParameter("title");
+        String content = request.getParameter("content");
+        String[] uuids = request.getParameterValues("uuids");
+
+        System.out.println("grpId : " + grpId);
+        System.out.println("title : " + title);
+        System.out.println("content : " + content);
+        
+        // path 가져오기
+        String path = request.getSession().getServletContext().getRealPath("resources");
+        String root = path + "\\" + "uploadFiles";
+        //returnMap = fileService.fileUploadMulti( multiFileList, root , grpId, uuids);
+        //String msg = returnMap.get("msg").toString();
+        
+        
+        String msg = "SUCCESS";
+        
+        if( "SUCCESS".equals(msg)) {
+            returnMap.put("msg","결재상신에 성공하였습니다.");
+        }else{
+            returnMap.put("msg","결재상신에 실패하였습니다.");
+        }
+        
+        return returnMap;
+    }
+    
+    /** 
      * 내용        : 다중 첨부파일 업로드 샘플
      * @생 성 자   : 이응규
      * @생 성 일자 : 2024. 01. 16 : 최초 생성

@@ -1,0 +1,223 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+    var <@pageId> = {
+    		 userIndex : 0		
+            ,userArr : []
+            ,fileNo : 0
+            ,filesArr : []
+		    ,memberSearchPopup : function() {
+		        C_POP.open('popup_userSearchPopup', {}, function(retData) {
+		        	console.log("======= retData =======");
+		        	console.log(retData);
+		        	//openWin.document.getElementById("cInput").value = document.getElementById("pInput").value;
+		        	<@pageId>.addMember(retData);
+		        });
+		     }
+		    ,addMember : function(retData) {
+		    	
+		    	for (let obj of retData) {
+	                console.log("obj.index =>"+obj.index);
+	                console.log("obj.user_id =>"+obj.user_id);
+	                console.log("obj.user_nm =>"+obj.user_nm);
+	                console.log("obj.user_desc =>"+obj.user_desc);
+	                console.log("obj.e_mail =>"+obj.e_mail);
+	                
+	                //var indexStr = obj.index.toString();
+	                //<@pageId>.userIndex = obj.index;
+	                
+	                let user = obj.user_nm+"("+obj.user_id+")/"+obj.user_desc+"/"+obj.e_mail;
+	                let htmlData = '';
+                    htmlData += '<div id="approvalUser'+ <@pageId>.userIndex +'" class="filebox">';
+                    htmlData += '   <p class="name">' + user + '</p>';
+                    htmlData += '   <button onclick="<@pageId>.deleteUser(' + <@pageId>.userIndex + ');">삭제</button>';
+                    htmlData += '</div>';
+                    $('#<@pageId> .member-list').append(htmlData);
+                    <@pageId>.userIndex++;
+	    		}
+             }
+	        ,deleteUser : function(num) {/* 결재자 삭제 */
+	            $("#<@pageId> #approvalUser" + num).remove();
+	            //<@pageId>.userArr[num].is_delete = true;
+	         }
+	        /* 결재상신 */
+	        ,save : function () {
+                
+	            var groupId = $("#<@pageId> #groupId").val();
+	            
+	            if (groupId.length < 1) {
+	                alert("파일그룹 ID를 입력해 주세요.");
+	                $("#groupId").focus();
+	                return false;
+	            }
+	            
+	            // 폼데이터 담기
+	            var form = document.querySelector("#<@pageId> form");
+	            
+	            var formData = new FormData(form);
+	            
+	            for (var i = 0; i < <@pageId>.filesArr.length; i++) {
+	                // 삭제되지 않은 파일만 폼데이터에 담기
+	                if (!<@pageId>.filesArr[i].is_delete) {
+	                    formData.append("attach_file", <@pageId>.filesArr[i]);
+	                    formData.append("uuids", C_COM.makeUniqueId());
+	                }
+	            }
+
+	            $.ajax({
+	                url: '/approvalSave.do',
+	                method: 'POST',
+	                data: formData,
+	                contentType: false,
+	                processData: false,
+	                success: function (response) {
+	                    const msg = response.msg;
+	                    alert(msg);
+	                },
+	                error: function (xhr, desc, err) {
+	                    alert('에러가 발생 하였습니다.');
+	                    return;
+	                }
+	            })
+	    
+	         }
+	        /* 첨부파일 추가 */
+	        ,addFile : function(obj){
+	            var maxFileCnt = 5;   // 첨부파일 최대 개수
+	            var attFileCnt = document.querySelectorAll('.filebox').length;    // 기존 추가된 첨부파일 개수
+	            var remainFileCnt = maxFileCnt - attFileCnt;    // 추가로 첨부가능한 개수
+	            var curFileCnt = obj.files.length;  // 현재 선택된 첨부파일 개수
+
+	            // 첨부파일 개수 확인
+	            if (curFileCnt > remainFileCnt) {
+	                alert("첨부파일은 최대 " + maxFileCnt + "개 까지 첨부 가능합니다.");
+	            }
+
+	            for (var i = 0; i < Math.min(curFileCnt, remainFileCnt); i++) {
+
+	                const file = obj.files[i];
+
+	                // 첨부파일 검증
+	                if (<@pageId>.validation(file)) {
+	                    // 파일 배열에 담기
+	                    var reader = new FileReader();
+	                    reader.onload = function () {
+	                        <@pageId>.filesArr.push(file);
+	                    };
+	                    reader.readAsDataURL(file)
+
+	                    // 목록 추가
+	                    let htmlData = '';
+	                    htmlData += '<div id="file' + <@pageId>.fileNo + '" class="filebox">';
+	                    htmlData += '   <p class="name">' + file.name + '</p>';
+	                    htmlData += '   <button onclick="<@pageId>.deleteFile(' + <@pageId>.fileNo + ');">삭제</button>';
+	                    htmlData += '</div>';
+	                    $('#<@pageId> .file-list').append(htmlData);
+	                    <@pageId>.fileNo++;
+	                } else {
+	                    continue;
+	                }
+	            }
+	            // 초기화
+	            //document.querySelector("input[type=file]").value = "";
+	            $("#<@pageId> input[type=file]").val("");
+	         }
+	        /* 첨부파일 검증 */
+	        ,validation : function(obj){
+	            const fileTypes = ['application/pdf', 'image/gif', 'image/jpeg', 'image/png', 'image/bmp', 'image/tif', 'application/haansofthwp', 'application/x-hwp'];
+	            if (obj.name.length > 100) {
+	                alert("파일명이 100자 이상인 파일은 제외되었습니다.");
+	                return false;
+	            } else if (obj.size > (100 * 1024 * 1024)) {
+	                alert("최대 파일 용량인 100MB를 초과한 파일은 제외되었습니다.");
+	                return false;
+	            } else if (obj.name.lastIndexOf('.') == -1) {
+	                alert("확장자가 없는 파일은 제외되었습니다.");
+	                return false;
+	            } else if (!fileTypes.includes(obj.type)) {
+	                alert("첨부가 불가능한 파일은 제외되었습니다.");
+	                return false;
+	            } else {
+	                return true;
+	            }
+	         }
+	        /* 첨부파일 삭제 */
+	        ,deleteFile : function(num) {
+	            $("#<@pageId> #file" + num).remove();
+	            <@pageId>.filesArr[num].is_delete = true;
+	         }
+    }
+
+    
+    
+    // Page Load가 완료된후 실행 된다.
+    C_PM.onLoadPage("<@pageId>", function() {
+        
+        //조회 버튼 클릭      
+        $('#<@pageId>_search').on('click', function (eㄴ) {
+            <@pageId>.searchApproval();
+        })
+        
+        //결재자 검색 버튼 클릭      
+        $('#<@pageId>_memberSearchPopup').on('click', function (eㄴ) {
+            <@pageId>.memberSearchPopup();
+        })
+        
+    });
+    // History back으로 이동해왔을 경우 이루틴이 실행된다.
+    C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+    });
+</script>
+<div class="cont_wrap">
+     <form method="POST" id="theForm" onsubmit="return false;" enctype="multipart/form-data">
+         <div class="cont_top">
+             <h2><i class="icon_bullet"></i>결재상신</h2>
+         </div>
+         <section class="sec_wrap">
+             <!-- search area -->
+             <div class="search_area mt0">
+                 <!-- 멀티 선택 -->
+                 <div class="fl">
+                     <div class="search_inputWrap">
+                         제목 :   <input type='text'   id='title' name='title' value='windrider'> 
+                     </div>
+                 </div>
+    
+             </div>
+             <div class="search_area mt0">
+                 <!-- 멀티 선택 -->
+                 <div class="fl">
+                     <div class="search_inputWrap">
+                         결재자검색 :   <input type='text'   id='<@pageId>requestUser' name='<@pageId>requestUser' value='windrider'> 
+                     </div>
+                 </div>
+                 <button id='<@pageId>_memberSearchPopup'  >검색</button>
+             </div>
+             <div class="search_area mt0">
+	             <!-- 결재자 -->    
+	             <div class="member-list"></div>
+             </div>
+             
+             <div class="search_area mt0">
+                 <textarea name="content" id="content" cols="80" rows="20"></textarea><br>
+             </div>
+             
+	         <div class="search_area mt0">
+	             파일그룹 ID : <input type="text" name="groupId" id="groupId" value="approval"><br>
+                 <input type="file" onchange="<@pageId>.addFile(this);" multiple />
+                 <div class="file-list"></div>
+                 <!-- 
+	             <button onclick="<@pageId>.uploadMultiFile()">Upload</button>
+	              -->
+	             <div id="result"/>
+	         </div>
+	         
+             <!-- 테이블 -->
+             <div class="search_right">
+                 <button type="button" class="btn select fl" onclick="<@pageId>.save()"><strong title="현재 페이지">결재 상신</strong></button>
+                 <button type="button" class="btn select fl"><strong title="현재 페이지">보류함</strong></button>
+                 <button type="button" class="btn select fl"><strong title="현재 페이지">취소</strong></button>
+             </div>
+         </section>
+     </form>            
+</div>
