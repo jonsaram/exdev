@@ -1,0 +1,100 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		 close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+		,openPopup : function() {
+			C_POP.open('popup_samplePopup2', {}, function(retData) {
+				dalert(retData);
+			});
+		 }
+		,getItems : (loc) => {
+
+			const requestParm = {};
+			const updateItems = $("#"+loc+" input:not([type='radio'])");
+			
+			const valuesArray = updateItems.map(function() {				
+				if( this.name == "CHATROOM_ID" && this.value == "" ) this.value = C_COM.makeUniqueId();
+			    return { name: this.name, value: "" + $(this).val() };
+			}).get();
+
+			valuesArray.forEach(function(item) {
+				requestParm[item.name] = item.value;
+			});
+			
+			const radioNames = ['OPENROOM_YN'];
+			radioNames.forEach( radioName => {
+				requestParm[radioName] = <@popupId>.fnRadioCheckValue(loc,radioName);
+			})
+
+			return requestParm;
+			
+		}
+		,fnRadioCheckValue : (loc, name , pValue) => {
+
+			const radioButtons = $("#"+loc+" input[name='"+name+"']");
+			if( pValue ){
+			 
+				const theRadioBtn = radioButtons.filter("[value='"+pValue+"']");
+				 theRadioBtn.prop('checked',true);
+			}else{
+			
+				const selectedValue = radioButtons.filter(":checked").val();
+				return selectedValue;
+			 }
+		}
+		,setHandler : () => {
+			
+			$('button[name="<@popupId>_save"]').on('click', function (e) {
+				const loc = $(".info_wrap").attr("id");
+				const queryId = "chat.insertChatRoom";
+				<@popupId>.insertChatRoom(loc, queryId);
+			})
+		}
+		,insertChatRoom : (loc, queryId) => {
+
+			var parm = {
+					 queryId 		: queryId
+					,requestParm	: <@popupId>.getItems(loc)
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				if( resultData.state == 'S'){
+					//<@pageId>.searchList();
+					console.log("코드 저장 성공");
+				}				
+			});			
+		} 
+	
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+		<@popupId>.setHandler();
+	});
+</script>
+	<!-- 대화방 등록하기 팝업 -->
+<div class="modal_wrap">
+	<div class="modal" style="width:570px;height:350px;">
+		<div class="modal_header">
+			<strong class="tit">대화방 등록하기</strong>
+			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<dl class="info_wrap" id="createItems">
+				<dt>대화방명</dt>
+				<dd><input type="hidden" name="CHATROOM_ID"><input type="text" name="CHATROOM_NAME" style="width:100%"></dd>
+				<dt>비밀방여부</dt>
+				<dd><input type="radio" name="OPENROOM_YN" value="Y">공개</dd><dd><input type="radio" name="OPENROOM_YN" value="N">비공개</dd>
+				<dt>패스워드</dt>
+				<dd><input type="text" name="PASSWD" style="width:100%"></dd>
+			</dl>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select fl" name="<@popupId>_save"	>만들기</button>
+			<button type="button" class="btn" onclick="<@popupId>.close()"	>닫기</a></button>
+		</div>
+	</div>
+</div>

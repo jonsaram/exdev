@@ -48,42 +48,6 @@ var <@pageId> = {
 				});
 				
 		}
-		,searchMulObj : () => {
-
-				var parm = {
-					queryGroup : [
-						 {
-							 queryId 		: "admin.getGrpCodeList"
-							,requestParm	: <@pageId>.getSearchItems()
-						 }
-						,{
-							 queryId 		: "admin.getCodeList"
-							,requestParm	: <@pageId>.getSearchItems()
-						 }
-					]
-				}			
-				C_COM.requestQuery(parm, function(resultData) {
-
-						if( resultData.state == "S"){
-						
-							var rparm = {
-									 targetId 		: "grpCodeList"
-									,list			: resultData.data["admin.getGrpCodeList"]
-							} 
-							C_COM.renderHtml("<@pageId>", rparm);
-							rparm = {
-									 targetId 		: "normalCodeList"
-									,list			: resultData.data["admin.getCodeList"]
-							} 
-							C_COM.renderHtml("<@pageId>", rparm);
-							
-						
-						}else{
-							alert(resultData.msg)
-						}
-				});
-				
-		}
 		,searchList : () => {
 				<@pageId>.searchObj("chat.getChatRoomList","chatRoomList");
 		}
@@ -118,91 +82,42 @@ var <@pageId> = {
 				
 		}  
 		,setHandler : () => {
-
-				//group code row click
-		        $("#grpCodeList").on('click', 'tr', function () {
+			
+			//chat room row click
+	        $("#chatRoomList").on('click', 'tr', function () {
 	        	
-		            const rowId = $(this)[0].id;
+	            const rowId = $(this)[0].id;
 
-		            if (rowId) {
-							
-			            	$('#<@pageId>_grpItemBox,#<@pageId>_nmlItemBox').show();
-			            	let grpKey = {"GRP_CODE_ID":"" , "GRP_CODE_NM":""}
-		            		$($("#grpCodeList>#"+rowId+" td")).each( (idx,td) => {
-		            			
-		        				const name 	= td.getAttribute("id");
-		        				const value = td.getAttribute("value");
-		        				if( name == "GRP_CODE_ID" ){
-		        					
-									grpKey["GRP_CODE_ID"] = value;
-									$("[name='GRP_CODE_ID']").val(value);
-		        				}else
-		        				if( name == "GRP_CODE_NM" ){
-		        					
-									grpKey["GRP_CODE_NM"] = value;
-			        				$("[name='GRP_CODE_NM']").val(value);
-		        				}else
-  		        				if( name == "EXP_CODE_CNT" ){
-		        					
-		        					let disabled = false;
-		        					if( value > 0 )disabled = true;
-		        					
-		        					$("[name='GRP_CODE_NM']").prop("disabled",disabled);
-		        					
-	        					}else
-		            			<@pageId>.setEachColumnValue("<@pageId>_grpItemBox",[name,value],"GRP_");
-		            		})
-		            		
-			            	// 체크박스 이벤트가 먹지 않아 ROW클릭할 때, 선택된 체크박스를 수동으로 넣음
-					        sample_code.selectedCheck["grpCodeList"] = [];
-							$("#grpCodeList  [id^='<@pageId>.grpCk']:checked").each( (idx,chk) =>{
-								
-					            sample_code.selectedCheck["grpCodeList"].push( $(chk).val());
-			            	})
-			            	
-			            	
-			            	<@pageId>.searchObj('admin.getCodeList',"normalCodeList", grpKey);
-							
-		            }
-	
-		        });
-				
-				//normal code row click
-		        $("#normalCodeList").on('click', 'tr', function () {
-		        	
-		            const rowId = $(this)[0].id;
+	            if (rowId) {
+		            	let grpKey = {"CHATROOM_ID":""}
+	            		$($("#chatRoomList>#"+rowId+" td")).each( (idx,td) => {
+	            			
+	        				const name 	= td.getAttribute("id");
+	        				const value = td.getAttribute("value");
+	        				dalert(name+"/"+value);return;
+	        				if( name == "CHATROOM_ID" ){
+	        					
+								grpKey["CHATROOM_ID"] = value;
+								$("[name='CHATROOM_ID']").val(value);
+	        				}else
+	            			<@pageId>.setEachColumnValue("<@pageId>_nmlItemBox",[name,value],"");
+	            			
+	            			goPage('main_chat_chatRoom');
+	            		})
 
-		            if (rowId) {
+		            	// 체크박스 이벤트가 먹지 않아 ROW클릭할 때, 선택된 체크박스를 수동으로 넣음
+				        sample_code.selectedCheck["normalCodeList"] = [];
+						$("#normalCodeList  [id^='<@pageId>.nmlCk']:checked").each( (idx,chk) =>{
+							
+				            sample_code.selectedCheck["normalCodeList"].push( $(chk).val());
+		            	})
+
 		            	
-			            	$('#<@pageId>_grpItemBox,#<@pageId>_nmlItemBox').show();
-			            	let grpKey = {"GRP_CODE_ID":"" , "GRP_CODE_NM":""}
-		            		$($("#normalCodeList>#"+rowId+" td")).each( (idx,td) => {
-		            			
-		        				const name 	= td.getAttribute("id");
-		        				const value = td.getAttribute("value");
-		        				if( name == "GRP_CODE_ID" ){
-		        					
-									grpKey["GRP_CODE_ID"] = value;
-									$("[name='GRP_CODE_ID']").val(value);
-		        				}else
-		            			<@pageId>.setEachColumnValue("<@pageId>_nmlItemBox",[name,value],"");
-		            			
-		            		})
+						<@pageId>.searchObj('admin.getGrpCodeList',"grpCodeList",grpKey);
+	            }
 
-			            	// 체크박스 이벤트가 먹지 않아 ROW클릭할 때, 선택된 체크박스를 수동으로 넣음
-					        sample_code.selectedCheck["normalCodeList"] = [];
-							$("#normalCodeList  [id^='<@pageId>.nmlCk']:checked").each( (idx,chk) =>{
-								
-					            sample_code.selectedCheck["normalCodeList"].push( $(chk).val());
-			            	})
+	        });
 
-			            	
-							<@pageId>.searchObj('admin.getGrpCodeList',"grpCodeList",grpKey);
-		            }
-	
-		        });
-				
-				
    				$('#<@pageId>_search').on('click', function (e) {
    					<@pageId>.searchList();
    				})
@@ -275,67 +190,6 @@ var <@pageId> = {
 					const selectedValue = radioButtons.filter(":checked").val();
 					return selectedValue;
 				 }
-		}
- 		,setEachColumnValue : (loc, arr ,grp) => {
-
-				const name 	= arr[0];
-				const value = arr[1];
-
-				if( name == "USE_YN" ){
-					
-					<@pageId>.fnRadioCheckValue(loc, grp+'USE_YN',value);
-				
-				}else if( name == "DEL_YN" ){
-					
-					<@pageId>.fnRadioCheckValue(loc,  grp+'DEL_YN',value);
-				
-				}else{
-				
-					$("#"+loc+" input:not([type='checkbox'])").each((idx,obj)=>{
-
-						if(obj.name == grp+name && obj.name != 'ckbox'){
-							obj.value = value;
-						}
-					})
-				}
-		}
-		,validation : (loc, gubun) => {
-
-				const grp = loc.indexOf("grp") > -1 ? "<@pageId>_grpItemBox" : "<@pageId>_nmlItemBox" ;
-				
- 				if( gubun == "updateCode"){
-					const GRP_CODE_ID = $("#"+grp+" input[name='GRP_CODE_ID']").val();
-					if( isEmpty(GRP_CODE_ID)){
-						alert("저장할 데이터를 확인하여 주십시오.");
-					}
-					return isEmpty(menuId) ? false:true;
-				}
-				if( gubun == "deleteCode"){
-					const gubun = loc.indexOf("grp") > -1 ? "grpCodeList" : "normalCodeList" ;
-					const deleItems  = <@pageId>.selectedCheck[gubun];
-					if( deleItems == undefined || deleItems.length == 0 ){
-						alert("삭제할 데이터를 확인하여 주십시오.")
-					}
-					return deleItems ==undefined || deleItems.length == 0 ? false:true;
-				}
-				return true;
-		}
- 		, itemReset : (loc, show,grp) => {
-			
-			if(show)$("#"+loc).show();
-			else $("#"+loc).hide();
-			
-			$("#"+loc+ " input:not([type='radio'])").each( (idx, obj) => {
-				$(obj).val("");
-			}); 
-			
-			<@pageId>.fnRadioCheckValue(loc,grp+"USE_YN","Y");
-			<@pageId>.fnRadioCheckValue(loc,grp+"DEL_YN","N");
-			
-			if( grp ){
-				$("[name='GRP_CODE_NM']").prop("disabled",false);
-			}
-			
 		}
 		, openPopup : function() {
 			C_POP.open('popup_createChatPopup', {}, function(retData) {
@@ -437,7 +291,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 <script type="text/x-jsrender" id="chatRoomList_template">	
 				{{for list}}
 				<tr id="codeTrId_{{:#index}}">
- 					<td id='ckbox'><input type='checkbox' id="<@pageId>.nmlCk_{{:#index}}" value='{{:GRP_CODE_ID}}||{{:CODE_ID}}'></td>
+ 					<td id='ckbox'><input type='checkbox' id="<@pageId>.chatRoom_{{:#index}}" value='{{:CHATROOM_ID}}'></td>
  					<td id='index'	 		value='{{:#index+1}}'		>#{{:#index+1}}	</td>
  					<td id='CHATROOM_ID' 	value='{{:CHATROOM_ID}}'	>{{:CHATROOM_ID}}</td>
  					<td id='CHATROOM_NAME' 	value='{{:CHATROOM_NAME}}'	>{{:CHATROOM_NAME}}</td>
