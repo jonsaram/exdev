@@ -65,7 +65,7 @@
 				if( resultData.state == 'S'){
 					//<@pageId>.searchList();
 					console.log("코드 저장 성공");
-				}				
+				}
 			});			
 		} 
 	
@@ -73,27 +73,58 @@
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
 		<@popupId>.setHandler();
+		dalert(data);
 	});
 </script>
 	<!-- 대화방 등록하기 팝업 -->
 <div class="modal_wrap">
-	<div class="modal" style="width:570px;height:350px;">
+	<div class="modal" style="width:570px;height:750px;">
 		<div class="modal_header">
-			<strong class="tit">대화방 등록하기</strong>
+			<strong class="tit">우리대화합시다.</strong>
 			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body">
-			<dl class="info_wrap" id="createItems">
-				<dt>대화방명</dt>
-				<dd><input type="hidden" name="CHATROOM_ID"><input type="text" name="CHATROOM_NAME" style="width:100%"></dd>
-				<dt>비밀방여부</dt>
-				<dd><input type="radio" name="OPENROOM_YN" value="Y">공개</dd><dd><input type="radio" name="OPENROOM_YN" value="N">비공개</dd>
-				<dt>패스워드</dt>
-				<dd><input type="text" name="PASSWD" style="width:100%"></dd>
-			</dl>
+			<div style="overflow:scroll; height:550px;">
+				<p>
+					1111법인사업자에 한해 고객등록 및 씨오 리포트 생성이 가능합니다.
+					KODATA 기업검색 정보가 없는 기업은 법인등기부등본 조회를 통해 해당 기업 정보와 대표자 정보를<br>
+					확인하고, 관리고객으로 직접 등록합니다.
+				</p>
+				<p>
+					법인사업자에 한해 고객등록 및 씨오 리포트 생성이 가능합니다.
+					KODATA 기업검색 정보가 없는 기업은 법인등기부등본 조회를 통해 해당 기업 정보와 대표자 정보를<br>
+					확인하고, 관리고객으로 직접 등록합니다.
+				</p>
+				<p>
+					법인사업자에 한해 고객등록 및 씨오 리포트 생성이 가능합니다.
+					KODATA 기업검색 정보가 없는 기업은 법인등기부등본 조회를 통해 해당 기업 정보와 대표자 정보를<br>
+					확인하고, 관리고객으로 직접 등록합니다.
+				</p>
+				<p>
+					법인사업자에 한해 고객등록 및 씨오 리포트 생성이 가능합니다.
+					KODATA 기업검색 정보가 없는 기업은 법인등기부등본 조회를 통해 해당 기업 정보와 대표자 정보를<br>
+					확인하고, 관리고객으로 직접 등록합니다.
+				</p>
+				<p>
+					법인사업자에 한해 고객등록 및 씨오 리포트 생성이 가능합니다.
+					KODATA 기업검색 정보가 없는 기업은 법인등기부등본 조회를 통해 해당 기업 정보와 대표자 정보를<br>
+					확인하고, 관리고객으로 직접 등록합니다.
+				</p>
+				<p>
+					xxxx법인사업자에 한해 고객등록 및 씨오 리포트 생성이 가능합니다.
+					KODATA 기업검색 정보가 없는 기업은 법인등기부등본 조회를 통해 해당 기업 정보와 대표자 정보를<br>
+					확인하고, 관리고객으로 직접 등록합니다.
+				</p>
+			</div>
 		</div>
+			<div>
+				<dl class="info_wrap">
+					<dt>메세지</dt>
+					<dd><input type="text" name="CHATROOM_NAME" style="width:100%"></dd>
+				</dl>
+			</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select fl" name="<@popupId>_save"	>만들기</button>
+			<button type="button" class="btn select fl" name="<@popupId>_save"	>메세지전송</button>
 			<button type="button" class="btn" onclick="<@popupId>.close()"	>닫기</a></button>
 		</div>
 	</div>

@@ -81,29 +81,19 @@ var <@pageId> = {
 				
 		}  
 		,setHandler : () => {
-			
 			//chat room row click
 	        $("#chatRoomList").on('click', 'tr', function () {
-	        	
+	            let requestParm = {}
 	            const rowId = $(this)[0].id;
-
 	            if (rowId) {
-		            let grpKey = {"CHATROOM_ID":""}
 	            	$($("#chatRoomList>#"+rowId+" td")).each( (idx,td) => {
-	            			
-	        			const name 	= td.getAttribute("id");
-	        			const value = td.getAttribute("value");
-	        			dalert(name+"/"+value);return;
-	        			if( name == "CHATROOM_ID" ){
-	        					
-							grpKey["CHATROOM_ID"] = value;
-							$("[name='CHATROOM_ID']").val(value);
-	        			}else{
-	            			<@pageId>.setEachColumnValue("<@pageId>_nmlItemBox",[name,value],"");
-	        			}
-	        			C_PM.movePage('main_chat_enterChatRoom', parm);
+        				const name 	= td.getAttribute("id");
+        				const value = td.getAttribute("value");
+        				requestParm[name] = value;
+						$("[name='"+name+"']").val(value);
 	            	})
-	            }	
+	            }
+    			<@pageId>.enterChatRoomPopup(requestParm);
 
 	        })
 
@@ -210,8 +200,8 @@ var <@pageId> = {
 				dalert(retData);
 			});
 		 }
-		, enterChatRoomPopup : function() {
-			C_POP.open('popup_enterChatRoomPopup', {}, function(retData) {
+		, enterChatRoomPopup : function(parm) {
+			C_POP.open('popup_enterChatRoomPopup', parm, function(retData) {
 				dalert(retData);
 			});
 		 }
