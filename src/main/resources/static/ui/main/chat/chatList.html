@@ -41,7 +41,6 @@ var <@pageId> = {
 							 targetId 		: targetId
 							,list			: resultData.data
 						}
-					console.log("rparm=====",rparm);
 					C_COM.renderHtml("<@pageId>", rparm);
 
 
@@ -89,94 +88,109 @@ var <@pageId> = {
 	            const rowId = $(this)[0].id;
 
 	            if (rowId) {
-		            	let grpKey = {"CHATROOM_ID":""}
-	            		$($("#chatRoomList>#"+rowId+" td")).each( (idx,td) => {
+		            let grpKey = {"CHATROOM_ID":""}
+	            	$($("#chatRoomList>#"+rowId+" td")).each( (idx,td) => {
 	            			
-	        				const name 	= td.getAttribute("id");
-	        				const value = td.getAttribute("value");
-	        				dalert(name+"/"+value);return;
-	        				if( name == "CHATROOM_ID" ){
+	        			const name 	= td.getAttribute("id");
+	        			const value = td.getAttribute("value");
+	        			dalert(name+"/"+value);return;
+	        			if( name == "CHATROOM_ID" ){
 	        					
-								grpKey["CHATROOM_ID"] = value;
-								$("[name='CHATROOM_ID']").val(value);
-	        				}else
+							grpKey["CHATROOM_ID"] = value;
+							$("[name='CHATROOM_ID']").val(value);
+	        			}else{
 	            			<@pageId>.setEachColumnValue("<@pageId>_nmlItemBox",[name,value],"");
-	            			
-	            			goPage('main_chat_chatRoom');
-	            		})
+	        			}
+	        			C_PM.movePage('main_chat_enterChatRoom', parm);
+	            	})
+	            }	
 
-		            	// 체크박스 이벤트가 먹지 않아 ROW클릭할 때, 선택된 체크박스를 수동으로 넣음
-				        sample_code.selectedCheck["normalCodeList"] = [];
-						$("#normalCodeList  [id^='<@pageId>.nmlCk']:checked").each( (idx,chk) =>{
-							
-				            sample_code.selectedCheck["normalCodeList"].push( $(chk).val());
-		            	})
+	        })
 
-		            	
-						<@pageId>.searchObj('admin.getGrpCodeList',"grpCodeList",grpKey);
-	            }
 
-	        });
-
-   				$('#<@pageId>_search').on('click', function (e) {
-   					<@pageId>.searchList();
-   				})
+   			$('#<@pageId>_search').on('click', function (e) {
+   				<@pageId>.searchList();
+   			})
    				
-   				$('button[name="<@pageId>_insert"]').on('click', function (e) {
-   					const loc = $(this).siblings(".item-box").attr("id");
-   					const grp = loc.indexOf("grp") > -1 ? "GRP_" : "" ;
+   			$('button[name="<@pageId>_insert"]').on('click', function (e) {
+   				const loc = $(this).siblings(".item-box").attr("id");
+   				const grp = loc.indexOf("grp") > -1 ? "GRP_" : "" ;
    					
-   					<@pageId>.itemReset(loc,true,grp);
-   				})
+   				<@pageId>.itemReset(loc,true,grp);
+   			})
    				
-   				$('button[name="<@pageId>_save"]').on('click', function (e) {
+   			$('button[name="<@pageId>_save"]').on('click', function (e) {
 
-   					const loc =$(this).parents(".item-box").attr("id"); 
-   					const queryId = loc.indexOf("grp") > -1 ? "admin.updateGrpCode" :  "admin.updateCode" ;
-   					<@pageId>.updateCode(loc, queryId);
-   				})
+   				const loc =$(this).parents(".item-box").attr("id"); 
+   				const queryId = loc.indexOf("grp") > -1 ? "admin.updateGrpCode" :  "admin.updateCode" ;
+   				<@pageId>.updateCode(loc, queryId);
+   			})
    				
-   				$('button[name="<@pageId>_delete"]').on('click', function (e) {
+   			$('button[name="<@pageId>_delete"]').on('click', function (e) {
    				
-   					const loc = $(this).siblings(".item-box").attr("id");
+   				const loc = $(this).siblings(".item-box").attr("id");
    					
-   					if(<@pageId>.validation(loc,"deleteCode")  == false)return;
+   				if(<@pageId>.validation(loc,"deleteCode")  == false)return;
    					
-   					const queryId	= loc.indexOf("grp") > -1 ? "admin.deleteGrpCode" : "admin.deleteCode" ;
-   					let		keyObj 	= loc.indexOf("grp") > -1 ? {"GRP_CODE_ID":""} : {"GRP_CODE_ID":"","CODE_ID":""} ;
-					const gubun 	= loc.indexOf("grp") > -1 ? "grpCodeList" : "normalCodeList" ;
-   		 			<@pageId>.selectedCheck[gubun].forEach( item =>{
+   				const queryId	= loc.indexOf("grp") > -1 ? "admin.deleteGrpCode" : "admin.deleteCode" ;
+   				let		keyObj 	= loc.indexOf("grp") > -1 ? {"GRP_CODE_ID":""} : {"GRP_CODE_ID":"","CODE_ID":""} ;
+				const gubun 	= loc.indexOf("grp") > -1 ? "grpCodeList" : "normalCodeList" ;
+   		 		<@pageId>.selectedCheck[gubun].forEach( item =>{
 
-   		 				let grpCodeId 	= "";
-   						let codeId 		= "";	
-		 				if( loc.indexOf("grp") == -1 ){
+   		 			let grpCodeId 	= "";
+   					let codeId 		= "";	
+		 			if( loc.indexOf("grp") == -1 ){
    		 					
-		 					grpCodeId	= item.split("||")[0];
-   		 					codeId 		= item.split("||")[1];
-	   		 				keyObj["GRP_CODE_ID"] = grpCodeId;
-	   		 				keyObj["CODE_ID"] = codeId;
+		 				grpCodeId	= item.split("||")[0];
+   		 				codeId 		= item.split("||")[1];
+	   					keyObj["GRP_CODE_ID"] = grpCodeId;
+	   					keyObj["CODE_ID"] = codeId;
 	   		 				
-   		 				}else{
+   		 			}else{
    		 					
-	   		 				keyObj["GRP_CODE_ID"] = item;
-   		 				}
+	   					keyObj["GRP_CODE_ID"] = item;
+   		 			}
    						<@pageId>.deleteCode(queryId, keyObj);
-   		 			});
-   				}) 
+   		 		});
+   			}) 
    				
-   				$('button[name="<@pageId>_reset"]').on('click', function(e){
+   			$('button[name="<@pageId>_reset"]').on('click', function(e){
 
-   					const loc =$(this).parents(".item-box").attr("id");
-   					const grp = loc.indexOf("grp") > -1 ? "GRP_" : "" ;
-   					<@pageId>.itemReset(loc,true,grp);
-   				})
+   				const loc =$(this).parents(".item-box").attr("id");
+   				const grp = loc.indexOf("grp") > -1 ? "GRP_" : "" ;
+   				<@pageId>.itemReset(loc,true,grp);
+   			})
    				
-   				$("button[name='<@pageId>_close']").on('click', function(e){
+   			$("button[name='<@pageId>_close']").on('click', function(e){
 
-   					const loc =$(this).parents(".item-box").attr("id");
-   					<@pageId>.itemReset(loc,false);
-   				}) 
+   				const loc =$(this).parents(".item-box").attr("id");
+   				<@pageId>.itemReset(loc,false);
+   			}) 
    				
+		}
+		
+ 		,setEachColumnValue : (loc, arr ,grp) => {
+
+			const name 	= arr[0];
+			const value = arr[1];
+
+			if( name == "USE_YN" ){
+				
+				<@pageId>.fnRadioCheckValue(loc, grp+'USE_YN',value);
+			
+			}else if( name == "DEL_YN" ){
+				
+				<@pageId>.fnRadioCheckValue(loc,  grp+'DEL_YN',value);
+			
+			}else{
+			
+				$("#"+loc+" input:not([type='checkbox'])").each((idx,obj)=>{
+
+					if(obj.name == grp+name && obj.name != 'ckbox'){
+						obj.value = value;
+					}
+				})
+			}
 		}
 		,fnRadioCheckValue : (loc, name , pValue) => {
 
@@ -191,8 +205,13 @@ var <@pageId> = {
 					return selectedValue;
 				 }
 		}
-		, openPopup : function() {
-			C_POP.open('popup_createChatPopup', {}, function(retData) {
+		, createChatRoomPopup : function() {
+			C_POP.open('popup_createChatRoomPopup', {}, function(retData) {
+				dalert(retData);
+			});
+		 }
+		, enterChatRoomPopup : function() {
+			C_POP.open('popup_enterChatRoomPopup', {}, function(retData) {
 				dalert(retData);
 			});
 		 }
@@ -234,7 +253,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</div>
 
 				<div class="search_right">
-					<button type="button" class="btn select fl"><a href="javascript:<@pageId>.openPopup()"><i class="icon_user_plus"></i>채팅방 추가</a></button>
+					<button type="button" class="btn select fl"><a href="javascript:<@pageId>.createChatRoomPopup()"><i class="icon_user_plus"></i>채팅방 추가</a></button>
 
 					<!-- 실글 선택 -->
 					<div class="select_box fl" style="width:132px">
