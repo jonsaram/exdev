@@ -1,649 +1,347 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@pageId> = {
-		 selectedCheck :{ "grpCodeList": [],"normalCodeList": [] }
-		,getItems : (loc) => {
+		 checkedItems : { GRP: [], CD: [] }
+		 ,pageInit : () =>{
+				
+				var grp_multiboxList = [
+					 { 
+						 data : [
+						 		 ["1111", "고객번호"	]
+						 		,["2222", "고객번호1"	]
+						 		,["3333", "고객번호2"	]
+						 		,["4444", "고객명"		]
+						 ]
+					 	,targetId : "<@pageId>_grp_multiSelect" 
+					 }
+				]
+				C_UICOM.makeSelectBox("<@pageId>", grp_multiboxList);
 
-				const requestParm = {};
-				const updateItems = $("#"+loc+" input:not([type='radio'])");
 				
-				const valuesArray = updateItems.map(function() {
-					
-					if( this.name == "GRP_CODE_ID" && this.value =="" )this.value = C_COM.makeUniqueId();
-					if( this.name == "CODE_ID" && this.value =="" )this.value = C_COM.makeUniqueId();
-				    return { name: this.name, value: ""+$(this).val() };
-				}).get();
-				
-				valuesArray.forEach(function(item) {
-					requestParm[item.name] = item.value;
-				});
-				
-				const radioNames = ['S_USE_YN','S_DEL_YN','GRP_USE_YN','GRP_DEL_YN','USE_YN','DEL_YN'];
-				radioNames.forEach( radioName => {
-					requestParm[radioName] = <@pageId>.fnRadioCheckValue(loc,radioName);
-				})
-				
-				return requestParm;
-				
-		}
-		,getSearchItems : () =>{
-			return <@pageId>.getItems("<@pageId>_searchItems")
-		}
-		,searchObj : (queryId, targetId, grpKey) => {
-			
-				var parm = {
-						 queryId 		: queryId
-						,requestParm	: <@pageId>.getSearchItems()
-				}
-				if( grpKey ){
-					parm.requestParm["GRP_CODE_ID"] = grpKey["GRP_CODE_ID"];
-					parm.requestParm["GRP_CODE_NM"] = grpKey["GRP_CODE_NM"];
-				}
-				C_COM.requestQuery(parm, function(resultData) {
-				
-					var rparm = {
-							 targetId 		: targetId
-							,list			: resultData.data
-						}
-				
-					C_COM.renderHtml("<@pageId>", rparm);
-
-					// 체크 다시 설정
-					<@pageId>.selectedCheck["grpCodeList"].forEach( chk =>{
-						$("#grpCodeList  [id^='<@pageId>.grpCk'][value='"+chk+"']").prop('checked',true);
-					})
-					<@pageId>.selectedCheck["normalCodeList"].forEach( chk =>{
-						$("#normalCodeList  [id^='<@pageId>.nmlCk'][value='"+chk+"']").prop('checked',true);
-					})
-
-				});
-				
-		}
-		,searchMulObj : () => {
-
-				var parm = {
-					queryGroup : [
-						 {
-							 queryId 		: "admin.getGrpCodeList"
-							,requestParm	: <@pageId>.getSearchItems()
-						 }
-						,{
-							 queryId 		: "admin.getCodeList"
-							,requestParm	: <@pageId>.getSearchItems()
-						 }
-					]
-				}			
-				C_COM.requestQuery(parm, function(resultData) {
-
-						if( resultData.state == "S"){
-						
-							var rparm = {
-									 targetId 		: "grpCodeList"
-									,list			: resultData.data["admin.getGrpCodeList"]
-							} 
-							C_COM.renderHtml("<@pageId>", rparm);
-							rparm = {
-									 targetId 		: "normalCodeList"
-									,list			: resultData.data["admin.getCodeList"]
-							} 
-							C_COM.renderHtml("<@pageId>", rparm);
-							
-						
-						}else{
-							alert(resultData.msg)
-						}
-				});
-				
-		}
+				var cd_multiboxList = [
+					 { 
+						 data : [
+						 		 ["1111", "고객번호"	]
+						 		,["2222", "고객번호1"	]
+						 		,["3333", "고객번호2"	]
+						 		,["4444", "고객명"		]
+						 ]
+					 	,targetId : "<@pageId>_cd_multiSelect" 
+					 }
+				]
+				C_UICOM.makeSelectBox("<@pageId>", cd_multiboxList);
+			 
+		 }
 		,searchList : () => {
+			
+			const requestParm = {};
 
-				const mode = $("input[name='GRP_YN']:checked").val();
-				if( mode == ''){
-					
-					<@pageId>.searchMulObj();
-					
-				}else if( mode == 'Y'){
-					
-					<@pageId>.searchObj('admin.getGrpCodeList',"grpCodeList");
-					<@pageId>.itemReset("<@pageId>_nmlItemBox" ,false);
-					$("#normalCodeList").html("")
-					
-				}else {
-					
-					<@pageId>.searchObj('admin.getCodeList',"normalCodeList");
-					<@pageId>.itemReset("<@pageId>_grpItemBox" ,false);
-					$("#grpCodeList").html("")
-					
-				}
-				
-		}
-		,updateCode : (loc, queryId) => {
-
-				var parm = {
-						 queryId 		: queryId
-						,requestParm	: <@pageId>.getItems(loc)
-				}
-				C_COM.requestQuery(parm, function(resultData) {
-					
-					if( resultData.state == 'S'){
-						<@pageId>.searchList();
-						console.log("코드 저장 성공");
-					}				
-				});
-				
-		}  
-		,deleteCode : (queryId, requestParm) => {
-				
-				var parm = {
-						 queryId 		: queryId
+			var parm = {
+				queryGroup : [
+					 {
+						 queryId 		: "admin.getGrpCodeList"
 						,requestParm	: requestParm
-				}
+					 }
+					,{
+						 queryId 		: "admin.getCodeList"
+						,requestParm	: requestParm
+					 }
+				]
+			}			
+			C_COM.requestQuery(parm, function(resultData) {
 
-				C_COM.requestQuery(parm, function(resultData) {
-					if( resultData.state == 'S'){
-						<@pageId>.searchList();
-						console.log("코드 삭제 성공")
-					}				
-				});		
-				
-		}  
-		,setHandler : () => {
-
-				//group code row click
-		        $("#grpCodeList").on('click', 'tr', function () {
-	        	
-		            const rowId = $(this)[0].id;
-
-		            if (rowId) {
-							
-			            	$('#<@pageId>_grpItemBox,#<@pageId>_nmlItemBox').show();
-			            	let grpKey = {"GRP_CODE_ID":"" , "GRP_CODE_NM":""}
-		            		$($("#grpCodeList>#"+rowId+" td")).each( (idx,td) => {
-		            			
-		        				const name 	= td.getAttribute("id");
-		        				const value = td.getAttribute("value");
-		        				if( name == "GRP_CODE_ID" ){
-		        					
-									grpKey["GRP_CODE_ID"] = value;
-									$("[name='GRP_CODE_ID']").val(value);
-		        				}else
-		        				if( name == "GRP_CODE_NM" ){
-		        					
-									grpKey["GRP_CODE_NM"] = value;
-			        				$("[name='GRP_CODE_NM']").val(value);
-		        				}else
-  		        				if( name == "EXP_CODE_CNT" ){
-		        					
-		        					let disabled = false;
-		        					if( value > 0 )disabled = true;
-		        					
-		        					$("[name='GRP_CODE_NM']").prop("disabled",disabled);
-		        					
-	        					}else
-		            			<@pageId>.setEachColumnValue("<@pageId>_grpItemBox",[name,value],"GRP_");
-		            		})
-		            		
-			            	// 체크박스 이벤트가 먹지 않아 ROW클릭할 때, 선택된 체크박스를 수동으로 넣음
-					        sample_code.selectedCheck["grpCodeList"] = [];
-							$("#grpCodeList  [id^='<@pageId>.grpCk']:checked").each( (idx,chk) =>{
-								
-					            sample_code.selectedCheck["grpCodeList"].push( $(chk).val());
-			            	})
-			            	
-			            	
-			            	<@pageId>.searchObj('admin.getCodeList',"normalCodeList", grpKey);
-							
-		            }
-	
-		        });
-				
-				//normal code row click
-		        $("#normalCodeList").on('click', 'tr', function () {
-		        	
-		            const rowId = $(this)[0].id;
-
-		            if (rowId) {
-		            	
-			            	$('#<@pageId>_grpItemBox,#<@pageId>_nmlItemBox').show();
-			            	let grpKey = {"GRP_CODE_ID":"" , "GRP_CODE_NM":""}
-		            		$($("#normalCodeList>#"+rowId+" td")).each( (idx,td) => {
-		            			
-		        				const name 	= td.getAttribute("id");
-		        				const value = td.getAttribute("value");
-		        				if( name == "GRP_CODE_ID" ){
-		        					
-									grpKey["GRP_CODE_ID"] = value;
-									$("[name='GRP_CODE_ID']").val(value);
-		        				}else
-		            			<@pageId>.setEachColumnValue("<@pageId>_nmlItemBox",[name,value],"");
-		            			
-		            		})
-
-			            	// 체크박스 이벤트가 먹지 않아 ROW클릭할 때, 선택된 체크박스를 수동으로 넣음
-					        sample_code.selectedCheck["normalCodeList"] = [];
-							$("#normalCodeList  [id^='<@pageId>.nmlCk']:checked").each( (idx,chk) =>{
-								
-					            sample_code.selectedCheck["normalCodeList"].push( $(chk).val());
-			            	})
-
-			            	
-							<@pageId>.searchObj('admin.getGrpCodeList',"grpCodeList",grpKey);
-		            }
-	
-		        });
-				
-				
-   				$('#<@pageId>_search').on('click', function (e) {
-   					<@pageId>.searchList();
-   				})
-   				
-   				$('button[name="<@pageId>_insert"]').on('click', function (e) {
-   					const loc = $(this).siblings(".item-box").attr("id");
-   					const grp = loc.indexOf("grp") > -1 ? "GRP_" : "" ;
-   					
-   					<@pageId>.itemReset(loc,true,grp);
-   				})
-   				
-   				$('button[name="<@pageId>_save"]').on('click', function (e) {
-
-   					const loc =$(this).parents(".item-box").attr("id"); 
-   					const queryId = loc.indexOf("grp") > -1 ? "admin.updateGrpCode" :  "admin.updateCode" ;
-   					<@pageId>.updateCode(loc, queryId);
-   				})
-   				
-   				$('button[name="<@pageId>_delete"]').on('click', function (e) {
-   				
-   					const loc = $(this).siblings(".item-box").attr("id");
-   					
-   					if(<@pageId>.validation(loc,"deleteCode")  == false)return;
-   					
-   					const queryId	= loc.indexOf("grp") > -1 ? "admin.deleteGrpCode" : "admin.deleteCode" ;
-   					let		keyObj 	= loc.indexOf("grp") > -1 ? {"GRP_CODE_ID":""} : {"GRP_CODE_ID":"","CODE_ID":""} ;
-					const gubun 	= loc.indexOf("grp") > -1 ? "grpCodeList" : "normalCodeList" ;
-   		 			<@pageId>.selectedCheck[gubun].forEach( item =>{
-
-   		 				let grpCodeId 	= "";
-   						let codeId 		= "";	
-		 				if( loc.indexOf("grp") == -1 ){
-   		 					
-		 					grpCodeId	= item.split("||")[0];
-   		 					codeId 		= item.split("||")[1];
-	   		 				keyObj["GRP_CODE_ID"] = grpCodeId;
-	   		 				keyObj["CODE_ID"] = codeId;
-	   		 				
-   		 				}else{
-   		 					
-	   		 				keyObj["GRP_CODE_ID"] = item;
-   		 				}
-   						<@pageId>.deleteCode(queryId, keyObj);
-   		 			});
-   				}) 
-   				
-   				$('button[name="<@pageId>_reset"]').on('click', function(e){
-
-   					const loc =$(this).parents(".item-box").attr("id");
-   					const grp = loc.indexOf("grp") > -1 ? "GRP_" : "" ;
-   					<@pageId>.itemReset(loc,true,grp);
-   				})
-   				
-   				$("button[name='<@pageId>_close']").on('click', function(e){
-
-   					const loc =$(this).parents(".item-box").attr("id");
-   					<@pageId>.itemReset(loc,false);
-   				}) 
-   				
-		}
-		,fnRadioCheckValue : (loc, name , pValue) => {
-
-				const radioButtons = $("#"+loc+" input[name='"+name+"']");
-				if( pValue ){
-				 
-					const theRadioBtn = radioButtons.filter("[value='"+pValue+"']");
-					 theRadioBtn.prop('checked',true);
-				}else{
-				
-					const selectedValue = radioButtons.filter(":checked").val();
-					return selectedValue;
-				 }
-		}
- 		,setEachColumnValue : (loc, arr ,grp) => {
-
-				const name 	= arr[0];
-				const value = arr[1];
-
-				if( name == "USE_YN" ){
+					if( resultData.state == "S"){
 					
-					<@pageId>.fnRadioCheckValue(loc, grp+'USE_YN',value);
-				
-				}else if( name == "DEL_YN" ){
-					
-					<@pageId>.fnRadioCheckValue(loc,  grp+'DEL_YN',value);
-				
-				}else{
-				
-					$("#"+loc+" input:not([type='checkbox'])").each((idx,obj)=>{
-
-						if(obj.name == grp+name && obj.name != 'ckbox'){
-							obj.value = value;
-						}
-					})
-				}
-		}
-		,validation : (loc, gubun) => {
-
-				const grp = loc.indexOf("grp") > -1 ? "<@pageId>_grpItemBox" : "<@pageId>_nmlItemBox" ;
-				
- 				if( gubun == "updateCode"){
-					const GRP_CODE_ID = $("#"+grp+" input[name='GRP_CODE_ID']").val();
-					if( isEmpty(GRP_CODE_ID)){
-						alert("저장할 데이터를 확인하여 주십시오.");
+						var rparm = {
+								 targetId 		: "grpCodeList"
+								,list			: resultData.data["admin.getGrpCodeList"]
+						} 
+						C_COM.renderHtml("<@pageId>", rparm);
+						rparm = {
+								 targetId 		: "codeList"
+								,list			: resultData.data["admin.getCodeList"]
+						} 
+						C_COM.renderHtml("<@pageId>", rparm);
+						
+						<@pageId>.setHandler();
+					}else{
+						alert(resultData.msg)
 					}
-					return isEmpty(menuId) ? false:true;
-				}
-				if( gubun == "deleteCode"){
-					const gubun = loc.indexOf("grp") > -1 ? "grpCodeList" : "normalCodeList" ;
-					const deleItems  = <@pageId>.selectedCheck[gubun];
-					if( deleItems == undefined || deleItems.length == 0 ){
-						alert("삭제할 데이터를 확인하여 주십시오.")
-					}
-					return deleItems ==undefined || deleItems.length == 0 ? false:true;
-				}
-				return true;
-		}
- 		, itemReset : (loc, show,grp) => {
+			});
 			
-			if(show)$("#"+loc).show();
-			else $("#"+loc).hide();
+		}		
+		,updateItem : (sectionId, param) => {
+
+			const requestParm = param ? param : {} ;
 			
-			$("#"+loc+ " input:not([type='radio'])").each( (idx, obj) => {
-				$(obj).val("");
-			}); 
-			
-			<@pageId>.fnRadioCheckValue(loc,grp+"USE_YN","Y");
-			<@pageId>.fnRadioCheckValue(loc,grp+"DEL_YN","N");
-			
-			if( grp ){
-				$("[name='GRP_CODE_NM']").prop("disabled",false);
+			if( !requestParm["GRP_CODE_ID"] || requestParm["GRP_CODE_ID"] == ''){
+				requestParm["GRP_CODE_ID"] = C_COM.makeUniqueId();
 			}
+			
+			var parm = {
+					 queryId 		: sectionId.indexOf("grp")>-1 ? "admin.updateGrpCode" :"updateCode"
+					,requestParm	: requestParm
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				if( resultData.state == 'S'){
+					<@pageId>.searchList();
+					console.log("Item 저장 성공");
+				}				
+			});
+		}  
+		,deleteItem : (sectionId, delKey) => {
+			
+			 const requestParm = sectionId.indexOf("grp")>-1 ? { "GRP_CODE_ID":delKey.GRP_CODE_ID}
+			 											     : { "GRP_CODE_ID":delKey.GRP_CODE_ID, "CODE_ID": delKey.CODE_ID}
+			
+			var parm = {
+					 queryId 		: sectionId.indexOf("grp")>-1 ? "admin.deleteGrpCode" : "admin.deleteCode"
+					,requestParm	: requestParm 
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				if( resultData.state == 'S'){
+					<@pageId>.searchList();
+					console.log("Item 삭제 성공")
+				}				
+			});				
+		}
+		,openPopup : (sectionId, $tds) => {
+
+			let param = [];	 
+			$.each( $tds , function(){
+				console.log(""+this)
+				const key = $(this).attr("id");
+				const val = $(this).attr("value");
+				param.push( { "key": key, "val": val } );
+				
+			})
+
+			C_POP.open('popup_codeUpdatePopup', {sectionId:sectionId.replace("<@pageId>_", ""), param:param}, function(retData) {
+				
+				if(isValid(retData)){
+					<@pageId>.updateItem(sectionId, retData);
+				}
+			});
+			
+		}
+		, deleteOne : (sectionId, key) =>{
+
+			const delObj = {}
+			if( sectionId.indexOf("grp") > -1 ){
+				delObj["GRP_CODE_ID"] = key.split("||")[0];
+				delObj["CODE_ID"	] = key.split("||")[1];
+			}else{
+				delObj["GRP_CODE_ID"] = key; 
+			}
+ 			 
+   			<@pageId>.deleteItem(sectionId,delObj)
+   		
+		}
+		,setHandler : () => {
+			 
+		    $("[name='<@pageId>_insert']").click(function(){
+
+		    	const sectionId = $(this).closest("section").attr("id");
+				<@pageId>.openPopup(sectionId);
+
+		    })
+		    
+		    $("[name='<@pageId>_delete']").click(function(){
+		    	debugger;
+		    	const sectionId = $(this).closest("section").attr("id");
+		    	const checkedItems = sectionId.indexOf("grp") > -1 ? <@pageId>.checkedItems["GRP"] : <@pageId>.checkedItems["CD"]
+		    	checkedItems.forEach( key =>{
+					<@pageId>.deleteOne(sectionId,key);
+		    	})
+		    	
+		    })
+		    
+		    $("[name='<@pageId>_excelDownload']").click(function(){
+		    	const sectionId = $(this).closest("section").attr("id");
+		    	console.log("엑셀 다운로드");
+		    })
+		    
+		    $("[id^='<@pageId>_modify_']").click(function(){
+		    	const sectionId = $(this).closest("section").attr("id");
+		    	const index = $(this).attr("index");
+				const $tds = $("#tr_"+index+" td");
+				<@pageId>.openPopup(sectionId,$tds);
+				
+		    })
+		    
+		    $("[id^='<@pageId>_delete_']").click(function(){
+		    	const sectionId = $(this).closest("section").attr("id");
+		    	const key = $(this).attr("key");
+				<@pageId>.deleteOne(sectionId,key);
+		    })
+		    
+		    <@pageId>.chkHandler();
+
+		}
+		,chkHandler : () => {
+			
+		    $("[name='<@pageId>_ckAll']").click(function() {
+			   	
+		    	const sectionId = $(this).closest("section").attr("id");
+		    	const gubun =  sectionId.indexOf("grp") > -1 ? "grp" : "cd"  ;
+		    	
+		    	const isAllChk =  $(this).prop("checked");
+		    	const selector =  "[id^='<@pageId>_ck_"+gubun+"_']"
+
+				$(selector).prop("checked", isAllChk);
+		    	const ckboxes = $(selector);
+		    	if( gubun == "grp"){
+		    		
+			    	<@pageId>.checkedItems["GRP"] = isAllChk ? ckboxes.map(function() { return this.value; }).get() : [];
+		    	}else{
+		    		
+		    		<@pageId>.checkedItems["CD" ] = isAllChk ? ckboxes.map(function() { 
+																		    			const GRP_CODE_ID 	= this.value.split("||")[0];
+																		    			const CODE_ID 		= this.value.split("||")[1];
+																		    			const OBJ			= {GRP_CODE_ID:GRP_CODE_ID, CODE_ID: CODE_ID}
+																		    			return OBJ;}).get() : []
+		    	}
+			    
+			    //alert(JSON.stringify(<@pageId>.checkedItems[gubun.toUpperCase()]));
+		    });
+		    
+		    $("[id^='<@pageId>_ck_grp_']").click(function(){
+		    	
+		    	const sectionId = $(this).closest("section").attr("id");
+		    	
+		    	const GRP_CODE_ID = $(this).attr("value");
+		    	
+		    	if( $(this).is(":checked") ){
+		    		
+			    	<@pageId>.checkedItems["GRP"].push( GRP_CODE_ID );
+		    	}else{
+		    		
+		            const index = <@pageId>.checkedItems["GRP"].indexOf(GRP_CODE_ID);
+		            if (index !== -1) {
+		                <@pageId>.checkedItems["GRP"].splice(index, 1);
+		            }
+		    	}
+		    	
+		        const $checkboxSelector = $("#"+sectionId+" [id^='<@pageId>_ck_']")
+		        const allCheckboxChecked = $checkboxSelector.length === $checkboxSelector.filter(":checked").length;
+		        $("#"+sectionId+" [name='<@pageId>_ckAll']").prop("checked", allCheckboxChecked);
+		    })
+		    
+		    $("[id^='<@pageId>_ck_cd_']").click(function(){
+		    	
+		    	const sectionId = $(this).closest("section").attr("id");
+		    	
+		    	const GRP_CODE_ID 	= $(this).attr("value").split("||")[0];
+		    	const CODE_ID 		= $(this).attr("value").split("||")[1];
+		    	
+		    	if( $(this).is(":checked") ){
+		    		
+			    	<@pageId>.checkedItems["CD"].push( {GRP_CODE_ID:GRP_CODE_ID,CODE_ID:CODE_ID} ); 
+		    	}else{
+		    		
+					const index = <@pageId>.checkedItems["CD"].findIndex(item => item.GRP_CODE_ID === GRP_CODE_ID && item.CODE_ID === CODE_ID);
+		            if (index !== -1) {
+		                <@pageId>.checkedItems["CD"].splice(index, 1);
+		            }
+		    	}
+		    	
+		        const $checkboxSelector = $("#"+sectionId+" [id^='<@pageId>_ck_']")
+		        const allCheckboxChecked = $checkboxSelector.length === $checkboxSelector.filter(":checked").length;
+		        $("#"+sectionId+" [name='<@pageId>_ckAll']").prop("checked", allCheckboxChecked);
+		        
+		        //alert(JSON.stringify(<@pageId>.checkedItems["CD"]));
+		    })
 			
 		}
 }
-
 // Page Load가 완료된후 실행 된다.
-C_PM.onLoadPage("<@pageId>", function(parm) {
-
-		<@pageId>.searchList();
-		<@pageId>.setHandler();
-		
-});
+C_PM.onLoadPage("<@pageId>", function() {
 	
+	<@pageId>.pageInit();
+	<@pageId>.searchList();
+
+});
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
 C_HM.onReturn("<@pageId>", function(pageId, data) {
 
 });
+</script> 
+<div class="cont_wrap">
 
-</script>
-<style>
-    .search-box , .item-box{
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-        flex-wrap: wrap;
-        border: 1px solid black;
-        margin-top : 5px;
-    }
+	<div class="cont_top">
+		<h2><i class="icon_bullet"></i>TBL_EXP_GRPCODE</h2>
+	</div>
+	<section class="sec_wrap" id="<@pageId>_grpcode_section">
+		<!-- search area -->
+		<div class="search_area mt0">
+			<!-- 멀티 선택 -->
+			<div class="fl">
+				<button type="button" class="btn fl" name="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 
-	.item-box div {
-		margin-left: 10px;
-	}
-	
-    button {
-        margin-top: 10px;
-        background-color: #555; 
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin-left: 5px;
-    }
+				<div style="width:200px;" id="<@pageId>_grp_multiSelect"></div>
 
-    button:hover {
-        background-color: #333;
-    }
-
-    .tb {
-        width: 100%;
-        table-layout: fixed;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-
-    .tb th, .tb td {
-        border: 1px solid black;
-        padding: 8px;
-        text-align: left;
-    }
-
-    .tb th {
-        background-color: #f2f2f2;
-    }
-
-    .tb tr:hover {
-        background-color: #f5f5f5;
-    }
-
-    .search-box input,
-    .search-box select,
-    .search-box button {
-        margin: 5px;
-        padding: 8px;
-    }
-
-    .search-box select {
-        width: 150px;
-    }
-
-    .search-box button {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        cursor: pointer;
-        margin-left:10px;
-    }
-
-    .search-box button:hover {
-        background-color: #45a049;
-    }
-
-    .search-box div {
-        margin-left:10px;
-    }
-
-    .tb tr td {
-        white-space: nowrap;
-        overflow: hidden;
-        /* text-overflow: ellipsis; */
-        position: relative;
-    }
-    
-    .tb tr td:hover {
-        overflow: visible;
-    }
-
-/*     .tb tr td span.tooltip {
-        display: none;
-        position: absolute;
-        background-color: #f9f9f9;
-        border: 1px solid #ccc;
-        padding: 5px;
-        z-index: 100000;
-        bottom: 30%;
-        left: 0;
-        width: max-content;
-        
-    } */
-
-    .tb tr td:hover .tooltip {
-        display: block;
-        overflow: visible;
-    }
-    
-    
-.group-code , .normal-code {
-    border: 1px solid gray;
-    background-color: #f2f2f2;
-    height: 300px;
-    max-height: 300px;
-    overflow-y: auto;
-    overflow-x: auto;
-} 
-
-.normal-code {
-	
-    height:500px;
-    max-height:600px;
-}
-
-
-.detail label {
-}
-.detail>.read-only {
-	background-color:#F2F2F2;
-	pointer-events: none;
-}
-.detail>.read-only.s {
-	width:50px;
-}
-.detail>.read-only.m {
-	width:200px;
-}
-
-.detail-btn {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    margin-left:auto;
-    margin-right:10px;
-}
-
-.detail-btn button {
-    margin-left: 5px;
-}
-
-.detail-btn button:last-child {
-    margin-right: 0; /* Remove margin from the last button */
-}
-
-
-.rdoGrp {
-     display: flex;
-     align-items: center;
-     margin-bottom: 10px;
-     flex-wrap: wrap;
-     border: 1px solid black;
-     padding: 5px;
-     margin-top: 10px;
-     margin-left: 10px;
- }
-
-.rdoGrp label {
-    margin-right: 10px;
-}
-
-#grpCodeList {
-    max-height: 300px;
-    overflow-y: auto; 
-  	/* display: block; */ 
-
-}
-</style>
-
-
-<div>
-    <div class='search-box' id='<@pageId>_searchItems'>
-		<div class='rdoGrp' >MODE : 	
-								<label><input type='radio' name='GRP_YN' value="" checked/>ALL</label>
-								<label><input type='radio' name='GRP_YN' value="Y" />GROUP CODE</label>
-								<label><input type='radio' name='GRP_YN' value="N"  />CODE</label></div>
-		<div>(GRP)CODE NM : 	<input type='text' name='CODE_NM' >                      </div>
-		<div>(GRP)CODE DESC:	<input type='text' name='CODE_DESC' >                    </div>
-		<div><!--EXP_CODE_CNT --><input type='hidden' name='EXP_CODE_CNT' >		 </div>
-		<div class='rdoGrp' >USE YN: 	
-								<label><input type='radio' name='S_USE_YN' value="" checked/>ALL</label>
-								<label><input type='radio' name='S_USE_YN' value="Y" />Yes</label>
-								<label><input type='radio' name='S_USE_YN' value="N"  />No</label></div>
-		<div class='rdoGrp' >DEL YN: 	
-								<label><input type='radio' name='S_DEL_YN' value="" checked/>ALL</label>
-								<label><input type='radio' name='S_DEL_YN' value="Y" />Yes</label>
-								<label><input type='radio' name='S_DEL_YN' value="N"  />No</label></div>
-		<button id='<@pageId>_search' style='margin-left:auto'>조회</button>
-     </div>
-     
-    <div class="group-code"> 
-    	<div><H2>[ GROUP CODE ]</H2></div>
-		<button name='<@pageId>_insert'	>추가</button>
-		<button name='<@pageId>_delete'	>삭제</button>
-		
-		<div class='item-box' id='<@pageId>_grpItemBox'>
-			<div class='detail' >ROW NO:		#<input type='text' name='GRP_index' 	class='read-only s'>	</div>
-			<div class='detail' >GRP_CODE_ID:	<input type='text' name='GRP_CODE_ID' 	class='read-only m'>	</div>
-			<div class='detail' >GRP_CODE_NM : 	<input type='text' name='GRP_CODE_NM' > 						</div>
-			<div class='detail' >CODE_DESC: 	<input type='text' name='GRP_CODE_DESC' >						</div>
-			<div class='detail rdoGrp' >USE YN: 	
-									<label><input type='radio' name='GRP_USE_YN' value="Y" checked/>Yes</label>
-									<label><input type='radio' name='GRP_USE_YN' value="N"  />No</label>		</div>
-			<div class='detail rdoGrp' >DEL YN: 	
-									<label><input type='radio' name='GRP_DEL_YN' value="Y" />Yes</label>
-									<label><input type='radio' name='GRP_DEL_YN' value="N" checked/>No</label>	</div>
-			<div class='detail' >SORT ORDER:	<input type='text' name='GRP_SORT_ORDER' style='width:60px;' oninput="this.value = this.value.replace(/[^0-9]/g, '');"></div>
-			
-			<div class='detail-btn'>
-				<button name='<@pageId>_save'	>저장</button>
-				<button name='<@pageId>_reset'	>초기화</button>
-				<button name="<@pageId>_close"	>닫기</button>
+				<div class="search_inputWrap">
+					<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+				</div>
 			</div>
-	     </div>
-	     
-	     <table class='tb'>
-	       <thead>
-	           <tr>
-	               <th style='width:30px;'>ck</th>
-	               <th style='width:50px;'>#번호</th>
-	               <th>GRP_CODE_ID</th>
-	               <th style='width:150px;'>GRP_CODE_NM</th>
-	               <th>CODE_DESC</th>
-	               <th style='width:60px;'>USE_YN</th>
-	               <th style='width:60px;'>DEL_YN</th>
-	               <th style='width:60px;'>ORDER</th>
-	               <th>UPDATE_USER</th>
-	               <th>UPDATE_DATE</th>
-	           </tr>
-	       </thead>
-	       <tbody id="grpCodeList">
-	       </tbody>
+
+			<div class="search_right">
+				<button type="button" class="btn select fl" name="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button>
+				<button type="button" class="btn fl"  name="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
+            </div>
+		</div>
+		<!-- 테이블 -->
+		<div class="tbl01 col tbl_scroll">
+			<table>
+				<caption>TBL_EXP_GRPCODE</caption>
+				<colgroup>
+					<col style="width:40px;"/>
+					<col style="width:100px;"/>
+					<col style="width:80px;"/>
+					<col style="width:110px;"/>
+					<col style="width:80px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:80px;"/>
+				</colgroup>
+				<thead>
+					<tr>
+						<th scope="col"><input type="checkbox" name="<@pageId>_ckAll"></th>
+						<th scope="col">GRP_CODE_ID</th>
+						<th scope="col">GRP_CODE_NM</th>
+						<th scope="col">CODE_DESC</th>
+						<th scope="col">USE_YN</th>
+						<th scope="col">DEL_YN</th>
+						<th scope="col">SORT_ORDER</th>
+						<th scope="col">UPDATE_USER</th>
+						<th scope="col">UPDATE_DATE</th>
+						<th scope="col">TBL_EXP_CODE</th>
+						<th scope="col"></th>
+					</tr>
+				</thead>
+				<tbody  id="grpCodeList">
+				</tbody>
 <script type="text/x-jsrender" id="grpCodeList_template">	
 				{{for list}}
-				<tr id="grpCodeTrId_{{:#index}}">
- 					<td id='ckbox'><input type='checkbox' id="<@pageId>.grpCk_{{:#index}}" value='{{:GRP_CODE_ID}}'></td>
- 					<td id='index' 			value='{{:#index+1}}'		>#{{:#index+1}}</td>
- 					<td id='GRP_CODE_ID' 	value='{{:GRP_CODE_ID}}'	>{{:GRP_CODE_ID}}</td>
- 					<td id='GRP_CODE_NM' 	value='{{:GRP_CODE_NM}}'	>{{:GRP_CODE_NM}}	</td>
- 					<td id='CODE_DESC' 		value='{{:CODE_DESC}}'		>{{:CODE_DESC}}	</td>
- 					<td id='USE_YN' 		value='{{:USE_YN}}' 		>{{:USE_YN}}</td>
- 					<td id='DEL_YN' 		value='{{:DEL_YN}}' 		>{{:DEL_YN}}</td>
- 					<td id='SORT_ORDER' 	value='{{:SORT_ORDER}}' 	>{{:SORT_ORDER}}</td>
- 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'	>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE' 	value='{{:UPDATE_DATE}}'	>{{:UPDATE_DATE}}</td>
- 					<td id='EXP_CODE_CNT' 	value='{{:EXP_CODE_CNT}}'	style='display: none;'>{{:EXP_CODE_CNT}}</td>
+				<tr id="tr_{{:#index}}">
+					<td><input type='checkbox' id="<@pageId>_ck_grp_{{:#index}}" value='{{:GRP_CODE_ID}}'></td>
+ 					<td id='GRP_CODE_ID'		value='{{:GRP_CODE_ID}}'		>{{:GRP_CODE_ID}}</td>
+ 					<td id='GRP_CODE_NM'		value='{{:GRP_CODE_NM}}'		>{{:GRP_CODE_NM}}</td>
+ 					<td id='CODE_DESC'			value='{{:CODE_DESC}}' 			>{{:CODE_DESC}}</td>
+ 					<td id='USE_YN'				value='{{:USE_YN}}' 			>{{:USE_YN}}</td>
+ 					<td id='DEL_YN'				value='{{:DEL_YN}}' 			>{{:DEL_YN}}</td>
+ 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}'			>{{:SORT_ORDER}}</td>
+ 					<td id='UPDATE_USER' 		value='{{:UPDATE_USER}}'		>{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 		>{{:UPDATE_DATE}}</td>
+ 					<td id='EXP_CODE_CNT'		value='{{:EXP_CODE_CNT}}' 		>{{:EXP_CODE_CNT}}</td>
+ 					<td><button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
+						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}'><i class="icon_trash"></i></button>
+					</td>
 				</tr>
 				{{/for}}
 </script>
@@ -652,77 +350,122 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<td colspan=10>자료가 없습니다.</td>	
 				</tr>
 </script>
-		</table>
+			</table>
+		</div>
+		<!-- paging -->
+		<div class="paging">
+			<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+			<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+			<strong title="현재 페이지">1</strong>
+			<a href="#none">2</a>
+			<a href="#none">3</a>
+			<a href="#none">4</a>
+			<a href="#none">5</a>
+			<a href="#none" class="btn_pg_next">다음 페이지</a>
+			<a href="#none" class="btn_pg_last">마지막 페이지</a>
+		</div>
+	</section>
+<!--  -->			
+	<div class="cont_top">
+		<h2><i class="icon_bullet"></i>TBL_EXP_CODE</h2>
 	</div>
+	<section class="sec_wrap" id="<@pageId>_code_section">
+		<!-- search area -->
+		<div class="search_area mt0">
+			<!-- 멀티 선택 -->
+			<div class="fl">
+				<button type="button" class="btn fl" name="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 
-    <div class="normal-code"> 
-		<div><H2>[ NORMAL CODE ]</H2></div>
-	    <button name='<@pageId>_insert'	>추가</button>
-		<button name='<@pageId>_delete'	>삭제</button>
-	    
-		<div class='item-box' id='<@pageId>_nmlItemBox'>
-			<div class='detail' >GRP_CODE_ID:	<input type='text' name='GRP_CODE_ID' 	class='read-only m'></div>
-			<div class='detail' >GRP_CODE_NM :	<input type='text' name='GRP_CODE_NM' 	class='read-only m'></div>
-			<div class='detail' >ROW NO:	   #<input type='text' name='index' 	class='read-only s'></div>
-			<div class='detail' >CODE_ID:		<input type='text' name='CODE_ID' 	class='read-only m'></div>
-			
-			<div class='detail' >CODE_NM : 		<input type='text' name='CODE_NM' >                      </div>
-			<div class='detail' >CODE_DESC: 	<input type='text' name='CODE_DESC' >                      </div>
-			<div class='detail rdoGrp' >USE YN: 	
-									<label><input type='radio' name='USE_YN' value="Y" checked/>Yes</label>
-									<label><input type='radio' name='USE_YN' value="N"  />No</label></div>
-			<div class='detail rdoGrp' >DEL YN: 	
-									<label><input type='radio' name='DEL_YN' value="Y" />Yes</label>
-									<label><input type='radio' name='DEL_YN' value="N" checked/>No</label></div>
-			<div class='detail' >SORT ORDER:	<input type='text' name='SORT_ORDER' style='width:60px;' oninput="this.value = this.value.replace(/[^0-9]/g, '');"></div>
-		
-			<div class='detail-btn'>
-				<button name='<@pageId>_save'	>저장</button>
-				<button name='<@pageId>_reset'	>초기화</button>
-				<button name="<@pageId>_close"	>닫기</button>
+				<div style="width:200px;" id="<@pageId>_cd_multiSelect"></div>
+
+				<div class="search_inputWrap">
+					<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+				</div>
 			</div>
-	     </div>
-	     
-	     <table class='tb'>
-	       <thead>
-	           <tr>
-	               <th style='width:30px;'></th>
-	               <th style='width:50px;'>#번호</th>
-	               <th style='width:250px;'>GRP_CODE_ID</th>
-	               <th>CODE_ID</th>
-	               <th style='width:150px;'>CODE_NM</th>
-	               <th>CODE_DESC</th>
-	               <th style='width:60px;'>USE_YN</th>
-	               <th style='width:60px;'>DEL_YN</th>
-	               <th style='width:60px;'>ORDER</th>
-	               <th>UPDATE_USER</th>
-	               <th>UPDATE_DATE</th>
-	           </tr>
-	       </thead>
-	       <tbody id="normalCodeList">
-	       </tbody>
-<script type="text/x-jsrender" id="normalCodeList_template">	
+
+			<div class="search_right">
+				<button type="button" class="btn select fl" name="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button>
+				<button type="button" class="btn fl"  name="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
+            </div>
+		</div>
+		<!-- 테이블 -->
+		<div class="tbl01 col tbl_scroll">
+			<table>
+				<caption>TBL_EXP_GRPCODE</caption>
+				<colgroup>
+					<col style="width:40px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:80px;"/>
+					<col style="width:110px;"/>
+					<col style="width:80px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:80px;"/>
+				</colgroup>
+				<thead>
+					<tr>
+						<th scope="col"><input type="checkbox" name="<@pageId>_ckAll"></th>
+						<th scope="col">GRP_CODE_ID</th>
+						<th scope="col">GRP_CODE_NM</th>
+						<th scope="col">CODE_ID</th>
+						<th scope="col">CODE_NM</th>
+						<th scope="col">CODE_DESC</th>
+						<th scope="col">USE_YN</th>
+						<th scope="col">DEL_YN</th>
+						<th scope="col">SORT_ORDER</th>
+						<th scope="col">UPDATE_USER</th>
+						<th scope="col">UPDATE_DATE</th>
+						<th scope="col">EXP_CODE_CNT</th>
+						<th scope="col"></th>
+					</tr>
+				</thead>
+				<tbody  id="codeList">
+				</tbody>
+<script type="text/x-jsrender" id="codeList_template">	
 				{{for list}}
-				<tr id="codeTrId_{{:#index}}">
- 					<td id='ckbox'><input type='checkbox' id="<@pageId>.nmlCk_{{:#index}}" value='{{:GRP_CODE_ID}}||{{:CODE_ID}}'></td>
- 					<td id='index'	 		value='{{:#index+1}}'	>#{{:#index+1}}	</td>
- 					<td id='GRP_CODE_ID' 	value='{{:GRP_CODE_ID}}'>{{:GRP_CODE_ID}}</td>
- 					<td id='CODE_ID' 		value='{{:CODE_ID}}'	>{{:CODE_ID}}</td>
- 					<td id='CODE_NM' 		value='{{:CODE_NM}}'	>{{:CODE_NM}}</td>
- 					<td id='CODE_DESC' 		value='{{:CODE_DESC}}'	>{{:CODE_DESC}}</td>
- 					<td id='USE_YN' 		value='{{:USE_YN}}' 	>{{:USE_YN}}</td>
- 					<td id='DEL_YN' 		value='{{:DEL_YN}}' 	>{{:DEL_YN}}</td>
- 					<td id='SORT_ORDER' 	value='{{:SORT_ORDER}}' >{{:SORT_ORDER}}</td>
- 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE' 	value='{{:UPDATE_DATE}}'>{{:UPDATE_DATE}}</td>
+				<tr id="tr_{{:#index}}">
+					<td><input type='checkbox' id="<@pageId>_ck_cd_{{:#index}}" value='{{:GRP_CODE_ID}}||{{:CODE_ID}}'></td>
+ 					<td id='GRP_CODE_ID'	value='{{:GRP_CODE_ID}}'	>{{:GRP_CODE_ID}}</td>
+ 					<td id='GRP_CODE_NM'	value='{{:GRP_CODE_NM}}'	>{{:GRP_CODE_NM}}</td>
+ 					<td id='CODE_ID'		value='{{:CODE_ID}}'		>{{:CODE_ID}}</td>
+ 					<td id='CODE_NM'		value='{{:CODE_NM}}' 		>{{:CODE_NM}}</td>
+ 					<td id='CODE_DESC'		value='{{:CODE_DESC}}' 		>{{:CODE_DESC}}</td>
+ 					<td id='USE_YN'			value='{{:USE_YN}}' 		>{{:USE_YN}}</td>
+ 					<td id='DEL_YN'			value='{{:DEL_YN}}' 		>{{:DEL_YN}}</td>
+ 					<td id='SORT_ORDER'		value='{{:SORT_ORDER}}'		>{{:SORT_ORDER}}</td>
+ 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'	>{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
+ 					<td id='EXP_CODE_CNT'	value='{{:EXP_CODE_CNT}}' 	>{{:EXP_CODE_CNT}}</td>
+ 					<td><button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
+						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}||{{:CODE_ID}}'><i class="icon_trash"></i></button>
+					</td>
 				</tr>
 				{{/for}}
 </script>
-<script type="text/x-jsrender" id="normalCodeList_noData_template">	
+<script type="text/x-jsrender" id="codeList_noData_template">	
 				<tr>	
-					<td colspan=12>자료가 없습니다.</td>	
+					<td colspan=10>자료가 없습니다.</td>	
 				</tr>
 </script>
-		</table>	
-	</div>
+			</table>
+		</div>
+		<!-- paging -->
+		<div class="paging">
+			<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+			<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+			<strong title="현재 페이지">1</strong>
+			<a href="#none">2</a>
+			<a href="#none">3</a>
+			<a href="#none">4</a>
+			<a href="#none">5</a>
+			<a href="#none" class="btn_pg_next">다음 페이지</a>
+			<a href="#none" class="btn_pg_last">마지막 페이지</a>
+		</div>
+	</section>			
+			
 </div>
