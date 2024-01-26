@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="approval">
+
+	<cache />
+
+	<!-- 결재 입력  이응규 -->
+    <insert id="insertApproval" parameterType="map" >
+        /* Sample.insertApproval */
+        INSERT INTO TBL_EXP_APPROVAL (
+            UUID
+           ,REQUEST_USER
+           ,TITLE
+           ,CONTENTS
+           ,STATE
+           
+           ,APPROVAL_DATE
+           ,CREATE_USER
+           ,CREATE_DATE
+           )
+        VALUES(
+            #{uuid}
+           ,#{requestUser}
+           ,#{title}
+           ,#{contents}
+           ,#{state}
+           
+           ,(TO_DATE(#{approvalDate} , 'yyyy/mm/dd hh24:mi:ss') )
+           ,#{createUser}
+           ,(TO_DATE(#{createDate} , 'yyyy/mm/dd hh24:mi:ss') )
+           )   
+    </insert>
+    
+    <!-- 결재자 입력  이응규 -->
+    <insert id="insertApprovalUser" parameterType="map" >
+        /* Sample.insertApprovalUser */
+        INSERT INTO TBL_EXP_APPROVAL_USER (
+             UUID
+            ,APPROVAL_UUID
+            ,APPROVAL_USER_ID
+            ,STATE
+            ,APPROVAL_COMMENT
+
+            ,CREATE_USER
+            ,CREATE_DATE
+           )
+        VALUES(
+            
+             #{uuid}
+            ,#{approvalUuid}
+            ,#{approvalUserId}
+            ,#{state}
+            ,#{approvalComment}
+           
+           ,#{createUser}
+           ,(TO_DATE(#{createDate} , 'yyyy/mm/dd hh24:mi:ss') )
+           )    
+    </insert>
+</mapper>

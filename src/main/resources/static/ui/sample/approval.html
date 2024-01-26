@@ -22,9 +22,9 @@
 	                console.log("obj.user_desc =>"+obj.user_desc);
 	                console.log("obj.e_mail =>"+obj.e_mail);
 	                
-	                //var indexStr = obj.index.toString();
-	                //<@pageId>.userIndex = obj.index;
-	                
+
+                    <@pageId>.userArr.push(obj.user_id);
+                    
 	                let user = obj.user_nm+"("+obj.user_id+")/"+obj.user_desc+"/"+obj.e_mail;
 	                let htmlData = '';
                     htmlData += '<div id="approvalUser'+ <@pageId>.userIndex +'" class="filebox">';
@@ -37,7 +37,7 @@
              }
 	        ,deleteUser : function(num) {/* 결재자 삭제 */
 	            $("#<@pageId> #approvalUser" + num).remove();
-	            //<@pageId>.userArr[num].is_delete = true;
+	            <@pageId>.userArr[num].is_delete = true;
 	         }
 	        /* 결재상신 */
 	        ,save : function () {
@@ -54,12 +54,21 @@
 	            var form = document.querySelector("#<@pageId> form");
 	            
 	            var formData = new FormData(form);
+	            formData.append("appr_uuid", C_COM.makeUniqueId());
+                
+                for (var i = 0; i < <@pageId>.userArr.length; i++) {
+                    // 삭제되지 않은 결재자만 폼데이터에 담기
+                    if (!<@pageId>.userArr[i].is_delete) {
+                        formData.append("user_ids", <@pageId>.userArr[i]);
+                        formData.append("appr_user_uuid", C_COM.makeUniqueId());
+                    }
+                }                
 	            
 	            for (var i = 0; i < <@pageId>.filesArr.length; i++) {
 	                // 삭제되지 않은 파일만 폼데이터에 담기
 	                if (!<@pageId>.filesArr[i].is_delete) {
 	                    formData.append("attach_file", <@pageId>.filesArr[i]);
-	                    formData.append("uuids", C_COM.makeUniqueId());
+	                    formData.append("file_uuids", C_COM.makeUniqueId());
 	                }
 	            }
 

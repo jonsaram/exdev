@@ -15,12 +15,8 @@
  */
 package exdev.com.common.controller;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,16 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.tomcat.util.http.fileupload.FileItem;
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
-import org.apache.tomcat.util.http.fileupload.RequestContext;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
-import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,14 +38,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
 
-import com.google.gson.Gson;
-
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.service.ExdevCommonService;
 import exdev.com.common.vo.SessionVO;
+import exdev.com.service.ExcelService;
 import exdev.com.service.ExdevSampleService;
 import exdev.com.service.FileService;
-import exdev.com.service.ExcelService;
+import exdev.com.service.ApprovalService;
+
 /**
  * This MovieController class is a Controller class to provide movie crud and
  * genre list functionality.
@@ -79,7 +66,10 @@ public class ExdevCommonController {
 
 	@Autowired
 	private FileService fileService;
-	
+
+    @Autowired
+    private ApprovalService approvalService;
+    
 	@SuppressWarnings({ "unused", "rawtypes" })
 	@RequestMapping("requestService.do")
 	public @ResponseBody Map requestService(@RequestBody Map map, HttpSession session) throws Exception {
@@ -215,40 +205,74 @@ public class ExdevCommonController {
      * @수 정 자
      */
 
-    @SuppressWarnings({ "unused", "rawtypes" })
     @PostMapping("/approvalSave.do")
     public @ResponseBody Map  approvalSave(@RequestParam("attach_file") List<MultipartFile> multiFileList,           
             HttpServletRequest request, HttpSession session)  throws Exception {
         
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
-        
-        Map returnMap = new HashMap();
+        String msg = "";
+        Map<String, String> returnMap = new HashMap<String, String>();
         
         // 받아온것 출력 확인
         System.out.println("multiFileList : " + multiFileList);
         String grpId = request.getParameter("groupId");
         
-        String title = request.getParameter("title");
-        String content = request.getParameter("content");
-        String[] uuids = request.getParameterValues("uuids");
+        String[] file_uuids = request.getParameterValues("file_uuids");
 
         System.out.println("grpId : " + grpId);
-        System.out.println("title : " + title);
-        System.out.println("content : " + content);
+
         
         // path 가져오기
         String path = request.getSession().getServletContext().getRealPath("resources");
         String root = path + "\\" + "uploadFiles";
-        //returnMap = fileService.fileUploadMulti( multiFileList, root , grpId, uuids);
-        //String msg = returnMap.get("msg").toString();
+        returnMap = fileService.fileUploadMulti( multiFileList, root , grpId, file_uuids);
+        msg = returnMap.get("msg").toString();
+
+        if( ExdevConstants.REQUEST_FAIL.equals(msg)) {
+            returnMap.put("msg","결재상신 에 성공하였습니다.");
+            return returnMap;
+        }
+        
+
+        String title = request.getParameter("title");
+        String content = request.getParameter("content");    
+        String appr_uuid = request.getParameter("appr_uuid");
+
+
+        System.out.println("title : " + title);
+        System.out.println("content : " + content);    
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
+        String strDate = dateFormat.format(Calendar.getInstance().getTime());
+        
+        Map<String, String> apprMap = new HashMap<String, String>();
+
+        apprMap.put("uuid",appr_uuid);
+        apprMap.put("requestUser","requestUser");
+        apprMap.put("title",title);
+        apprMap.put("contents",content);
+        apprMap.put("state","REQUEST");
+        apprMap.put("approvalDate",strDate);
+        apprMap.put("createUser","createUser");
+        apprMap.put("createDate",strDate);
+        
+
+        String[] userIds       = request.getParameterValues("user_ids");
+        String[] apprUserUuids = request.getParameterValues("appr_user_uuid");
         
         
-        String msg = "SUCCESS";
+        Map<String, String[]> apprUserMap = new HashMap<String, String[]>();
+                  
+        apprUserMap.put("apprUserUuids",apprUserUuids);
+        apprUserMap.put("userIds",userIds);
         
-        if( "SUCCESS".equals(msg)) {
-            returnMap.put("msg","결재상신에 성공하였습니다.");
+        returnMap = approvalService.insertApproval( apprMap,apprUserMap );
+        
+        msg = returnMap.get("msg").toString();
+        if( ExdevConstants.REQUEST_SUCCESS.equals(msg)) {
+            returnMap.put("msg","결재상신 에 성공하였습니다.");
         }else{
-            returnMap.put("msg","결재상신에 실패하였습니다.");
+            returnMap.put("msg","결재상신 에 실패하였습니다.");
         }
         
         return returnMap;

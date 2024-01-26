@@ -109,10 +109,12 @@
 		      ,CONTENTS
 		      ,STATE
 		      ,APPROVAL_DATE
+		      ,TO_CHAR( APPROVAL_DATE , 'YYYY-MM-DD HH24:MI:SS' ) APPROVAL_DATE1
 		      ,UPDATE_USER
 		      ,UPDATE_DATE
 		      ,CREATE_USER
 		      ,CREATE_DATE
+		      ,TO_CHAR( CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE1 
 		FROM  TBL_EXP_APPROVAL
 		WHERE 1 = 1
         <if test=" requestUser != null and requestUser != '' " >
@@ -123,28 +125,5 @@
         ORDER BY APPROVAL_DATE DESC
     </select>
 
-    <insert id="insertApproval" parameterType="map" useGeneratedKeys="true" keyProperty="userId">
-        /* Sample.insertApproval */
-	    INSERT INTO TBL_EXP_APPROVAL (
-		    UUID
-		   ,REQUEST_USER
-		   ,TITLE
-		   ,CONTENTS
-		   ,STATE
-		   ,APPROVAL_DATE
-		   ,CREATE_USER
-		   ,CREATE_DATE
-		   )
-		VALUES(
-		    #{uuid}
-		   ,#{requestUser}
-		   ,#{title}
-		   ,#{contents}
-		   ,#{state}
-		   ,#(TO_DATE(#{approvalDate} , 'yyyy/mm/dd hh24:mi:ss') )
-		   ,#{createUser}
-		   ,(TO_DATE(#{createDate} , 'yyyy/mm/dd hh24:mi:ss') )
-		   )   
-    </insert>
     
 </mapper>

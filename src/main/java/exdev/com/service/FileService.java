@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.common.service.ExdevBaseService;
 
@@ -75,10 +76,9 @@ public class FileService extends ExdevBaseService{
 	 * @수 정 일자 :
 	 * @수 정 자
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map fileUploadMulti( List<MultipartFile> multiFileList, String  path , String  grpId,String[] uuids) throws Exception {
 		
-		Map returnMap = new HashMap();
+		Map<String, String> returnMap = new HashMap<String, String>();
 		File fileCheck = new File(path);
 		if(!fileCheck.exists()) fileCheck.mkdirs();
 		
@@ -137,12 +137,12 @@ public class FileService extends ExdevBaseService{
 			System.out.println(" multiFileList.size() =>"+multiFileList.size());
 			System.out.println(" result =>"+result);
 			if( result == multiFileList.size()) {
-				returnMap.put("msg", "SUCCESS");	
+				returnMap.put("msg", ExdevConstants.REQUEST_SUCCESS);	
 			}else {
 				for(int i = 0; i < multiFileList.size(); i++) {
 					new File(path + "\\" + fileList.get(i).get("changeFile")).delete();
 				}
-				returnMap.put("msg", "FAILE");
+				returnMap.put("msg", ExdevConstants.REQUEST_FAIL);
 			}	
 			
 		} catch (Exception e) {
@@ -151,7 +151,7 @@ public class FileService extends ExdevBaseService{
 				new File(path + "\\" + fileList.get(i).get("changeFile")).delete();
 			}
 			e.printStackTrace();
-			returnMap.put("msg","FAILE");
+			returnMap.put("msg", ExdevConstants.REQUEST_FAIL);
 		}
 		return returnMap;
 	}
