@@ -61,10 +61,9 @@
 			}
 
 			C_COM.requestQuery(parm, function(resultData) {
-				
 				if( resultData.state == 'S'){
-					//<@pageId>.searchList();
-					console.log("코드 저장 성공");
+					parm.requestParm["refresh"] = "Y";
+					<@popupId>.close(parm.requestParm);
 				}				
 			});			
 		} 

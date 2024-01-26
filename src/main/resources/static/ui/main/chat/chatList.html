@@ -197,7 +197,10 @@ var <@pageId> = {
 		}
 		, createChatRoomPopup : function() {
 			C_POP.open('popup_createChatRoomPopup', {}, function(retData) {
-				dalert(retData);
+				if(retData.refresh == 'Y'){
+					<@pageId>.searchList();
+					<@pageId>.enterChatRoomPopup(retData);
+				}
 			});
 		 }
 		, enterChatRoomPopup : function(parm) {
