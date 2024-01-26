@@ -1,9 +1,11 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	let lastSeq = 0;
+	var interval;
 	var <@popupId> = {
 		 close : function(returnData) {
 			if(isEmpty(returnData)) returnData = {};
+			clearInterval(interval);
 			C_POP.close(returnData);
 		 }
 		,openPopup : function() {
@@ -115,7 +117,8 @@
 				$('.tit').text(value);
 			}
 		});
-		setInterval(() => {<@popupId>.searchList();}, 5000);
+		<@popupId>.searchList();
+		interval = setInterval(() => {<@popupId>.searchList();}, 5000);
 	});
 	
 </script>
