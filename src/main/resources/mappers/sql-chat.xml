@@ -36,8 +36,11 @@
 		FROM TBL_EXP_CHATROOM
 		WHERE CHATROOM_ID = #{CHATROOM_ID}
 	</select>
-
+	
 	<insert id="insertChatRoom" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	chat.insertChatRoom
+			대화방 생성 입력 
+		*/
 		INSERT INTO TBL_EXP_CHATROOM(	CHATROOM_ID,
 										CHATROOM_NAME,
 										OPENROOM_YN,
@@ -52,7 +55,7 @@
 										'정빈',
 										SYSDATE)
 	</insert>
-	
+		
 	<delete id="deleteChatRoom" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	chat.deleteChatRoom
 			대화방 삭제
@@ -60,5 +63,40 @@
 		DELETE FROM TBL_EXP_CHATROOM 
 		WHERE CHATROOM_ID = #{CHATROOM_ID} 
 	</delete>
+	
+	<select id="getChatRoomMessageList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	chat.getChatRoomMessageList
+			대화메세지 리스트 조회 
+		*/
+		SELECT 	SEQ,
+				USER_ID,
+				CHATROOM_ID,
+				MESSAGE,
+				UPDATE_USER,
+				TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+		FROM TBL_EXP_CHATROOM_MESSAGE
+		WHERE CHATROOM_ID = #{CHATROOM_ID}
+		  AND SEQ > #{LAST_SEQ}
+		ORDER BY SEQ
+	</select>
+
+	<insert id="insertChatRoomMessage" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	chat.insertChatRoomMessage
+			대화메세지 입력 
+		*/
+		INSERT INTO TBL_EXP_CHATROOM_MESSAGE(	SEQ,
+												USER_ID,
+												CHATROOM_ID,
+												MESSAGE,
+												UPDATE_USER,
+												UPDATE_DATE)
+									VALUES(
+												CHAT_SEQ.NEXTVAL,
+												#{USER_ID},
+												#{CHATROOM_ID},
+												#{MESSAGE},
+												#{USER_ID},
+												SYSDATE)
+	</insert>
 	
 </mapper>
