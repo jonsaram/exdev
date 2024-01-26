@@ -747,16 +747,30 @@ var C_UICOM = {
           if(isEmpty(targetId)) targetId = $clicked.parent().parent().attr("uid");
 		  $.each(C_UICOM.useSelectBoxIdList, function(key, obj) {
 			if(obj.targetId != targetId) {
-				var pageWebId = "#" + obj.pageId + " #" + obj.targetId + " ";
-				$(pageWebId).find("ul").hide();
+				var pageWebUl = "#" + obj.pageId + " #" + obj.targetId + "_ul";
+				if($(pageWebUl).hasClass("select_lst")) {
+					$(pageWebUl).addClass("viewHide");
+				} else {
+					$(pageWebUl).find("ul").hide();	
+				}
+				
 			}
 		  });
 	    });
-		
 	 }
 	,makeSelectBox : function(pageId, mboxList, type) {
 		if(isEmpty(type)) type="single";
 		C_UICOM.makeSelectBoxExec(mboxList.data, mboxList.targetId, type)	 
+	 }
+	,toggleSingleSelectBox : function(targetId) {
+		var pageId = C_PM.getCurrentPageId();
+		var pageWebUl = "#" + pageId + " #" + targetId + "_ul ";
+		$(pageWebUl).show();
+		if ( $(pageWebUl).hasClass("viewHide") ) {
+			$(pageWebUl).removeClass("viewHide")	
+		} else {
+			$(pageWebUl).addClass("viewHide");	
+		}
 	 }
 	,makeSelectBoxExec : function(list, targetId, type) {
 		
@@ -775,6 +789,7 @@ var C_UICOM = {
 			});
 			var rparm = {
 				 targetId 		: targetId
+				,firstItemNm	: rlist[0].NM
 				,list			: rlist
 			}
 			
@@ -802,27 +817,24 @@ var C_UICOM = {
 
 			$("#" + targetId).html(html);
 			
-			C_UICOM.initMultiBox(targetId);
+			C_UICOM.initMultiBox(targetId, rlist);
 
 		}
 	 }
-	,initSingleBox : function(targetId) {
+	,initSingleBox : function(targetId, rlist) {
 		var pageId = C_PM.getCurrentPageId();
-		var pageWebId = "#" + pageId + " #" + targetId + " ";
+		var pageWebUl = "#" + pageId + " #" + targetId + "_ul ";
 		var pageTargetId = pageId + targetId;
 		
-        var $btn_click 	= $(pageWebId + '.radio').parent();
-        var $open_ul 	= $(pageWebId + 'ul.select_lst');
-        $( $btn_click ).next().addClass("viewHide");
-        $( $btn_click ).on("click", function(){
-            $( this ).next().removeClass("viewHide");
-        });
+        var $open_ul = $(pageWebUl);
         $($open_ul).find("input[type=radio]").on("click", function(){
             var $var = $( this ).next().text();
             $( this ).parent().parent().prev().children().text( $var );
             $( this ).parent().parent().prev().children().addClass( "active" );
             $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
             $( this ).parent().parent().addClass("viewHide");
+			var valList = $(this).val();
+			C_UICOM.dataListMap[pageTargetId] = valList;
         });
         $($open_ul).find("input[type=radio]").on("focus", function(){
             var $var = $( this ).next().text();
@@ -833,9 +845,12 @@ var C_UICOM = {
         $($open_ul).find("input[type=radio]").on("blur", function(){
             $( this ).parent().parent().prev().children().removeClass( "active" );
         });
-        $( $btn_click ).next().on("mouseleave", function(){
-            $( $btn_click ).next().addClass( "viewHide" );
-        });
+		
+		
+		
+		//$(pageWebId).
+		
+		
 	 }
 
 	,initMultiBox : function(targetId) {
@@ -872,6 +887,7 @@ var C_UICOM = {
 }
 
 
+/*
 var C_UICOM_backup = {
 	 calendarParm 	: {}
 	,commonDataMap 	: {
@@ -903,7 +919,6 @@ var C_UICOM_backup = {
 		html = $("#select_template").render({list : tList});
 		$("#" + pageId + " #" + domId).html(html);
 	 }
-/*
 	,makeWeekCalendar : function(pageId, domId, parm) {
 		var domObj = "#" + pageId + " #" + domId;
 		if(isEmpty(parm)) parm = {};
@@ -960,7 +975,6 @@ var C_UICOM_backup = {
 		var val = $("#" + pageId + " #" + domId).val();
 		return val.split("(")[0];
 	 }
-*/
 	,init : function() {
 		var html = "";
 		html += '	<script type="text/x-jsrender" id="select_template">                											\n';
@@ -977,7 +991,7 @@ var C_UICOM_backup = {
 		$("#" + pid + " #topTable"		 + subId).prop("scrollLeft"	, $("#" + pid + " #scrollTable" + subId).prop("scrollLeft"	));
 	 } 
 }
-
+*/
 var C_PAGING = {
 	 defaultListRange 	: 10
 	,defaultPageRange 	: 10

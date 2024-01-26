@@ -128,7 +128,7 @@
 				<p class="multiSel" uid="{{:targetId}}"></p>
 			</button>
 		    <div class="mutliSelect" uid="{{:targetId}}">
-		        <ul uid="{{:targetId}}">
+		        <ul uid="{{:targetId}}" id="{{:targetId}}_ul">
 				{{for list ~targetId=targetId}}
 		            <li uid="{{:targetId}}">
 		                <input uid="{{:targetId}}" type="checkbox" nametext="{{:NM}}" value="{{:CD}}" id="mutli{{:~targetId}}{{:#index}}" onClick="C_UICOM.clickMultiBox('{{:~targetId}}')"><label uid="{{:targetId}}" for="mutli{{:~targetId}}{{:#index}}">{{:NM}}</label>
@@ -139,12 +139,12 @@
 		</script>
 				
 		<script type="text/x-jsrender" id="_comSinglebox_template">	
-			<button type="button" class="btn radio"><span>50개 보기</span></button>
-            <ul class="select_lst">
+			<button type="button" class="btn radio" onclick="C_UICOM.toggleSingleSelectBox('{{:targetId}}')" uid="{{:targetId}}"><span uid="{{:targetId}}">{{:firstItemNm}}</span></button>
+            <ul class="select_lst viewHide" id="{{:targetId}}_ul" uid="{{:targetId}}">
 				{{for list ~targetId=targetId}}
-                <li>
-                    <input name="number" id="single{{:~targetId}}{{:#index}}" type="radio" value="{{:CD}}">
-                    <label for="single{{:~targetId}}{{:#index}}">{{:NM}}<i class="icon_check"></i></label>
+                <li uid="{{:targetId}}">
+                    <input uid="{{:targetId}}" id="single{{:~targetId}}{{:#index}}" type="radio" value="{{:CD}}" onclick="C_UICOM.selectSingleSelectBox('{{:~targetId}}', '{{:CD}}','{{:NM}}')">
+                    <label uid="{{:targetId}}" for="single{{:~targetId}}{{:#index}}">{{:NM}}<i class="icon_check"></i></label>
                 </li>
 				{{/for}}
             </ul>
