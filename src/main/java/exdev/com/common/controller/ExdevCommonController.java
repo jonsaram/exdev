@@ -15,7 +15,12 @@
  */
 package exdev.com.common.controller;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +32,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.tomcat.util.http.fileupload.FileItem;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
+import org.apache.tomcat.util.http.fileupload.RequestContext;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +51,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
+
+import com.google.gson.Gson;
 
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.service.ExdevCommonService;
@@ -164,6 +180,7 @@ public class ExdevCommonController {
 	@RequestMapping("/excelDownload.do")
 	public void excelDownload(@RequestParam(value = "queryId", required = true) String queryId,
             @RequestParam(value = "requestParm", required = true) String requestParm,
+            @RequestParam(value = "columnOrders", required = true) String columnOrders,
              HttpServletResponse res,HttpSession session) throws Exception {
 	
 	try {
@@ -174,6 +191,7 @@ public class ExdevCommonController {
 			Map resultMap = new HashMap();
 			resultMap.put("msg",null);
 			resultMap.put("queryId",queryId);
+			resultMap.put("columnOrders",columnOrders);
 			resultMap.put("requestParm",new HashMap());
 					
 			

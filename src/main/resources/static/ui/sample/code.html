@@ -358,6 +358,9 @@ var <@pageId> = {
   				excelParam = <@pageId>.excelParamCd
   				
   			}
+		
+			const $tds = $("#"+sectionId + " [name='<@pageId>_tr_0'] td");
+			excelParam["columnOrders"] = <@pageId>.excelColumnOrder($tds, this);
   			
     	    var xhr = new XMLHttpRequest();
     	    var urlParams = new URLSearchParams( excelParam ).toString();
@@ -387,7 +390,17 @@ var <@pageId> = {
     	    };
     	    
     	    xhr.send();
-		}  
+		},
+		excelColumnOrder : ($tds) =>{
+  				let columnOrders = [];
+  				
+  				$.each( $tds, function(){
+
+  					columnOrders.push( $(this).attr("id") );
+  				})
+  				
+  				return columnOrders;
+		}
   		
 }
 // Page Load가 완료된후 실행 된다.

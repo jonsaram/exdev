@@ -138,12 +138,24 @@ public class ExcelService  extends ExdevBaseService{
 		Map resultMap = commonService.requestQuery(requestBodyMap, session);
 		List<Map<String, Object>> dataList =(List<Map<String, Object>>) resultMap.get("data");
         List<String> keyList = new ArrayList<>(dataList.get(0).keySet());
+        String[] columnOrders = (String[])((String)requestBodyMap.get("columnOrders")).split(",");
+        
+        // columnOrders 배열의 순서에 따라 keyList를 재배열
+        List<String> sortedKeyList = new ArrayList<>();
+        for (String columnName : columnOrders) {
+            if (keyList.contains(columnName)) {
+                sortedKeyList.add(columnName);
+            }
+        }
 
+        
         /**
          * header data
          */
         int rowCount = 0; // 데이터가 저장될 행
-        String[] headerNames = keyList.toArray(new String[0]);
+        // 정렬된 keyList를 배열로 변환
+        String[] headerNames = sortedKeyList.toArray(new String[0]);
+        //String[] headerNames = keyList.toArray(new String[0]);
         Row headerRow = null;
         Cell headerCell = null;
 
