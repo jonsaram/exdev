@@ -10,18 +10,16 @@
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
-		var multiboxList = [
-			 { 
-				 data : [
-				 		 ["1111", "고객번호"	]
-				 		,["2222", "고객번호1"	]
-				 		,["3333", "고객번호2"	]
-				 		,["4444", "고객명"		]
-				 ]
-			 	,targetId : "selectBoxId" 
-			 }
-		]
-		C_UICOM.makeSelectBox("<@pageId>", multiboxList);
+		var multiboxList = { 
+			 data : [
+			 		 ["1111", "고객번호"	]
+			 		,["2222", "고객번호1"	]
+			 		,["3333", "고객번호2"	]
+			 		,["4444", "고객명"		]
+			 ]
+		 	,targetId : "selectBoxId" 
+		}
+		C_UICOM.makeSelectBox("<@pageId>", multiboxList, "single");
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {

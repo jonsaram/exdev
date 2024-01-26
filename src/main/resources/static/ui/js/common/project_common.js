@@ -733,29 +733,59 @@ var C_POP = {
 
 var C_UICOM = {
 	 dataListMap : {} 	// selectBox 에서 선택한 내용 담기
+	,useSelectBoxIdList : {}
 	,getData : function(targetId, pageId){
 		if(isEmpty(pageId)) pageId = C_PM.getCurrentPageId()
 		var pageTargetId = pageId + targetId;
 		return C_UICOM.dataListMap[pageTargetId];
 	 }
 	,init : function() {
+	    // 외부 링크
+	    $(document).bind('click', function(e) {
+	      var $clicked = $(e.target);
+          var targetId = $clicked.attr("uid");
+          if(isEmpty(targetId)) targetId = $clicked.parent().parent().attr("uid");
+		  $.each(C_UICOM.useSelectBoxIdList, function(key, obj) {
+			if(obj.targetId != targetId) {
+				var pageWebId = "#" + obj.pageId + " #" + obj.targetId + " ";
+				$(pageWebId).find("ul").hide();
+			}
+		  });
+	    });
 		
 	 }
-	,makeSelectBox : function(pageId, mboxList) {
-		 $.each(mboxList, function() {
-			 C_UICOM.makeSelectBoxExec(this.data, this.targetId, "multi")	 
-		 });
-		 C_UICOM.initMultiBox(pageId);
+	,makeSelectBox : function(pageId, mboxList, type) {
+		if(isEmpty(type)) type="single";
+		C_UICOM.makeSelectBoxExec(mboxList.data, mboxList.targetId, type)	 
 	 }
 	,makeSelectBoxExec : function(list, targetId, type) {
 		
 		var pageId = C_PM.getCurrentPageId();
 		var pageTargetId = pageId + targetId;
+
+		// SelectBox ID 등록		
+		C_UICOM.useSelectBoxIdList[pageTargetId] = {pageId : pageId, targetId : targetId};
 		
 		C_UICOM.dataListMap[pageTargetId] = undefined;
 		
 		if( type == "single") {
+			var rlist = [];
+			$.each(list, function() {
+				rlist.push({"CD":this[0], "NM":this[1]});
+			});
+			var rparm = {
+				 targetId 		: targetId
+				,list			: rlist
+			}
 			
+			var html = $("#_comSinglebox_template").render(rparm)
+
+			$("#" + targetId).addClass("select_box").addClass("fl");
+
+			$("#" + targetId).html(html);
+
+			C_UICOM.initSingleBox(targetId);
+
 		} else {
 			var rlist = [];
 			$.each(list, function() {
@@ -771,25 +801,51 @@ var C_UICOM = {
 			$("#" + targetId).addClass("dropdown").addClass("fl");
 
 			$("#" + targetId).html(html);
-
 			
+			C_UICOM.initMultiBox(targetId);
+
 		}
 	 }
-	,initMultiBox : function(pageId) {
+	,initSingleBox : function(targetId) {
+		var pageId = C_PM.getCurrentPageId();
+		var pageWebId = "#" + pageId + " #" + targetId + " ";
+		var pageTargetId = pageId + targetId;
+		
+        var $btn_click 	= $(pageWebId + '.radio').parent();
+        var $open_ul 	= $(pageWebId + 'ul.select_lst');
+        $( $btn_click ).next().addClass("viewHide");
+        $( $btn_click ).on("click", function(){
+            $( this ).next().removeClass("viewHide");
+        });
+        $($open_ul).find("input[type=radio]").on("click", function(){
+            var $var = $( this ).next().text();
+            $( this ).parent().parent().prev().children().text( $var );
+            $( this ).parent().parent().prev().children().addClass( "active" );
+            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
+            $( this ).parent().parent().addClass("viewHide");
+        });
+        $($open_ul).find("input[type=radio]").on("focus", function(){
+            var $var = $( this ).next().text();
+            $( this ).parent().parent().prev().children().text( $var );
+            $( this ).parent().parent().prev().children().addClass( "active" );
+            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
+        });
+        $($open_ul).find("input[type=radio]").on("blur", function(){
+            $( this ).parent().parent().prev().children().removeClass( "active" );
+        });
+        $( $btn_click ).next().on("mouseleave", function(){
+            $( $btn_click ).next().addClass( "viewHide" );
+        });
+	 }
 
-		var pageWebId = "#" + pageId + " ";
+	,initMultiBox : function(targetId) {
+		var pageId = C_PM.getCurrentPageId();
+		var pageWebId = "#" + pageId + " #" + targetId + " ";
+
 	    /*============= 멀티선택 ================*/
-		$(pageWebId + ".dropdown button").unbind("click");
-	    $(pageWebId + ".dropdown button").bind("click", function(){
+		$(pageWebId + "button").unbind("click");
+	    $(pageWebId + "button").bind("click", function(){
 	        $(this).parent().children().find("ul").slideToggle('fast');
-	    });
-	    // 외부 링크
-		$(document).unbind('click');
-	    $(document).bind('click', function(e) {
-	      var $clicked = $(e.target);
-	      if (!$clicked.parents().hasClass("dropdown")) {
-	        $(pageWebId + ".dropdown ul").hide();
-	      };
 	    });
 	 }
 	,clickMultiBox : function(targetId) {

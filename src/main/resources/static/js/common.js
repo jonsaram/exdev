@@ -63,15 +63,34 @@
 
 
     /*==== Gnb 영역 너무 길때 생긴 버튼 ====*/
-    $(document).on("click", ".btn_arrow", function(){
-        $(this).parents().find('.wrap').toggleClass('resize');
-        $(this).toggleClass('on');
-    });
+    // $(document).on("click", ".btn_arrow", function(){
+    //     $(this).parents().find('.wrap').toggleClass('resize');
+    //     $(this).toggleClass('on');
+    // });
     /*==== Gnb menu active ====*/
     $(document).on("click", ".gnb li a", function(){
         $('.gnb li').removeClass('active');
         $(this).parent().addClass('active');
     });
+
+    /*==== User menu ====*/
+    $(document).on("click", ".user_login", function(){
+        $(this).toggleClass('rotate');
+        $(this).next().toggleClass('block');
+    });
+    $(document).on("click", ".user_menu li a", function(){
+        $(this).parent().parent().removeClass('block');
+        $(this).parent().parent().prev().removeClass('rotate');
+    });
+    $('html').click(function(e){
+        var $clicked2 = $(e.target);
+        if (!$clicked2.hasClass("user_menu")) {
+            $('.user_menu').removeClass('block');
+            $('.user_login').removeClass('rotate');
+        };
+    });
+
+
     /*==== Lnb menu active ====*/
     $(document).on("click", ".lnb li li>a", function(){
         $('.lnb li li').removeClass('active');
@@ -117,6 +136,40 @@
             return closeModal();
         });
     });
+
+    /*====== 테이블 헤더 고정 =======*/
+    var sl = 0;
+    $(function(){
+        $.fn.hasYScrollBar = function() {
+            return (this.prop("scrollHeight") == 0 && this.prop("clientHeight") == 0)
+                    || (this.prop("scrollHeight") > this.prop("clientHeight"));
+        };
+
+        $.fn.hasXScrollBar = function() {
+            return (this.prop("scrollWidth") == 0 && this.prop("clientWidth") == 0)
+                    || (this.prop("scrollWidth") > this.prop("clientWidth"));
+        };
+
+        $(".tbl_body_scroll").scroll(function(event){
+            // data 테이블 x축 스크롤을 움직일 때header 테이블 x축 스크롤을 똑같이 움직인다
+            if (sl != $(".tbl_body_scroll").scrollLeft()) {
+                sl = $(".tbl_body_scroll").scrollLeft();
+                $(".tbl_head").scrollLeft(sl);
+            }
+        });
+
+        if ($(".tbl_body_scroll").hasYScrollBar()) {
+            //y축 스크롤이 있으면 스크롤 넓이인 8px만큼 header 마지막 열 크기를 늘린다
+            $(".tbl_head colgroup col:last-child").width($(".tbl_body_scroll colgroup col:last-child").width() + 8);
+        } else {
+            $(".tbl_head colgroup col:last-child").width($(".tbl_body_scroll colgroup col:last-child").width());
+        }
+    });
+
+    /*==== lnb 영역 접고/닫기 버튼 ====*/
+//  $(document).on("click", ".btn.fold", function(){
+//      $(this).parent().parent().parent().toggleClass('collapse');
+//  });
 
 
 })(window, window.jQuery);

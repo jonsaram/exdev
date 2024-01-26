@@ -44,13 +44,16 @@
 			C_PM.movePage(pageId);
 		}
 		
+		function showLeftMenuToggle() {
+			 $("#mainContainer").toggleClass('collapse');
+		}
 	</script>
 
 
 </head>
 <body class="main">
 	<header id="header">
-		<div class="wrap" id="headerBlock">
+		<div class="wrap">
 			<h1 class="logo"><a href="#">Start Asset</a></h1>
 			<nav class="gnb">
 				<ul>
@@ -82,43 +85,34 @@
 				<a href="#" class="alarm">알림</a>
 				<a href="#" class="user_login"><span>이희성</span></a>
 				<ul class="user_menu">
-					<li><i class="icon_admin"></i>관리자 페이지</li>
-					<li><i class="icon_pwEdit"></i>비밀번호 변경</li>
-					<li><i class="icon_logout"></i>로그아웃</li>
+					<li><a href="#"><i class="icon_admin"></i>관리자 페이지</a></li>
+					<li><a href="#"><i class="icon_pwEdit"></i>비밀번호 변경</a></li>
+					<li><a href="#"><i class="icon_logout"></i>로그아웃</a></li>
 				</ul>
 			</div>
 		</div>
 	</header>
-	<div class="container">
-		<nav class="lnb">
+	<div class="container" id="mainContainer">
+		<nav class="lnb" >
+			<div class="lnb_tit01">솔루션 관리<button class="btn fold" onclick="showLeftMenuToggle()"><i class="icon_arrow"></i></button></div>
 			<ul>
 				<li>
 					<ul>
-						<li class="active"><a href="#">솔루션 관리</a></li>
-						<li><div class="lnb_tit02">&lt; 대분류 &gt;</div></li>
-						<li><a href="javascript:;">일반 컨설팅</a></li>
-						<li><a href="javascript:;">일반 컨설팅</a></li>
-					</ul>
-				</li>
-				<li>
-					<ul>
-						<li><div class="lnb_tit02">&lt; 소분류 &gt;</div></li>
-						<li><a href="javascript:;">법인전환</a></li>
-						<li><a href="javascript:;">CEO플랜</a></li>
-						<li><a href="javascript:;">연구소 및 특허</a></li>
-						<li><a href="javascript:;">정책자금</a></li>
-						<li><a href="javascript:;">대출컨설팅</a></li>
-						<li><a href="javascript:;">대출컨설팅</a></li>
+						<li><a href="general_consulting.html">일반 컨설팅</a></li>
+						<li><a href="month_consulting.html">월자문 컨설팅</a></li>
 					</ul>
 				</li>
 			</ul>
 		</nav>
-		<div id="bodyBlock">
-		</div>
+		<span id="bodyBlock">
+		</span>
 
 
-		<div id="footerBlock">
-		</div>
+		<span id="footerBlock">
+		</span>
+
+
+
 		
 		<!--  각종 Template -->
 		
@@ -129,21 +123,32 @@
 			 
 		-->
 		<script type="text/x-jsrender" id="_comMultibox_template">	
-			<button type="button" class="btn arrow">
-				<span class="hida">선택</span>
-				<p class="multiSel"></p>
+			<button type="button" class="btn arrow" uid="{{:targetId}}">
+				<span class="hida" uid="{{:targetId}}">선택</span>
+				<p class="multiSel" uid="{{:targetId}}"></p>
 			</button>
-		    <div class="mutliSelect">
-		        <ul>
+		    <div class="mutliSelect" uid="{{:targetId}}">
+		        <ul uid="{{:targetId}}">
 				{{for list ~targetId=targetId}}
-		            <li>
-		                <input type="checkbox" nametext="{{:NM}}" value="{{:CD}}" id="mutli{{:~targetId}}{{:#index}}" onClick="C_UICOM.clickMultiBox('{{:~targetId}}')"><label for="mutli{{:~targetId}}{{:#index}}">{{:NM}}</label>
+		            <li uid="{{:targetId}}">
+		                <input uid="{{:targetId}}" type="checkbox" nametext="{{:NM}}" value="{{:CD}}" id="mutli{{:~targetId}}{{:#index}}" onClick="C_UICOM.clickMultiBox('{{:~targetId}}')"><label uid="{{:targetId}}" for="mutli{{:~targetId}}{{:#index}}">{{:NM}}</label>
 		    		</li>
 				{{/for}}
 		        </ul>
 		    </div>
 		</script>
 				
+		<script type="text/x-jsrender" id="_comSinglebox_template">	
+			<button type="button" class="btn radio"><span>50개 보기</span></button>
+            <ul class="select_lst">
+				{{for list ~targetId=targetId}}
+                <li>
+                    <input name="number" id="single{{:~targetId}}{{:#index}}" type="radio" value="{{:CD}}">
+                    <label for="single{{:~targetId}}{{:#index}}">{{:NM}}<i class="icon_check"></i></label>
+                </li>
+				{{/for}}
+            </ul>
+		</script>
 
 	</div>
 </body>
