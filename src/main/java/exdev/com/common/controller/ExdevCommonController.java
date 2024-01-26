@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -57,7 +58,7 @@ import exdev.com.common.service.ExdevCommonService;
 import exdev.com.common.vo.SessionVO;
 import exdev.com.service.ExdevSampleService;
 import exdev.com.service.FileService;
-
+import exdev.com.service.ExcelService;
 /**
  * This MovieController class is a Controller class to provide movie crud and
  * genre list functionality.
@@ -72,6 +73,9 @@ public class ExdevCommonController {
 	
 	@Autowired
 	private ExdevSampleService sampleService;
+	
+	@Autowired
+	private ExcelService excelService;
 
 	@Autowired
 	private FileService fileService;
@@ -141,8 +145,8 @@ public class ExdevCommonController {
 
 
 	@SuppressWarnings({ "unused", "rawtypes" })
-	@RequestMapping("/excelService.do")
-	public @ResponseBody Map ExcelService(@RequestParam("file") MultipartFile file,HttpSession session) throws Exception {
+	@RequestMapping("/excelUpload.do")
+	public @ResponseBody Map excelUpload(@RequestParam("file") MultipartFile file,HttpSession session) throws Exception {
 		
 		SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
 		Map map = new HashMap();
@@ -154,42 +158,7 @@ public class ExdevCommonController {
 				
 	  try {
 
-            Workbook workbook = WorkbookFactory.create(file.getInputStream());
-
-            Sheet sheet = workbook.getSheetAt(0);
-            
-            List<Map<String, Object>> excelDataMapList = new ArrayList<>();
-            List<String> headerList = new ArrayList<>();
-            boolean headerRow = true;
-            
-            for (Row row : sheet) {
-            	Map<String,Object> cellMap = new HashMap();
-            	if( headerRow) {
-           
-                    for (Cell cell : row) {
-                        System.out.print(cell.toString() + "\t");
-                        headerList.add(cell.toString()); 
-                    }
-            		headerRow=false;
-            	}else {
-
-            		for (Cell cell : row) {
-            			System.out.print(cell.toString() + "\t");
-            			cellMap.put(headerList.get(cell.getColumnIndex()), cell.toString());
-            		}
-            		excelDataMapList.add( cellMap);
-            	}
-            	System.out.println();
-            }
-
-            workbook.close();
-
-            Gson gson = new Gson();
-            String json = gson.toJson(excelDataMapList);
-            resultMap.put("msg","");
-    		resultMap.put("data",json);
-            resultMap.put("state","S");
-    		
+		  	resultMap = excelService.upload(file, session);
             return resultMap;
             
         } catch (Exception e) {
@@ -200,6 +169,42 @@ public class ExdevCommonController {
             return resultMap;
         }
 	}
+
+	@SuppressWarnings({ "unused", "rawtypes" })
+	@RequestMapping("/excelDownload.do")
+	public void excelDownload(@RequestParam(value = "queryId", required = true) String queryId,
+            @RequestParam(value = "requestParm", required = true) String requestParm,
+             HttpServletResponse res,HttpSession session) throws Exception {
+	
+	try {
+			SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
+			Map map = new HashMap();
+			map.put("sessionVo", sessionVo);
+		
+			Map resultMap = new HashMap();
+			resultMap.put("msg",null);
+			resultMap.put("queryId",queryId);
+			resultMap.put("requestParm",new HashMap());
+					
+			
+			Workbook workbook = excelService.download(resultMap, session);
+						  	
+			String fileName = "excelDownload";
+			
+			res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			res.setHeader("Content-Disposition", "attachment;filename=" + fileName + ".xlsx");
+			ServletOutputStream servletOutputStream = res.getOutputStream();
+			
+			workbook.write(servletOutputStream);
+			workbook.close();
+			servletOutputStream.flush();
+			servletOutputStream.close();
+   
+    } catch (Exception e) {
+    	
+    	e.printStackTrace();
+    }
+}
 
     /** 
      * 내용        : 결재상신

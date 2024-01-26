@@ -3,6 +3,8 @@
 var <@pageId> = {
 		 checkedItems : { GRP: [], CD: [] }
 		 ,selectedGrpCd : {GRP_CODE_ID:'', GRP_CODE_NM:''}
+		 ,excelParamGrp : {}
+		 ,excelParamCd : {}
 		 ,pageInit : () =>{
 				
 				var grp_multiboxList = [
@@ -44,20 +46,24 @@ var <@pageId> = {
 				if(obj.CODE_ID)
 					requestParm["CODE_ID"] 	= obj.CODE_ID;
 			}
-
+			
 			const grpCodeQuery 	= {queryId 		: "admin.getGrpCodeList"	,requestParm	: requestParm}
 			const codeQuery 	= {queryId 		: "admin.getCodeList"		,requestParm	: requestParm}
 			const queryGroupAll = {queryGroup : [grpCodeQuery , codeQuery]};
 			const queryGroupGRP = {queryGroup : [grpCodeQuery 			 ]};
 			const queryGroupCD  = {queryGroup : [			   codeQuery ]};
 			
+			<@pageId>.excelParamGrp= grpCodeQuery;
+			<@pageId>.excelParamCd = codeQuery;
+			
 			var parm = mode == "ALL" ? queryGroupAll : mode=="GRP" ?  queryGroupGRP : mode=="CD" ?  queryGroupCD : queryGroupAll;
 			
 			C_COM.requestQuery(parm, function(resultData) {
 
+					let insertBtnShow = false;
+					
 					if( resultData.state == "S"){
 
-						let insertBtnShow=false;
 						var rparm = {};
 						if( mode == "ALL" || mode == "GRP" ){
 							
@@ -75,7 +81,7 @@ var <@pageId> = {
 									,list			: resultData.data["admin.getCodeList"]
 							} 
 							C_COM.renderHtml("<@pageId>", rparm);
-							if( mode == "CD" )insertBtnShow = true;
+							if( mode == "CD" ){insertBtnShow = true;}
 						}
 						
 						<@pageId>.setHandler();
@@ -216,7 +222,14 @@ var <@pageId> = {
 		    $("[name='<@pageId>_excelDownload']").click(function(){
 		    	
 		    	const sectionId = $(this).closest("section").attr("id");
-		    	console.log("엑셀 다운로드");
+		    	if( <@pageId>.isGrpCodeSection(sectionId) ){
+		    		
+					<@pageId>.excelDownload(sectionId,"TB_EXP_GRPCODE");
+					
+		    	}else{
+		    		
+		    		<@pageId>.excelDownload(sectionId,"TB_EXP_CODE");
+		    	}
 		    })
 		    
 		    $("[name^='<@pageId>_tr']").click(function(e){
@@ -331,7 +344,51 @@ var <@pageId> = {
 			const $btn = $("#<@pageId>_code_section [name='<@pageId>_insert']");
 			show ?	$btn.show() : $btn.hide();
 			
-		}
+		} 		
+  		,excelDownload : (sectionId,title) => {
+			
+  			let excelParam = {};
+  			
+  			if( <@pageId>.isGrpCodeSection(sectionId) ){
+  				
+  				excelParam = <@pageId>.excelParamGrp
+  				
+  			}else{
+  				
+  				excelParam = <@pageId>.excelParamCd
+  				
+  			}
+  			
+    	    var xhr = new XMLHttpRequest();
+    	    var urlParams = new URLSearchParams( excelParam ).toString();
+    	    xhr.open('GET', '/excelDownload.do?'+urlParams, true);
+    	    xhr.responseType = 'blob';
+
+    	    xhr.onload = function() {
+    	    	
+    	        if (xhr.status === 200) {
+
+    	            var blob = new Blob([xhr.response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    	            var url = window.URL.createObjectURL(blob);
+    	            
+    	            var a = document.createElement('a');
+    	            a.href = url;
+    	            a.download = title+'.xlsx';
+    	            
+    	            document.body.appendChild(a);
+    	            a.click();
+    	            window.URL.revokeObjectURL(url);
+    	            
+    	        } else {
+    	        	
+    	            console.error('Failed to download excel file');
+    	            
+    	        }
+    	    };
+    	    
+    	    xhr.send();
+		}  
+  		
 }
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
