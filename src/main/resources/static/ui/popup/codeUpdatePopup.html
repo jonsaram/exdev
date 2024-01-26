@@ -1,9 +1,11 @@
 <meta charset="utf-8">
 <script type="text/javascript">
-	var <@popupId> = {
-			
+var <@popupId> = {
 		 recvData : []	
 		 ,sectionId:''
+		 ,nextSortOrder:''
+		 ,selectedGrpCd:''
+		 ,mode:''
 		 ,close : function(returnData) {
 			 
 			if(isEmpty(returnData)) returnData = {};
@@ -30,17 +32,18 @@
 		 }		
 		 ,fnRadioCheckValue : (name , pValue) => {
 			 
-				const sectionId = <@popupId>.getSectionId();
-				const radioButtons = $("#"+sectionId+" #<@popupId>_items input[name='"+name+"']");
-				if( pValue ){
-				 
-					const theRadioBtn = radioButtons.filter("[value='"+pValue+"']");
-					 theRadioBtn.prop('checked',true);
-				}else{
-				
-					const selectedValue = radioButtons.filter(":checked").val();
-					return selectedValue;
-				 }
+			const sectionId = <@popupId>.getSectionId();
+			const radioButtons = $("#"+sectionId+" #<@popupId>_items input[name='"+name+"']");
+			if( pValue ){
+			 
+				const theRadioBtn = radioButtons.filter("[value='"+pValue+"']");
+				 theRadioBtn.prop('checked',true);
+			}else{
+			
+				const selectedValue = radioButtons.filter(":checked").val();
+				return selectedValue;
+			 }
+			
 		}
 		,showSection : () =>{
 			
@@ -62,132 +65,208 @@
 			else return "<@popupId>_codeSection";
 			
 		}
-	}
-	// Popup Load가 완료된후 실행 된다.
-	C_POP.onLoadPopup("<@popupId>", function(data) {
-		
-		<@popupId>.recvData = data.param;
-		<@popupId>.sectionId= data.sectionId;
-		
-		<@popupId>.showSection();
-	
-		<@popupId>.recvData.forEach( item =>{
+		,pageInit : () => {
 			
-			$("#<@popupId>_items #"+item.key).val(item.val);
+			<@popupId>.mode = (<@popupId>.recvData.param).length > 0 ? "UPDATE":"INSERT";
+			<@popupId>.showSection();
 			
-		});
+			const param = <@popupId>.recvData.param;
 
- 		if( <@popupId>.recvData.length > 0 ){
- 			
-  			const useYnVal = <@popupId>.recvData.find(item => item.key === "USE_YN")?.val;
- 			const delYnVal = <@popupId>.recvData.find(item => item.key === "DEL_YN")?.val;
-			<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
-			<@popupId>.fnRadioCheckValue("DEL_YN",delYnVal);
-		}else{
+	 		if( param.length > 0 ){
+	 			
+	 			param.forEach( item =>{
+					
+					$("#<@popupId>_items #"+item.key).val(item.val);
+					
+				});
+	 			
+	  			const useYnVal = param.find(item => item.key === "USE_YN")?.val;
+	 			const delYnVal = param.find(item => item.key === "DEL_YN")?.val;
+				<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
+				<@popupId>.fnRadioCheckValue("DEL_YN",delYnVal);
+				
+			}else{
+				
+				$("#<@popupId>_items #GRP_CODE_ID").val(<@popupId>.selectedGrpCd["GRP_CODE_ID"]);
+				$("#<@popupId>_items #GRP_CODE_NM").val(<@popupId>.selectedGrpCd["GRP_CODE_NM"]);
+				<@popupId>.fnRadioCheckValue("USE_YN","Y");
+				<@popupId>.fnRadioCheckValue("DEL_YN","N");
+				$("#<@popupId>_items #SORT_ORDER").val(<@popupId>.nextSortOrder);
+				
+			}
+
+			<@popupId>.mode == "INSERT" ? $(".updateMode").hide() : $(".updateMode").show();
+			let mode = <@popupId>.mode == "INSERT" ? "등록" : "수정";
+			let title = <@popupId>.sectionId == "grpcode_section" ? "GROUP CODE " : "CODE ";
+	  	 	$(".tit").html(title+mode);
+
+			var modalHeight;
+			if (<@popupId>.sectionId == "grpcode_section") {
+			    modalHeight = (<@popupId>.mode == "INSERT") ? "450px" : "550px";
+			} else {
+			    modalHeight = (<@popupId>.mode == "INSERT") ? "550px" : "650px";
+			}
+			$(".modal").css({"height": modalHeight});
 			
-			<@popupId>.fnRadioCheckValue("USE_YN","Y");
-			<@popupId>.fnRadioCheckValue("DEL_YN","N");
+		}
+		,setHandler : () => {
+			
+			$("[name='GRP_CODE_NM']").on("input", function() {
+			     var inputValue = $(this).val();
+			     if (!inputValue.startsWith("CD_GRP_")) {
+			         inputValue = "CD_GRP_" + inputValue;
+			     }
+			     $(this).val(inputValue);
+			});
+			
+			$("[name='CODE_NM']").on("input", function() {
+			    var inputValue = $(this).val();
+			    if (!inputValue.startsWith("CD_")) {
+			        inputValue = "CD_" + inputValue;
+			    }
+			    $(this).val(inputValue);
+			});  			
 		}
 		
- 		
-		/*
-  	    var inputElement = document.getElementById("GRP_CODE_NM");
+}
+// Popup Load가 완료된후 실행 된다.
+C_POP.onLoadPopup("<@popupId>", function(data) {
+debugger;	
+	<@popupId>.recvData = data;
+	
+	<@popupId>.sectionId= data.sectionId;
+	<@popupId>.nextSortOrder=data.nextSortOrder == undefined ? 10: data.nextSortOrder;
+	<@popupId>.selectedGrpCd=data.selectedGrpCd;
+	
+	<@popupId>.pageInit();
+	<@popupId>.setHandler();
 
- 	    inputElement.addEventListener("input", function() {
-
- 	    	var inputValue = "CD_GRP_" + inputElement.value;
- 	        inputElement.value = inputValue;
- 	    }); 
- 	    */
-	});
+});
 </script>
 
 <style>
 .bgr dt {
 	width: 100px;
 }
+.modal_body .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 10px; /* 각 줄 사이 간격 조절 */
+}
+
+.modal_body .row dt,
+.modal_body .row dd {
+    width: calc(50% - 10px); /* 요소 너비 50%로 설정하고 간격 추가 */
+    margin-right: 10px; /* 요소 간격 설정 */
+}
 </style>
 
 <div class="modal_wrap">
-	<div class="modal" style="width:430px;height:1000px;">
+	<div class="modal" style="width:430px;height:600px;">
 		<div id="<@popupId>_grpCodeSection">
 			<div class="modal_header">
-				<strong class="tit">GRP CODE 등록</strong>
+				<strong class="tit">GRP CODE</strong>
 				<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 			</div>
 			<div class="modal_body">
-				<dl class="info_wrap bgr" id="<@popupId>_items">
-					<dt>GRP_CODE_ID</dt>
-					<dd><input type="text"  id="GRP_CODE_ID" disabled></dd>
-	  				<dt>GRP_CODE_NM</dt>
-					<dd><input type="text"  id="GRP_CODE_NM"></dd>
-					<dt>CODE_DESC</dt>
-					<dd><input type="text"  id="CODE_DESC"></dd>
-					<dt>USE YN</dt>
-					<dd><div> 	
-									<label><input type='radio' name='USE_YN' value="Y" />Yes</label>
-									<label><input type='radio' name='USE_YN' value="N"  />No</label>
-						</div>
-					</dd>
-					<dt>DEL YN</dt>
-					<dd><div>
-									<label><input type='radio' name='DEL_YN' value="Y" />Yes</label>
-									<label><input type='radio' name='DEL_YN' value="N"  />No</label>
-						</div>
-					</dd>
-					<dt>SORT_ORDER</dt>
-					<dd><input type="text"  id="SORT_ORDER"></dd>
-					<dt>UPDATE_USER</dt>
-					<dd><input type="text"  id="UPDATE_USER" disabled ></dd>
-					<dt>UPDATE_DATE</dt>
-					<dd><input type="text"  id="UPDATE_DATE" disabled ></dd>
-					
-				</dl>
+			    <dl class="info_wrap bgr" id="<@popupId>_items">
+			        <div class="row">
+			            <dt>GRP_CODE_ID</dt>
+			            <dd><input type="text" id="GRP_CODE_ID" disabled></dd>
+			            <dt>GRP_CODE_NM</dt>
+			            <dd><input type="text" id="GRP_CODE_NM" name="GRP_CODE_NM"></dd>
+			        </div>
+			        <div class="row">
+			            <dt>CODE_DESC</dt>
+			            <dd><input type="text" id="CODE_DESC"></dd>
+			            <dt>USE YN</dt>
+			            <dd>
+			                <div> 	
+			                    <label><input type='radio' name='USE_YN' value="Y" />Yes</label>
+			                    <label><input type='radio' name='USE_YN' value="N" />No</label>
+			                </div>
+			            </dd>
+			        </div>
+			        <div class="row">
+			            <dt>DEL YN</dt>
+			            <dd>
+			                <div>
+			                    <label><input type='radio' name='DEL_YN' value="Y" />Yes</label>
+			                    <label><input type='radio' name='DEL_YN' value="N" />No</label>
+			                </div>
+			            </dd>
+			            <dt>SORT_ORDER</dt>
+			            <dd><input type="text" id="SORT_ORDER"></dd>
+			        </div>
+			        <div class="row updateMode">
+			            <dt>UPDATE_USER</dt>
+			            <dd><input type="text" id="UPDATE_USER" disabled></dd>
+			            <dt>UPDATE_DATE</dt>
+			            <dd><input type="text" id="UPDATE_DATE" disabled></dd>
+			        </div>
+			    </dl>
 			</div>
+
 			<div class="modal_footer">
-				<button type="button" class="btn select" onclick="<@popupId>.apply()" >확인</button>
-				<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+				<button type="button" class="btn select" onclick="<@popupId>.apply()" 	>확인</button>
+				<button type="button" class="btn close" onclick="<@popupId>.close()"	>닫기</button>
 			</div>
 		</div>
 		<div id="<@popupId>_codeSection">
 			<div class="modal_header">
-				<strong class="tit">CODE 등록</strong>
+				<strong class="tit">YYYY</strong>
 				<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 			</div>
 			<div class="modal_body">
-				<dl class="info_wrap bgr" id="<@popupId>_items">
-					<dt>GRP_CODE_ID</dt>
-					<dd><input type="text"  id="GRP_CODE_ID" disabled></dd>
-	  				<dt>CODE_ID</dt>
-					<dd><input type="text"  id="CODE_ID"></dd>
-	  				<dt>CODE_NM</dt>
-					<dd><input type="text"  id="CODE_NM"></dd>
-					<dt>CODE_DESC</dt>
-					<dd><input type="text"  id="CODE_DESC"></dd>
-					<dt>USE YN</dt>
-					<dd><div> 	
-									<label><input type='radio' name='USE_YN' value="Y" />Yes</label>
-									<label><input type='radio' name='USE_YN' value="N"  />No</label>
-						</div>
-					</dd>
-					<dt>DEL YN</dt>
-					<dd><div>
-									<label><input type='radio' name='DEL_YN' value="Y" />Yes</label>
-									<label><input type='radio' name='DEL_YN' value="N"  />No</label>
-						</div>
-					</dd>
-					<dt>SORT_ORDER</dt>
-					<dd><input type="text"  id="SORT_ORDER"></dd>
-					<dt>UPDATE_USER</dt>
-					<dd><input type="text"  id="UPDATE_USER" disabled ></dd>
-					<dt>UPDATE_DATE</dt>
-					<dd><input type="text"  id="UPDATE_DATE" disabled ></dd>
-					
-				</dl>
+			    <dl class="info_wrap bgr" id="<@popupId>_items">
+			        <div class="row">
+			            <dt>GRP_CODE_ID</dt>
+			            <dd><input type="text" id="GRP_CODE_ID" disabled></dd>
+			            <dt>GRP_CODE_ID</dt>
+			            <dd><input type="text" id="GRP_CODE_NM" disabled></dd>
+			        </div>
+			        <div class="row">
+			            <dt>CODE_ID</dt>
+			            <dd><input type="text" id="CODE_ID" disabled></dd>
+			            <dt>CODE_NM</dt>
+			            <dd><input type="text" id="CODE_NM" name="CODE_NM"></dd>
+			        </div>
+			        <div class="row">
+			            <dt>CODE_DESC</dt>
+			            <dd><input type="text" id="CODE_DESC"></dd>
+			        </div>
+			        <div class="row">
+			            <dt>USE YN</dt>
+			            <dd>
+			                <div> 	
+			                    <label><input type='radio' name='USE_YN' value="Y" />Yes</label>
+			                    <label><input type='radio' name='USE_YN' value="N" />No</label>
+			                </div>
+			            </dd>
+			            <dt>DEL YN</dt>
+			            <dd>
+			                <div>
+			                    <label><input type='radio' name='DEL_YN' value="Y" />Yes</label>
+			                    <label><input type='radio' name='DEL_YN' value="N" />No</label>
+			                </div>
+			            </dd>
+			        </div>
+			        <div class="row">
+			            <dt>SORT_ORDER</dt>
+			            <dd><input type="text" id="SORT_ORDER"></dd>
+			        </div>
+			        <div class='updateMode row'>
+			            <dt>UPDATE_USER</dt>
+			            <dd><input type="text" id="UPDATE_USER" disabled></dd>
+			            <dt>UPDATE_DATE</dt>
+			            <dd><input type="text" id="UPDATE_DATE" disabled></dd>
+			        </div>
+			    </dl>
 			</div>
+
 			<div class="modal_footer">
-				<button type="button" class="btn select" onclick="<@popupId>.apply()" >확인</button>
-				<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+				<button type="button" class="btn select" onclick="<@popupId>.apply()" 	>확인</button>
+				<button type="button" class="btn close" onclick="<@popupId>.close()"	>닫기</button>
 			</div>
 		</div>		
 	</div>
