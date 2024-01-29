@@ -68,34 +68,45 @@
 			메뉴 리스트 조회 
 		*/
 		SELECT T.SP_CSTM_ID
-		,T.MENU_ID 
-		,T.MENU_NM
-		,T.MENU_DESC
-		,T.PARENT_MENU_ID
-		,P.MENU_ID AS PARENT_MENU_NM
-		,P.MENU_DESC AS PARENT_MENU_DESC
-		,T.MENU_DEPTH
-		,T.MENU_DESC
-		,T.PAGE_ID
-		,T.USE_YN
-		,T.UPDATE_USER
-		,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
-		,T.SORT_ORDER
-		,( SELECT TO_NUMBER(MAX(SORT_ORDER)) + 10 FROM ADMIN.TBL_EXP_MENU ) AS NEXT_SORT_ORDER
-		,CASE  
-			WHEN EXISTS (
-				            SELECT 1 
-				            FROM ADMIN.TBL_EXP_MENU CHILD 
-				            WHERE CHILD.PARENT_MENU_ID = T.MENU_ID
-				            
-						) 	THEN 'Y'
-	        				ELSE 'N'
-	    END AS HAS_CHILD
-		FROM ADMIN.TBL_EXP_MENU T,
-		ADMIN.TBL_EXP_MENU P
+			,T.MENU_ID 
+			,T.MENU_NM
+			,T.MENU_DESC
+			,T.PARENT_MENU_ID
+			,P.MENU_ID AS PARENT_MENU_NM
+			,P.MENU_DESC AS PARENT_MENU_DESC
+			,T.MENU_DEPTH
+			,T.PAGE_ID
+			,T.USE_YN
+			,T.UPDATE_USER
+			,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+			,T.SORT_ORDER
+			,( SELECT TO_NUMBER(MAX(SORT_ORDER)) + 10 FROM ADMIN.TBL_EXP_MENU ) AS NEXT_SORT_ORDER
+			,CASE  
+				WHEN EXISTS (
+					            SELECT 1 
+					            FROM ADMIN.TBL_EXP_MENU CHILD 
+					            WHERE CHILD.PARENT_MENU_ID = T.MENU_ID
+					            
+							) 	THEN 'Y'
+		        				ELSE 'N'
+		    END AS HAS_CHILD
+	        ,NVL( R.ROLE_ID , 'NO_ROLE' ) AS ROLE_ID 
+	        ,NVL( R.ROLE_NM , 'NO_ROLE' ) AS ROLE_NM
+	        ,NVL( R.ROLE_DESC,'NO_ROLE' ) AS ROLE_DESC
+		FROM ADMIN.TBL_EXP_MENU T
+		,ADMIN.TBL_EXP_MENU P
+		,ADMIN.TBL_EXP_ROLEMENU M
+		,ADMIN.TBL_EXP_ROLE R
 		WHERE 1 = 1 
 		AND T.SP_CSTM_ID = P.SP_CSTM_ID
 		AND T.MENU_ID = P.MENU_ID
+		AND T.SP_CSTM_ID = M.SP_CSTM_ID(+)
+		AND T.SP_CSTM_ID = R.SP_CSTM_ID(+)
+		AND T.MENU_ID = M.MENU_ID(+)
+		AND R.ROLE_ID = M.ROLE_ID(+)
+		/* 사용자의 권한 입력*/
+		AND R.ROLE_ID = 'r8d19a6919b1835a' /* 시스템 어드민 권한 */ 
+		
 		<if test=" MENU_NM != null and MENU_NM != '' ">
 		AND T.MENU_NM like '%' || #{MENU_NM} || '%'
 		</if>
@@ -419,24 +430,26 @@
 			User 리스트 조회 
 		*/
 		SELECT T.SP_CSTM_ID 
-		,T.USER_ID
-		,T.USER_NM
-		,T.USER_DESC
-		,T.E_MAIL
-		,T.PHONE_NUM
-		,T.USE_YN
-		,T.DEL_YN
-		,T.UPDATE_USER
-		,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
-        ,NVL( A.ROLE_ID , 'NO_ROLE' ) AS ROLE_ID 
-        ,NVL( R.ROLE_NM , 'NO_ROLE' ) AS ROLE_NM
-        ,NVL( R.ROLE_DESC,'NO_ROLE' ) AS ROLE_DESC
+			,T.USER_ID
+			,T.USER_NM
+			,T.USER_DESC
+			,T.E_MAIL
+			,T.PHONE_NUM
+			,T.USE_YN
+			,T.DEL_YN
+			,T.UPDATE_USER
+			,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+	        ,NVL( A.ROLE_ID , 'NO_ROLE' ) AS ROLE_ID 
+	        ,NVL( R.ROLE_NM , 'NO_ROLE' ) AS ROLE_NM
+	        ,NVL( R.ROLE_DESC,'NO_ROLE' ) AS ROLE_DESC
 		FROM ADMIN.TBL_EXP_USER T
         ,ADMIN.TBL_EXP_AUTH A
         ,ADMIN.TBL_EXP_ROLE R
 		WHERE 1 = 1
+		AND T.SP_CSTM_ID = A.SP_CSTM_ID(+)
+		AND T.SP_CSTM_ID = R.SP_CSTM_ID(+)
         AND T.USER_ID = A.USER_ID(+)
-        AND A.ROLE_ID = R.ROLE_ID(+) 
+        AND R.ROLE_ID = A.ROLE_ID(+) 
 	</select>
 	
 	<update id="updateUser" parameterType="java.util.HashMap"  flushCache="true" >
