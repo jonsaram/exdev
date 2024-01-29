@@ -17,17 +17,17 @@
 	<script type="text/javascript" 	src="./ui/js/common/function_common.js"		></script>
 	<script type="text/javascript" 	src="./ui/js/common/project_common.js"		></script>
 		
-	<!-- <script type="text/javascript" 	src="./js/highcharts/highcharts.js"		 	></script>
+	<script type="text/javascript" 	src="./js/highcharts/highcharts.js"		 	></script>
 	<script type="text/javascript" 	src="./js/highcharts/draggable-points.js"	></script>
 	<script type="text/javascript" 	src="./js/highcharts/exporting.js"		 	></script>
 	<script type="text/javascript" 	src="./js/highcharts/customEvents.min.js"	></script>
-	 -->
-	<script src="https://code.highcharts.com/highcharts.js"></script>
+
+<!-- 	<script src="https://code.highcharts.com/highcharts.js"></script>
 	<script src="https://code.highcharts.com/modules/heatmap.js"></script>
 	<script src="https://code.highcharts.com/modules/treemap.js"></script>
 	<script src="https://code.highcharts.com/modules/exporting.js"></script>
 	<script src="https://code.highcharts.com/modules/export-data.js"></script>
-	<script src="https://code.highcharts.com/modules/accessibility.js">	</script>
+	<script src="https://code.highcharts.com/modules/accessibility.js">	</script> -->
 	
     <script type="text/javascript"    src="./js/ckeditor/build/ckeditor.js"       ></script>
     <script type="text/javascript"    src="./js/ckeditor/build/UploadAdapter.js"   ></script>
@@ -37,11 +37,36 @@
 			//
 			C_PM.movePage("sample_index");
 			
+			var url = "/requestQuery.do";
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", url, true);
+			xhr.setRequestHeader("Content-Type", "application/json");
+			xhr.onreadystatechange = function() {
+			    if (xhr.readyState == 4 && xhr.status == 200) {
+			
+			        var responseData = JSON.parse(xhr.responseText).data;
+			        let menuTemplate = [];
+			        responseData.forEach( menu => {
+			        	const pageId = menu.PAGE_ID;
+			        		
+						let template = `<li><a href="javascript:goPage('${pageId}');">${menu.MENU_DESC}</a></li>`
+			        	
+						menuTemplate.push(template);
+			        })
+			        
+					$("#lnbMenuList").html(menuTemplate.join(''))
+			    }
+			};
+			
+			var requestData = JSON.stringify({ "queryId": "admin.getMenuList" ,"requestParm":{}});
+			xhr.send(requestData);
 		});
+		
 		var sessionInfo = {}
 		
 		function goPage(pageId) {
-			C_PM.movePage(pageId);
+			
+			C_PM.movePage(pageId.trim());
 		}
 		
 		function showLeftMenuToggle() {
@@ -97,9 +122,7 @@
 			<div class="lnb_tit01">솔루션 관리<button class="btn fold" onclick="showLeftMenuToggle()"><i class="icon_arrow"></i></button></div>
 			<ul>
 				<li>
-					<ul>
-						<li><a href="general_consulting.html">일반 컨설팅</a></li>
-						<li><a href="month_consulting.html">월자문 컨설팅</a></li>
+					<ul id="lnbMenuList">
 					</ul>
 				</li>
 			</ul>
