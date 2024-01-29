@@ -445,7 +445,9 @@
 		FROM ADMIN.TBL_EXP_USER T
         ,ADMIN.TBL_EXP_AUTH A
         ,ADMIN.TBL_EXP_ROLE R
-		WHERE 1 = 1
+		WHERE 1 = 1		
+		/* 사용자의 권한 입력*/
+		AND R.ROLE_ID = 'r8d19a6919b1835a' /* 시스템 어드민 권한 */ 
 		AND T.SP_CSTM_ID = A.SP_CSTM_ID(+)
 		AND T.SP_CSTM_ID = R.SP_CSTM_ID(+)
         AND T.USER_ID = A.USER_ID(+)
