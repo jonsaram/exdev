@@ -5,7 +5,7 @@
             ,searchApproval : () => {
                     let requestUser = $("#<@pageId>requestUser").val();
                     let parm = {
-                         queryId        : "Sample.getApproval"
+                         queryId        : "approval.getApproval"
                         ,requestParm    : {requestUser: requestUser}
                     }
                     C_COM.requestQuery(parm, function(resultData) {
@@ -19,15 +19,21 @@
                         
                     });            
             }
-            ,apprDtlPop : function() {    
-            	console.log("======= apprDtlPop =======");
-
-                C_POP.open('popup_apprDtlPopup', {}, function(retData) {
-                    console.log("======= retData =======");
-                    console.log(retData);
-                    //openWin.document.getElementById("cInput").value = document.getElementById("pInput").value;
-                    <@pageId>.addMember(retData);
+            ,apprDtlPop : function(uuid) {    
+            	console.log("======= apprDtlPop uuid =======>"+uuid);
+            	let requestParm = {}
+            	requestParm["uuid"] = uuid;
+                C_POP.open('popup_apprDtlPopup', requestParm, function() {
+                	//console.log("======= 부모창 retData =======");
                 });
+             }
+            ,apprReqPopup : function() {    
+                console.log("======= apprReqPopup =======>");
+                let requestParm = {}
+                C_POP.open('popup_apprReqPopup', requestParm, function() {
+                    //console.log("======= 부모창 retData =======");
+                });
+                
              }
     }
     // Page Load가 완료된후 실행 된다.
@@ -35,9 +41,10 @@
         <@pageId>.searchApproval();
 
         //조회 버튼 클릭      
-        $('#<@pageId>_search').on('click', function (e) {
-            <@pageId>.searchApproval();
+        $('#<@pageId>_apprReqPopupBtn').on('click', function (e) {
+            <@pageId>.apprReqPopup();
         })
+        
         
     });
     // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -48,6 +55,10 @@
         <div class="cont_wrap">
             <div class="cont_top">
                 <h2><i class="icon_bullet"></i>상신함</h2>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button id='<@pageId>_apprReqPopupBtn' type="button" class="btn select" >결재 상신</button>
+                
+                
             </div>
             <div class="sec_scroll">
                 <section class="sec_wrap">
@@ -98,7 +109,7 @@
                                         <tr id="trId_{{:#index}}">
                                             <td id='index'           value='{{:#index}}'         >{{:#index}}    </td>
                                             <td id='APPROVAL_DATE1'  value='{{:APPROVAL_DATE1}}'  >{{:APPROVAL_DATE1}}</td>
-                                            <td id='TITLE'           value='{{:TITLE}}'         class="tl"><a href="javascript:void(0);" onclick="<@pageId>.apprDtlPop();">{{:TITLE}}</a></td>
+                                            <td id='TITLE'           value='{{:TITLE}}'         class="tl"><a href="javascript:void(0);" onclick="<@pageId>.apprDtlPop('{{:UUID}}');">{{:TITLE}}</a></td>
                                             <td id='STATE'           value='{{:STATE}}'          ><span class="state paying">{{:STATE}}</span></td>
                                         </tr>
                                     {{/for}}
