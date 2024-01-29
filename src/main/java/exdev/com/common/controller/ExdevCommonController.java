@@ -179,20 +179,26 @@ public class ExdevCommonController {
 	@SuppressWarnings({ "unused", "rawtypes" })
 	@RequestMapping("/excelDownload.do")
 	public void excelDownload(@RequestParam(value = "queryId", required = true) String queryId,
-            @RequestParam(value = "requestParm", required = true) String requestParm,
-            @RequestParam(value = "columnOrders", required = true) String columnOrders,
+            @RequestParam(value = "requestParm"	, required = true) String requestParm,
+            @RequestParam(value = "columnOrders"	, required = true) String columnOrders,
+            @RequestParam(value = "downInfo"	, required = true) String downInfo,
              HttpServletResponse res,HttpSession session) throws Exception {
 	
 	try {
 			SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
 			Map map = new HashMap();
 			map.put("sessionVo", sessionVo);
-		
+			
+			Gson gson = new Gson();
+	        Map mapRequestParm = gson.fromJson((String) requestParm, Map.class);       
+	        Map mapDownInfo = gson.fromJson((String) downInfo, Map.class);       
+
 			Map resultMap = new HashMap();
 			resultMap.put("msg",null);
 			resultMap.put("queryId",queryId);
 			resultMap.put("columnOrders",columnOrders);
-			resultMap.put("requestParm",new HashMap());
+			resultMap.put("downInfo",mapDownInfo);
+			resultMap.put("requestParm",mapRequestParm);
 					
 			
 			Workbook workbook = excelService.download(resultMap, session);

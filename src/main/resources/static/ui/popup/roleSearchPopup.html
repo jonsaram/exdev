@@ -1,0 +1,79 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+			
+			 recvData : []	
+			,getSelectBoxData : function() {
+						
+				var selectBoxVal = C_UICOM.getData("selectBoxId");
+				
+				dalert(selectBoxVal);
+			 }			
+			 ,close : function(returnData) {
+				if(isEmpty(returnData)) returnData = {};
+				C_POP.close(returnData);
+			 }
+			,searchList : () => {
+				
+				const requestParm = {};
+				var parm = {
+						 queryId 		: "admin.getRoleList"
+						,requestParm	: requestParm
+				}
+
+				C_COM.requestQuery(parm, function(resultData) {
+
+					const options = resultData.data.filter( item => [item.ROLE_ID , item.ROLE_NM ] ).map( item => [item.ROLE_ID, item.ROLE_NM]);
+					debugger;
+					var multiboxList = { 
+							 data : options
+						 	,targetId : "<@popupId>_selectBoxId" 
+						}
+						C_UICOM.makeSelectBox("<@popupId>", multiboxList, "multi");
+
+					<@popupId>.setHandler();
+ 				});
+				
+			}			 
+			,pageInit : () => {
+				
+		 		
+			}
+			,setHandler : () => {
+				
+			}	
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+		debugger;
+			<@popupId>.recvData = data ;
+ 			
+			<@popupId>.pageInit(); 
+			<@popupId>.searchList();
+		
+	});
+</script>
+<div class="modal_wrap">
+	<div class="modal" style="width:570px;height:350px;">
+		<div class="modal_header">
+			<strong class="tit">Role Search</strong>
+			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<p>
+				권한을 선택하여 주십시오.<br>
+			</p>
+			<div id="<@popupId>_selectBoxId" style="width:200px"></div>
+			
+<!-- 			<dl class="info_wrap">
+			<div id="selectBoxId" style="width:200px"></div>
+
+			</dl> -->
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select">검색</button>
+			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+		</div>
+	</div>
+</div>
+

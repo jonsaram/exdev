@@ -1,410 +1,404 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@pageId> = {
-		
-		 menuList : []	
-		,selectedCheck : []
-		,getItems : () => {
+			checkedItems : []
+			,curSearchList: []
+			,selectedRow:{}
+			,excelParam : {}
+			,pageInit : () =>{
+			}
+			,setSpCstmId : (dataList) =>{
+				
+				if( dataList && dataList.length > 0 && G_VAL.SP_CSTM_ID=="")G_VAL.SP_CSTM_ID = dataList[0].SP_CSTM_ID;
 			
+			}
+			,searchList : () => {
+				
 				const requestParm = {};
-				const updateItems = $("#<@pageId>_updateItems input:not([type='radio'])");
-				
-				const valuesArray = updateItems.map(function() {
-					
-					if( this.name == "MENU_ID" && this.value =="" )this.value = C_COM.makeUniqueId();
-				    return { name: this.name, value: ""+$(this).val() };
-				}).get();
-				
-				valuesArray.forEach(function(item) {
-					requestParm[item.name] = item.value;
-				});
-				
-				const radioName = 'USE_YN';
-				requestParm[radioName] = <@pageId>.fnRadioCheckValue(radioName);
-
-				requestParm['PARENT_MENU_ID'] = $("#<@pageId>_updateItems select").val();
-				if(requestParm['PARENT_MENU_ID'] == "null" || requestParm['PARENT_MENU_ID'] == "-1")requestParm['PARENT_MENU_ID']=null;
-				return requestParm;
-		}
-		,adminMenu : () => {
-			
-
 				var parm = {
-					 queryId 		: "admin.getMenuList"
-					,requestParm	: <@pageId>.getItems()
+						 queryId 		: "admin.getMenuList"
+						,requestParm	: requestParm
 				}
+				<@pageId>.excelParam = parm;
 				C_COM.requestQuery(parm, function(resultData) {
-
-					<@pageId>.menuList = resultData.data;
+				
+					<@pageId>.curSearchList = resultData.data;
+					<@pageId>.setSpCstmId(resultData.data);
 					
 					var rparm = {
-							 targetId 		: "menuList"
-							,list			: resultData.data
-						}
-				
+						 targetId 		: "menuList"
+						,list			: resultData.data
+					}
+	
+					$("#<@pageId>_prmPARENT_MENU_ID").val('');
+					$("#<@pageId>_prmPARENT_MENU_NM").val('');
+					
 					C_COM.renderHtml("<@pageId>", rparm);
-					
-					<@pageId>.itemReset();
-					
-  					$("#PARENT_MENU_ID option").remove();
-  					const parentOption = resultData.data.filter( option => option.MENU_DEPTH == 0);
-  					$("#PARENT_MENU_ID").append("<option value='-1'>Select Parent</option>");
-  					parentOption.forEach(menu => {
-  						$("#PARENT_MENU_ID").append("<option value='" + menu.MENU_ID + "'>" + menu.MENU_DESC + "</option>");
-  					});
-					
+			
+					<@pageId>.showInsertBtn(false);				
 					<@pageId>.setHandler();
 				});
-								
-		}
-		,updateMenu : () => {
-
+				
+			}
+			,updateItem : (param) => {
+			
+				const requestParm = param ? param : {} ;
+				
+				requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
+				
+				if( !requestParm["MENU_ID"] || requestParm["MENU_ID"] == ''){
+					requestParm["MENU_ID"] = C_COM.makeUniqueId();
+				}
+				
 				var parm = {
-						 queryId 		: "admin.updateMenu"
-						,requestParm	: <@pageId>.getItems()
+					 queryId 		: "admin.updateMenu"
+					,requestParm	: requestParm
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 					
 					if( resultData.state == 'S'){
-						<@pageId>.adminMenu();
-						console.log("메뉴 저장 성공");
+						
+						<@pageId>.searchList();
+						console.log("Item 저장 성공");
 					}				
 				});
-		}  
-		,deleteMenu : (item) => {
+				
+			}  
+			,deleteItem : (delKey) => {
 				
 				var parm = {
-						 queryId 		: "admin.deleteMenu"
-						,requestParm	: {"MENU_ID":item}
+					 queryId 		: "admin.deleteMenu"
+					,requestParm	: {"SP_CSTM_ID":delKey.SP_CSTM_ID , "MENU_ID":delKey.MENU_ID }
 				}
 				C_COM.requestQuery(parm, function(resultData) {
+					
 					if( resultData.state == 'S'){
-						<@pageId>.adminMenu();
-						console.log("메뉴 삭제 성공")
+						<@pageId>.searchList();
+						console.log("Item 삭제 성공")
 					}				
 				});				
-		}  
-		,setHandler : () => {
-				
-   				$("[id^='<@pageId>.ck_']").on('change', function () {
-
-					const checkedCheckboxes = $("[id^='<@pageId>.ck_']:checked");
-					if( checkedCheckboxes && checkedCheckboxes.length>0){
-				        <@pageId>.selectedCheck = [];
-				        checkedCheckboxes.each(function() {
-				            <@pageId>.selectedCheck.push($(this).val());
-				        });
-					}
-				})   
-				 
-		        $("#menuList").on('click', 'tr', function () {
-		        	
-		            const rowId = $(this)[0].id;
-		            if (rowId) {
-		            	
-	            		$($("#menuList>#"+rowId+" td")).each( (idx,td) => {
-	            			
-	            			<@pageId>.setEachColumnValue(td)
-	            		})
-		            }
+			}
+			,openPopup : ($tds) => {
+			
+				let param = [];	
+				$.each( $tds , function(){
 	
-		            const parentMenuSelect = $("select[name='PARENT_MENU_ID']");
-	            	parentMenuSelect.prop("disabled", $("#<@pageId>_updateItems input[name='MENU_DEPTH']").val() == "0");
-	            	
-	            	$('#<@pageId>_insertMenu').hide();
-		        });		
-
-   			    $("select[name='PARENT_MENU_ID']").on('change', function() {
-
-   			        const selectedValue = $(this).val();
-   			        console.log("Selected PARENT_MENU_ID value: " + selectedValue);
-   			        
-   			     	<@pageId>.menuList.forEach( menu => {
-   			     		if( menu.MENU_ID == selectedValue){
-
-   			     			const menuDept = Number(menu.MENU_DEPTH) + 1;
-   			     			$("#<@pageId>_updateItems input[name='MENU_DEPTH']").val(menuDept);
-   			     		}
-   			     	})
-   			    });  		
-
-   			    $("#<@pageId>_reset").on('click', function() {
-   			    	
-   			    	<@pageId>.itemReset();
-   			    	$('#<@pageId>_insertMenu').show();
-   			    });   				
-   				
-		}
-		, itemReset : () => {
-			
-				$("#<@pageId>_updateItems input:not([type='radio'])").each( (idx, obj) => {
-						$(obj).val("");
-				}); 
-
-				<@pageId>.fnRadioCheckValue("USE_YN","");
-				$("select[name='PARENT_MENU_ID']").val("");
+					const key = $(this).attr("id");
+					const val = $(this).attr("value");
+					param.push( { "key": key, "val": val } );
+					
+				})
 				
-		}
-		,fnRadioCheckValue : (name , pValue) => {
+				C_POP.open('popup_menuUpdatePopup',					
+							{	  param:param
+								, nextSortOrder	:	<@pageId>.getNextSortOrder()
+								, parentMenu 	:	{
+													  PARNET_MENU_ID	:	$("#<@pageId>_prmPARENT_MENU_ID").val()
+													 ,PARNET_MENU_NM	:	$("#<@pageId>_prmPARENT_MENU_NM").val()
+													 ,MENU_DEPTH		:	+<@pageId>.selectedRow["MENU_DEPTH"]				
+													}
+							}, function(retData) {
+								
+									if(isValid(retData)){
+				
+										<@pageId>.updateItem(retData);
+										
+									}
+				});
+				
+			}
+			, deleteOne : (key) =>{
+				
+				const SP_CSTM_ID	= key.split("||")[0];
+				const MENU_ID 		= key.split("||")[1];
+				<@pageId>.deleteItem( { SP_CSTM_ID:SP_CSTM_ID , MENU_ID:MENU_ID } )
+			  		
+			}
+			,setHandler : () => {
+			    
+				<@pageId>.chkHandler();
+			    
+				
+				$("#<@pageId>_insert").click(function(){
+			    	
+					<@pageId>.openPopup();
+	
+			    })
+			    
+			    $("#<@pageId>_delete").click(function(){
+			    	
+			    	<@pageId>.checkedItems.forEach( key =>{
+						<@pageId>.deleteOne(key);
+			    	})
+			    	
+			    })
+			    
+			    $("#<@pageId>_excelDownload").click(function(){
+			    	
+			    	<@pageId>.excelDownload("TB_EXP_MENU");
+			    })
+			    
+			    $("[id^='<@pageId>_modify_']").click(function(){
 
-				const radioButtons = $("#<@pageId>_updateItems input[name='"+name+"']");
-				if( pValue ){
-				 
-					const theRadioBtn = radioButtons.filter("[value='"+pValue+"']");
-					 theRadioBtn.prop('checked',true);
-				}else{
-				
-					const selectedValue = radioButtons.filter(":checked").val();
-					return selectedValue;
-				 }
-		}
-		,setEachColumnValue : (td) => {
-			
-				const name 	= td.getAttribute("id");
-				const value = td.getAttribute("value");
-				
-				if( name == "PARENT_MENU_ID" ){
+			        event.preventDefault();
+			        event.stopPropagation();
+
+			    	const index = $(this).attr("index");
+					const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
+
+					$.each( $tds, function() {
 						
-					$("select[name='PARENT_MENU_ID']").val(value);
-					
-				}else if( name == "USE_YN" ){
-					
-					<@pageId>.fnRadioCheckValue('USE_YN',value);
-				
-				}else{
-				
-					$("#<@pageId>_updateItems input").each((idx,obj)=>{
-						if(obj.name == name){
-							obj.value = value;
-						}
+						$(this).attr("id") == "PARENT_MENU_ID" ? $("#<@pageId>_prmPARENT_MENU_ID").val($(this).attr("value")) : '' ;
+						$(this).attr("id") == "PARENT_MENU_NM" ? $("#<@pageId>_prmPARENT_MENU_NM").val($(this).attr("value")): '' ;
+						
 					})
-				}
-		}
-		,validation : (gubun) => {
-			
-				if( gubun == "updateMenu"){
-					const menuId = $("#<@pageId>_updateItems input[name='MENU_NM']").val();
-					if( isEmpty(menuId)){
-						alert("저장할 데이터를 확인하여 주십시오.");
-					}
-					return isEmpty(menuId) ? false:true;
-				}
-				if( gubun == "deleteMenu"){
-					const deleItemsCnt = <@pageId>.selectedCheck.length;
-					if( deleItemsCnt == 0 ){
-						alert("삭제할 데이터를 확인하여 주십시오.")
-					}
-					return deleItemsCnt == 0 ? false:true;
-				}
-		}
+					<@pageId>.openPopup($tds);
+					
+			    })
+			    
+			    $("[id^='<@pageId>_delete_']").click(function(){
+	debugger;
+			    	const hasChild = $(this).parent().siblings("#HAS_CHILD").attr("value") == "Y" ? true : false;
+			    	if( hasChild ){ alert("하위 메뉴를 먼저 삭제하신 후 삭제할 수 있습니다. "); return; }
+			    	const key = $(this).attr("key");
+					//<@pageId>.deleteOne(key);
+			    })
 
-}
-
-// Page Load가 완료된후 실행 된다.
-C_PM.onLoadPage("<@pageId>", function(parm) {
-
-		<@pageId>.adminMenu();
-			
-		$('#<@pageId>_insertMenu,#<@pageId>_saveMenu').on('click', function (e) {
-			
-			if(<@pageId>.validation("updateMenu")  == false)return;
-			
-			<@pageId>.updateMenu();
-		})
-		
-		$('#<@pageId>_deleteMenu').on('click', function (e) {
-		
-			if(<@pageId>.validation("deleteMenu")  == false)return;
-
-			<@pageId>.selectedCheck.forEach( item =>
-				<@pageId>.deleteMenu(item)
-			)
-		}) 
-		
-		$('#<@pageId>_search').on('click', function (e) {
-			
-			<@pageId>.adminMenu();
-		}) 
-});
+			    
+			    $("[name^='<@pageId>_tr']").click(function(e){
 	
+			        if( $(e.target).attr("id") && $(e.target).attr("id").indexOf("<@pageId>_ck_") < 0){
+	
+				    	<@pageId>.showInsertBtn(true);
+	
+				    	$("#<@pageId>_prmPARENT_MENU_ID").val($(this).children("td#MENU_ID").attr("value"));
+				    	$("#<@pageId>_prmPARENT_MENU_NM").val($(this).children("td#MENU_NM").attr("value"));
+				    	
+				    	$.each( $(this).children() , function(){
+				    		
+				    		const key 	= $(this).attr("id"); 
+				    		const tdVal = $(this).attr("value");
+				    		
+				    		if( tdVal ){
+				    			
+				    			<@pageId>.selectedRow[key] = tdVal;
+				    		}
+				    	});
+				    	
+			        }
+			    })
+			    
+			    $("#<@pageId>_search").click( () =>{
+			    	<@pageId>.searchList();
+			    })
+			    
+			    <@pageId>.chkHandler();
+			    
+			}
+			,chkHandler : () => {
+				
+			    $("#<@pageId>_ckAll").click(function() {
+
+			    	const isAllChk =  $(this).prop("checked");
+					$("[id^='<@pageId>_ck_']").prop("checked", isAllChk);
+					
+			    	const ckboxes = $("[id^='<@pageId>_ck_']");
+				    <@pageId>.checkedItems = isAllChk ? ckboxes.map(function() { return this.value; }).get() : [];
+
+			    });
+			    $("[id^='<@pageId>_ck_']").click(function(){
+			    	
+  			        if ($(this).prop("checked")){<@pageId>.checkedItems.push($(this).val());}
+			    	else { <@pageId>.checkedItems = <@pageId>.checkedItems.filter(item => item !== $(this).val());}  
+			        
+			        const $checkboxSelector = $("[id^='<@pageId>_ck_']")
+			        const allCheckboxChecked = $checkboxSelector.length === $checkboxSelector.filter(":checked").length;
+			        $("#<@pageId>_ckAll").prop("checked", allCheckboxChecked);
+			        
+			    });
+			    
+			}		
+			,getNextSortOrder : () =>{
+
+				return +$("[name='<@pageId>_tr_0'] #NEXT_SORT_ORDER").attr("value");
+				
+			}
+			,showInsertBtn : (show) => {
+				
+				const $btn = $("#<@pageId>_insert");
+				show ?	$btn.show() : $btn.hide();
+				
+			} 	
+	 		,excelDownload : (title) => {
+				
+				const $tds = $("[name='<@pageId>_tr_0'] td");
+	 			<@pageId>.excelParam["columnOrders"	] = <@pageId>.excelColumnOrder($tds, this);
+	 			<@pageId>.excelParam["downInfo"		] = JSON.stringify({  title : title, menu : "MENU 관리"});
+	 			<@pageId>.excelParam["requestParm"	] = JSON.stringify(<@pageId>.excelParam.requestParm );
+	 			
+  				let excelParam = <@pageId>.excelParam ;
+ 			
+	    	    var xhr = new XMLHttpRequest();
+	    	    var urlParams = new URLSearchParams( excelParam ).toString();
+	    	    xhr.open('GET', '/excelDownload.do?'+urlParams, true);
+	    	    xhr.responseType = 'blob';
+
+	    	    xhr.onload = function() {
+	    	    	
+	    	        if (xhr.status === 200) {
+
+	    	            var blob = new Blob([xhr.response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+	    	            var url = window.URL.createObjectURL(blob);
+	    	            
+	    	            var a = document.createElement('a');
+	    	            a.href = url;
+	    	            a.download = title+'.xlsx';
+	    	            
+	    	            document.body.appendChild(a);
+	    	            a.click();
+	    	            window.URL.revokeObjectURL(url);
+	    	            
+	    	        } else {
+	    	        	
+	    	            console.error('Failed to download excel file');
+	    	            
+	    	        }
+	    	    };
+	    	    
+	    	    xhr.send();
+			},
+			excelColumnOrder : ($tds) =>{
+	  				let columnOrders = [];
+	  				
+	  				$.each( $tds, function(){
+
+	  					columnOrders.push( $(this).attr("id") );
+	  				})
+	  				
+	  				return columnOrders;
+			}
+}
+// Page Load가 완료된후 실행 된다.
+C_PM.onLoadPage("<@pageId>", function() {
+	
+	<@pageId>.pageInit();
+	<@pageId>.searchList();
+
+});
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
 C_HM.onReturn("<@pageId>", function(pageId, data) {
 
 });
 </script>
-<style>
-    .side {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-        flex-wrap: wrap;
-        border: 1px solid black;
-    }
-
-    button {
-        margin-top: 10px;
-        background-color: #555; 
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin-left: 5px;
-    }
-
-    button:hover {
-        background-color: #333; /* 더 어두운 회색 계열 */
-    }
-
-    .tb {
-        width: 100%;
-        table-layout: fixed;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-
-    .tb th, .tb td {
-        border: 1px solid black;
-        padding: 8px;
-        text-align: left;
-    }
-
-    .tb th {
-        background-color: #f2f2f2;
-    }
-
-    .tb tr:hover {
-        background-color: #f5f5f5;
-    }
-
-    .side input,
-    .side select,
-    .side button {
-        margin: 5px;
-        padding: 8px;
-    }
-
-    .side select {
-        width: 150px;
-    }
-
-    .side button {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        cursor: pointer;
-    }
-
-    .side button:hover {
-        background-color: #45a049;
-    }
-
-    .tb tr td {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        position: relative;
-    }
-    
-    .tb tr td:hover {
-        overflow: visible;
-    }
-
-    .tb tr td span.tooltip {
-        display: none;
-        position: absolute;
-        background-color: #f9f9f9;
-        border: 1px solid #ccc;
-        padding: 5px;
-        z-index: 100000;
-        bottom: 30%;
-        left: 0;
-        width: max-content;
-        
-    }
-
-    .tb tr td:hover .tooltip {
-        display: block;
-        overflow: visible;
-    }
-    
-    .detail {
-    	margin-left:20px;
-    }
-</style>
+<div class="cont_wrap">
 
 
-<div>
-     <div class='side' id='<@pageId>_updateItems'>
-		<div class='detail' >ROW NO:	<input type='text' name='index' readonly style='width:50px;background-color:#F2F2F2'></div>
-		<div class='detail' >MENU ID:	<input type='text' name='MENU_ID' readonly style='width:200px;background-color:#F2F2F2'></div>
-		<div class='detail' >MENU NM : 	<input type='text' name='MENU_NM' >                      </div>
-		<div class='detail' >PAGE ID: 	<input type='text' name='PAGE_ID' >                      </div>
-		<div class='detail' >MENU DESC:	<input type='text' name='MENU_DESC' >                    </div>
-		<div class='detail' >USE YN: 	
-								<label><input type='radio' name='USE_YN' value="" checked/>ALL</label>
-								<label><input type='radio' name='USE_YN' value="Y" />Yes</label>
-								<label><input type='radio' name='USE_YN' value="N"  />No</label></div>
-		<div class='detail' >PARENT MENU:<select id="PARENT_MENU_ID" name="PARENT_MENU_ID"/>	</div>
-		<div class='detail' >MENU DEPTH:<input type='text' name='MENU_DEPTH' readonly style='width:40px;background-color:#F2F2F2'></div> 
-		<div class='detail' >SORT ORDER:<input type='text' name='SORT_ORDER' style='width:40px;' oninput="this.value = this.value.replace(/[^0-9]/g, '');"></div>
-     </div>
-     
-     <button id='<@pageId>_insertMenu'	>추가</button>
-     <button id='<@pageId>_deleteMenu'	>삭제</button>
-     <button id='<@pageId>_saveMenu'	>저장</button>
-     <button id='<@pageId>_reset'		>초기화</button>
-     <button id='<@pageId>_search'		>조회</button>
-     <table class='tb'>
-       <thead>
-           <tr>
-               <th style='width:20px;'>ck</th>
-               <th style='width:50px;'>#번호</th>
-               <th>MENU_ID</th>
-               <th style='width:150px;'>MENU_NM</th>
-               <th style='width:150px;'>PARENT_ID</th>
-               <th style='width:60px;'>DEPTH</th>
-               <th>MENU_DESC</th>
-               <th>PAGE_ID</th>
-               <th>UPDATE_USER</th>
-               <th>UPDATE_DATE</th>
-               <th style='width:70px;'>ORDER</th>
-               <th style='width:60px;'>USE_YN</th>
-           </tr>
-       </thead>
-       <tbody id="menuList">
-       </tbody>
+	<div class="cont_top">
+		<h2><i class="icon_bullet"></i>TBL_EXP_MENU</h2>
+	</div>
+	<section class="sec_wrap">
+		<!-- search area -->
+		<div class="search_area mt0">
+			<!-- 멀티 선택 -->
+			<div class="fl">
+				<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
+
+				<button type="button" class="btn fl" id="<@pageId>_search">조회</button>
+				
+				<div class="search_inputWrap">
+					<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+				</div>
+				
+				PARENT_MENU_ID : <input type="search" id="<@pageId>_prmPARENT_MENU_ID" disabled>
+				PARENT_MENU_NM : <input type="search" id="<@pageId>_prmPARENT_MENU_NM" disabled>
+
+			</div>
+
+			<div class="search_right">
+				<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button>
+				<button type="button" class="btn fl"  id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
+            </div>
+		</div>
+		<!-- 테이블 -->
+		<div class="tbl01 col tbl_scroll">
+			<table>
+				<caption>TBL_EXP_MENU</caption>
+				<colgroup>
+					<col style="width:30px;"/>
+					<col style="width:50px;">
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:120px;"/>
+					<col style="width:50px;"/>
+					<col style="width:110px;"/>
+					<col style="width:50px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:50px;"/>
+					<col style="width:50px;"/> 
+					<col style="width:100px;"/>
+				</colgroup>
+				<thead>
+					<tr>
+						<th scope="col"><input type="checkbox" id="<@pageId>_ckAll"></th>
+						<th scope="col">INDEX</th>
+						<th scope="col">MENU_ID</th>
+						<th scope="col">MENU_NM</th>
+						<th scope="col">MENU_DESC</th>
+						<th scope="col">DEPTH</th>
+						<th scope="col">PAGE_ID</th>
+						<th scope="col">ORDER</th>
+						<th scope="col">PARENT_MENUNM</th>
+						<th scope="col">PARENT_MENU</th>
+						<th scope="col">USE_YN</th>
+						<th scope="col">CHILDREN</th>
+						<th scope="col"></th>
+					</tr>
+				</thead>
+				<tbody  id="menuList">
+				</tbody>
 <script type="text/x-jsrender" id="menuList_template">	
 				{{for list}}
-				<tr id="menuId_{{:#index}}">
- 					<td><input type='checkbox' id="<@pageId>.ck_{{:#index}}" value='{{:MENU_ID}}'></td>
- 					<td id='index' 			value='{{:#index}}'		>#{{:#index+1}}	</td>
- 					<td id='MENU_ID' 		value='{{:MENU_ID}}'	><span  class="tooltip">{{:MENU_ID}}</span>{{:MENU_ID}}</td>
- 					<td id='MENU_NM' 		value='{{:MENU_NM}}'	><span  class="tooltip">{{:MENU_NM}}</span>{{:MENU_NM}}	</td>
- 					<td id='PARENT_MENU_ID' value='{{:PARENT_MENU_ID}}'><span  class="tooltip">{{:PARENT_MENU_ID}}</span>{{:PARENT_MENU_ID}}</td>
- 					<td id='MENU_DEPTH' 	value='{{:MENU_DEPTH}}'	>{{:MENU_DEPTH}}</td>
- 					<td id='MENU_DESC' 		value='{{:MENU_DESC}}'	><span  class="tooltip">{{:MENU_DESC}}</span>{{:MENU_DESC}}	</td>
- 					<td id='PAGE_ID' 		value='{{:PAGE_ID}}'	><span  class="tooltip">{{:PAGE_ID}}</span>{{:PAGE_ID}}	</td>
- 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE' 	value='{{:UPDATE_DATE}}'><span  class="tooltip">{{:UPDATE_DATE}}</span>{{:UPDATE_DATE}}</td>
- 					<td id='SORT_ORDER' 	value='{{:SORT_ORDER}}' >{{:SORT_ORDER}}</td>
- 					<td id='USE_YN' 		value='{{:USE_YN}}' 	>{{:USE_YN}}</td>
+				<tr name="<@pageId>_tr_{{:#index}}" 						 value='{{:SP_CSTM_ID}}||{{:MENU_ID}}'>
+					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:MENU_ID}}'></td>
+					<td id='index'				value='{{:#index}}'			>{{:#index+1}}</td>
+ 					<td id='MENU_ID'			value='{{:MENU_ID}}'		>{{:MENU_ID}}</td>
+ 					<td id='MENU_NM'			value='{{:MENU_NM}}'		>{{:MENU_NM}}</td>
+ 					<td id='MENU_DESC'			value='{{:MENU_DESC}}'		>{{:MENU_DESC}}</td>
+ 					<td id='MENU_DEPTH'			value='{{:MENU_DEPTH}}'		>{{:MENU_DEPTH}}</td>
+ 					<td id='PAGE_ID'			value='{{:PAGE_ID}}'		>{{:PAGE_ID}}</td>
+ 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}' 	>{{:SORT_ORDER}}</td>
+ 					<td id='PARENT_MENU_NM'		value='{{:PARENT_MENU_NM}}' >{{:PARENT_MENU_NM}}</td>
+ 					<td id='PARENT_MENU_DESC'	value='{{:PARENT_MENU_DESC}}' >{{:PARENT_MENU_DESC}}</td>
+ 					<td id='USE_YN'				value='{{:USE_YN}}' 		>{{:USE_YN}}</td>
+ 					<td id='HAS_CHILD'			value='{{:HAS_CHILD}}' 		>{{:HAS_CHILD}}</td>
+ 					<td id='UPDATE_USER'		value='{{:UPDATE_USER}}' 	style='display:none'>{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 	style='display:none'>{{:UPDATE_DATE}}</td>
+ 					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}'>
+						<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
+						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:MENU_ID}}'><i class="icon_trash"></i></button>
+					</td>
 				</tr>
 				{{/for}}
 </script>
 <script type="text/x-jsrender" id="menuList_noData_template">	
 				<tr>	
-					<td colspan=12>자료가 없습니다.</td>	
+					<td colspan=14>자료가 없습니다.</td>	
 				</tr>
 </script>
-	</table>
+			</table>
+		</div>
+		<!-- paging -->
+		<div class="paging">
+			<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+			<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+			<strong title="현재 페이지">1</strong>
+			<a href="#none">2</a>
+			<a href="#none">3</a>
+			<a href="#none">4</a>
+			<a href="#none">5</a>
+			<a href="#none" class="btn_pg_next">다음 페이지</a>
+			<a href="#none" class="btn_pg_last">마지막 페이지</a>
+		</div>
+	</section>
 </div>

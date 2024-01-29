@@ -7,7 +7,7 @@ var <@pageId> = {
 		 ,excelParamCd : {}
 		 ,pageInit : () =>{
 				
-				var grp_multiboxList = [
+/* 				var grp_multiboxList = [
 					 { 
 						 data : [
 						 		 ["1111", "고객번호"	]
@@ -32,7 +32,7 @@ var <@pageId> = {
 					 	,targetId : "<@pageId>_cd_multiSelect" 
 					 }
 				]
-				C_UICOM.makeSelectBox("<@pageId>", cd_multiboxList);
+				C_UICOM.makeSelectBox("<@pageId>", cd_multiboxList); */
 				
 				<@pageId>.showChildInsertBtn(false);
 			 
@@ -360,9 +360,12 @@ var <@pageId> = {
   			}
 		
 			const $tds = $("#"+sectionId + " [name='<@pageId>_tr_0'] td");
-			excelParam["columnOrders"] = <@pageId>.excelColumnOrder($tds, this);
-  			
-    	    var xhr = new XMLHttpRequest();
+			excelParam["columnOrders"] 		= <@pageId>.excelColumnOrder($tds, this);
+ 			excelParam["downInfo"		] 	= JSON.stringify({  title : title, menu : "CODE 관리"});
+ 			excelParam["requestParm"	] 	= JSON.stringify( excelParam.requestParm );
+ 			
+
+ 			var xhr = new XMLHttpRequest();
     	    var urlParams = new URLSearchParams( excelParam ).toString();
     	    xhr.open('GET', '/excelDownload.do?'+urlParams, true);
     	    xhr.responseType = 'blob';

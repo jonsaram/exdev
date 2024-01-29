@@ -1,8 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@popupId> = {
-			
 		 recvData : []	
+	 	,mode : ''
 		 ,close : function(returnData) {
 			 
 			if(isEmpty(returnData)) returnData = {};
@@ -36,6 +36,54 @@
 					return selectedValue;
 				 }
 		}
+		,pageInit : () => {
+			
+			<@popupId>.mode = (<@popupId>.recvData).length > 0 ? "UPDATE":"INSERT";
+
+			
+			<@popupId>.recvData.forEach( item =>{
+				
+				$("#<@popupId>_items #"+item.key).val(item.val);
+				
+			});
+
+	 		if( <@popupId>.recvData.length > 0 ){
+	 			
+	  			const useYnVal = <@popupId>.recvData.find(item => item.key === "USE_YN")?.val;
+	 			const delYnVal = <@popupId>.recvData.find(item => item.key === "DEL_YN")?.val;
+				<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
+				<@popupId>.fnRadioCheckValue("DEL_YN",delYnVal);
+			}else{
+				
+				<@popupId>.fnRadioCheckValue("USE_YN","Y");
+				<@popupId>.fnRadioCheckValue("DEL_YN","N");
+			}
+
+			<@popupId>.mode == "INSERT" ? $(".updateMode").hide() : $(".updateMode").show();
+			let mode = <@popupId>.mode == "INSERT" ? "등록" : "수정";
+			let title = "USER ";
+	  	 	$(".tit").html(title+mode);
+
+			var modalHeight = (<@popupId>.mode == "INSERT") ? "580px" : "700px";
+			$(".modal").css({"height": modalHeight});
+	 		
+	 		
+		}
+		,setHandler : () => {
+			
+		    $("#<@popupId>_roleSearch").click(function(){
+
+		    	let sendData = <@popupId>.recvData.filter( item => item.key == "ROLE_ID" || item.key == "ROLE_NM" ) ;
+
+				C_POP.open('popup_roleSearchPopup' , sendData
+				, function(retData) {
+					
+
+				});
+		    	
+			});
+		}			
+
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
@@ -44,23 +92,11 @@
 		
 		<@popupId>.recvData = data.param;
 		
-		<@popupId>.recvData.forEach( item =>{
-			
-			$("#<@popupId>_items #"+item.key).val(item.val);
-			
-		});
+		<@popupId>.pageInit();
+		<@popupId>.setHandler();
 
- 		if( <@popupId>.recvData.length > 0 ){
- 			
-  			const useYnVal = <@popupId>.recvData.find(item => item.key === "USE_YN")?.val;
- 			const delYnVal = <@popupId>.recvData.find(item => item.key === "DEL_YN")?.val;
-			<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
-			<@popupId>.fnRadioCheckValue("DEL_YN",delYnVal);
-		}else{
-			
-			<@popupId>.fnRadioCheckValue("USE_YN","Y");
-			<@popupId>.fnRadioCheckValue("DEL_YN","N");
-		}
+		
+
 		
 	});
 </script>
@@ -69,43 +105,68 @@
 .bgr dt {
 	width: 100px;
 }
+.modal_body .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 10px; /* 각 줄 사이 간격 조절 */
+}
+
+.modal_body .row dt,
+.modal_body .row dd {
+    width: calc(50% - 10px); /* 요소 너비 50%로 설정하고 간격 추가 */
+    margin-right: 10px; /* 요소 간격 설정 */
+}
 </style>
 
 <div class="modal_wrap">
 	<div class="modal" style="width:430px;height:1000px;">
 		<div class="modal_header">
-			<strong class="tit">User 등록</strong>
+			<strong class="tit">User 등록/수정</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body">
 			<dl class="info_wrap bgr" id="<@popupId>_items">
-				<dt>USER_ID</dt>
-				<dd><input type="text"  id="USER_ID" disabled></dd>
-  				<dt>USER_NM</dt>
-				<dd><input type="text"  id="USER_NM"></dd>
-				<dt>USER_DESC</dt>
-				<dd><input type="text"  id="USER_DESC"></dd>
-				<dt>E_MAIL</dt>
-				<dd><input type="text"  id="E_MAIL"></dd>
-				<dt>PHONE_NUM</dt>
-				<dd><input type="text"  id="PHONE_NUM"></dd>
-				<dt>USE YN</dt>
-				<dd><div class='rdoGrp' > 	
-								<label><input type='radio' name='USE_YN' value="Y" />Yes</label>
-								<label><input type='radio' name='USE_YN' value="N"  />No</label>
-					</div>
-				</dd>
-				<dt>DEL YN</dt>
-				<dd><div class='rdoGrp' >
-								<label><input type='radio' name='DEL_YN' value="Y" />Yes</label>
-								<label><input type='radio' name='DEL_YN' value="N"  />No</label>
-					</div>
-				</dd>
-				<dt>UPDATE_USER</dt>
-				<dd><input type="text"  id="UPDATE_USER" disabled ></dd>
-				<dt>UPDATE_DATE</dt>
-				<dd><input type="text"  id="UPDATE_DATE" disabled ></dd>
-				
+				<div class="row">
+					<dt>USER_ID</dt>
+					<dd><input type="text"  id="USER_ID" disabled></dd>
+	  				<dt>USER_NM</dt>
+					<dd><input type="text"  id="USER_NM"></dd>
+				</div>
+				<div class="row">
+					<dt>USER_DESC</dt>
+					<dd><input type="text"  id="USER_DESC"></dd>
+					<dt>E_MAIL</dt>
+					<dd><input type="text"  id="E_MAIL"></dd>
+				</div>
+				<div class="row">					
+					<dt>PHONE_NUM</dt>
+					<dd><input type="text"  id="PHONE_NUM"></dd>
+					<dt>ROLE_NM</dt>
+					<dd><input type="text"  id="ROLE_NM" style='width:75%'>
+						<button type="button" class="btn fr" id="<@popupId>_roleSearch">
+						<i class="icon_download"></i>
+						</button>
+					</dd>
+				<div class="row">					
+					<dt>USE YN</dt>
+					<dd><div class='rdoGrp' > 	
+									<label><input type='radio' name='USE_YN' value="Y" />Yes</label>
+									<label><input type='radio' name='USE_YN' value="N"  />No</label>
+						</div>
+					</dd>
+					<dt>DEL YN</dt>
+					<dd><div class='rdoGrp' >
+									<label><input type='radio' name='DEL_YN' value="Y" />Yes</label>
+									<label><input type='radio' name='DEL_YN' value="N"  />No</label>
+						</div>
+					</dd>
+				</div>
+				<div class="row updateMode">
+					<dt>UPDATE_USER</dt>
+					<dd><input type="text"  id="UPDATE_USER" disabled ></dd>
+					<dt>UPDATE_DATE</dt>
+					<dd><input type="text"  id="UPDATE_DATE" disabled ></dd>
+				</div>
 			</dl>
 		</div>
 		<div class="modal_footer">
