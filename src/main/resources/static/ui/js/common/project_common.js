@@ -358,6 +358,11 @@ var C_COM = {
 	,hideUploadingBar : function() {
 		$("#uploadingBar").hide();
 	 }
+	,getCurrentViewId : function() {
+		var viewId = C_POP.getCurrentPopupId();
+		if(isEmpty(viewId)) viewId = C_PM.getCurrentPageId();
+		return viewId
+	 }
 }
 
 /**
@@ -734,10 +739,13 @@ var C_POP = {
 var C_UICOM = {
 	 dataListMap : {} 	// selectBox 에서 선택한 내용 담기
 	,useSelectBoxIdList : {}
-	,getData : function(targetId, pageId){
-		if(isEmpty(pageId)) pageId = C_PM.getCurrentPageId()
-		var pageTargetId = pageId + targetId;
-		return C_UICOM.dataListMap[pageTargetId];
+	,getData : function(targetId){
+
+		var viewId = C_COM.getCurrentViewId();
+
+		var viewTargetId = viewId + targetId;
+
+		return C_UICOM.dataListMap[viewTargetId];
 	 }
 	,init : function() {
 	    // 외부 링크
@@ -747,24 +755,25 @@ var C_UICOM = {
           if(isEmpty(targetId)) targetId = $clicked.parent().parent().attr("uid");
 		  $.each(C_UICOM.useSelectBoxIdList, function(key, obj) {
 			if(obj.targetId != targetId) {
-				var pageWebUl = "#" + obj.pageId + " #" + obj.targetId + "_ul";
+				var pageWebUl = "#" + obj.viewId + " #" + obj.targetId + "_ul";
 				if($(pageWebUl).hasClass("select_lst")) {
 					$(pageWebUl).addClass("viewHide");
 				} else {
-					$(pageWebUl).find("ul").hide();	
+					$(pageWebUl).hide();	
 				}
-				
 			}
 		  });
 	    });
 	 }
-	,makeSelectBox : function(pageId, mboxList, type) {
+	,makeSelectBox : function(mboxList, type) {
+		var viewId = C_COM.getCurrentViewId();
 		if(isEmpty(type)) type="single";
 		C_UICOM.makeSelectBoxExec(mboxList.data, mboxList.targetId, type)	 
 	 }
 	,toggleSingleSelectBox : function(targetId) {
-		var pageId = C_PM.getCurrentPageId();
-		var pageWebUl = "#" + pageId + " #" + targetId + "_ul ";
+		var viewId = C_COM.getCurrentViewId();
+
+		var pageWebUl = "#" + viewId + " #" + targetId + "_ul ";
 		$(pageWebUl).show();
 		if ( $(pageWebUl).hasClass("viewHide") ) {
 			$(pageWebUl).removeClass("viewHide")	
@@ -774,13 +783,16 @@ var C_UICOM = {
 	 }
 	,makeSelectBoxExec : function(list, targetId, type) {
 		
-		var pageId = C_PM.getCurrentPageId();
-		var pageTargetId = pageId + targetId;
+		var viewId = C_COM.getCurrentViewId();
+
+		var pageWebId = "#" + viewId + " #" + targetId + " ";
+
+		var viewTargetId = viewId + targetId;
 
 		// SelectBox ID 등록		
-		C_UICOM.useSelectBoxIdList[pageTargetId] = {pageId : pageId, targetId : targetId};
+		C_UICOM.useSelectBoxIdList[viewTargetId] = {viewId : viewId, targetId : targetId};
 		
-		C_UICOM.dataListMap[pageTargetId] = undefined;
+		C_UICOM.dataListMap[viewTargetId] = undefined;
 		
 		if( type == "single") {
 			var rlist = [];
@@ -795,9 +807,9 @@ var C_UICOM = {
 			
 			var html = $("#_comSinglebox_template").render(rparm)
 
-			$("#" + targetId).addClass("select_box").addClass("fl");
+			$(pageWebId).addClass("select_box").addClass("fl");
 
-			$("#" + targetId).html(html);
+			$(pageWebId).html(html);
 
 			C_UICOM.initSingleBox(targetId);
 
@@ -813,19 +825,20 @@ var C_UICOM = {
 			
 			var html = $("#_comMultibox_template").render(rparm)
 
-			$("#" + targetId).addClass("dropdown").addClass("fl");
+			$(pageWebId).addClass("dropdown").addClass("fl");
 
-			$("#" + targetId).html(html);
+			$(pageWebId).html(html);
 			
-			C_UICOM.initMultiBox(targetId, rlist);
+			C_UICOM.initMultiBox(targetId);
 
 		}
 	 }
-	,initSingleBox : function(targetId, rlist) {
-		var pageId = C_PM.getCurrentPageId();
-		var pageWebUl = "#" + pageId + " #" + targetId + "_ul ";
-		var pageTargetId = pageId + targetId;
-		
+	,initSingleBox : function(targetId) {
+		var viewId = C_COM.getCurrentViewId();
+
+		var pageWebUl = "#" + viewId + " #" + targetId + "_ul ";
+
+		var viewTargetId = viewId + targetId;
         var $open_ul = $(pageWebUl);
         $($open_ul).find("input[type=radio]").on("click", function(){
             var $var = $( this ).next().text();
@@ -834,7 +847,8 @@ var C_UICOM = {
             $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
             $( this ).parent().parent().addClass("viewHide");
 			var valList = $(this).val();
-			C_UICOM.dataListMap[pageTargetId] = valList;
+
+			C_UICOM.dataListMap[viewTargetId] = valList;
         });
         $($open_ul).find("input[type=radio]").on("focus", function(){
             var $var = $( this ).next().text();
@@ -845,17 +859,13 @@ var C_UICOM = {
         $($open_ul).find("input[type=radio]").on("blur", function(){
             $( this ).parent().parent().prev().children().removeClass( "active" );
         });
-		
-		
-		
-		//$(pageWebId).
-		
-		
 	 }
 
 	,initMultiBox : function(targetId) {
-		var pageId = C_PM.getCurrentPageId();
-		var pageWebId = "#" + pageId + " #" + targetId + " ";
+
+		var viewId = C_COM.getCurrentViewId();
+
+		var pageWebId = "#" + viewId + " #" + targetId + " ";
 
 	    /*============= 멀티선택 ================*/
 		$(pageWebId + "button").unbind("click");
@@ -864,9 +874,11 @@ var C_UICOM = {
 	    });
 	 }
 	,clickMultiBox : function(targetId) {
-		var pageId = C_PM.getCurrentPageId();
-		var pageWebId = "#" + pageId + " #" + targetId + " ";
-		var pageTargetId = pageId + targetId;
+		
+		var viewId = C_COM.getCurrentViewId();
+		
+		var pageWebId = "#" + viewId + " #" + targetId + " ";
+		var viewTargetId = viewId + targetId;
 		
 		var viewtext 	= "";
 		var valList		= [];
@@ -882,7 +894,7 @@ var C_UICOM = {
 		if(selectCnt > 0) viewtext = viewtext + " 외 " + selectCnt;
 		
 		$(pageWebId + " .hida").html(viewtext);
-		C_UICOM.dataListMap[pageTargetId] = valList;
+		C_UICOM.dataListMap[viewTargetId] = valList;
 	 }
 }
 

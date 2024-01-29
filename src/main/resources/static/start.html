@@ -36,30 +36,6 @@
 		$(function() {
 			//
 			C_PM.movePage("sample_index");
-			
-			var url = "/requestQuery.do";
-			var xhr = new XMLHttpRequest();
-			xhr.open("POST", url, true);
-			xhr.setRequestHeader("Content-Type", "application/json");
-			xhr.onreadystatechange = function() {
-			    if (xhr.readyState == 4 && xhr.status == 200) {
-			
-			        var responseData = JSON.parse(xhr.responseText).data;
-			        let menuTemplate = [];
-			        responseData.forEach( menu => {
-			        	const pageId = menu.PAGE_ID;
-			        		
-						let template = `<li><a href="javascript:goPage('${pageId}');">${menu.MENU_DESC}</a></li>`
-			        	
-						menuTemplate.push(template);
-			        })
-			        
-					$("#lnbMenuList").html(menuTemplate.join(''))
-			    }
-			};
-			
-			var requestData = JSON.stringify({ "queryId": "admin.getMenuList" ,"requestParm":{}});
-			xhr.send(requestData);
 		});
 		
 		var sessionInfo = {}
