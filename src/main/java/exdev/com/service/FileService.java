@@ -60,10 +60,10 @@ public class FileService extends ExdevBaseService{
                 }
             }
         
-            returnMap.put("msg","SUCCESS");
+            returnMap.put("msg",ExdevConstants.REQUEST_SUCCESS);
 	    } catch (Exception e) {
             e.printStackTrace();
-            returnMap.put("msg","FAILE");
+            returnMap.put("msg",ExdevConstants.REQUEST_FAIL);
         }
         return returnMap;
     }

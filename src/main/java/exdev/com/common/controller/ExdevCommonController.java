@@ -16,6 +16,7 @@
 package exdev.com.common.controller;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -230,24 +231,6 @@ public class ExdevCommonController {
 
         System.out.println("grpId : " + grpId);
 
-        
-        // path 가져오기
-        String path = request.getSession().getServletContext().getRealPath("resources");
-        String root = path + "\\" + "uploadFiles";
-        
-        if( file_uuids != null ) {
-            if(file_uuids.length >0 ) {
-                returnMap = fileService.fileUploadMulti( multiFileList, root , grpId, file_uuids);   
-            }
-            msg = returnMap.get("msg").toString();
-        }
-        
-
-        if( ExdevConstants.REQUEST_FAIL.equals(msg)) {
-            returnMap.put("msg","결재상신 에 실패하였습니다.");
-            return returnMap;
-        }
-        
 
         String title = request.getParameter("title");
         String content = request.getParameter("content");    
@@ -304,13 +287,16 @@ public class ExdevCommonController {
 
     @SuppressWarnings({ "unused", "rawtypes" })
 	@PostMapping("/multiFileUpload.do")
-	public @ResponseBody Map  multiFileUpload(@RequestParam("attach_file") List<MultipartFile> multiFileList,			
+	public @ResponseBody Map<String, Object> multiFileUpload(@RequestParam("attach_file") List<MultipartFile> multiFileList,			
             HttpServletRequest request, HttpSession session)  throws Exception {
 		
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
         
-        Map returnMap = new HashMap();
+        Map<String, String> returnFileMap = new HashMap<String, String>();
+        List<Map<String, Object>> returnMaplist = new ArrayList<>();
+        Map<String, Object> returnMap = new HashMap<String, Object>();
         
+                
 		// 받아온것 출력 확인
 		System.out.println("multiFileList : " + multiFileList);
 		String grpId = request.getParameter("groupId");
@@ -319,13 +305,21 @@ public class ExdevCommonController {
 		// path 가져오기
 		String path = request.getSession().getServletContext().getRealPath("resources");
 		String root = path + "\\" + "uploadFiles";
-		returnMap = fileService.fileUploadMulti( multiFileList, root , grpId, uuids);
+		returnFileMap = fileService.fileUploadMulti( multiFileList, root , grpId, uuids);
 		
-		String msg = returnMap.get("msg").toString();
-		if( "SUCCESS".equals(msg)) {
-			returnMap.put("msg","파일 업로드에 성공하였습니다.");
+		if( ExdevConstants.REQUEST_SUCCESS.equals(returnFileMap.get("msg").toString())) {
+			
+		    returnMap.put("msg", "파일 업로드에 성공하였습니다.");
+            
+            List<String> list = new ArrayList<String>();
+            for(int i =0; i < uuids.length; i++ ) {
+                list.add(uuids[i]);
+            }
+            returnMap.put("list", list);
+			
 		}else{
-			returnMap.put("msg","파일 업로드에 실패하였습니다.");
+            returnMap.put("msg", "파일 업로드에 실패하였습니다.");
+            
 		}
 		
 		return returnMap;
@@ -353,7 +347,7 @@ public class ExdevCommonController {
         returnMap = fileService.fileDeleteMulti( delete_file_list );
         
         String msg = returnMap.get("msg").toString();
-        if( "SUCCESS".equals(msg)) {
+        if( ExdevConstants.REQUEST_SUCCESS.equals(msg)) {
             returnMap.put("msg","파일 삭제에 성공하였습니다.");
         }else{
             returnMap.put("msg","파일 삭제에 실패하였습니다.");

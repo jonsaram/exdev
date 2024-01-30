@@ -3,6 +3,7 @@
     var <@pageId> = {
              approvalList : [] 
             ,searchApproval : () => {
+            	    console.log("======= 부모창 searchApproval =======");
                     let requestUser = $("#<@pageId>requestUser").val();
                     let parm = {
                          queryId        : "approval.getApproval"
@@ -19,20 +20,20 @@
                         
                     });            
             }
-            ,apprUpdatePopup : function(uuid) {    
-            	console.log("======= apprUpdatePopup uuid =======>"+uuid);
-            	let requestParm = {}
-            	requestParm["uuid"] = uuid;
-                C_POP.open('popup_apprUpdatePopup', requestParm, function() {
-                	//console.log("======= 부모창 retData =======");
+            ,apprDtlPopup : function(uuid) {    
+                console.log("======= apprDtlPopup uuid =======>"+uuid);
+                let requestParm = {}
+                requestParm["uuid"] = uuid;
+                C_POP.open('popup_apprDtlPopup', requestParm, function() {
+                    //console.log("======= 부모창 retData =======");
                 });
              }
             ,apprReqPopup : function() {    
                 console.log("======= apprReqPopup =======>");
                 let requestParm = {}
                 C_POP.open('popup_apprReqPopup', requestParm, function() {
-                    //console.log("======= 부모창 retData =======");
-                	searchApproval();
+                    console.log("======= 부모창 retData =======");
+                    <@pageId>.searchApproval();
                 });
                 
              }
@@ -110,12 +111,12 @@
                                         <tr id="trId_{{:#index}}">
                                             <td id='index'           value='{{:#index}}'         >{{:#index}}    </td>
                                             <td id='APPROVAL_DATE1'  value='{{:APPROVAL_DATE1}}'  >{{:APPROVAL_DATE1}}</td>
-                                            <td id='TITLE'           value='{{:TITLE}}'         class="tl"><a href="javascript:void(0);" onclick="<@pageId>.apprUpdatePopup('{{:UUID}}');">{{:TITLE}}</a></td>
+                                            <td id='TITLE'           value='{{:TITLE}}'         class="tl"><a href="javascript:void(0);" onclick="<@pageId>.apprDtlPopup('{{:UUID}}');">{{:TITLE}}</a></td>
                                             <td id='STATE'           value='{{:STATE}}'          ><span class="state paying">{{:STATE}}</span></td>
                                         </tr>
                                     {{/for}}
                                 </script>
-	                            <script type="text/x-jsrender" id="tableId_noData_template">    
+                                <script type="text/x-jsrender" id="tableId_noData_template">    
                                    <tr>    
                                        <td colspan=4>자료가 없습니다.</td>    
                                    </tr>

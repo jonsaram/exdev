@@ -1,148 +1,206 @@
 <meta charset="utf-8">
 <script type="text/javascript">
-	var <@popupId> = {
-         requestParm : {} 	 
-		,searchList : function(){
-
-			 const requestParm = {};
-             let parm = {
-                  queryId        : "system.getUserList"
-                 ,requestParm    : requestParm
-             }
-             C_COM.requestQuery(parm, function(resultData) {
-                
-                 let rparm = {
-                          targetId   : "tableId"
-                         ,list       : resultData.data
-                     }
-                 console.log(resultData.data)
-                 C_COM.renderHtml("<@popupId>", rparm);
-                 
-             });
-         }
-	    ,selectUser : function() {
-	    	
-	    	var returnData = [];
-	    	var indexCheck = 0;
-	    	
-	    	var peopleArr = new Array();
-	        var idxArr = new Array();
-	        var i = 0;
-	        
+    var <@popupId> = {
+         requestParm : {}
+        ,searchApprovalDtl : function(requestParm){
             
-            //////////////////////////////////////////////////////////////////////////////
-            var idxArr = new Array();
-            $("input[name=<@popupId>_userCheck]:checked").each(function(){
-            	idxArr.push($("input[name=<@popupId>_userCheck]").index(this));
-            });
-    
-            for (var i = 0; i < idxArr.length; i++) {
-                var obj = new Object();
-                
-                obj.index = $("#tbl_peopleList tbody").children().eq(idxArr[i]).children().eq(1).text();
-                obj.user_id = $("#tbl_peopleList tbody").children().eq(idxArr[i]).children().eq(2).text();
-                obj.user_nm = $("#tbl_peopleList tbody").children().eq(idxArr[i]).children().eq(3).text();
-                obj.user_desc = $("#tbl_peopleList tbody").children().eq(idxArr[i]).children().eq(4).text();
-                obj.e_mail = $("#tbl_peopleList tbody").children().eq(idxArr[i]).children().eq(5).text();
-                
-                console.log("obj.index =>"+obj.index);
-                console.log("obj.user_id =>"+obj.user_id);
-                console.log("obj.user_nm =>"+obj.user_nm);
-                console.log("obj.user_desc =>"+obj.user_desc);
-                console.log("obj.e_mail =>"+obj.e_mail);
-                
-                peopleArr.push(obj);
+            console.log("======= searchApprovalDtl uuid======="+requestParm["uuid"]);
+            
+            let parm = {
+                 queryId        : "approval.getApproval"
+                ,requestParm    : requestParm
             }
-            
-            console.log(peopleArr);
-            //if(isEmpty(returnData)) returnData = {};
-            C_POP.close(peopleArr);
-	     }
-		,close : function(returnData) {
-			if(isEmpty(returnData)) returnData = {};
-			C_POP.close(returnData);
-		 }
-	}
-	// Popup Load가 완료된후 실행 된다.
-	C_POP.onLoadPopup("<@popupId>", function(data) {
+            C_COM.requestQuery(parm, function(resultData) {
 
+                $('#REQUEST_USER_NM').text(resultData.data[0].REQUEST_USER_NM);
+                $('#APPROVAL_DATE').text(resultData.data[0].APPROVAL_DATE1);
+                $('#APPROVAL_TITLE').text(resultData.data[0].TITLE);
+                $('#CONTENTS').text(resultData.data[0].CONTENTS);
+                
+            });
+            
+            /* 결재자 조회*/
+            let parmDtl = {
+                 queryId        : "approval.getApprovalUser"
+                ,requestParm    : requestParm
+            }
+            C_COM.requestQuery(parmDtl, function(resultData) {
+
+                console.log( resultData.data);
+                let rparmDtl = {
+                         targetId   : "tableId"
+                        ,list       : resultData.data
+                    }
+                C_COM.renderHtml("<@popupId>", rparmDtl);
+                
+            });
+            
+         }
+        ,searchFile : function(requestParm){
+            
+            console.log("======= searchFile ======="+requestParm["uuid"])
+            
+            let searchParm = {};
+            searchParm["grpId"] = requestParm["uuid"];
+            
+            let parm = {
+                 queryId        : "Sample.getFile"
+                ,requestParm    : searchParm
+            }
+            C_COM.requestQuery(parm, function(resultData) {
+            	
+            	console.log( resultData.data);
+                <@popupId>.fileList = resultData.data;
+                let rparm = {
+                         targetId   : "fileTableId"
+                        ,list       : resultData.data
+                    }
+                C_COM.renderHtml("<@popupId>", rparm);
+                
+            });
+            
+         }
+        ,selectUser : function() {
+            
+         }
+        ,close : function() {
+            console.log("======= 자식창 C_POP.close =======");
+            C_POP.close();
+         }
+    }
+    // Popup Load가 완료된후 실행 된다.
+    C_POP.onLoadPopup("<@popupId>", function(data) {
+        
+        <@popupId>.searchApprovalDtl(data);
+        <@popupId>.searchFile(data);
+        
         //삭제 버튼 클릭      
         $('#<@popupId>_selectUser').on('click', function (e) {
             console.log("_selectUser");
             <@popupId>.selectUser1();
         })
-	});
-	
-	
+    });
+    
+    
 </script>
-<div class="modal_wrap">
-	<div class="modal" style="width:570px;height:700px;">
-		<div class="modal_header">
-			<strong class="tit">결재자 선택</strong>
-			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
-		</div>
-		<div class="modal_body">
-			<!-- search area -->
-                <div class="search_area mt0">
-                    <!-- 멀티 선택 -->
-                    <div class="fl">
-                        <div class="search_inputWrap">
-                            USER_ID :   <input type='text'   id='<@pageId>requestUser' name='<@pageId>requestUser' value='windrider'> 
-                        </div>
-                    </div>
-                    <button type="button" class="btn" onclick="<@popupId>.searchList()">검색</button>
-                </div>
-                <!-- 테이블 -->
-                <div class="tbl01 col tbl_scroll">
-                    <table id="tbl_peopleList" >
-                        <caption>상신 목록</caption>
+
+    <!-- 결재 상세 팝업 -->
+    <div class="modal_wrap" id="modal-ex03">
+        <div class="modal" style="width:900px;height:650px;">
+            <div class="modal_header">
+                <strong class="tit">결재 상세</strong>
+                <button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+            </div>
+            <div class="modal_body">
+                <h3>결재 상신 내용</h3>
+                <div class="tbl01 row">
+                    <table>
+                        <caption>표 캡션</caption>
                         <colgroup>
-                            <col style="width:20px;"/>
-                            <col style="width:40px;"/>
-                            <col style="width:40px;"/>
-                            <col style="width:80px;"/>
-                            <col style="width:80px;"/>
-                            <col style="width:80px;"/>
+                            <col style="width:100px;" />
+                            <col />
+                            <col style="width:100px;" />
+                            <col />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row">상신자</th>
+                                <td id="REQUEST_USER_NM"></td>
+                                <th scope="row">상신일</th>
+                                <td id="APPROVAL_DATE"></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">제목</th>
+                                <td  id="APPROVAL_TITLE" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">상신내용</th>
+                                <td colspan="3" >
+                                    <div  id="CONTENTS" style="max-height:80px;overflow:auto;">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">첨부파일</th>
+                                <td colspan="3" id="fileTableId">
+                                </td>
+                                <script type="text/x-jsrender" id="fileTableId_template">    
+                                   {{for list}}
+                                       <li>
+                                           <span class="txt">{{:ORG_FILE_NAME}}</span>
+                                       </li>
+                                   {{/for}}
+                                </script>
+                                <script type="text/x-jsrender" id="fileTableId_noData_template">    
+                                       <li>   
+                                            자료가 없습니다.
+                                       </li>
+                                </script>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <h3 class="mt25">결재 진행 내용</h3>
+                <div class="tbl01 col">
+                    <table>
+                        <caption>표 캡션</caption>
+                        <colgroup>
+                            <col style="width:60px;" />
+                            <col style="width:80px;" span="2"/>
+                            <col style="width:120px;" span="2" />
+                            <col style="width:80px" />
+                            <col style="width:*" />
                         </colgroup>
                         <thead>
                             <tr>
-                                <th scope="col">ck</th> 
-                                <th scope="col">ID</th>
+                                <th scope="col">순번</th>
+                                <th scope="col">구분</th>
                                 <th scope="col">이름</th>
-                                <th scope="col">소속</th>
-                                <th scope="col">직급</th>
-                                <th scope="col">이메일</th>
+                                <th scope="col">등록/처리일시</th>
+                                <th scope="col">부서명</th>
+                                <th scope="col">상태</th>
+                                <th scope="col">담당자 의견</th>
                             </tr>
                         </thead>
-                        
+                    </table>
+                </div>
+                <div class="tbl01 col" style="max-height:169px;overflow-y:auto;">
+                    <table>
+                        <caption>표 캡션</caption>
+                        <colgroup>
+                            <col style="width:60px;" />
+                            <col style="width:80px;" span="2"/>
+                            <col style="width:120px;" span="2" />
+                            <col style="width:80px" />
+                            <col style="width:*" />
+                        </colgroup>
                         <tbody id="tableId">
                         </tbody>
                         <script type="text/x-jsrender" id="tableId_template">    
                             {{for list}}
-                                <tr id="trId_{{:#index}}">
-                                    <td><input type='checkbox' id="<@popupId>.ck_{{:#index}}" name="<@popupId>_userCheck" value='{{:USER_NM}}({{:USER_ID}})/{{:USER_DESC}}/{{:E_MAIL}}'></td>
+                                <tr>s
                                     <td id='index'           value='{{:#index}}'         >{{:#index}}    </td>
-                                    <td id='USER_ID'         value='{{:USER_ID}}'        >{{:USER_ID}}</td>
-                                    <td id='USER_NM'         value='{{:USER_NM}}'        >{{:USER_NM}}</td>
-                                    <td id='USER_DESC'       value='{{:USER_DESC}}'      >{{:USER_DESC}}</td>
-                                    <td id='E_MAIL'          value='{{:E_MAIL}}'         >{{:E_MAIL}}</td>
+                                    <td><span class="stateBtn drafter wauto">기안</span></td>
+                                    <td id='APPROVAL_USER_NM'  value='{{:APPROVAL_USER_NM}}'  >{{:APPROVAL_USER_NM}}</td>
+                                    <td id='CREATE_DATE1'  value='{{:CREATE_DATE1}}'  >{{:CREATE_DATE1}}</td>
+                                    <td>경영 기획부</td>
+                                    <td id='STATE'  value='{{:STATE}}'  ><span class="state pay_complete">{{:STATE}}</span></td>
+                                    <td class="tl" id='APPROVAL_COMMENT'  value='{{:APPROVAL_COMMENT}}'  >{{:APPROVAL_COMMENT}}</td>
                                 </tr>
                             {{/for}}
                         </script>
                         <script type="text/x-jsrender" id="tableId_noData_template">    
-                           <tr>    
-                               <td colspan=6>자료가 없습니다.</td>    
-                           </tr>
+                            <tr>    
+                                <td colspan=7>자료가 없습니다.</td>    
+                            </tr>
                         </script>
                     </table>
                 </div>
-                
-
-		</div>
-		<div class="modal_footer">
-            <button type="button" class="btn" onclick="<@popupId>.selectUser()" >확인</button>
-            <button type="button" class="btn" onclick="<@popupId>.close()"      >닫기</button>
+            </div>
+            <div class="modal_footer">
+                <button type="button" class="btn close"  onclick="<@popupId>.close()">닫기</button>
+            </div>
         </div>
-	</div>
-</div>
+    </div>
 

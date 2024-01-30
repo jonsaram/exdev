@@ -1,10 +1,10 @@
 <meta charset="utf-8">
 <script type="text/javascript">
-	var <@popupId> = {
-         requestParm : {} 	 
-		,searchList : function(){
+    var <@popupId> = {
+         requestParm : {}
+        ,searchList : function(){
 
-			 const requestParm = {};
+             const requestParm = {};
              let parm = {
                   queryId        : "system.getUserList"
                  ,requestParm    : requestParm
@@ -20,129 +20,91 @@
                  
              });
          }
-	    ,selectUser : function() {
-	    	
-	    	var returnData = [];
-	    	var indexCheck = 0;
-	    	
-	    	var peopleArr = new Array();
-	        var idxArr = new Array();
-	        var i = 0;
-	        
+        ,selectUser : function( user_id, user_nm, user_desc, e_mail ) {
             
-            //////////////////////////////////////////////////////////////////////////////
-            var idxArr = new Array();
-            $("input[name=<@popupId>_userCheck]:checked").each(function(){
-            	idxArr.push($("input[name=<@popupId>_userCheck]").index(this));
-            });
-    
-            for (var i = 0; i < idxArr.length; i++) {
-                var obj = new Object();
-                
-                obj.index = $("#tbl_peopleList tbody").children().eq(idxArr[i]).children().eq(1).text();
-                obj.user_id = $("#tbl_peopleList tbody").children().eq(idxArr[i]).children().eq(2).text();
-                obj.user_nm = $("#tbl_peopleList tbody").children().eq(idxArr[i]).children().eq(3).text();
-                obj.user_desc = $("#tbl_peopleList tbody").children().eq(idxArr[i]).children().eq(4).text();
-                obj.e_mail = $("#tbl_peopleList tbody").children().eq(idxArr[i]).children().eq(5).text();
-                
-                console.log("obj.index =>"+obj.index);
-                console.log("obj.user_id =>"+obj.user_id);
-                console.log("obj.user_nm =>"+obj.user_nm);
-                console.log("obj.user_desc =>"+obj.user_desc);
-                console.log("obj.e_mail =>"+obj.e_mail);
-                
-                peopleArr.push(obj);
-            }
+            var peopleArr = new Array();
+            console.log( "user_id["+user_id+"] user_nm["+user_nm+"] user_desc["+user_desc+"]  e_mail["+e_mail+"] ");
+            var obj = new Object();
+            
+            obj.index = user_id;
+            obj.user_id = user_id;
+            obj.user_nm = user_nm;
+            obj.user_desc = user_desc;
+            obj.e_mail = e_mail;
+            
+            console.log("obj.index =>"+obj.index);
+            console.log("obj.user_id =>"+obj.user_id);
+            console.log("obj.user_nm =>"+obj.user_nm);
+            console.log("obj.user_desc =>"+obj.user_desc);
+            console.log("obj.e_mail =>"+obj.e_mail);
+            
+            peopleArr.push(obj);
             
             console.log(peopleArr);
             //if(isEmpty(returnData)) returnData = {};
             C_POP.close(peopleArr);
-	     }
-		,close : function(returnData) {
-			if(isEmpty(returnData)) returnData = {};
-			C_POP.close(returnData);
-		 }
-	}
-	// Popup Load가 완료된후 실행 된다.
-	C_POP.onLoadPopup("<@popupId>", function(data) {
+         }
+        ,close : function() {
+            var peopleArr = new Array();
+            C_POP.close(peopleArr);
+         }
+    }
+    // Popup Load가 완료된후 실행 된다.
+    C_POP.onLoadPopup("<@popupId>", function(data) {
 
         //삭제 버튼 클릭      
         $('#<@popupId>_selectUser').on('click', function (e) {
             console.log("_selectUser");
             <@popupId>.selectUser1();
         })
-	});
-	
-	
+    });
+    
+    
 </script>
-<div class="modal_wrap">
-	<div class="modal" style="width:570px;height:700px;">
-		<div class="modal_header">
-			<strong class="tit">결재자 선택</strong>
-			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
-		</div>
-		<div class="modal_body">
-			<!-- search area -->
-                <div class="search_area mt0">
-                    <!-- 멀티 선택 -->
-                    <div class="fl">
-                        <div class="search_inputWrap">
-                            USER_ID :   <input type='text'   id='<@pageId>requestUser' name='<@pageId>requestUser' value='windrider'> 
+
+
+    <!-- 결재자 선택 팝업 -->
+    <div class="modal_wrap" id="modal-ex02">
+        <div class="modal" style="width:450px;height:400px;">
+            <div class="modal_header">
+                <strong class="tit">결재자 선택</strong>
+                <button type="button" class="btn_close" onclick="<@popupId>.close()"      ><span class="sp">팝업 닫기</span></button>
+            </div>
+            <div class="modal_body">
+                <dl class="info_wrap pay">
+                    <dt>사원 검색</dt>
+                    <dd>
+                        <div class="search_inputWrap" style="width:100%">
+                            <input type="search" name=""><button class="search_btn" onclick="<@popupId>.searchList()"><i class="icon_search"></i></button>
                         </div>
-                    </div>
-                    <button type="button" class="btn" onclick="<@popupId>.searchList()">검색</button>
-                </div>
-                <!-- 테이블 -->
-                <div class="tbl01 col tbl_scroll">
-                    <table id="tbl_peopleList" >
-                        <caption>상신 목록</caption>
-                        <colgroup>
-                            <col style="width:20px;"/>
-                            <col style="width:40px;"/>
-                            <col style="width:40px;"/>
-                            <col style="width:80px;"/>
-                            <col style="width:80px;"/>
-                            <col style="width:80px;"/>
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th scope="col">ck</th> 
-                                <th scope="col">ID</th>
-                                <th scope="col">이름</th>
-                                <th scope="col">소속</th>
-                                <th scope="col">직급</th>
-                                <th scope="col">이메일</th>
-                            </tr>
-                        </thead>
-                        
-                        <tbody id="tableId">
-                        </tbody>
-                        <script type="text/x-jsrender" id="tableId_template">    
-                            {{for list}}
-                                <tr id="trId_{{:#index}}">
-                                    <td><input type='checkbox' id="<@popupId>.ck_{{:#index}}" name="<@popupId>_userCheck" value='{{:USER_NM}}({{:USER_ID}})/{{:USER_DESC}}/{{:E_MAIL}}'></td>
-                                    <td id='index'           value='{{:#index}}'         >{{:#index}}    </td>
-                                    <td id='USER_ID'         value='{{:USER_ID}}'        >{{:USER_ID}}</td>
-                                    <td id='USER_NM'         value='{{:USER_NM}}'        >{{:USER_NM}}</td>
-                                    <td id='USER_DESC'       value='{{:USER_DESC}}'      >{{:USER_DESC}}</td>
-                                    <td id='E_MAIL'          value='{{:E_MAIL}}'         >{{:E_MAIL}}</td>
-                                </tr>
-                            {{/for}}
-                        </script>
-                        <script type="text/x-jsrender" id="tableId_noData_template">    
-                           <tr>    
-                               <td colspan=6>자료가 없습니다.</td>    
-                           </tr>
-                        </script>
-                    </table>
-                </div>
-                
-
-		</div>
-		<div class="modal_footer">
-            <button type="button" class="btn" onclick="<@popupId>.selectUser()" >확인</button>
-            <button type="button" class="btn" onclick="<@popupId>.close()"      >닫기</button>
+                    </dd>
+                    <dt>사원 리스트</dt>
+                        <dd class="mb0" style="height:200px;overflow-y:auto;">
+                        <div class="approver_list_wrap person">
+                            <ul id="tableId" class="approver_list">
+                            </ul>
+                            <script type="text/x-jsrender" id="tableId_template">    
+                                {{for list}}
+                                    <li>
+                                        <span class="txt">
+                                            <a href="javascript:void(0);" onclick="<@popupId>.selectUser( '{{:USER_ID}}', '{{:USER_NM}}', '{{:USER_DESC}}', '{{:E_MAIL}}' );">
+                                                {{:USER_NM}} / {{:USER_DESC}} / {{:USER_ID}} / {{:E_MAIL}}
+                                            </a>
+                                        </span>
+                                    </li>
+                                {{/for}}
+                            </script>
+                            <script type="text/x-jsrender" id="tableId_noData_template"> 
+                               <li>
+                                   <span class="txt">자료가 없습니다.</span>
+                               </li> 
+                            </script>
+                        </div>
+                    </dd>
+                </dl>
+            </div>
+            <div class="modal_footer">
+                <button type="button" class="btn close" onclick="<@popupId>.close()"      >닫기</button>
+            </div>
         </div>
-	</div>
-</div>
-
+    </div>
