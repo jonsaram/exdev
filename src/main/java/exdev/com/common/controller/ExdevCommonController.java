@@ -15,12 +15,7 @@
  */
 package exdev.com.common.controller;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -32,16 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.tomcat.util.http.fileupload.FileItem;
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
-import org.apache.tomcat.util.http.fileupload.RequestContext;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
-import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,10 +43,10 @@ import com.google.gson.Gson;
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.service.ExdevCommonService;
 import exdev.com.common.vo.SessionVO;
+import exdev.com.service.ApprovalService;
 import exdev.com.service.ExcelService;
 import exdev.com.service.ExdevSampleService;
 import exdev.com.service.FileService;
-import exdev.com.service.ApprovalService;
 
 /**
  * This MovieController class is a Controller class to provide movie crud and
@@ -228,9 +214,8 @@ public class ExdevCommonController {
      * @수 정 일자 :
      * @수 정 자
      */
-
     @PostMapping("/approvalSave.do")
-    public @ResponseBody Map  approvalSave(@RequestParam("attach_file") List<MultipartFile> multiFileList,           
+    public @ResponseBody Map  approvalSave(@RequestParam(value ="attach_file", required=false) List<MultipartFile> multiFileList,           
             HttpServletRequest request, HttpSession session)  throws Exception {
         
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
@@ -249,11 +234,17 @@ public class ExdevCommonController {
         // path 가져오기
         String path = request.getSession().getServletContext().getRealPath("resources");
         String root = path + "\\" + "uploadFiles";
-        returnMap = fileService.fileUploadMulti( multiFileList, root , grpId, file_uuids);
-        msg = returnMap.get("msg").toString();
+        
+        if( file_uuids != null ) {
+            if(file_uuids.length >0 ) {
+                returnMap = fileService.fileUploadMulti( multiFileList, root , grpId, file_uuids);   
+            }
+            msg = returnMap.get("msg").toString();
+        }
+        
 
         if( ExdevConstants.REQUEST_FAIL.equals(msg)) {
-            returnMap.put("msg","결재상신 에 성공하였습니다.");
+            returnMap.put("msg","결재상신 에 실패하였습니다.");
             return returnMap;
         }
         
