@@ -1,0 +1,409 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+var <@pageId> = {
+			checkedItems : []
+			,curSearchList: []
+			,selectedRow:{}
+			,excelParam : {}
+			,pageInit : () =>{
+			}
+			,setSpCstmId : (dataList) =>{
+				
+				if( dataList && dataList.length > 0 && G_VAL.SP_CSTM_ID=="")G_VAL.SP_CSTM_ID = dataList[0].SP_CSTM_ID;
+			
+			}
+			,searchList : () => {
+				
+				const requestParm = {};
+				var parm = {
+						 queryId 		: "system.getMenuList"
+						,requestParm	: requestParm
+				}
+				<@pageId>.excelParam = parm;
+				C_COM.requestQuery(parm, function(resultData) {
+				
+					<@pageId>.curSearchList = resultData.data;
+					<@pageId>.setSpCstmId(resultData.data);
+					
+					var rparm = {
+						 targetId 		: "menuList"
+						,list			: resultData.data
+					}
+	
+					$("#<@pageId>_prmPARENT_MENU_ID").val('');
+					$("#<@pageId>_prmPARENT_MENU_NM").val('');
+					
+					C_COM.renderHtml("<@pageId>", rparm);
+			
+					<@pageId>.showInsertBtn(false);				
+					<@pageId>.setHandler();
+				});
+				
+			}
+			,updateItem : (param) => {
+			
+				const requestParm = param ? param : {} ;
+				
+				requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
+				
+				if( !requestParm["MENU_ID"] || requestParm["MENU_ID"] == ''){
+					requestParm["MENU_ID"] = C_COM.makeUniqueId();
+				}
+				
+				var parm = {
+					 queryId 		: "system.updateMenu"
+					,requestParm	: requestParm
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					
+					if( resultData.state == 'S'){
+						
+						<@pageId>.searchList();
+						console.log("Item 저장 성공");
+					}				
+				});
+				
+			}  
+			,deleteItem : (delKey) => {
+				
+				var parm = {
+					 queryId 		: "system.deleteMenu"
+					,requestParm	: {"SP_CSTM_ID":delKey.SP_CSTM_ID , "MENU_ID":delKey.MENU_ID }
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					
+					if( resultData.state == 'S'){
+						<@pageId>.searchList();
+						console.log("Item 삭제 성공")
+					}				
+				});				
+			}
+			,openPopup : ($tds) => {
+			
+				let param = [];	
+				$.each( $tds , function(){
+	
+					const key = $(this).attr("id");
+					const val = $(this).attr("value");
+					param.push( { "key": key, "val": val } );
+					
+				})
+debugger;				
+				C_POP.open('popup_menuUpdatePopup',					
+							{	  param:param
+								, nextSortOrder	:	<@pageId>.getNextSortOrder()
+								, parentMenu 	:	{
+													  PARNET_MENU_ID	:	$("#<@pageId>_prmPARENT_MENU_ID").val()
+													 ,PARNET_MENU_NM	:	$("#<@pageId>_prmPARENT_MENU_NM").val()
+													 ,MENU_DEPTH		:	+<@pageId>.selectedRow["MENU_DEPTH"]				
+													}
+							}, function(retData) {
+								
+									if(isValid(retData)){
+				
+										<@pageId>.updateItem(retData);
+										
+									}
+				});
+				
+			}
+			, deleteOne : (key) =>{
+				
+				const SP_CSTM_ID	= key.split("||")[0];
+				const MENU_ID 		= key.split("||")[1];
+				<@pageId>.deleteItem( { SP_CSTM_ID:SP_CSTM_ID , MENU_ID:MENU_ID } )
+			  		
+			}
+			,setHandler : () => {
+			    
+				<@pageId>.chkHandler();
+			    
+				
+				$("#<@pageId>_insert").click(function(){
+			    	
+					<@pageId>.openPopup();
+	
+			    })
+			    
+			    $("#<@pageId>_delete").click(function(){
+			    	
+			    	<@pageId>.checkedItems.forEach( key =>{
+						<@pageId>.deleteOne(key);
+			    	})
+			    	
+			    })
+			    
+			    $("#<@pageId>_excelDownload").click(function(){
+			    	
+			    	<@pageId>.excelDownload("TB_EXP_MENU");
+			    })
+			    
+			    $("[id^='<@pageId>_modify_']").click(function(){
+
+			        event.preventDefault();
+			        event.stopPropagation();
+
+			    	const index = $(this).attr("index");
+					const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
+
+					$.each( $tds, function() {
+						
+						$(this).attr("id") == "PARENT_MENU_ID" ? $("#<@pageId>_prmPARENT_MENU_ID").val($(this).attr("value")) : '' ;
+						$(this).attr("id") == "PARENT_MENU_NM" ? $("#<@pageId>_prmPARENT_MENU_NM").val($(this).attr("value")): '' ;
+						
+					})
+					debugger;
+					<@pageId>.openPopup($tds);
+					
+			    })
+			    
+			    $("[id^='<@pageId>_delete_']").click(function(){
+
+			    	const hasChild = $(this).parent().siblings("#HAS_CHILD").attr("value") == "Y" ? true : false;
+			    	if( hasChild ){ alert("하위 메뉴를 먼저 삭제하신 후 삭제할 수 있습니다. "); return; }
+			    	const key = $(this).attr("key");
+					<@pageId>.deleteOne(key);
+			    })
+
+			    
+			    $("[name^='<@pageId>_tr']").click(function(e){
+	
+			        if( $(e.target).attr("id") && $(e.target).attr("id").indexOf("<@pageId>_ck_") < 0){
+	
+				    	<@pageId>.showInsertBtn(true);
+	
+				    	$("#<@pageId>_prmPARENT_MENU_ID").val($(this).children("td#MENU_ID").attr("value"));
+				    	$("#<@pageId>_prmPARENT_MENU_NM").val($(this).children("td#MENU_NM").attr("value"));
+				    	
+				    	$.each( $(this).children() , function(){
+				    		
+				    		const key 	= $(this).attr("id"); 
+				    		const tdVal = $(this).attr("value");
+				    		
+				    		if( tdVal ){
+				    			
+				    			<@pageId>.selectedRow[key] = tdVal;
+				    		}
+				    	});
+				    	
+			        }
+			    })
+			    
+			    $("#<@pageId>_search").click( () =>{
+			    	<@pageId>.searchList();
+			    })
+			    
+			    <@pageId>.chkHandler();
+			    
+			}
+			,chkHandler : () => {
+				
+			    $("#<@pageId>_ckAll").click(function() {
+
+			    	const isAllChk =  $(this).prop("checked");
+					$("[id^='<@pageId>_ck_']").prop("checked", isAllChk);
+					
+			    	const ckboxes = $("[id^='<@pageId>_ck_']");
+				    <@pageId>.checkedItems = isAllChk ? ckboxes.map(function() { return this.value; }).get() : [];
+
+			    });
+			    $("[id^='<@pageId>_ck_']").click(function(){
+			    	
+  			        if ($(this).prop("checked")){<@pageId>.checkedItems.push($(this).val());}
+			    	else { <@pageId>.checkedItems = <@pageId>.checkedItems.filter(item => item !== $(this).val());}  
+			        
+			        const $checkboxSelector = $("[id^='<@pageId>_ck_']")
+			        const allCheckboxChecked = $checkboxSelector.length === $checkboxSelector.filter(":checked").length;
+			        $("#<@pageId>_ckAll").prop("checked", allCheckboxChecked);
+			        
+			    });
+			    
+			}		
+			,getNextSortOrder : () =>{
+
+				return +$("[name='<@pageId>_tr_0'] #NEXT_SORT_ORDER").attr("value");
+				
+			}
+			,showInsertBtn : (show) => {
+				
+				const $btn = $("#<@pageId>_insert");
+				show ?	$btn.show() : $btn.hide();
+				
+			} 	
+	 		,excelDownload : (title) => {
+				
+				const $tds = $("[name='<@pageId>_tr_0'] td");
+	 			<@pageId>.excelParam["columnOrders"	] = <@pageId>.excelColumnOrder($tds, this);
+	 			<@pageId>.excelParam["downInfo"		] = JSON.stringify({  title : title, menu : "MENU 관리"});
+	 			<@pageId>.excelParam["requestParm"	] = JSON.stringify(<@pageId>.excelParam.requestParm );
+	 			
+  				let excelParam = <@pageId>.excelParam ;
+ 			
+	    	    var xhr = new XMLHttpRequest();
+	    	    var urlParams = new URLSearchParams( excelParam ).toString();
+	    	    xhr.open('GET', '/excelDownload.do?'+urlParams, true);
+	    	    xhr.responseType = 'blob';
+
+	    	    xhr.onload = function() {
+	    	    	
+	    	        if (xhr.status === 200) {
+
+	    	            var blob = new Blob([xhr.response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+	    	            var url = window.URL.createObjectURL(blob);
+	    	            
+	    	            var a = document.createElement('a');
+	    	            a.href = url;
+	    	            a.download = title+'.xlsx';
+	    	            
+	    	            document.body.appendChild(a);
+	    	            a.click();
+	    	            window.URL.revokeObjectURL(url);
+	    	            
+	    	        } else {
+	    	        	
+	    	            console.error('Failed to download excel file');
+	    	            
+	    	        }
+	    	    };
+	    	    
+	    	    xhr.send();
+			},
+			excelColumnOrder : ($tds) =>{
+	  				let columnOrders = [];
+	  				
+	  				$.each( $tds, function(){
+
+	  					columnOrders.push( $(this).attr("id") );
+	  				})
+	  				
+	  				return columnOrders;
+			}
+}
+// Page Load가 완료된후 실행 된다.
+C_PM.onLoadPage("<@pageId>", function() {
+	
+	<@pageId>.pageInit();
+	<@pageId>.searchList();
+
+});
+// History back으로 이동해왔을 경우 이루틴이 실행된다.
+C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+});
+</script>
+<div class="cont_wrap">
+
+
+	<div class="cont_top">
+		<h2><i class="icon_bullet"></i>TBL_EXP_MENU</h2>
+	</div>
+	<section class="sec_wrap">
+		<!-- search area -->
+		<div class="search_area mt0">
+			<!-- 멀티 선택 -->
+			<div class="fl">
+				<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
+
+				<button type="button" class="btn fl" id="<@pageId>_search">조회</button>
+				
+				<div class="search_inputWrap">
+					<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+				</div>
+				
+				PARENT_MENU_ID : <input type="search" id="<@pageId>_prmPARENT_MENU_ID" disabled>
+				PARENT_MENU_NM : <input type="search" id="<@pageId>_prmPARENT_MENU_NM" disabled>
+
+			</div>
+
+			<div class="search_right">
+				<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button>
+				<button type="button" class="btn fl"  id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
+            </div>
+		</div>
+		<!-- 테이블 -->
+		<div class="tbl01 col tbl_scroll">
+			<table>
+				<caption>TBL_EXP_MENU</caption>
+				<colgroup>
+					<col style="width:30px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:120px;"/>
+					<col style="width:50px;"/>
+					<col style="width:110px;"/>
+					<col style="width:50px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					
+					<col style="width:50px;"/>
+					<col style="width:50px;"/> 
+					<col style="width:100px;"/>
+				</colgroup>
+				<thead>
+					<tr>
+						<th scope="col"><input type="checkbox" id="<@pageId>_ckAll"></th>
+						<th scope="col">MENU_ID</th>
+						<th scope="col">MENU_NM</th>
+						<th scope="col">MENU_DESC</th>
+						<th scope="col">DEPTH</th>
+						<th scope="col">PAGE_ID</th>
+						<th scope="col">ORDER</th>
+						<th scope="col">PARENT_MENUNM</th>
+						<th scope="col">PARENT_MENU</th>
+						<th scope="col">USE_YN</th>
+						
+						<th scope="col">ROLENM</th>
+						<th scope="col">CHILDREN</th>
+						<th scope="col"></th>
+					</tr>
+				</thead>
+				<tbody  id="menuList">
+				</tbody>
+<script type="text/x-jsrender" id="menuList_template">	
+				{{for list}}
+				<tr name="<@pageId>_tr_{{:#index}}" 						 value='{{:SP_CSTM_ID}}||{{:MENU_ID}}'>
+					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:MENU_ID}}'></td>
+ 					<td id='MENU_ID'			value='{{:MENU_ID}}'		>{{:MENU_ID}}</td>
+ 					<td id='MENU_NM'			value='{{:MENU_NM}}'		>{{:MENU_NM}}</td>
+ 					<td id='MENU_DESC'			value='{{:MENU_DESC}}'		>{{:MENU_DESC}}</td>
+ 					<td id='MENU_DEPTH'			value='{{:MENU_DEPTH}}'		>{{:MENU_DEPTH}}</td>
+ 					<td id='PAGE_ID'			value='{{:PAGE_ID}}'		>{{:PAGE_ID}}</td>
+ 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}' 	>{{:SORT_ORDER}}</td>
+ 					<td id='PARENT_MENU_NM'		value='{{:PARENT_MENU_NM}}' >{{:PARENT_MENU_NM}}</td>
+ 					<td id='PARENT_MENU_DESC'	value='{{:PARENT_MENU_DESC}}' >{{:PARENT_MENU_DESC}}</td>
+ 					<td id='USE_YN'				value='{{:USE_YN}}' 		>{{:USE_YN}}</td>
+ 					<td id='ROLE_DESC'			value='{{:ROLE_DESC}}' 		>{{:ROLE_DESC}}</td>
+ 					<td id='HAS_CHILD'			value='{{:HAS_CHILD}}' 		>{{:HAS_CHILD}}</td>
+ 					<td id='UPDATE_USER'		value='{{:UPDATE_USER}}' 	style='display:none'>{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 	style='display:none'>{{:UPDATE_DATE}}</td>
+					<td id='ROLE_ID'			value='{{:ROLE_ID}}'	 	style='display:none'>{{:ROLE_ID}}</td>
+ 					<td id='ROLE_NM'			value='{{:ROLE_NM}}'	 	style='display:none'>{{:ROLE_NM}}</td>
+ 					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}'>
+						<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
+						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:MENU_ID}}'><i class="icon_trash"></i></button>
+					</td>
+				</tr>
+				{{/for}}
+</script>
+<script type="text/x-jsrender" id="menuList_noData_template">	
+				<tr>	
+					<td colspan=13>자료가 없습니다.</td>	
+				</tr>
+</script>
+			</table>
+		</div>
+		<!-- paging -->
+		<div class="paging">
+			<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+			<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+			<strong title="현재 페이지">1</strong>
+			<a href="#none">2</a>
+			<a href="#none">3</a>
+			<a href="#none">4</a>
+			<a href="#none">5</a>
+			<a href="#none" class="btn_pg_next">다음 페이지</a>
+			<a href="#none" class="btn_pg_last">마지막 페이지</a>
+		</div>
+	</section>
+</div>

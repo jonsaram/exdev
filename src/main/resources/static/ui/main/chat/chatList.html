@@ -112,7 +112,7 @@ var <@pageId> = {
    			$('button[name="<@pageId>_save"]').on('click', function (e) {
 
    				const loc =$(this).parents(".item-box").attr("id"); 
-   				const queryId = loc.indexOf("grp") > -1 ? "admin.updateGrpCode" :  "admin.updateCode" ;
+   				const queryId = loc.indexOf("grp") > -1 ? "system.updateGrpCode" :  "system.updateCode" ;
    				<@pageId>.updateCode(loc, queryId);
    			})
    				
@@ -122,7 +122,7 @@ var <@pageId> = {
    					
    				if(<@pageId>.validation(loc,"deleteCode")  == false)return;
    					
-   				const queryId	= loc.indexOf("grp") > -1 ? "admin.deleteGrpCode" : "admin.deleteCode" ;
+   				const queryId	= loc.indexOf("grp") > -1 ? "system.deleteGrpCode" : "system.deleteCode" ;
    				let		keyObj 	= loc.indexOf("grp") > -1 ? {"GRP_CODE_ID":""} : {"GRP_CODE_ID":"","CODE_ID":""} ;
 				const gubun 	= loc.indexOf("grp") > -1 ? "grpCodeList" : "normalCodeList" ;
    		 		<@pageId>.selectedCheck[gubun].forEach( item =>{

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="admin">
+<mapper namespace="system">
 
 	<cache />
 
@@ -10,7 +10,7 @@
 	SP CUSTOM 관리 
 	 -->	
 	<select id="getSpCustomerList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	admin.getSpCustomerList
+		/*	system.getSpCustomerList
 			SP CUSTOMER 리스트 조회 
 		*/
 		SELECT SP_CSTM_ID 
@@ -25,7 +25,7 @@
 	</select>
 	
 	<update id="updateSpCustomer" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.updateSpCustomer
+		/*	system.updateSpCustomer
 			SP CUSTOMER  저장
 		*/
 		MERGE INTO ADMIN.TBL_EXP_SP_CSTM T
@@ -34,7 +34,7 @@
 		         #{SP_CSTM_DESC} AS SP_CSTM_DESC,
 		         #{USE_YN} AS USE_YN,
 		         #{DEL_YN} AS DEL_YN,
-		         'admin' AS UPDATE_USER,
+		         'system' AS UPDATE_USER,
 		         SYSDATE AS UPDATE_DATE
 		  FROM dual
 		) S
@@ -53,7 +53,7 @@
 	</update>
 	
 	<delete id="deleteSpCustomer" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.deleteSpCustomer
+		/*	system.deleteSpCustomer
 			SP CUSTOMER 삭제
 		*/
 		DELETE FROM ADMIN.TBL_EXP_SP_CSTM 
@@ -64,7 +64,7 @@
 	MENU 관리 
 	 -->	
 	<select id="getMenuList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	admin.getMenuList
+		/*	system.getMenuList
 			메뉴 리스트 조회 
 		*/
 		SELECT T.SP_CSTM_ID
@@ -72,7 +72,7 @@
 			,T.MENU_NM
 			,T.MENU_DESC
 			,T.PARENT_MENU_ID
-			,P.MENU_ID AS PARENT_MENU_NM
+			,P.MENU_NM AS PARENT_MENU_NM
 			,P.MENU_DESC AS PARENT_MENU_DESC
 			,T.MENU_DEPTH
 			,T.PAGE_ID
@@ -98,8 +98,8 @@
 		,ADMIN.TBL_EXP_ROLEMENU M
 		,ADMIN.TBL_EXP_ROLE R
 		WHERE 1 = 1 
-		AND T.SP_CSTM_ID = P.SP_CSTM_ID
-		AND T.MENU_ID = P.MENU_ID
+		AND T.SP_CSTM_ID = P.SP_CSTM_ID(+)
+		AND T.PARENT_MENU_ID = P.MENU_ID(+)
 		AND T.SP_CSTM_ID = M.SP_CSTM_ID(+)
 		AND T.SP_CSTM_ID = R.SP_CSTM_ID(+)
 		AND T.MENU_ID = M.MENU_ID(+)
@@ -132,7 +132,7 @@
 	</select>
 		
 	<update id="updateMenu" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.updateMenu
+		/*	system.updateMenu
 			메뉴 저장
 		*/
 		MERGE INTO ADMIN.TBL_EXP_MENU T
@@ -156,7 +156,7 @@
 		        <if test="SORT_ORDER == null">
 		         100 AS SORT_ORDER,
 		        </if>
-		         'admin' AS UPDATE_USER,
+		         'system' AS UPDATE_USER,
 		         SYSDATE AS UPDATE_DATE
 		  FROM dual
 		) S
@@ -180,7 +180,7 @@
 	</update>
 	
 	<delete id="deleteMenu" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.deleteMenu
+		/*	system.deleteMenu
 			메뉴 삭제
 		*/
 		DELETE FROM ADMIN.TBL_EXP_MENU 
@@ -192,7 +192,7 @@
 	CODE 관리 
 	 -->	
 	<select id="getGrpCodeList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	admin.getGrpCodeList
+		/*	system.getGrpCodeList
 			그룹 코드 리스트 조회 
 		*/
 		SELECT 
@@ -229,7 +229,7 @@
 	</select>
 	
 	<select id="getCodeList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	admin.getCodeList
+		/*	system.getCodeList
 			코드 리스트 조회 
 		*/
 		SELECT 
@@ -277,7 +277,7 @@
 	</select>
 
 	<update id="updateGrpCode" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.updateGrpCode
+		/*	system.updateGrpCode
 			그룹 코드 저장
 		*/
 		MERGE INTO ADMIN.TBL_EXP_GRPCODE T
@@ -288,7 +288,7 @@
 				 #{USE_YN} 		AS USE_YN,
 				 #{DEL_YN} 		AS DEL_YN,
 				 #{SORT_ORDER} 	AS SORT_ORDER,
-				 'admin'		AS UPDATE_USER,
+				 'system'		AS UPDATE_USER,
 				 SYSDATE 		AS UPDATE_DATE 
 		  FROM dual
 		) S
@@ -308,7 +308,7 @@
 	</update>
 
 	<update id="updateCode" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.updateCode
+		/*	system.updateCode
 			코드 저장
 		*/
 		MERGE INTO ADMIN.TBL_EXP_CODE T
@@ -320,7 +320,7 @@
 				 #{USE_YN}		AS USE_YN,      
 				 #{DEL_YN}		AS DEL_YN,      
 				 #{SORT_ORDER} 	AS SORT_ORDER,  
-				 'admin'		AS UPDATE_USER, 
+				 'system'		AS UPDATE_USER, 
 				 SYSDATE		AS UPDATE_DATE  
 		  FROM dual
 		) S
@@ -342,7 +342,7 @@
  	</update>
  	
 	<delete id="deleteGrpCode" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.deleteGrpCode
+		/*	system.deleteGrpCode
 			그룹 코드 삭제
 		*/
 		DELETE FROM ADMIN.TBL_EXP_GRPCODE 
@@ -350,7 +350,7 @@
 	</delete>
 
 	<delete id="deleteCode" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.deleteCode
+		/*	system.deleteCode
 			코드 삭제
 		*/
 		DELETE FROM ADMIN.TBL_EXP_CODE 
@@ -362,7 +362,7 @@
 	ROLE 관리 
 	 -->	
 	<select id="getRoleList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	admin.getRoleList
+		/*	system.getRoleList
 			Role 리스트 조회 
 		*/
 		SELECT SP_CSTM_ID 
@@ -380,7 +380,7 @@
 	</select>
 	
 	<update id="updateRole" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.updateRole
+		/*	system.updateRole
 			Role  저장
 		*/
 		MERGE INTO ADMIN.TBL_EXP_ROLE T
@@ -392,7 +392,7 @@
 		         #{USE_YN} AS USE_YN,
 		         #{DEL_YN} AS DEL_YN,
 		         #{SORT_ORDER} AS SORT_ORDER,
-		         'admin' AS UPDATE_USER,
+		         'system' AS UPDATE_USER,
 		         SYSDATE AS UPDATE_DATE
 		  FROM dual
 		) S
@@ -413,7 +413,7 @@
 	</update>
 	
 	<delete id="deleteRole" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.deleteRole
+		/*	system.deleteRole
 			Role 삭제
 		*/
 		DELETE FROM ADMIN.TBL_EXP_ROLE 
@@ -426,7 +426,7 @@
 	USER 관리 
 	 -->	
 	<select id="getUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	admin.getUserList
+		/*	system.getUserList
 			User 리스트 조회 
 		*/
 		SELECT T.SP_CSTM_ID 
@@ -455,7 +455,7 @@
 	</select>
 	
 	<update id="updateUser" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.updateUser
+		/*	system.updateUser
 			User  저장
 		*/
 		MERGE INTO ADMIN.TBL_EXP_USER T
@@ -468,7 +468,7 @@
 		         #{PHONE_NUM} 	AS PHONE_NUM,
 		         #{USE_YN} 		AS USE_YN,
 		         #{DEL_YN} 		AS DEL_YN,
-		         'admin' 		AS UPDATE_USER,
+		         'system' 		AS UPDATE_USER,
 		         SYSDATE 		AS UPDATE_DATE
 		  FROM dual
 		) S
@@ -491,7 +491,7 @@
 	</update>
 	
 	<delete id="deleteUser" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.deleteUser
+		/*	system.deleteUser
 			User 삭제
 		*/
 		DELETE FROM ADMIN.TBL_EXP_USER 
@@ -504,7 +504,7 @@
 	권한매핑 관리 ( 사용자 - 권한 )
 	 -->	
 	<select id="getAuthList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	admin.getAuthList
+		/*	system.getAuthList
 			권한매핑 리스트 조회 
 		*/
 		SELECT SP_CSTM_ID 
@@ -515,7 +515,7 @@
 	</select>
 	
 	<update id="updateAuth" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.updateAuth
+		/*	system.updateAuth
 			권한 매핑 Auth  저장
 		*/
 		MERGE INTO ADMIN.TBL_EXP_AUTH T
@@ -537,7 +537,7 @@
 	</update>
 	
 	<delete id="deleteAuth" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.deleteAuth
+		/*	system.deleteAuth
 			권한매핑 Auth 삭제
 		*/
 		DELETE FROM ADMIN.TBL_EXP_AUTH 
@@ -549,7 +549,7 @@
 	롤/매뉴 매핑 관리
 	 -->	
 	<select id="getRoleMenuMapList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	admin.getRoleMenuMapList
+		/*	system.getRoleMenuMapList
 			권한매핑 리스트 조회 
 		*/
 		SELECT SP_CSTM_ID 
@@ -560,7 +560,7 @@
 	</select>
 	
 	<update id="updateRoleMenuMap" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.updateRoleMenuMap
+		/*	system.updateRoleMenuMap
 			권한 매핑 Auth  저장
 		*/
 		MERGE INTO ADMIN.TBL_EXP_ROLEMENU T
@@ -583,7 +583,7 @@
 	</update>
 	
 	<delete id="deleteRoleMenuMap" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	admin.deleteRoleMenuMap
+		/*	system.deleteRoleMenuMap
 			권한매핑 Auth 삭제
 		*/
 		DELETE FROM ADMIN.TBL_EXP_ROLEMENU 

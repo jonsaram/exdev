@@ -64,7 +64,7 @@
 			let title = "USER ";
 	  	 	$(".tit").html(title+mode);
 
-			var modalHeight = (<@popupId>.mode == "INSERT") ? "580px" : "700px";
+			var modalHeight = (<@popupId>.mode == "INSERT") ? "580px" : "640px";
 			$(".modal").css({"height": modalHeight});
 	 		
 	 		
@@ -78,7 +78,9 @@
 				C_POP.open('popup_roleSearchPopup' , sendData
 				, function(retData) {
 					
-
+					console.log("=> "+ retData.selectedItem +" " + retData.selectedItemNm );
+					$("#<@popupId>_items #ROLE_NM").val(retData.selectedItemNm )
+					
 				});
 		    	
 			});
@@ -94,9 +96,6 @@
 		
 		<@popupId>.pageInit();
 		<@popupId>.setHandler();
-
-		
-
 		
 	});
 </script>
@@ -148,13 +147,13 @@
 						</button>
 					</dd>
 				<div class="row">					
-					<dt>USE YN</dt>
+					<dt style="width:180px;">USE YN</dt>
 					<dd><div class='rdoGrp' > 	
 									<label><input type='radio' name='USE_YN' value="Y" />Yes</label>
 									<label><input type='radio' name='USE_YN' value="N"  />No</label>
 						</div>
 					</dd>
-					<dt>DEL YN</dt>
+					<dt style="width:180px;">DEL YN</dt>
 					<dd><div class='rdoGrp' >
 									<label><input type='radio' name='DEL_YN' value="Y" />Yes</label>
 									<label><input type='radio' name='DEL_YN' value="N"  />No</label>
