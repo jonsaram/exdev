@@ -67,6 +67,7 @@
     //     $(this).parents().find('.wrap').toggleClass('resize');
     //     $(this).toggleClass('on');
     // });
+
     /*==== Gnb menu active ====*/
     $(document).on("click", ".gnb li a", function(){
         $('.gnb li').removeClass('active');
@@ -89,7 +90,6 @@
             $('.user_login').removeClass('rotate');
         };
     });
-
 
     /*==== Lnb menu active ====*/
     $(document).on("click", ".lnb li li>a", function(){
@@ -167,13 +167,50 @@
     });
 
     /*==== lnb 영역 접고/닫기 버튼 ====*/
-//  $(document).on("click", ".btn.fold", function(){
-//      $(this).parent().parent().parent().toggleClass('collapse');
-//  });
+    $(document).on("click", ".btn.fold", function(){
+        $(this).parent().parent().parent().toggleClass('collapse');
+    });
+
+    /*==== 결재 버튼 ====*/
+    $(document).on("click", ".toggle", function(){
+        $(this).parent().children().removeClass('active');
+        $(this).addClass('active');
+    });
+    $(document).on("click", ".pay_close", function(){
+        $(this).parent().remove()
+    });
+    $(document).on("click", ".approver_list_wrap.person .approver_list li", function(){
+        $('.approver_list_wrap.person .approver_list li').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    /*==== section 영역 스크롤 있을때 영역 ====*/
+    $(function(){
+        $.fn.hasScrollBar = function() {
+            return (this.prop("scrollHeight") == 0 && this.prop("clientHeight") == 0) || (this.prop("scrollHeight") > this.prop("clientHeight"));
+        };
+
+        // 스크롤 존재할 경우
+        if( $(".sec_scroll").hasScrollBar() ){
+            $(".sec_scroll").addClass('resize');
+        }else{
+           $(".sec_scroll").removeClass('resize');
+        }
+    });
+
+    /*==== 첨부파일 추가 ====*/
+    $(document).on("click", ".file", function(){
+        $('input[type=file]#file-input').click();
+    });
+    $(document).on("change", "input[type=file]#file-input", function(){
+        var title = $(this).val();
+        var html = '<li><span class="txt">'+ title +'</span><button class="pay_close">닫기</button></li>';
+        $(this).parent().children().find('.approver_list').append(html);
+    });
 
 
 })(window, window.jQuery);
 
 $(document).ready(function() {
-   $('.select_box').dropdown();
+    $('.select_box').dropdown();
 });
