@@ -2,7 +2,7 @@
 <script type="text/javascript">
 	var <@pageId> = {
 			 checkedItems : []
-	 		 ,excelParam : {}
+			 ,excelParam : {}
 			 ,pageInit : () =>{
 					
 				var multiboxList = { 
@@ -35,7 +35,7 @@
 				
 				const requestParm = {};
 				var parm = {
-						 queryId 		: "system.getUserList"
+						 queryId 		: "system.getRoleMenuMapList"
 						,requestParm	: requestParm
 				}
 				<@pageId>.excelParam = parm;
@@ -43,7 +43,7 @@
 				
 					<@pageId>.setSpCstmId(resultData.data);
 					var rparm = {
-							 targetId 		: "userList"
+							 targetId 		: "menuRoleList"
 							,list			: resultData.data
 					}
 					
@@ -55,47 +55,30 @@
 				
 			}
 			,updateItem : (param) => {
-
+	
 				const requestParm = param ? param : {} ;
 				requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
-				if( !requestParm["USER_ID"] || requestParm["USER_ID"] == ''){
-					requestParm["USER_ID"] = C_COM.makeUniqueId();
+				if( !requestParm["ROLE_ID"] || requestParm["ROLE_ID"] == ''){
+					requestParm["ROLE_ID"] = C_COM.makeUniqueId();
 				}
-				
 				var parm = {
-						queryGroup : [
-							 {
-								 queryId 		: "system.updateUser"
-								,requestParm	: requestParm
-							 }
-							,{
-								 queryId 		: "system.updateAuth"
-								,requestParm	: requestParm
-							 }
-						]
-					}			
-					C_COM.requestQuery(parm, function(resultData) {
-
-							if( resultData.state == "S"){
-
-								console.log( " "+ resultData.data["system.updateUser"] )
-								console.log( " "+ resultData.data["system.updateAuth"] )
-								
-								<@pageId>.searchList();
-								console.log("Item 저장 성공");
-							
-							}else{
-								alert(resultData.msg)
-							}
-					});				
-				
+						 queryId 		: "system.updateRoleMenuMap"
+						,requestParm	: requestParm
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					
+					if( resultData.state == 'S'){
+						<@pageId>.searchList();
+						console.log("Item 저장 성공");
+					}				
+				});
 			}  
 			,deleteItem : (delKey) => {
 				
 				var parm = {
-						 queryId 		: "system.deleteUser"
+						 queryId 		: "system.deleteRoleMenuMap"
 						,requestParm	: {"SP_CSTM_ID":delKey.SP_CSTM_ID
-										  ,"USER_ID":delKey.USER_ID}
+										  ,"ROLE_ID":delKey.ROLE_ID}
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 					if( resultData.state == 'S'){
@@ -105,7 +88,6 @@
 				});				
 			}
 			,openPopup : ($tds) => {
-
 				let param = [];	
 				$.each( $tds , function(){
 					console.log(""+this)
@@ -114,9 +96,11 @@
 					param.push( { "key": key, "val": val } );
 					
 				})
-				C_POP.open('popup_userUpdatePopup', {param:param}, function(retData) {
+				
+				C_POP.open('popup_menuRoleUpdatePopup', {param:param}, function(retData) {
 					
 					if(isValid(retData)){
+
 						<@pageId>.updateItem(retData);
 					}
 				});
@@ -125,12 +109,12 @@
 			, deleteOne : (key) =>{
 				
 	    		const SP_CSTM_ID 	= key.split("||")[0];
-	    		const USER_ID 		= key.split("||")[1];
-	    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,USER_ID:USER_ID})
+	    		const ROLE_ID 		= key.split("||")[1];
+	    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,ROLE_ID:ROLE_ID})
 	    		
 			}
 			,setHandler : () => {
-				
+			    
 				<@pageId>.chkHandler();
 			    
 			    $("#<@pageId>_insert").click(function(){
@@ -148,15 +132,14 @@
 			    })
 			    
 			    $("#<@pageId>_excelDownload").click(function(){
-			    	
-			    	<@pageId>.excelDownload("TBL_EXP_USER");
-			    	
+
+			    	<@pageId>.excelDownload("TBL_EXP_ROLEMENU");
 			    })
 			    
 			    $("[id^='<@pageId>_modify_']").click(function(){
 			    	
 			    	const index = $(this).attr("index");
-					const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
+			    	const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
 					<@pageId>.openPopup($tds);
 					
 			    })
@@ -165,7 +148,6 @@
 
 			    	const key = $(this).attr("key");
 					<@pageId>.deleteOne(key);
-					
 			    })
 			    
 			}
@@ -191,7 +173,7 @@
 			        
 			    });
 			    
-			}
+			}	
 			,getSingleBoxData : function() {
 
 				var selectBoxVal = C_UICOM.getData("<@pageId>_selectBoxId");
@@ -210,10 +192,10 @@
 				
 				const $tds = $("[name='<@pageId>_tr_0'] td");
 	 			<@pageId>.excelParam["columnOrders"	] = <@pageId>.excelColumnOrder($tds, this).filter( item => item !=null );
-	 			<@pageId>.excelParam["downInfo"		] = JSON.stringify({  title : title, menu : "USER 관리"});
+	 			<@pageId>.excelParam["downInfo"		] = JSON.stringify({  title : title, menu : "메뉴권한 관리"});
 	 			<@pageId>.excelParam["requestParm"	] = JSON.stringify(<@pageId>.excelParam.requestParm );
 	 			
-  				let excelParam = <@pageId>.excelParam ;
+  				let excelParam = <@pageId>.excelParam;
  			
 	    	    var xhr = new XMLHttpRequest();
 	    	    var urlParams = new URLSearchParams( excelParam ).toString();
@@ -245,7 +227,6 @@
 	    	    xhr.send();
 			},
 			excelColumnOrder : ($tds) =>{
-				
 	  				let columnOrders = [];
 	  				
 	  				$.each( $tds, function(){
@@ -254,7 +235,7 @@
 	  				})
 	  				
 	  				return columnOrders;
-			}
+			}			
 	}
 
 	// Page Load가 완료된후 실행 된다.
@@ -273,7 +254,7 @@
 
 
 			<div class="cont_top">
-				<h2><i class="icon_bullet"></i>TBL_EXP_USER</h2>
+				<h2><i class="icon_bullet"></i>TBL_EXP_ROLEMENU</h2>
 			</div>
 			<section class="sec_wrap">
 				<!-- search area -->
@@ -283,7 +264,7 @@
 						<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 
 						<div style="width:200px;" id="<@pageId>_multiSelect"></div>
-						<!-- <input type=button value="읽기" onclick="<@pageId>.getMultiSelectBoxData()"/> -->
+
 						<div class="search_inputWrap">
 							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
 						</div>
@@ -300,68 +281,57 @@
 				<!-- 테이블 -->
 				<div class="tbl01 col tbl_scroll">
 					<table>
-						<caption>TBL_EXP_USER</caption>
+						<caption>TBL_EXP_ROLEMENU</caption>
 						<colgroup>
-							<col style="width:30px;"/>
+							<col style="width:40px;"/>
+							<col style="width:80px;">
+							<col style="width:100px;"/>
 							<col style="width:80px;"/>
+							<col style="width:110px;"/>
 							<col style="width:80px;"/>
 							<col style="width:100px;"/>
-							<col style="width:90px;"/>
-							
-							<col style="width:70px;"/>
-							<col style="width:40px;"/>
-							<col style="width:40px;"/>
 							<col style="width:100px;"/>
-							
+							<col style="width:100px;"/>
 							<col style="width:80px;"/>
-							<col style="width:80px;"/>
-							<col style="width:75px;"/>
 						</colgroup>
 						<thead>
 							<tr>
 								<th scope="col"><input type="checkbox" id="<@pageId>_ckAll"></th>
-								<th scope="col">USER_ID</th>
-								<th scope="col">USER_NM</th>
-								<th scope="col">USER_DESC</th>
-								<th scope="col">E_MAIL</th>
-							
-								<th scope="col">PHONE_NUM</th>
-								<th scope="col">USE_YN</th>
-								<th scope="col">DEL_YN</th>
-								<th scope="col">ROLENM</th>
-								
-								<th scope="col">UPDATE_USER</th>
-								<th scope="col">UPDATE_DATE</th>
+								<th scope="col">ROLE_ID</th>
+								<th scope="col">ROLE_NM</th>
+								<th scope="col">ROLE_DESC</th>
+								<th scope="col">MENU_ID</th>
+								<th scope="col">MENU_NM</th>
+								<th scope="col">MENU_DEPTH</th>
+								<th scope="col">MENU_DESC</th>
+								<th scope="col">AUTH_TYPE</th>
 								<th scope="col"></th>
 							</tr>
 						</thead>
-						<tbody  id="userList">
+						<tbody  id="menuRoleList">
 						</tbody>
-<script type="text/x-jsrender" id="userList_template">	
+<script type="text/x-jsrender" id="menuRoleList_template">	
 				{{for list}}
-				<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
-					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'></td>
- 					<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
- 					<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
- 					<td id='USER_DESC'		value='{{:USER_DESC}}' 		>{{:USER_DESC}}</td>
- 					<td id='E_MAIL'			value='{{:E_MAIL}}' 		>{{:E_MAIL}}</td>
- 					<td id='PHONE_NUM'		value='{{:PHONE_NUM}}' 		>{{:PHONE_NUM}}</td>
- 					<td id='USE_YN'			value='{{:USE_YN}}'			>{{:USE_YN}}</td>
- 					<td id='DEL_YN' 		value='{{:DEL_YN}}'			>{{:DEL_YN}}</td>
- 					<td id='ROLE_DESC'		value='{{:ROLE_DESC}}'	 	>{{:ROLE_DESC}}</td>
- 					<td id='UPDATE_USER'	value='{{:UPDATE_USER}}' 	>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
- 					<td id='ROLE_ID'		value='{{:ROLE_ID}}'	 	style='display:none'>{{:ROLE_ID}}</td>
- 					<td id='ROLE_NM'		value='{{:ROLE_NM}}'	 	style='display:none'>{{:ROLE_NM}}</td>
+				<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}||{{:ROLE_ID}}||{{:MENU_ID}}'>
+					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:ROLE_ID}}||{{:MENU_ID}}'></td>
+ 					<td id='ROLE_ID'		value='{{:ROLE_ID}}'		>{{:ROLE_ID}}</td>
+ 					<td id='ROLE_NM'		value='{{:ROLE_NM}}'		>{{:ROLE_NM}}</td>
+ 					<td id='ROLE_DESC'		value='{{:ROLE_DESC}}' 		>{{:ROLE_DESC}}</td>
+ 					<td id='MENU_ID'		value='{{:MENU_ID}}'		>{{:MENU_ID}}</td>
+ 					<td id='MENU_NM' 		value='{{:MENU_NM}}'		>{{:MENU_NM}}</td>
+ 					<td id='MENU_DEPTH'		value='{{:MENU_DEPTH}}' 	>{{:MENU_DEPTH}}</td>
+ 					<td id='MENU_DESC'		value='{{:MENU_DESC}}' 		>{{:MENU_DESC}}</td>
+ 					<td id='AUTH_TYPE'		value='{{:AUTH_TYPE}}' 		style='display:none'></td>
+ 					<td id='AUTH_TYPE_DESC'	value='{{:AUTH_TYPE_DESC}}'	>{{:AUTH_TYPE_DESC}}</td>
  					<td><button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
-						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:USER_ID}}'><i class="icon_trash"></i></button>
+						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:ROLE_ID}}||{{:MENU_ID}}'><i class="icon_trash"></i></button>
 					</td>
 				</tr>
 				{{/for}}
 </script>
-<script type="text/x-jsrender" id="userList_noData_template">	
+<script type="text/x-jsrender" id="menuRoleList_noData_template">	
 				<tr>	
-					<td colspan=10>자료가 없습니다.</td>	
+					<td colspan=9>자료가 없습니다.</td>	
 				</tr>
 </script>
 					</table>

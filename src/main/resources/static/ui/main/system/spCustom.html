@@ -144,7 +144,7 @@
 	 		,excelDownload : (title) => {
 				
 				const $tds = $("[name='<@pageId>_tr_0'] td");
-	 			<@pageId>.excelParam["columnOrders"	] = <@pageId>.excelColumnOrder($tds, this);
+	 			<@pageId>.excelParam["columnOrders"	] = <@pageId>.excelColumnOrder($tds, this).filter( item => item !=null );
 	 			<@pageId>.excelParam["downInfo"		] = JSON.stringify({  title : title, menu : "SP CUSTOMER 관리"});
 	 			<@pageId>.excelParam["requestParm"	] = JSON.stringify(<@pageId>.excelParam.requestParm );
 	 			

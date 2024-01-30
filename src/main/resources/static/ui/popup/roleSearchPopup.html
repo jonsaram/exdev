@@ -58,16 +58,19 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 });
 </script>
 <div class="modal_wrap">
-	<div class="modal" style="width:370px;height:220px;">
+	<div class="modal" style="width:370px;height:200px;">
 		<div class="modal_header">
 			<strong class="tit">Role Search</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body">
-			<p>
-	<!-- 			권한을 선택하여 주십시오.<br> -->
-			</p>
-			<div id="<@popupId>_selectBoxId" style="width:200px"></div>
+			
+			<dl class="info_wrap bgr" id="<@popupId>_items">
+			<div class="row">
+					<dt>ROLE</dt>
+					<dd><div id="<@popupId>_selectBoxId" style="width:150px"></div></dd>
+			</div>
+			</dl>
 		</div>
 		<div class="modal_footer">
 			<button type="button" class="btn select"  onclick="<@popupId>.apply()" >확인</button>

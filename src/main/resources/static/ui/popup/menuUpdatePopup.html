@@ -22,7 +22,8 @@ var <@popupId> = {
 				 if(key)
 				 	returnData[key] = val;
 			 })
-			 returnData["USE_YN"] = <@popupId>.fnRadioCheckValue("USE_YN");
+			 returnData["USE_YN"] 		= <@popupId>.fnRadioCheckValue("USE_YN");
+			 returnData["AUTH_TYPE"] 	= <@popupId>.fnRadioCheckValue("AUTH_TYPE");
 			 <@popupId>.close(returnData);
 		 }			
 		 ,fnRadioCheckValue : (name , pValue) => {
@@ -40,9 +41,9 @@ var <@popupId> = {
 		}		
 		,pageInit : () => {
 			
-			<@popupId>.mode = (<@popupId>.recvData.param).length > 0 ? "UPDATE":"INSERT";
+			<@popupId>.mode = <@popupId>.recvData.length > 0 ? "UPDATE":"INSERT";
 			
-			const param = <@popupId>.recvData.param;
+			const param = <@popupId>.recvData;
 			
 	 		if( param.length > 0 ){
 	 			
@@ -54,6 +55,9 @@ var <@popupId> = {
 	 			
 	  			const useYnVal = param.find(item => item.key === "USE_YN")?.val;
 				<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
+				
+	  			const authTypeVal = param.find(item => item.key === "AUTH_TYPE")?.val;
+				<@popupId>.fnRadioCheckValue("AUTH_TYPE",authTypeVal);
 
 				$(".<@popupId>_parent_is").show();
 				$(".<@popupId>_no_parent").hide();
@@ -61,6 +65,8 @@ var <@popupId> = {
 			}else{
 				
 				<@popupId>.fnRadioCheckValue("USE_YN","Y");
+				<@popupId>.fnRadioCheckValue("AUTH_TYPE","R");
+				
 				$("#<@popupId>_items #SORT_ORDER").val(<@popupId>.nextSortOrder);
 				
 				$(".<@popupId>_no_parent").show();
@@ -79,7 +85,7 @@ var <@popupId> = {
 			let title = "MENU ";
 	  	 	$(".tit").html(title+mode);
 
-			var modalHeight = (<@popupId>.mode == "INSERT") ? "580px" : "700px";
+			var modalHeight = (<@popupId>.mode == "INSERT") ? "640px" : "760px";
 			$(".modal").css({"height": modalHeight});
 			
 		}
@@ -93,13 +99,28 @@ var <@popupId> = {
 			     }
 			     $(this).val(inputValue);
 			});
+			
+		    $("#<@popupId>_roleSearch").click(function(){
+
+		    	let sendData = <@popupId>.recvData.filter( item => item.key == "ROLE_ID" || item.key == "ROLE_NM" ) ;
+
+				C_POP.open('popup_roleSearchPopup' , sendData
+				, function(retData) {
+					
+					console.log("=> "+ retData.selectedItem +" " + retData.selectedItemNm );
+					$("#<@popupId>_items #ROLE_ID").val(retData.selectedItem )
+					$("#<@popupId>_items #ROLE_NM").val(retData.selectedItemNm )
+					
+				});
+		    	
+			});
 		}
 		
 }
 // Popup Load가 완료된후 실행 된다.
 C_POP.onLoadPopup("<@popupId>", function(data) {
 
-	<@popupId>.recvData = data;
+	<@popupId>.recvData = data.param;
 	
 	<@popupId>.nextSortOrder= data.nextSortOrder == undefined ? 10: data.nextSortOrder;
 	<@popupId>.parentMenu 	= data.parentMenu;
@@ -155,6 +176,21 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					<dd><input type="text"  id="MENU_DESC"></dd>
 					<dt>PAGE_ID</dt>
 					<dd><input type="text"  id="PAGE_ID"></dd>
+				</div>
+				<div class="row">
+					<dt>ROLE_NM</dt>
+					<dd><input type="text"  id="ROLE_ID" style='display:none'>
+						<input type="text"  id="ROLE_NM" style='width:75%'>
+						<button type="button" class="btn fr" id="<@popupId>_roleSearch">
+						<i class="icon_download"></i>
+						</button>
+					</dd>
+					<dt>AUTH_TYPE</dt>
+					<dd><div> 	
+							<label><input type='radio' name='AUTH_TYPE' value="A" />Read/Write</label>
+							<label><input type='radio' name='AUTH_TYPE' value="R" />Read</label>
+						</div>
+					</dd>
 				</div>
 				<div class="row updateMode">
 					<dt>UPDATE_USER</dt>

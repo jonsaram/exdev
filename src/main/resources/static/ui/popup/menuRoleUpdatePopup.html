@@ -1,0 +1,142 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+			
+		 recvData : []	
+		 ,close : function(returnData) {
+			 
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+		 ,apply : () =>{
+
+			 let returnData = {};
+			 const $inputs = $("#<@popupId>_items input");
+			 $.each( $inputs, function(){
+				 
+				 const key = $(this).attr("id");
+				 const val = $(this).val();
+				 if(key)
+				 	returnData[key] = val;
+			 })
+			 returnData["AUTH_TYPE"] = <@popupId>.fnRadioCheckValue("AUTH_TYPE");
+			 <@popupId>.close(returnData);
+		 }		
+		 ,fnRadioCheckValue : (name , pValue) => {
+
+				const radioButtons = $("#<@popupId>_items input[name='"+name+"']");
+				if( pValue ){
+				 
+					const theRadioBtn = radioButtons.filter("[value='"+pValue+"']");
+					 theRadioBtn.prop('checked',true);
+				}else{
+				
+					const selectedValue = radioButtons.filter(":checked").val();
+					return selectedValue;
+				 }
+		}		
+		 ,pageInit : () => {
+				$("#<@popupId>_items #SP_CSTM_ID").val(G_VAL.SP_CSTM_ID);
+				
+				
+				<@popupId>.recvData.forEach( item =>{
+					
+					$("#<@popupId>_items #"+item.key).val(item.val);
+					
+				});
+
+		 		if( <@popupId>.recvData.length > 0 ){
+		 			
+		  			const authTypeVal = <@popupId>.recvData.find(item => item.key === "AUTH_TYPE")?.val;
+					<@popupId>.fnRadioCheckValue("AUTH_TYPE",authTypeVal);
+					
+				}else{
+					
+					<@popupId>.fnRadioCheckValue("AUTH_TYPE","R"); 
+				}
+		 		
+				let mode = <@popupId>.mode == "INSERT" ? "등록" : "수정";
+				let title = "MENU ROLE ";
+		  	 	$(".tit").html(title+mode);
+
+				var modalHeight = "500px";
+				$(".modal").css({"height": modalHeight});
+
+		 }
+		,setHandler : () => {
+			
+		}
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+		
+		<@popupId>.recvData = data.param;
+		
+ 		<@popupId>.pageInit();
+ 		<@popupId>.setHandler();
+
+	});
+</script>
+
+<style>
+.bgr dt {
+	width: 100px;
+}
+.modal_body .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 10px; /* 각 줄 사이 간격 조절 */
+}
+
+.modal_body .row dt,
+.modal_body .row dd {
+    width: calc(50% - 10px); /* 요소 너비 50%로 설정하고 간격 추가 */
+    margin-right: 10px; /* 요소 간격 설정 */
+}
+</style>
+
+<div class="modal_wrap">
+	<div class="modal" style="width:430px;height:500px;">
+		<div class="modal_header">
+			<strong class="tit">MenuRole 등록</strong>
+			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<dl class="info_wrap bgr" id="<@popupId>_items">
+				<input type="text"  id="SP_CSTM_ID" style='display:none'>
+				<div class="row">
+					<dt>ROLE_ID</dt>
+					<dd><input type="text"  id="ROLE_ID" disabled></dd>
+	  				<dt>ROLE_NM</dt>
+					<dd><input type="text"  id="ROLE_NM" disabled></dd>
+				</div>
+				<div class="row">
+					<dt>ROLE_DESC</dt>
+					<dd><input type="text"  id="ROLE_DESC" disabled></dd>
+					<dt>MENU_ID</dt>
+					<dd><input type="text"  id="MENU_ID" disabled></dd>
+				</div>
+				<div class="row">
+					<dt>MENU_NM</dt>
+					<dd><input type="text"  id="MENU_NM" disabled></dd>
+					<dt>MENU_DESC</dt>
+					<dd><input type="text"  id="MENU_DESC" disabled></dd>
+				</div>
+				<div class="row">
+					<dt>AUTH_TYPE</dt>
+					<dd><div class='rdoGrp' >
+									<label><input type='radio' name='AUTH_TYPE' value="A" />Read/Write</label>
+									<label><input type='radio' name='AUTH_TYPE' value="R"  />Read</label>
+						</div>
+					</dd>
+				</div>
+				
+			</dl>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select" onclick="<@popupId>.apply()" >확인</button>
+			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+		</div>
+	</div>
+</div>
+

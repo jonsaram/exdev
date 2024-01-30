@@ -51,17 +51,31 @@ var <@pageId> = {
 				}
 				
 				var parm = {
-					 queryId 		: "system.updateMenu"
-					,requestParm	: requestParm
-				}
+						queryGroup : [
+							 {
+								 queryId 		: "system.updateMenu"
+								,requestParm	: requestParm
+							 }
+							,{
+								 queryId 		: "system.updateRoleMenuMap"
+								,requestParm	: requestParm
+							 }
+						]
+				}			
 				C_COM.requestQuery(parm, function(resultData) {
-					
-					if( resultData.state == 'S'){
+
+						if( resultData.state == "S"){
+
+							console.log( " "+ resultData.data["system.updateMenu"] )
+							console.log( " "+ resultData.data["system.updateRoleMenuMap"] )
+							
+							<@pageId>.searchList();
+							console.log("Item 저장 성공");
 						
-						<@pageId>.searchList();
-						console.log("Item 저장 성공");
-					}				
-				});
+						}else{
+							alert(resultData.msg)
+						}
+				});				
 				
 			}  
 			,deleteItem : (delKey) => {
@@ -88,7 +102,7 @@ var <@pageId> = {
 					param.push( { "key": key, "val": val } );
 					
 				})
-debugger;				
+				
 				C_POP.open('popup_menuUpdatePopup',					
 							{	  param:param
 								, nextSortOrder	:	<@pageId>.getNextSortOrder()
@@ -152,7 +166,7 @@ debugger;
 						$(this).attr("id") == "PARENT_MENU_NM" ? $("#<@pageId>_prmPARENT_MENU_NM").val($(this).attr("value")): '' ;
 						
 					})
-					debugger;
+
 					<@pageId>.openPopup($tds);
 					
 			    })
@@ -233,7 +247,7 @@ debugger;
 	 		,excelDownload : (title) => {
 				
 				const $tds = $("[name='<@pageId>_tr_0'] td");
-	 			<@pageId>.excelParam["columnOrders"	] = <@pageId>.excelColumnOrder($tds, this);
+	 			<@pageId>.excelParam["columnOrders"	] = <@pageId>.excelColumnOrder($tds, this).filter( item => item !=null );
 	 			<@pageId>.excelParam["downInfo"		] = JSON.stringify({  title : title, menu : "MENU 관리"});
 	 			<@pageId>.excelParam["requestParm"	] = JSON.stringify(<@pageId>.excelParam.requestParm );
 	 			
@@ -379,6 +393,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
  					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 	style='display:none'>{{:UPDATE_DATE}}</td>
 					<td id='ROLE_ID'			value='{{:ROLE_ID}}'	 	style='display:none'>{{:ROLE_ID}}</td>
  					<td id='ROLE_NM'			value='{{:ROLE_NM}}'	 	style='display:none'>{{:ROLE_NM}}</td>
+ 					<td id='AUTH_TYPE'			value='{{:AUTH_TYPE}}'	 	style='display:none'>{{:AUTH_TYPE}}</td>
  					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}'>
 						<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
 						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:MENU_ID}}'><i class="icon_trash"></i></button>

@@ -396,12 +396,16 @@ var C_PM = {
 		var urlBody	= pageId.replaceAll("_", "/");
 		var url 	= "ui/" + urlBody + ".html";
 		var html 	= C_COM.getHtmlFile(url);
-		
-		if(html == "error") {
-			alert("메뉴 화면이 없거나, 메뉴 이동 중 오류가 발생 했습니다. <br/><br/> 관리자에게 문의 하세요.");
+		try {
+			if(html == "error") {
+				alert("메뉴 화면이 없거나, 메뉴 이동 중 오류가 발생 했습니다. <br/><br/> 관리자에게 문의 하세요.");
+				return;
+			}
+			var token = html.split("/");
+		} catch(e) {
+			alert('Page ID에 해당하는 Content가 없거나, Page에 오류가 있습니다.');
 			return;
 		}
-		var token = html.split("/");
 		
 		// 다른 Page를 Import해서 사용할 수 있도록 한다.
 		if(token[0] == "import") {
@@ -466,17 +470,7 @@ var C_PM = {
 	}
 	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
 	,preInitPage : function(pageId, targetDomId) {
-		var domId = "#" + pageId;
-		if(isValid(targetDomId)) domId += " #" + targetDomId;
-		
-		// 달력 Component가 있으면 초기화
-		$(domId + " span[class=date] input, " + "#" + pageId + " span[dateType=Y] input").each(function() {
-			var domId	 	= $(this).attr("id");
-			C_UICOM.makeWeekCalendar(pageId, domId);
-			$(this).prop("readonly", true);
-		});
-		C_COM.makeNumberTypeToInput("#" + pageId);
-	}
+	 }
 	// Page에 Load시 스크립트 실행 후 공통 설정을 한다.
 	,afterInitPage : function(pageId) {
 		var pageWebId = "#" + pageId + " ";
@@ -641,11 +635,16 @@ var C_POP = {
 	 }
 	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
 	,preInitPopup : function(popupId) {
-		// 달력 Component가 있으면 초기화
-		$("#" + popupId + " span[class=date] input").each(function() {
-			var domId	 	= $(this).attr("id");
-			C_UICOM.makeWeekCalendar(popupId, domId);
-		});
+		var popupWebId = "#" + popupId + " ";
+	    /*====== 달력 =======*/
+	    $(function () {
+	        $(popupWebId + ".datepicker").datepicker({
+	          showOn: "button",
+	          buttonImage: "./img/icon_calendar.png",
+	          buttonImageOnly: true,
+	          buttonText: "Select date",
+	        });
+	    });
 	 }
 	,close	: function(returnData) {
 		var popupId = C_POP.getCurrentPopupId();

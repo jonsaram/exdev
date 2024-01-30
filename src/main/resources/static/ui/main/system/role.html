@@ -191,7 +191,7 @@
 	 		,excelDownload : (title) => {
 				
 				const $tds = $("[name='<@pageId>_tr_0'] td");
-	 			<@pageId>.excelParam["columnOrders"	] = <@pageId>.excelColumnOrder($tds, this);
+	 			<@pageId>.excelParam["columnOrders"	] = <@pageId>.excelColumnOrder($tds, this).filter( item => item !=null );
 	 			<@pageId>.excelParam["downInfo"		] = JSON.stringify({  title : title, menu : "ROLE 관리"});
 	 			<@pageId>.excelParam["requestParm"	] = JSON.stringify(<@pageId>.excelParam.requestParm );
 	 			
@@ -284,7 +284,6 @@
 						<caption>TBL_EXP_ROLE</caption>
 						<colgroup>
 							<col style="width:40px;"/>
-							<col style="width:80px;">
 							<col style="width:100px;"/>
 							<col style="width:80px;"/>
 							<col style="width:110px;"/>
@@ -298,7 +297,6 @@
 						<thead>
 							<tr>
 								<th scope="col"><input type="checkbox" id="<@pageId>_ckAll"></th>
-								<th scope="col">INDEX</th>
 								<th scope="col">ROLE_ID</th>
 								<th scope="col">ROLE_NM</th>
 								<th scope="col">ROLE_DESC</th>
@@ -316,7 +314,6 @@
 				{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}||{{:ROLE_ID}}'>
 					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:ROLE_ID}}'></td>
-					<td id='index'			value='{{:#index}}'			>{{:#index+1}}</td>
  					<td id='ROLE_ID'		value='{{:ROLE_ID}}'		>{{:ROLE_ID}}</td>
  					<td id='ROLE_NM'		value='{{:ROLE_NM}}'		>{{:ROLE_NM}}</td>
  					<td id='ROLE_DESC'		value='{{:ROLE_DESC}}' 		>{{:ROLE_DESC}}</td>
