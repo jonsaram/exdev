@@ -6,34 +6,7 @@ var <@pageId> = {
 		 ,excelParamGrp : {}
 		 ,excelParamCd : {}
 		 ,pageInit : () =>{
-				
-/* 				var grp_multiboxList = [
-					 { 
-						 data : [
-						 		 ["1111", "고객번호"	]
-						 		,["2222", "고객번호1"	]
-						 		,["3333", "고객번호2"	]
-						 		,["4444", "고객명"		]
-						 ]
-					 	,targetId : "<@pageId>_grp_multiSelect" 
-					 }
-				]
-				C_UICOM.makeSelectBox("<@pageId>", grp_multiboxList);
-
-				
-				var cd_multiboxList = [
-					 { 
-						 data : [
-						 		 ["1111", "고객번호"	]
-						 		,["2222", "고객번호1"	]
-						 		,["3333", "고객번호2"	]
-						 		,["4444", "고객명"		]
-						 ]
-					 	,targetId : "<@pageId>_cd_multiSelect" 
-					 }
-				]
-				C_UICOM.makeSelectBox("<@pageId>", cd_multiboxList); */
-				
+			 
 				<@pageId>.showChildInsertBtn(false);
 			 
 		 }
@@ -47,8 +20,8 @@ var <@pageId> = {
 					requestParm["CODE_ID"] 	= obj.CODE_ID;
 			}
 			
-			const grpCodeQuery 	= {queryId 		: "admin.getGrpCodeList"	,requestParm	: requestParm}
-			const codeQuery 	= {queryId 		: "admin.getCodeList"		,requestParm	: requestParm}
+			const grpCodeQuery 	= {queryId 		: "system.getGrpCodeList"	,requestParm	: requestParm}
+			const codeQuery 	= {queryId 		: "system.getCodeList"		,requestParm	: requestParm}
 			const queryGroupAll = {queryGroup : [grpCodeQuery , codeQuery]};
 			const queryGroupGRP = {queryGroup : [grpCodeQuery 			 ]};
 			const queryGroupCD  = {queryGroup : [			   codeQuery ]};
@@ -69,7 +42,7 @@ var <@pageId> = {
 							
 							rparm = {
 									 targetId 		: "grpCodeList"
-									,list			: resultData.data["admin.getGrpCodeList"]
+									,list			: resultData.data["system.getGrpCodeList"]
 							} 
 							C_COM.renderHtml("<@pageId>", rparm);
 							
@@ -78,7 +51,7 @@ var <@pageId> = {
 							
 							rparm = {
 									 targetId 		: "codeList"
-									,list			: resultData.data["admin.getCodeList"]
+									,list			: resultData.data["system.getCodeList"]
 							} 
 							C_COM.renderHtml("<@pageId>", rparm);
 							if( mode == "CD" ){insertBtnShow = true;}
@@ -104,7 +77,7 @@ var <@pageId> = {
 			if( !requestParm["CODE_ID"] 	|| requestParm["CODE_ID"] 		== '')requestParm["CODE_ID"] 		= C_COM.makeUniqueId();
 			
 			var parm = {
-					 queryId 		: <@pageId>.isGrpCodeSection(sectionId) ? "admin.updateGrpCode" :"updateCode"
+					 queryId 		: <@pageId>.isGrpCodeSection(sectionId) ? "system.updateGrpCode" :"updateCode"
 					,requestParm	: requestParm
 			}
 
@@ -125,7 +98,7 @@ var <@pageId> = {
 															: { "GRP_CODE_ID":delKey.GRP_CODE_ID, "CODE_ID": delKey.CODE_ID}
 			
 			var parm = {
-					 queryId 		: <@pageId>.isGrpCodeSection(sectionId) ? "admin.deleteGrpCode" : "admin.deleteCode"
+					 queryId 		: <@pageId>.isGrpCodeSection(sectionId) ? "system.deleteGrpCode" : "system.deleteCode"
 					,requestParm	: requestParm 
 			}
 			C_COM.requestQuery(parm, function(resultData) {

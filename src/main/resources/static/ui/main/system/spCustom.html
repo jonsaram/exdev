@@ -32,7 +32,7 @@
 				
 				const requestParm = {};
 				var parm = {
-						 queryId 		: "admin.getSpCustomerList"
+						 queryId 		: "system.getSpCustomerList"
 						,requestParm	: requestParm
 				}
 				<@pageId>.excelParam = parm;
@@ -57,7 +57,7 @@
 
 				const requestParm = {};
 				var parm = {
-						 queryId 		: "admin.updateSpCustomer"
+						 queryId 		: "system.updateSpCustomer"
 						,requestParm	: requestParm
 				}
 				C_COM.requestQuery(parm, function(resultData) {
@@ -71,7 +71,7 @@
 			,deleteItem : (delKey) => {
 				
 				var parm = {
-						 queryId 		: "admin.deleteSpCustomer"
+						 queryId 		: "system.deleteSpCustomer"
 						,requestParm	: {"SP_CSTM_ID":delKey}
 				}
 				C_COM.requestQuery(parm, function(resultData) {
