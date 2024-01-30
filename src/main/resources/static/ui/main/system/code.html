@@ -333,7 +333,7 @@ var <@pageId> = {
   			}
 		
 			const $tds = $("#"+sectionId + " [name='<@pageId>_tr_0'] td");
-			excelParam["columnOrders"] 		= <@pageId>.excelColumnOrder($tds, this);
+			excelParam["columnOrders"] 		= <@pageId>.excelColumnOrder($tds, this).filter( item => item !=null );
  			excelParam["downInfo"		] 	= JSON.stringify({  title : title, menu : "CODE 관리"});
  			excelParam["requestParm"	] 	= JSON.stringify( excelParam.requestParm );
  			

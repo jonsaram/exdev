@@ -79,6 +79,7 @@
 				, function(retData) {
 					
 					console.log("=> "+ retData.selectedItem +" " + retData.selectedItemNm );
+					$("#<@popupId>_items #ROLE_ID").val(retData.selectedItem )
 					$("#<@popupId>_items #ROLE_NM").val(retData.selectedItemNm )
 					
 				});
@@ -141,7 +142,8 @@
 					<dt>PHONE_NUM</dt>
 					<dd><input type="text"  id="PHONE_NUM"></dd>
 					<dt>ROLE_NM</dt>
-					<dd><input type="text"  id="ROLE_NM" style='width:75%'>
+					<dd><input type="text"  id="ROLE_ID" style='display:none'>
+						<input type="text"  id="ROLE_NM" style='width:75%'>
 						<button type="button" class="btn fr" id="<@popupId>_roleSearch">
 						<i class="icon_download"></i>
 						</button>

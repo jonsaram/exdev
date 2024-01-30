@@ -90,9 +90,10 @@
 							) 	THEN 'Y'
 		        				ELSE 'N'
 		    END AS HAS_CHILD
-	        ,NVL( R.ROLE_ID , 'NO_ROLE' ) AS ROLE_ID 
-	        ,NVL( R.ROLE_NM , 'NO_ROLE' ) AS ROLE_NM
-	        ,NVL( R.ROLE_DESC,'NO_ROLE' ) AS ROLE_DESC
+	        ,R.ROLE_ID 
+	        ,R.ROLE_NM
+	        ,R.ROLE_DESC
+            ,M.AUTH_TYPE
 		FROM ADMIN.TBL_EXP_MENU T
 		,ADMIN.TBL_EXP_MENU P
 		,ADMIN.TBL_EXP_ROLEMENU M
@@ -100,12 +101,10 @@
 		WHERE 1 = 1 
 		AND T.SP_CSTM_ID = P.SP_CSTM_ID(+)
 		AND T.PARENT_MENU_ID = P.MENU_ID(+)
-		AND T.SP_CSTM_ID = M.SP_CSTM_ID(+)
-		AND T.SP_CSTM_ID = R.SP_CSTM_ID(+)
-		AND T.MENU_ID = M.MENU_ID(+)
-		AND R.ROLE_ID = M.ROLE_ID(+)
-		/* 사용자의 권한 입력*/
-		AND R.ROLE_ID = 'r8d19a6919b1835a' /* 시스템 어드민 권한 */ 
+		AND T.SP_CSTM_ID = M.SP_CSTM_ID
+		AND T.SP_CSTM_ID = R.SP_CSTM_ID
+		AND T.MENU_ID = M.MENU_ID
+		AND R.ROLE_ID = M.ROLE_ID
 		
 		<if test=" MENU_NM != null and MENU_NM != '' ">
 		AND T.MENU_NM like '%' || #{MENU_NM} || '%'
@@ -439,19 +438,18 @@
 			,T.DEL_YN
 			,T.UPDATE_USER
 			,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
-	        ,NVL( A.ROLE_ID , 'NO_ROLE' ) AS ROLE_ID 
-	        ,NVL( R.ROLE_NM , 'NO_ROLE' ) AS ROLE_NM
-	        ,NVL( R.ROLE_DESC,'NO_ROLE' ) AS ROLE_DESC
+	        ,A.ROLE_ID  
+	        ,R.ROLE_NM 
+	        ,R.ROLE_DESC
 		FROM ADMIN.TBL_EXP_USER T
         ,ADMIN.TBL_EXP_AUTH A
         ,ADMIN.TBL_EXP_ROLE R
 		WHERE 1 = 1		
-		/* 사용자의 권한 입력*/
-		AND R.ROLE_ID = 'r8d19a6919b1835a' /* 시스템 어드민 권한 */ 
-		AND T.SP_CSTM_ID = A.SP_CSTM_ID(+)
-		AND T.SP_CSTM_ID = R.SP_CSTM_ID(+)
-        AND T.USER_ID = A.USER_ID(+)
-        AND R.ROLE_ID = A.ROLE_ID(+) 
+		AND T.SP_CSTM_ID = A.SP_CSTM_ID
+		AND T.SP_CSTM_ID = R.SP_CSTM_ID
+        AND T.USER_ID = A.USER_ID
+        AND R.ROLE_ID = A.ROLE_ID 
+        ORDER BY T.USER_ID, A.ROLE_ID
 	</select>
 	
 	<update id="updateUser" parameterType="java.util.HashMap"  flushCache="true" >
@@ -521,8 +519,8 @@
 		MERGE INTO ADMIN.TBL_EXP_AUTH T
 		USING (
 		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID
-				#{USER_ID} 	AS USER_ID
-				#{ROLE_ID} 	AS ROLE_ID
+				,#{USER_ID} 	AS USER_ID
+				,#{ROLE_ID} 	AS ROLE_ID
 		  FROM dual
 		) S
 		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
@@ -552,11 +550,20 @@
 		/*	system.getRoleMenuMapList
 			권한매핑 리스트 조회 
 		*/
-		SELECT SP_CSTM_ID 
-		,USER_ID
-		,ROLE_ID
-		FROM ADMIN.TBL_EXP_ROLEMENU T
-		WHERE 1 = 1
+        SELECT RM.SP_CSTM_ID, RM.ROLE_ID, RM.MENU_ID
+        ,M.MENU_NM, M.MENU_DEPTH,M.MENU_DESC
+        ,R.ROLE_NM, R.ROLE_DESC
+        ,DECODE( RM.AUTH_TYPE ,'A','Read/Write','Read') AS AUTH_TYPE_DESC
+        ,RM.AUTH_TYPE
+        /* ,M.* */
+        FROM ADMIN.TBL_EXP_ROLEMENU RM
+        ,ADMIN.TBL_EXP_MENU M
+        ,ADMIN.TBL_EXP_ROLE R
+        WHERE RM.MENU_ID = M.MENU_ID
+        AND RM.ROLE_ID = R.ROLE_ID
+        AND M.USE_YN = 'Y'
+        AND R.USE_YN = 'Y'
+        ORDER BY M.SORT_ORDER
 	</select>
 	
 	<update id="updateRoleMenuMap" parameterType="java.util.HashMap"  flushCache="true" >
@@ -566,8 +573,9 @@
 		MERGE INTO ADMIN.TBL_EXP_ROLEMENU T
 		USING (
 		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID
-				#{ROLE_ID} 	AS ROLE_ID
-				#{MENU_ID} 	AS MENU_ID
+				,#{ROLE_ID} 	AS ROLE_ID
+				,#{MENU_ID} 	AS MENU_ID
+				,#{AUTH_TYPE}	AS AUTH_TYPE
 		  FROM dual
 		) S
 		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
