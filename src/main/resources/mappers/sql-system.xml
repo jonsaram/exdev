@@ -80,7 +80,7 @@
 			,T.UPDATE_USER
 			,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
 			,T.SORT_ORDER
-			,( SELECT TO_NUMBER(MAX(SORT_ORDER)) + 10 FROM ADMIN.TBL_EXP_MENU ) AS NEXT_SORT_ORDER
+			,(  MAX(T.SORT_ORDER) over( PARTITION BY NVL(T.PARENT_MENU_ID,T.MENU_ID ) ) )+10 AS NEXT_SORT_ORDER
 			,CASE  
 				WHEN EXISTS (
 					            SELECT 1 
@@ -559,6 +559,10 @@
         AND R.ROLE_ID = RM.ROLE_ID(+)
         AND M.USE_YN = 'Y' AND M.DEL_YN = 'N'
         AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+		<if test=" ROLE_NM != null and ROLE_NM != '' ">
+		AND R.ROLE_NM = #{ROLE_NM}
+		</if>
+        
         ORDER BY M.SORT_ORDER,R.SORT_ORDER,RM.AUTH_TYPE
 	</select>
 	

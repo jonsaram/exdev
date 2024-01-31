@@ -24,7 +24,6 @@ var <@popupId> = {
 			 })
 			 debugger;
 			 returnData["USE_YN"] 		= <@popupId>.fnRadioCheckValue("USE_YN");
-			 /* returnData["AUTH_TYPE"] 	= <@popupId>.fnRadioCheckValue("AUTH_TYPE"); */
 			 <@popupId>.close(returnData);
 		 }			
 		 ,fnRadioCheckValue : (name , pValue) => {
@@ -57,16 +56,12 @@ var <@popupId> = {
 	  			const useYnVal = param.find(item => item.key === "USE_YN")?.val;
 				<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
 				
-/* 	  			const authTypeVal = param.find(item => item.key === "AUTH_TYPE")?.val;
-				<@popupId>.fnRadioCheckValue("AUTH_TYPE",authTypeVal); */
-
 				$(".<@popupId>_parent_is").show();
 				$(".<@popupId>_no_parent").hide();
 
 			}else{
 				
 				<@popupId>.fnRadioCheckValue("USE_YN","Y");
-				/*  <@popupId>.fnRadioCheckValue("AUTH_TYPE","R");*/
 				
 				$("#<@popupId>_items #SORT_ORDER").val(<@popupId>.nextSortOrder);
 				

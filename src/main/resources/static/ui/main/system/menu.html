@@ -6,6 +6,16 @@ var <@pageId> = {
 			,selectedRow:{}
 			,excelParam : {}
 			,pageInit : () =>{
+				var singleboxList = { 
+						 data : [
+				 		 	 	 ["", "ALL"]
+				 		 	 	,["0", "ROOT MENU"]
+						 		,["1", "DEPTH 1"]
+						 ]
+					 	,targetId : "<@pageId>_selectMenuDept" 
+					}
+					C_UICOM.makeSelectBox(singleboxList, "single");		
+
 			}
 			,setSpCstmId : (dataList) =>{
 				
@@ -14,7 +24,12 @@ var <@pageId> = {
 			}
 			,searchList : () => {
 				
-				const requestParm = {};
+				var selectMenuDept = C_UICOM.getData("<@pageId>_selectMenuDept");
+				
+				if(!selectMenuDept )selectMenuDept ="";
+				
+				const requestParm = { MENU_DEPTH : selectMenuDept };
+
 				var parm = {
 						 queryId 		: "system.getMenuList"
 						,requestParm	: requestParm
@@ -105,11 +120,12 @@ var <@pageId> = {
 													  PARNET_MENU_ID	:	$("#<@pageId>_prmPARENT_MENU_ID").val()
 													 ,PARNET_MENU_NM	:	$("#<@pageId>_prmPARENT_MENU_NM").val()
 													 ,MENU_DEPTH		:	+<@pageId>.selectedRow["MENU_DEPTH"]				
+													 ,SORT_ORDER		:	+<@pageId>.selectedRow["NEXT_SORT_ORDER"]				
 													}
 							}, function(retData) {
 								
 									if(isValid(retData)){
-				debugger;
+
 										<@pageId>.updateItem(retData);
 										
 									}
@@ -321,12 +337,12 @@ td {
 				<button type="button" class="btn fl" id="<@pageId>_search">조회</button>
 				
 				<div class="search_inputWrap" style='margin-left:10px;'>
-					<!-- <input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button> -->
 				
 				PARENT_MENU_ID : <input type="search" id="<@pageId>_prmPARENT_MENU_ID" disabled style='width:200px;'>
 				PARENT_MENU_NM : <input type="search" id="<@pageId>_prmPARENT_MENU_NM" disabled style='width:200px;'>
 				</div>
 
+				 <div  class="select_box fl" id="<@pageId>_selectMenuDept" style="width:130px"></div>
 			</div>
 
 			<div class="search_right">

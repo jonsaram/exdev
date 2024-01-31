@@ -5,35 +5,26 @@
 			 ,excelParam : {}
 			 ,pageInit : () =>{
 					
-				var multiboxList = { 
-						 data : [
-						 		 ["1111", "고객번호"	]
-						 		,["2222", "고객번호1"	]
-						 		,["3333", "고객번호2"	]
-						 		,["4444", "고객명"		]
-						 ]
-					 	,targetId : "<@pageId>_multiSelect" 
-					}
-					C_UICOM.makeSelectBox("<@pageId>", multiboxList, "multi");	
-				
 				var singleboxList = { 
 						 data : [
-						 		 ["1111", "고객번호"	]
-						 		,["2222", "고객번호1"	]
-						 		,["3333", "고객번호2"	]
-						 		,["4444", "고객명"		]
+					 		 	 ["RL_SYSADMIN", "시스템관리자 권한"]
+						 		,["RL_MANAGER", "관리자 권한"	]
+						 		,["RL_CUSTOMER", "고객 권한"	]
 						 ]
-					 	,targetId : "<@pageId>_selectBoxId" 
+					 	,targetId : "<@pageId>_selectRoleId" 
 					}
-					C_UICOM.makeSelectBox(singleboxList, "single");				
-				 
+					C_UICOM.makeSelectBox(singleboxList, "single");		
+				
 			 }
 			,setSpCstmId : (dataList) =>{
 				if( dataList && dataList.length > 0 && G_VAL.SP_CSTM_ID=="")G_VAL.SP_CSTM_ID = dataList[0].SP_CSTM_ID;
 			}
 			,searchList : () => {
+				var selectRoleId = C_UICOM.getData("<@pageId>_selectRoleId");
 				
-				const requestParm = {};
+				if(!selectRoleId )selectRoleId ="RL_SYSADMIN";
+				
+				const requestParm = { ROLE_NM : selectRoleId };
 				var parm = {
 						 queryId 		: "system.getRoleMenuMapList"
 						,requestParm	: requestParm
@@ -150,6 +141,10 @@
 					<@pageId>.deleteOne(key);
 			    })
 			    
+			    $("#<@pageId>_search").click( () =>{
+			    	<@pageId>.searchList();
+			    })
+			    
 			}
 			,chkHandler : () => {
 				
@@ -174,20 +169,6 @@
 			    });
 			    
 			}	
-			,getSingleBoxData : function() {
-
-				var selectBoxVal = C_UICOM.getData("<@pageId>_selectBoxId");
-				
-				dalert(selectBoxVal);
-
-			}	
-			,getMultiSelectBoxData : function() {
-
-				var selectBoxVal = C_UICOM.getData("<@pageId>_multiSelect");
-				
-				dalert(selectBoxVal);
-
-			}
 	 		,excelDownload : (title) => {
 				
 				const $tds = $("[name='<@pageId>_tr_0'] td");
@@ -267,7 +248,8 @@
 						<!-- <div style="width:200px;" id="<@pageId>_multiSelect"></div> -->
 
 						<div class="search_inputWrap">
-							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+<!-- 							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button> -->
+							<div  class="select_box fl" id="<@pageId>_selectRoleId" style="width:200px"></div>
 						</div>
 					</div>
 
@@ -275,7 +257,6 @@
 						<!-- <button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button> -->
 						<button type="button" class="btn fl"  id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
 						<!-- 싱글 선택 -->
-						<div  class="select_box fl" id="<@pageId>_selectBoxId" style="width:200px"></div>
 						<!-- <input type=button value="읽기" onclick="<@pageId>.getSingleBoxData()"/> -->
 		            </div>
 				</div>
