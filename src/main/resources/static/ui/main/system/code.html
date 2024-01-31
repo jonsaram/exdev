@@ -3,6 +3,7 @@
 var <@pageId> = {
 		 checkedItems : { GRP: [], CD: [] }
 		 ,selectedGrpCd : {GRP_CODE_ID:'', GRP_CODE_NM:''}
+		 ,selectedRow:{}
 		 ,excelParamGrp : {}
 		 ,excelParamCd : {}
 		 ,pageInit : () =>{
@@ -64,7 +65,7 @@ var <@pageId> = {
 					}else{
 						alert(resultData.msg)
 					}
-
+					<@pageId>.checkedItems = [];
 					<@pageId>.showChildInsertBtn(insertBtnShow);
 			});
 			
@@ -114,8 +115,15 @@ var <@pageId> = {
 		, deleteOne : (sectionId, key) =>{
 
 			const delObj = {}
-			delObj["GRP_CODE_ID"] = key.split("||")[0];
-			delObj["CODE_ID"	] = key.split("||")[1];
+			
+			if( <@pageId>.isGrpCodeSection(sectionId) ){
+				delObj["GRP_CODE_ID"] = key; 
+			}
+			else{
+				delObj["GRP_CODE_ID"] = key["GRP_CODE_ID"];
+				delObj["CODE_ID"	] = key["CODE_ID"];
+			}
+			
    			<@pageId>.deleteItem(sectionId,delObj)
    		
 		}		
@@ -134,7 +142,10 @@ var <@pageId> = {
 					, {	  sectionId:sectionId.replace("<@pageId>_", "")
 						, selectedGrpCd: <@pageId>.selectedGrpCd
 						, param:param
-						, "nextSortOrder":<@pageId>.getNextSortOrder(sectionId)
+						, nextSortOrder:<@pageId>.getNextSortOrder(sectionId)
+						, parentCode 	:	{
+											 SORT_ORDER		:	+<@pageId>.selectedRow["NEXT_SORT_ORDER"]				
+											}						
 					}
 			, function(retData) {
 				
@@ -146,44 +157,80 @@ var <@pageId> = {
 		}
 		,setHandler : () => {
 			 
-		    $("[name='<@pageId>_insert']").click(function(){
+		    $("[name='<@pageId>_insert']").off().on("click",function(){
 
 		    	const sectionId = $(this).closest("section").attr("id");
-		    	if( <@pageId>.isGrpCodeSection(sectionId) )<@pageId>.selectedGrpCd= {GRP_CODE_ID:'', GRP_CODE_NM:''};
+		    	
+		    	if( <@pageId>.isGrpCodeSection(sectionId) ){
+		    		
+		    		<@pageId>.selectedGrpCd= {GRP_CODE_ID:'', GRP_CODE_NM:''};
+		    		
+		    	}
 				<@pageId>.openPopup(sectionId);
 
 		    })
 		    
-		    $("[name='<@pageId>_delete']").click(function(){
-		    	
+		    $("[name='<@pageId>_delete']").off().on("click",function(){
+			    //$("#<@pageId>_code_section [id='<@pageId>_delete']").off().on("click",function(){
+
+		        event.stopPropagation();
+		        event.preventDefault();
+		        
 		    	const sectionId = $(this).closest("section").attr("id");
-		    	const checkedItems = <@pageId>.isGrpCodeSection(sectionId) ? <@pageId>.checkedItems["GRP"] : <@pageId>.checkedItems["CD"]
-		    	checkedItems.forEach( key =>{
-		    		let newKey = key;
-		    		if( <@pageId>.isGrpCodeSection(sectionId) ){
-		    			newKey = key.GRP_CODE_ID+ "||" + key.CODE_ID;
+		    	if( <@pageId>.isGrpCodeSection(sectionId) ){
+		    		
+		    		let codeCnt = 0;
+		    		$("#grpCodeList td[id='TBL_EXP_CODE_CNT']").each(function(){
+		    		    
+		    			codeCnt += +$(this).attr("value")
+		    		});
+		    		if( codeCnt > 0 ){
+		    			alert("TBL_EXP_CODE 데이터를 먼저 삭제하신 후 GRP CODE를 삭제할 수 있습니다.");
+		    			return;
 		    		}
-					<@pageId>.deleteOne(sectionId,newKey);
+		    	
+		    	}
+		    	
+		    	const checkedItems = <@pageId>.isGrpCodeSection(sectionId) ? <@pageId>.checkedItems["GRP"] : <@pageId>.checkedItems["CD"]
+
+		    	checkedItems.forEach( (key,idx) =>{
+		    		
+					<@pageId>.deleteOne(sectionId,key);
+					
 		    	})
 		    	
 		    })
 		    
-		    $("[id^='<@pageId>_delete_']").click(function(){
-
+		    $("[id^='<@pageId>_delete_']").off().on("click",function(){
+		    	
 		    	const sectionId = $(this).closest("section").attr("id");
-		    	const key = $(this).attr("key");
+		    	let key = $(this).attr("key");
+		    	
 		    	if( <@pageId>.isGrpCodeSection(sectionId) ){
+		    		
 		    		const tbl_exp_code_CNT = +$(this).parent().siblings("#TBL_EXP_CODE_CNT").attr("value");
+		    		
 		    		if( tbl_exp_code_CNT > 0){
+		    			
 		    			alert("TBL_EXP_CODE 데이터를 먼저 삭제하신 후 GRP CODE를 삭제할 수 있습니다.");
 			    		return;
+			    		
 		    		}
+		    		
+		    	}else{
+		    		
+		    		 const newKey = key.split("||");
+		    		 key=[];
+		    		 key["GRP_CODE_ID"] = newKey[0];
+		    		 key["CODE_ID"] 	= newKey[1];
+		    		 
 		    	}
-				<@pageId>.deleteOne(sectionId,key);
+		    	
+				<@pageId>.deleteOne(sectionId,key, true);
 				
 		    })
 		    
-		    $("[id^='<@pageId>_modify_']").click(function(){
+		    $("[id^='<@pageId>_modify_']").off().on("click",function(){
 
 		    	const sectionId = $(this).closest("section").attr("id");
 		    	const index = $(this).attr("index");
@@ -192,7 +239,7 @@ var <@pageId> = {
 				
 		    })
 		    
-		    $("[name='<@pageId>_excelDownload']").click(function(){
+		    $("[name='<@pageId>_excelDownload']").off().on("click",function(){
 		    	
 		    	const sectionId = $(this).closest("section").attr("id");
 		    	if( <@pageId>.isGrpCodeSection(sectionId) ){
@@ -205,7 +252,7 @@ var <@pageId> = {
 		    	}
 		    })
 		    
-		    $("[name^='<@pageId>_tr']").click(function(e){
+		    $("[name^='<@pageId>_tr']").off().on("click",function(e){
 
 		        if( $(e.target).attr("id").indexOf("<@pageId>_ck_") < 0){
 
@@ -218,10 +265,21 @@ var <@pageId> = {
 						<@pageId>.showChildInsertBtn(true);
 			    	}
 			    	
+			    	$.each( $(this).children() , function(){
+			    		
+			    		const key 	= $(this).attr("id"); 
+			    		const tdVal = $(this).attr("value");
+			    		
+			    		if( tdVal ){
+			    			
+			    			<@pageId>.selectedRow[key] = tdVal;
+			    		}
+			    	});
+			    	
 		        }
 		    })
 		    
-		    $("#<@pageId>_search").click( () =>{
+		    $("#<@pageId>_search").off().on("click", () =>{
 		    	<@pageId>.searchList();
 		    })
 		    
@@ -230,7 +288,7 @@ var <@pageId> = {
 		}
 		,chkHandler : () => {
 			
-		    $("[name='<@pageId>_ckAll']").click(function() {
+		    $("[name='<@pageId>_ckAll']").off().on("click",function() {
 			   	
 		    	const sectionId = $(this).closest("section").attr("id");
 		    	const gubun =  <@pageId>.isGrpCodeSection(sectionId) ? "grp" : "cd"  ;
@@ -254,7 +312,7 @@ var <@pageId> = {
 			    
 		    });
 		    
-		    $("[id^='<@pageId>_ck_grp_']").click(function(){
+		    $("[id^='<@pageId>_ck_grp_']").off().on("click",function(){
 		    	
 		    	const sectionId = $(this).closest("section").attr("id");
 		    	
@@ -277,7 +335,7 @@ var <@pageId> = {
 		        
 		    })
 		    
-		    $("[id^='<@pageId>_ck_cd_']").click(function(){
+		    $("[id^='<@pageId>_ck_cd_']").off().on("click",function(){
 		    	
 		    	const sectionId = $(this).closest("section").attr("id");
 		    	
@@ -303,9 +361,8 @@ var <@pageId> = {
 		
 		}
 		,getNextSortOrder : (sectionId) =>{
-
-			if( <@pageId>.isGrpCodeSection(sectionId) )	return $("#"+sectionId+" [name='<@pageId>_tr_0'] #NEXT_SORT_ORDER").attr("value");
-			else return $("#"+sectionId+" [name='<@pageId>_tr_0'] #NEXT_SORT_ORDER").attr("value");
+			const nextsortorder = +$("#"+sectionId+" [name='<@pageId>_tr_0'] #NEXT_SORT_ORDER").attr("value");
+			return !nextsortorder ? 10: nextsortorder;
 			
 		}
 		,isGrpCodeSection : (sectionId) =>{
