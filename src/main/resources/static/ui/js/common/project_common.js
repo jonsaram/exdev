@@ -840,14 +840,7 @@ var C_UICOM = {
 		var viewTargetId = viewId + targetId;
         var $open_ul = $(pageWebUl);
         $($open_ul).find("input[type=radio]").on("click", function(){
-            var $var = $( this ).next().text();
-            $( this ).parent().parent().prev().children().text( $var );
-            $( this ).parent().parent().prev().children().addClass( "active" );
-            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
-            $( this ).parent().parent().addClass("viewHide");
-			var valList = $(this).val();
-
-			C_UICOM.dataListMap[viewTargetId] = valList;
+			C_UICOM.setDataSingleBox(this);
         });
         $($open_ul).find("input[type=radio]").on("focus", function(){
             var $var = $( this ).next().text();
@@ -859,7 +852,25 @@ var C_UICOM = {
             $( this ).parent().parent().prev().children().removeClass( "active" );
         });
 	 }
+	,setSingleBox : function(targetId, val) {
+		var viewId = C_COM.getCurrentViewId();
+		var viewWebId = "#" + viewId + " #" + targetId + " ";
+		
+		$(viewWebId + " input[value='" + val + "']").each(function(){
+			C_UICOM.setDataSingleBox(this);
+			return false;
+		});
+	 }
+	,setDataSingleBox : function(dom) {
+        var $var = $( dom ).next().text();
+        $( dom ).parent().parent().prev().children().text( $var );
+        $( dom ).parent().parent().prev().children().addClass( "active" );
+        $(dom).next().addClass("active"); $(dom).parent().siblings().find("label").removeClass("active");
+        $( dom ).parent().parent().addClass("viewHide");
+		var valList = $(dom).val();
 
+		C_UICOM.dataListMap[viewTargetId] = valList;
+	 }
 	,initMultiBox : function(targetId) {
 
 		var viewId = C_COM.getCurrentViewId();
@@ -894,6 +905,16 @@ var C_UICOM = {
 		
 		$(pageWebId + " .hida").html(viewtext);
 		C_UICOM.dataListMap[viewTargetId] = valList;
+	 }
+	,setMultiBox : function(targetId, valList) {
+		var viewId = C_COM.getCurrentViewId();
+		var viewWebId = "#" + viewId + " #" + targetId + " ";
+		
+		if(typeof valList == "string") valList = [valList]
+		$.each(valList, function() {
+			$(viewWebId + " input[value='" + this + "']").prop("checked", true);
+		});
+		C_UICOM.clickMultiBox(targetId);
 	 }
 }
 
