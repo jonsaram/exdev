@@ -14,7 +14,16 @@ var <@pageId> = {
 						 ]
 					 	,targetId : "<@pageId>_selectMenuDept" 
 					}
-					C_UICOM.makeSelectBox(singleboxList, "single");		
+					C_UICOM.makeSelectBox(singleboxList, "single");	
+				var singleDeletedYnList = { 
+						 data : [
+						 		 ["N","NOT DELETE"]
+				 		 	 	,["", "ALL"]
+				 		 	 	,["Y","DELTED"]
+						 ]
+					 	,targetId : "<@pageId>_selectDelYn" 
+					}
+					C_UICOM.makeSelectBox(singleDeletedYnList, "single");		
 
 			}
 			,setSpCstmId : (dataList) =>{
@@ -28,7 +37,11 @@ var <@pageId> = {
 				
 				if(!selectMenuDept )selectMenuDept ="";
 				
-				const requestParm = { MENU_DEPTH : selectMenuDept };
+				var selectDeleted = C_UICOM.getData("<@pageId>_selectDelYn");
+				
+				if(!selectDeleted )selectDeleted ="";
+				
+				const requestParm = { MENU_DEPTH : selectMenuDept , DEL_YN :selectDeleted };
 
 				var parm = {
 						 queryId 		: "system.getMenuList"
@@ -334,18 +347,21 @@ td {
 			<!-- 멀티 선택 -->
 			<div class="fl">
 				<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
-				<button type="button" class="btn fl" id="<@pageId>_search">조회</button>
+				<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
+				<div  class="select_box fl" id="<@pageId>_selectDelYn" style="width:130px;margin-left:10px;"></div>
 				
 				<div class="search_inputWrap" style='margin-left:10px;'>
 				
 				PARENT_MENU_ID : <input type="search" id="<@pageId>_prmPARENT_MENU_ID" disabled style='width:200px;'>
 				PARENT_MENU_NM : <input type="search" id="<@pageId>_prmPARENT_MENU_NM" disabled style='width:200px;'>
+				
 				</div>
 
-				 <div  class="select_box fl" id="<@pageId>_selectMenuDept" style="width:130px"></div>
+				 <div  class="select_box fl" id="<@pageId>_selectMenuDept" style="width:130px;margin-left:10px;"></div>
 			</div>
 
 			<div class="search_right">
+			
 				<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button>
 				<button type="button" class="btn fl"  id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
             </div>

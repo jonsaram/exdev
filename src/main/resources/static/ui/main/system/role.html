@@ -4,36 +4,29 @@
 			 checkedItems : []
 			 ,excelParam : {}
 			 ,pageInit : () =>{
-					
-				var multiboxList = { 
-						 data : [
-						 		 ["1111", "고객번호"	]
-						 		,["2222", "고객번호1"	]
-						 		,["3333", "고객번호2"	]
-						 		,["4444", "고객명"		]
-						 ]
-					 	,targetId : "<@pageId>_multiSelect" 
-					}
-					C_UICOM.makeSelectBox("<@pageId>", multiboxList, "multi");	
-				
-				var singleboxList = { 
-						 data : [
-						 		 ["1111", "고객번호"	]
-						 		,["2222", "고객번호1"	]
-						 		,["3333", "고객번호2"	]
-						 		,["4444", "고객명"		]
-						 ]
-					 	,targetId : "<@pageId>_selectBoxId" 
-					}
-					C_UICOM.makeSelectBox("<@pageId>", singleboxList, "single");				
 				 
+				var singleDeletedYnList = { 
+						 data : [
+						 		 ["N","NOT DELETE"]
+				 		 	 	,["", "ALL"]
+				 		 	 	,["Y","DELTED"]
+						 ]
+					 	,targetId : "<@pageId>_selectDelYn" 
+				}
+				C_UICOM.makeSelectBox(singleDeletedYnList, "single");
+					
 			 }
 			,setSpCstmId : (dataList) =>{
 				if( dataList && dataList.length > 0 && G_VAL.SP_CSTM_ID=="")G_VAL.SP_CSTM_ID = dataList[0].SP_CSTM_ID;
 			}
 			,searchList : () => {
 				
-				const requestParm = {};
+				var selectDeleted = C_UICOM.getData("<@pageId>_selectDelYn");
+				
+				if(!selectDeleted )selectDeleted ="";
+				
+				const requestParm = { DEL_YN :selectDeleted };
+				
 				var parm = {
 						 queryId 		: "system.getRoleList"
 						,requestParm	: requestParm
@@ -150,6 +143,10 @@
 					<@pageId>.deleteOne(key);
 			    })
 			    
+				$("#<@pageId>_search").click( () =>{
+			    	<@pageId>.searchList();
+			    })
+			    
 			}
 			,chkHandler : () => {
 				
@@ -174,20 +171,6 @@
 			    });
 			    
 			}	
-			,getSingleBoxData : function() {
-
-				var selectBoxVal = C_UICOM.getData("<@pageId>_selectBoxId");
-				
-				dalert(selectBoxVal);
-
-			}	
-			,getMultiSelectBoxData : function() {
-
-				var selectBoxVal = C_UICOM.getData("<@pageId>_multiSelect");
-				
-				dalert(selectBoxVal);
-
-			}
 	 		,excelDownload : (title) => {
 				
 				const $tds = $("[name='<@pageId>_tr_0'] td");
@@ -260,8 +243,8 @@
 					<!-- 멀티 선택 -->
 					<div class="fl">
 						<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
-						<button type="button" class="btn fl" id="<@pageId>_search">조회</button>
-
+						<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
+						<div  class="select_box fl" id="<@pageId>_selectDelYn" style="width:130px;margin-left:10px;"></div>
 
 						<div class="search_inputWrap">
 							<div style="width:200px;" id="<@pageId>_multiSelect"></div>

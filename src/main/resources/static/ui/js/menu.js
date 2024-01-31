@@ -10,7 +10,7 @@ function setMenu()
 	    if (xhr.readyState == 4 && xhr.status == 200) {
 	
 	        var responseData = JSON.parse(xhr.responseText).data;
-	        let dept1_menuTemplate = [];
+	        let gnbMenuTemplate = [];
 	        let active 			=  "active";
 	        let lnb_active		=  "active";
 			let	index			= 0;
@@ -23,7 +23,7 @@ function setMenu()
 	        	if( Number(depth) == 0){
 	        		
 					let template = `<li class=${active} id="LI_${menu.MENU_ID}"><a href="javascript:detpth2MenuShow('${menu.MENU_ID}','${menu.MENU_DESC}');">${menu.MENU_DESC}</a></li>`  ;
-					dept1_menuTemplate.push(template);
+					gnbMenuTemplate.push(template);
 					active="deactive";
 					if(index == 0){parentMenu=menu;index++;}
 					lnb_active	=  "active";
@@ -45,7 +45,7 @@ function setMenu()
 				
 	        })
 	        
-			$("#depth1_MenuList").html(dept1_menuTemplate.join('')) ;
+			$("#gnb_MenuList").html(gnbMenuTemplate.join('')) ;
 
 	        const lnbHtml = make2ndLnbMenu( parentMenu.MENU_ID, parentMenu.MENU_DESC);
 			$("#lnb_MenuList").html(lnbHtml) ;

@@ -95,7 +95,6 @@
 		WHERE 1 = 1 
 		AND T.SP_CSTM_ID = P.SP_CSTM_ID(+)
 		AND T.PARENT_MENU_ID = P.MENU_ID(+)
-		AND T.DEL_YN = 'N'
 		<if test=" MENU_NM != null and MENU_NM != '' ">
 		AND T.MENU_NM like '%' || #{MENU_NM} || '%'
 		</if>
@@ -113,6 +112,9 @@
 		</if>
 		<if test="USE_YN != null and USE_YN != '' ">
 		AND T.USE_YN = #{USE_YN}
+		</if>
+		<if test=" DEL_YN != null and DEL_YN != '' ">
+		AND T.DEL_YN = #{DEL_YN}
 		</if>
 		<if test=" SORT_ORDER != null and SORT_ORDER != '' ">
 		AND T.SORT_ORDER = #{SORT_ORDER}
@@ -368,6 +370,10 @@
 		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
 		FROM ADMIN.TBL_EXP_ROLE T
 		WHERE 1 = 1
+		<if test=" DEL_YN != null and DEL_YN != '' ">
+		AND T.DEL_YN = #{DEL_YN}
+		</if>
+		
 		ORDER BY SORT_ORDER
 	</select>
 	
@@ -442,6 +448,9 @@
 		AND T.SP_CSTM_ID = R.SP_CSTM_ID
         AND T.USER_ID = A.USER_ID
         AND R.ROLE_ID = A.ROLE_ID 
+		<if test=" DEL_YN != null and DEL_YN != '' ">
+		AND T.DEL_YN = #{DEL_YN}
+		</if>
         ORDER BY T.USER_ID, A.ROLE_ID
 	</select>
 	
@@ -485,7 +494,8 @@
 		/*	system.deleteUser
 			User 삭제
 		*/
-		DELETE FROM ADMIN.TBL_EXP_USER 
+		UPDATE ADMIN.TBL_EXP_USER
+		SET DEL_YN = 'Y' 
 		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
 		AND	  USER_ID	 = #{USER_ID}
 	</delete>

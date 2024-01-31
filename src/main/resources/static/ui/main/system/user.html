@@ -5,27 +5,15 @@
 	 		 ,excelParam : {}
 			 ,pageInit : () =>{
 					
-				var multiboxList = { 
+				var singleDeletedYnList = { 
 						 data : [
-						 		 ["1111", "고객번호"	]
-						 		,["2222", "고객번호1"	]
-						 		,["3333", "고객번호2"	]
-						 		,["4444", "고객명"		]
+						 		 ["N","NOT DELETE"]
+				 		 	 	,["", "ALL"]
+				 		 	 	,["Y","DELTED"]
 						 ]
-					 	,targetId : "<@pageId>_multiSelect" 
-					}
-					C_UICOM.makeSelectBox("<@pageId>", multiboxList, "multi");	
-				
-				var singleboxList = { 
-						 data : [
-						 		 ["1111", "고객번호"	]
-						 		,["2222", "고객번호1"	]
-						 		,["3333", "고객번호2"	]
-						 		,["4444", "고객명"		]
-						 ]
-					 	,targetId : "<@pageId>_selectBoxId" 
-					}
-					C_UICOM.makeSelectBox("<@pageId>", singleboxList, "single");				
+					 	,targetId : "<@pageId>_selectDelYn" 
+				}
+				C_UICOM.makeSelectBox(singleDeletedYnList, "single");
 				 
 			 }
 			,setSpCstmId : (dataList) =>{
@@ -33,7 +21,11 @@
 			}
 			,searchList : () => {
 				
-				const requestParm = {};
+				var selectDeleted = C_UICOM.getData("<@pageId>_selectDelYn");
+				
+				if(!selectDeleted )selectDeleted ="";
+				
+				const requestParm = { DEL_YN :selectDeleted };
 				var parm = {
 						 queryId 		: "system.getUserList"
 						,requestParm	: requestParm
@@ -168,6 +160,10 @@
 					
 			    })
 			    
+				$("#<@pageId>_search").click( () =>{
+			    	<@pageId>.searchList();
+			    })
+			    
 			}
 			,chkHandler : () => {
 				
@@ -191,20 +187,6 @@
 			        
 			    });
 			    
-			}
-			,getSingleBoxData : function() {
-
-				var selectBoxVal = C_UICOM.getData("<@pageId>_selectBoxId");
-				
-				dalert(selectBoxVal);
-
-			}	
-			,getMultiSelectBoxData : function() {
-
-				var selectBoxVal = C_UICOM.getData("<@pageId>_multiSelect");
-				
-				dalert(selectBoxVal);
-
 			}
 	 		,excelDownload : (title) => {
 				
@@ -281,11 +263,10 @@
 					<!-- 멀티 선택 -->
 					<div class="fl">
 						<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
+						<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
+						<div  class="select_box fl" id="<@pageId>_selectDelYn" style="width:130px;margin-left:10px;"></div>
 
-						<!-- <div style="width:200px;" id="<@pageId>_multiSelect"></div> -->
-						<!-- <input type=button value="읽기" onclick="<@pageId>.getMultiSelectBoxData()"/> -->
 						<div class="search_inputWrap">
-							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
 						</div>
 					</div>
 
