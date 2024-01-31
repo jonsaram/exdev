@@ -251,22 +251,20 @@
 	});
 </script>
 <div class="cont_wrap">
-
-
 			<div class="cont_top">
 				<h2><i class="icon_bullet"></i>TBL_EXP_ROLE</h2>
 			</div>
-			<section class="sec_wrap">
+			<section class="sec_wrap list" style="height:calc(100% - 43px);">
 				<!-- search area -->
 				<div class="search_area mt0">
 					<!-- 멀티 선택 -->
 					<div class="fl">
 						<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
+						<button type="button" class="btn fl" id="<@pageId>_search">조회</button>
 
-						<div style="width:200px;" id="<@pageId>_multiSelect"></div>
 
 						<div class="search_inputWrap">
-							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+							<div style="width:200px;" id="<@pageId>_multiSelect"></div>
 						</div>
 					</div>
 
@@ -279,7 +277,8 @@
 		            </div>
 				</div>
 				<!-- 테이블 -->
-				<div class="tbl01 col tbl_scroll">
+				<div class="tbl01 col tbl_scroll" style="max-height:506px;">
+					<div class="tbl01 col tbl_head">
 					<table>
 						<caption>TBL_EXP_ROLE</caption>
 						<colgroup>
@@ -308,20 +307,37 @@
 								<th scope="col"></th>
 							</tr>
 						</thead>
+					</table>
+					</div>
+<!--  -->				
+					<div class="tbl01 col tbl_body_scroll">
+					<table>
+						<colgroup>
+						<col style="width:40px;"/>
+						<col style="width:100px;"/>
+						<col style="width:80px;"/>
+						<col style="width:110px;"/>
+						<col style="width:80px;"/>
+						<col style="width:100px;"/>
+						<col style="width:100px;"/>
+						<col style="width:100px;"/>
+						<col style="width:100px;"/>
+						<col style="width:80px;"/>
+						</colgroup>
 						<tbody  id="userRoleList">
 						</tbody>
 <script type="text/x-jsrender" id="userRoleList_template">	
 				{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}||{{:ROLE_ID}}'>
 					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:ROLE_ID}}'></td>
- 					<td id='ROLE_ID'		value='{{:ROLE_ID}}'		>{{:ROLE_ID}}</td>
- 					<td id='ROLE_NM'		value='{{:ROLE_NM}}'		>{{:ROLE_NM}}</td>
- 					<td id='ROLE_DESC'		value='{{:ROLE_DESC}}' 		>{{:ROLE_DESC}}</td>
- 					<td id='USE_YN'			value='{{:USE_YN}}'			>{{:USE_YN}}</td>
- 					<td id='DEL_YN' 		value='{{:DEL_YN}}'			>{{:DEL_YN}}</td>
- 					<td id='SORT_ORDER'		value='{{:SORT_ORDER}}' 	>{{:SORT_ORDER}}</td>
- 					<td id='UPDATE_USER'	value='{{:UPDATE_USER}}' 	>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
+ 					<td id='ROLE_ID'		value='{{:ROLE_ID}}'		style="text-align:left">{{:ROLE_ID}}</td>
+ 					<td id='ROLE_NM'		value='{{:ROLE_NM}}'		style="text-align:left">{{:ROLE_NM}}</td>
+ 					<td id='ROLE_DESC'		value='{{:ROLE_DESC}}' 		style="text-align:left">{{:ROLE_DESC}}</td>
+ 					<td id='USE_YN'			value='{{:USE_YN}}'			style="text-align:center">{{:USE_YN}}</td>
+ 					<td id='DEL_YN' 		value='{{:DEL_YN}}'			style="text-align:center">{{:DEL_YN}}</td>
+ 					<td id='SORT_ORDER'		value='{{:SORT_ORDER}}' 	style="text-align:center">{{:SORT_ORDER}}</td>
+ 					<td id='UPDATE_USER'	value='{{:UPDATE_USER}}' 	style="text-align:left">{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	style="text-align:left">{{:UPDATE_DATE}}</td>
  					<td><button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
 						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:ROLE_ID}}'><i class="icon_trash"></i></button>
 					</td>
@@ -334,6 +350,7 @@
 				</tr>
 </script>
 					</table>
+					</div>
 				</div>
 				<!-- paging -->
 				<div class="paging">

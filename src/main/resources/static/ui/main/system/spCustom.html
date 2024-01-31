@@ -206,12 +206,10 @@
 	});
 </script>
 <div class="cont_wrap">
-
-
 			<div class="cont_top">
 				<h2><i class="icon_bullet"></i>TBL_EXP_SP_CSTM</h2>
 			</div>
-			<section class="sec_wrap">
+			<section class="sec_wrap list" style="height:calc(100% - 43px);">
 				<!-- search area -->
 				<div class="search_area mt0">
 					<!-- 멀티 선택 -->
@@ -234,7 +232,8 @@
 		            </div>
 				</div>
 				<!-- 테이블 -->
-				<div class="tbl01 col tbl_scroll">
+				<div class="tbl01 col tbl_scroll" style="max-height:506px;">
+					<div class="tbl01 col tbl_head">
 					<table>
 						<caption>TBL_EXP_SP_CSTM</caption>
 						<colgroup>
@@ -259,8 +258,25 @@
 								<th scope="col">UPDATE_DATE</th>
 							</tr>
 						</thead>
-						<tbody  id="spCustomerList">
-						</tbody>
+					</table>
+				</div>
+		
+<!--  -->					
+				<div class="tbl01 col tbl_body_scroll">
+				<table>
+					<colgroup>
+							<col style="width:40px;"/>
+							<col style="width:80px;">
+							<col style="width:100px;"/>
+							<col style="width:80px;"/>
+							<col style="width:110px;"/>
+							<col style="width:80px;"/>
+							<col style="width:100px;"/>
+							<col style="width:100px;"/>
+					</colgroup>
+			
+				<tbody  id="spCustomerList">
+				</tbody>
 <script type="text/x-jsrender" id="spCustomerList_template">	
 				{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}'>

@@ -275,14 +275,14 @@
 			<div class="cont_top">
 				<h2><i class="icon_bullet"></i>TBL_EXP_USER</h2>
 			</div>
-			<section class="sec_wrap">
+			<section class="sec_wrap list" style="height:calc(100% - 43px);">
 				<!-- search area -->
 				<div class="search_area mt0">
 					<!-- 멀티 선택 -->
 					<div class="fl">
 						<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 
-						<div style="width:200px;" id="<@pageId>_multiSelect"></div>
+						<!-- <div style="width:200px;" id="<@pageId>_multiSelect"></div> -->
 						<!-- <input type=button value="읽기" onclick="<@pageId>.getMultiSelectBoxData()"/> -->
 						<div class="search_inputWrap">
 							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
@@ -298,7 +298,8 @@
 		            </div>
 				</div>
 				<!-- 테이블 -->
-				<div class="tbl01 col tbl_scroll">
+				<div class="tbl01 col tbl_scroll" style="max-height:506px;">
+					<div class="tbl01 col tbl_head">
 					<table>
 						<caption>TBL_EXP_USER</caption>
 						<colgroup>
@@ -335,6 +336,29 @@
 								<th scope="col"></th>
 							</tr>
 						</thead>
+					</table>
+				</div>
+				
+<!--  -->					
+					<div class="tbl01 col tbl_body_scroll">
+						<table>
+						<colgroup>
+							<col style="width:30px;"/>
+							<col style="width:80px;"/>
+							<col style="width:80px;"/>
+							<col style="width:100px;"/>
+							<col style="width:90px;"/>
+							
+							<col style="width:70px;"/>
+							<col style="width:40px;"/>
+							<col style="width:40px;"/>
+							<col style="width:100px;"/>
+							
+							<col style="width:80px;"/>
+							<col style="width:80px;"/>
+							<col style="width:75px;"/>
+						</colgroup>
+						
 						<tbody  id="userList">
 						</tbody>
 <script type="text/x-jsrender" id="userList_template">	
@@ -361,11 +385,12 @@
 </script>
 <script type="text/x-jsrender" id="userList_noData_template">	
 				<tr>	
-					<td colspan=10>자료가 없습니다.</td>	
+					<td colspan=12>자료가 없습니다.</td>	
 				</tr>
 </script>
 					</table>
 				</div>
+		</div>
 				<!-- paging -->
 				<div class="paging">
 					<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>

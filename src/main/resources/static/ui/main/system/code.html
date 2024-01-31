@@ -392,11 +392,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 });
 </script> 
 <div class="cont_wrap">
-
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>TBL_EXP_GRPCODE</h2>
 	</div>
-	<section class="sec_wrap" id="<@pageId>_grpcode_section" >
+	<section class="sec_wrap list" id="<@pageId>_grpcode_section" style="height:calc(50% - 43px);">
 		<!-- search area -->
 		<div class="search_area mt0">
 			<!-- 멀티 선택 -->
@@ -416,7 +415,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
             </div>
 		</div>
 		<!-- 테이블 -->
-		<div class="tbl01 col tbl_scroll">
+		<div class="tbl01 col tbl_scroll" style="max-height:206px;">
+			<div class="tbl01 col tbl_head">
 			<table>
 				<caption>TBL_EXP_GRPCODE</caption>
 				<colgroup>
@@ -447,21 +447,41 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<th scope="col"></th>
 					</tr>
 				</thead>
+			</table>
+			</div>
+<!--  -->					
+			<div class="tbl01 col tbl_body_scroll">
+			<table>
+				<colgroup>
+					<col style="width:40px;"/>
+					<col style="width:100px;"/>
+					<col style="width:80px;"/>
+					<col style="width:110px;"/>
+					<col style="width:80px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:80px;"/>
+				</colgroup>
+			
 				<tbody  id="grpCodeList">
 				</tbody>
+				
 <script type="text/x-jsrender" id="grpCodeList_template">	
 				{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}" 							 value='{{:GRP_CODE_ID}}'>
 					<td><input type='checkbox' id="<@pageId>_ck_grp_{{:#index}}" value='{{:GRP_CODE_ID}}'></td>
- 					<td id='GRP_CODE_ID'		value='{{:GRP_CODE_ID}}'		>{{:GRP_CODE_ID}}</td>
- 					<td id='GRP_CODE_NM'		value='{{:GRP_CODE_NM}}'		>{{:GRP_CODE_NM}}</td>
- 					<td id='CODE_DESC'			value='{{:CODE_DESC}}' 			>{{:CODE_DESC}}</td>
- 					<td id='USE_YN'				value='{{:USE_YN}}' 			>{{:USE_YN}}</td>
- 					<td id='DEL_YN'				value='{{:DEL_YN}}' 			>{{:DEL_YN}}</td>
- 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}'			>{{:SORT_ORDER}}</td>
- 					<td id='UPDATE_USER' 		value='{{:UPDATE_USER}}'		>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 		>{{:UPDATE_DATE}}</td>
- 					<td id='TBL_EXP_CODE_CNT'	value='{{:TBL_EXP_CODE_CNT}}'	>{{:TBL_EXP_CODE_CNT}}</td>
+ 					<td id='GRP_CODE_ID'		value='{{:GRP_CODE_ID}}'		style="text-align:left">{{:GRP_CODE_ID}}</td>
+ 					<td id='GRP_CODE_NM'		value='{{:GRP_CODE_NM}}'		style="text-align:left">{{:GRP_CODE_NM}}</td>
+ 					<td id='CODE_DESC'			value='{{:CODE_DESC}}' 			style="text-align:left">{{:CODE_DESC}}</td>
+ 					<td id='USE_YN'				value='{{:USE_YN}}' 			style="text-align:center">{{:USE_YN}}</td>
+ 					<td id='DEL_YN'				value='{{:DEL_YN}}' 			style="text-align:center">{{:DEL_YN}}</td>
+ 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}'			style="text-align:center">{{:SORT_ORDER}}</td>
+ 					<td id='UPDATE_USER' 		value='{{:UPDATE_USER}}'		style="text-align:left">{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 		style="text-align:left">{{:UPDATE_DATE}}</td>
+ 					<td id='TBL_EXP_CODE_CNT'	value='{{:TBL_EXP_CODE_CNT}}'	style="text-align:left">{{:TBL_EXP_CODE_CNT}}</td>
  					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}'	>
 						<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
 						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}'><i class="icon_trash"></i></button>
@@ -475,6 +495,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</tr>
 </script>
 			</table>
+			</div>
 		</div>
 		<!-- paging -->
 		<div class="paging">
@@ -489,18 +510,19 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<a href="#none" class="btn_pg_last">마지막 페이지</a>
 		</div>
 	</section>
+	
 <!--  -->			
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>TBL_EXP_CODE</h2>
 	</div>
-	<section class="sec_wrap" id="<@pageId>_code_section">
+	<section class="sec_wrap list" id="<@pageId>_code_section" style="height:calc(50% - 43px);">
 		<!-- search area -->
 		<div class="search_area mt0">
 			<!-- 멀티 선택 -->
 			<div class="fl">
 				<button type="button" class="btn fl" name="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 
-				<div style="width:200px;" id="<@pageId>_cd_multiSelect"></div>
+				<!-- <div style="width:200px;" id="<@pageId>_cd_multiSelect"></div> -->
 
 				<div class="search_inputWrap">
 					<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
@@ -513,7 +535,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
             </div>
 		</div>
 		<!-- 테이블 -->
-		<div class="tbl01 col tbl_scroll">
+		<div class="tbl01 col tbl_scroll" style="max-height:206px;">
+			<div class="tbl01 col tbl_head">
 			<table>
 				<caption>TBL_EXP_CODE</caption>
 				<colgroup>
@@ -546,28 +569,48 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<th scope="col"></th>
 					</tr>
 				</thead>
+			</table>
+			</div>
+<!--  -->					
+			<div class="tbl01 col tbl_body_scroll">
+			<table>
+				<colgroup>
+					<col style="width:40px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:80px;"/>
+					<col style="width:110px;"/>
+					<col style="width:80px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/> 
+					<col style="width:100px;"/>
+					<col style="width:80px;"/>
+				</colgroup>
+			
 				<tbody  id="codeList">
 				</tbody>
 <script type="text/x-jsrender" id="codeList_template">	
 				{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}">
 					<td><input type='checkbox' id="<@pageId>_ck_cd_{{:#index}}" value='{{:GRP_CODE_ID}}||{{:CODE_ID}}'></td>
- 					<td id='GRP_CODE_ID'	value='{{:GRP_CODE_ID}}'	>{{:GRP_CODE_ID}}</td>
- 					<td id='GRP_CODE_NM'	value='{{:GRP_CODE_NM}}'	>{{:GRP_CODE_NM}}</td>
- 					<td id='CODE_ID'		value='{{:CODE_ID}}'		>{{:CODE_ID}}</td>
- 					<td id='CODE_NM'		value='{{:CODE_NM}}' 		>{{:CODE_NM}}</td>
- 					<td id='CODE_DESC'		value='{{:CODE_DESC}}' 		>{{:CODE_DESC}}</td>
- 					<td id='USE_YN'			value='{{:USE_YN}}' 		>{{:USE_YN}}</td>
- 					<td id='DEL_YN'			value='{{:DEL_YN}}' 		>{{:DEL_YN}}</td>
- 					<td id='SORT_ORDER'		value='{{:SORT_ORDER}}'		>{{:SORT_ORDER}}</td>
- 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'	>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
+ 					<td id='GRP_CODE_ID'	value='{{:GRP_CODE_ID}}'	style="text-align:left">{{:GRP_CODE_ID}}</td>
+ 					<td id='GRP_CODE_NM'	value='{{:GRP_CODE_NM}}'	style="text-align:left">{{:GRP_CODE_NM}}</td>
+ 					<td id='CODE_ID'		value='{{:CODE_ID}}'		style="text-align:left">{{:CODE_ID}}</td>
+ 					<td id='CODE_NM'		value='{{:CODE_NM}}' 		style="text-align:left">{{:CODE_NM}}</td>
+ 					<td id='CODE_DESC'		value='{{:CODE_DESC}}' 		style="text-align:left">{{:CODE_DESC}}</td>
+ 					<td id='USE_YN'			value='{{:USE_YN}}' 		style="text-align:center">{{:USE_YN}}</td>
+ 					<td id='DEL_YN'			value='{{:DEL_YN}}' 		style="text-align:center">{{:DEL_YN}}</td>
+ 					<td id='SORT_ORDER'		value='{{:SORT_ORDER}}'		style="text-align:center">{{:SORT_ORDER}}</td>
+ 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'	style="text-align:left">{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	style="text-align:left">{{:UPDATE_DATE}}</td>
  					<td id='NEXT_SORT_ORDER'value='{{:NEXT_SORT_ORDER}}'>
 						<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
 						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}||{{:CODE_ID}}'><i class="icon_trash"></i></button>
 					</td>
 				</tr>
-				{{/for}}
+				{{/for}} 
 </script>
 <script type="text/x-jsrender" id="codeList_noData_template">	
 				<tr>	
@@ -575,6 +618,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</tr>
 </script>
 			</table>
+			</div>
 		</div>
 		<!-- paging -->
 		<div class="paging">

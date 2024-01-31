@@ -22,8 +22,9 @@ var <@popupId> = {
 				 if(key)
 				 	returnData[key] = val;
 			 })
+			 debugger;
 			 returnData["USE_YN"] 		= <@popupId>.fnRadioCheckValue("USE_YN");
-			 returnData["AUTH_TYPE"] 	= <@popupId>.fnRadioCheckValue("AUTH_TYPE");
+			 /* returnData["AUTH_TYPE"] 	= <@popupId>.fnRadioCheckValue("AUTH_TYPE"); */
 			 <@popupId>.close(returnData);
 		 }			
 		 ,fnRadioCheckValue : (name , pValue) => {
@@ -44,7 +45,7 @@ var <@popupId> = {
 			<@popupId>.mode = <@popupId>.recvData.length > 0 ? "UPDATE":"INSERT";
 			
 			const param = <@popupId>.recvData;
-			
+			 debugger;
 	 		if( param.length > 0 ){
 	 			
 	 			param.forEach( item =>{
@@ -56,8 +57,8 @@ var <@popupId> = {
 	  			const useYnVal = param.find(item => item.key === "USE_YN")?.val;
 				<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
 				
-	  			const authTypeVal = param.find(item => item.key === "AUTH_TYPE")?.val;
-				<@popupId>.fnRadioCheckValue("AUTH_TYPE",authTypeVal);
+/* 	  			const authTypeVal = param.find(item => item.key === "AUTH_TYPE")?.val;
+				<@popupId>.fnRadioCheckValue("AUTH_TYPE",authTypeVal); */
 
 				$(".<@popupId>_parent_is").show();
 				$(".<@popupId>_no_parent").hide();
@@ -65,7 +66,7 @@ var <@popupId> = {
 			}else{
 				
 				<@popupId>.fnRadioCheckValue("USE_YN","Y");
-				<@popupId>.fnRadioCheckValue("AUTH_TYPE","R");
+				/*  <@popupId>.fnRadioCheckValue("AUTH_TYPE","R");*/
 				
 				$("#<@popupId>_items #SORT_ORDER").val(<@popupId>.nextSortOrder);
 				
@@ -177,7 +178,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					<dt>PAGE_ID</dt>
 					<dd><input type="text"  id="PAGE_ID"></dd>
 				</div>
-				<div class="row">
+<!-- 				<div class="row">
 					<dt>ROLE_NM</dt>
 					<dd><input type="text"  id="ROLE_ID" style='display:none'>
 						<input type="text"  id="ROLE_NM" style='width:75%'>
@@ -191,7 +192,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<label><input type='radio' name='AUTH_TYPE' value="R" />Read</label>
 						</div>
 					</dd>
-				</div>
+				</div> -->
 				<div class="row updateMode">
 					<dt>UPDATE_USER</dt>
 					<dd><input type="text"  id="UPDATE_USER" disabled ></dd>

@@ -90,22 +90,12 @@
 							) 	THEN 'Y'
 		        				ELSE 'N'
 		    END AS HAS_CHILD
-	        ,R.ROLE_ID 
-	        ,R.ROLE_NM
-	        ,R.ROLE_DESC
-            ,M.AUTH_TYPE
 		FROM ADMIN.TBL_EXP_MENU T
 		,ADMIN.TBL_EXP_MENU P
-		,ADMIN.TBL_EXP_ROLEMENU M
-		,ADMIN.TBL_EXP_ROLE R
 		WHERE 1 = 1 
 		AND T.SP_CSTM_ID = P.SP_CSTM_ID(+)
 		AND T.PARENT_MENU_ID = P.MENU_ID(+)
-		AND T.SP_CSTM_ID = M.SP_CSTM_ID
-		AND T.SP_CSTM_ID = R.SP_CSTM_ID
-		AND T.MENU_ID = M.MENU_ID
-		AND R.ROLE_ID = M.ROLE_ID
-		
+		AND T.DEL_YN = 'N'
 		<if test=" MENU_NM != null and MENU_NM != '' ">
 		AND T.MENU_NM like '%' || #{MENU_NM} || '%'
 		</if>
@@ -182,7 +172,10 @@
 		/*	system.deleteMenu
 			메뉴 삭제
 		*/
-		DELETE FROM ADMIN.TBL_EXP_MENU 
+		UPDATE ADMIN.TBL_EXP_MENU
+		SET DEL_YN = 'Y',
+		UPDATE_USER = 'system',
+		UPDATE_DATE = SYSDATE 
 		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
 		AND MENU_ID = #{MENU_ID} 
 	</delete>
@@ -550,20 +543,23 @@
 		/*	system.getRoleMenuMapList
 			권한매핑 리스트 조회 
 		*/
-        SELECT RM.SP_CSTM_ID, RM.ROLE_ID, RM.MENU_ID
-        ,M.MENU_NM, M.MENU_DEPTH,M.MENU_DESC
-        ,R.ROLE_NM, R.ROLE_DESC
-        ,DECODE( RM.AUTH_TYPE ,'A','Read/Write','Read') AS AUTH_TYPE_DESC
-        ,RM.AUTH_TYPE
-        /* ,M.* */
-        FROM ADMIN.TBL_EXP_ROLEMENU RM
-        ,ADMIN.TBL_EXP_MENU M
-        ,ADMIN.TBL_EXP_ROLE R
-        WHERE RM.MENU_ID = M.MENU_ID
-        AND RM.ROLE_ID = R.ROLE_ID
-        AND M.USE_YN = 'Y'
-        AND R.USE_YN = 'Y'
-        ORDER BY M.SORT_ORDER
+		SELECT  
+		     NVL(RM.SP_CSTM_ID,M.SP_CSTM_ID) AS SP_CSTM_ID
+	        ,NVL(RM.ROLE_ID, R.ROLE_ID) AS ROLE_ID
+	        ,R.ROLE_NM,R.ROLE_DESC
+	        ,NVL(RM.MENU_ID, M.MENU_ID) AS MENU_ID
+	        ,M.MENU_NM, M.MENU_DEPTH,M.MENU_DESC
+	        ,RM.AUTH_TYPE
+        	,DECODE( RM.AUTH_TYPE ,'A','Read/Write' ,'R','Read','') AS AUTH_TYPE_DESC
+	        ,M.SORT_ORDER
+	     FROM ADMIN.TBL_EXP_MENU M
+         ,ADMIN.TBL_EXP_ROLEMENU RM
+         ,ADMIN.TBL_EXP_ROLE R
+        WHERE M.MENU_ID = RM.MENU_ID(+)
+        AND R.ROLE_ID = RM.ROLE_ID(+)
+        AND M.USE_YN = 'Y' AND M.DEL_YN = 'N'
+        AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+        ORDER BY M.SORT_ORDER,R.SORT_ORDER,RM.AUTH_TYPE
 	</select>
 	
 	<update id="updateRoleMenuMap" parameterType="java.util.HashMap"  flushCache="true" >
