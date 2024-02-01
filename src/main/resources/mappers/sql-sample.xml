@@ -41,19 +41,19 @@
         )
     </insert>
     <!-- 첨부파일 조회 이응규 -->
-	<select id="getFile" resultType="java.util.HashMap">
-	    /* Sample.getFile */
-        SELECT UUID             AS uuid           
-              ,GRP_ID           AS grpId          
-              ,ORG_FILE_NAME    AS orgFileName    
-              ,STORED_FILE_NAME AS storedFileName 
-              ,FILE_PATH        AS filePath       
-              ,FILE_SIZE        AS fileSize       
-              ,FILE_TYPE        AS fileType       
-              ,UPDATE_USER      AS updateUser     
-              ,UPDATE_DATE      AS updateDate     
-              ,CREATE_USER      AS createUser     
-              ,CREATE_DATE      AS createDate
+    <select id="getFile" resultType="java.util.HashMap">
+        /* Sample.getFile */
+        SELECT UUID             
+              ,GRP_ID           
+              ,ORG_FILE_NAME    
+              ,STORED_FILE_NAME 
+              ,FILE_PATH        
+              ,FILE_SIZE        
+              ,FILE_TYPE        
+              ,UPDATE_USER      
+              ,UPDATE_DATE      
+              ,CREATE_USER      
+              ,CREATE_DATE      
         FROM   TBL_EXP_FILEMNG
         WHERE    1 = 1
         <if test=" grpId != null and grpId != '' " >
@@ -62,7 +62,7 @@
           AND    UUID = #{uuid}
         </if>
         ORDER BY CREATE_DATE DESC
-	</select>
+    </select>
 	
 	<!-- 첨부파일 삭제  이응규 -->
     <delete id="deleteFile" parameterType="java.util.HashMap"  >
@@ -99,31 +99,5 @@
         ORDER BY CREATE_DATE DESC
     </select>
     
-    
-    <!--  결재 조회 이응규 -->
-    <select id="getApproval" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /* Sample.getApproval */
-        SELECT UUID
-		      ,REQUEST_USER
-		      ,TITLE
-		      ,CONTENTS
-		      ,STATE
-		      ,APPROVAL_DATE
-		      ,TO_CHAR( APPROVAL_DATE , 'YYYY-MM-DD HH24:MI:SS' ) APPROVAL_DATE1
-		      ,UPDATE_USER
-		      ,UPDATE_DATE
-		      ,CREATE_USER
-		      ,CREATE_DATE
-		      ,TO_CHAR( CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE1 
-		FROM  TBL_EXP_APPROVAL
-		WHERE 1 = 1
-        <if test=" requestUser != null and requestUser != '' " >
-          AND   REQUEST_USER = #{requestUser}
-        </if><if test=" uuid != null and uuid != '' " >
-          AND    UUID = #{uuid}
-        </if>
-        ORDER BY APPROVAL_DATE DESC
-    </select>
-
     
 </mapper>

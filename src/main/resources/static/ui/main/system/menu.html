@@ -6,6 +6,25 @@ var <@pageId> = {
 			,selectedRow:{}
 			,excelParam : {}
 			,pageInit : () =>{
+				var singleboxList = { 
+						 data : [
+				 		 	 	 ["", "ALL"]
+				 		 	 	,["0", "ROOT MENU"]
+						 		,["1", "DEPTH 1"]
+						 ]
+					 	,targetId : "<@pageId>_selectMenuDept" 
+					}
+					C_UICOM.makeSelectBox(singleboxList, "single");	
+				var singleDeletedYnList = { 
+						 data : [
+						 		 ["N","NOT DELETE"]
+				 		 	 	,["", "ALL"]
+				 		 	 	,["Y","DELTED"]
+						 ]
+					 	,targetId : "<@pageId>_selectDelYn" 
+					}
+					C_UICOM.makeSelectBox(singleDeletedYnList, "single");		
+
 			}
 			,setSpCstmId : (dataList) =>{
 				
@@ -14,7 +33,16 @@ var <@pageId> = {
 			}
 			,searchList : () => {
 				
-				const requestParm = {};
+				var selectMenuDept = C_UICOM.getData("<@pageId>_selectMenuDept");
+				
+				if(!selectMenuDept )selectMenuDept ="";
+				
+				var selectDeleted = C_UICOM.getData("<@pageId>_selectDelYn");
+				
+				if(!selectDeleted )selectDeleted ="";
+				
+				const requestParm = { MENU_DEPTH : selectMenuDept , DEL_YN :selectDeleted };
+
 				var parm = {
 						 queryId 		: "system.getMenuList"
 						,requestParm	: requestParm
@@ -56,10 +84,6 @@ var <@pageId> = {
 								 queryId 		: "system.updateMenu"
 								,requestParm	: requestParm
 							 }
-							,{
-								 queryId 		: "system.updateRoleMenuMap"
-								,requestParm	: requestParm
-							 }
 						]
 				}			
 				C_COM.requestQuery(parm, function(resultData) {
@@ -67,7 +91,6 @@ var <@pageId> = {
 						if( resultData.state == "S"){
 
 							console.log( " "+ resultData.data["system.updateMenu"] )
-							console.log( " "+ resultData.data["system.updateRoleMenuMap"] )
 							
 							<@pageId>.searchList();
 							console.log("Item 저장 성공");
@@ -102,7 +125,7 @@ var <@pageId> = {
 					param.push( { "key": key, "val": val } );
 					
 				})
-				
+								debugger;
 				C_POP.open('popup_menuUpdatePopup',					
 							{	  param:param
 								, nextSortOrder	:	<@pageId>.getNextSortOrder()
@@ -110,11 +133,12 @@ var <@pageId> = {
 													  PARNET_MENU_ID	:	$("#<@pageId>_prmPARENT_MENU_ID").val()
 													 ,PARNET_MENU_NM	:	$("#<@pageId>_prmPARENT_MENU_NM").val()
 													 ,MENU_DEPTH		:	+<@pageId>.selectedRow["MENU_DEPTH"]				
+													 ,SORT_ORDER		:	+<@pageId>.selectedRow["NEXT_SORT_ORDER"]				
 													}
 							}, function(retData) {
 								
 									if(isValid(retData)){
-				
+
 										<@pageId>.updateItem(retData);
 										
 									}
@@ -305,53 +329,60 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 
 });
 </script>
+<style>
+td {
+  text-align:left;
+  white-space: nowrap;       /* 공백 문자를 줄이지 않음 */
+  overflow: hidden;           /* 내용이 넘치면 숨김 처리 */
+  text-overflow: ellipsis;    /* 말줄임표 표시 */
+}
+</style>
 <div class="cont_wrap">
-
-
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>TBL_EXP_MENU</h2>
 	</div>
-	<section class="sec_wrap">
+	<section class="sec_wrap list" style="height:calc(100% - 43px);">
 		<!-- search area -->
 		<div class="search_area mt0">
 			<!-- 멀티 선택 -->
 			<div class="fl">
 				<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
-
-				<button type="button" class="btn fl" id="<@pageId>_search">조회</button>
+				<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
+				<div  class="select_box fl" id="<@pageId>_selectDelYn" style="width:130px;margin-left:10px;"></div>
 				
-				<div class="search_inputWrap">
-					<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+				<div class="search_inputWrap" style='margin-left:10px;'>
+				
+				PARENT_MENU_ID : <input type="search" id="<@pageId>_prmPARENT_MENU_ID" disabled style='width:200px;'>
+				PARENT_MENU_NM : <input type="search" id="<@pageId>_prmPARENT_MENU_NM" disabled style='width:200px;'>
+				
 				</div>
-				
-				PARENT_MENU_ID : <input type="search" id="<@pageId>_prmPARENT_MENU_ID" disabled>
-				PARENT_MENU_NM : <input type="search" id="<@pageId>_prmPARENT_MENU_NM" disabled>
 
+				 <div  class="select_box fl" id="<@pageId>_selectMenuDept" style="width:130px;margin-left:10px;"></div>
 			</div>
 
 			<div class="search_right">
+			
 				<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button>
 				<button type="button" class="btn fl"  id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
             </div>
 		</div>
 		<!-- 테이블 -->
-		<div class="tbl01 col tbl_scroll">
+		<div class="tbl01 col tbl_scroll" style="max-height:506px;">
+			<div class="tbl01 col tbl_head">
 			<table>
 				<caption>TBL_EXP_MENU</caption>
 				<colgroup>
 					<col style="width:30px;"/>
-					<col style="width:100px;"/>
-					<col style="width:100px;"/>
+					<col style="width:80px;"/>
 					<col style="width:120px;"/>
-					<col style="width:50px;"/>
+					<col style="width:100px;"/>
+					<col style="width:40px;"/>
 					<col style="width:110px;"/>
-					<col style="width:50px;"/>
+					<col style="width:40px;"/>
+					<col style="width:110px;"/>
 					<col style="width:100px;"/>
-					<col style="width:100px;"/>
-					<col style="width:100px;"/>
+					<col style="width:40px;"/>
 					
-					<col style="width:50px;"/>
-					<col style="width:50px;"/> 
 					<col style="width:100px;"/>
 				</colgroup>
 				<thead>
@@ -367,33 +398,49 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<th scope="col">PARENT_MENU</th>
 						<th scope="col">USE_YN</th>
 						
-						<th scope="col">ROLENM</th>
-						<th scope="col">CHILDREN</th>
 						<th scope="col"></th>
 					</tr>
 				</thead>
+			</table>
+		</div>
+		
+<!--  -->					
+					<div class="tbl01 col tbl_body_scroll">
+						<table>
+							<colgroup>
+					<col style="width:30px;"/>
+					<col style="width:80px;"/>
+					<col style="width:120px;"/>
+					<col style="width:100px;"/>
+					<col style="width:40px;"/>
+					<col style="width:110px;"/>
+					<col style="width:40px;"/>
+					<col style="width:110px;"/>
+					<col style="width:100px;"/>
+					<col style="width:40px;"/>
+					
+					<col style="width:100px;"/>
+							</colgroup>
+			
 				<tbody  id="menuList">
 				</tbody>
 <script type="text/x-jsrender" id="menuList_template">	
 				{{for list}}
-				<tr name="<@pageId>_tr_{{:#index}}" 						 value='{{:SP_CSTM_ID}}||{{:MENU_ID}}'>
+				<tr name="<@pageId>_tr_{{:#index}}" 						 value='{{:SP_CSTM_ID}}||{{:MENU_ID}}' >
 					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:MENU_ID}}'></td>
- 					<td id='MENU_ID'			value='{{:MENU_ID}}'		>{{:MENU_ID}}</td>
- 					<td id='MENU_NM'			value='{{:MENU_NM}}'		>{{:MENU_NM}}</td>
- 					<td id='MENU_DESC'			value='{{:MENU_DESC}}'		>{{:MENU_DESC}}</td>
- 					<td id='MENU_DEPTH'			value='{{:MENU_DEPTH}}'		>{{:MENU_DEPTH}}</td>
- 					<td id='PAGE_ID'			value='{{:PAGE_ID}}'		>{{:PAGE_ID}}</td>
- 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}' 	>{{:SORT_ORDER}}</td>
- 					<td id='PARENT_MENU_NM'		value='{{:PARENT_MENU_NM}}' >{{:PARENT_MENU_NM}}</td>
- 					<td id='PARENT_MENU_DESC'	value='{{:PARENT_MENU_DESC}}' >{{:PARENT_MENU_DESC}}</td>
- 					<td id='USE_YN'				value='{{:USE_YN}}' 		>{{:USE_YN}}</td>
- 					<td id='ROLE_DESC'			value='{{:ROLE_DESC}}' 		>{{:ROLE_DESC}}</td>
- 					<td id='HAS_CHILD'			value='{{:HAS_CHILD}}' 		>{{:HAS_CHILD}}</td>
+ 					<td id='MENU_ID'			value='{{:MENU_ID}}'		style="text-align:left">{{:MENU_ID}}</td>
+ 					<td id='MENU_NM'			value='{{:MENU_NM}}'		style="text-align:left">{{:MENU_NM}}</td>
+ 					<td id='MENU_DESC'			value='{{:MENU_DESC}}'		style="text-align:left">{{:MENU_DESC}}</td>
+ 					<td id='MENU_DEPTH'			value='{{:MENU_DEPTH}}'		style="text-align:center">{{:MENU_DEPTH}}</td>
+ 					<td id='PAGE_ID'			value='{{:PAGE_ID}}'		style="text-align:left">{{:PAGE_ID}}</td>
+ 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}' 	style="text-align:center">{{:SORT_ORDER}}</td>
+ 					<td id='PARENT_MENU_NM'		value='{{:PARENT_MENU_NM}}' style="text-align:left">{{:PARENT_MENU_NM}}</td>
+ 					<td id='PARENT_MENU_DESC'	value='{{:PARENT_MENU_DESC}}' style="text-align:left">{{:PARENT_MENU_DESC}}</td>
+ 					<td id='USE_YN'				value='{{:USE_YN}}' 		style="text-align:center">{{:USE_YN}}</td>
+ 					<td id='HAS_CHILD'			value='{{:HAS_CHILD}}' 		style="display:none">{{:HAS_CHILD}}</td>
+ 					<td id='PARENT_MENU_ID'		value='{{:PARENT_MENU_ID}}'	style="display:none">{{:PARENT_MENU_ID}}</td>
  					<td id='UPDATE_USER'		value='{{:UPDATE_USER}}' 	style='display:none'>{{:UPDATE_USER}}</td>
  					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 	style='display:none'>{{:UPDATE_DATE}}</td>
-					<td id='ROLE_ID'			value='{{:ROLE_ID}}'	 	style='display:none'>{{:ROLE_ID}}</td>
- 					<td id='ROLE_NM'			value='{{:ROLE_NM}}'	 	style='display:none'>{{:ROLE_NM}}</td>
- 					<td id='AUTH_TYPE'			value='{{:AUTH_TYPE}}'	 	style='display:none'>{{:AUTH_TYPE}}</td>
  					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}'>
 						<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
 						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:MENU_ID}}'><i class="icon_trash"></i></button>
@@ -403,10 +450,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 </script>
 <script type="text/x-jsrender" id="menuList_noData_template">	
 				<tr>	
-					<td colspan=13>자료가 없습니다.</td>	
+					<td colspan=11>자료가 없습니다.</td>	
 				</tr>
 </script>
 			</table>
+			</div>
 		</div>
 		<!-- paging -->
 		<div class="paging">

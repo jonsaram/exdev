@@ -3,6 +3,7 @@
 var <@pageId> = {
 		 checkedItems : { GRP: [], CD: [] }
 		 ,selectedGrpCd : {GRP_CODE_ID:'', GRP_CODE_NM:''}
+		 ,selectedRow:{}
 		 ,excelParamGrp : {}
 		 ,excelParamCd : {}
 		 ,pageInit : () =>{
@@ -64,7 +65,7 @@ var <@pageId> = {
 					}else{
 						alert(resultData.msg)
 					}
-
+					<@pageId>.checkedItems = [];
 					<@pageId>.showChildInsertBtn(insertBtnShow);
 			});
 			
@@ -114,8 +115,15 @@ var <@pageId> = {
 		, deleteOne : (sectionId, key) =>{
 
 			const delObj = {}
-			delObj["GRP_CODE_ID"] = key.split("||")[0];
-			delObj["CODE_ID"	] = key.split("||")[1];
+			
+			if( <@pageId>.isGrpCodeSection(sectionId) ){
+				delObj["GRP_CODE_ID"] = key; 
+			}
+			else{
+				delObj["GRP_CODE_ID"] = key["GRP_CODE_ID"];
+				delObj["CODE_ID"	] = key["CODE_ID"];
+			}
+			
    			<@pageId>.deleteItem(sectionId,delObj)
    		
 		}		
@@ -134,7 +142,10 @@ var <@pageId> = {
 					, {	  sectionId:sectionId.replace("<@pageId>_", "")
 						, selectedGrpCd: <@pageId>.selectedGrpCd
 						, param:param
-						, "nextSortOrder":<@pageId>.getNextSortOrder(sectionId)
+						, nextSortOrder:<@pageId>.getNextSortOrder(sectionId)
+						, parentCode 	:	{
+											 SORT_ORDER		:	+<@pageId>.selectedRow["NEXT_SORT_ORDER"]				
+											}						
 					}
 			, function(retData) {
 				
@@ -146,44 +157,79 @@ var <@pageId> = {
 		}
 		,setHandler : () => {
 			 
-		    $("[name='<@pageId>_insert']").click(function(){
+		    $("[name='<@pageId>_insert']").off().on("click",function(){
 
 		    	const sectionId = $(this).closest("section").attr("id");
-		    	if( <@pageId>.isGrpCodeSection(sectionId) )<@pageId>.selectedGrpCd= {GRP_CODE_ID:'', GRP_CODE_NM:''};
+		    	
+		    	if( <@pageId>.isGrpCodeSection(sectionId) ){
+		    		
+		    		<@pageId>.selectedGrpCd= {GRP_CODE_ID:'', GRP_CODE_NM:''};
+		    		
+		    	}
 				<@pageId>.openPopup(sectionId);
 
 		    })
 		    
-		    $("[name='<@pageId>_delete']").click(function(){
-		    	
+		    $("[name='<@pageId>_delete']").off().on("click",function(){
+
+		        event.stopPropagation();
+		        event.preventDefault();
+		        
 		    	const sectionId = $(this).closest("section").attr("id");
-		    	const checkedItems = <@pageId>.isGrpCodeSection(sectionId) ? <@pageId>.checkedItems["GRP"] : <@pageId>.checkedItems["CD"]
-		    	checkedItems.forEach( key =>{
-		    		let newKey = key;
-		    		if( <@pageId>.isGrpCodeSection(sectionId) ){
-		    			newKey = key.GRP_CODE_ID+ "||" + key.CODE_ID;
+		    	if( <@pageId>.isGrpCodeSection(sectionId) ){
+		    		
+		    		let codeCnt = 0;
+		    		$("#grpCodeList td[id='TBL_EXP_CODE_CNT']").each(function(){
+		    		    
+		    			codeCnt += +$(this).attr("value")
+		    		});
+		    		if( codeCnt > 0 ){
+		    			alert("TBL_EXP_CODE 데이터를 먼저 삭제하신 후 GRP CODE를 삭제할 수 있습니다.");
+		    			return;
 		    		}
-					<@pageId>.deleteOne(sectionId,newKey);
+		    	
+		    	}
+		    	
+		    	const checkedItems = <@pageId>.isGrpCodeSection(sectionId) ? <@pageId>.checkedItems["GRP"] : <@pageId>.checkedItems["CD"]
+
+		    	checkedItems.forEach( (key,idx) =>{
+		    		
+					<@pageId>.deleteOne(sectionId,key);
+					
 		    	})
 		    	
 		    })
 		    
-		    $("[id^='<@pageId>_delete_']").click(function(){
-
+		    $("[id^='<@pageId>_delete_']").off().on("click",function(){
+		    	
 		    	const sectionId = $(this).closest("section").attr("id");
-		    	const key = $(this).attr("key");
+		    	let key = $(this).attr("key");
+		    	
 		    	if( <@pageId>.isGrpCodeSection(sectionId) ){
+		    		
 		    		const tbl_exp_code_CNT = +$(this).parent().siblings("#TBL_EXP_CODE_CNT").attr("value");
+		    		
 		    		if( tbl_exp_code_CNT > 0){
+		    			
 		    			alert("TBL_EXP_CODE 데이터를 먼저 삭제하신 후 GRP CODE를 삭제할 수 있습니다.");
 			    		return;
+			    		
 		    		}
+		    		
+		    	}else{
+		    		
+		    		 const newKey = key.split("||");
+		    		 key=[];
+		    		 key["GRP_CODE_ID"] = newKey[0];
+		    		 key["CODE_ID"] 	= newKey[1];
+		    		 
 		    	}
-				<@pageId>.deleteOne(sectionId,key);
+		    	
+				<@pageId>.deleteOne(sectionId,key, true);
 				
 		    })
 		    
-		    $("[id^='<@pageId>_modify_']").click(function(){
+		    $("[id^='<@pageId>_modify_']").off().on("click",function(){
 
 		    	const sectionId = $(this).closest("section").attr("id");
 		    	const index = $(this).attr("index");
@@ -192,7 +238,7 @@ var <@pageId> = {
 				
 		    })
 		    
-		    $("[name='<@pageId>_excelDownload']").click(function(){
+		    $("[name='<@pageId>_excelDownload']").off().on("click",function(){
 		    	
 		    	const sectionId = $(this).closest("section").attr("id");
 		    	if( <@pageId>.isGrpCodeSection(sectionId) ){
@@ -205,7 +251,7 @@ var <@pageId> = {
 		    	}
 		    })
 		    
-		    $("[name^='<@pageId>_tr']").click(function(e){
+		    $("[name^='<@pageId>_tr']").off().on("click",function(e){
 
 		        if( $(e.target).attr("id").indexOf("<@pageId>_ck_") < 0){
 
@@ -218,10 +264,21 @@ var <@pageId> = {
 						<@pageId>.showChildInsertBtn(true);
 			    	}
 			    	
+			    	$.each( $(this).children() , function(){
+			    		
+			    		const key 	= $(this).attr("id"); 
+			    		const tdVal = $(this).attr("value");
+			    		
+			    		if( tdVal ){
+			    			
+			    			<@pageId>.selectedRow[key] = tdVal;
+			    		}
+			    	});
+			    	
 		        }
 		    })
 		    
-		    $("#<@pageId>_search").click( () =>{
+		    $("#<@pageId>_search").off().on("click", () =>{
 		    	<@pageId>.searchList();
 		    })
 		    
@@ -230,7 +287,7 @@ var <@pageId> = {
 		}
 		,chkHandler : () => {
 			
-		    $("[name='<@pageId>_ckAll']").click(function() {
+		    $("[name='<@pageId>_ckAll']").off().on("click",function() {
 			   	
 		    	const sectionId = $(this).closest("section").attr("id");
 		    	const gubun =  <@pageId>.isGrpCodeSection(sectionId) ? "grp" : "cd"  ;
@@ -254,7 +311,7 @@ var <@pageId> = {
 			    
 		    });
 		    
-		    $("[id^='<@pageId>_ck_grp_']").click(function(){
+		    $("[id^='<@pageId>_ck_grp_']").off().on("click",function(){
 		    	
 		    	const sectionId = $(this).closest("section").attr("id");
 		    	
@@ -277,7 +334,7 @@ var <@pageId> = {
 		        
 		    })
 		    
-		    $("[id^='<@pageId>_ck_cd_']").click(function(){
+		    $("[id^='<@pageId>_ck_cd_']").off().on("click",function(){
 		    	
 		    	const sectionId = $(this).closest("section").attr("id");
 		    	
@@ -303,9 +360,8 @@ var <@pageId> = {
 		
 		}
 		,getNextSortOrder : (sectionId) =>{
-
-			if( <@pageId>.isGrpCodeSection(sectionId) )	return $("#"+sectionId+" [name='<@pageId>_tr_0'] #NEXT_SORT_ORDER").attr("value");
-			else return $("#"+sectionId+" [name='<@pageId>_tr_0'] #NEXT_SORT_ORDER").attr("value");
+			const nextsortorder = +$("#"+sectionId+" [name='<@pageId>_tr_0'] #NEXT_SORT_ORDER").attr("value");
+			return !nextsortorder ? 10: nextsortorder;
 			
 		}
 		,isGrpCodeSection : (sectionId) =>{
@@ -392,21 +448,18 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 });
 </script> 
 <div class="cont_wrap">
-
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>TBL_EXP_GRPCODE</h2>
 	</div>
-	<section class="sec_wrap" id="<@pageId>_grpcode_section" >
+	<section class="sec_wrap list" id="<@pageId>_grpcode_section" style="height:calc(50% - 43px);">
 		<!-- search area -->
 		<div class="search_area mt0">
 			<!-- 멀티 선택 -->
 			<div class="fl">
 				<button type="button" class="btn fl" name="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 				<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
-				<div style="width:200px;" id="<@pageId>_grp_multiSelect"></div>
 
 				<div class="search_inputWrap">
-					<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
 				</div>
 			</div>
 
@@ -416,7 +469,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
             </div>
 		</div>
 		<!-- 테이블 -->
-		<div class="tbl01 col tbl_scroll">
+		<div class="tbl01 col tbl_scroll" style="max-height:206px;">
+			<div class="tbl01 col tbl_head">
 			<table>
 				<caption>TBL_EXP_GRPCODE</caption>
 				<colgroup>
@@ -430,7 +484,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<col style="width:100px;"/>
 					<col style="width:100px;"/>
 					<col style="width:100px;"/>
-					<col style="width:80px;"/>
+					<col style="width:100px;"/>
 				</colgroup>
 				<thead>
 					<tr>
@@ -447,21 +501,41 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<th scope="col"></th>
 					</tr>
 				</thead>
+			</table>
+			</div>
+<!--  -->					
+			<div class="tbl01 col tbl_body_scroll">
+			<table>
+				<colgroup>
+					<col style="width:40px;"/>
+					<col style="width:100px;"/>
+					<col style="width:80px;"/>
+					<col style="width:110px;"/>
+					<col style="width:80px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+				</colgroup>
+			
 				<tbody  id="grpCodeList">
 				</tbody>
+				
 <script type="text/x-jsrender" id="grpCodeList_template">	
 				{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}" 							 value='{{:GRP_CODE_ID}}'>
 					<td><input type='checkbox' id="<@pageId>_ck_grp_{{:#index}}" value='{{:GRP_CODE_ID}}'></td>
- 					<td id='GRP_CODE_ID'		value='{{:GRP_CODE_ID}}'		>{{:GRP_CODE_ID}}</td>
- 					<td id='GRP_CODE_NM'		value='{{:GRP_CODE_NM}}'		>{{:GRP_CODE_NM}}</td>
- 					<td id='CODE_DESC'			value='{{:CODE_DESC}}' 			>{{:CODE_DESC}}</td>
- 					<td id='USE_YN'				value='{{:USE_YN}}' 			>{{:USE_YN}}</td>
- 					<td id='DEL_YN'				value='{{:DEL_YN}}' 			>{{:DEL_YN}}</td>
- 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}'			>{{:SORT_ORDER}}</td>
- 					<td id='UPDATE_USER' 		value='{{:UPDATE_USER}}'		>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 		>{{:UPDATE_DATE}}</td>
- 					<td id='TBL_EXP_CODE_CNT'	value='{{:TBL_EXP_CODE_CNT}}'	>{{:TBL_EXP_CODE_CNT}}</td>
+ 					<td id='GRP_CODE_ID'		value='{{:GRP_CODE_ID}}'		style="text-align:left">{{:GRP_CODE_ID}}</td>
+ 					<td id='GRP_CODE_NM'		value='{{:GRP_CODE_NM}}'		style="text-align:left">{{:GRP_CODE_NM}}</td>
+ 					<td id='CODE_DESC'			value='{{:CODE_DESC}}' 			style="text-align:left">{{:CODE_DESC}}</td>
+ 					<td id='USE_YN'				value='{{:USE_YN}}' 			style="text-align:center">{{:USE_YN}}</td>
+ 					<td id='DEL_YN'				value='{{:DEL_YN}}' 			style="text-align:center">{{:DEL_YN}}</td>
+ 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}'			style="text-align:center">{{:SORT_ORDER}}</td>
+ 					<td id='UPDATE_USER' 		value='{{:UPDATE_USER}}'		style="text-align:left">{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 		style="text-align:center">{{:UPDATE_DATE}}</td>
+ 					<td id='TBL_EXP_CODE_CNT'	value='{{:TBL_EXP_CODE_CNT}}'	style="text-align:left">{{:TBL_EXP_CODE_CNT}}</td>
  					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}'	>
 						<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
 						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}'><i class="icon_trash"></i></button>
@@ -475,6 +549,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</tr>
 </script>
 			</table>
+			</div>
 		</div>
 		<!-- paging -->
 		<div class="paging">
@@ -489,21 +564,19 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<a href="#none" class="btn_pg_last">마지막 페이지</a>
 		</div>
 	</section>
+	
 <!--  -->			
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>TBL_EXP_CODE</h2>
 	</div>
-	<section class="sec_wrap" id="<@pageId>_code_section">
+	<section class="sec_wrap list" id="<@pageId>_code_section" style="height:calc(50% - 43px);">
 		<!-- search area -->
 		<div class="search_area mt0">
 			<!-- 멀티 선택 -->
 			<div class="fl">
 				<button type="button" class="btn fl" name="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 
-				<div style="width:200px;" id="<@pageId>_cd_multiSelect"></div>
-
 				<div class="search_inputWrap">
-					<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
 				</div>
 			</div>
 
@@ -513,7 +586,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
             </div>
 		</div>
 		<!-- 테이블 -->
-		<div class="tbl01 col tbl_scroll">
+		<div class="tbl01 col tbl_scroll" style="max-height:206px;">
+			<div class="tbl01 col tbl_head">
 			<table>
 				<caption>TBL_EXP_CODE</caption>
 				<colgroup>
@@ -528,7 +602,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<col style="width:100px;"/>
 					<col style="width:100px;"/> 
 					<col style="width:100px;"/>
-					<col style="width:80px;"/>
+					<col style="width:100px;"/>
 				</colgroup>
 				<thead>
 					<tr>
@@ -546,28 +620,48 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<th scope="col"></th>
 					</tr>
 				</thead>
+			</table>
+			</div>
+<!--  -->					
+			<div class="tbl01 col tbl_body_scroll">
+			<table>
+				<colgroup>
+					<col style="width:40px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:80px;"/>
+					<col style="width:110px;"/>
+					<col style="width:80px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+					<col style="width:100px;"/> 
+					<col style="width:100px;"/>
+					<col style="width:100px;"/>
+				</colgroup>
+			
 				<tbody  id="codeList">
 				</tbody>
 <script type="text/x-jsrender" id="codeList_template">	
 				{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}">
 					<td><input type='checkbox' id="<@pageId>_ck_cd_{{:#index}}" value='{{:GRP_CODE_ID}}||{{:CODE_ID}}'></td>
- 					<td id='GRP_CODE_ID'	value='{{:GRP_CODE_ID}}'	>{{:GRP_CODE_ID}}</td>
- 					<td id='GRP_CODE_NM'	value='{{:GRP_CODE_NM}}'	>{{:GRP_CODE_NM}}</td>
- 					<td id='CODE_ID'		value='{{:CODE_ID}}'		>{{:CODE_ID}}</td>
- 					<td id='CODE_NM'		value='{{:CODE_NM}}' 		>{{:CODE_NM}}</td>
- 					<td id='CODE_DESC'		value='{{:CODE_DESC}}' 		>{{:CODE_DESC}}</td>
- 					<td id='USE_YN'			value='{{:USE_YN}}' 		>{{:USE_YN}}</td>
- 					<td id='DEL_YN'			value='{{:DEL_YN}}' 		>{{:DEL_YN}}</td>
- 					<td id='SORT_ORDER'		value='{{:SORT_ORDER}}'		>{{:SORT_ORDER}}</td>
- 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'	>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
+ 					<td id='GRP_CODE_ID'	value='{{:GRP_CODE_ID}}'	style="text-align:left">{{:GRP_CODE_ID}}</td>
+ 					<td id='GRP_CODE_NM'	value='{{:GRP_CODE_NM}}'	style="text-align:left">{{:GRP_CODE_NM}}</td>
+ 					<td id='CODE_ID'		value='{{:CODE_ID}}'		style="text-align:left">{{:CODE_ID}}</td>
+ 					<td id='CODE_NM'		value='{{:CODE_NM}}' 		style="text-align:left">{{:CODE_NM}}</td>
+ 					<td id='CODE_DESC'		value='{{:CODE_DESC}}' 		style="text-align:left">{{:CODE_DESC}}</td>
+ 					<td id='USE_YN'			value='{{:USE_YN}}' 		style="text-align:center">{{:USE_YN}}</td>
+ 					<td id='DEL_YN'			value='{{:DEL_YN}}' 		style="text-align:center">{{:DEL_YN}}</td>
+ 					<td id='SORT_ORDER'		value='{{:SORT_ORDER}}'		style="text-align:center">{{:SORT_ORDER}}</td>
+ 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'	style="text-align:left">{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	style="text-align:center">{{:UPDATE_DATE}}</td>
  					<td id='NEXT_SORT_ORDER'value='{{:NEXT_SORT_ORDER}}'>
 						<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
 						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}||{{:CODE_ID}}'><i class="icon_trash"></i></button>
 					</td>
 				</tr>
-				{{/for}}
+				{{/for}} 
 </script>
 <script type="text/x-jsrender" id="codeList_noData_template">	
 				<tr>	
@@ -575,6 +669,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</tr>
 </script>
 			</table>
+			</div>
 		</div>
 		<!-- paging -->
 		<div class="paging">

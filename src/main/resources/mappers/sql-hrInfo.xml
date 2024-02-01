@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hrInfo">
+
+	<cache />
+
+	<!--
+	인사정보 관리 
+	 -->	
+	<select id="getHrInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getHrInfoList
+			인사정보 리스트 조회 
+		*/
+		SELECT U.SP_CSTM_ID
+			,U.USER_ID
+			,U.USER_NM
+			,U.USER_DESC
+			,U.E_MAIL
+			,U.PHONE_NUM
+			,U.BRANCH_ID
+			,U.ROLE
+			,GET_CODE_DESC('CD_GRP_ROLE', U.ROLE) AS ROLE_DESC
+			,U.GRADE
+			,GET_CODE_DESC('CD_GRP_RATE', U.GRADE) AS GRADE_DESC
+			,U.STATE
+			,null AS STATE_DESC
+			,U.REG_DATE
+			,U.JUMIN
+			,U.POST_NUM
+			,U.ADDR1
+			,U.ADDR2
+			,U.USE_YN
+			,U.DEL_YN
+			,U.UPDATE_USER
+			,U.UPDATE_DATE
+		FROM ADMIN.TBL_EXP_USER U
+		WHERE 1=1
+	</select>
+	
+	<update id="updateHrInfo" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	hrInfo.updateHrInfo
+			인사정보  저장
+		*/
+		MERGE INTO ADMIN.TBL_EXP_USER T
+		USING (
+		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID,
+		         #{USER_ID} 	AS USER_ID,
+		         #{USER_NM} 	AS USER_NM,
+		         #{USER_DESC} 	AS USER_DESC,
+		         #{E_MAIL} 		AS E_MAIL,
+		         #{PHONE_NUM} 	AS PHONE_NUM,
+		         #{USE_YN} 		AS USE_YN,
+		         #{DEL_YN} 		AS DEL_YN,
+		         'system' 		AS UPDATE_USER,
+		         SYSDATE 		AS UPDATE_DATE
+		  FROM dual
+		) S
+		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+		AND T.USER_ID 		= S.USER_ID
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.USER_NM 		= S.USER_NM,
+		    T.USER_DESC 	= S.USER_DESC,
+		    T.E_MAIL 		= S.E_MAIL,
+		    T.PHONE_NUM 	= S.PHONE_NUM,
+		    T.USE_YN 		= S.USE_YN,
+		    T.DEL_YN 		= S.DEL_YN,
+		    T.UPDATE_USER 	= S.UPDATE_USER,
+		    T.UPDATE_DATE 	= S.UPDATE_DATE
+		WHEN NOT MATCHED THEN 
+    		INSERT (  SP_CSTM_ID,   USER_ID,   USER_NM,   USER_DESC,   E_MAIL,   PHONE_NUM,   USE_YN,   DEL_YN,  UPDATE_USER,   UPDATE_DATE )
+   			VALUES (S.SP_CSTM_ID, S.USER_ID, S.USER_NM, S.USER_DESC, S.E_MAIL, S.PHONE_NUM, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE )
+	</update>
+	
+	<delete id="deleteHrInfo" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	hrInfo.deleteHrInfo
+			인사정보  삭제
+		*/
+		UPDATE ADMIN.TBL_EXP_USER
+		SET DEL_YN = 'Y' 
+		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		AND	  USER_ID	 = #{USER_ID}
+	</delete>
+	
+</mapper>

@@ -2,8 +2,34 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="Common">
+<mapper namespace="common">
 
 	<cache />
-	
+
+	<!--
+	공통 코드  
+	 -->	
+	<select id="getCommonCodeList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	common.getCommonCodeList
+			공통코드 리스트 조회 
+		*/
+		SELECT G.GRP_CODE_NM
+		,	G.CODE_DESC AS GRP_CODE_DESC
+		,	C.CODE_NM
+		,	C.CODE_DESC
+		FROM TBL_EXP_GRPCODE G
+		,    TBL_EXP_CODE C
+		WHERE G.GRP_CODE_ID = C.GRP_CODE_ID
+		<if test=" GRP_CODE_NM != null and GRP_CODE_NM != '' ">
+		AND G.GRP_CODE_NM = #{GRP_CODE_NM}
+		</if>
+		<if test=" CODE_NM != null and CODE_NM != '' ">
+		AND C.CODE_NM = #{CODE_NM}
+		</if>
+		AND G.USE_YN = 'Y'
+		AND G.DEL_YN = 'N'
+		AND C.USE_YN = 'Y'
+		AND C.DEL_YN = 'N'
+		ORDER BY C.SORT_ORDER
+	</select>	
 </mapper>

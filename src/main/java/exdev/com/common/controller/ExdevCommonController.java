@@ -15,10 +15,8 @@
  */
 package exdev.com.common.controller;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.FileInputStream;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -32,16 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.tomcat.util.http.fileupload.FileItem;
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
-import org.apache.tomcat.util.http.fileupload.RequestContext;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
-import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,15 +42,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.service.ExdevCommonService;
 import exdev.com.common.vo.SessionVO;
+import exdev.com.service.ApprovalService;
 import exdev.com.service.ExcelService;
 import exdev.com.service.ExdevSampleService;
 import exdev.com.service.FileService;
-import exdev.com.service.ApprovalService;
 
 /**
  * This MovieController class is a Controller class to provide movie crud and
@@ -228,40 +220,24 @@ public class ExdevCommonController {
      * @수 정 일자 :
      * @수 정 자
      */
-
     @PostMapping("/approvalSave.do")
-    public @ResponseBody Map  approvalSave(@RequestParam("attach_file") List<MultipartFile> multiFileList,           
+    public @ResponseBody Map  approvalSave(@RequestParam(value ="attach_file", required=false) List<MultipartFile> multiFileList,           
             HttpServletRequest request, HttpSession session)  throws Exception {
         
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
         String msg = "";
         Map<String, String> returnMap = new HashMap<String, String>();
-        
-        // 받아온것 출력 확인
-        System.out.println("multiFileList : " + multiFileList);
-        String grpId = request.getParameter("groupId");
-        
-        String[] file_uuids = request.getParameterValues("file_uuids");
+
+        String grpId = request.getParameter("groupId"); 
 
         System.out.println("grpId : " + grpId);
 
-        
-        // path 가져오기
-        String path = request.getSession().getServletContext().getRealPath("resources");
-        String root = path + "\\" + "uploadFiles";
-        returnMap = fileService.fileUploadMulti( multiFileList, root , grpId, file_uuids);
-        msg = returnMap.get("msg").toString();
-
-        if( ExdevConstants.REQUEST_FAIL.equals(msg)) {
-            returnMap.put("msg","결재상신 에 성공하였습니다.");
-            return returnMap;
-        }
-        
 
         String title = request.getParameter("title");
         String content = request.getParameter("content");    
         String appr_uuid = request.getParameter("appr_uuid");
-
+        String state = request.getParameter("state");
+        
 
         System.out.println("title : " + title);
         System.out.println("content : " + content);    
@@ -275,22 +251,16 @@ public class ExdevCommonController {
         apprMap.put("requestUser","requestUser");
         apprMap.put("title",title);
         apprMap.put("contents",content);
-        apprMap.put("state","REQUEST");
+        apprMap.put("state",state);
         apprMap.put("approvalDate",strDate);
         apprMap.put("createUser","createUser");
         apprMap.put("createDate",strDate);
+  
+        String json = request.getParameter("apprUsers");
+        ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
         
-
-        String[] userIds       = request.getParameterValues("user_ids");
-        String[] apprUserUuids = request.getParameterValues("appr_user_uuid");
-        
-        
-        Map<String, String[]> apprUserMap = new HashMap<String, String[]>();
-                  
-        apprUserMap.put("apprUserUuids",apprUserUuids);
-        apprUserMap.put("userIds",userIds);
-        
-        returnMap = approvalService.insertApproval( apprMap,apprUserMap );
+        returnMap = approvalService.insertApproval( apprMap, apprUserList );
         
         msg = returnMap.get("msg").toString();
         if( ExdevConstants.REQUEST_SUCCESS.equals(msg)) {
@@ -313,13 +283,16 @@ public class ExdevCommonController {
 
     @SuppressWarnings({ "unused", "rawtypes" })
 	@PostMapping("/multiFileUpload.do")
-	public @ResponseBody Map  multiFileUpload(@RequestParam("attach_file") List<MultipartFile> multiFileList,			
+	public @ResponseBody Map<String, Object> multiFileUpload(@RequestParam("attach_file") List<MultipartFile> multiFileList,			
             HttpServletRequest request, HttpSession session)  throws Exception {
 		
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
         
-        Map returnMap = new HashMap();
+        Map<String, String> returnFileMap = new HashMap<String, String>();
+        List<Map<String, Object>> returnMaplist = new ArrayList<>();
+        Map<String, Object> returnMap = new HashMap<String, Object>();
         
+                
 		// 받아온것 출력 확인
 		System.out.println("multiFileList : " + multiFileList);
 		String grpId = request.getParameter("groupId");
@@ -328,13 +301,21 @@ public class ExdevCommonController {
 		// path 가져오기
 		String path = request.getSession().getServletContext().getRealPath("resources");
 		String root = path + "\\" + "uploadFiles";
-		returnMap = fileService.fileUploadMulti( multiFileList, root , grpId, uuids);
+		returnFileMap = fileService.fileUploadMulti( multiFileList, root , grpId, uuids);
 		
-		String msg = returnMap.get("msg").toString();
-		if( "SUCCESS".equals(msg)) {
-			returnMap.put("msg","파일 업로드에 성공하였습니다.");
+		if( ExdevConstants.REQUEST_SUCCESS.equals(returnFileMap.get("msg").toString())) {
+			
+		    returnMap.put("msg", "파일 업로드에 성공하였습니다.");
+            
+            List<String> list = new ArrayList<String>();
+            for(int i =0; i < uuids.length; i++ ) {
+                list.add(uuids[i]);
+            }
+            returnMap.put("list", list);
+			
 		}else{
-			returnMap.put("msg","파일 업로드에 실패하였습니다.");
+            returnMap.put("msg", "파일 업로드에 실패하였습니다.");
+            
 		}
 		
 		return returnMap;
@@ -362,7 +343,7 @@ public class ExdevCommonController {
         returnMap = fileService.fileDeleteMulti( delete_file_list );
         
         String msg = returnMap.get("msg").toString();
-        if( "SUCCESS".equals(msg)) {
+        if( ExdevConstants.REQUEST_SUCCESS.equals(msg)) {
             returnMap.put("msg","파일 삭제에 성공하였습니다.");
         }else{
             returnMap.put("msg","파일 삭제에 실패하였습니다.");
@@ -370,7 +351,94 @@ public class ExdevCommonController {
         
         return returnMap;
     }
+    
 
+    /** 
+     * 내용        : 파일 다운로드 샘플
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 01. 31 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+
+    @PostMapping("/fileDownload1.do")
+    public @ResponseBody void  fileDownload1(HttpServletRequest request, HttpServletResponse response, HttpSession session)  throws Exception {
+        
+        SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
+        
+        Map<String, String> returnMap = new HashMap<String, String>();
+        String uuid = request.getParameter("uuid");
+        
+        request.setCharacterEncoding("UTF-8");
+        // 파일경로
+        String root = request.getSession().getServletContext().getRealPath("/");
+        
+        String fileURL = "D:"+File.separator+"OCI"+File.separator+"workspace"+File.separator+"exdev"+File.separator+"src"+File.separator+"main"+File.separator+"webapp"+File.separator+"resources"+File.separator+"uploadFiles"+File.separator+"18d5997e5b115f9e.png";
+        
+        System.out.println("==== root ===>"+root);
+        String filePath = root+"resources"+File.separator+"uploadFiles"+File.separator+"18d5997e5b115f9e.png";
+                
+        System.out.println("==== filePath ===>"+filePath);
+        
+        File downloadFile = new File(filePath);
+        
+        FileInputStream inStream = new FileInputStream(downloadFile);
+        
+        // 파일 타입 설정
+        response.setContentType("application/octet-stream");
+        // 다운로드할 파일명 설정
+        response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+        System.out.println("==== downloadFile.getName() ===>"+downloadFile.getName());
+        // 파일 전송
+        int bytesRead;
+        while ((bytesRead = inStream.read()) != -1) {
+            response.getOutputStream().write(bytesRead);
+        }
+        
+        inStream.close();
+        
+    }
+    
+    /** 
+     * 내용        : 파일 다운로드 샘플
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 01. 31 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+
+    @SuppressWarnings({ "unused", "rawtypes" })
+    @RequestMapping("/fileDownload.do")
+    public void fileDownload(
+             HttpServletResponse response,HttpSession session,HttpServletRequest request) throws Exception {
+    
+
+        request.setCharacterEncoding("UTF-8");
+        String uuid = request.getParameter("uuid");
+        String orgFileName = request.getParameter("orgFileName");
+        System.out.println("== uuid ==>"+uuid);
+        
+        // 파일경로
+        String root = request.getSession().getServletContext().getRealPath("/");
+        
+        String fileURL = root+"resources"+File.separator+"uploadFiles"+File.separator+uuid+".png";
+        
+        System.out.println(fileURL);
+        
+        byte[] fileByte = FileUtils.readFileToByteArray(new File(fileURL));
+        
+        response.setContentType("application/octet-stream");
+        response.setContentLength(fileByte.length);
+        response.setHeader("Content-Disposition", "attachment; fileName=\"" + URLEncoder.encode(orgFileName,"UTF-8")+"\";");
+        response.setHeader("Content-Transfer-Encoding", "binary");
+        response.getOutputStream().write(fileByte);
+          
+        response.getOutputStream().flush();
+        response.getOutputStream().close();
+        
+    }
     /** 
      * 내용        : CKEditor 저장 샘플
      * @생 성 자   : 이응규
