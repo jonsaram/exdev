@@ -1,0 +1,290 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		 recvData : []	
+	 	 ,mode : ''
+	 	 ,COM_CODE : {}
+		 ,close : function(returnData) {
+			 
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+		 ,apply : () =>{
+
+			 let returnData = {};
+			 const $inputs = $("#<@popupId>_items input");
+			 $.each( $inputs, function(){
+				 
+				 const key = $(this).attr("id");
+				 const val = $(this).val();
+				 if(key)
+				 	returnData[key] = val;
+			 })
+			 returnData["USE_YN"] = <@popupId>.fnRadioCheckValue("USE_YN");
+			 returnData["DEL_YN"] = <@popupId>.fnRadioCheckValue("DEL_YN");
+			 <@popupId>.close(returnData);
+		 }		
+		 ,fnRadioCheckValue : (name , pValue) => {
+
+				const radioButtons = $("#<@popupId>_items input[name='"+name+"']");
+				if( pValue ){
+				 
+					const theRadioBtn = radioButtons.filter("[value='"+pValue+"']");
+					 theRadioBtn.prop('checked',true);
+				}else{
+				
+					const selectedValue = radioButtons.filter(":checked").val();
+					return selectedValue;
+				 }
+		}
+		,pageInit : () => {
+			
+			<@popupId>.mode = (<@popupId>.recvData).length > 0 ? "UPDATE":"INSERT";
+
+			
+			<@popupId>.recvData.forEach( item =>{
+				
+				$("#<@popupId>_items #"+item.key).val(item.val);
+				
+			});
+
+ 			<@popupId>.mode == "INSERT" ? $(".updateMode").hide() : $(".updateMode").show();
+			let mode = <@popupId>.mode == "INSERT" ? "신규 직원 추가" : "직원 정보 수정";
+	  	 	$(".tit").html( mode );
+
+			var modalHeight = (<@popupId>.mode == "INSERT") ? "650px" : "640px";
+			$(".modal").css({"height": modalHeight}); 
+
+			C_UICOM.makeSelectBox({ 
+				 		 data : <@popupId>.COM_CODE["CD_GRP_GENDER"]
+				 		,targetId : "<@popupId>_selectGender" }, "single");
+	 		
+			C_UICOM.makeSelectBox({ 
+				 		 data : <@popupId>.COM_CODE["CD_GRP_SURETY_INSURANCE"]
+				 		,targetId : "<@popupId>_selectSuretyIns"}, "single");
+	 		
+			C_UICOM.makeSelectBox({ 
+				 		 data : <@popupId>.COM_CODE["CD_GRP_ROLE"]
+				 		,targetId : "<@popupId>_selectRole" }, "single");
+	 		
+			C_UICOM.makeSelectBox({ 
+						 data : <@popupId>.COM_CODE["CD_GRP_RATE"]
+			 			,targetId : "<@popupId>_selectRate" }, "single");
+			
+		}
+		,setHandler : () => {
+			
+			$("#<@popupId>_postSearch").click( () => {
+				
+				<@popupId>.postPopup();
+				
+			})
+			
+		}
+		,getComCodeSelect : (callback) =>{
+			
+			var parm = {
+					queryGroup : [
+						 {
+							 queryId 		: "common.getCommonCodeList"
+							,requestParm	: { GRP_CODE_NM : "CD_GRP_GENDER" }
+						 }
+						,{
+							 queryId 		: "common.getCommonCodeList"
+							,requestParm	: { GRP_CODE_NM : "CD_GRP_SURETY_INSURANCE" }
+						 }
+						,{
+							 queryId 		: "common.getCommonCodeList"
+							,requestParm	: { GRP_CODE_NM : "CD_GRP_ROLE" }
+						 }
+						,{
+							 queryId 		: "common.getCommonCodeList"
+							,requestParm	: { GRP_CODE_NM : "CD_GRP_RATE" }
+						 }
+					]
+				}			
+				C_COM.requestQuery(parm, function(resultData) {
+
+						if( resultData.state == "S"){
+
+  							<@popupId>.COM_CODE["CD_GRP_GENDER"]	= resultData.data["common.getCommonCodeList"].map( item=> [item.CODE_NM, item.CODE_DESC] ) ;
+							<@popupId>.COM_CODE["CD_GRP_SURETY_INSURANCE"] = resultData.data["common.getCommonCodeList_1"].map( item=> [item.CODE_NM, item.CODE_DESC] ) ;
+							<@popupId>.COM_CODE["CD_GRP_ROLE"]		= resultData.data["common.getCommonCodeList_2"].map( item=> [item.CODE_NM, item.CODE_DESC] ) ;
+							<@popupId>.COM_CODE["CD_GRP_RATE"]		= resultData.data["common.getCommonCodeList_3"].map( item=> [item.CODE_NM, item.CODE_DESC] ) ;
+							
+							callback ? callback() : null;
+							
+						}else{
+							alert(resultData.msg)
+						}
+				});
+			
+		}
+		,postPopup  : () => {
+			
+		    new daum.Postcode({
+		        oncomplete: function(data) {
+		        	$("#<@popupId>_items #POST_NUM").val( data.zonecode );
+		        	$("#<@popupId>_items #ADDR1").val( data.roadAddress );
+		        	$("#<@popupId>_items #ADDR2").focus();
+		        }
+		    }).open();
+		    
+		}
+
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+
+		<@popupId>.recvData = data.param;
+
+		<@popupId>.getComCodeSelect( <@popupId>.pageInit ); 
+		<@popupId>.setHandler();
+		
+	});
+</script>
+
+<style>
+</style>
+<div class="modal_wrap" id="modal-ex">
+	<div class="modal" style="width:750px;height:650px;">
+		<div class="modal_header">
+			<strong class="tit">신규 직원 추가</strong>
+			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body" id="<@popupId>_items">
+			<div class="clearFix mt15">
+				<figure class="photo_wrap no_img">
+				</figure>
+				<ul class="info_wrap col2">
+					<li>
+						<label>사번코드</label>
+						<div class="info"><input type="text" id="USER_ID" style="width:100%" disabled></div>
+					</li>
+					<li>
+						<label>이름</label>
+						<div class="info"><input type="text" id="USER_NM" style="width:100%"></div>
+					</li>
+					<li>
+						<label>핸드폰번호</label>
+						<div class="info"><input type="text" id="PHONE_NUM" style="width:100%"></div>
+					</li>
+					<li>
+						<label>주민등록번호</label>
+						<div class="info"><input type="text" id="JUMIN" style="width:100%"></div>
+					</li>
+					<li>
+						<label>성별</label>
+						<div class="info">
+							<div id="<@popupId>_selectGender" class="select_box" style="width:100%">
+			                </div>
+						</div>
+					</li>
+					<li>
+						<label>입사일</label>
+						<div class="info">
+							<div class="calendar_wrap w100">
+								<input type="text" class="datepicker" id="REG_DATE" style="width:100%">
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<section>
+				<ul class="info_wrap col2">
+					<li>
+						<label>이메일</label>
+						<div class="info"><input type="text" id="E_MAIL" style="width:100%"></div>
+					</li>
+					<li>
+						<label>&nbsp;</label>
+						<div class="info">&nbsp;</div>
+					</li>
+					<li class="w100">
+						<label>주소</label>
+						<div class="info">
+							<input type="text" id="POST_NUM" >
+							<button class="btn" id="<@popupId>_postSearch">우편번호 검색</button>
+						</div>
+					</li>
+					<li class="w100 ml0">
+						<label>&nbsp;</label>
+						<div class="info">
+							<input type="text" class="fl"     id="ADDR1" style="width:calc(70% - 2px)">
+							<input type="text" class="fl ml4" id="ADDR2" style="width:calc(30% - 2px)">
+						</div>
+					</li>
+					<li>
+						<label>보증입보</label>
+						<div class="info">
+							<div id="<@popupId>_selectSuretyIns" class="select_box" style="width:100%">
+			                </div>
+						</div>
+					</li>
+					<li>
+						<label>가입금액</label>
+						<div class="info">
+							<input type="text" id="TEMP" style="width:100%">
+						</div>
+					</li>
+					<li>
+						<label>가입일</label>
+						<div class="info">
+							<div class="calendar_wrap w100">
+								<input type="text" id="TEMP" class="datepicker" style="width:100%">
+							</div>
+						</div>
+					</li>
+					<li>
+						<label>만기일</label>
+						<div class="info">
+							<div class="calendar_wrap w100">
+								<input type="text" id="TEMP" class="datepicker" style="width:100%">
+							</div>
+						</div>
+					</li>
+					<li>
+						<label>본부</label>
+						<div class="info">
+							<div class="select_box" style="width:100%">
+			                </div>
+						</div>
+					</li>
+					<li>
+						<label>지사</label>
+						<div class="info">
+							<div class="select_box" style="width:100%">
+			                </div>
+						</div>
+					</li>
+					<li>
+						<label>지점</label>
+						<div class="info">
+							<div class="select_box" style="width:100%">
+			                </div>
+						</div>
+					</li>
+					<li>
+						<label>역할</label>
+						<div class="info">
+							<div id="<@popupId>_selectRole" class="select_box" style="width:100%">
+			                </div>
+						</div>
+					</li>
+					<li>
+						<label>등급</label>
+						<div class="info">
+							<div id="<@popupId>_selectRate" class="select_box" style="width:100%">
+			                </div>
+						</div>
+					</li>
+				</ul>
+			</section>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select" onclick="<@popupId>.apply()" >저장</button>
+			<button type="button" class="btn select" onclick="<@popupId>.apply()" >추가</button>
+			<button type="button" class="btn close"  onclick="<@popupId>.close()" >취소</button>
+		</div>
+	</div>
+</div>
