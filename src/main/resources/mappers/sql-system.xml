@@ -95,28 +95,28 @@
 		WHERE 1 = 1 
 		AND T.SP_CSTM_ID = P.SP_CSTM_ID(+)
 		AND T.PARENT_MENU_ID = P.MENU_ID(+)
-		<if test=" MENU_NM != null and MENU_NM != '' ">
+		<if test=" MENU_NM != null and !MENU_NM.equals('') ">
 		AND T.MENU_NM like '%' || #{MENU_NM} || '%'
 		</if>
-		<if test=" PARENT_MENU_ID != null and PARENT_MENU_ID != '' ">
+		<if test=" PARENT_MENU_ID != null and !PARENT_MENU_ID.equals('') ">
 		AND T.PARENT_MENU_ID like  '%' || #{PARENT_MENU_ID} || '%'
 		</if>
-		<if test=" MENU_DEPTH != null and MENU_DEPTH != '' ">
+		<if test=" MENU_DEPTH != null and !MENU_DEPTH.equals('') ">
 		AND T.MENU_DEPTH = #{MENU_DEPTH}
 		</if>
-		<if test=" MENU_DESC != null and MENU_DESC != '' ">
+		<if test=" MENU_DESC != null and !MENU_DESC.equals('') ">
 		AND T.MENU_DESC like '%' || #{MENU_DESC} || '%'
 		</if>
-		<if test=" PAGE_ID != null and PAGE_ID != '' ">
+		<if test=" PAGE_ID != null and !PAGE_ID.equals('') ">
 		AND T.PAGE_ID like '%' || #{PAGE_ID} || '%'
 		</if>
-		<if test="USE_YN != null and USE_YN != '' ">
+		<if test="USE_YN != null and !USE_YN.equals('') ">
 		AND T.USE_YN = #{USE_YN}
 		</if>
-		<if test=" DEL_YN != null and DEL_YN != '' ">
+		<if test=" DEL_YN != null and !DEL_YN.equals('') ">
 		AND T.DEL_YN = #{DEL_YN}
 		</if>
-		<if test=" SORT_ORDER != null and SORT_ORDER != '' ">
+		<if test=" SORT_ORDER != null and !SORT_ORDER.equals('') ">
 		AND T.SORT_ORDER = #{SORT_ORDER}
 		</if>
 		ORDER BY SORT_ORDER
@@ -135,18 +135,8 @@
 		         #{MENU_DEPTH} AS MENU_DEPTH,
 		         #{MENU_DESC} AS MENU_DESC,
 		         #{PAGE_ID} AS PAGE_ID,
-		        <if test="USE_YN != null">
 		         NVL(#{USE_YN},'Y') AS USE_YN,
-		        </if>
-		        <if test="USE_YN == null">
-		         'Y' AS USE_YN,
-		        </if>
-		        <if test="SORT_ORDER != null">
-		         TO_NUMBER(#{SORT_ORDER}) AS SORT_ORDER,
-		        </if>
-		        <if test="SORT_ORDER == null">
-		         100 AS SORT_ORDER,
-		        </if>
+		         NVL(TO_NUMBER(#{SORT_ORDER}), 100) AS SORT_ORDER,
 		         'system' AS UPDATE_USER,
 		         SYSDATE AS UPDATE_DATE
 		  FROM dual
@@ -202,19 +192,19 @@
 		,(  MAX(T.SORT_ORDER) over() )+100 AS NEXT_SORT_ORDER
 		FROM ADMIN.TBL_EXP_GRPCODE T
 		WHERE 1 = 1
-		<if test=" GRP_CODE_ID != null and GRP_CODE_ID != '' ">
+		<if test=" GRP_CODE_ID != null and !GRP_CODE_ID.equals('') ">
 		AND T.GRP_CODE_ID like '%' || #{GRP_CODE_ID} || '%'
 		</if>
-		<if test=" CODE_NM != null and CODE_NM != '' ">
+		<if test=" CODE_NM != null and !CODE_NM.equals('') ">
 		AND T.GRP_CODE_NM like '%' || #{CODE_NM} || '%'
 		</if>
-		<if test=" CODE_DESC != null and CODE_DESC != '' ">
+		<if test=" CODE_DESC != null and !CODE_DESC.equals('') ">
 		AND T.CODE_DESC like '%' || #{CODE_DESC} || '%'
 		</if>
-		<if test=" S_USE_YN != null and S_USE_YN != '' ">
+		<if test=" S_USE_YN != null and !S_USE_YN.equals('') ">
 		AND T.USE_YN = #{S_USE_YN}
 		</if>
-		<if test=" S_DEL_YN != null and S_DEL_YN != '' ">
+		<if test=" S_DEL_YN != null and !S_DEL_YN.equals('') ">
 		AND T.DEL_YN = #{S_DEL_YN}
 		</if>
 		
@@ -244,22 +234,22 @@
 		FROM ADMIN.TBL_EXP_CODE T,
 		ADMIN.TBL_EXP_GRPCODE P 
 		WHERE T.GRP_CODE_ID = P.GRP_CODE_ID
-		<if test=" GRP_CODE_ID != null and GRP_CODE_ID != '' ">
+		<if test=" GRP_CODE_ID != null and !GRP_CODE_ID.equals('') ">
 		AND T.GRP_CODE_ID = #{GRP_CODE_ID}
 		</if>
-		<if test=" CODE_ID != null and CODE_ID != '' ">
+		<if test=" CODE_ID != null and !CODE_ID.equals('') ">
 		AND T.CODE_ID = #{CODE_ID} 
 		</if>
-		<if test=" CODE_NM != null and CODE_NM != '' ">
+		<if test=" CODE_NM != null and !CODE_NM.equals('') ">
 		AND T.CODE_NM like '%' || #{CODE_NM} || '%'
 		</if>
-		<if test=" CODE_DESC != null and CODE_DESC != '' ">
+		<if test=" CODE_DESC != null and !CODE_DESC.equals('') ">
 		AND T.CODE_DESC like '%' || #{CODE_DESC} || '%'
 		</if>
-		<if test=" S_USE_YN != null and S_USE_YN != '' ">
+		<if test=" S_USE_YN != null and !S_USE_YN.equals('') ">
 		AND T.USE_YN = #{S_USE_YN}
 		</if>
-		<if test=" S_DEL_YN != null and S_DEL_YN != '' ">
+		<if test=" S_DEL_YN != null and !S_DEL_YN.equals('') ">
 		AND T.DEL_YN = #{S_DEL_YN}
 		</if>
 		ORDER BY P.SORT_ORDER , T.SORT_ORDER	
@@ -365,7 +355,7 @@
 		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
 		FROM ADMIN.TBL_EXP_ROLE T
 		WHERE 1 = 1
-		<if test=" DEL_YN != null and DEL_YN != '' ">
+		<if test=" DEL_YN != null and !DEL_YN.equals('') ">
 		AND T.DEL_YN = #{DEL_YN}
 		</if>
 		
@@ -443,7 +433,7 @@
 		AND T.SP_CSTM_ID = R.SP_CSTM_ID
         AND T.USER_ID = A.USER_ID
         AND R.ROLE_ID = A.ROLE_ID 
-		<if test=" DEL_YN != null and DEL_YN != '' ">
+		<if test=" DEL_YN != null and !DEL_YN.equals('') ">
 		AND T.DEL_YN = #{DEL_YN}
 		</if>
         ORDER BY T.USER_ID, A.ROLE_ID
@@ -564,7 +554,7 @@
         AND R.ROLE_ID = RM.ROLE_ID(+)
         AND M.USE_YN = 'Y' AND M.DEL_YN = 'N'
         AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
-		<if test=" ROLE_NM != null and ROLE_NM != '' ">
+		<if test=" ROLE_NM != null and !ROLE_NM.equals('') ">
 		AND R.ROLE_NM = #{ROLE_NM}
 		</if>
         
