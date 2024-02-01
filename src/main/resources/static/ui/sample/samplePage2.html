@@ -72,16 +72,28 @@
 		        	const jsonData  = JSON.parse(response.data);
 
 		            const tableContainer = document.getElementById('result');
+		            tableContainer.style.position = "relative";
 		            const table = document.createElement('table');
-
+					table.style.marginLeft 		= "200px";
+					table.style.borderCollapse 	= "collapse";
+					table.style.width 			= "50%";
+					
 		            const columns = [];
-		            
+					
 		            // Thead
 		            const thead = document.createElement('thead');
+		            
+		            thead.style.border 		= "1px solid #dddddd";
+		            thead.style.textAlign 	= "center";
+		            thead.style.padding 	= "8px";
+		            thead.style.backgroundColor = "#f2f2f2";
+		            thead.style.height 		= "40px";
+
 		            const theadRow = document.createElement('tr');
 		            for (const key in jsonData[0]) {
 		                if (Object.hasOwnProperty.call(jsonData[0], key)) {
 		                    const th = document.createElement('th');
+		                    th.style.border = "1px solid #dddddd";
 		                    th.textContent = key;
 		                    theadRow.appendChild(th);
 		                    columns.push( key );
@@ -99,6 +111,9 @@
 		                
 		                for (const column of columns) {
 		                    const td = document.createElement('td');
+		                    td.style.textAlign 	= "left";
+		                    td.style.padding 	= "8px";
+		                    td.style.border 	= "1px solid #dddddd";
 		                    td.textContent = item[column] || '';
 		                    tbodyRow.appendChild(td);
 		                }
@@ -126,21 +141,7 @@
 
 	});
 </script>
-<style>
-table {
-	margin-left: 200px;
-    border-collapse: collapse;
-    width: 50%;
-}
-th, td {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-}
-th {
-    background-color: #f2f2f2;
-}
-</style>
+
 <div class="conWrap">
 	<!--section -->
 	<section id="bd">
