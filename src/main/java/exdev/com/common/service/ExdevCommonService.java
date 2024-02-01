@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import exdev.com.ExdevCommonAPI;
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
-import exdev.com.common.vo.SessionVO;
+import exdev.com.service.ApprovalService;
 import exdev.com.service.EmailService;
 import exdev.com.service.ExdevSampleService;
 
@@ -30,6 +29,10 @@ public class ExdevCommonService extends ExdevBaseService
 	
 	@Autowired
 	private EmailService 	emailService;
+	
+	@Autowired
+    private ApprovalService    approvalService;
+	
 	
 	@Autowired
 	private ExdevCommonDao commonDao;
@@ -63,7 +66,10 @@ public class ExdevCommonService extends ExdevBaseService
 		} else if("EmailService".equals(classId)) {
 			targetService = emailService;
 			targetMethod = EmailService.class.getMethod(methodId, Map.class);
-		}
+		} else if("ApprovalService".equals(classId)) {
+            targetService = approvalService;
+            targetMethod = ApprovalService.class.getMethod(methodId, Map.class);
+        }
 			
 		Object resultObject = (Object)targetMethod.invoke(targetService, requestParm);
 		

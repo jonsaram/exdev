@@ -60,6 +60,42 @@
             });
             
          }
+        ,fileDownload : function( uuid, orgFileName ){
+            
+            let requestParm = {}
+            requestParm["uuid"] = uuid;
+            requestParm["orgFileName"] = orgFileName;
+            
+
+            var xhr = new XMLHttpRequest();
+            var urlParams = new URLSearchParams( requestParm ).toString();
+            xhr.open('GET', '/fileDownload.do?'+urlParams, true);
+            xhr.responseType = 'blob';
+
+            xhr.onload = function() {
+                
+                if (xhr.status === 200) {
+
+                    var blob = new Blob([xhr.response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    var url = window.URL.createObjectURL(blob);
+                    
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = orgFileName;
+                    
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                } else {
+                    
+                    console.error('Failed to download excel file');
+                    
+                }
+            };
+            
+            xhr.send();
+        }
         ,selectUser : function() {
             
          }
@@ -127,7 +163,11 @@
                                 <script type="text/x-jsrender" id="fileTableId_template">    
                                    {{for list}}
                                        <li>
-                                           <span class="txt">{{:ORG_FILE_NAME}}</span>
+                                           <span class="txt">
+                                              <a href="javascript:void(0);" onclick="<@popupId>.fileDownload('{{:UUID}}','{{:ORG_FILE_NAME}}');">
+                                                  {{:ORG_FILE_NAME}}
+                                              </a>
+                                           </span>
                                        </li>
                                    {{/for}}
                                 </script>

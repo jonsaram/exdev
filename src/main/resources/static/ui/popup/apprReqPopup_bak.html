@@ -38,8 +38,7 @@
                 
                 let htmlData = '';
                 htmlData += '<li id="approvalUser'+ <@popupId>.userIndex +'" >';
-                htmlData += '<input type="hidden" id="userId'+ <@popupId>.userIndex +'"   name="userId"   value="'+ obj.user_id +'">';
-                htmlData += '<input type="hidden" id="apprType'+ <@popupId>.userIndex +'" name="apprType" value="APPR">';
+                htmlData += '<input type="hidden" id="userId'+ <@popupId>.userIndex +'" name="userId'+ <@popupId>.userIndex +'" value="userId'+ obj.user_id +'">';
                 htmlData += '    <button id="button'+ btnId1 +'" onclick="<@popupId>.setSelectUser(\''+btnId1+'\')" class="stateBtn toggle active">결재</button>';
                 htmlData += '    <button id="button'+ btnId2 +'" onclick="<@popupId>.setSelectUser(\''+btnId2+'\')" class="stateBtn toggle">합의</button>';
                 htmlData += '    <button id="button'+ btnId3 +'" onclick="<@popupId>.setSelectUser(\''+btnId3+'\')" class="stateBtn toggle">통보</button>';
@@ -63,17 +62,9 @@
             }
             
             for (var i = 0; i < 3; i++) {
-            	
                 for (var j = 0; j < 3; j++) {
                     if( i == rowNum && j == colNum ){
                         $('#button'+i+j).addClass('stateBtn toggle active');
-                        if( colNum == 0 ){ $('#apprType'+i).val('APPR'); }
-                        else if( colNum == 1 ){ $('#apprType'+i).val('AGREE');  }
-                        else if( colNum == 2 ){ $('#apprType'+i).val('NOTICE');  }
-                        else{}
-                        
-                         
-                        console.log("== colNum["+colNum+"]  ==");
                     }else{
                         $('#button'+i+j).addClass('stateBtn toggle');
                     }
@@ -83,7 +74,14 @@
         
         
         /* 결재상신 */
-        ,save : function (state) {
+        ,save : function () {
+            
+
+            for (var i = 0; i < <@popupId>.userIndex ; i++) {
+                console.log("11");
+            }
+            return;
+
             
             var title = $("#<@popupId> #title").val();
             if (title.length < 1) {
@@ -106,25 +104,16 @@
             
             var formData = new FormData(form);
             formData.append("appr_uuid", <@popupId>.fileFKUuid);
-            formData.append("state", state);
             
-            var userArry = new Array();
-            
-            for(i=0; i< <@popupId>.userIndex; i++){
-                var userId = $('#userId'+i).val();
-                var apprType = $('#apprType'+i).val();
-
-                if(typeof userId != "undefined" && userId != null && userId != ""){
-                	var item = new Object();
-                	item.user_id  = userId;
-                	item.apprType = apprType;
-                    item.appr_user_uuid  = C_COM.makeUniqueId();
-                    userArry.push(item);
+            for (var i = 0; i < <@popupId>.userArr.length; i++) {
+                // 삭제되지 않은 결재자만 폼데이터에 담기
+                if (!<@popupId>.userArr[i].is_delete) {
+                    formData.append("user_ids", <@popupId>.userArr[i]);
+                    formData.append("appr_user_uuid", C_COM.makeUniqueId());
                 }
             }
-            
-            formData.append('apprUsers', JSON.stringify(userArry));
-            
+
+
             $.ajax({
                 url: '/approvalSave.do',
                 method: 'POST',
@@ -154,6 +143,49 @@
          }
         
         /*첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    */
+        /* 첨부파일 추가 */
+        ,addFile1 : function(obj){
+            var maxFileCnt = 5;   // 첨부파일 최대 개수
+            var attFileCnt = document.querySelectorAll('.filebox').length;    // 기존 추가된 첨부파일 개수
+            var remainFileCnt = maxFileCnt - attFileCnt;    // 추가로 첨부가능한 개수
+            var curFileCnt = obj.files.length;  // 현재 선택된 첨부파일 개수
+
+            // 첨부파일 개수 확인
+            if (curFileCnt > remainFileCnt) {
+                alert("첨부파일은 최대 " + maxFileCnt + "개 까지 첨부 가능합니다.");
+            }
+
+            for (var i = 0; i < Math.min(curFileCnt, remainFileCnt); i++) {
+
+                const file = obj.files[i];
+                console.log("======= apprUuid ======="+<@popupId>.apprUuid); 
+                
+                // 첨부파일 검증
+                if (<@popupId>.validation(file)) {
+                    
+                    // 파일 배열에 담기
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        <@popupId>.filesArr.push(file);
+                    };
+                    reader.readAsDataURL(file)
+
+                    // 목록 추가
+                    let htmlData = '';
+                    htmlData += '<div id="file' + <@popupId>.fileNo + '" class="filebox">';
+                    htmlData += '   <p class="name">' + file.name + '</p>';
+                    htmlData += '   <button onclick="<@popupId>.deleteFile(' + <@popupId>.fileNo + ');">삭제</button>';
+                    htmlData += '</div>';
+                    $('#<@popupId> .file-list').append(htmlData);
+                    <@popupId>.fileNo++;
+                } else {
+                    continue;
+                }
+            }
+            // 초기화
+            //document.querySelector("input[type=file]").value = "";
+            $("#<@popupId> input[type=file]").val("");
+         }
         
         /* 첨부파일 추가 */
         ,addFile : function(obj){
@@ -353,8 +385,8 @@
                 </dl>
             </div>
             <div class="modal_footer">
-                <button type="button" class="btn select" onclick="<@popupId>.save('REQUEST')">결재 상신</button>
-                <button type="button" class="btn select" onclick="<@popupId>.save('HOLD')">보류함</button>
+                <button type="button" class="btn select" onclick="<@popupId>.save()">결재 상신</button>
+                <button type="button" class="btn select">보류함</button>
                 <button type="button" class="btn close"  onclick="<@popupId>.close()"      >취소</button>
             </div>
         </div>
