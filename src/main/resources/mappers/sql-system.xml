@@ -422,8 +422,6 @@
 		/*	system.getUserList
 			User 리스트 조회 
 		*/
-SELECT DISTINCT *
-FROM (		
 		SELECT T.SP_CSTM_ID 
 			,T.USER_ID
 			,T.USER_NM
@@ -434,22 +432,21 @@ FROM (
 			,T.DEL_YN
 			,T.UPDATE_USER
 			,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
-<!-- 	        ,A.ROLE_ID  
+	        ,A.ROLE_ID  
 	        ,R.ROLE_NM 
-	        ,R.ROLE_DESC -->
+	        ,R.ROLE_DESC
 		FROM ADMIN.TBL_EXP_USER T
         ,ADMIN.TBL_EXP_AUTH A
         ,ADMIN.TBL_EXP_ROLE R
 		WHERE 1 = 1		
-		AND T.SP_CSTM_ID = A.SP_CSTM_ID (+)
+		AND T.SP_CSTM_ID = A.SP_CSTM_ID
 		AND T.SP_CSTM_ID = R.SP_CSTM_ID
-        AND T.USER_ID = A.USER_ID (+)
-        AND R.ROLE_ID = A.ROLE_ID (+)
+        AND T.USER_ID = A.USER_ID
+        AND R.ROLE_ID = A.ROLE_ID 
 		<if test=" DEL_YN != null and DEL_YN != '' ">
 		AND T.DEL_YN = #{DEL_YN}
 		</if>
-)
-        ORDER BY USER_ID
+        ORDER BY T.USER_ID, A.ROLE_ID
 	</select>
 	
 	<update id="updateUser" parameterType="java.util.HashMap"  flushCache="true" >
