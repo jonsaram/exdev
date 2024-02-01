@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,45 +36,38 @@ public class ExcelService  extends ExdevBaseService{
 	private ExdevCommonService commonService;
 	
 	
-	public @ResponseBody Map upload(@RequestParam("file") MultipartFile file,HttpSession session) throws Exception {
-		
-		SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
-		Map map = new HashMap();
-		map.put("sessionVo", sessionVo);
-		map.put("filename", file.getOriginalFilename());
+	public @ResponseBody Map<String, Object> upload(@RequestParam("file") MultipartFile file, HttpSession session) throws Exception {
 
-		Map resultMap = new HashMap();
-		resultMap.put("msg",null);
-				
-	  try {
+		SessionVO sessionVo = (SessionVO) session.getAttribute(ExdevConstants.SESSION_ID);
+	    Map<String, Object> resultMap = new HashMap<>();
+	    resultMap.put("sessionVo", sessionVo);
+	    resultMap.put("filename", file.getOriginalFilename());
 
-            Workbook workbook = WorkbookFactory.create(file.getInputStream());
-
-            Sheet sheet = workbook.getSheetAt(0);
-            
-            List<Map<String, Object>> excelDataMapList = new ArrayList<>();
-            List<String> headerList = new ArrayList<>();
-            boolean headerRow = true;
-            
-            for (Row row : sheet) {
-            	Map<String,Object> cellMap = new HashMap();
-            	if( headerRow) {
-           
-                    for (Cell cell : row) {
-                        System.out.print(cell.toString() + "\t");
-                        headerList.add(cell.toString()); 
-                    }
-            		headerRow=false;
-            	}else {
-
-            		for (Cell cell : row) {
-            			System.out.print(cell.toString() + "\t");
-            			cellMap.put(headerList.get(cell.getColumnIndex()), cell.toString());
-            		}
-            		excelDataMapList.add( cellMap);
-            	}
-            	System.out.println();
-            }
+	    try {
+	        Workbook workbook = WorkbookFactory.create(file.getInputStream());
+	        Sheet sheet = workbook.getSheetAt(0);
+	        
+	        List<Map<String, Object>> excelDataMapList = new ArrayList<>();
+	        List<String> headerList = new ArrayList<>();
+	        boolean headerRow = true;
+	        
+	        for (Row row : sheet) {
+	            Map<String, Object> cellMap = new LinkedHashMap<>();
+	            
+	            for (int i = 0; i < row.getLastCellNum(); i++) {
+	                Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+	                if (headerRow) {
+	                    headerList.add(cell.toString());
+	                } else {
+	                    cellMap.put(headerList.get(i), cell.toString());
+	                }
+	            }
+	            
+	            if (!headerRow) {
+	                excelDataMapList.add(cellMap);
+	            }
+	            headerRow = false;
+	        }
 
             workbook.close();
 

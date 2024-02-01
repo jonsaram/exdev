@@ -68,12 +68,48 @@
 		        contentType: false,
 		        processData: false,
 		        success: function(response) {
-		        	const data = JSON.parse(response.data);
-		        	let newData = "";
-		        	data.forEach( datum => {
-		        		newData += JSON.stringify(datum) +"<br>";
-		        	})
-		            $("#result").html ( newData );
+
+		        	const jsonData  = JSON.parse(response.data);
+
+		            const tableContainer = document.getElementById('result');
+		            const table = document.createElement('table');
+
+		            const columns = [];
+		            
+		            // Thead
+		            const thead = document.createElement('thead');
+		            const theadRow = document.createElement('tr');
+		            for (const key in jsonData[0]) {
+		                if (Object.hasOwnProperty.call(jsonData[0], key)) {
+		                    const th = document.createElement('th');
+		                    th.textContent = key;
+		                    theadRow.appendChild(th);
+		                    columns.push( key );
+		                }
+		            }
+		            thead.appendChild(theadRow);
+		            table.appendChild(thead);
+
+		            // Tbody
+		            const tbody = document.createElement('tbody');
+		            
+		            for (const item of jsonData) {
+		            	
+		                const tbodyRow = document.createElement('tr');
+		                
+		                for (const column of columns) {
+		                    const td = document.createElement('td');
+		                    td.textContent = item[column] || '';
+		                    tbodyRow.appendChild(td);
+		                }
+
+		                tbody.appendChild(tbodyRow);
+		            }
+		            
+		            table.appendChild(tbody);
+
+		            tableContainer.appendChild( table);
+		        	
 		        },
 		        error: function(error) {
 		        	 $("#result").html ( '업로드 실패' );
@@ -90,6 +126,21 @@
 
 	});
 </script>
+<style>
+table {
+	margin-left: 200px;
+    border-collapse: collapse;
+    width: 50%;
+}
+th, td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+th {
+    background-color: #f2f2f2;
+}
+</style>
 <div class="conWrap">
 	<!--section -->
 	<section id="bd">
@@ -121,8 +172,8 @@
 	<br/><br/> <div style='border:1px solid black;margin-left:200px;'>
 				<input type="file" id="excelFileInput" />
 			   	<button onclick="<@pageId>.uploadExcel()" style='border:1px solid black;'>Upload sample</button>
-			   	<div id="result"/></div>
 			   </div>
+			   	<div id="result"/></div>
 	</section>
 	<!--//section -->
 </div>
