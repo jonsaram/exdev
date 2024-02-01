@@ -152,29 +152,38 @@
 
 	<br/><br/> <a href="javascript:<@pageId>.callQuery()">Sql Debug</a>
 
-	<br/><br/> <a href="javascript:<@pageId>.mailTest()">Mail Test</a>
 	
 	<br/><br/> <a href="javascript:<@pageId>.chartUrl()">chartUrl</a>
 	
 	<br/><br/> <a href="javascript:C_PM.movePage('sample_highchart')">chart sample</a>
 	
-	<br/><br/> <a href="javascript:C_PM.movePage('sample_menu')">[MENU] sample</a>
-	
-	<br/><br/> <a href="javascript:C_PM.movePage('sample_code')">[CODE] sample</a>
-	
-	<br/><br/> <a href="javascript:C_PM.movePage('sample_spCustom')">[TBL_EXP_SP_CSTM] sample</a>
-	
-	<br/><br/> <a href="javascript:C_PM.movePage('sample_role')">[TBL_EXP_ROLE] sample</a>
-	
-	<br/><br/> <a href="javascript:C_PM.movePage('sample_user')">[TBL_EXP_USER] sample</a>
-	
 	<br/><br/> <a href="javascript:C_PM.movePage('main_chat_chatList');">[TBL_EXP_CHAT] chat</a>
 	
-	<br/><br/> <div style='border:1px solid black;margin-left:200px;'>
-				<input type="file" id="excelFileInput" />
-			   	<button onclick="<@pageId>.uploadExcel()" style='border:1px solid black;'>Upload sample</button>
-			   </div>
-			   	<div id="result"/></div>
+	<br/><br/> 
+<!-- 				<div style="width:300px; border:1px solid black; margin-left:200px; height:40px; display: flex; justify-content: center; align-items: center;">
+				
+				    <a href="javascript:<@pageId>.mailTest()" style="font-size: 16px;">
+				        <span>Mail Test</span>
+				    </a>
+				    
+				</div> -->
+		
+	<br/><br/>	<div style="border:1px solid black; margin-left:200px; height:40px; display: inline-block;">
+					<input type="file" id="excelFileInput" style="padding-left:5px; padding-top:5px; border:1px solid black; height: 100%; width: calc(100% - 200px); float: left;"/>
+				   	<button id="uploadButton" onclick="<@pageId>.uploadExcel()" style="padding: 10px 20px; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); transition: background-color 0.3s ease; border: 1px solid black; background-color: #f2f2f2; height: 100%; width: 200px; float: right;">Upload sample</button>
+				</div>
+				<div id="result"/></div>
+				<script>
+					const uploadButton = document.getElementById('uploadButton');
+					
+					uploadButton.addEventListener('mouseenter', function() {
+					    uploadButton.style.backgroundColor = '#e0e0e0';
+					});
+					
+					uploadButton.addEventListener('mouseleave', function() {
+					    uploadButton.style.backgroundColor = '#f2f2f2';
+					});
+				</script>
 	</section>
 	<!--//section -->
 </div>
