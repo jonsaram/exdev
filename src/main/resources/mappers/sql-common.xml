@@ -13,23 +13,24 @@
 		/*	common.getCommonCodeList
 			공통코드 리스트 조회 
 		*/
-		SELECT G.GRP_CODE_NM
-		,	G.CODE_DESC AS GRP_CODE_DESC
-		,	C.CODE_NM
-		,	C.CODE_DESC
-		FROM TBL_EXP_GRPCODE G
-		,    TBL_EXP_CODE C
-		WHERE G.GRP_CODE_ID = C.GRP_CODE_ID
-		<if test=" GRP_CODE_NM != null and GRP_CODE_NM != '' ">
-		AND G.GRP_CODE_NM = #{GRP_CODE_NM}
-		</if>
-		<if test=" CODE_NM != null and CODE_NM != '' ">
-		AND C.CODE_NM = #{CODE_NM}
-		</if>
-		AND G.USE_YN = 'Y'
-		AND G.DEL_YN = 'N'
-		AND C.USE_YN = 'Y'
-		AND C.DEL_YN = 'N'
-		ORDER BY C.SORT_ORDER
-	</select>	
+		SELECT
+		     A.GRP_CODE_ID
+		    ,A.GRP_CODE_NM
+		    ,A.USE_YN
+		    ,A.DEL_YN
+		    ,A.SORT_ORDER
+		    ,A.UPDATE_USER
+		    ,A.UPDATE_DATE
+		    ,B.CODE_ID
+		    ,B.CODE_NM
+		    ,B.CODE_DESC
+		FROM
+		     TBL_EXP_GRPCODE    A
+		    ,TBL_EXP_CODE       B
+		WHERE 
+		    	A.GRP_CODE_ID = B.GRP_CODE_ID
+		    AND	A.USE_YN = 'Y'
+		    AND B.USE_YN = 'Y'
+		ORDER BY A.SORT_ORDER, B.SORT_ORDER    
+   	</select>	
 </mapper>

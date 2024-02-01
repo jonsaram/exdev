@@ -1,5 +1,6 @@
 var G_VAL = {
-	SP_CSTM_ID : ""
+	 SP_CSTM_ID : ""
+	,COMMON_CODE_MAP : {}
 }
 
 var C_COM = {
@@ -22,8 +23,49 @@ var C_COM = {
 			var pageId 	= C_PM.getCurrentPageId();
 			var cFn		= C_COM.keypressListenerCallbackFn[pageId];
 			if(typeof cFn == "function") cFn(event.keyCode);
-		});	
+		});
+		
+		// 공통 코드 읽어 오기
+		C_COM.initCommonCode();
 	 }
+	,initCommonCode() {
+		// 공통 코드 읽어 오기
+        let parm = {
+             queryId        : "common.getCommonCodeList"
+            ,requestParm    : {}
+        }
+        C_COM.requestQuery(parm, function(resultData) {
+			var commonCodeMap = {}
+
+			$.each(resultData.data, function() {
+				if(isEmpty(commonCodeMap[this.GRP_CODE_ID])) {
+					commonCodeMap[this.GRP_CODE_ID] = {
+						 codeList 	: []
+						,codeMap	: {}			
+					}
+				}
+				commonCodeMap[this.GRP_CODE_ID].codeList.push([this.CODE_ID, this.CODE_NM]);
+				commonCodeMap[this.GRP_CODE_ID].codeMap[this.CODE_ID] = this;
+			});
+			
+			G_VAL.COMMON_CODE_MAP = commonCodeMap;
+        });      
+	 }
+	,getCodeList : function(grpCodeId) {
+		var codeInfo = G_VAL.COMMON_CODE_MAP[grpCodeId];
+		if(isEmpty(codeInfo)) {
+			return [];
+		}
+		return codeInfo.codeList;
+	 }
+	,getCodeAttr : function(grpCodeId, codeId) {
+		var codeInfo = G_VAL.COMMON_CODE_MAP[grpCodeId];
+		if(isEmpty(codeInfo)) {
+			return {};
+		}
+		
+		return codeInfo.codeMap[codeId];
+	 }  
 	,addKeypressListener : function(pageId, callback) {
 		if(typeof callback != "function") {
 			alert('addKeypressListener 호출시 함수를 전달해야 합니다.');
@@ -243,14 +285,6 @@ var C_COM = {
 //		});
 		
 	}
-	// 공통 코드 요청하기
-	,requestCodeList : function(groupCodes, callback) {
-		C_CODE.requestCodeList(groupCodes, callback);
-	 }
-	// 공통 코드 가져오기
-	,getCodeList : function(pCd, callback) {
-		return C_CODE.getCodeList(pCd, callback);
-	 }
 	// 입력 창을 숫자만 입력되도록 처리
 	,makeNumberTypeToInput : function(domObj) {
 		$(domObj).find("input[number]").each(function() {
