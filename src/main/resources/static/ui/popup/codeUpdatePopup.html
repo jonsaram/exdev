@@ -95,37 +95,33 @@ var <@popupId> = {
 				
 			}
 
-			<@popupId>.mode == "INSERT" ? $(".updateMode").hide() : $(".updateMode").show();
-			let mode = <@popupId>.mode == "INSERT" ? "등록" : "수정";
+			let mode;
+			let modalHeight;
+			
+			if( <@popupId>.mode == "INSERT"){
+				
+				mode = "등록";$(".updateMode").hide();
+				if (<@popupId>.sectionId == "grpcode_section") modalHeight = "450px";	
+				else modalHeight = "550px";
+				
+				$("#<@popupId>_items #GRP_CODE_ID"	).removeAttr("disabled");
+				$("#<@popupId>_items #CODE_ID"		).removeAttr("disabled");
+				
+			}else{
+				
+				mode = "수정";$(".updateMode").show();
+				if (<@popupId>.sectionId == "grpcode_section") modalHeight = "550px";	
+				else modalHeight = "650px";	
+				
+			}
+			$(".modal").css({"height": modalHeight});
+
 			let title = <@popupId>.sectionId == "grpcode_section" ? "GROUP CODE " : "CODE ";
 	  	 	$(".tit").html(title+mode);
 
-			var modalHeight;
-			if (<@popupId>.sectionId == "grpcode_section") {
-			    modalHeight = (<@popupId>.mode == "INSERT") ? "450px" : "550px";
-			} else {
-			    modalHeight = (<@popupId>.mode == "INSERT") ? "550px" : "650px";
-			}
-			$(".modal").css({"height": modalHeight});
 			
 		}
 		,setHandler : () => {
-			
-			$("[name='GRP_CODE_NM']").on("input", function() {
-			     var inputValue = $(this).val();
-			     if (!inputValue.startsWith("CD_GRP_")) {
-			         inputValue = "CD_GRP_" + inputValue;
-			     }
-			     $(this).val(inputValue);
-			});
-			
-			$("[name='CODE_NM']").on("input", function() {
-			    var inputValue = $(this).val();
-			    if (!inputValue.startsWith("CD_")) {
-			        inputValue = "CD_" + inputValue;
-			    }
-			    $(this).val(inputValue);
-			});  			
 		}
 		
 }
@@ -222,7 +218,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			        <div class="row">
 			            <dt>GRP_CODE_ID</dt>
 			            <dd><input type="text" id="GRP_CODE_ID" disabled></dd>
-			            <dt>GRP_CODE_ID</dt>
+			            <dt>GRP_CODE_NM</dt>
 			            <dd><input type="text" id="GRP_CODE_NM" disabled></dd>
 			        </div>
 			        <div class="row">
