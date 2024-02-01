@@ -68,12 +68,63 @@
 		        contentType: false,
 		        processData: false,
 		        success: function(response) {
-		        	const data = JSON.parse(response.data);
-		        	let newData = "";
-		        	data.forEach( datum => {
-		        		newData += JSON.stringify(datum) +"<br>";
-		        	})
-		            $("#result").html ( newData );
+
+		        	const jsonData  = JSON.parse(response.data);
+
+		            const tableContainer = document.getElementById('result');
+		            tableContainer.style.position = "relative";
+		            const table = document.createElement('table');
+					table.style.marginLeft 		= "200px";
+					table.style.borderCollapse 	= "collapse";
+					table.style.width 			= "50%";
+					
+		            const columns = [];
+					
+		            // Thead
+		            const thead = document.createElement('thead');
+		            
+		            thead.style.border 		= "1px solid #dddddd";
+		            thead.style.textAlign 	= "center";
+		            thead.style.padding 	= "8px";
+		            thead.style.backgroundColor = "#f2f2f2";
+		            thead.style.height 		= "40px";
+
+		            const theadRow = document.createElement('tr');
+		            for (const key in jsonData[0]) {
+		                if (Object.hasOwnProperty.call(jsonData[0], key)) {
+		                    const th = document.createElement('th');
+		                    th.style.border = "1px solid #dddddd";
+		                    th.textContent = key;
+		                    theadRow.appendChild(th);
+		                    columns.push( key );
+		                }
+		            }
+		            thead.appendChild(theadRow);
+		            table.appendChild(thead);
+
+		            // Tbody
+		            const tbody = document.createElement('tbody');
+		            
+		            for (const item of jsonData) {
+		            	
+		                const tbodyRow = document.createElement('tr');
+		                
+		                for (const column of columns) {
+		                    const td = document.createElement('td');
+		                    td.style.textAlign 	= "right";
+		                    td.style.padding 	= "8px";
+		                    td.style.border 	= "1px solid #dddddd";
+		                    td.textContent = item[column] || '';
+		                    tbodyRow.appendChild(td);
+		                }
+
+		                tbody.appendChild(tbodyRow);
+		            }
+		            
+		            table.appendChild(tbody);
+
+		            tableContainer.appendChild( table);
+		        	
 		        },
 		        error: function(error) {
 		        	 $("#result").html ( '업로드 실패' );
@@ -90,7 +141,8 @@
 
 	});
 </script>
-<div class="cont_wrap">
+
+<div class="conWrap">
 	<!--section -->
 	<section id="bd">
 	<div id="h2i" canvasItem=Y>
@@ -100,29 +152,38 @@
 
 	<br/><br/> <a href="javascript:<@pageId>.callQuery()">Sql Debug</a>
 
-	<br/><br/> <a href="javascript:<@pageId>.mailTest()">Mail Test</a>
 	
 	<br/><br/> <a href="javascript:<@pageId>.chartUrl()">chartUrl</a>
 	
 	<br/><br/> <a href="javascript:C_PM.movePage('sample_highchart')">chart sample</a>
 	
-	<br/><br/> <a href="javascript:C_PM.movePage('sample_menu')">[MENU] sample</a>
-	
-	<br/><br/> <a href="javascript:C_PM.movePage('sample_code')">[CODE] sample</a>
-	
-	<br/><br/> <a href="javascript:C_PM.movePage('sample_spCustom')">[TBL_EXP_SP_CSTM] sample</a>
-	
-	<br/><br/> <a href="javascript:C_PM.movePage('sample_role')">[TBL_EXP_ROLE] sample</a>
-	
-	<br/><br/> <a href="javascript:C_PM.movePage('sample_user')">[TBL_EXP_USER] sample</a>
-	
 	<br/><br/> <a href="javascript:C_PM.movePage('main_chat_chatList');">[TBL_EXP_CHAT] chat</a>
 	
-	<br/><br/> <div style='border:1px solid black;margin-left:200px;'>
-				<input type="file" id="excelFileInput" />
-			   	<button onclick="<@pageId>.uploadExcel()" style='border:1px solid black;'>Upload sample</button>
-			   	<div id="result"/></div>
-			   </div>
+	<br/><br/> 
+<!-- 				<div style="width:300px; border:1px solid black; margin-left:200px; height:40px; display: flex; justify-content: center; align-items: center;">
+				
+				    <a href="javascript:<@pageId>.mailTest()" style="font-size: 16px;">
+				        <span>Mail Test</span>
+				    </a>
+				    
+				</div> -->
+		
+	<br/><br/>	<div style="border:1px solid black; margin-left:200px; height:40px; display: inline-block;">
+					<input type="file" id="excelFileInput" style="padding-left:5px; padding-top:5px; border:1px solid black; height: 100%; width: calc(100% - 200px); float: left;"/>
+				   	<button id="uploadButton" onclick="<@pageId>.uploadExcel()" style="padding: 10px 20px; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); transition: background-color 0.3s ease; border: 1px solid black; background-color: #f2f2f2; height: 100%; width: 200px; float: right;">Upload sample</button>
+				</div>
+				<div id="result"/></div>
+				<script>
+					const uploadButton = document.getElementById('uploadButton');
+					
+					uploadButton.addEventListener('mouseenter', function() {
+					    uploadButton.style.backgroundColor = '#e0e0e0';
+					});
+					
+					uploadButton.addEventListener('mouseleave', function() {
+					    uploadButton.style.backgroundColor = '#f2f2f2';
+					});
+				</script>
 	</section>
 	<!--//section -->
 </div>
