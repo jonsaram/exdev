@@ -772,6 +772,7 @@ var C_POP = {
 var C_UICOM = {
 	 dataListMap : {} 	// selectBox 에서 선택한 내용 담기
 	,useSelectBoxIdList : {}
+	,listnerChangeFnMap	: {}
 	,getData : function(targetId){
 
 		var viewId = C_COM.getCurrentViewId();
@@ -779,7 +780,40 @@ var C_UICOM = {
 		var viewTargetId = viewId + targetId;
 
 		return C_UICOM.dataListMap[viewTargetId];
+		
 	 }
+	,_setDataListMap : function(targetId, valObj) {
+		
+		var viewId = C_COM.getCurrentViewId();
+
+		var viewTargetId = viewId + targetId;
+		
+		let preData = C_UICOM.dataListMap[viewTargetId];
+		
+		C_UICOM.dataListMap[viewTargetId] = valObj;	
+
+		let fn = C_UICOM.listnerChangeFnMap[viewTargetId];
+		debugger;
+		if(isValid(fn)) {
+			if(isEmpty(preData) || typeof preData == "string") {
+				if(preData == valObj) return;
+			} else if( typeof perData == "object") {
+				if(JSON.stringify(preData) == JSON.stringify(valObj)) return;
+			} else {
+				return;
+			}
+			fn(C_UICOM.dataListMap[viewTargetId]);	
+		}
+	 }
+	// onchange 저장
+	,addChangeListner : function(targetId, fn) {
+		
+		var viewId = C_COM.getCurrentViewId();
+
+		var viewTargetId = viewId + targetId;
+
+		C_UICOM.listnerChangeFnMap[viewTargetId] = fn;
+	 }  
 	,init : function() {
 	    // 외부 링크
 	    $(document).bind('click', function(e) {
@@ -853,7 +887,8 @@ var C_UICOM = {
 
 			C_UICOM.initSingleBox(targetId);
 			
-			C_UICOM.dataListMap[viewTargetId] = rparm.firstItemCD;
+			C_UICOM._setDataListMap(targetId, rparm.firstItemCD); 
+			
 			
 
 		} else {
@@ -885,7 +920,7 @@ var C_UICOM = {
 
         var $open_ul = $(viewWebUl);
         $($open_ul).find("input[type=radio]").on("click", function(){
-			C_UICOM.setDataSingleBox(this, viewTargetId);
+			C_UICOM.setDataSingleBox(this, targetId);
         });
         $($open_ul).find("input[type=radio]").on("focus", function(){
             var $var = $( this ).next().text();
@@ -903,11 +938,16 @@ var C_UICOM = {
 		var viewTargetId = viewId + targetId;
 		
 		$(viewWebId + " input[value='" + val + "']").each(function(){
-			C_UICOM.setDataSingleBox(this, viewTargetId);
+			C_UICOM.setDataSingleBox(this, targetId);
 			return false;
 		});
 	 }
-	,setDataSingleBox : function(dom, viewTargetId) {
+	,setDataSingleBox : function(dom, targetId) {
+		
+		var viewId = C_COM.getCurrentViewId();
+
+		var viewTargetId = viewId + targetId;
+		
         var $var = $( dom ).next().text();
         $( dom ).parent().parent().prev().children().text( $var );
         $( dom ).parent().parent().prev().children().addClass( "active" );
@@ -915,7 +955,8 @@ var C_UICOM = {
         $( dom ).parent().parent().addClass("viewHide");
 		var valList = $(dom).val();
 
-		C_UICOM.dataListMap[viewTargetId] = valList;
+		C_UICOM._setDataListMap(targetId, valList); 
+		
 	 }
 	,initMultiBox : function(targetId) {
 
@@ -934,6 +975,7 @@ var C_UICOM = {
 		var viewId = C_COM.getCurrentViewId();
 		
 		var pageWebId = "#" + viewId + " #" + targetId + " ";
+
 		var viewTargetId = viewId + targetId;
 		
 		var viewtext 	= "";
@@ -950,7 +992,9 @@ var C_UICOM = {
 		if(selectCnt > 0) viewtext = viewtext + " 외 " + selectCnt;
 		
 		$(pageWebId + " .hida").html(viewtext);
-		C_UICOM.dataListMap[viewTargetId] = valList;
+
+		C_UICOM._setDataListMap(targetId, valList); 
+		
 	 }
 	,setMultiBox : function(targetId, valList) {
 		var viewId = C_COM.getCurrentViewId();
@@ -1373,6 +1417,68 @@ var C_GRID = {
 		});
 	 }
 }
+
+
+// Component Class
+var C_COMP = {
+	 eventFn 			: {}
+	,callbackMap		: {}
+	,import	: function(compId, parm, callback) {
+		if(parm == undefined) parm = {};
+
+		parm.compId = compId;
+		
+		C_COMP.callbackMap[compId] = callback;
+		
+		// Component ID에 해당하는 Url의 html을 가져온다.
+		var urlBody	= compId.replaceAll("_", "/");
+		var url 	= "ui/" + urlBody + ".html";
+		var html 	= C_COM.getHtmlFile(url);
+		
+		// 가상의 Document에 가져온 html 을 Setting한다.
+		var docDiv = $("<div></div>");
+		$(docDiv).html(html);
+
+		// html에서 최상위Div에 compId를 id로 부여한다.(unique값)
+		$("div", docDiv).eq(0).attr("id"	, compId);
+		
+		// Import할 Component를 Load 한다.
+		var htmlSrc = $(docDiv, "#" + compId).html();
+		
+		htmlSrc = htmlSrc.render("<@", ">", parm);
+		
+		$("#" + compId).html(htmlSrc);
+		
+		// onLoadComponent로 설정된 Function 실행
+		if(typeof C_COMP.eventFn[compId] == "function") C_COMP.eventFn[compId](parm);
+		
+		// Page 내의 처리는 Component도 Page와 동일하기 떄문에 C_PM의 initPage를 사용한다.
+		C_COMP.preInitComponent(compId);
+	 }
+	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
+	,preInitComponent : function(compId) {
+		var ComponentWebId = "#" + compId + " ";
+	    /*====== 달력 =======*/
+	    $(function () {
+	        $(ComponentWebId + ".datepicker").datepicker({
+	          showOn: "button",
+	          buttonImage: "./img/icon_calendar.png",
+	          buttonImageOnly: true,
+	          buttonText: "Select date",
+	        });
+	    });
+	 }
+	,onLoadComponent : function(compId, callback) {
+		C_COMP.eventFn[compId] = callback;
+	 }
+}
+
+
+
+
+
+
+
 
 
 // rs render 사용자 정의 function
