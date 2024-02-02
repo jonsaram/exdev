@@ -6,6 +6,64 @@
 
 	<cache />
 	
+      <!--  결재상태 조회 이응규 -->
+    <select id="getApprovalState" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* approval.getApprovalState */
+        SELECT  CASE WHEN A.TOTAL_CNT = B.COMP_CNT THEN 'COMPLETE'
+                     WHEN B.COMP_CNT = 0 THEN 'REQUEST'
+                     ELSE 'PROCESS'
+               END AS APPR_STATE
+        FROM   (
+                SELECT COUNT(1) AS TOTAL_CNT FROM   TBL_EXP_APPROVAL_USER WHERE  APPROVAL_UUID = #{approvalUuid} 
+               ) A,
+               (
+                SELECT COUNT(1) AS COMP_CNT  FROM   TBL_EXP_APPROVAL_USER WHERE  APPROVAL_UUID = #{approvalUuid} AND  STATE = 'COMPLETE'
+               ) B
+        WHERE  1 = 1
+    </select>
+    
+     <!--  결재 업데이트 이응규 -->
+    <update id="updateApproval" parameterType="java.util.HashMap"  flushCache="true" >
+        /*  approval.updateApproval */
+        UPDATE TBL_EXP_APPROVAL
+        SET    UPDATE_USER = #{updateUser}
+              ,UPDATE_DATE = (TO_DATE(#{updateDate} , 'yyyy/mm/dd hh24:mi:ss') )
+              <if test=" state != null and state != '' " >
+                 ,STATE = #{state}
+              </if>
+        WHERE  1 = 1
+        <if test=" uuid != null and uuid != '' " >
+            AND    UUID = #{uuid}
+        </if>
+    </update>
+
+     <!--  결재자 업데이트 이응규 -->
+    <update id="updateApprovalUser" parameterType="java.util.HashMap"  flushCache="true" >
+        /*  approval.updateApprovalUser */
+        UPDATE TBL_EXP_APPROVAL_USER
+        SET    UPDATE_USER = #{updateUser}
+              ,UPDATE_DATE = (TO_DATE(#{updateDate} , 'yyyy/mm/dd hh24:mi:ss') )
+              <if test=" approvalType != null and approvalType != '' " >
+                 ,APPROVAL_TYPE = #{approvalType}
+              </if>
+              <if test=" state != null and state != '' " >
+                 ,STATE = #{state}
+              </if>
+              <if test=" approvalComment != null and approvalComment != '' " >
+                 ,APPROVAL_COMMENT = #{approvalComment}
+              </if>
+        WHERE  1 = 1
+        <if test=" uuid != null and uuid != '' " >
+            AND    UUID = #{uuid}
+        </if>
+        <if test=" approvalUuid != null and approvalUuid != '' " >
+            AND    APPROVAL_UUID = #{approvalUuid}
+        </if>
+        <if test=" approvalUserId != null and approvalUserId != '' " >
+            AND    APPROVAL_USER_ID = #{approvalUserId}
+        </if>
+    </update>
+	
     <!--  미결,기결 조회 이응규 -->
     <select id="getApprovalUserState" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* approval.getApprovalUserState */

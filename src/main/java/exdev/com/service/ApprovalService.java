@@ -1,5 +1,8 @@
 package exdev.com.service;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,17 +41,92 @@ public class ApprovalService extends ExdevBaseService{
         
         Map<String, String> returnMap = new HashMap<String, String>();
         
-        String uuid = (String)map.get("uuid");
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
+        String strDate = dateFormat.format(Calendar.getInstance().getTime());
         
-        System.out.println("uuid =>"+uuid);
+        String approvalUuid = (String)map.get("approvalUuid");
+        String approvalUserId = (String)map.get("approvalUserId");
+        String state = (String)map.get("state");
         
-        returnMap.put("msg", ExdevConstants.REQUEST_SUCCESS);       
+        System.out.println("approvalUuid =>"+approvalUuid);
+        System.out.println("approvalUserId =>"+approvalUserId);
+        System.out.println("state =>"+state);
+        
+        if( approvalUuid.length() < 1 || approvalUserId.length() < 1  ) {
+            returnMap.put("msg", ExdevConstants.REQUEST_FAIL);      
+            return returnMap;
+        }
+        
+        Map<String, String> apprUserMap = new HashMap<String, String>();
+        apprUserMap.put("approvalUuid", (String)map.get("approvalUuid"));
+        apprUserMap.put("approvalUserId", (String)map.get("approvalUserId"));
+        apprUserMap.put("state", (String)map.get("state"));
+        apprUserMap.put("updateUser", approvalUserId);
+        apprUserMap.put("updateDate", strDate);
+        
+        int result = commonDao.update("approval.updateApprovalUser", apprUserMap);
+        
+        if( result > 0  ) {
+            returnMap.put("msg", ExdevConstants.REQUEST_SUCCESS);    
+        }else {
+            returnMap.put("msg", ExdevConstants.REQUEST_FAIL);
+        }
+               
         
         
         return returnMap;
     }
+    
 
-
+    /** 
+     * 내용        : 결재상태 입력
+     *               결재테이블(TBL_EXP_APPROVAL)
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 02. 01 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+    public Map<String, String> apprUpdate(Map map ) throws Exception {
+        
+        Map<String, String> returnMap = new HashMap<String, String>();
+        
+        int result = 0;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
+        String strDate = dateFormat.format(Calendar.getInstance().getTime());
+        
+        
+        System.out.println("state =>"+(String)map.get("state"));
+        
+        Map<String, String> apprUserMap = new HashMap<String, String>();
+        apprUserMap.put("approvalUuid", (String)map.get("approvalUuid"));
+        apprUserMap.put("updateUser", "windrider");
+        apprUserMap.put("updateDate", strDate);
+        
+        List<Map> list = commonDao.getList("approval.getApprovalState", apprUserMap);
+        for(Map apprMap : list) {
+            System.out.println("APPR_STATE =>"+(String)apprMap.get("APPR_STATE"));
+            if( "COMPLETE".equals((String)apprMap.get("APPR_STATE")) ) {
+                Map<String, String> apprMap1 = new HashMap<String, String>();
+                
+                
+                apprMap1.put("uuid", (String)map.get("approvalUuid"));
+                apprMap1.put("state", (String)map.get("state"));
+                apprMap1.put("updateUser", "windrider");
+                apprMap1.put("updateDate", strDate);
+                
+                result = commonDao.update("approval.updateApproval", apprMap1);
+            }
+        }
+        if( result > 0  ) {
+            returnMap.put("msg", ExdevConstants.REQUEST_SUCCESS);    
+        }else {
+            returnMap.put("msg", ExdevConstants.REQUEST_FAIL);
+        }
+        
+        return returnMap;
+    }
     /** 
      * 내용        : 결재결완료
      * @생 성 자   : 이응규
