@@ -1462,6 +1462,9 @@ var C_COMP = {
 		
 		// Page 내의 처리는 Comp도 Page와 동일하기 떄문에 C_PM의 initPage를 사용한다.
 		C_COMP.preInitComp(compId);
+		
+		eval(viewId + "." + targetId + " = " + compId);
+		
 	 }
 	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
 	,preInitComp : function(compId) {
@@ -1475,13 +1478,22 @@ var C_COMP = {
 	          buttonText: "Select date",
 	        });
 	    });
-		
 	 }
 	,onLoadComp : function(compId, callback) {
 		C_COMP.eventFn[compId] = callback;
 	 }
 	,callback : function(compId, data) {
 		if(typeof C_COMP.callbackMap[compId] == "function") C_COMP.callbackMap[compId](data);
+	 }
+	,getCompObj : function(compId) {
+		try {
+			var viewId = C_COM.getCurrentViewId();
+			eval("let compObj = " + viewId + compId);
+			return compObj;
+		} catch(e) {
+			alert('Component Object를 가져오는데 실패 했습니다.');
+			return null;
+		}
 	 }
 }
 
