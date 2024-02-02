@@ -10,7 +10,7 @@
 	인사정보 관리 
 	 -->	
 	<select id="getHrInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	system.getHrInfoList
+		/*	hrInfo.getHrInfoList
 			인사정보 리스트 조회 
 		*/
 		SELECT U.SP_CSTM_ID
@@ -35,7 +35,7 @@
 			,U.DEL_YN
 			,U.UPDATE_USER
 			,U.UPDATE_DATE
-		FROM ADMIN.TBL_EXP_USER U
+		FROM TBL_EXP_USER U
 		WHERE 1=1
 	</select>
 	
@@ -43,7 +43,7 @@
 		/*	hrInfo.updateHrInfo
 			인사정보  저장
 		*/
-		MERGE INTO ADMIN.TBL_EXP_USER T
+		MERGE INTO TBL_EXP_USER T
 		USING (
 		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID,
 		         #{USER_ID} 	AS USER_ID,
@@ -79,10 +79,46 @@
 		/*	hrInfo.deleteHrInfo
 			인사정보  삭제
 		*/
-		UPDATE ADMIN.TBL_EXP_USER
+		UPDATE TBL_EXP_USER
 		SET DEL_YN = 'Y' 
 		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
 		AND	  USER_ID	 = #{USER_ID}
 	</delete>
+	
+	<select id="getBaseBranchList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	hrInfo.getBaseBranchList
+			본부 리스트 조회 
+		*/
+		SELECT U.BASE_BRANCH_ID AS CODE_ID
+			,  U.BASE_BRANCH_NM AS CODE_NM
+		FROM TBL_EXP_BASE_BRANCH U
+	WHERE 1=1
+	</select>
+	
+	<select id="getSpBranchList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	hrInfo.getSpBranchList
+			지사 리스트 조회 
+		*/
+		SELECT U.SP_BRANCH_ID AS CODE_ID
+			,  U.SP_BRANCH_NM AS CODE_NM
+		FROM TBL_EXP_SP_BRANCH U
+		WHERE 1=1
+		<if test=" BASE_BRANCH_ID != null and !BASE_BRANCH_ID.equals('') ">
+		AND BASE_BRANCH_ID = #{BASE_BRANCH_ID}
+		</if>
+	</select>
+	
+	<select id="getBranchList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	hrInfo.getBranchList
+			지점 리스트 조회 
+		*/
+		SELECT U.BRANCH_ID AS CODE_ID
+			,  U.BRANCH_NM AS CODE_NM
+		FROM TBL_EXP_BRANCH U
+		WHERE 1=1
+		<if test=" SP_BRANCH_ID != null and !SP_BRANCH_ID.equals('') ">
+		AND SP_BRANCH_ID = #{SP_BRANCH_ID}
+		</if>
+	</select>
 	
 </mapper>

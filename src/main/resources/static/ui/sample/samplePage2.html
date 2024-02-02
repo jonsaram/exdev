@@ -28,19 +28,21 @@
 			});
 		 }
 		,mailTest : function() {
+
 			var parm = {
 				 serviceId 				: "EmailService.sendHtmlEmail"
 				,requestParm			: {
-											recipient:"trigger7kr@gmail.com",
-											subject:"Welcome to Join me",
-											templateName:"welcome-email",
-											cxt_name1:"라이더",
-											cxt_name2:"트리거",
+											recipient:$("#recipient").val(),
+											subject:$("#subject").val(),
+											templateName:$("#templateName").val(),
+											cxt_name1:$("#cxt_name1").val(),
+											cxt_name2:$("#cxt_name2").val()
 										   }
 			}
 			
 			C_COM.requestService(parm, function(resultData) {
-				dwrite(resultData);
+
+				$("#mailResult").text(resultData.data.data.htmlBody);
 			});
 		 }
 		,chartUrl : function() {
@@ -159,16 +161,27 @@
 	
 	<br/><br/> <a href="javascript:C_PM.movePage('main_chat_chatList');">[TBL_EXP_CHAT] chat</a>
 	
-	<br/><br/> 
-<!-- 				<div style="width:300px; border:1px solid black; margin-left:200px; height:40px; display: flex; justify-content: center; align-items: center;">
-				
-				    <a href="javascript:<@pageId>.mailTest()" style="font-size: 16px;">
-				        <span>Mail Test</span>
-				    </a>
-				    
-				</div> -->
+	<br/><br/>
+	<style>
+		.form-container { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; width:250px; border:1px solid black; padding:5px;}
+	    .form-container label {flex: 0 0 30%;text-align: right;padding-right: 10px;}
+	    .form-container input[type="text"] {flex: 0 0 65%;}
+	    .form-container a {width: 100%;text-align: center;font-size: 16px;display: block;margin-top: 10px;}
+	</style>	 
+	<div style='width:250px; height:30px; border:1px solid black;padding-left:5px;padding-top:5px;'>메일 전송 테스트</div>
+	<div class='form-container'>
+	    <label for="recipient">수신자   :</label>		<input type='text'	id="recipient"		value="trigger7@naver.com"/>
+	    <label for="subject">메일제목:</label>		<input type='text'  id="subject"		value="hello Explan"/>
+	    <label for="templateName">템플릿명:</label> <input type='text'	id="templateName" 	value="welcome-email"/>
+	    <label for="cxt_name1">변수1:</label>		<input type='text'	id="cxt_name1" 		value="라이더"/>
+	    <label for="cxt_name2">변수2:</label>		<input type='text'	id="cxt_name2" 		value="트리거"/>
+	    <a style="width: 100%;font-size: 16px;border: 1px solid black; background-color: #f2f2f2;" href="javascript:<@pageId>.mailTest()">Mail Send</a>
+	</div>
+	<div id="mailResult" style='width:50%;overflow:auto'/></div>
+	<br/><br/>
+			
 		
-	<br/><br/>	<div style="border:1px solid black; margin-left:200px; height:40px; display: inline-block;">
+	<br/><br/>	<div style="border:1px solid black; height:40px; display: inline-block;">
 					<input type="file" id="excelFileInput" style="padding-left:5px; padding-top:5px; border:1px solid black; height: 100%; width: calc(100% - 200px); float: left;"/>
 				   	<button id="uploadButton" onclick="<@pageId>.uploadExcel()" style="padding: 10px 20px; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); transition: background-color 0.3s ease; border: 1px solid black; background-color: #f2f2f2; height: 100%; width: 200px; float: right;">Upload sample</button>
 				</div>

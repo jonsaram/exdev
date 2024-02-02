@@ -20,7 +20,7 @@
 		,DEL_YN
 		,UPDATE_USER
 		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
-		FROM ADMIN.TBL_EXP_SP_CSTM T
+		FROM TBL_EXP_SP_CSTM T
 		WHERE 1 = 1
 	</select>
 	
@@ -28,7 +28,7 @@
 		/*	system.updateSpCustomer
 			SP CUSTOMER  저장
 		*/
-		MERGE INTO ADMIN.TBL_EXP_SP_CSTM T
+		MERGE INTO TBL_EXP_SP_CSTM T
 		USING (
 		  SELECT #{SP_CSTM_NM} AS SP_CSTM_NM,
 		         #{SP_CSTM_DESC} AS SP_CSTM_DESC,
@@ -56,7 +56,7 @@
 		/*	system.deleteSpCustomer
 			SP CUSTOMER 삭제
 		*/
-		DELETE FROM ADMIN.TBL_EXP_SP_CSTM 
+		DELETE FROM TBL_EXP_SP_CSTM 
 		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
 	</delete>
 	
@@ -84,14 +84,14 @@
 			,CASE  
 				WHEN EXISTS (
 					            SELECT 1 
-					            FROM ADMIN.TBL_EXP_MENU CHILD 
+					            FROM TBL_EXP_MENU CHILD 
 					            WHERE CHILD.PARENT_MENU_ID = T.MENU_ID
 					            
 							) 	THEN 'Y'
 		        				ELSE 'N'
 		    END AS HAS_CHILD
-		FROM ADMIN.TBL_EXP_MENU T
-		,ADMIN.TBL_EXP_MENU P
+		FROM TBL_EXP_MENU T
+		,TBL_EXP_MENU P
 		WHERE 1 = 1 
 		AND T.SP_CSTM_ID = P.SP_CSTM_ID(+)
 		AND T.PARENT_MENU_ID = P.MENU_ID(+)
@@ -126,7 +126,7 @@
 		/*	system.updateMenu
 			메뉴 저장
 		*/
-		MERGE INTO ADMIN.TBL_EXP_MENU T
+		MERGE INTO TBL_EXP_MENU T
 		USING (
 		  SELECT #{SP_CSTM_ID} AS SP_CSTM_ID,
 		         #{MENU_ID} AS MENU_ID,
@@ -164,7 +164,7 @@
 		/*	system.deleteMenu
 			메뉴 삭제
 		*/
-		UPDATE ADMIN.TBL_EXP_MENU
+		UPDATE TBL_EXP_MENU
 		SET DEL_YN = 'Y',
 		UPDATE_USER = 'system',
 		UPDATE_DATE = SYSDATE 
@@ -188,9 +188,9 @@
 		,SORT_ORDER
 		,UPDATE_USER
 		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE
-		,( SELECT COUNT(*) FROM ADMIN.TBL_EXP_CODE I WHERE I.GRP_CODE_ID = T.GRP_CODE_ID ) TBL_EXP_CODE_CNT
+		,( SELECT COUNT(*) FROM TBL_EXP_CODE I WHERE I.GRP_CODE_ID = T.GRP_CODE_ID ) TBL_EXP_CODE_CNT
 		,(  MAX(T.SORT_ORDER) over() )+100 AS NEXT_SORT_ORDER
-		FROM ADMIN.TBL_EXP_GRPCODE T
+		FROM TBL_EXP_GRPCODE T
 		WHERE 1 = 1
 		<if test=" GRP_CODE_ID != null and !GRP_CODE_ID.equals('') ">
 		AND T.GRP_CODE_ID like '%' || #{GRP_CODE_ID} || '%'
@@ -219,7 +219,7 @@
 		SELECT 
 		T.GRP_CODE_ID
 		,( SELECT GRP_CODE_NM 
-			FROM ADMIN.TBL_EXP_GRPCODE I 
+			FROM TBL_EXP_GRPCODE I 
 			WHERE I.GRP_CODE_ID = T.GRP_CODE_ID) AS GRP_CODE_NM
 		,T.CODE_ID
 		,T.CODE_NM
@@ -231,8 +231,8 @@
 		,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE
 		 ,(  MAX(T.SORT_ORDER) over( PARTITION BY NVL(T.GRP_CODE_ID, T.CODE_ID ) ) )+10 AS NEXT_SORT_ORDER
 		 ,P.SORT_ORDER
-		FROM ADMIN.TBL_EXP_CODE T,
-		ADMIN.TBL_EXP_GRPCODE P 
+		FROM TBL_EXP_CODE T,
+		TBL_EXP_GRPCODE P 
 		WHERE T.GRP_CODE_ID = P.GRP_CODE_ID
 		<if test=" GRP_CODE_ID != null and !GRP_CODE_ID.equals('') ">
 		AND T.GRP_CODE_ID = #{GRP_CODE_ID}
@@ -259,7 +259,7 @@
 		/*	system.updateGrpCode
 			그룹 코드 저장
 		*/
-		MERGE INTO ADMIN.TBL_EXP_GRPCODE T
+		MERGE INTO TBL_EXP_GRPCODE T
 		USING (
 		  SELECT #{GRP_CODE_ID} AS GRP_CODE_ID,
 				 #{GRP_CODE_NM} AS GRP_CODE_NM,
@@ -290,7 +290,7 @@
 		/*	system.updateCode
 			코드 저장
 		*/
-		MERGE INTO ADMIN.TBL_EXP_CODE T
+		MERGE INTO TBL_EXP_CODE T
 		USING (
 		  SELECT #{GRP_CODE_ID}	AS GRP_CODE_ID, 
 				 #{CODE_ID} 	AS CODE_ID, 
@@ -324,7 +324,7 @@
 		/*	system.deleteGrpCode
 			그룹 코드 삭제
 		*/
-		DELETE FROM ADMIN.TBL_EXP_GRPCODE 
+		DELETE FROM TBL_EXP_GRPCODE 
 		WHERE GRP_CODE_ID = #{GRP_CODE_ID} 
 	</delete>
 
@@ -332,7 +332,7 @@
 		/*	system.deleteCode
 			코드 삭제
 		*/
-		DELETE FROM ADMIN.TBL_EXP_CODE 
+		DELETE FROM TBL_EXP_CODE 
 		WHERE GRP_CODE_ID 	= #{GRP_CODE_ID} 
 		AND 	CODE_ID 	= #{CODE_ID} 
 	</delete>
@@ -353,7 +353,7 @@
 		,SORT_ORDER
 		,UPDATE_USER
 		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
-		FROM ADMIN.TBL_EXP_ROLE T
+		FROM TBL_EXP_ROLE T
 		WHERE 1 = 1
 		<if test=" DEL_YN != null and !DEL_YN.equals('') ">
 		AND T.DEL_YN = #{DEL_YN}
@@ -366,7 +366,7 @@
 		/*	system.updateRole
 			Role  저장
 		*/
-		MERGE INTO ADMIN.TBL_EXP_ROLE T
+		MERGE INTO TBL_EXP_ROLE T
 		USING (
 		  SELECT #{SP_CSTM_ID} AS SP_CSTM_ID,
 		         #{ROLE_ID} AS ROLE_ID,
@@ -399,7 +399,7 @@
 		/*	system.deleteRole
 			Role 삭제
 		*/
-		DELETE FROM ADMIN.TBL_EXP_ROLE 
+		DELETE FROM TBL_EXP_ROLE 
 		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
 		AND	  ROLE_ID	 = #{ROLE_ID}
 	</delete>
@@ -425,9 +425,9 @@
 	        ,A.ROLE_ID  
 	        ,R.ROLE_NM 
 	        ,R.ROLE_DESC
-		FROM ADMIN.TBL_EXP_USER T
-        ,ADMIN.TBL_EXP_AUTH A
-        ,ADMIN.TBL_EXP_ROLE R
+		FROM TBL_EXP_USER T
+        ,TBL_EXP_AUTH A
+        ,TBL_EXP_ROLE R
 		WHERE 1 = 1		
 		AND T.SP_CSTM_ID = A.SP_CSTM_ID
 		AND T.SP_CSTM_ID = R.SP_CSTM_ID
@@ -443,7 +443,7 @@
 		/*	system.updateUser
 			User  저장
 		*/
-		MERGE INTO ADMIN.TBL_EXP_USER T
+		MERGE INTO TBL_EXP_USER T
 		USING (
 		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID,
 		         #{USER_ID} 	AS USER_ID,
@@ -479,7 +479,7 @@
 		/*	system.deleteUser
 			User 삭제
 		*/
-		UPDATE ADMIN.TBL_EXP_USER
+		UPDATE TBL_EXP_USER
 		SET DEL_YN = 'Y' 
 		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
 		AND	  USER_ID	 = #{USER_ID}
@@ -496,7 +496,7 @@
 		SELECT SP_CSTM_ID 
 		,USER_ID
 		,ROLE_ID
-		FROM ADMIN.TBL_EXP_AUTH T
+		FROM TBL_EXP_AUTH T
 		WHERE 1 = 1
 	</select>
 	
@@ -504,7 +504,7 @@
 		/*	system.updateAuth
 			권한 매핑 Auth  저장
 		*/
-		MERGE INTO ADMIN.TBL_EXP_AUTH T
+		MERGE INTO TBL_EXP_AUTH T
 		USING (
 		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID
 				,#{USER_ID} 	AS USER_ID
@@ -526,7 +526,7 @@
 		/*	system.deleteAuth
 			권한매핑 Auth 삭제
 		*/
-		DELETE FROM ADMIN.TBL_EXP_AUTH 
+		DELETE FROM TBL_EXP_AUTH 
 		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
 		AND	  USER_ID	 = #{USER_ID}
 	</delete>
@@ -547,9 +547,9 @@
 	        ,RM.AUTH_TYPE
         	,DECODE( RM.AUTH_TYPE ,'A','Read/Write' ,'R','Read','') AS AUTH_TYPE_DESC
 	        ,M.SORT_ORDER
-	     FROM ADMIN.TBL_EXP_MENU M
-         ,ADMIN.TBL_EXP_ROLEMENU RM
-         ,ADMIN.TBL_EXP_ROLE R
+	     FROM TBL_EXP_MENU M
+         ,TBL_EXP_ROLEMENU RM
+         ,TBL_EXP_ROLE R
         WHERE M.MENU_ID = RM.MENU_ID(+)
         AND R.ROLE_ID = RM.ROLE_ID(+)
         AND M.USE_YN = 'Y' AND M.DEL_YN = 'N'
@@ -565,7 +565,7 @@
 		/*	system.updateRoleMenuMap
 			권한 매핑 Auth  저장
 		*/
-		MERGE INTO ADMIN.TBL_EXP_ROLEMENU T
+		MERGE INTO TBL_EXP_ROLEMENU T
 		USING (
 		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID
 				,#{ROLE_ID} 	AS ROLE_ID
@@ -589,7 +589,7 @@
 		/*	system.deleteRoleMenuMap
 			권한매핑 Auth 삭제
 		*/
-		DELETE FROM ADMIN.TBL_EXP_ROLEMENU 
+		DELETE FROM TBL_EXP_ROLEMENU 
 		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
 		AND	  ROLE_ID	 = #{ROLE_ID}
 		AND	  MENU_ID	 = #{MENU_ID}

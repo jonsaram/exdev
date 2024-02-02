@@ -3,7 +3,7 @@
 	var <@popupId> = {
 		 recvData : []	
 	 	 ,mode : ''
-	 	 ,COM_CODE : {}
+	 	 ,BRANCH_DATA : {}
 		 ,close : function(returnData) {
 			 
 			if(isEmpty(returnData)) returnData = {};
@@ -56,20 +56,34 @@
 			$(".modal").css({"height": modalHeight}); 
 
 			C_UICOM.makeSelectBox({ 
-				 		 data : <@popupId>.COM_CODE["CD_GRP_GENDER"]
+				 		 data : C_COM.getCodeList("GENDER")
 				 		,targetId : "<@popupId>_selectGender" }, "single");
 	 		
 			C_UICOM.makeSelectBox({ 
-				 		 data : <@popupId>.COM_CODE["CD_GRP_SURETY_INSURANCE"]
+				 		 data : C_COM.getCodeList("G_SURETY_INSURANCE")
 				 		,targetId : "<@popupId>_selectSuretyIns"}, "single");
 	 		
 			C_UICOM.makeSelectBox({ 
-				 		 data : <@popupId>.COM_CODE["CD_GRP_ROLE"]
+				 		 data : C_COM.getCodeList("USER_ROLE")
 				 		,targetId : "<@popupId>_selectRole" }, "single");
 	 		
 			C_UICOM.makeSelectBox({ 
-						 data : <@popupId>.COM_CODE["CD_GRP_RATE"]
-			 			,targetId : "<@popupId>_selectRate" }, "single");
+				 data : C_COM.getCodeList("USER_GRADE")
+	 			,targetId : "<@popupId>_selectGrade" }, "single");
+	
+			debugger;
+			C_UICOM.makeSelectBox({ 
+				 data : <@popupId>.BRANCH_DATA["BASE_BRANCH"	]
+	 			,targetId : "<@popupId>_selectBaseBranch" }, "single");
+			
+			C_UICOM.makeSelectBox({ 
+				 data : <@popupId>.BRANCH_DATA["SP_BRANCH"	]
+	 			,targetId : "<@popupId>_selectSpBranch" }, "single");
+			
+			C_UICOM.makeSelectBox({ 
+				 data : <@popupId>.BRANCH_DATA["BRANCH"	]
+	 			,targetId : "<@popupId>_selectBranch" }, "single");
+			
 			
 		}
 		,setHandler : () => {
@@ -80,38 +94,94 @@
 				
 			})
 			
-		}
+ 			$("#<@popupId>_selectBaseBranch").on('click', (e) => {
+				
+
+				console.log( C_UICOM.getData("<@popupId>_selectBaseBranch") );
+				
+
+				
+			})
+			
+		}        
+		,searchList : function(id, sel_BRANCH_ID){
+			
+			let queryId = "";
+			let requestParam = {}
+			
+			switch( id ){
+			
+				case "BASE_BRANCH"	:queryId = "hrInfo.getBaseBranchList";
+					break;
+				case "SP_BRANCH"	:queryId = "hrInfo.getSpBranchList"; 
+									 requestParam={BASE_BRANCH_ID : sel_BRANCH_ID}
+					break;
+				case "BRANCH"		:queryId = "hrInfo.getBranchList"; 
+									 requestParam={SP_BRANCH_ID : sel_BRANCH_ID }
+					break;
+					
+				default:
+					
+			}
+			     
+            let parm = {
+                 queryId        : queryId
+                ,requestParm    : requestParm
+            }
+            C_COM.requestQuery(parm, function(resultData) {
+               
+    			switch( id ){
+    			
+					case "BASE_BRANCH"	:	
+											$("#<@popupId>_selectSpBranch").empty();
+											$("#<@popupId>_selectSpBranch").prop('disabled', true);
+											$("#<@popupId>_selectBranch").empty();
+											$("#<@popupId>_selectBranch").prop('disabled', true);
+						
+						break;
+					case "SP_BRANCH"	: 
+											$("#<@popupId>_selectBranch").empty();
+											$("#<@popupId>_selectBranch").prop('disabled', true);
+										 
+						break;
+					case "BRANCH"		:
+						
+						break;
+						
+					default:
+						
+				}
+
+
+                
+            });
+        }
 		,getComCodeSelect : (callback) =>{
 			
 			var parm = {
 					queryGroup : [
 						 {
-							 queryId 		: "common.getCommonCodeList"
-							,requestParm	: { GRP_CODE_NM : "CD_GRP_GENDER" }
+							 queryId 		: "hrInfo.getBaseBranchList"
+							,requestParm	: {}
+						 }
+ 						,{
+							 queryId 		: "hrInfo.getSpBranchList"
+							,requestParm	: {}
 						 }
 						,{
-							 queryId 		: "common.getCommonCodeList"
-							,requestParm	: { GRP_CODE_NM : "CD_GRP_SURETY_INSURANCE" }
+							 queryId 		: "hrInfo.getBranchList"
+							,requestParm	: {}
 						 }
-						,{
-							 queryId 		: "common.getCommonCodeList"
-							,requestParm	: { GRP_CODE_NM : "CD_GRP_ROLE" }
-						 }
-						,{
-							 queryId 		: "common.getCommonCodeList"
-							,requestParm	: { GRP_CODE_NM : "CD_GRP_RATE" }
-						 }
-					]
+ 					]
 				}			
 				C_COM.requestQuery(parm, function(resultData) {
 
 						if( resultData.state == "S"){
 
-  							<@popupId>.COM_CODE["CD_GRP_GENDER"]	= resultData.data["common.getCommonCodeList"].map( item=> [item.CODE_NM, item.CODE_DESC] ) ;
-							<@popupId>.COM_CODE["CD_GRP_SURETY_INSURANCE"] = resultData.data["common.getCommonCodeList_1"].map( item=> [item.CODE_NM, item.CODE_DESC] ) ;
-							<@popupId>.COM_CODE["CD_GRP_ROLE"]		= resultData.data["common.getCommonCodeList_2"].map( item=> [item.CODE_NM, item.CODE_DESC] ) ;
-							<@popupId>.COM_CODE["CD_GRP_RATE"]		= resultData.data["common.getCommonCodeList_3"].map( item=> [item.CODE_NM, item.CODE_DESC] ) ;
-							
+  							<@popupId>.BRANCH_DATA["BASE_BRANCH"	] = resultData.data["hrInfo.getBaseBranchList"].map( item=> [item.CODE_ID, item.CODE_NM] ) ;
+	 						<@popupId>.BRANCH_DATA["SP_BRANCH"		] = resultData.data["hrInfo.getSpBranchList"].map( item=> [item.CODE_ID, item.CODE_NM] ) ;
+							<@popupId>.BRANCH_DATA["BRANCH"			] = resultData.data["hrInfo.getBranchList"].map( item=> [item.CODE_ID, item.CODE_NM] ) ;
+	 						
 							callback ? callback() : null;
 							
 						}else{
@@ -246,21 +316,21 @@
 					<li>
 						<label>본부</label>
 						<div class="info">
-							<div class="select_box" style="width:100%">
+							<div id="<@popupId>_selectBaseBranch" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
 					<li>
 						<label>지사</label>
 						<div class="info">
-							<div class="select_box" style="width:100%">
+							<div id="<@popupId>_selectSpBranch" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
 					<li>
 						<label>지점</label>
 						<div class="info">
-							<div class="select_box" style="width:100%">
+							<div id="<@popupId>_selectBranch" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
@@ -274,7 +344,7 @@
 					<li>
 						<label>등급</label>
 						<div class="info">
-							<div id="<@popupId>_selectRate" class="select_box" style="width:100%">
+							<div id="<@popupId>_selectGrade" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
