@@ -17,25 +17,27 @@
         /* Sample.setFile */
        INSERT INTO TBL_EXP_FILEMNG(
              UUID
-            ,GRP_ID
+            ,GRP_UUID
             ,ORG_FILE_NAME
             ,STORED_FILE_NAME
             ,FILE_PATH
-
+            
             ,FILE_SIZE
             ,FILE_TYPE
+            ,ORDER_NUMBER
             ,CREATE_USER
             ,CREATE_DATE
         )
         VALUES(
             #{uuid},
-            #{grpId},
+            #{grpUuid},
             #{orgFileName},
             #{storedFileName},
-            #{filePath},
-            
+            #{filePath},      
+                  
             TO_NUMBER(#{fileSize}),
             #{fileType},
+            (SELECT NVL2( MAX(ORDER_NUMBER), MAX(ORDER_NUMBER)+1 ,1 ) AS ORDER_NUMBER FROM   TBL_EXP_FILEMNG WHERE GRP_UUID = #{grpUuid}),
             #{createUser},
             (TO_DATE(#{createDate} , 'yyyy/mm/dd hh24:mi:ss') )
         )
@@ -43,25 +45,27 @@
     <!-- 첨부파일 조회 이응규 -->
     <select id="getFile" resultType="java.util.HashMap">
         /* Sample.getFile */
-        SELECT UUID             
-              ,GRP_ID           
+        SELECT UUID      
+              ,GRP_UUID       
               ,ORG_FILE_NAME    
               ,STORED_FILE_NAME 
               ,FILE_PATH        
               ,FILE_SIZE        
-              ,FILE_TYPE        
+              ,FILE_TYPE
+              ,ORDER_NUMBER        
               ,UPDATE_USER      
               ,UPDATE_DATE      
               ,CREATE_USER      
               ,CREATE_DATE      
         FROM   TBL_EXP_FILEMNG
         WHERE    1 = 1
-        <if test=" grpId != null and grpId != '' " >
-          AND    GRP_ID = #{grpId}
-        </if><if test=" uuid != null and uuid != '' " >
+        <if test="grpUuid != null and grpUuid != '' " >
+          AND    GRP_UUID = #{grpUuid}
+        </if>
+        <if test=" uuid != null and uuid != '' " >
           AND    UUID = #{uuid}
         </if>
-        ORDER BY CREATE_DATE DESC
+        ORDER BY ORDER_NUMBER , CREATE_DATE DESC
     </select>
 	
 	<!-- 첨부파일 삭제  이응규 -->

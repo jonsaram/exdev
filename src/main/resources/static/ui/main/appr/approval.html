@@ -42,13 +42,6 @@
 	        /* 결재상신 */
 	        ,save : function () {
                 
-	            var groupId = $("#<@pageId> #groupId").val();
-	            
-	            if (groupId.length < 1) {
-	                alert("파일그룹 ID를 입력해 주세요.");
-	                $("#groupId").focus();
-	                return false;
-	            }
 	            
 	            // 폼데이터 담기
 	            var form = document.querySelector("#<@pageId> form");
@@ -212,7 +205,7 @@
              </div>
              
 	         <div class="search_area mt0">
-	             파일그룹 ID : <input type="text" name="groupId" id="groupId" value="approval"><br>
+	             파일그룹 ID : <input type="text" name="groupId" id="groupId" value="TBL_EXP_APPROVAL"><br>
                  <input type="file" onchange="<@pageId>.addFile(this);" multiple />
                  <div class="file-list"></div>
                  <!-- 

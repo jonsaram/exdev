@@ -24,7 +24,15 @@
                         C_COM.renderHtml("<@pageId>", rparm);
                         
                     });            
-            } /* 결재하기 */
+            }
+            ,apprDtlPopup : function(uuid) {    
+                console.log("======= apprDtlPopup uuid =======>"+uuid);
+                let requestParm = {}
+                requestParm["uuid"] = uuid;
+                C_POP.open('popup_apprDtlPopup', requestParm, function() {
+                    //console.log("======= 부모창 retData =======");
+                });
+             } /* 결재하기 */
             ,apprComplete : function(uuid) {    
                 console.log("======= apprComplete uuid =======>"+uuid);
                 let requestParm = {};
@@ -42,7 +50,7 @@
                     <@pageId>.apprUpdate(uuid);
                 });
                 
-             } /* 결재하기 */
+             } /* 결재 상태 변경하기 */
             ,apprUpdate : function(approvalUuid) {    
                 console.log("======= apprUpdate approvalUuid =======>"+approvalUuid);
                 let requestParm = {};

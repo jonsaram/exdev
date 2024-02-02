@@ -292,16 +292,11 @@ public class ExdevCommonController {
         List<Map<String, Object>> returnMaplist = new ArrayList<>();
         Map<String, Object> returnMap = new HashMap<String, Object>();
         
-                
-		// 받아온것 출력 확인
-		System.out.println("multiFileList : " + multiFileList);
-		String grpId = request.getParameter("groupId");
+        String groupUuId = request.getParameter("groupUuId");
+        String uploadPath = request.getParameter("uploadPath");
 		String[] uuids = request.getParameterValues("uuids");
 		
-		// path 가져오기
-		String path = request.getSession().getServletContext().getRealPath("resources");
-		String root = path + "\\" + "uploadFiles";
-		returnFileMap = fileService.fileUploadMulti( multiFileList, root , grpId, uuids);
+		returnFileMap = fileService.fileUploadMulti( request, multiFileList, groupUuId, uuids, uploadPath);
 		
 		if( ExdevConstants.REQUEST_SUCCESS.equals(returnFileMap.get("msg").toString())) {
 			
@@ -340,7 +335,7 @@ public class ExdevCommonController {
             
         String[] delete_file_list = request.getParameterValues("delete_file_list");
  
-        returnMap = fileService.fileDeleteMulti( delete_file_list );
+        returnMap = fileService.fileDeleteMulti( request, delete_file_list );
         
         String msg = returnMap.get("msg").toString();
         if( ExdevConstants.REQUEST_SUCCESS.equals(msg)) {
@@ -350,54 +345,6 @@ public class ExdevCommonController {
         }
         
         return returnMap;
-    }
-    
-
-    /** 
-     * 내용        : 파일 다운로드 샘플
-     * @생 성 자   : 이응규
-     * @생 성 일자 : 2024. 01. 31 : 최초 생성
-     * @수 정 자   : 
-     * @수 정 일자 :
-     * @수 정 자
-     */
-
-    @PostMapping("/fileDownload1.do")
-    public @ResponseBody void  fileDownload1(HttpServletRequest request, HttpServletResponse response, HttpSession session)  throws Exception {
-        
-        SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
-        
-        Map<String, String> returnMap = new HashMap<String, String>();
-        String uuid = request.getParameter("uuid");
-        
-        request.setCharacterEncoding("UTF-8");
-        // 파일경로
-        String root = request.getSession().getServletContext().getRealPath("/");
-        
-        String fileURL = "D:"+File.separator+"OCI"+File.separator+"workspace"+File.separator+"exdev"+File.separator+"src"+File.separator+"main"+File.separator+"webapp"+File.separator+"resources"+File.separator+"uploadFiles"+File.separator+"18d5997e5b115f9e.png";
-        
-        System.out.println("==== root ===>"+root);
-        String filePath = root+"resources"+File.separator+"uploadFiles"+File.separator+"18d5997e5b115f9e.png";
-                
-        System.out.println("==== filePath ===>"+filePath);
-        
-        File downloadFile = new File(filePath);
-        
-        FileInputStream inStream = new FileInputStream(downloadFile);
-        
-        // 파일 타입 설정
-        response.setContentType("application/octet-stream");
-        // 다운로드할 파일명 설정
-        response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
-        System.out.println("==== downloadFile.getName() ===>"+downloadFile.getName());
-        // 파일 전송
-        int bytesRead;
-        while ((bytesRead = inStream.read()) != -1) {
-            response.getOutputStream().write(bytesRead);
-        }
-        
-        inStream.close();
-        
     }
     
     /** 
@@ -418,12 +365,15 @@ public class ExdevCommonController {
         request.setCharacterEncoding("UTF-8");
         String uuid = request.getParameter("uuid");
         String orgFileName = request.getParameter("orgFileName");
-        System.out.println("== uuid ==>"+uuid);
         
-        // 파일경로
-        String root = request.getSession().getServletContext().getRealPath("/");
+        //이곳에서 작업
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("uuid",uuid);
         
-        String fileURL = root+"resources"+File.separator+"uploadFiles"+File.separator+uuid+".png";
+        List<Map> list =fileService.getfile(map);
+        
+        String root = request.getSession().getServletContext().getRealPath("/");            
+        String fileURL = root+"resources"+File.separator+list.get(0).get("FILE_PATH")+File.separator+list.get(0).get("STORED_FILE_NAME");
         
         System.out.println(fileURL);
         

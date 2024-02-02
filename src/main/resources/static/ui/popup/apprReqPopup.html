@@ -6,7 +6,7 @@
         ,fileNo : 0
         ,filesArr : []
         ,requestParm : {}
-        ,fileFKUuid: '' /* 첨부파일 */
+        ,apprUuid: ''
         ,memberSearchPopup : function() {
 
             console.log("======= memberSearchPopup 2 =======");
@@ -105,7 +105,7 @@
             var form = document.querySelector("#<@popupId> form");
             
             var formData = new FormData(form);
-            formData.append("appr_uuid", <@popupId>.fileFKUuid);
+            formData.append("appr_uuid", <@popupId>.apprUuid);
             formData.append("state", state);
             
             var userArry = new Array();
@@ -186,9 +186,9 @@
         /* 첨부파일 추가 */
         ,uploadMultiFile : function (file) {
             
-            var groupId = <@popupId>.fileFKUuid;
+            var groupUuId = <@popupId>.apprUuid;
             
-            if (groupId.length < 1) {
+            if (groupUuId.length < 1) {
                 alert("파일그룹 ID를 입력해 주세요.");
                 return false;
             }
@@ -197,8 +197,12 @@
             var form = document.querySelector("#<@popupId> form");
             var formData = new FormData(form);
 
-            formData.append("groupId", groupId);
+            formData.append("groupId", "TBL_EXP_APPROVAL");
+            formData.append("groupUuId", groupUuId);
             formData.append("attach_file", file);
+            formData.append("uploadPath", "uploadFiles");
+            
+            
             formData.append("uuids", C_COM.makeUniqueId());
 
             $.ajax({
@@ -302,7 +306,7 @@
     }
     // Popup Load가 완료된후 실행 된다.
     C_POP.onLoadPopup("<@popupId>", function(data) {
-        <@popupId>.fileFKUuid = C_COM.makeUniqueId();// 첨부파일
+        <@popupId>.apprUuid = C_COM.makeUniqueId();// 첨부파일
     });
     
     

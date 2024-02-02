@@ -8,7 +8,7 @@
                     let requestParm = {};
                     
                     requestParm["approvalUserId"]  = 'windrider';
-                    requestParm["searchType"]  = "DECISION";
+                    requestParm["searchType"]  = "NOTICE";
                     
                     let parm = {
                          queryId        : "approval.getApprovalUserState"
@@ -32,7 +32,7 @@
                 C_POP.open('popup_apprDtlPopup', requestParm, function() {
                     //console.log("======= 부모창 retData =======");
                 });
-             }  /* 결재하기 */
+             } /* 결재하기 */
             ,apprComplete : function(uuid) {    
                 console.log("======= apprComplete uuid =======>"+uuid);
                 let requestParm = {};
@@ -50,11 +50,12 @@
                     <@pageId>.apprUpdate(uuid);
                 });
                 
-             } /* 결재하기 */
+             } /* 결재 상태 변경하기 */
             ,apprUpdate : function(approvalUuid) {    
                 console.log("======= apprUpdate approvalUuid =======>"+approvalUuid);
                 let requestParm = {};
                 requestParm["approvalUuid"]  = approvalUuid;
+                requestParm["state"]  = 'DECISION';
                 
                 var parm = {
                      serviceId              : "ApprovalService.apprUpdate"
@@ -87,12 +88,12 @@
 
         <div class="cont_wrap">
             <div class="cont_top">
-                <h2><i class="icon_bullet"></i>기결함</h2>
+                <h2><i class="icon_bullet"></i>통보함</h2>
             </div>
             <div class="sec_scroll">
                 <section class="sec_wrap">
                     <div class="cont_box">
-                        <h3>기결함 목록</h3>
+                        <h3>통보함 목록</h3>
                         <!-- search area -->
                         <div class="search_area">
                             <span class="tit01">조회기간</span>

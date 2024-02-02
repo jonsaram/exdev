@@ -93,6 +93,14 @@
                           AND    APPROVAL_TYPE = 'APPR' /* 결재 */
                           AND    STATE IS NULL  /* 'DECISION' */
                         </if>
+                        <if test=" searchType == 'DECISION' " >/* 기결조회 */
+                          AND    APPROVAL_TYPE = 'APPR' /* 결재 */
+                          AND    STATE = 'COMPLETE'  /* 'COMPLETE' */
+                        </if>
+                        <if test=" searchType == 'NOTICE' " >/* 통보 조회 */
+                          AND    APPROVAL_TYPE = 'NOTICE' /* 결재 */
+                        </if>
+                        
                        )
         ORDER BY APPROVAL_DATE DESC
     </select>

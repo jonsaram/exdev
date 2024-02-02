@@ -41,7 +41,7 @@
             console.log("======= searchFile ======="+requestParm["uuid"])
             
             let searchParm = {};
-            searchParm["grpId"] = requestParm["uuid"];
+            searchParm["grpUuid"] = requestParm["uuid"];
             
             let parm = {
                  queryId        : "Sample.getFile"
@@ -63,6 +63,7 @@
         ,fileDownload : function( uuid, orgFileName ){
             
             let requestParm = {}
+
             requestParm["uuid"] = uuid;
             requestParm["orgFileName"] = orgFileName;
             
