@@ -22,7 +22,7 @@ function setMenu()
 	        	let   firstPageId	= "";
 	        	if( Number(depth) == 0){
 	        		
-					let template = `<li class=${active} id="LI_${menu.MENU_ID}"><a href="javascript:detpth2MenuShow('${menu.MENU_ID}','${menu.MENU_DESC}');">${menu.MENU_DESC}</a></li>`  ;
+					let template = `<li class=${active} id="LI_${menu.MENU_ID}"><a href="javascript:detpth2MenuShow('${menu.MENU_ID}','${menu.MENU_NM}');">${menu.MENU_NM}</a></li>`  ;
 					gnbMenuTemplate.push(template);
 					active="deactive";
 					if(index == 0){parentMenu=menu;index++;}
@@ -30,14 +30,14 @@ function setMenu()
 					
 	        	}else{
 								        		
-					let template = `<li class=${lnb_active} ><a href="javascript:goPage('${pageId}');">${menu.MENU_DESC}</a></li>`
+					let template = `<li class=${lnb_active} ><a href="javascript:goPage('${pageId}');">${menu.MENU_NM}</a></li>`
 					if( lnb_active =="active") firstPageId = menu.PAGE_ID;					
 					lnb_active="deactive";
 							
 					MENUS.push( {	PARENT_MENU_ID 	:menu.PARENT_MENU_ID 
-									, 	PARENT_MENU_NNM	:menu.PARENT_MENU_DESC 
+									, 	PARENT_MENU_NNM	:menu.PARENT_MENU_NM 
 									, 	MENU_ID			:menu.MENU_ID
-									, 	MENU_DESC 		:menu.MENU_DESC
+									, 	MENU_NM 		:menu.MENU_NM
 									,	PAGE_ID			:menu.PAGE_ID
 									, 	HTML_TAG		: template})
 									
@@ -47,7 +47,7 @@ function setMenu()
 	        
 			$("#gnb_MenuList").html(gnbMenuTemplate.join('')) ;
 
-	        const lnbHtml = make2ndLnbMenu( parentMenu.MENU_ID, parentMenu.MENU_DESC);
+	        const lnbHtml = make2ndLnbMenu( parentMenu.MENU_ID, parentMenu.MENU_NM);
 			$("#lnb_MenuList").html(lnbHtml) ;
 			
 	    }
