@@ -1419,7 +1419,7 @@ var C_GRID = {
 }
 
 
-// Component Class
+// Comp Class
 var C_COMP = {
 	 eventFn 			: {}
 	,callbackMap		: {}
@@ -1430,7 +1430,7 @@ var C_COMP = {
 		var viewWebId = "#" + viewId + " #" + targetId + " ";
 		
 		
-		// Component ID에 해당하는 Url의 html을 가져온다.
+		// Comp ID에 해당하는 Url의 html을 가져온다.
 		var urlBody	= compId.replaceAll("_", "/");
 		var url 	= "ui/" + urlBody + ".html";
 		var html 	= C_COM.getHtmlFile(url);
@@ -1450,24 +1450,34 @@ var C_COMP = {
 		// html에서 최상위Div에 compId를 id로 부여한다.(unique값)
 		$("div", docDiv).eq(0).attr("id"	, compId);
 		
-		// Import할 Component를 Load 한다.
+		// Import할 Comp를 Load 한다.
 		var htmlSrc = $(docDiv, "#" + compId).html();
 		
 		htmlSrc = htmlSrc.render("<@", ">", parm);
 		
 		$(viewWebId).html(htmlSrc);
 		
-		// onLoadComponent로 설정된 Function 실행
+		// onLoadComp로 설정된 Function 실행
 		if(typeof C_COMP.eventFn[compId] == "function") C_COMP.eventFn[compId](parm);
 		
-		// Page 내의 처리는 Component도 Page와 동일하기 떄문에 C_PM의 initPage를 사용한다.
-		C_COMP.preInitComponent(compId);
+		// Page 내의 처리는 Comp도 Page와 동일하기 떄문에 C_PM의 initPage를 사용한다.
+		C_COMP.preInitComp(compId);
 	 }
 	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
-	,preInitComponent : function(compId) {
-		var ComponentWebId = "#" + compId + " ";
+	,preInitComp : function(compId) {
+		var compWebId = "#" + compId + " ";
+	    /*====== 달력 =======*/
+	    $(function () {
+	        $(compWebId + ".datepicker").datepicker({
+	          showOn: "button",
+	          buttonImage: "./img/icon_calendar.png",
+	          buttonImageOnly: true,
+	          buttonText: "Select date",
+	        });
+	    });
+		
 	 }
-	,onLoadComponent : function(compId, callback) {
+	,onLoadComp : function(compId, callback) {
 		C_COMP.eventFn[compId] = callback;
 	 }
 	,callback : function(compId, data) {
