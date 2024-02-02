@@ -818,7 +818,7 @@ var C_UICOM = {
 		
 		var viewId = C_COM.getCurrentViewId();
 
-		var pageWebId = "#" + viewId + " #" + targetId + " ";
+		var viewWebId = "#" + viewId + " #" + targetId + " ";
 
 		var viewTargetId = viewId + targetId;
 
@@ -832,19 +832,29 @@ var C_UICOM = {
 			$.each(list, function() {
 				rlist.push({"CD":this[0], "NM":this[1]});
 			});
+			
+			if(rlist.length == 0) {
+				alert('Select Box Set Data가 없습니다.');
+				return;
+			}
+			
 			var rparm = {
 				 targetId 		: targetId
+				,firstItemCD	: rlist[0].CD
 				,firstItemNm	: rlist[0].NM
 				,list			: rlist
 			}
 			
 			var html = $("#_comSinglebox_template").render(rparm)
 
-			$(pageWebId).addClass("select_box").addClass("fl");
+			$(viewWebId).addClass("select_box").addClass("fl");
 
-			$(pageWebId).html(html);
+			$(viewWebId).html(html);
 
 			C_UICOM.initSingleBox(targetId);
+			
+			C_UICOM.dataListMap[viewTargetId] = rparm.firstItemCD;
+			
 
 		} else {
 			var rlist = [];
@@ -858,9 +868,9 @@ var C_UICOM = {
 			
 			var html = $("#_comMultibox_template").render(rparm)
 
-			$(pageWebId).addClass("dropdown").addClass("fl");
+			$(viewWebId).addClass("dropdown").addClass("fl");
 
-			$(pageWebId).html(html);
+			$(viewWebId).html(html);
 			
 			C_UICOM.initMultiBox(targetId);
 
@@ -869,12 +879,13 @@ var C_UICOM = {
 	,initSingleBox : function(targetId) {
 		var viewId = C_COM.getCurrentViewId();
 
-		var pageWebUl = "#" + viewId + " #" + targetId + "_ul ";
-
+		var viewWebUl = "#" + viewId + " #" + targetId + "_ul ";
+		
 		var viewTargetId = viewId + targetId;
-        var $open_ul = $(pageWebUl);
+
+        var $open_ul = $(viewWebUl);
         $($open_ul).find("input[type=radio]").on("click", function(){
-			C_UICOM.setDataSingleBox(this);
+			C_UICOM.setDataSingleBox(this, viewTargetId);
         });
         $($open_ul).find("input[type=radio]").on("focus", function(){
             var $var = $( this ).next().text();
@@ -889,13 +900,14 @@ var C_UICOM = {
 	,setSingleBox : function(targetId, val) {
 		var viewId = C_COM.getCurrentViewId();
 		var viewWebId = "#" + viewId + " #" + targetId + " ";
+		var viewTargetId = viewId + targetId;
 		
 		$(viewWebId + " input[value='" + val + "']").each(function(){
-			C_UICOM.setDataSingleBox(this);
+			C_UICOM.setDataSingleBox(this, viewTargetId);
 			return false;
 		});
 	 }
-	,setDataSingleBox : function(dom) {
+	,setDataSingleBox : function(dom, viewTargetId) {
         var $var = $( dom ).next().text();
         $( dom ).parent().parent().prev().children().text( $var );
         $( dom ).parent().parent().prev().children().addClass( "active" );
