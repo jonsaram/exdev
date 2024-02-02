@@ -1,0 +1,23 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@pageId> = {
+
+	}
+	// Page Load가 완료된후 실행 된다.
+	C_PM.onLoadPage("<@pageId>", function() {
+		C_COMP.import("textEditorComp", "component_compTextEditor", {content:"text sample"});
+	});
+	// History back으로 이동해왔을 경우 이루틴이 실행된다.
+	C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+	});
+</script>
+<div class="cont_wrap">
+
+	TextEditor Sample <br/><br/>
+	
+	<div id="textEditorComp" style="width:100%;height:100%">
+	</div>
+
+
+</div>
