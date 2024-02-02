@@ -783,7 +783,7 @@ var C_UICOM = {
 		
 	 }
 	,_setDataListMap : function(targetId, valObj) {
-		
+
 		var viewId = C_COM.getCurrentViewId();
 
 		var viewTargetId = viewId + targetId;
@@ -793,11 +793,11 @@ var C_UICOM = {
 		C_UICOM.dataListMap[viewTargetId] = valObj;	
 
 		let fn = C_UICOM.listnerChangeFnMap[viewTargetId];
-		debugger;
+
 		if(isValid(fn)) {
 			if(isEmpty(preData) || typeof preData == "string") {
 				if(preData == valObj) return;
-			} else if( typeof perData == "object") {
+			} else if( typeof preData == "object") {
 				if(JSON.stringify(preData) == JSON.stringify(valObj)) return;
 			} else {
 				return;
@@ -1423,17 +1423,25 @@ var C_GRID = {
 var C_COMP = {
 	 eventFn 			: {}
 	,callbackMap		: {}
-	,import	: function(compId, parm, callback) {
+	,import	: function(targetId, compId, parm, callback) {
 		if(parm == undefined) parm = {};
-
-		parm.compId = compId;
 		
-		C_COMP.callbackMap[compId] = callback;
+		var viewId = C_COM.getCurrentViewId();
+		var viewWebId = "#" + viewId + " #" + targetId + " ";
+		
 		
 		// Component ID에 해당하는 Url의 html을 가져온다.
 		var urlBody	= compId.replaceAll("_", "/");
 		var url 	= "ui/" + urlBody + ".html";
 		var html 	= C_COM.getHtmlFile(url);
+
+		compId = viewId + compId;
+
+		parm.compId = compId;
+		
+		parm.parentId = viewId;
+		
+		C_COMP.callbackMap[compId] = callback;
 		
 		// 가상의 Document에 가져온 html 을 Setting한다.
 		var docDiv = $("<div></div>");
@@ -1447,7 +1455,7 @@ var C_COMP = {
 		
 		htmlSrc = htmlSrc.render("<@", ">", parm);
 		
-		$("#" + compId).html(htmlSrc);
+		$(viewWebId).html(htmlSrc);
 		
 		// onLoadComponent로 설정된 Function 실행
 		if(typeof C_COMP.eventFn[compId] == "function") C_COMP.eventFn[compId](parm);
@@ -1458,18 +1466,12 @@ var C_COMP = {
 	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
 	,preInitComponent : function(compId) {
 		var ComponentWebId = "#" + compId + " ";
-	    /*====== 달력 =======*/
-	    $(function () {
-	        $(ComponentWebId + ".datepicker").datepicker({
-	          showOn: "button",
-	          buttonImage: "./img/icon_calendar.png",
-	          buttonImageOnly: true,
-	          buttonText: "Select date",
-	        });
-	    });
 	 }
 	,onLoadComponent : function(compId, callback) {
 		C_COMP.eventFn[compId] = callback;
+	 }
+	,callback : function(compId, data) {
+		if(typeof C_COMP.callbackMap[compId] == "function") C_COMP.callbackMap[compId](data);
 	 }
 }
 
