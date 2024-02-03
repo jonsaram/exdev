@@ -90,9 +90,6 @@ var <@popupId> = {
 			$("#<@popupId>_items [name='MENU_NM']").on("input", function() {
 
 			     var inputValue = $(this).val();
-			     if (!inputValue.startsWith("MN_")) {
-			         inputValue = "MN_" + inputValue;
-			     }
 			     $(this).val(inputValue);
 			});
 			
@@ -173,21 +170,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					<dt>PAGE_ID</dt>
 					<dd><input type="text"  id="PAGE_ID"></dd>
 				</div>
-<!-- 				<div class="row">
-					<dt>ROLE_NM</dt>
-					<dd><input type="text"  id="ROLE_ID" style='display:none'>
-						<input type="text"  id="ROLE_NM" style='width:75%'>
-						<button type="button" class="btn fr" id="<@popupId>_roleSearch">
-						<i class="icon_download"></i>
-						</button>
-					</dd>
-					<dt>AUTH_TYPE</dt>
-					<dd><div> 	
-							<label><input type='radio' name='AUTH_TYPE' value="A" />Read/Write</label>
-							<label><input type='radio' name='AUTH_TYPE' value="R" />Read</label>
-						</div>
-					</dd>
-				</div> -->
 				<div class="row updateMode">
 					<dt>UPDATE_USER</dt>
 					<dd><input type="text"  id="UPDATE_USER" disabled ></dd>

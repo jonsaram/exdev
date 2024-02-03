@@ -5,15 +5,24 @@
 			 ,excelParam : {}
 			 ,pageInit : () =>{
 					
-				var singleboxList = { 
-						 data : [
-					 		 	 ["RL_SYSADMIN", "시스템관리자 권한"]
-						 		,["RL_MANAGER", "관리자 권한"	]
-						 		,["RL_CUSTOMER", "고객 권한"	]
-						 ]
-					 	,targetId : "<@pageId>_selectRoleId" 
+				 	let singleboxList = {}
+					const requestParm = {};
+					var parm = {
+							 queryId 		: "system.getRoleList"
+							,requestParm	: requestParm
 					}
-					C_UICOM.makeSelectBox(singleboxList, "single");		
+					C_COM.requestQuery(parm, function(resultData) {
+						
+						const data = resultData.data;
+						const ROLE_DATA = data.map( item => [item.ROLE_ID, item.ROLE_NM]);  
+
+						singleboxList = { 
+							 data : ROLE_DATA
+						 	,targetId : "<@pageId>_selectRoleId" 
+						}
+						
+						C_UICOM.makeSelectBox(singleboxList, "single");		
+					});	
 				
 			 }
 			,setSpCstmId : (dataList) =>{
@@ -22,9 +31,9 @@
 			,searchList : () => {
 				var selectRoleId = C_UICOM.getData("<@pageId>_selectRoleId");
 				
-				if(!selectRoleId )selectRoleId ="RL_SYSADMIN";
+				if(!selectRoleId )selectRoleId ="SYSTEM";
 				
-				const requestParm = { ROLE_NM : selectRoleId };
+				const requestParm = { ROLE_ID : selectRoleId };
 				var parm = {
 						 queryId 		: "system.getRoleMenuMapList"
 						,requestParm	: requestParm
@@ -50,7 +59,8 @@
 				const requestParm = param ? param : {} ;
 				requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
 				if( !requestParm["ROLE_ID"] || requestParm["ROLE_ID"] == ''){
-					requestParm["ROLE_ID"] = C_COM.makeUniqueId();
+					alert('ROLE ID를 입력하신후 저장할 수 있습니다. ');
+					return;
 				}
 				var parm = {
 						 queryId 		: "system.updateRoleMenuMap"

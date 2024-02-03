@@ -10,6 +10,9 @@ function setMenu()
 	    if (xhr.readyState == 4 && xhr.status == 200) {
 	
 	        var responseData = JSON.parse(xhr.responseText).data;
+
+			G_VAL.SP_CSTM_ID =responseData[0].SP_CSTM_ID;
+			
 	        let gnbMenuTemplate = [];
 	        let active 			=  "active";
 	        let lnb_active		=  "active";

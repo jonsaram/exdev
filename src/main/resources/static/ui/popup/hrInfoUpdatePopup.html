@@ -12,16 +12,30 @@
 		 ,apply : () =>{
 
 			 let returnData = {};
+			 let addr;
 			 const $inputs = $("#<@popupId>_items input");
 			 $.each( $inputs, function(){
 				 
-				 const key = $(this).attr("id");
-				 const val = $(this).val();
+				 let key = $(this).attr("id");
+				 let val = $(this).val();
 				 if(key)
 				 	returnData[key] = val;
+				 if(key == "ADDR1")addr +=val;
+				 if(key == "ADDR2")addr +="<BR>"+val;
+				 
 			 })
-			 returnData["USE_YN"] = <@popupId>.fnRadioCheckValue("USE_YN");
-			 returnData["DEL_YN"] = <@popupId>.fnRadioCheckValue("DEL_YN");
+
+			 returnData['ADDR'] = addr;
+
+			 const $selects = $("#<@popupId>_items [id^='<@popupId>_select']");
+			 $.each( $selects, function(){
+				 let id  = $(this).attr("id");
+				 let key = $(this).attr("column");
+				 let val = C_UICOM.getData(id);
+				 if(key)
+				 	returnData[key] = val;
+			 })			 
+			 
 			 <@popupId>.close(returnData);
 		 }		
 		 ,fnRadioCheckValue : (name , pValue) => {
@@ -39,14 +53,25 @@
 		}
 		,pageInit : () => {
 			
-			<@popupId>.mode = (<@popupId>.recvData).length > 0 ? "UPDATE":"INSERT";
+			<@popupId>.mode = typeof(<@popupId>.recvData) == "object" ? "UPDATE":"INSERT";
 
+			if( <@popupId>.mode == "UPDATE" ){
+				
+				Object.entries(<@popupId>.recvData).forEach(([key, value]) => {
+				    $("#<@popupId>_items #" + key).val(value);
+				});
 			
-			<@popupId>.recvData.forEach( item =>{
+			}else{
 				
-				$("#<@popupId>_items #"+item.key).val(item.val);
-				
-			});
+				<@popupId>.recvData.forEach( item =>{
+					
+					$("#<@popupId>_items #"+item.key).val(item.val);
+					
+				});
+			
+			}
+			
+			<@popupId>.mode == "INSERT" ? $("#<@popupId>_items #USER_ID").val(Math.round(Math.random() * 100000000)) : '';
 
  			<@popupId>.mode == "INSERT" ? $(".updateMode").hide() : $(".updateMode").show();
 			let mode = <@popupId>.mode == "INSERT" ? "신규 직원 추가" : "직원 정보 수정";
@@ -71,19 +96,12 @@
 				 data : C_COM.getCodeList("USER_GRADE")
 	 			,targetId : "<@popupId>_selectGrade" }, "single");
 	
-			debugger;
-			C_UICOM.makeSelectBox({ 
+
+ 			C_UICOM.makeSelectBox({ 
 				 data : <@popupId>.BRANCH_DATA["BASE_BRANCH"	]
 	 			,targetId : "<@popupId>_selectBaseBranch" }, "single");
-			
-			C_UICOM.makeSelectBox({ 
-				 data : <@popupId>.BRANCH_DATA["SP_BRANCH"	]
-	 			,targetId : "<@popupId>_selectSpBranch" }, "single");
-			
-			C_UICOM.makeSelectBox({ 
-				 data : <@popupId>.BRANCH_DATA["BRANCH"	]
-	 			,targetId : "<@popupId>_selectBranch" }, "single");
-			
+ 			
+ 			$("#<@popupId>_selectBaseBranch").trigger('change')
 			
 		}
 		,setHandler : () => {
@@ -94,34 +112,51 @@
 				
 			})
 			
- 			$("#<@popupId>_selectBaseBranch").on('click', (e) => {
-				
+			$("[id^='<@popupId>_select']").on('change', (e) => {
 
-				console.log( C_UICOM.getData("<@popupId>_selectBaseBranch") );
+				const id = $(e.target).attr("id");
 				
-
+				if( id.indexOf("selectBaseBranch") > -1){
+					
+					const sel_BRANCH_ID = C_UICOM.getData("<@popupId>_selectBaseBranch");
+					<@popupId>.searchList( "SP_BRANCH", sel_BRANCH_ID );
+					
+				}else if( id.indexOf("selectSpBranch") > -1){
+					
+					const sel_BRANCH_ID = C_UICOM.getData("<@popupId>_selectSpBranch");
+					<@popupId>.searchList( "BRANCH", sel_BRANCH_ID );
+					
+				}else if( id.indexOf("selectBranch") > -1){
+					
+				}
 				
 			})
 			
+			$(".number").on( 'input', (e) => {
+
+	            let inputValue = event.target.value.replace(/[^\d,]/g, '');
+	            inputValue = <@popupId>.numberWithCommas(parseInt(inputValue.replace(/,/g, '')));
+
+	            event.target.value = inputValue;
+			})
 		}        
 		,searchList : function(id, sel_BRANCH_ID){
-			
+
 			let queryId = "";
-			let requestParam = {}
+			let requestParm = {}
 			
 			switch( id ){
 			
 				case "BASE_BRANCH"	:queryId = "hrInfo.getBaseBranchList";
 					break;
 				case "SP_BRANCH"	:queryId = "hrInfo.getSpBranchList"; 
-									 requestParam={BASE_BRANCH_ID : sel_BRANCH_ID}
+									 requestParm={BASE_BRANCH_ID : sel_BRANCH_ID}
 					break;
 				case "BRANCH"		:queryId = "hrInfo.getBranchList"; 
-									 requestParam={SP_BRANCH_ID : sel_BRANCH_ID }
+									 requestParm={SP_BRANCH_ID : sel_BRANCH_ID }
 					break;
 					
 				default:
-					
 			}
 			     
             let parm = {
@@ -130,33 +165,32 @@
             }
             C_COM.requestQuery(parm, function(resultData) {
                
+            	const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
+            	
     			switch( id ){
     			
-					case "BASE_BRANCH"	:	
-											$("#<@popupId>_selectSpBranch").empty();
-											$("#<@popupId>_selectSpBranch").prop('disabled', true);
-											$("#<@popupId>_selectBranch").empty();
-											$("#<@popupId>_selectBranch").prop('disabled', true);
-						
-						break;
 					case "SP_BRANCH"	: 
-											$("#<@popupId>_selectBranch").empty();
-											$("#<@popupId>_selectBranch").prop('disabled', true);
-										 
+											C_UICOM.makeSelectBox({ 
+												 data : DATA
+									 			,targetId : "<@popupId>_selectSpBranch" }, "single");
+											
+											const sel_BRANCH_ID = C_UICOM.getData("<@popupId>_selectSpBranch");
+											<@popupId>.searchList( "BRANCH"	, sel_BRANCH_ID);
 						break;
+						
 					case "BRANCH"		:
 						
+											C_UICOM.makeSelectBox({ 
+												 data : DATA
+									 			,targetId : "<@popupId>_selectBranch" }, "single");
 						break;
 						
 					default:
-						
 				}
-
-
                 
             });
         }
-		,getComCodeSelect : (callback) =>{
+		,getSelectData : (callback) =>{
 			
 			var parm = {
 					queryGroup : [
@@ -201,6 +235,9 @@
 		    }).open();
 		    
 		}
+		,numberWithCommas : (x) => {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
 
 	}
 	// Popup Load가 완료된후 실행 된다.
@@ -208,13 +245,16 @@
 
 		<@popupId>.recvData = data.param;
 
-		<@popupId>.getComCodeSelect( <@popupId>.pageInit ); 
+		<@popupId>.getSelectData( <@popupId>.pageInit ); 
 		<@popupId>.setHandler();
 		
 	});
 </script>
 
 <style>
+.number {
+	text-align: right;
+}
 </style>
 <div class="modal_wrap" id="modal-ex">
 	<div class="modal" style="width:750px;height:650px;">
@@ -222,7 +262,9 @@
 			<strong class="tit">신규 직원 추가</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
-		<div class="modal_body" id="<@popupId>_items">
+		<div class="modal_body" style="overflow:visible;" id="<@popupId>_items">
+			<input type="hidden" id="USER_DESC"/>
+			<input type="hidden" id="STATE"/>
 			<div class="clearFix mt15">
 				<figure class="photo_wrap no_img">
 				</figure>
@@ -246,7 +288,7 @@
 					<li>
 						<label>성별</label>
 						<div class="info">
-							<div id="<@popupId>_selectGender" class="select_box" style="width:100%">
+							<div id="<@popupId>_selectGender" column = "GENDER" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
@@ -294,14 +336,14 @@
 					<li>
 						<label>가입금액</label>
 						<div class="info">
-							<input type="text" id="TEMP" style="width:100%">
+							<input type="text" id="AMOUNT" class="number" style="width:100%">
 						</div>
 					</li>
 					<li>
 						<label>가입일</label>
 						<div class="info">
 							<div class="calendar_wrap w100">
-								<input type="text" id="TEMP" class="datepicker" style="width:100%">
+								<input type="text" class="datepicker" id="INSURANCE_REG_DATE" style="width:100%">
 							</div>
 						</div>
 					</li>
@@ -309,42 +351,42 @@
 						<label>만기일</label>
 						<div class="info">
 							<div class="calendar_wrap w100">
-								<input type="text" id="TEMP" class="datepicker" style="width:100%">
+								<input type="text" class="datepicker" id="INSURANCE_EXP_DATE" style="width:100%">
 							</div>
 						</div>
 					</li>
 					<li>
 						<label>본부</label>
 						<div class="info">
-							<div id="<@popupId>_selectBaseBranch" class="select_box" style="width:100%">
+							<div id="<@popupId>_selectBaseBranch" column = "BASE_BRANCH_ID" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
 					<li>
 						<label>지사</label>
 						<div class="info">
-							<div id="<@popupId>_selectSpBranch" class="select_box" style="width:100%">
+							<div id="<@popupId>_selectSpBranch" column = "SP_BRANCH_ID" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
 					<li>
 						<label>지점</label>
 						<div class="info">
-							<div id="<@popupId>_selectBranch" class="select_box" style="width:100%">
+							<div id="<@popupId>_selectBranch" column = "BRANCH_ID" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
 					<li>
 						<label>역할</label>
 						<div class="info">
-							<div id="<@popupId>_selectRole" class="select_box" style="width:100%">
+							<div id="<@popupId>_selectRole" column = "ROLE" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
 					<li>
 						<label>등급</label>
 						<div class="info">
-							<div id="<@popupId>_selectGrade" class="select_box" style="width:100%">
+							<div id="<@popupId>_selectGrade" column = "GRADE" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
@@ -353,7 +395,6 @@
 		</div>
 		<div class="modal_footer">
 			<button type="button" class="btn select" onclick="<@popupId>.apply()" >저장</button>
-			<button type="button" class="btn select" onclick="<@popupId>.apply()" >추가</button>
 			<button type="button" class="btn close"  onclick="<@popupId>.close()" >취소</button>
 		</div>
 	</div>

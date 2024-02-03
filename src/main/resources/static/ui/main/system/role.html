@@ -24,7 +24,7 @@
 				var selectDeleted = C_UICOM.getData("<@pageId>_selectDelYn");
 				
 				if(!selectDeleted )selectDeleted ="";
-				
+
 				const requestParm = { DEL_YN :selectDeleted };
 				
 				var parm = {
@@ -52,7 +52,7 @@
 				const requestParm = param ? param : {} ;
 				requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
 				if( !requestParm["ROLE_ID"] || requestParm["ROLE_ID"] == ''){
-					requestParm["ROLE_ID"] = C_COM.makeUniqueId();
+					return alert("ROLE_ID를 입력하신 후 저장하여 주십시오.")
 				}
 				var parm = {
 						 queryId 		: "system.updateRole"
@@ -132,7 +132,7 @@
 			    $("[id^='<@pageId>_modify_']").click(function(){
 			    	
 			    	const index = $(this).attr("index");
-					const $tds = $("#tr_"+index+" td");
+					const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
 					<@pageId>.openPopup($tds);
 					
 			    })

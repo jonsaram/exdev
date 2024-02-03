@@ -388,6 +388,7 @@
 		    T.ROLE_DESC = S.ROLE_DESC,
 		    T.USE_YN = S.USE_YN,
 		    T.DEL_YN = S.DEL_YN,
+		    T.SORT_ORDER = S.SORT_ORDER,
 		    T.UPDATE_USER = S.UPDATE_USER,
 		    T.UPDATE_DATE = S.UPDATE_DATE
 		WHEN NOT MATCHED THEN 
@@ -554,8 +555,8 @@
         AND R.ROLE_ID = RM.ROLE_ID(+)
         AND M.USE_YN = 'Y' AND M.DEL_YN = 'N'
         AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
-		<if test=" ROLE_NM != null and !ROLE_NM.equals('') ">
-		AND R.ROLE_NM = #{ROLE_NM}
+		<if test=" ROLE_ID != null and !ROLE_ID.equals('') ">
+		AND R.ROLE_ID = #{ROLE_ID}
 		</if>
         
         ORDER BY M.SORT_ORDER,R.SORT_ORDER,RM.AUTH_TYPE

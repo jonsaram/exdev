@@ -35,33 +35,65 @@
 					const selectedValue = radioButtons.filter(":checked").val();
 					return selectedValue;
 				 }
+		}		
+		,pageInit : () => {
+			
+			<@popupId>.mode = (<@popupId>.recvData.param).length > 0 ? "UPDATE":"INSERT";
+			
+			const param = <@popupId>.recvData.param;
+
+	 		if( param.length > 0 ){
+	 			
+	 			param.forEach( item =>{
+	 				
+	 				$("#<@popupId>_items #"+item.key).val(item.val);
+	 				
+	 			});
+	 			
+	  			const useYnVal = param.find(item => item.key === "USE_YN")?.val;
+	 			const delYnVal = param.find(item => item.key === "DEL_YN")?.val;
+				<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
+				<@popupId>.fnRadioCheckValue("DEL_YN",delYnVal);
+				
+			}else{
+				
+				<@popupId>.fnRadioCheckValue("USE_YN","Y");
+				<@popupId>.fnRadioCheckValue("DEL_YN","N");
+				
+			}
+
+			let mode;
+			let modalHeight;
+			debugger;
+			if( <@popupId>.mode == "INSERT"){
+				
+				mode = "ROLE 등록";$(".updateMode").hide();
+				modalHeight = "450px";
+				
+				$("#<@popupId>_items #ROLE_ID"		).removeAttr("disabled");
+				
+			}else{
+				
+				mode = "ROLE 수정";$(".updateMode").show();
+				modalHeight = "550px";	
+				
+			}
+			$(".modal").css({"height": modalHeight});
+
+	  	 	$(".tit").html(mode);
+
+			
+		}
+		,setHandler : () => {
 		}
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
+		debugger;
+		<@popupId>.recvData = data;
 		
-		$("#<@popupId>_items #SP_CSTM_ID").val(G_VAL.SP_CSTM_ID);
-		
-		<@popupId>.recvData = data.param;
-		
-		<@popupId>.recvData.forEach( item =>{
-			
-			$("#<@popupId>_items #"+item.key).val(item.val);
-			
-		});
-
- 		if( <@popupId>.recvData.length > 0 ){
- 			
-  			const useYnVal = <@popupId>.recvData.find(item => item.key === "USE_YN")?.val;
- 			const delYnVal = <@popupId>.recvData.find(item => item.key === "DEL_YN")?.val;
-			<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
-			<@popupId>.fnRadioCheckValue("DEL_YN",delYnVal);
-		}else{
-			
-			<@popupId>.fnRadioCheckValue("USE_YN","Y");
-			<@popupId>.fnRadioCheckValue("DEL_YN","N");
-		}
-		
+		<@popupId>.pageInit();
+		<@popupId>.setHandler();
 	});
 </script>
 
@@ -69,16 +101,29 @@
 .bgr dt {
 	width: 100px;
 }
+.modal_body .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 10px; /* 각 줄 사이 간격 조절 */
+}
+
+.modal_body .row dt,
+.modal_body .row dd {
+    width: calc(50% - 10px); /* 요소 너비 50%로 설정하고 간격 추가 */
+    margin-right: 10px; /* 요소 간격 설정 */
+}
 </style>
 
 <div class="modal_wrap">
-	<div class="modal" style="width:430px;height:1000px;">
+	<div class="modal" style="width:430px;height:550px;">
 		<div class="modal_header">
 			<strong class="tit">Role 등록</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body">
 			<dl class="info_wrap bgr" id="<@popupId>_items">
+			<div class="row">
+			
 				<dt>ROLE_ID</dt>
 				<dd><input type="text"  id="ROLE_ID" disabled></dd>
   				<dt>ROLE_NM</dt>
@@ -99,16 +144,18 @@
 				</dd>
 				<dt>SORT_ORDER</dt>
 				<dd><input type="text"  id="SORT_ORDER"></dd>
+				<div class="updateMode">
 				<dt>UPDATE_USER</dt>
 				<dd><input type="text"  id="UPDATE_USER" disabled ></dd>
 				<dt>UPDATE_DATE</dt>
 				<dd><input type="text"  id="UPDATE_DATE" disabled ></dd>
-				
+				</div>
+			</div>	
 			</dl>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select" onclick="<@popupId>.apply()" >확인</button>
-			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+			<button type="button" class="btn select" onclick="<@popupId>.apply()" 	>확인</button>
+			<button type="button" class="btn close" onclick="<@popupId>.close()"	>닫기</button>
 		</div>
 	</div>
 </div>
