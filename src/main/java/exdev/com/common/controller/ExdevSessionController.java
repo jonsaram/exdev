@@ -1,11 +1,12 @@
 package exdev.com.common.controller;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.vo.SessionVO;
@@ -17,19 +18,20 @@ import exdev.com.common.vo.SessionVO;
 public class ExdevSessionController {
 	
 	@RequestMapping("setSession.do")
-	public ModelAndView setSession(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception {
+	public @ResponseBody Map setSession(@RequestBody Map map, HttpSession session) throws Exception {
 		
 		SessionVO sessionVO = new SessionVO();
 		
-		sessionVO.setUserId("testUserId");
-		sessionVO.setUserName("테스트");
+		String spCstmCd = (String)map.get("spCstmCd");
+		String userNm 	= (String)map.get("userId"	);
+		String userId 	= (String)map.get("userNm"	);
+		
+		sessionVO.setSpCstmCd	(spCstmCd	);
+		sessionVO.setUserId		(userNm		);
+		sessionVO.setUserNm		(userId		);
 		
 		session.setAttribute(ExdevConstants.SESSION_ID, sessionVO);
 		
-		ModelAndView mv = new ModelAndView();
-		
-		mv.setViewName("redirect:/start.html");
-		
-		return mv;
+		return null;
 	}
 }

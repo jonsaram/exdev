@@ -102,6 +102,17 @@
         </if>
         ORDER BY CREATE_DATE DESC
     </select>
+
+	<!-- Session 테스트 -->
+    <select id="getSession" resultType="java.util.HashMap">
+    
+    	SELECT
+    		 #{sessionVo.spCstmCd}	AS SP_CSTM_CD
+    		,#{sessionVo.userId} 	AS USER_ID
+    		,#{sessionVo.userNm} 	AS USER_NM
+    	FROM DUAL
+	</select>
+
     
     
 </mapper>
