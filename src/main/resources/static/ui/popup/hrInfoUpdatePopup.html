@@ -139,6 +139,54 @@
 
 	            event.target.value = inputValue;
 			})
+			
+			$(".info #JUMIN").on('focusout', (e) => {
+				
+			    let regNumber = $(e.target).val().replace(/-/g, '');
+
+			    if (regNumber.length !== 13) {
+			    	alert('올바른 주민번호를 입력하여 주십시오.');
+			    	$(this).focus();
+			        return;
+			    }
+
+			    const year = parseInt(regNumber.substring(0, 2), 10);
+			    const month = parseInt(regNumber.substring(2, 4), 10);
+			    const day = parseInt(regNumber.substring(4, 6), 10);
+
+			    if (month < 1 || month > 12 || day < 1 || day > 31) {
+			    	alert('올바른 주민번호를 입력하여 주십시오.');
+			        return;
+			    }
+
+			    let checksum = 0;
+			    const weights = [2, 3, 4, 5, 6, 7, 8, 9, 2, 3, 4, 5];
+			    for (var i = 0; i < 12; i++) {
+			        checksum += parseInt(regNumber.charAt(i), 10) * weights[i];
+			    }
+			    checksum = (11 - (checksum % 11)) % 10;
+			    if (parseInt(regNumber.charAt(12), 10) !== checksum) {
+			    	alert('올바른 주민번호를 입력하여 주십시오.');
+			        return;
+			    }
+
+			    regNumber = regNumber.slice(0,6)+"-"+regNumber.slice(6);
+			    setTimeout(() => {
+			        $(e.target).val(regNumber);
+			    }, 0);
+
+			});
+			
+			$(".info #E_MAIL").on('focusout', (e) => {
+				
+			    let eMailAddress = $(e.target).val();
+			    let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+			    
+			    if (!emailPattern.test(eMailAddress)) {
+			        alert("올바른 이메일 주소를 입력하세요.");
+			        return;
+			    }
+			});
 		}        
 		,searchList : function(id, sel_BRANCH_ID){
 
