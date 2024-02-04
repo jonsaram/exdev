@@ -107,12 +107,46 @@
     <select id="getSession" resultType="java.util.HashMap">
     
     	SELECT
-    		 #{sessionVo.spCstmCd}	AS SP_CSTM_CD
+    		 #{sessionVo.spCstmId}	AS SP_CSTM_ID
     		,#{sessionVo.userId} 	AS USER_ID
     		,#{sessionVo.userNm} 	AS USER_NM
     	FROM DUAL
 	</select>
 
     
+    <insert id="setFileNew" parameterType="java.util.HashMap"  useGeneratedKeys="true" keyProperty="userId">
+        /* Sample.setFile */
+       INSERT INTO TBL_EXP_FILEMNG_NEW(
+             GRP_FILE_ID
+            ,FILE_ID
+            ,ORG_FILE_NM
+            ,STORED_FILE_NM
+            ,FILE_PATH
+            ,FILE_SIZE
+            ,FILE_TYPE
+            ,OWNER_CD
+            ,ORDER_NUM
+            ,DEL_YN
+            ,SP_CSTM_ID
+            ,CREATE_USER
+            ,CREATE_DATE
+        )
+        VALUES(
+             #{GRP_FILE_ID}
+            ,#{FILE_ID}
+            ,#{ORG_FILE_NM}
+            ,#{STORED_FILE_NM}
+            ,#{FILE_PATH} 
+            ,TO_NUMBER(#{FILE_SIZE})
+            ,#{FILE_TYPE}
+            ,#{OWNER_CD}
+            ,(SELECT NVL2( MAX(ORDER_NUM), MAX(ORDER_NUM)+1 ,1 ) AS ORDER_NUM FROM TBL_EXP_FILEMNG_NEW WHERE GRP_FILE_ID = #{GRP_FILE_ID})
+            ,'N'
+            ,#{sessionVo.spCstmId}
+            ,#{sessionVo.userId}
+            ,sysdate
+        )
+    </insert>
+
     
 </mapper>

@@ -22,11 +22,11 @@ public class ExdevSessionController {
 		
 		SessionVO sessionVO = new SessionVO();
 		
-		String spCstmCd = (String)map.get("spCstmCd");
+		String spCstmId = (String)map.get("spCstmId");
 		String userNm 	= (String)map.get("userId"	);
 		String userId 	= (String)map.get("userNm"	);
 		
-		sessionVO.setSpCstmCd	(spCstmCd	);
+		sessionVO.setSpCstmId	(spCstmId	);
 		sessionVO.setUserId		(userNm		);
 		sessionVO.setUserNm		(userId		);
 		

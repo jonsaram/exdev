@@ -316,6 +316,47 @@ public class ExdevCommonController {
 		return returnMap;
 	}
 
+    
+    
+    @SuppressWarnings({ "unused", "rawtypes", "unchecked" })
+	@PostMapping("/multiFileUpload_new.do")
+	public @ResponseBody Map<String, Object> multiFileUpload_new(@RequestParam("attach_file") List<MultipartFile> multiFileList,			
+            HttpServletRequest request, HttpSession session)  throws Exception {
+		
+        SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
+        
+        Map<String, String> returnFileMap 			= new HashMap<String, String>();
+        Map<String, Object> returnMap 				= new HashMap<String, Object>();
+        
+        String GRP_FILE_ID 	= request.getParameter("GRP_FILE_ID");
+        String OWNER_CD 	= request.getParameter("OWNER_CD"	);
+        String uploadPath	= ExdevConstants.FILE_UPLOAD_PATH + File.separator + OWNER_CD;
+		String[] FILE_IDS	= request.getParameterValues("FILE_IDS");
+		
+		returnFileMap = fileService.fileUploadMulti_new( request, multiFileList, GRP_FILE_ID, FILE_IDS, uploadPath, sessionVo);
+		
+		if( ExdevConstants.REQUEST_SUCCESS.equals(returnFileMap.get("msg").toString())) {
+			
+		    returnMap.put("msg", "파일 업로드에 성공하였습니다.");
+            
+            List<String> list = new ArrayList<String>();
+            for(int i =0; i < FILE_IDS.length; i++ ) {
+                list.add(FILE_IDS[i]);
+            }
+            returnMap.put("list", list);
+			
+		}else{
+            returnMap.put("msg", "파일 업로드에 실패하였습니다.");
+            
+		}
+		
+		return returnMap;
+	}
+    
+    
+    
+    
+    
     /** 
      * 내용        : 다중 첨부파일 삭제 샘플
      * @생 성 자   : 이응규

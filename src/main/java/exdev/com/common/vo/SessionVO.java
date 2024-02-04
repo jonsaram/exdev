@@ -15,7 +15,7 @@ public class SessionVO {
 
 	private String userId; 
 	private String userNm;
-	private String spCstmCd;
+	private String spCstmId;
 	public String getUserId() {
 		return userId;
 	}
@@ -28,11 +28,11 @@ public class SessionVO {
 	public void setUserNm(String userNm) {
 		this.userNm = userNm;
 	}
-	public String getSpCstmCd() {
-		return spCstmCd;
+	public String getSpCstmId() {
+		return spCstmId;
 	}
-	public void setSpCstmCd(String spCstmCd) {
-		this.spCstmCd = spCstmCd;
+	public void setSpCstmId(String spCstmId) {
+		this.spCstmId = spCstmId;
 	}
 	
 }

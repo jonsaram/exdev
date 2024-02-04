@@ -7,7 +7,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.common.service.ExdevBaseService;
+import exdev.com.common.vo.SessionVO;
 
 
 /** 
@@ -170,5 +170,80 @@ public class FileService extends ExdevBaseService{
 		}
 		return returnMap;
 	}
+
+
+	@SuppressWarnings("unchecked")
+	public Map fileUploadMulti_new( HttpServletRequest request, List<MultipartFile> multiFileList, String  GRP_FILE_ID, String[] FILE_IDS, String  uploadPath, SessionVO sessionVo) throws Exception {
+		
+		Map returnMap = new HashMap();
+		
+		String root = request.getSession().getServletContext().getRealPath("resources");
+        String path = root + File.separator + uploadPath;
+        
+        
+		File fileCheck = new File(path);
+		if(!fileCheck.exists()) fileCheck.mkdirs();
+		
+        List<Map> fileList = new ArrayList<>();
+		
+		for(int i = 0; i < multiFileList.size(); i++) {
+			String ORG_FILE_NM 	= multiFileList.get(i).getOriginalFilename();
+			long FILE_SIZE 		= multiFileList.get(i).getSize();
+			String ext 			= ORG_FILE_NM.substring(ORG_FILE_NM.lastIndexOf("."));
+			String FILE_ID 		= FILE_IDS[i];
+			String STORED_FILE_NM = FILE_ID + ext;
+	        String fullPath = path + File.separator + STORED_FILE_NM;
+	        String OWNER_CD 	= request.getParameter("OWNER_CD"	);
+	        
+			
+			Map map = new HashMap<>();
+			map.put("sessionVo"			, sessionVo		);
+			map.put("GRP_FILE_ID"		, GRP_FILE_ID	);
+			map.put("FILE_ID"			, FILE_ID		);
+			map.put("ORG_FILE_NM"		, ORG_FILE_NM	);
+			map.put("OWNER_CD"			, OWNER_CD		);
+			map.put("STORED_FILE_NM"	, STORED_FILE_NM);
+			map.put("FILE_PATH"			, fullPath		);
+			map.put("FILE_TYPE"			, ext			);
+			map.put("FILE_SIZE"			, Long.toString(FILE_SIZE));
+			fileList.add(map);
+		}
+		int result = 0;
+		// 파일업로드
+		try {
+			for(int i = 0; i < multiFileList.size(); i++) {
+				
+				Map insertMap = (Map)fileList.get(i);
+				
+				File uploadFile = new File((String)insertMap.get("FILE_PATH"));
+				
+				multiFileList.get(i).transferTo(uploadFile);
+				
+				/***************************************************************************/
+				/* 테이블 입력    테이블 입력    테이블 입력    테이블 입력    테이블 입력    */
+				result += commonDao.insert("Sample.setFileNew", insertMap);
+				/* 테이블 입력    테이블 입력    테이블 입력    테이블 입력    테이블 입력    */
+				/***************************************************************************/
+			}
+			if( result == multiFileList.size()) {
+				returnMap.put("msg", ExdevConstants.REQUEST_SUCCESS);	
+			}else {
+				for(int i = 0; i < multiFileList.size(); i++) {
+					new File((String)fileList.get(i).get("FILE_PATH")).delete();
+				}
+				returnMap.put("msg", ExdevConstants.REQUEST_FAIL);
+			}	
+			
+		} catch (Exception e) {
+		    // 만약 업로드 실패하면 파일 삭제
+			for(int i = 0; i < multiFileList.size(); i++) {
+				new File((String)fileList.get(i).get("FILE_PATH")).delete();
+			}
+			e.printStackTrace();
+			returnMap.put("msg", ExdevConstants.REQUEST_FAIL);
+		}
+		return returnMap;
+	}
+	
 	
 }
