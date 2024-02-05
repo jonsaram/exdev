@@ -211,4 +211,76 @@
    			VALUES (S.SP_CSTM_ID, S.USER_ID, S.AMOUNT, S.REG_DATE, S.EXP_DATE)
 	</update>
 	
+	<select id="getEducationHistList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	hrInfo.getEducationHistList
+			학력 리스트 조회 
+		*/
+		SELECT
+		SP_CSTM_ID
+		,USER_ID
+		,TO_CHAR(START_PERIOD_DATE,'YYYY-MM') || ' ~ ' || TO_CHAR(END_PERIOD_DATE,'YYYY-MM') AS PERIOD_DATE 
+		,TO_CHAR(START_PERIOD_DATE,'YYYY-MM-DD') AS START_PERIOD_DATE
+		,GUBUN
+		,SCHOOL_NAME
+		,MAJOR
+		,GRADUATE_YN
+		,TO_CHAR(END_PERIOD_DATE, 'YYYY-MM-DD') AS END_PERIOD_DATE
+		FROM TBL_EXP_EDUCATION_HIST
+		WHERE 1=1
+		AND SP_CSTM_ID = #{SP_CSTM_ID}
+		AND USER_ID = #{USER_ID}
+	</select>
+	
+	<select id="getCareerHistList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	hrInfo.getCareerHistList
+			경력 리스트 조회 
+		*/
+		SELECT 
+		SP_CSTM_ID
+		,USER_ID
+		,TO_CHAR(START_PERIOD_DATE,'YYYY-MM') || ' ~ ' || TO_CHAR(END_PERIOD_DATE,'YYYY-MM') AS PERIOD_DATE 
+		,TO_CHAR(START_PERIOD_DATE,'YYYY-MM-DD') AS START_PERIOD_DATE
+		,GUBUN
+		,DEPARTMENT
+		,POSITION
+		,BIZ_INFORM
+		,TO_CHAR(END_PERIOD_DATE, 'YYYY-MM-DD') AS END_PERIOD_DATE
+		FROM TBL_EXP_CAREER_HIST
+		WHERE 1=1
+		AND SP_CSTM_ID = #{SP_CSTM_ID}
+		AND USER_ID = #{USER_ID}
+	</select>
+	
+	<select id="getPositionHistList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	hrInfo.getPositionHistList
+			직책 승급 리스트 조회 
+		*/
+		SELECT 
+		SP_CSTM_ID
+		,USER_ID
+		,TO_CHAR(PERSONAL_APPOINTMENT_DATE,'YYYY-MM-DD') AS PA_DATE
+		,DEPARTMENT
+		,POSITION
+		FROM TBL_EXP_POSITION_HIST
+		WHERE 1=1
+		AND SP_CSTM_ID = #{SP_CSTM_ID}
+		AND USER_ID = #{USER_ID}
+	</select>
+	
+	<select id="getGradeHistList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	hrInfo.getGradeHistList
+			등급 승급 리스트 조회 
+		*/
+		SELECT 
+		SP_CSTM_ID
+		,USER_ID
+		,TO_CHAR(UPGRADE_DATE, 'YYYY-MM-DD') AS UPGRADE_DATE 
+		,GRADE
+		,GET_CODE_NM('USER_GRADE', GRADE)		AS GRADE_NM
+		FROM TBL_EXP_GRADE_HIST
+		WHERE 1=1
+		AND SP_CSTM_ID = #{SP_CSTM_ID}
+		AND USER_ID = #{USER_ID}
+	</select>
+	
 </mapper>

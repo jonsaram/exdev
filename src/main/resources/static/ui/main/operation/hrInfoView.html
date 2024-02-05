@@ -79,6 +79,48 @@
 		,setHandler : () => {
 
 		}
+		,setHistories : () => {
+			
+			const requestParm = {SP_CSTM_ID: G_VAL.SP_CSTM_ID , USER_ID: <@pageId>.recvData.USER_ID}
+			const parm = {
+						queryGroup : [
+							 {
+								 queryId 		: "hrInfo.getEducationHistList"
+								,requestParm	: requestParm
+							 }
+	  						,{
+								 queryId 		: "hrInfo.getCareerHistList"
+								,requestParm	: requestParm
+							 } 
+	  						,{
+								 queryId 		: "hrInfo.getPositionHistList"
+								,requestParm	: requestParm
+							 } 
+	  						,{
+								 queryId 		: "hrInfo.getGradeHistList"
+								,requestParm	: requestParm
+							 } 
+						]
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+
+				if( resultData.state == "S"){
+	
+					var rparm1 = {targetId : "educationList"	,list: resultData.data["hrInfo.getEducationHistList"]};
+					var rparm2 = {targetId : "careerList"		,list: resultData.data["hrInfo.getCareerHistList"]};
+					var rparm3 = {targetId : "positionList"		,list: resultData.data["hrInfo.getPositionHistList"]};
+					var rparm4 = {targetId : "gradeList"		,list: resultData.data["hrInfo.getGradeHistList"]};
+					
+					C_COM.renderHtml("<@pageId>", rparm1);
+					C_COM.renderHtml("<@pageId>", rparm2);
+					C_COM.renderHtml("<@pageId>", rparm3);
+					C_COM.renderHtml("<@pageId>", rparm4);
+				
+				}else{
+					alert(resultData.msg)
+				}
+			});	
+		}	
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function(param) {
@@ -86,6 +128,7 @@
 		<@pageId>.recvData = param;
  		<@pageId>.pageInit( param );
  		<@pageId>.setHandler();
+ 		<@pageId>.setHistories();
 
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -157,7 +200,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">학력</h3>
-							<button class="btn small select fr">추가</button>
+							<!-- <button class="btn small select fr">추가</button> -->
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -179,55 +222,34 @@
 										<th scope="col">졸업여부</th>
 									</tr>
 								</thead>
-								<tbody>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
+								<tbody  id="educationList">
 								</tbody>
+<script type="text/x-jsrender" id="educationList_template">	
+				{{for list}}
+				<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+ 					<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
+ 					<td id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
+ 					<td id='SCHOOL_NAME'	value='{{:SCHOOL_NAME}}'	>{{:SCHOOL_NAME}}</td>
+ 					<td id='MAJOR'			value='{{:MAJOR}}' 			>{{:MAJOR}}</td>
+ 					<td id='GRADUATE_YN'	value='{{:GRADUATE_YN}}' 	>{{:GRADUATE_YN}}</td>
+ 					<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
+ 					<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td> 
+				</tr>
+				{{/for}}
+</script>
+<script type="text/x-jsrender" id="educationList_noData_template">	
+				<tr>	
+					<td colspan=5>자료가 없습니다.</td>	
+				</tr>
+</script>
 							</table>
 						</div>
-						<!-- paging -->
-						<div class="paging">
-							<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-							<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-							<strong title="현재 페이지">1</strong>
-							<a href="#none">2</a>
-							<a href="#none">3</a>
-							<a href="#none">4</a>
-							<a href="#none">5</a>
-							<a href="#none" class="btn_pg_next">다음 페이지</a>
-							<a href="#none" class="btn_pg_last">마지막 페이지</a>
-						</div>
+
 					</div>
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">경력</h3>
-							<button class="btn small select fr">추가</button>
+							<!-- <button class="btn small select fr">추가</button> -->
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -244,54 +266,32 @@
 									<tr>
 										<th scope="col">구분</th>
 										<th scope="col">기간</th>
-										<th scope="col">학교명</th>
-										<th scope="col">전공분야</th>
-										<th scope="col">졸업여부</th>
+										<th scope="col">근무부서</th>
+										<th scope="col">직위</th>
+										<th scope="col">업무내용</th>
 									</tr>
 								</thead>
-								<tbody>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
+								<tbody  id="careerList">
 								</tbody>
+<script type="text/x-jsrender" id="careerList_template">	
+				{{for list}}
+				<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+ 					<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
+ 					<td id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
+ 					<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
+ 					<td id='POSITION'		value='{{:POSITION}}'		>{{:POSITION}}</td>
+ 					<td id='BIZ_INFORM'		value='{{:BIZ_INFORM}}' 	>{{:BIZ_INFORM}}</td>
+ 					<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
+ 					<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
+				</tr>
+				{{/for}}
+</script>
+<script type="text/x-jsrender" id="careerList_noData_template">	
+				<tr>	
+					<td colspan=5>자료가 없습니다.</td>	
+				</tr>
+</script>
 							</table>
-						</div>
-						<!-- paging -->
-						<div class="paging">
-							<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-							<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-							<strong title="현재 페이지">1</strong>
-							<a href="#none">2</a>
-							<a href="#none">3</a>
-							<a href="#none">4</a>
-							<a href="#none">5</a>
-							<a href="#none" class="btn_pg_next">다음 페이지</a>
-							<a href="#none" class="btn_pg_last">마지막 페이지</a>
 						</div>
 					</div>
 				</section>
@@ -300,7 +300,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">직책 승급 스토리</h3>
-							<button class="btn small select fr">추가</button>
+							<!-- <button class="btn small select fr">추가</button> -->
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -318,112 +318,67 @@
 										<th scope="col">발령일</th>
 									</tr>
 								</thead>
-								<tbody>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									</tbody>
+								<tbody  id="positionList">
+								</tbody>
+<script type="text/x-jsrender" id="positionList_template">	
+				{{for list}}
+				<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+ 					<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
+ 					<td id='POSITION'		value='{{:POSITION}}'		>{{:POSITION}}</td>
+ 					<td id='PA_DATE'		value='{{:PA_DATE}}' 		>{{:PA_DATE}}</td>
+ 					<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
+ 					<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
+				</tr>
+				{{/for}}
+</script>
+<script type="text/x-jsrender" id="positionList_noData_template">	
+				<tr>	
+					<td colspan=3>자료가 없습니다.</td>	
+				</tr>
+</script>
 							</table>
-						</div>
-						<!-- paging -->
-						<div class="paging">
-							<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-							<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-							<strong title="현재 페이지">1</strong>
-							<a href="#none">2</a>
-							<a href="#none">3</a>
-							<a href="#none">4</a>
-							<a href="#none">5</a>
-							<a href="#none" class="btn_pg_next">다음 페이지</a>
-							<a href="#none" class="btn_pg_last">마지막 페이지</a>
 						</div>
 					</div>
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">경력</h3>
-							<button class="btn small select fr">추가</button>
+							<!-- <button class="btn small select fr">추가</button> -->
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
 							<table>
-								<caption>학력 리스트</caption>
+								<caption>등급 승급 스토리</caption>
 								<colgroup>
-									<col style="width:15%;"/>
-									<col style="width:20%;"/>
-									<col style="width:25%;"/>
-									<col style="width:25%;"/>
-									<col style="width:15%;"/>
+									<col style="width:50%;"/>
+									<col style="width:50%;"/>
 								</colgroup>
 								<thead>
 									<tr>
-										<th scope="col">구분</th>
-										<th scope="col">기간</th>
-										<th scope="col">학교명</th>
-										<th scope="col">전공분야</th>
-										<th scope="col">졸업여부</th>
+										<th scope="col">등급</th>
+										<th scope="col">승격일</th>
 									</tr>
 								</thead>
-								<tbody>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-										<td></td>
-									</tr>
+								<tbody  id="gradeList">
 								</tbody>
+<script type="text/x-jsrender" id="gradeList_template">	
+				{{for list}}
+				<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+ 					<td id='GRADE_NM'		value='{{:GRADE_NM}}' 		>{{:GRADE_NM}}</td>
+ 					<td id='UPGRADE_DATE'	value='{{:UPGRADE_DATE}}' 	>{{:UPGRADE_DATE}}</td>
+ 					<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
+ 					<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
+ 					<td id='GRADE'			value='{{:GRADE}}'			style='display:none'>{{:GRADE}}</td>
+				</tr>
+				{{/for}}
+</script>
+<script type="text/x-jsrender" id="gradeList_noData_template">	
+				<tr>	
+					<td colspan=2>자료가 없습니다.</td>	
+				</tr>
+</script>
 							</table>
 						</div>
-						<!-- paging -->
-						<div class="paging">
-							<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-							<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-							<strong title="현재 페이지">1</strong>
-							<a href="#none">2</a>
-							<a href="#none">3</a>
-							<a href="#none">4</a>
-							<a href="#none">5</a>
-							<a href="#none" class="btn_pg_next">다음 페이지</a>
-							<a href="#none" class="btn_pg_last">마지막 페이지</a>
-						</div>
+						
 					</div>
 				</section>
 			</div>
