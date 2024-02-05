@@ -149,7 +149,7 @@
 
 	<select id="getBoardList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	board.getBoardList
-			공지사항 리스트 조회 
+			게시판 리스트 조회 
 		*/
 		SELECT 	BOARD_ID,
 				TITLE,
@@ -162,74 +162,65 @@
 		FROM TBL_EXP_BOARD
 	</select>
 	
-	<select id="getContentsView" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+	<select id="getBoardView" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	board.getBoardView
-			공지사항 상세 조회 
+			게시판 상세 조회 
 		*/
-		SELECT 	UUID,
-				BOARD_CODE,
+		SELECT 	BOARD_ID,
 				TITLE,
-				CONTENTS,
-				DELETE_YN,
+				CONTENT,
+				BOARD_MST_ID,
 				UPDATE_USER,
-				CREATE_USER,
 				TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE,
+				CREATE_USER,
 				TO_CHAR( CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE
 		FROM TBL_EXP_BOARD
-		WHERE UUID = #{UUID}
-		AND BOARD_CODE = #{BOARD_CODE}
-		AND DELETE_YN = 'N'
+		WHERE BOARD_ID = #{BOARD_ID}
+		AND BOARD_MST_ID = #{BOARD_MST_ID}
 	</select>
 	
-	<insert id="insertContents" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	board.insertContents
-			공지사항 입력 
+	<insert id="insertBoard" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.insertBoard
+			게시판 입력 
 		*/
-		INSERT INTO TBL_EXP_BOARD(	UUID,
-									BOARD_CODE,
-									TITLE,
-									CONTENTS,
-									DELETE_YN,
+		INSERT INTO TBL_EXP_BOARD(	BOARD_ID
+									TITLE
+									CONTENT
+									BOARD_MST_ID
 									UPDATE_USER,
 									CREATE_USER,
 									UPDATE_DATE,
 									CREATE_DATE)
-							VALUES( #{UUID},
-									#{BOARD_CODE},
+							VALUES( #{BOARD_ID},
 									#{TITLE},
-									#{CONTENTS},
-									'N',
+									#{CONTENT},
+									#{BOARD_MST_ID},
 									#{USER_ID},
 									#{USER_ID},
 									SYSDATE,
 									SYSDATE)
 	</insert>
 
-	<update id="updateContents" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	board.updateContents
-			공지사항 수정 
+	<update id="updateBoard" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.updateBoard
+			게시판 수정 
 		*/
 		UPDATE TBL_EXP_BOARD
 		SET	TITLE = #{TITLE},
 			CONTENTS = #{CONTENTS},
 			UPDATE_USER = #{USER_ID},
 			UPDATE_DATE = SYSDATE
-		WHERE UUID = #{UUID}
-		AND BOARD_CODE = #{BOARD_CODE}
-		AND DELETE_YN = 'N'
+		WHERE BOARD_ID = #{BOARD_ID}
+		AND BOARD_MST_ID = #{BOARD_MST_ID}
 	</update>
 
-	<update id="deleteContents" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	board.deleteContents
-			공지사항 삭제
+	<delete id="deleteBoard" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.deleteBoard
+			Board 정보 삭제 
 		*/
-		UPDATE TBL_EXP_BOARD
-		SET	DELETE_YN = 'Y',
-			UPDATE_USER = #{USER_ID},
-			UPDATE_DATE = SYSDATE
-		WHERE UUID = #{UUID}
-		AND BOARD_CODE = #{BOARD_CODE}
-		AND DELETE_YN = 'N'
-	</update>
+		DELETE TBL_EXP_BOARD
+		WHERE BOARD_ID = #{BOARD_ID}
+		AND BOARD_MST_ID = #{BOARD_MST_ID}
+	</delete>
 
 </mapper>
