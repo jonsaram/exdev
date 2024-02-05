@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="board">
+
+	<cache />
+	
+	<!--
+	BOARD 관리
+	 -->
+	<select id="getBoardMstList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	board.getBoardMstList
+			Board 리스트 조회 
+		*/
+		SELECT 	BOARD_MST_ID,
+				BOARD_MST_NM,
+				BOARD_MST_DESC,
+				UPDATE_USER,
+				TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE,
+				CREATE_USER,
+				TO_CHAR( CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE,
+				SP_CSTM_ID,
+				USE_YN
+		FROM TBL_EXP_BOARD_MST
+		ORDER BY CREATE_DATE
+	</select>
+	
+	<select id="getBoardMstView" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	board.getBoardMstView
+			Board 상세정보 조회 
+		*/
+		SELECT 	BOARD_MST_ID,
+				BOARD_MST_NM,
+				BOARD_MST_DESC,
+				UPDATE_USER,
+				TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE,
+				CREATE_USER,
+				TO_CHAR( CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE,
+				SP_CSTM_ID,
+				USE_YN
+		FROM TBL_EXP_BOARD_MST
+		WHERE BOARD_MST_ID = #{BOARD_MST_ID}
+	</select>
+	
+	<insert id="insertBoardMst" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.insertBoardMst
+			Board 상세정보 입력 
+		*/
+		INSERT INTO TBL_EXP_BOARD_MST(	BOARD_MST_ID,
+										BOARD_MST_NM,
+										BOARD_MST_DESC,
+										UPDATE_USER,
+										UPDATE_DATE,
+										CREATE_USER,
+										CREATE_DATE,
+										SP_CSTM_ID,
+										USE_YN)
+								VALUES( #{BOARD_MST_ID},
+										#{BOARD_MST_NM},
+										#{BOARD_MST_DESC},
+										#{USER_ID},
+										SYSDATE,
+										#{USER_ID},
+										SYSDATE,
+										#{SP_CSTM_ID},
+										#{USE_YN})
+	</insert>
+	
+	<update id="updateBoardMst" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.updateBoardMst
+			Board 상세정보 수정 
+		*/
+		UPDATE TBL_EXP_BOARD_MST
+		SET	BOARD_MST_NM = #{BOARD_MST_NM},
+			BOARD_MST_DESC = #{BOARD_MST_DESC},
+			UPDATE_USER = #{USER_ID},
+			UPDATE_DATE = SYSDATE
+		WHERE BOARD_MST_ID = #{BOARD_MST_ID}
+		AND USE_YN = #{USE_YN}
+	</update>
+	
+	<update id="deleteBoardMst" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.deleteBoardMst
+			Board 정보 삭제 
+		*/
+		UPDATE TBL_EXP_BOARD_MST
+		SET	USE_YN = #{USE_YN},
+			UPDATE_USER = #{USER_ID},
+			UPDATE_DATE = SYSDATE
+		WHERE BOARD_MST_ID = #{BOARD_MST_ID}
+	</update>
+
+	<select id="getBoardAddList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	board.getBoardAddList
+			Board 댓글 상세정보 조회 
+		*/
+		SELECT 	BOARD_ADD_ID,
+				ADD_CONTENT,
+				UPDATE_USER,
+				TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE,
+				CREATE_USER,
+				TO_CHAR( CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE,
+				BOARD_ID
+		FROM TBL_EXP_BOARD_ADD
+		WHERE BOARD_ID = #{BOARD_ID}
+		ORDER BY UPDATE_DATE DESC
+	</select>
+
+	<insert id="insertBoardAdd" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.insertBoardAdd
+			Board 댓글정보 입력 
+		*/
+		INSERT INTO TBL_EXP_BOARD_ADD(	BOARD_ADD_ID,
+										ADD_CONTENT,
+										UPDATE_USER,
+										UPDATE_DATE,
+										CREATE_USER,
+										CREATE_DATE,
+										BOARD_ID)
+								VALUES( #{BOARD_ADD_ID},
+										#{ADD_CONTENT},
+										#{USER_ID},
+										SYSDATE,
+										#{USER_ID},
+										SYSDATE,
+										#{BOARD_ID})
+	</insert>
+	
+	<update id="updateBoardAdd" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.updateBoardAdd
+			Board 댓글정보 수정 
+		*/
+		UPDATE TBL_EXP_BOARD_ADD
+		SET	ADD_CONTENT = #{ADD_CONTENT},
+			UPDATE_USER = #{USER_ID},
+			UPDATE_DATE = SYSDATE
+		WHERE BOARD_ADD_ID = #{BOARD_ADD_ID}
+	</update>
+	
+	<delete id="deleteBoardAdd" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.deleteBoardAdd
+			Board 댓글정보 삭제 
+		*/
+		DELETE TBL_EXP_BOARD_ADD
+		WHERE BOARD_ADD_ID = #{BOARD_ADD_ID}
+	</delete>
+
+
+	<select id="getBoardList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	board.getBoardList
+			공지사항 리스트 조회 
+		*/
+		SELECT 	BOARD_ID,
+				TITLE,
+				CONTENT,
+				BOARD_MST_ID,
+				UPDATE_USER,
+				TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE,
+				CREATE_USER,
+				TO_CHAR( CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE
+		FROM TBL_EXP_BOARD
+	</select>
+	
+	<select id="getContentsView" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	board.getBoardView
+			공지사항 상세 조회 
+		*/
+		SELECT 	UUID,
+				BOARD_CODE,
+				TITLE,
+				CONTENTS,
+				DELETE_YN,
+				UPDATE_USER,
+				CREATE_USER,
+				TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE,
+				TO_CHAR( CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE
+		FROM TBL_EXP_BOARD
+		WHERE UUID = #{UUID}
+		AND BOARD_CODE = #{BOARD_CODE}
+		AND DELETE_YN = 'N'
+	</select>
+	
+	<insert id="insertContents" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.insertContents
+			공지사항 입력 
+		*/
+		INSERT INTO TBL_EXP_BOARD(	UUID,
+									BOARD_CODE,
+									TITLE,
+									CONTENTS,
+									DELETE_YN,
+									UPDATE_USER,
+									CREATE_USER,
+									UPDATE_DATE,
+									CREATE_DATE)
+							VALUES( #{UUID},
+									#{BOARD_CODE},
+									#{TITLE},
+									#{CONTENTS},
+									'N',
+									#{USER_ID},
+									#{USER_ID},
+									SYSDATE,
+									SYSDATE)
+	</insert>
+
+	<update id="updateContents" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.updateContents
+			공지사항 수정 
+		*/
+		UPDATE TBL_EXP_BOARD
+		SET	TITLE = #{TITLE},
+			CONTENTS = #{CONTENTS},
+			UPDATE_USER = #{USER_ID},
+			UPDATE_DATE = SYSDATE
+		WHERE UUID = #{UUID}
+		AND BOARD_CODE = #{BOARD_CODE}
+		AND DELETE_YN = 'N'
+	</update>
+
+	<update id="deleteContents" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.deleteContents
+			공지사항 삭제
+		*/
+		UPDATE TBL_EXP_BOARD
+		SET	DELETE_YN = 'Y',
+			UPDATE_USER = #{USER_ID},
+			UPDATE_DATE = SYSDATE
+		WHERE UUID = #{UUID}
+		AND BOARD_CODE = #{BOARD_CODE}
+		AND DELETE_YN = 'N'
+	</update>
+
+</mapper>
