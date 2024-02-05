@@ -72,6 +72,9 @@
         AND U.USER_ID = GHIS.USER_ID(+)	
         AND U.DEL_YN = 'N'
         AND U.USE_YN = 'Y'
+        <if test=" USER_NM != null and !USER_NM.equals('') ">
+        AND U.USER_NM like '%' || #{USER_NM} || '%'
+        </if>
         ORDER BY USER_ID
 	</select>
 	 	

@@ -6,9 +6,9 @@ var <@pageId> = {
 		,pageInit : () =>{
 			
 		}
-		,searchList : () => {
+		,searchList : (searchName) => {
 			
-			const requestParm = {};
+			const requestParm = { USER_NM : searchName };
 			
 			var parm = {
 					 queryId 		: "hrInfo.getHrInfoList"
@@ -202,7 +202,15 @@ var <@pageId> = {
   				})
   				
   				return columnOrders;
-		}		
+		}
+		,nameSearch : (e) => {
+			
+			 if (e.key === "Enter") {
+				 
+			        var USER_NM = event.target.value;
+					<@pageId>.searchList( USER_NM );
+			}
+		}
 }
 
 // Page Load가 완료된후 실행 된다.
@@ -241,7 +249,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					    </div>
 					</div>
 					<div class="search_inputWrap">
-						<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+						<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
 					</div>
 				</div>
 	
