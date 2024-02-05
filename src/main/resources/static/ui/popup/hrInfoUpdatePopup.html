@@ -11,6 +11,10 @@
 			C_POP.close(returnData);
 		 }
 		 ,apply : () =>{
+			 
+			 if( <@popupId>.validation() == false){
+				 return;
+			 }
 
 			 let returnData = {};
 			 const $inputs = $("#<@popupId>_items input");
@@ -36,7 +40,22 @@
 			 
 			 <@popupId>.close(returnData);
 			 
-		 }		
+		 }
+		 ,validation : () =>{
+			 
+			 if( $("#<@popupId>_items #USER_NM").val() 		== "" ) {alert("이름을 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #PHONE_NUM").val() 	== "" ) {alert("핸드폰번호를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #JUMIN").val() 		== "" ) {alert("주민등록번호를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #REG_DATE").val() 	== "" ) {alert("입사일을 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #E_MAIL").val() 		== "" ) {alert("이메일을 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #POST_NUM").val() 	== "" ) {alert("주소를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #ADDR1").val() 		== "" ) {alert("주소를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #ADDR2").val() 		== "" ) {alert("상세주소를 입력하여 주십시오."); return false;}
+			 const phonePattern = /^01(?:0|1|[6-9])(?:\d{3}|\d{4})\d{4}$/;
+			 if( !phonePattern.test($("#<@popupId>_items #PHONE_NUM").val())){alert("올바른 핸드폰번호를 입력하여 주십시오."); return false;}
+			 return true;
+			 
+		 }
 		 ,fnRadioCheckValue : (name , pValue) => {
 
 				const radioButtons = $("#<@popupId>_items input[name='"+name+"']");
@@ -151,6 +170,12 @@
 				}else if( id.indexOf("selectBranch") > -1){
 					
 				}
+				
+			})
+			
+			$("#<@popupId>_items #POST_NUM").on('click', () => {
+			
+				$("#<@popupId>_postSearch").trigger('click');
 				
 			})
 			
