@@ -17,6 +17,8 @@
 			,U.USER_ID
 			,U.USER_NM
 			,U.USER_DESC
+            ,U.GENDER
+            ,GET_CODE_NM('GENDER', U.GENDER)		AS GENDER_NM
 			,U.E_MAIL
 			,U.PHONE_NUM
             ,BR.BASE_BRANCH_ID
@@ -46,7 +48,7 @@
 			,NVL(TO_CHAR( I.EXP_DATE ,'YYYY-MM-DD'  ),'-' ) 		AS INSURANCE_EXP_DATE
 			,TO_CHAR( GHIS.MAX_UPGRADE_DATE,'YYYY-MM-DD') 			AS UPGRADE_DATE
             ,U.SURETY_INSURANCE 
-            ,GET_CODE_NM('G_SURETY_INSURANCE', U.SURETY_INSURANCE) AS SURETY_INSURANCE_NM 
+            ,NVL(GET_CODE_NM('G_SURETY_INSURANCE', U.SURETY_INSURANCE),'-') AS SURETY_INSURANCE_NM 
 		FROM TBL_EXP_USER U
 		, TBL_EXP_SURETY_INSURANCE I
         , ( SELECT BB.BASE_BRANCH_ID, BB.BASE_BRANCH_NM, BB.USER_ID AS BASE_USER_ID
@@ -67,7 +69,9 @@
 		AND U.SP_CSTM_ID = I.SP_CSTM_ID(+)
         AND U.USER_ID = I.USER_ID(+)
         AND U.BRANCH_ID = BR.BRANCH_ID(+)
-        AND U.USER_ID = GHIS.USER_ID	
+        AND U.USER_ID = GHIS.USER_ID(+)	
+        AND U.DEL_YN = 'N'
+        AND U.USE_YN = 'Y'
         ORDER BY USER_ID
 	</select>
 	 	
@@ -81,23 +85,18 @@
 		         #{USER_ID} 	AS USER_ID,
 		         #{USER_NM} 	AS USER_NM,
 		         #{USER_DESC} 	AS USER_DESC,
+		         #{GENDER} 		AS GENDER,
 		         #{E_MAIL} 		AS E_MAIL,
 		         #{PHONE_NUM} 	AS PHONE_NUM,
 		         #{BRANCH_ID}	AS BRANCH_ID,
 		         #{ROLE}		AS ROLE,
 		         #{GRADE}		AS GRADE,
-		         #{STATE}		AS STATE,
+		         NVL(#{STATE},'INUSE') AS STATE,
 		         TO_DATE( #{REG_DATE}, 'YYYY-MM-SS' )	AS REG_DATE,
 		         #{JUMIN}		AS JUMIN,
 		         #{POST_NUM}	AS POST_NUM,
 		         #{ADDR1}		AS ADDR1,
 		         #{ADDR2}		AS ADDR2,
-		         <if test=" USE_YN != null and !USE_YN.equals('') ">
-		         #{USE_YN} 		AS USE_YN,
-		         </if>
-		         <if test=" DEL_YN != null and !DEL_YN.equals('') ">
-		         #{DEL_YN} 		AS DEL_YN,
-		         </if>
 		         'system' 		AS UPDATE_USER,
 		         SYSDATE 		AS UPDATE_DATE
 		  FROM dual
@@ -108,6 +107,7 @@
 		WHEN MATCHED THEN
 		  UPDATE SET
 		    T.USER_NM 		= S.USER_NM,
+		    T.GENDER 		= S.GENDER,
 		    T.USER_DESC 	= S.USER_DESC,
 		    T.E_MAIL 		= S.E_MAIL,
 		    T.PHONE_NUM 	= S.PHONE_NUM,
@@ -120,34 +120,20 @@
 		    T.POST_NUM 		= S.POST_NUM,
 		    T.ADDR1 		= S.ADDR1,
 		    T.ADDR2 		= S.ADDR2,
-		    <if test=" USE_YN != null and !USE_YN.equals('') ">
-		    T.USE_YN 		= S.USE_YN,
-	        </if>
-	        <if test=" DEL_YN != null and !DEL_YN.equals('') ">
-		    T.DEL_YN 		= S.DEL_YN,
-		    </if>
 		    T.UPDATE_USER 	= S.UPDATE_USER,
 		    T.UPDATE_DATE 	= S.UPDATE_DATE
 		WHEN NOT MATCHED THEN 
-    		INSERT (  SP_CSTM_ID,   USER_ID,   USER_NM ,   USER_DESC
+    		INSERT (  SP_CSTM_ID,   USER_ID,   USER_NM ,   GENDER ,   USER_DESC
     		,   E_MAIL,   PHONE_NUM, 	BRANCH_ID,	ROLE,	GRADE,	STATE
     		,	REG_DATE,	JUMIN,	POST_NUM,	ADDR1,	ADDR2		
-		    <if test=" USE_YN != null and !USE_YN.equals('') ">
     		,   USE_YN
-    		</if>
-	        <if test=" DEL_YN != null and !DEL_YN.equals('') ">
     		,   DEL_YN
-    		</if>
     		,  UPDATE_USER,   UPDATE_DATE )
-   			VALUES ( S.SP_CSTM_ID, S.USER_ID, S.USER_NM , S.USER_DESC
+   			VALUES ( S.SP_CSTM_ID, S.USER_ID, S.USER_NM , S.GENDER , S.USER_DESC
    			, S.E_MAIL,  S.PHONE_NUM,  S.BRANCH_ID,	S.ROLE,	S.GRADE,	S.STATE
    			, S.REG_DATE,	S.JUMIN,	S.POST_NUM,	S.ADDR1,	S.ADDR2
-		    <if test=" USE_YN != null and !USE_YN.equals('') ">
-   			, S.USE_YN
-   			</if>
-   			<if test=" DEL_YN != null and !DEL_YN.equals('') ">
-   			, S.DEL_YN
-   			</if>
+   			, 'Y'
+   			, 'N'
    			, S.UPDATE_USER, S.UPDATE_DATE )
 	</update>
 	

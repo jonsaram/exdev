@@ -11,34 +11,35 @@
 		,pageInit : (param) =>{
 			
 			for (var key in param) {
+				
 			    var value = param[key];
 
-			    $(".info.parmVal, .tc.parmVal").filter(function() {
+			    $(".info.parmVal").filter(function() {
 			        return $(this).data("key") === key;
-			    }).text(value);
+			    }).text(" : "+value);
+			    $(".tc.parmVal").filter(function() {
+			        return $(this).data("key") === key;
+			    }).text( value);
+			    
 			}
 			
-	  		let USER_ID = $(".employee_num.tc.parmVal").text();
-			const $hrImg = $("#<@pageId>_hrImg");
-			if( USER_ID ){
+	  		const USER_ID	= $(".employee_num.tc.parmVal").text();
+	  		
+			const $hrImg	= $("#<@pageId>_hrImg");
 				
-				$("#<@pageId>_hrImg").removeClass("no_img");
-				$("#<@pageId>_hrImg img").length == 0 ? $hrImg.append("img"):'';
-				$hrImg.children("img").attr("src","../img/hrImg/img_"+USER_ID+".jpg");
-				
-			}else{
-				$hrImg.addClass("no_img").children("img").remove();
-			} 
+			$("#<@pageId>_hrImg").removeClass("no_img");
+			
+			$("#<@pageId>_hrImg img").length == 0 ? $hrImg.append("img"):'';
+			
+			$("#<@pageId>_hrImg img").on('error', () => $hrImg.children("img").attr("src", "../img/icon_noimg.png") );
+
+			$hrImg.children("img").attr("src","../img/hrImg/img_"+USER_ID+".png");
 			
 		}
 		,updateItem : (param) => {
 
 			<@pageId>.requestParm = param ? param : {} ;
 			<@pageId>.requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
-			if( !<@pageId>.requestParm["USER_ID"] || <@pageId>.requestParm["USER_ID"] == ''){
-				alert('사번코드가 입력되지 않았습니다.');
-				return;
-			}
 			
 			var parm = {
 						queryGroup : [
@@ -67,7 +68,7 @@
 		} 		
 		,openPopup : () => {
 			
-			C_POP.open('popup_hrInfoUpdatePopup', {param:<@pageId>.recvData}, function(retData) {
+			C_POP.open('popup_hrInfoUpdatePopup', {param:<@pageId>.recvData, mode:"U"}, function(retData) {
 				
 				if(isValid(retData)){
 					<@pageId>.updateItem(retData);
@@ -76,6 +77,7 @@
 			
 		}
 		,setHandler : () => {
+
 		}
 	}
 	// Page Load가 완료된후 실행 된다.
@@ -83,6 +85,7 @@
 
 		<@pageId>.recvData = param;
  		<@pageId>.pageInit( param );
+ 		<@pageId>.setHandler();
 
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -104,10 +107,10 @@
 							<a href="javascript:<@pageId>.openPopup()" class="btn small select fr">수정</a>
 						</div>
 						<figure class="photo_wrap" id="<@pageId>_hrImg">
-							<img src="../img/hrImg/img_default.jpg">
+							<img src="../img/icon_noimg.png"/>
 						</figure>
-						<div class="employee_num tc parmVal" data-key="USER_ID"></div>
-						<div class="name tc parmVal" data-key="USER_NM"></div>
+						<div class="employee_num tc parmVal" 	data-key="USER_ID"></div>
+						<div class="name tc parmVal" 			data-key="USER_NM"></div>
 						<ul class="info_wrap personnel">
 							<li>
 								<label>입사일</label>
@@ -116,7 +119,7 @@
 							</li>
 							<li>
 								<label>휴대전화</label>
-								<div class="info parmVal" data-key="REG_DATE" >
+								<div class="info parmVal" data-key="PHONE_NUM" >
 								</div>
 							</li>
 							<li>
@@ -131,7 +134,7 @@
 							</li>
 							<li>
 								<label>신용입보</label>
-								<div class="info parmVal" data-key="SURETY_INSURANCE"></div>
+								<div class="info parmVal" data-key="SURETY_INSURANCE_NM"></div>
 							</li>
 							<li>
 								<label>가입금액</label>

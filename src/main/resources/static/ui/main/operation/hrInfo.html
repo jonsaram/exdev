@@ -14,25 +14,22 @@ var <@pageId> = {
 					 queryId 		: "hrInfo.getHrInfoList"
 					,requestParm	: requestParm
 			}
-			
+			<@pageId>.excelParam = parm;
 			C_COM.requestQuery(parm, function(resultData) {
-			
 				var rparm = {
 						 targetId 		: "<@pageId>_hiInfoList"
 						,list			: resultData.data
 				}
 			
 				C_COM.renderHtml("<@pageId>", rparm);
+				
+				<@pageId>.chkHandler();
 			});
 		}
 		,updateItem : (param) => {
 
 			const requestParm = param ? param : {} ;
 			requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
-			if( !requestParm["USER_ID"] || requestParm["USER_ID"] == ''){
-				alert('사번코드가 입력되지 않았습니다.');
-				return;
-			}
 			
 			var parm = {
 						queryGroup : [
@@ -98,24 +95,9 @@ var <@pageId> = {
 		    })
 		    
 		    $("#<@pageId>_excelDownload").click(function(){
-		    	
-		    	<@pageId>.excelDownload("TBL_EXP_USER");
-		    	
-		    })
-		    
-		    $("[id^='<@pageId>_modify_']").click(function(){
-		    	
-		    	const index = $(this).attr("index");
-				const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
-				<@pageId>.openPopup($tds);
-				
-		    })
-		    
-		    $("[id^='<@pageId>_delete_']").click(function(){
 
-		    	const key = $(this).attr("key");
-				<@pageId>.deleteOne(key);
-				
+		    	<@pageId>.excelDownload("직원 리스트");
+		    	
 		    })
 		    
 			$("#<@pageId>_search").click( () =>{
@@ -134,8 +116,8 @@ var <@pageId> = {
 			    <@pageId>.checkedItems = isAllChk ? ckboxes.map(function() { return this.value; }).get() : [];
 
 		    });
-		    $("[id^='<@pageId>_ck_']").click(function(){
-		    	
+		    $("[id^='<@pageId>_ck_']").click(function() {
+
 			        if ($(this).prop("checked")){<@pageId>.checkedItems.push($(this).val());}
 		    	else { <@pageId>.checkedItems = <@pageId>.checkedItems.filter(item => item !== $(this).val());}  
 		        
@@ -146,17 +128,10 @@ var <@pageId> = {
 		    });
 		    
 		}		
-		,openPopup : ($tds) => {
+		,openPopup : () => {
 
 			let param = [];	
-			$.each( $tds , function(){
-				console.log(""+this)
-				const key = $(this).attr("id");
-				const val = $(this).attr("value");
-				param.push( { "key": key, "val": val } );
-				
-			})
-			C_POP.open('popup_hrInfoUpdatePopup', {param:param}, function(retData) {
+			C_POP.open('popup_hrInfoUpdatePopup', {param:param, mode:"I"}, function(retData) {
 				
 				if(isValid(retData)){
 					<@pageId>.updateItem(retData);
@@ -177,18 +152,65 @@ var <@pageId> = {
 			    	jsonObject[id] = value;
 			});
 			
-			console.log(jsonObject);			
 			C_PM.movePage( pageId.trim(), jsonObject );
 			
 		}
+ 		,excelDownload : (title) => {
+			
+			const $tds = $("[name='<@pageId>_tr_0'] td");
+ 			<@pageId>.excelParam["columnOrders"	] = <@pageId>.excelColumnOrder($tds, this).filter( item => item !=null );
+ 			<@pageId>.excelParam["downInfo"		] = JSON.stringify({  title : title, menu : title});
+ 			<@pageId>.excelParam["requestParm"	] = JSON.stringify(<@pageId>.excelParam.requestParm );
+ 			
+			let excelParam = <@pageId>.excelParam ;
+			
+    	    var xhr = new XMLHttpRequest();
+    	    var urlParams = new URLSearchParams( excelParam ).toString();
+    	    xhr.open('GET', '/excelDownload.do?'+urlParams, true);
+    	    xhr.responseType = 'blob';
+
+    	    xhr.onload = function() {
+    	    	
+    	        if (xhr.status === 200) {
+
+    	            var blob = new Blob([xhr.response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    	            var url = window.URL.createObjectURL(blob);
+    	            
+    	            var a = document.createElement('a');
+    	            a.href = url;
+    	            a.download = title+'.xlsx';
+    	            
+    	            document.body.appendChild(a);
+    	            a.click();
+    	            window.URL.revokeObjectURL(url);
+    	            
+    	        } else {
+    	        	
+    	            console.error('Failed to download excel file');
+    	            
+    	        }
+    	    };
+    	    
+    	    xhr.send();
+		},
+		excelColumnOrder : ($tds) =>{
+  				let columnOrders = [];
+  				
+  				$.each( $tds, function(){
+
+  					columnOrders.push( $(this).attr("id") );
+  				})
+  				
+  				return columnOrders;
+		}		
 }
 
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
 
 	<@pageId>.pageInit();
-	<@pageId>.setHandler();
 	<@pageId>.searchList();
+	<@pageId>.setHandler();
 
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -225,7 +247,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 	
 				<div class="search_right">
 					<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>신규 직원 추가</button>
-					<button type="button" class="btn fl" id="<@pageId>_excelDownload_all"><i class="icon_download"></i> 직원 리스트 다운로드</button>
+					<button type="button" class="btn fl" id="<@pageId>_excelDownload"><i class="icon_download"></i> 직원 리스트 다운로드</button>
 					<button type="button" class="btn fl" id="<@pageId>_excelDownload_select"><i class="icon_download"></i> 선택 직원 다운로드</button>
 	
 					<!-- 실글 선택 -->
@@ -255,16 +277,16 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<caption>인사정보 리스트</caption>
 						<colgroup>
 								<col style="width:40px;"/>
-								<col style="width:120px;">
+								<col style="width:90px;">
 								<col style="width:80px;"/>
-								<col style="width:160px;"/>
-								<col style="width:110px;"/>
-								<col style="width:80px;" span="3"/>
-								<col style="width:100px;" span="2"/>
-								<col style="width:80px;"/>
+								<col style="width:150px;"/>
 								<col style="width:100px;"/>
-								<col style="width:120px;" span="3"/>
-								<col style="width:120px;"/>
+								<col style="width:90px;" span="3"/>
+								<col style="width:80px;" span="2"/>
+								<col style="width:90px;"/>
+								<col style="width:90px;"/>
+								<col style="width:90px;" span="3"/>
+								<col style="width:90px;"/>
 						</colgroup>
 						<thead>
 							<tr>
@@ -292,16 +314,16 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<table>
 						<colgroup>
 								<col style="width:40px;"/>
-								<col style="width:120px;">
+								<col style="width:90px;">
 								<col style="width:80px;"/>
-								<col style="width:160px;"/>
-								<col style="width:110px;"/>
-								<col style="width:80px;" span="3"/>
-								<col style="width:100px;" span="2"/>
-								<col style="width:80px;"/>
+								<col style="width:150px;"/>
 								<col style="width:100px;"/>
-								<col style="width:120px;" span="3"/>
-								<col style="width:120px;"/>
+								<col style="width:90px;" span="3"/>
+								<col style="width:80px;" span="2"/>
+								<col style="width:90px;"/>
+								<col style="width:90px;"/>
+								<col style="width:90px;" span="3"/>
+								<col style="width:90px;"/>
 						</colgroup>
 						<tbody  id="<@pageId>_hiInfoList">
 						</tbody>
@@ -309,17 +331,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'></td>
-			 					<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
-			 					<td id='USER_NM'		value='{{:USER_NM}}'		><a href="javascript:<@pageId>.goPage('main_operation_hrInfoView' , '{{:#index}}' );">{{:USER_NM}}</a></td>
-			 					<td id='E_MAIL'			value='{{:E_MAIL}}'			>{{:E_MAIL}}</td>
-			 					<td id='PHONE_NUM'		value='{{:PHONE_NUM}}'		>{{:PHONE_NUM}}</td>
+			 					<td id='USER_ID'		value='{{:USER_ID}}'		style="text-align:right">{{:USER_ID}}</td>
+			 					<td id='USER_NM'		value='{{:USER_NM}}'		style="text-align:right"><a href="javascript:<@pageId>.goPage('main_operation_hrInfoView' , '{{:#index}}' );">{{:USER_NM}}</a></td>
+			 					<td id='E_MAIL'			value='{{:E_MAIL}}'			style="text-align:right">{{:E_MAIL}}</td>
+			 					<td id='PHONE_NUM'		value='{{:PHONE_NUM}}'		style="text-align:right">{{:PHONE_NUM}}</td>
 								<td id='BASE_BRANCH_NM'	value='{{:BASE_BRANCH_NM}}'	>{{:BASE_BRANCH_NM}}</td>
-								<td id='SP_BRANCH_NM'	value='{{:SP_BRANCH_NM}}'	>{{:SP_BRANCH_NM}}</td>
-								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		>{{:BRANCH_NM}}</td>
-								<td id='ROLE_NM'		value='{{:ROLE_NM}}'	 	>{{:ROLE_NM}}</td>
+								<td id='SP_BRANCH_NM'	value='{{:SP_BRANCH_NM}}'	style="text-align:right">{{:SP_BRANCH_NM}}</td>
+								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
+								<td id='ROLE_NM'		value='{{:ROLE_NM}}'	 	style="text-align:left">{{:ROLE_NM}}</td>
 								<td id='GRADE_NM'		value='{{:GRADE_NM}}'	 	>{{:GRADE_NM}}</td>
 								<td id='STATE_NM'		value='{{:STATE_NM}}'	 	>{{:STATE_NM}}</td>
-								<td id='AMOUNT'			value='{{:AMOUNT}}'		 	>{{:AMOUNT}}</td>
+								<td id='AMOUNT'			value='{{:AMOUNT}}'		 	style="text-align:right">{{:AMOUNT}}</td>
 								<td id='INSURANCE_REG_DATE'	value='{{:INSURANCE_REG_DATE}}'>{{:INSURANCE_REG_DATE}}</td>
 								<td id='INSURANCE_EXP_DATE'	value='{{:INSURANCE_EXP_DATE}}'>{{:INSURANCE_EXP_DATE}}</td>
 								<td id='REG_DATE'		value='{{:REG_DATE}}'		>{{:REG_DATE}}</td>
@@ -336,9 +358,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
  								<td id='ADDR1'			value='{{:ADDR1}}'			style='display:none'>{{:ADDR1}}</td>
  								<td id='ADDR2'			value='{{:ADDR2}}'			style='display:none'>{{:ADDR2}}</td>
  								<td id='ADDR'			value='{{:ADDR}}'			style='display:none'>{{:ADDR}}</td>
- 								<td id='ADDR'			value='{{:ADDR}}'			style='display:none'>{{:ADDR}}</td>
  								<td id='SURETY_INSURANCE'   value='{{:SURETY_INSURANCE}}' style='display:none'>{{:SURETY_INSURANCE}}</td>
  								<td id='SURETY_INSURANCE_NM' value='{{:SURETY_INSURANCE_NM}}' style='display:none'>{{:SURETY_INSURANCE_NM}}</td>
+			 					<td id='GENDER'			value='{{:GENDER}}'			style='display:none'>{{:GENDER}}</td>
+			 					<td id='GENDER_NM'		value='{{:GENDER_NM}}'		style='display:none'>{{:GENDER_NM}}</td>
 							</tr>
 						{{/for}}
 </script>

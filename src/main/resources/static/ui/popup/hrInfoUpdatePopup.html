@@ -4,6 +4,7 @@
 		 recvData : []	
 	 	 ,mode : ''
 	 	 ,BRANCH_DATA : {}
+		 ,hiarachySelData: []
 		 ,close : function(returnData) {
 			 
 			if(isEmpty(returnData)) returnData = {};
@@ -12,20 +13,17 @@
 		 ,apply : () =>{
 
 			 let returnData = {};
-			 let addr;
 			 const $inputs = $("#<@popupId>_items input");
 			 $.each( $inputs, function(){
 				 
 				 let key = $(this).attr("id");
 				 let val = $(this).val();
+				 
 				 if(key)
 				 	returnData[key] = val;
-				 if(key == "ADDR1")addr +=val;
-				 if(key == "ADDR2")addr +="<BR>"+val;
-				 
 			 })
-
-			 returnData['ADDR'] = addr;
+			 
+			 returnData['ADDR'] = returnData['ADDR1'] +"<BR>"+ returnData['ADDR2'];
 
 			 const $selects = $("#<@popupId>_items [id^='<@popupId>_select']");
 			 $.each( $selects, function(){
@@ -37,6 +35,7 @@
 			 })			 
 			 
 			 <@popupId>.close(returnData);
+			 
 		 }		
 		 ,fnRadioCheckValue : (name , pValue) => {
 
@@ -53,32 +52,7 @@
 		}
 		,pageInit : () => {
 			
-			<@popupId>.mode = typeof(<@popupId>.recvData) == "object" ? "UPDATE":"INSERT";
-
-			if( <@popupId>.mode == "UPDATE" ){
-				
-				Object.entries(<@popupId>.recvData).forEach(([key, value]) => {
-				    $("#<@popupId>_items #" + key).val(value);
-				});
-			
-			}else{
-				
-				<@popupId>.recvData.forEach( item =>{
-					
-					$("#<@popupId>_items #"+item.key).val(item.val);
-					
-				});
-			
-			}
-			
-			<@popupId>.mode == "INSERT" ? $("#<@popupId>_items #USER_ID").val(Math.round(Math.random() * 100000000)) : '';
-
- 			<@popupId>.mode == "INSERT" ? $(".updateMode").hide() : $(".updateMode").show();
-			let mode = <@popupId>.mode == "INSERT" ? "신규 직원 추가" : "직원 정보 수정";
-	  	 	$(".tit").html( mode );
-
-			var modalHeight = (<@popupId>.mode == "INSERT") ? "650px" : "640px";
-			$(".modal").css({"height": modalHeight}); 
+			<@popupId>.setTitleHeight();
 
 			C_UICOM.makeSelectBox({ 
 				 		 data : C_COM.getCodeList("GENDER")
@@ -93,15 +67,63 @@
 				 		,targetId : "<@popupId>_selectRole" }, "single");
 	 		
 			C_UICOM.makeSelectBox({ 
-				 data : C_COM.getCodeList("USER_GRADE")
-	 			,targetId : "<@popupId>_selectGrade" }, "single");
-	
+						 data : C_COM.getCodeList("USER_GRADE")
+			 			,targetId : "<@popupId>_selectGrade" }, "single");
 
  			C_UICOM.makeSelectBox({ 
-				 data : <@popupId>.BRANCH_DATA["BASE_BRANCH"	]
-	 			,targetId : "<@popupId>_selectBaseBranch" }, "single");
+						 data : <@popupId>.BRANCH_DATA["BASE_BRANCH"	]
+			 			,targetId : "<@popupId>_selectBaseBranch" }, "single");
  			
- 			$("#<@popupId>_selectBaseBranch").trigger('change')
+ 			
+ 			
+			if( <@popupId>.mode == "U" ){
+
+				Object.entries(<@popupId>.recvData.param).forEach(([key, value]) => {
+					
+					if( $("#<@popupId>_items #" + key).length > 0 ){
+						
+					    $("#<@popupId>_items #" + key).val(value);
+					}else{
+						
+					    <@popupId>.setSingleBox(key,value);
+					}
+				    
+				});
+				
+			}
+			
+			
+			$("#<@popupId>_selectBaseBranch").trigger('change');
+			
+		}
+		,setSingleBox : (key, value) => {
+			
+			let selectId = "";
+
+			switch(key)
+			{
+				case "GENDER"				: selectId ="<@popupId>_selectGender";break;
+				case "SURETY_INSURANCE"		: selectId ="<@popupId>_selectSuretyIns";break;
+				case "ROLE"					: selectId ="<@popupId>_selectRole";break;
+				case "GRADE"				: selectId ="<@popupId>_selectGrade";break;
+				case "BASE_BRANCH_ID"		: selectId ="<@popupId>_selectBaseBranch";break;
+				default:
+			}
+			
+			selectId.length > 0 ? C_UICOM.setSingleBox(selectId, value) :'';
+			
+		}
+		
+		,setTitleHeight : () => {
+			
+			<@popupId>.mode == "I" ? $("#<@popupId>_items #USER_ID").val( <@popupId>.makeSabunCode() ) : '';
+
+ 			<@popupId>.mode == "I" ? $(".updateMode").hide() : $(".updateMode").show();
+			let title = <@popupId>.mode == "I" ? "신규 직원 추가" : "직원 정보 수정";
+	  	 	$(".tit").html( title );
+
+			var modalHeight = (<@popupId>.mode == "I") ? "650px" : "640px";
+			$(".modal").css({"height": modalHeight});
 			
 		}
 		,setHandler : () => {
@@ -142,10 +164,11 @@
 			
 			$(".info #JUMIN").on('focusout', (e) => {
 				
+				const alertmsg = '올바른 주민번호를 입력하여 주십시오.';
 			    let regNumber = $(e.target).val().replace(/-/g, '');
 
 			    if (regNumber.length !== 13) {
-			    	alert('올바른 주민번호를 입력하여 주십시오.');
+			    	alert(alertmsg);
 			    	$(this).focus();
 			        return;
 			    }
@@ -155,7 +178,7 @@
 			    const day = parseInt(regNumber.substring(4, 6), 10);
 
 			    if (month < 1 || month > 12 || day < 1 || day > 31) {
-			    	alert('올바른 주민번호를 입력하여 주십시오.');
+			    	alert(alertmsg);
 			        return;
 			    }
 
@@ -166,7 +189,7 @@
 			    }
 			    checksum = (11 - (checksum % 11)) % 10;
 			    if (parseInt(regNumber.charAt(12), 10) !== checksum) {
-			    	alert('올바른 주민번호를 입력하여 주십시오.');
+			    	alert(alertmsg);
 			        return;
 			    }
 
@@ -222,6 +245,9 @@
 												 data : DATA
 									 			,targetId : "<@popupId>_selectSpBranch" }, "single");
 											
+										
+											C_UICOM.setSingleBox("<@popupId>_selectSpBranch", <@popupId>.hiarachySelData["SP_BRANCH_ID"]);
+											
 											const sel_BRANCH_ID = C_UICOM.getData("<@popupId>_selectSpBranch");
 											<@popupId>.searchList( "BRANCH"	, sel_BRANCH_ID);
 						break;
@@ -231,6 +257,9 @@
 											C_UICOM.makeSelectBox({ 
 												 data : DATA
 									 			,targetId : "<@popupId>_selectBranch" }, "single");
+											
+											C_UICOM.setSingleBox("<@popupId>_selectBranch", <@popupId>.hiarachySelData["BRANCH_ID"]);
+
 						break;
 						
 					default:
@@ -286,13 +315,25 @@
 		,numberWithCommas : (x) => {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
+		,makeSabunCode : () => {
+			return Math.round(Math.random() * 100000000000 ) ;
+		}
 
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
 
-		<@popupId>.recvData = data.param;
+		<@popupId>.recvData	= data;
 
+		<@popupId>.mode = <@popupId>.recvData.mode;
+
+		<@popupId>.hiarachySelData = Object.entries(<@popupId>.recvData.param)
+	    										.filter(item => item[0].indexOf("BRANCH_ID") > -1)
+											    .reduce((acc, item) => {
+											        acc[item[0]] = item[1];
+											        return acc;
+											    }, {}); 		
+		
 		<@popupId>.getSelectData( <@popupId>.pageInit ); 
 		<@popupId>.setHandler();
 		
