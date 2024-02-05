@@ -202,10 +202,29 @@
     $(document).on("click", ".file", function(){
         $('input[type=file]#file-input').click();
     });
-    $(document).on("change", "input[type=file]#file-input", function(){
-        var title = $(this).val();
-        var html = '<li><span class="txt">'+ title +'</span><button class="pay_close">닫기</button></li>';
-        $(this).parent().children().find('.approver_list').append(html);
+    // $(document).on("change", "input[type=file]#file-input", function(){
+    //     var title = $(this).val();
+    //     var html = '<li><span class="txt">'+ title +'</span><button class="pay_close">닫기</button></li>';
+    //     $(this).parent().children().find('.approver_list').append(html);
+    // });
+
+    /*==== bar chart ====*/
+    $(function() {
+        function animated_contents() {
+            $(".zt-skill-bar .data ").each(function (i) {
+                var $this  = $(this),
+                    skills = $this.data('width');
+                $this.css({'width' : skills + '%'});
+            });
+        }
+
+        if(jQuery().appear) {
+            $('.zt-skill-bar').appear().on('appear', function() {
+                animated_contents();
+            });
+        } else {
+            animated_contents();
+        }
     });
 
 
