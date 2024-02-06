@@ -20,19 +20,20 @@
                  
              });
          }
-        ,selectUser : function( user_id, user_nm, user_desc, e_mail ) {
+        ,selectUser : function( spCstmId, user_id, user_nm, user_desc, e_mail ) {
             
             var peopleArr = new Array();
-            console.log( "user_id["+user_id+"] user_nm["+user_nm+"] user_desc["+user_desc+"]  e_mail["+e_mail+"] ");
+            console.log( "spCstmId["+spCstmId+"] user_id["+user_id+"] user_nm["+user_nm+"] user_desc["+user_desc+"]  e_mail["+e_mail+"] ");
             var obj = new Object();
             
             obj.index = user_id;
+            obj.spCstmId = spCstmId;
             obj.user_id = user_id;
             obj.user_nm = user_nm;
             obj.user_desc = user_desc;
             obj.e_mail = e_mail;
             
-            console.log("obj.index =>"+obj.index);
+            console.log("obj.spCstmId =>"+obj.spCstmId);
             console.log("obj.user_id =>"+obj.user_id);
             console.log("obj.user_nm =>"+obj.user_nm);
             console.log("obj.user_desc =>"+obj.user_desc);
@@ -87,7 +88,7 @@
                                 {{for list}}
                                     <li>
                                         <span class="txt">
-                                            <a href="javascript:void(0);" onclick="<@popupId>.selectUser( '{{:USER_ID}}', '{{:USER_NM}}', '{{:USER_DESC}}', '{{:E_MAIL}}' );">
+                                            <a href="javascript:void(0);" onclick="<@popupId>.selectUser( '{{:SP_CSTM_ID}}','{{:USER_ID}}', '{{:USER_NM}}', '{{:USER_DESC}}', '{{:E_MAIL}}' );">
                                                 {{:USER_NM}} / {{:USER_DESC}} / {{:USER_ID}} / {{:E_MAIL}}
                                             </a>
                                         </span>

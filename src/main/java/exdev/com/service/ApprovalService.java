@@ -147,22 +147,19 @@ public class ApprovalService extends ExdevBaseService{
             
             for(Map<String, Object> apprUserMap : apprUserList){
                 
-                String apprUserUuid = (String)apprUserMap.get("appr_user_uuid");
                 String userId       = (String)apprUserMap.get("user_id");
                 String apprType     = (String)apprUserMap.get("apprType");
                 
                 Map<String, String> apprUseInsertMap = new HashMap<String, String>();
                 
-                apprUseInsertMap.put("uuid", apprUserUuid);
-                apprUseInsertMap.put("approvalUuid", apprMap.get("uuid"));
+                apprUseInsertMap.put("approvalId", apprMap.get("approvalId"));
                 apprUseInsertMap.put("approvalUserId", userId);
                 apprUseInsertMap.put("apprType", apprType);
                 apprUseInsertMap.put("state", "REQUEST");
                 apprUseInsertMap.put("approvalComment", "");
-                apprUseInsertMap.put("createUser", apprMap.get("createUser"));
                 apprUseInsertMap.put("createDate", apprMap.get("createDate"));
                 
-                System.out.println("apprUserUuid ==>"+apprUserUuid+"   userId ==>"+userId);
+                System.out.println("approvalId ==>"+apprMap.get("approvalId")+"   userId ==>"+userId);
                 result1 += commonDao.insert("approval.insertApprovalUser", apprUseInsertMap);
                 System.out.println("result1 =>"+result1);
             }

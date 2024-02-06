@@ -4,7 +4,7 @@
          requestParm : {}
         ,searchApprovalDtl : function(requestParm){
             
-            console.log("======= searchApprovalDtl uuid======="+requestParm["uuid"]);
+            console.log("======= searchApprovalDtl approvalId======="+requestParm["approvalId"]);
             
             let parm = {
                  queryId        : "approval.getApproval"
@@ -12,7 +12,7 @@
             }
             C_COM.requestQuery(parm, function(resultData) {
 
-                $('#REQUEST_USER_NM').text(resultData.data[0].REQUEST_USER_NM);
+                $('#USER_NM').text(resultData.data[0].USER_NM);
                 $('#APPROVAL_DATE').text(resultData.data[0].APPROVAL_DATE1);
                 $('#APPROVAL_TITLE').text(resultData.data[0].TITLE);
                 $('#CONTENTS').text(resultData.data[0].CONTENTS);
@@ -142,7 +142,7 @@
                         <tbody>
                             <tr>
                                 <th scope="row">상신자</th>
-                                <td id="REQUEST_USER_NM"></td>
+                                <td id="USER_NM"></td>
                                 <th scope="row">상신일</th>
                                 <td id="APPROVAL_DATE"></td>
                             </tr>

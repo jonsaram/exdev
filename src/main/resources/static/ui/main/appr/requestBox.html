@@ -7,7 +7,8 @@
                     
                     let requestParm = {};
                     
-                    requestParm["requestUser"]  = $("#<@pageId>requestUser").val();
+                    //requestParm["spCstmId"]  = "1234567890123456";
+                    //requestParm["searchUserId"]  = "trigger7kr";
                     requestParm["state"]  = "REQUEST";
                     
                     let parm = {
@@ -25,10 +26,10 @@
                         
                     });            
             }
-            ,apprDtlPopup : function(uuid) {    
-                console.log("======= apprDtlPopup uuid =======>"+uuid);
+            ,apprDtlPopup : function(approvalId) {    
+                console.log("======= apprDtlPopup approvalId =======>"+approvalId);
                 let requestParm = {}
-                requestParm["uuid"] = uuid;
+                requestParm["approvalId"] = approvalId;
                 C_POP.open('popup_apprDtlPopup', requestParm, function() {
                     //console.log("======= 부모창 retData =======");
                 });
@@ -137,7 +138,7 @@
                                         <tr id="trId_{{:#index}}">
                                             <td id='index'           value='{{:#index}}'         >{{:#index}}    </td>
                                             <td id='APPROVAL_DATE1'  value='{{:APPROVAL_DATE1}}'  >{{:APPROVAL_DATE1}}</td>
-                                            <td id='TITLE'           value='{{:TITLE}}'         class="tl"><a href="javascript:void(0);" onclick="<@pageId>.apprDtlPopup('{{:UUID}}');">{{:TITLE}}</a></td>
+                                            <td id='TITLE'           value='{{:TITLE}}'         class="tl"><a href="javascript:void(0);" onclick="<@pageId>.apprDtlPopup('{{:APPROVAL_ID}}');">{{:TITLE}}</a></td>
                                             <td id='STATE'           value='{{:STATE}}'          ><span class="state paying">{{:STATE}}</span></td>
                                         </tr>
                                     {{/for}}

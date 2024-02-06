@@ -6,7 +6,7 @@
         ,fileNo : 0
         ,filesArr : []
         ,requestParm : {}
-        ,apprUuid: ''
+        ,apprId: ''
         ,memberSearchPopup : function() {
 
             console.log("======= memberSearchPopup 2 =======");
@@ -19,7 +19,8 @@
         ,addMember : function(retData) {
             
             for (let obj of retData) {
-                console.log("obj.index =>"+obj.index);
+            	
+                console.log("obj.spCstmId =>"+obj.spCstmId);
                 console.log("obj.user_id =>"+obj.user_id);
                 console.log("obj.user_nm =>"+obj.user_nm);
                 console.log("obj.user_desc =>"+obj.user_desc);
@@ -105,7 +106,7 @@
             var form = document.querySelector("#<@popupId> form");
             
             var formData = new FormData(form);
-            formData.append("appr_uuid", <@popupId>.apprUuid);
+            formData.append("apprId", <@popupId>.apprId);
             formData.append("state", state);
             
             var userArry = new Array();
@@ -118,7 +119,6 @@
                 	var item = new Object();
                 	item.user_id  = userId;
                 	item.apprType = apprType;
-                    item.appr_user_uuid  = C_COM.makeUniqueId();
                     userArry.push(item);
                 }
             }
@@ -170,7 +170,7 @@
             for (var i = 0; i < Math.min(curFileCnt, remainFileCnt); i++) {
 
                 const file = obj.files[i];
-                console.log("======= apprUuid ======="+<@popupId>.apprUuid); 
+                console.log("======= apprId ======="+<@popupId>.apprId); 
                 
                 // 첨부파일 검증
                 if (<@popupId>.validation(file)) {
@@ -186,7 +186,7 @@
         /* 첨부파일 추가 */
         ,uploadMultiFile : function (file) {
             
-            var groupUuId = <@popupId>.apprUuid;
+            var groupUuId = <@popupId>.apprId;
             
             if (groupUuId.length < 1) {
                 alert("파일그룹 ID를 입력해 주세요.");
@@ -306,7 +306,7 @@
     }
     // Popup Load가 완료된후 실행 된다.
     C_POP.onLoadPopup("<@popupId>", function(data) {
-        <@popupId>.apprUuid = C_COM.makeUniqueId();// 첨부파일
+        <@popupId>.apprId = C_COM.makeUniqueId();// 첨부파일
     });
     
     
