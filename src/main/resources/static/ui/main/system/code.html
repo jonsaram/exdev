@@ -388,51 +388,11 @@ var <@pageId> = {
   				
   			}
 		
+			const $hds = $("#"+sectionId + " #<@pageId>_headingColName th");
 			const $tds = $("#"+sectionId + " [name='<@pageId>_tr_0'] td");
-			excelParam["columnOrders"] 		= <@pageId>.excelColumnOrder($tds, this).filter( item => item !=null );
- 			excelParam["downInfo"		] 	= JSON.stringify({  title : title, menu : "CODE 관리"});
- 			excelParam["requestParm"	] 	= JSON.stringify( excelParam.requestParm );
- 			
-
- 			var xhr = new XMLHttpRequest();
-    	    var urlParams = new URLSearchParams( excelParam ).toString();
-    	    xhr.open('GET', '/excelDownload.do?'+urlParams, true);
-    	    xhr.responseType = 'blob';
-
-    	    xhr.onload = function() {
-    	    	
-    	        if (xhr.status === 200) {
-
-    	            var blob = new Blob([xhr.response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    	            var url = window.URL.createObjectURL(blob);
-    	            
-    	            var a = document.createElement('a');
-    	            a.href = url;
-    	            a.download = title+'.xlsx';
-    	            
-    	            document.body.appendChild(a);
-    	            a.click();
-    	            window.URL.revokeObjectURL(url);
-    	            
-    	        } else {
-    	        	
-    	            console.error('Failed to download excel file');
-    	            
-    	        }
-    	    };
-    	    
-    	    xhr.send();
-		},
-		excelColumnOrder : ($tds) =>{
-  				let columnOrders = [];
-  				
-  				$.each( $tds, function(){
-
-  					columnOrders.push( $(this).attr("id") );
-  				})
-  				
-  				return columnOrders;
-		}
+  			_excelDownload($hds, $tds, excelParam, title );
+  			
+  		}
   		
 }
 // Page Load가 완료된후 실행 된다.
@@ -487,7 +447,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<col style="width:100px;"/>
 				</colgroup>
 				<thead>
-					<tr>
+					<tr id="<@pageId>_headingColName">
 						<th scope="col"><input type="checkbox" name="<@pageId>_ckAll"></th>
 						<th scope="col">GRP_CODE_ID</th>
 						<th scope="col">GRP_CODE_NM</th>
@@ -605,7 +565,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<col style="width:100px;"/>
 				</colgroup>
 				<thead>
-					<tr>
+					<tr id="<@pageId>_headingColName">
 						<th scope="col"><input type="checkbox" name="<@pageId>_ckAll"></th>
 						<th scope="col">GRP_CODE_ID</th>
 						<th scope="col">GRP_CODE_NM</th>

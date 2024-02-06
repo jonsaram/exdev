@@ -153,11 +153,12 @@ public class ExcelService  extends ExdevBaseService{
         Cell dateCell = dateRow.createCell(0);
         dateCell.setCellValue("Date : " + formattedDateTime);
 
+        String[] columnNames = ((String) requestBodyMap.get("columnNames")).split(",");
         // Create header row
         Row headerRow = sheet.createRow(3);
-        for (int i = 0; i < columnOrders.length; i++) {
+        for (int i = 0; i < columnNames.length; i++) {
             Cell headerCell = headerRow.createCell(i);
-            headerCell.setCellValue(columnOrders[i]);
+            headerCell.setCellValue(columnNames[i]);
             headerCell.setCellStyle(headerCellStyle);
         }
 
@@ -165,7 +166,7 @@ public class ExcelService  extends ExdevBaseService{
         int rowCount = 4;
         for (Map<String, Object> rowData : dataList) {
             Row dataRow = sheet.createRow(rowCount++);
-            for (int i = 0; i < columnOrders.length; i++) {
+            for (int i = 0; i < columnNames.length; i++) {
                 Cell cell = dataRow.createCell(i);
                 Object value = rowData.get(columnOrders[i]);
                 if (value != null) {

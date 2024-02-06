@@ -172,6 +172,7 @@ public class ExdevCommonController {
 	@RequestMapping("/excelDownload.do")
 	public void excelDownload(@RequestParam(value = "queryId", required = true) String queryId,
             @RequestParam(value = "requestParm"	, required = true) String requestParm,
+            @RequestParam(value = "columnNames"	, required = true) String columnNames,
             @RequestParam(value = "columnOrders"	, required = true) String columnOrders,
             @RequestParam(value = "downInfo"	, required = true) String downInfo,
              HttpServletResponse res,HttpSession session) throws Exception {
@@ -188,6 +189,7 @@ public class ExdevCommonController {
 			Map resultMap = new HashMap();
 			resultMap.put("msg",null);
 			resultMap.put("queryId",queryId);
+			resultMap.put("columnNames",columnNames);
 			resultMap.put("columnOrders",columnOrders);
 			resultMap.put("downInfo",mapDownInfo);
 			resultMap.put("requestParm",mapRequestParm);
