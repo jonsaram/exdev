@@ -25,9 +25,6 @@
 					});	
 				
 			 }
-			,setSpCstmId : (dataList) =>{
-				if( dataList && dataList.length > 0 && G_VAL.SP_CSTM_ID=="")G_VAL.SP_CSTM_ID = dataList[0].SP_CSTM_ID;
-			}
 			,searchList : () => {
 				var selectRoleId = C_UICOM.getData("<@pageId>_selectRoleId");
 				
@@ -41,7 +38,6 @@
 				<@pageId>.excelParam = parm;
 				C_COM.requestQuery(parm, function(resultData) {
 				
-					<@pageId>.setSpCstmId(resultData.data);
 					var rparm = {
 							 targetId 		: "menuRoleList"
 							,list			: resultData.data

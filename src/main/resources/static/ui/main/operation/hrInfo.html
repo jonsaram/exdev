@@ -48,7 +48,6 @@ var <@pageId> = {
 				if( resultData.state == "S"){
 
 					<@pageId>.searchList();
-					console.log("Item 저장 성공");
 				
 				}else{
 					alert(resultData.msg)
@@ -64,8 +63,9 @@ var <@pageId> = {
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				if( resultData.state == 'S'){
+					
 					<@pageId>.searchList();
-					console.log("Item 삭제 성공")
+
 				}				
 			});				
 		}
@@ -267,7 +267,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<th scope="col">보증보험<br>가입일</th>
 								<th scope="col">보증보험<br>만기일</th>
 								<th scope="col">입사일</th>
-								<th scope="col">미스터승격일</th>
+								<th scope="col">마스터승격일</th>
 							</tr>
 						</thead>
 					</table>

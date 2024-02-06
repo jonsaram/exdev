@@ -14,31 +14,21 @@ function setMenu()
 			G_VAL.SP_CSTM_ID =responseData[0].SP_CSTM_ID;
 			
 	        let gnbMenuTemplate = [];
-	        let active 			=  "active";
-	        let lnb_active		=  "active";
-			let	index			= 0;
-			let	parentMenu		={};	
+
 	        responseData.forEach( menu => {
 	        	
 	        	const pageId 		= menu.PAGE_ID;
 	        	const depth			= menu.MENU_DEPTH;
-	        	let   firstPageId	= "";
 	        	if( Number(depth) == 0){
 	        		
-					let template = `<li class=${active} id="LI_${menu.MENU_ID}"><a href="javascript:detpth2MenuShow('${menu.MENU_ID}','${menu.MENU_NM}');">${menu.MENU_NM}</a></li>`  ;
+					let template = `<li id="HDR_${menu.MENU_ID}"><a href="javascript:lefMenuShow('${menu.MENU_ID}','${menu.MENU_NM}');">${menu.MENU_NM}</a></li>`  ;
 					gnbMenuTemplate.push(template);
-					active="deactive";
-					if(index == 0){parentMenu=menu;index++;}
-					lnb_active	=  "active";
 					
 	        	}else{
 								        		
-					let template = `<li class=${lnb_active} ><a href="javascript:goPage('${pageId}');">${menu.MENU_NM}</a></li>`
-					if( lnb_active =="active") firstPageId = menu.PAGE_ID;					
-					lnb_active="deactive";
-							
+					let template = `<li id="LNB_${menu.MENU_ID}"><a href="javascript:getMenuPage('${menu.MENU_ID}','${pageId}'		);">${menu.MENU_NM}</a></li>`	;
 					MENUS.push( {	PARENT_MENU_ID 	:menu.PARENT_MENU_ID 
-									, 	PARENT_MENU_NNM	:menu.PARENT_MENU_NM 
+									, 	PARENT_MENU_NM	:menu.PARENT_MENU_NM 
 									, 	MENU_ID			:menu.MENU_ID
 									, 	MENU_NM 		:menu.MENU_NM
 									,	PAGE_ID			:menu.PAGE_ID
@@ -47,41 +37,47 @@ function setMenu()
 	        	}
 				
 	        })
-	        
+			
 			$("#gnb_MenuList").html(gnbMenuTemplate.join('')) ;
-
-	        const lnbHtml = make2ndLnbMenu( parentMenu.MENU_ID, parentMenu.MENU_NM);
-			$("#lnb_MenuList").html(lnbHtml) ;
+			$("#gnb_MenuList li[id^='HDR_']").eq(0).addClass("active");
+			
+	        const lnb = makeLnbMenu( MENUS[0].PARENT_MENU_ID, MENUS[0].PARENT_MENU_NM);
+			$("#lnb_MenuList").html(lnb.lnbHtml) ;
+			$("#lnb_MenuList li[id^='LNB_']").eq(0).addClass("active");
+			//goPage(MENUS[0].PAGE_ID);
 			
 	    }
 	};
 	
-	var requestData = JSON.stringify({ "queryId": "system.getMenuList" ,"requestParm":{}});
+	var requestData = JSON.stringify({ "queryId": "system.getMenuList" ,"requestParm":{DEL_YN:'N', USE_YN:'Y'}});
 	xhr.send(requestData);
 	
 }
 		
-function detpth2MenuShow(parentMenuId, parentMenuDesc){
+function lefMenuShow(parentMenuId, parentMenuDesc){
 
-	const retn =make2ndLnbMenu( parentMenuId, parentMenuDesc);
-	const lnbHtml = retn.lnbHtml;
-	const firstLeftMenu = retn.FIRST_LEFT_MENU;
+	$("[id^='HDR_']").removeClass("active");
+	$("#HDR_"+parentMenuId).addClass("active");
+	
+	const lnb = makeLnbMenu( parentMenuId, parentMenuDesc);
 
-	$("#lnb_MenuList").html(lnbHtml) ;
+	$("#lnb_MenuList").html( lnb.lnbHtml ) ;
 	
-	$("[id^='LI_']").removeClass("active");
-	$("#LI_"+parentMenuId).addClass("active");
+	$("#lnb_MenuList li[id^='LNB_']").eq(0).addClass("active");
 	
-	$("nav ul li ul li").click(function(){ 
-		$("nav ul li ul li").removeClass("active");	
-		$(this).addClass("active");
-	})
-	
-	goPage(firstLeftMenu)
-
+	goPage(lnb.firstLeftMenu["PAGE_ID"]);
 }
 
-function make2ndLnbMenu( parentMenuId, parentMenuDesc){
+function getMenuPage(menuId, pageId){
+
+	$("#lnb_MenuList li").removeClass("active");
+	$("#lnb_MenuList li[id='LNB_"+menuId+"']").addClass("active");	
+		debugger;
+	goPage(pageId);
+	
+}
+
+function makeLnbMenu( parentMenuId, parentMenuDesc){
 	
 	let lnbHtml = `<div class="lnb_tit01">${parentMenuDesc}
 					<button class="btn fold" onclick="showLeftMenuToggle()">
@@ -90,16 +86,18 @@ function make2ndLnbMenu( parentMenuId, parentMenuDesc){
 					</div>
 					<ul><li><ul>`;
 	
-	const depth2_menus = MENUS.filter( menu => menu.PARENT_MENU_ID == parentMenuId );
 	let firstLeftMenu = '';
-	let index = 0; 
-	depth2_menus.forEach( childMenu => {
+	
+	const depth1_menus = MENUS.filter( menu => menu.PARENT_MENU_ID == parentMenuId );
+	depth1_menus.forEach( childMenu => {
 		
-		if( index ==0 ){firstLeftMenu = childMenu.PAGE_ID; index++; }
+		if( firstLeftMenu == '' ){firstLeftMenu = childMenu;}  
+
 		lnbHtml += childMenu.HTML_TAG;
+
 	})
 	
 	lnbHtml +=`</ul></li></ul>` ;
 	
-	return {lnbHtml: lnbHtml , FIRST_LEFT_MENU : firstLeftMenu};
+	return {lnbHtml: lnbHtml , firstLeftMenu : firstLeftMenu};
 }

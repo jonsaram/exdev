@@ -4,29 +4,6 @@
 			 checkedItems : []
 	 		 ,excelParam : {}
 			 ,pageInit : () =>{
-					
-				var multiboxList = { 
-						 data : [
-						 		 ["1111", "고객번호"	]
-						 		,["2222", "고객번호1"	]
-						 		,["3333", "고객번호2"	]
-						 		,["4444", "고객명"		]
-						 ]
-					 	,targetId : "<@pageId>_multiSelect" 
-					}
-					C_UICOM.makeSelectBox("<@pageId>", multiboxList, "multi");	
-				
-				var singleboxList = { 
-						 data : [
-						 		 ["1111", "고객번호"	]
-						 		,["2222", "고객번호1"	]
-						 		,["3333", "고객번호2"	]
-						 		,["4444", "고객명"		]
-						 ]
-					 	,targetId : "<@pageId>_selectBoxId" 
-					}
-					C_UICOM.makeSelectBox("<@pageId>", singleboxList, "single");				
-				 
 			 }
 			,searchList : () => {
 				
@@ -63,8 +40,9 @@
 				C_COM.requestQuery(parm, function(resultData) {
 					
 					if( resultData.state == 'S'){
+						
 						<@pageId>.searchList();
-						console.log("Item 저장 성공");
+
 					}				
 				});
 			}  
@@ -76,8 +54,9 @@
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 					if( resultData.state == 'S'){
+						
 						<@pageId>.searchList();
-						console.log("Item 삭제 성공")
+						
 					}				
 				});				
 			}
@@ -129,16 +108,9 @@
 			}
 			,getSingleBoxData : function() {
 
-				var selectBoxVal = C_UICOM.getData("<@pageId>_selectBoxId");
-				
-				dalert(selectBoxVal);
 
 			}	
 			,getMultiSelectBoxData : function() {
-
-				var selectBoxVal = C_UICOM.getData("<@pageId>_multiSelect");
-				
-				dalert(selectBoxVal);
 
 			}
 	 		,excelDownload : (title) => {
@@ -173,7 +145,7 @@
 					<div class="fl">
 						<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 
-						<div style="width:200px;" id="<@pageId>_multiSelect"></div>
+						<!-- <div style="width:200px;" id="<@pageId>_multiSelect"></div> -->
 						<!-- <input type=button value="읽기" onclick="<@pageId>.getMultiSelectBoxData()"/> -->
 						<div class="search_inputWrap">
 							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
@@ -184,7 +156,7 @@
 						<button type="button" class="btn select fl" id="<@pageId>_insert"><a href="#modal-ex"><i class="icon_user_plus"></i>상담 고객 추가</a></button>
 						<button type="button" class="btn fl"  id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
 						<!-- 싱글 선택 -->
-						<div  class="select_box fl" id="<@pageId>_selectBoxId" style="width:200px"></div>
+						<!-- <div  class="select_box fl" id="<@pageId>_selectBoxId" style="width:200px"></div> -->
 						<!-- <input type=button value="읽기" onclick="<@pageId>.getSingleBoxData()"/> -->
 		            </div>
 				</div>

@@ -6,40 +6,30 @@ var <@pageId> = {
 			,selectedRow:{}
 			,excelParam : {}
 			,pageInit : () =>{
-				var singleboxList = { 
-						 data : [
-				 		 	 	 ["", "ALL"]
-				 		 	 	,["0", "ROOT MENU"]
-						 		,["1", "DEPTH 1"]
-						 ]
-					 	,targetId : "<@pageId>_selectMenuDept" 
-					}
-					C_UICOM.makeSelectBox(singleboxList, "single");	
-				var singleDeletedYnList = { 
-						 data : [
-						 		 ["N","NOT DELETE"]
-				 		 	 	,["", "ALL"]
-				 		 	 	,["Y","DELTED"]
-						 ]
-					 	,targetId : "<@pageId>_selectDelYn" 
-					}
-					C_UICOM.makeSelectBox(singleDeletedYnList, "single");		
+				const singleDepthList = { 
 
-			}
-			,setSpCstmId : (dataList) =>{
+				 		 data : C_COM.getCodeList("DEPTH_SELECT")
+					 	,targetId : "<@pageId>_selectMenuDept" 
+				}
+				C_UICOM.makeSelectBox(singleDepthList, "single");	
 				
-				if( dataList && dataList.length > 0 && G_VAL.SP_CSTM_ID=="")G_VAL.SP_CSTM_ID = dataList[0].SP_CSTM_ID;
-			
+				const singleDeletedYnList = { 
+
+		 				 data : C_COM.getCodeList("DELETED_YN")
+					 	,targetId : "<@pageId>_selectDelYn" 
+				}
+				C_UICOM.makeSelectBox(singleDeletedYnList, "single");		
+
 			}
 			,searchList : () => {
 				
 				var selectMenuDept = C_UICOM.getData("<@pageId>_selectMenuDept");
-				
-				if(!selectMenuDept )selectMenuDept ="";
+
+				if( selectMenuDept ==="ALL")selectMenuDept ="";
 				
 				var selectDeleted = C_UICOM.getData("<@pageId>_selectDelYn");
 				
-				if(!selectDeleted )selectDeleted ="";
+				if( selectDeleted ==="ALL")selectDeleted ="";
 				
 				const requestParm = { MENU_DEPTH : selectMenuDept , DEL_YN :selectDeleted };
 
@@ -51,7 +41,6 @@ var <@pageId> = {
 				C_COM.requestQuery(parm, function(resultData) {
 				
 					<@pageId>.curSearchList = resultData.data;
-					<@pageId>.setSpCstmId(resultData.data);
 					
 					var rparm = {
 						 targetId 		: "menuList"
@@ -302,7 +291,7 @@ td {
 			<div class="fl">
 				<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 				<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
-				<div  class="select_box fl" id="<@pageId>_selectDelYn" style="width:130px;margin-left:10px;"></div>
+				<div  class="select_box fl" id="<@pageId>_selectDelYn" style="width:140px;margin-left:10px;"></div>
 				
 				<div class="search_inputWrap" style='margin-left:10px;'>
 				
