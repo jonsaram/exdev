@@ -2,33 +2,43 @@
 
 <script type="text/javascript">
 	var <@pageId> = {
-		initPage : () =>{
+		monthCategories : ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']	
+		,initPage : () =>{
+			
+			<@pageId>.getData();
 			<@pageId>.chartInit();
+		}
+		,getData : () => {
+			
+			
 		}
 		,chartInit : () => {
 			   // 차트 데이터 설정
 
-		   const chart1 =  createChart( '<@pageId>_chart1' , chartData1.categories, series );
-		    
-			debugger;
-		 // 시리즈 데이터 추가
-		    chart1.addSeries({
-                name: '2023년',
-                type: 'column',
-                yAxis: 0,
-                data: [10, 20, 30, 40, 50, 50, 50, 50, 50, 50, 50, 50],
-                tooltip: {
-                    valueSuffix: '억'
-                }
+			const series = [
+				{
+	                name: '2023년',
+	                type: 'column',
+	                yAxis: 0,
+	                data: [10, 20, 30, 40, 50, 50, 50, 50, 50, 50, 50, 50],
+	                tooltip: {
+	                    valueSuffix: '억'
+	                }
 
-            }, {
-                name: '2022년',
-                type: 'line',
-                data: [155, 170, 185, 170, 160, 175, 165, 190, 160, 170, 160, 150],
-                tooltip: {
-                    valueSuffix: '억'
-                }
-            });
+	            }, {
+	                name: '2022년',
+	                type: 'line',
+	                data: [155, 170, 185, 170, 160, 175, 165, 190, 160, 170, 160, 150],
+	                tooltip: {
+	                    valueSuffix: '억'
+	                }
+	            }];
+			   
+		   const chart1 =  createChart( '<@pageId>_chart1' , <@pageId>.monthCategories, series );
+		   const chart2 =  createChart( '<@pageId>_chart2' , <@pageId>.monthCategories, series );
+		   const chart3 =  createChart( '<@pageId>_chart3' , <@pageId>.monthCategories, series );
+		    
+
  		}
 
 	}
