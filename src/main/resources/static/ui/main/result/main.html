@@ -2,7 +2,10 @@
 
 <script type="text/javascript">
 	var <@pageId> = {
-		monthCategories : ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']	
+		monthCategories : ()=>{
+				let month =[]; $.each( Array(12) , (index)=> month.push( (index+1)+"월") )
+				return month;
+		}	
 		,initPage : () =>{
 			
 			<@pageId>.getData();
@@ -44,6 +47,7 @@
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
+		debugger;
 		<@pageId>.initPage();
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
