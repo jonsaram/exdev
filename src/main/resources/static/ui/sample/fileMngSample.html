@@ -25,7 +25,7 @@
 		    }
 
 		    $.ajax({
-		    	url: '/multiFileUpload_new.do',
+		    	url: '/multiFileUpload.do',
 		        method: 'POST',
 		        data: formData,
 		        contentType: false,
@@ -109,6 +109,9 @@
         //console.log(id); // "cbfc904b-b898-4deb-b736-ba433489904c"
         
 		$("#GRP_FILE_ID").focus();
+        
+        $("#test").trigger("click");
+        
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -120,7 +123,7 @@
 	<div class="insert">
 	    <form method="POST" id="theForm" onsubmit="return false;" enctype="multipart/form-data">
 	        파일그룹 ID : <input type="text" name="GRP_FILE_ID" id="GRP_FILE_ID"><br>
-	        <input type="file" onchange="<@pageId>.addFile(this);" multiple />
+	        <input id="test" type="file" onchange="<@pageId>.addFile(this);" multiple />
 	        <div class="file-list"></div>
 	    </form>
 	</div>

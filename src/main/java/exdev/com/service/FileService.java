@@ -93,6 +93,7 @@ public class FileService extends ExdevBaseService{
 	 * @수 정 일자 :
 	 * @수 정 자
 	 */
+/*    
 	public Map fileUploadMulti( HttpServletRequest request, List<MultipartFile> multiFileList, String  groupUuId, String[] uuids, String  uploadPath) throws Exception {
 		
 		Map<String, String> returnMap = new HashMap<String, String>();
@@ -131,7 +132,7 @@ public class FileService extends ExdevBaseService{
 				multiFileList.get(i).transferTo(uploadFile);
 				
 				/***************************************************************************/
-				/* 테이블 입력    테이블 입력    테이블 입력    테이블 입력    테이블 입력    */
+				/* 테이블 입력    테이블 입력    테이블 입력    테이블 입력    테이블 입력    * /
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
 				String strDate = dateFormat.format(Calendar.getInstance().getTime());
 	            
@@ -148,8 +149,8 @@ public class FileService extends ExdevBaseService{
 				
 				result += commonDao.insert("Sample.setFile", insertMap);
 				
-				/* 테이블 입력    테이블 입력    테이블 입력    테이블 입력    테이블 입력    */
-				/***************************************************************************/
+				/* 테이블 입력    테이블 입력    테이블 입력    테이블 입력    테이블 입력    * /
+				/*************************************************************************** /
 			}
 			if( result == multiFileList.size()) {
 				returnMap.put("msg", ExdevConstants.REQUEST_SUCCESS);	
@@ -170,22 +171,22 @@ public class FileService extends ExdevBaseService{
 		}
 		return returnMap;
 	}
-
+*/
 
 	@SuppressWarnings("unchecked")
-	public Map fileUploadMulti_new( HttpServletRequest request, List<MultipartFile> multiFileList, String  GRP_FILE_ID, String[] FILE_IDS, String  uploadPath, SessionVO sessionVo) throws Exception {
+	public Map fileUploadMulti( HttpServletRequest request, List<MultipartFile> multiFileList, String  GRP_FILE_ID, String[] FILE_IDS, String  uploadPath, SessionVO sessionVo) throws Exception {
 		
 		Map returnMap = new HashMap();
 		
-		String root = request.getSession().getServletContext().getRealPath("resources");
-        String path = root + File.separator + uploadPath;
-        
+		String root 		= request.getSession().getServletContext().getRealPath("resources");
+        String path 		= root + File.separator + uploadPath;
         
 		File fileCheck = new File(path);
 		if(!fileCheck.exists()) fileCheck.mkdirs();
 		
         List<Map> fileList = new ArrayList<>();
 		
+        String OWNER_CD 	= request.getParameter("OWNER_CD"	);
 		for(int i = 0; i < multiFileList.size(); i++) {
 			String ORG_FILE_NM 	= multiFileList.get(i).getOriginalFilename();
 			long FILE_SIZE 		= multiFileList.get(i).getSize();
@@ -193,9 +194,7 @@ public class FileService extends ExdevBaseService{
 			String FILE_ID 		= FILE_IDS[i];
 			String STORED_FILE_NM = FILE_ID + ext;
 	        String fullPath = path + File.separator + STORED_FILE_NM;
-	        String OWNER_CD 	= request.getParameter("OWNER_CD"	);
 	        
-			
 			Map map = new HashMap<>();
 			map.put("sessionVo"			, sessionVo		);
 			map.put("GRP_FILE_ID"		, GRP_FILE_ID	);
@@ -221,7 +220,7 @@ public class FileService extends ExdevBaseService{
 				
 				/***************************************************************************/
 				/* 테이블 입력    테이블 입력    테이블 입력    테이블 입력    테이블 입력    */
-				result += commonDao.insert("Sample.setFileNew", insertMap);
+				result += commonDao.insert("Filemng.saveFileInfo", insertMap);
 				/* 테이블 입력    테이블 입력    테이블 입력    테이블 입력    테이블 입력    */
 				/***************************************************************************/
 			}
@@ -244,6 +243,4 @@ public class FileService extends ExdevBaseService{
 		}
 		return returnMap;
 	}
-	
-	
 }
