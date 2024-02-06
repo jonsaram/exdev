@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Filemng">
+
+	<cache />
+	
+    <insert id="saveFileInfo">
+        /* Filemng.saveFileInfo */
+       INSERT INTO TBL_EXP_FILEMNG(
+             GRP_FILE_ID
+            ,FILE_ID
+            ,ORG_FILE_NM
+            ,STORED_FILE_NM
+            ,FILE_PATH
+            ,FILE_SIZE
+            ,FILE_TYPE
+            ,OWNER_CD
+            ,ORDER_NUM
+            ,DEL_YN
+            ,SP_CSTM_ID
+            ,CREATE_USER
+            ,CREATE_DATE
+        )
+        VALUES(
+             #{GRP_FILE_ID}
+            ,#{FILE_ID}
+            ,#{ORG_FILE_NM}
+            ,#{STORED_FILE_NM}
+            ,#{FILE_PATH} 
+            ,TO_NUMBER(#{FILE_SIZE})
+            ,#{FILE_TYPE}
+            ,#{OWNER_CD}
+            ,(SELECT NVL2( MAX(ORDER_NUM), MAX(ORDER_NUM)+1 ,1 ) AS ORDER_NUM FROM TBL_EXP_FILEMNG WHERE GRP_FILE_ID = #{GRP_FILE_ID})
+            ,'N'
+            ,#{sessionVo.spCstmId}
+            ,#{sessionVo.userId}
+            ,sysdate
+        )
+    </insert>
+
+	<select id="getFileInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	Filemng.getFileInfo
+			업로드 파일 정보 조회
+		*/
+		SELECT
+			 ORG_FILE_NM   
+			,STORED_FILE_NM
+			,FILE_SIZE     
+			,FILE_TYPE     
+			,ORDER_NUM     
+			,OWNER_CD      
+			,FILE_PATH     
+			,SP_CSTM_ID    
+			,UPDATE_USER   
+			,UPDATE_DATE   
+			,CREATE_USER   
+			,CREATE_DATE   
+			,FILE_ID       
+			,GRP_FILE_ID   
+			,DEL_YN        
+		FROM TBL_EXP_FILEMNG
+		WHERE FILE_ID = #{FILE_ID}
+   	</select>	
+
+	<select id="getGrpFileList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	Filemng.getGrpFileList
+			업로드 Group 파일 정보 조회
+		*/
+		SELECT
+			 ORG_FILE_NM   
+			,STORED_FILE_NM
+			,FILE_SIZE     
+			,FILE_TYPE     
+			,ORDER_NUM     
+			,OWNER_CD      
+			,FILE_PATH     
+			,SP_CSTM_ID    
+			,UPDATE_USER   
+			,UPDATE_DATE   
+			,CREATE_USER   
+			,CREATE_DATE   
+			,FILE_ID       
+			,GRP_FILE_ID   
+			,DEL_YN        
+		FROM TBL_EXP_FILEMNG
+		WHERE GRP_FILE_ID = #{GRP_FILE_ID}
+   	</select>	
+    
+</mapper>
