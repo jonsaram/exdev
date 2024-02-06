@@ -119,9 +119,7 @@ let MAIN_CHART = [];
                 }
             }]*/
         });
-
-		return chart; 
-		//MAIN_CHART.push({container: container ,chart : chart });
+ 
 		
     }
  
