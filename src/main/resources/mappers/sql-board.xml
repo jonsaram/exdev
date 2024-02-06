@@ -151,32 +151,41 @@
 		/*	board.getBoardList
 			게시판 리스트 조회 
 		*/
-		SELECT 	BOARD_ID,
-				TITLE,
-				CONTENT,
-				BOARD_MST_ID,
-				UPDATE_USER,
-				TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE,
-				CREATE_USER,
-				TO_CHAR( CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE
-		FROM TBL_EXP_BOARD
+		SELECT 	B.BOARD_ID,
+				B.TITLE,
+				B.CONTENT,
+				M.BOARD_MST_ID,
+				M.BOARD_MST_NM,
+				M.BOARD_MST_DESC,
+				B.UPDATE_USER,
+				TO_CHAR( B.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE,
+				B.CREATE_USER,
+				TO_CHAR( B.CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE
+		FROM TBL_EXP_BOARD B,
+		     TBL_EXP_BOARD_MST M
+		WHERE B.BOARD_MST_ID = M.BOARD_MST_ID
+		  AND M.BOARD_MST_ID = #{BOARD_MST_ID}
 	</select>
 	
 	<select id="getBoardView" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	board.getBoardView
 			게시판 상세 조회 
 		*/
-		SELECT 	BOARD_ID,
-				TITLE,
-				CONTENT,
-				BOARD_MST_ID,
-				UPDATE_USER,
-				TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE,
-				CREATE_USER,
-				TO_CHAR( CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE
-		FROM TBL_EXP_BOARD
-		WHERE BOARD_ID = #{BOARD_ID}
-		AND BOARD_MST_ID = #{BOARD_MST_ID}
+		SELECT 	B.BOARD_ID,
+				B.TITLE,
+				B.CONTENT,
+				M.BOARD_MST_ID,
+				M.BOARD_MST_NM,
+				M.BOARD_MST_DESC,
+				B.UPDATE_USER,
+				TO_CHAR( B.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE,
+				B.CREATE_USER,
+				TO_CHAR( B.CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE
+		FROM TBL_EXP_BOARD B,
+		     TBL_EXP_BOARD_MST M
+		WHERE B.BOARD_MST_ID = M.BOARD_MST_ID
+		  AND M.BOARD_MST_ID = #{BOARD_MST_ID}
+		  AND B.BOARD_ID = #{BOARD_ID}
 	</select>
 	
 	<insert id="insertBoard" parameterType="java.util.HashMap"  flushCache="true" >
