@@ -227,17 +227,15 @@ public class ExdevCommonController {
             HttpServletRequest request, HttpSession session)  throws Exception {
         
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
+        //System.out.println("getUserId()  ==>"+sessionVo.getUserId());
         String msg = "";
+        
         Map<String, String> returnMap = new HashMap<String, String>();
-
-        String grpId = request.getParameter("groupId"); 
-
-        System.out.println("grpId : " + grpId);
 
 
         String title = request.getParameter("title");
         String content = request.getParameter("content");    
-        String appr_uuid = request.getParameter("appr_uuid");
+        String apprId = request.getParameter("apprId");
         String state = request.getParameter("state");
         
 
@@ -249,8 +247,7 @@ public class ExdevCommonController {
         
         Map<String, String> apprMap = new HashMap<String, String>();
 
-        apprMap.put("uuid",appr_uuid);
-        apprMap.put("requestUser","requestUser");
+        apprMap.put("approvalId",apprId);
         apprMap.put("title",title);
         apprMap.put("contents",content);
         apprMap.put("state",state);
