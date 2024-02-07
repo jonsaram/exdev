@@ -3,26 +3,18 @@
 var <@pageId> = {
 		 selectedCheck :{ "grpCodeList": [],"normalCodeList": [] }
 		,getItems : (loc) => {
-
 				const requestParm = {};
 				const updateItems = $("#"+loc+" input:not([type='radio'])");
 				
 				const valuesArray = updateItems.map(function() {
-					
-					if( this.name == "GRP_CODE_ID" && this.value =="" )this.value = C_COM.makeUniqueId();
-					if( this.name == "CODE_ID" && this.value =="" )this.value = C_COM.makeUniqueId();
 				    return { name: this.name, value: ""+$(this).val() };
 				}).get();
 				
 				valuesArray.forEach(function(item) {
 					requestParm[item.name] = item.value;
 				});
-				
-				const radioNames = ['S_USE_YN','S_DEL_YN','GRP_USE_YN','GRP_DEL_YN','USE_YN','DEL_YN'];
-				radioNames.forEach( radioName => {
-					requestParm[radioName] = <@pageId>.fnRadioCheckValue(loc,radioName);
-				})
-				
+
+			dalert(requestParm)
 				return requestParm;
 				
 		}
@@ -35,6 +27,7 @@ var <@pageId> = {
 						 queryId 		: queryId
 						,requestParm	: <@pageId>.getSearchItems()
 				}
+
 				C_COM.requestQuery(parm, function(resultData) {
 				
 					var rparm = {
@@ -194,26 +187,19 @@ var <@pageId> = {
 					return selectedValue;
 				 }
 		}
-		, createChatRoomPopup : function() {
-			C_POP.open('popup_createChatRoomPopup', {}, function(retData) {
+		, createBoardPopup : function(parm) {
+			C_POP.open('popup_createBoardPopup', parm, function(retData) {
 				if(retData.refresh == 'Y'){
 					<@pageId>.searchList();
-					<@pageId>.enterChatRoomPopup(retData);
 				}
-			});
-		 }
-		, enterChatRoomPopup : function(parm) {
-			C_POP.open('popup_enterChatRoomPopup', parm, function(retData) {
-				dalert(retData);
 			});
 		 }
 }
 
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function(parm) {
-
+		$("#BOARD_MST_ID").val(parm.BOARD_MST_ID);
 		<@pageId>.searchList();
-		//<@pageId>.setHandler();
 		
 });
 	
@@ -234,9 +220,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<h2><i class="icon_bullet"></i>공지사항</h2>
 			</div>
 
-			<section class="sec_wrap list" style="height:calc(100% - 43px);">
+			<section class="sec_wrap list" style="height:calc(100% - 43px);" id="<@pageId>_searchItems">
 				<!-- search area -->
 				<div class="search_area mt0">
+					<input type="hidden" id="BOARD_MST_ID" name="BOARD_MST_ID">
 					<!-- 멀티 선택 -->
 					<div class="fl">
 						<button type="button" class="btn fl"><i class="icon_trash"></i>삭제</button>
@@ -268,8 +255,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					</div>
 
 					<div class="search_right">
-						<a class="btn select fl" href="#modal-ex">게시글 작성</a>
-
+						<button type="button" class="btn select fl"><a href="javascript:<@pageId>.createBoardPopup()">게시글 작성</a></button>
 						<!-- 실글 선택 -->
 						<div class="select_box fl" style="width:132px">
 							<button type="button" class="btn radio"><span>50개 보기</span></button>
@@ -351,6 +337,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td colspan=7>자료가 없습니다.</td>	
 							</tr>
 					</script>
+							</table>
 					</div>
 				</div>
 				<!-- paging -->
@@ -369,104 +356,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 
 		</div>
 	</div>
-
-
-	<!-- 고객 수동 등록 팝업 -->
-	<div class="modal_wrap" id="modal-ex">
-		<div class="modal" style="width:600px;height:640px;">
-			<div class="modal_header">
-				<strong class="tit">게시글 작성</strong>
-				<button type="button" class="btn_close"><span class="sp">팝업 닫기</span></button>
-			</div>
-			<div class="modal_body">
-				<ul class="info_wrap col2 mt15">
-					<li class="w100">
-						<label>제목</label>
-						<div class="info"><input type="text" style="width:100%"></div>
-					</li>
-					<li class="ml0">
-						<label>게시판 선택</label>
-						<div class="info">
-							<!-- 실글 선택 -->
-							<div class="select_box" style="width:100%">
-								<button type="button" class="btn radio"><span>선택</span></button>
-			                    <ul class="select_lst">
-			                        <li>
-			                            <input name="board" id="board01" type="radio" value="">
-			                            <label for="board01">공지사항<i class="icon_check"></i></label>
-			                        </li>
-			                        <li>
-			                            <input name="board" id="board02" type="radio" value="">
-			                            <label for="board02">영업자료<i class="icon_check"></i></label>
-			                        </li>
-			                        <li>
-			                            <input name="board" id="board03" type="radio" value="">
-			                            <label for="board03">서식함<i class="icon_check"></i></label>
-			                        </li>
-			                    </ul>
-			                </div>
-						</div>
-					</li>
-					<li class="ml14">
-						<label>권한 선택</label>
-						<div class="info">
-							<!-- 실글 선택 -->
-							<div class="select_box" style="width:100%">
-								<button type="button" class="btn radio"><span>선택</span></button>
-			                    <ul class="select_lst">
-			                        <li>
-			                            <input name="authority" id="authority01" type="radio" value="">
-			                            <label for="authority01">최고관리자<i class="icon_check"></i></label>
-			                        </li>
-			                        <li>
-			                            <input name="authority" id="authority02" type="radio" value="">
-			                            <label for="authority02">관리자<i class="icon_check"></i></label>
-			                        </li>
-			                        <li>
-			                            <input name="authority" id="authority03" type="radio" value="">
-			                            <label for="authority03">본부장<i class="icon_check"></i></label>
-			                        </li>
-			                        <li>
-			                            <input name="authority" id="authority04" type="radio" value="">
-			                            <label for="authority04">지사장<i class="icon_check"></i></label>
-			                        </li>
-			                        <li>
-			                            <input name="authority" id="authority05" type="radio" value="">
-			                            <label for="authority05">FA<i class="icon_check"></i></label>
-			                        </li>
-			                    </ul>
-			                </div>
-						</div>
-					</li>
-					<li class="w100 ml0">
-						<div class="info w100">
-							<textarea class="w100" rows="13"></textarea>
-						</div>
-					</li>
-					<li class="w100 ml0">
-						<label>첨부파일</label>
-						<div class="info">
-							<button type="button" class="stateBtn file"><span>파일선택</span></button>
-		            		<input name="file" type="file" id="file-input" tabindex="-1" title="파일찾기">
-							<div class="approver_list_wrap person" style="max-height:95px">
-								<ul class="approver_list">
-									<li><span class="txt">첨부파일 입니다.txt / 15.1 Mb</span><button class="pay_close">닫기</button></li>
-									<li><span class="txt">첨부파일 입니다2.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
-									<li><span class="txt">첨부파일 입니다3.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
-									<li><span class="txt">첨부파일 입니다4.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
-								</ul>
-							</div>
-						</div>
-					</li>
-				</ul>
-			</div>
-			<div class="modal_footer">
-				<button type="button" class="btn select">등록</button>
-				<button type="button" class="btn close">취소</button>
-			</div>
-		</div>
-	</div>
-
 
 </body>
 </html>

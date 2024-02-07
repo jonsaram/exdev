@@ -23,6 +23,7 @@
 				SP_CSTM_ID,
 				USE_YN
 		FROM TBL_EXP_BOARD_MST
+		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
 		ORDER BY CREATE_DATE
 	</select>
 	
@@ -41,6 +42,7 @@
 				USE_YN
 		FROM TBL_EXP_BOARD_MST
 		WHERE BOARD_MST_ID = #{BOARD_MST_ID}
+		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 	</select>
 	
 	<insert id="insertBoardMst" parameterType="java.util.HashMap"  flushCache="true" >
@@ -63,7 +65,7 @@
 										SYSDATE,
 										#{USER_ID},
 										SYSDATE,
-										#{SP_CSTM_ID},
+										#{sessionVo.spCstmId},
 										#{USE_YN})
 	</insert>
 	
@@ -78,6 +80,7 @@
 			UPDATE_DATE = SYSDATE
 		WHERE BOARD_MST_ID = #{BOARD_MST_ID}
 		AND USE_YN = #{USE_YN}
+		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 	</update>
 	
 	<update id="deleteBoardMst" parameterType="java.util.HashMap"  flushCache="true" >
@@ -165,6 +168,7 @@
 		     TBL_EXP_BOARD_MST M
 		WHERE B.BOARD_MST_ID = M.BOARD_MST_ID
 		  AND M.BOARD_MST_ID = #{BOARD_MST_ID}
+		  AND M.SP_CSTM_ID = #{sessionVo.spCstmId}
 	</select>
 	
 	<select id="getBoardView" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -186,6 +190,7 @@
 		WHERE B.BOARD_MST_ID = M.BOARD_MST_ID
 		  AND M.BOARD_MST_ID = #{BOARD_MST_ID}
 		  AND B.BOARD_ID = #{BOARD_ID}
+		  AND M.SP_CSTM_ID = #{sessionVo.spCstmId}
 	</select>
 	
 	<insert id="insertBoard" parameterType="java.util.HashMap"  flushCache="true" >
