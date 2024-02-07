@@ -20,13 +20,12 @@ function setMenu()
 	        	const pageId 		= menu.PAGE_ID;
 	        	const depth			= menu.MENU_DEPTH;
 	        	if( Number(depth) == 0){
-	        		
-					let template = `<li id="HDR_${menu.MENU_ID}"><a href="javascript:lefMenuShow('${menu.MENU_ID}','${menu.MENU_NM}');">${menu.MENU_NM}</a></li>`  ;
+					let template = `<li id="HDR_${menu.MENU_ID}"><a href="javascript:lefMenuShow('${menu.MENU_ID}','${menu.MENU_NM}',${menu.PARAMETER});">${menu.MENU_NM}</a></li>`  ;
 					gnbMenuTemplate.push(template);
 					
 	        	}else{
 								        		
-					let template = `<li id="LNB_${menu.MENU_ID}"><a href="javascript:getMenuPage('${menu.MENU_ID}','${pageId}'		);">${menu.MENU_NM}</a></li>`	;
+					let template = `<li id="LNB_${menu.MENU_ID}"><a href="javascript:getMenuPage('${menu.MENU_ID}','${pageId}',${menu.PARAMETER}		);">${menu.MENU_NM}</a></li>`	;
 					MENUS.push( {	PARENT_MENU_ID 	:menu.PARENT_MENU_ID 
 									, 	PARENT_MENU_NM	:menu.PARENT_MENU_NM 
 									, 	MENU_ID			:menu.MENU_ID
@@ -54,7 +53,7 @@ function setMenu()
 	
 }
 		
-function lefMenuShow(parentMenuId, parentMenuDesc){
+function lefMenuShow(parentMenuId, parentMenuDesc, parameter){
 
 	$("[id^='HDR_']").removeClass("active");
 	$("#HDR_"+parentMenuId).addClass("active");
@@ -65,15 +64,14 @@ function lefMenuShow(parentMenuId, parentMenuDesc){
 	
 	$("#lnb_MenuList li[id^='LNB_']").eq(0).addClass("active");
 	
-	goPage(lnb.firstLeftMenu["PAGE_ID"]);
+	goPage(lnb.firstLeftMenu["PAGE_ID"], parameter);
 }
 
-function getMenuPage(menuId, pageId){
+function getMenuPage(menuId, pageId, parameter){
 
 	$("#lnb_MenuList li").removeClass("active");
 	$("#lnb_MenuList li[id='LNB_"+menuId+"']").addClass("active");	
-		debugger;
-	goPage(pageId);
+	goPage(pageId , parameter);
 	
 }
 

@@ -101,7 +101,6 @@
 				AND C.CONTRACT_ID = P.CONTRACT_ID
 				AND C.CONTRACT_ID = RL.CONTRACT_ID
 				AND C.SP_CSTM_ID = B.SP_CSTM_ID
-				/*AND RESULT_DATE = '2024-02-05'*/
 		
 				ORDER BY RESULT_DATE
 		)		
@@ -120,8 +119,9 @@
 				,COMPANY_REGNUM 	/* 사업자등록번호*/
 				,BUYER_NM			/*거래처 */
 				,CONSULTING_NM		/*컨설팅 명*/
-				,TOTAL_COST			/*총계약 금액*/
+				,CONSULTING_ID
 				
+				,TOTAL_COST			/*총계약 금액*/
 				,INCOME				/*입금액*/
 				,REMAINING_SUM		/*잔금*/
 				,ORG_SELLING_PRICE	/*순매출*/
@@ -155,12 +155,14 @@
 				,COMPANY_REGNUM 	/* 사업자등록번호*/
 				,BUYER_NM			/*거래처 */
 				,CONSULTING_NM		/*컨설팅 명*/
+				,CONSULTING_ID
 				,TOTAL_COST			/*총계약 금액*/
 				
 				,INCOME				/*입금액*/
 				,REMAINING_SUM		/*잔금*/
 				,ORG_SELLING_PRICE	/*순매출*/
 				,TOTAL_PAYMENT		/*총수수료*/
+		ORDER BY RESULT_ID				
 	</select>
 	
 </mapper>
