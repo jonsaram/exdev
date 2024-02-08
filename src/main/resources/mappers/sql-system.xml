@@ -78,10 +78,12 @@
 			,T.PARAMETER
 			,T.PAGE_ID
 			,T.USE_YN
+			,T.DEL_YN
 			,T.UPDATE_USER
 			,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
 			,T.SORT_ORDER
 			,(  MAX(T.SORT_ORDER) over( PARTITION BY NVL(T.PARENT_MENU_ID,T.MENU_ID ) ) )+10 AS NEXT_SORT_ORDER
+			,(  MAX(DECODE( T.MENU_DEPTH, '0',T.SORT_ORDER,'0')) over( ) )+100 AS NEXT_ROOT_SORT_ORDER			
 			,CASE  
 				WHEN EXISTS (
 					            SELECT 1 
@@ -425,8 +427,8 @@
 			,T.USER_DESC
 			,T.E_MAIL
 			,T.PHONE_NUM
-			,T.USE_YN
-			,T.DEL_YN
+			,T.STATE
+			,GET_CODE_NM('USER_STATE', T.STATE)		AS STATE_NM
 			,T.UPDATE_USER
 			,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
 	        ,A.ROLE_ID  
@@ -440,8 +442,8 @@
 		AND T.SP_CSTM_ID = R.SP_CSTM_ID
         AND T.USER_ID = A.USER_ID
         AND R.ROLE_ID = A.ROLE_ID 
-		<if test=" DEL_YN != null and !DEL_YN.equals('') ">
-		AND T.DEL_YN = #{DEL_YN}
+		<if test=" STATE != null and !STATE.equals('') ">
+		AND T.STATE = #{STATE}
 		</if>
         ORDER BY T.USER_ID, A.ROLE_ID
 	</select>
@@ -458,8 +460,7 @@
 		         #{USER_DESC} 	AS USER_DESC,
 		         #{E_MAIL} 		AS E_MAIL,
 		         #{PHONE_NUM} 	AS PHONE_NUM,
-		         #{USE_YN} 		AS USE_YN,
-		         #{DEL_YN} 		AS DEL_YN,
+		         #{STATE} 		AS STATE,
 		         'system' 		AS UPDATE_USER,
 		         SYSDATE 		AS UPDATE_DATE
 		  FROM dual
@@ -487,7 +488,7 @@
 			User 삭제
 		*/
 		UPDATE TBL_EXP_USER
-		SET DEL_YN = 'Y' 
+		SET STATE = 'DELETED'
 		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
 		AND	  USER_ID	 = #{USER_ID}
 	</delete>

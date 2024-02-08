@@ -39,8 +39,6 @@
 			,U.ADDR1
 			,U.ADDR2
 			,U.ADDR1 || '&lt;BR&gt;' || U.ADDR2  AS ADDR
-			,U.USE_YN
-			,U.DEL_YN
 			,U.UPDATE_USER
 			,U.UPDATE_DATE
 			,NVL(TO_CHAR( I.AMOUNT   , '999,999,999,999,999'),'0')	AS AMOUNT 
@@ -70,8 +68,7 @@
         AND U.USER_ID = I.USER_ID(+)
         AND U.BRANCH_ID = BR.BRANCH_ID(+)
         AND U.USER_ID = GHIS.USER_ID(+)	
-        AND U.DEL_YN = 'N'
-        AND U.USE_YN = 'Y'
+
         <if test=" USER_NM != null and !USER_NM.equals('') ">
         AND U.USER_NM like '%' || #{USER_NM} || '%'
         </if>
@@ -129,14 +126,12 @@
     		INSERT (  SP_CSTM_ID,   USER_ID,   USER_NM ,   GENDER ,   USER_DESC
     		,   E_MAIL,   PHONE_NUM, 	BRANCH_ID,	ROLE,	GRADE,	STATE
     		,	REG_DATE,	JUMIN,	POST_NUM,	ADDR1,	ADDR2		
-    		,   USE_YN
-    		,   DEL_YN
+    		,   STATE
     		,  UPDATE_USER,   UPDATE_DATE )
    			VALUES ( S.SP_CSTM_ID, S.USER_ID, S.USER_NM , S.GENDER , S.USER_DESC
    			, S.E_MAIL,  S.PHONE_NUM,  S.BRANCH_ID,	S.ROLE,	S.GRADE,	S.STATE
    			, S.REG_DATE,	S.JUMIN,	S.POST_NUM,	S.ADDR1,	S.ADDR2
-   			, 'Y'
-   			, 'N'
+   			, 'INUSE'
    			, S.UPDATE_USER, S.UPDATE_DATE )
 	</update>
 	
@@ -145,7 +140,7 @@
 			인사정보  삭제
 		*/
 		UPDATE TBL_EXP_USER
-		SET DEL_YN = 'Y' 
+		SET STATE = 'DELETED' 
 		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
 		AND	  USER_ID	 = #{USER_ID}
 	</delete>

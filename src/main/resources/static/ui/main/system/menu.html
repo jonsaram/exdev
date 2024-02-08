@@ -54,6 +54,8 @@ var <@pageId> = {
 			
 					<@pageId>.showInsertBtn(false);				
 					<@pageId>.setHandler();
+					
+					setMenu();
 				});
 				
 			}
@@ -117,12 +119,12 @@ var <@pageId> = {
 
 				C_POP.open('popup_menuUpdatePopup',					
 							{	  param:param
-								, nextSortOrder	:	<@pageId>.getNextSortOrder()
 								, parentMenu 	:	{
 													  PARNET_MENU_ID	:	$("#<@pageId>_prmPARENT_MENU_ID").val()
 													 ,PARNET_MENU_NM	:	$("#<@pageId>_prmPARENT_MENU_NM").val()
 													 ,MENU_DEPTH		:	+<@pageId>.selectedRow["MENU_DEPTH"]				
-													 ,SORT_ORDER		:	+<@pageId>.selectedRow["NEXT_SORT_ORDER"]				
+													 ,NEXT_SORT_ORDER	:	+<@pageId>.selectedRow["NEXT_SORT_ORDER"]				
+													 ,NEXT_ROOT_SORT_ORDER	:	+<@pageId>.selectedRow["NEXT_ROOT_SORT_ORDER"]				
 													}
 							}, function(retData) {
 								
@@ -337,8 +339,8 @@ td {
 						<th scope="col">DEPTH</th>
 						<th scope="col">PAGE_ID</th>
 						<th scope="col">ORDER</th>
-						<th scope="col">PARENT_MENUNM</th>
-						<th scope="col">PARENT_MENU</th>
+						<th scope="col">PARENT_MENU_NM</th>
+						<th scope="col">PARENT_MENU_DESC</th>
 						<th scope="col">USE_YN</th>
 						
 						<th scope="col"></th>
@@ -372,19 +374,22 @@ td {
 				<tr name="<@pageId>_tr_{{:#index}}" 						 value='{{:SP_CSTM_ID}}||{{:MENU_ID}}' >
 					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:MENU_ID}}'></td>
  					<td id='MENU_ID'			value='{{:MENU_ID}}'		style="text-align:left">{{:MENU_ID}}</td>
- 					<td id='MENU_NM'			value='{{:MENU_NM}}'		style="text-align:left">{{:MENU_NM}}</td>
- 					<td id='MENU_DESC'			value='{{:MENU_DESC}}'		style="text-align:left">{{:MENU_DESC}}</td>
+ 					<td id='MENU_NM'			value='{{:MENU_NM}}'		>{{:MENU_NM}}</td>
+ 					<td id='MENU_DESC'			value='{{:MENU_DESC}}'		>{{:MENU_DESC}}</td>
  					<td id='MENU_DEPTH'			value='{{:MENU_DEPTH}}'		style="text-align:center">{{:MENU_DEPTH}}</td>
  					<td id='PAGE_ID'			value='{{:PAGE_ID}}'		style="text-align:left">{{:PAGE_ID}}</td>
  					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}' 	style="text-align:center">{{:SORT_ORDER}}</td>
  					<td id='PARENT_MENU_NM'		value='{{:PARENT_MENU_NM}}' style="text-align:left">{{:PARENT_MENU_NM}}</td>
  					<td id='PARENT_MENU_DESC'	value='{{:PARENT_MENU_DESC}}' style="text-align:left">{{:PARENT_MENU_DESC}}</td>
  					<td id='USE_YN'				value='{{:USE_YN}}' 		style="text-align:center">{{:USE_YN}}</td>
+ 					<td id='DEL_YN'				value='{{:DEL_YN}}' 		style="display:none">{{:DEL_YN}}</td>
  					<td id='HAS_CHILD'			value='{{:HAS_CHILD}}' 		style="display:none">{{:HAS_CHILD}}</td>
  					<td id='PARENT_MENU_ID'		value='{{:PARENT_MENU_ID}}'	style="display:none">{{:PARENT_MENU_ID}}</td>
  					<td id='UPDATE_USER'		value='{{:UPDATE_USER}}' 	style='display:none'>{{:UPDATE_USER}}</td>
  					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 	style='display:none'>{{:UPDATE_DATE}}</td>
  					<td id='PARAMETER'			value='{{:PARAMETER}}' 		style='display:none'>{{:PARAMETER}}</td>
+ 					<td id='ATTR1'				value='{{:ATTR1}}' 			style='display:none'>{{:ATTR1}}</td>
+ 					<td id='ATTR2'				value='{{:ATTR2}}' 			style='display:none'>{{:ATTR2}}</td>
  					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}'>
 						<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
 						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:MENU_ID}}'><i class="icon_trash"></i></button>

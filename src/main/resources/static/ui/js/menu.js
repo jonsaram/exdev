@@ -14,7 +14,7 @@ function setMenu()
 			G_VAL.SP_CSTM_ID =responseData[0].SP_CSTM_ID;
 			
 	        let gnbMenuTemplate = [];
-
+ 			MENUS = [];
 	        responseData.forEach( menu => {
 	        	
 	        	const pageId 		= menu.PAGE_ID;

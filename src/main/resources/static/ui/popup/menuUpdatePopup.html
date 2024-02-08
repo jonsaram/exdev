@@ -24,8 +24,8 @@ var <@popupId> = {
 			 })
 			 
 			 const parameter = $("#<@popupId>_items textarea").val();
-			 returnData["PARAMETER"]	= parameter;
-
+			 returnData["PARAMETER"]	= parameter.trim();
+			 returnData["DEL_YN"]		= <@popupId>.fnRadioCheckValue("DEL_YN");
 			 returnData["USE_YN"] 		= <@popupId>.fnRadioCheckValue("USE_YN");
 			 <@popupId>.close(returnData);
 		 }			
@@ -58,6 +58,8 @@ var <@popupId> = {
 	 			
 	  			const useYnVal = param.find(item => item.key === "USE_YN")?.val;
 				<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
+	  			const delYnVal = param.find(item => item.key === "DEL_YN")?.val;
+				<@popupId>.fnRadioCheckValue("DEL_YN",delYnVal);
 				
 				$(".<@popupId>_parent_is").show();
 				$(".<@popupId>_no_parent").hide();
@@ -65,8 +67,11 @@ var <@popupId> = {
 			}else{
 				
 				<@popupId>.fnRadioCheckValue("USE_YN","Y");
+				<@popupId>.fnRadioCheckValue("DEL_YN","N");
 				
 				$("#<@popupId>_items #SORT_ORDER").val(<@popupId>.nextSortOrder);
+				
+				$("#<@popupId>_items #MENU_ID"	 ).removeAttr("disabled");
 				
 				$(".<@popupId>_no_parent").show();
 				$(".<@popupId>_parent_is").hide();
@@ -74,25 +79,33 @@ var <@popupId> = {
 				
 			}
 
+	 		
  	 		$("#<@popupId>_items #PARENT_MENU_ID").val(<@popupId>.parentMenu.PARNET_MENU_ID);
 	 		$("#<@popupId>_items #PARENT_MENU_NM").val(<@popupId>.parentMenu.PARNET_MENU_NM);
-	 		
-	 		
 	 		
 			<@popupId>.mode == "INSERT" ? $(".updateMode").hide() : $(".updateMode").show();
 			let mode = <@popupId>.mode == "INSERT" ? "등록" : "수정";
 			let title = "MENU ";
 	  	 	$(".tit").html(title+mode);
 
-			var modalHeight = (<@popupId>.mode == "INSERT") ? "740px" : "830px";
+			var modalHeight = (<@popupId>.mode == "INSERT") ? "780px" : "870px";
 			$(".modal").css({"height": modalHeight});
 			
 		}
 		,setHandler : () => {
 			
-			$("#<@popupId>_items [name='MENU_NM']").on("input", function() {
-
-			     var inputValue = $(this).val();
+			$("#<@popupId>_items #MENU_ID").focusout( function() {
+				
+				const $parentMenuId 	= $("#<@popupId>_items #PARENT_MENU_ID");
+				let parentMenuId = $parentMenuId.val().split("_");
+				
+				const prefixMenu	= parentMenuId[0]+"_"+parentMenuId[1] ;		
+			    
+				var inputValue = $(this).val();
+			     
+			     if (!inputValue.startsWith(prefixMenu+"_")) {
+			         inputValue = prefixMenu+"_" + inputValue;
+			     }
 			     $(this).val(inputValue);
 			});
 			
@@ -117,10 +130,10 @@ var <@popupId> = {
 C_POP.onLoadPopup("<@popupId>", function(data) {
 
 	<@popupId>.recvData = data.param;
-	
-	<@popupId>.nextSortOrder= data.nextSortOrder == undefined ? 10: data.nextSortOrder;
+
 	<@popupId>.parentMenu 	= data.parentMenu;
 	<@popupId>.MENU_DEPTH	= Number(data.parentMenu.MENU_DEPTH)+1 ;
+	<@popupId>.nextSortOrder= data.parentMenu.NEXT_SORT_ORDER;
 	
 	<@popupId>.pageInit();
 	<@popupId>.setHandler();
@@ -192,10 +205,17 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					</dd>
 				</div>
 				<div class="row">
+				<dt>DEL YN</dt>
+					<dd><div> 	
+							<label><input type='radio' name='DEL_YN' value="Y" />Yes</label>
+							<label><input type='radio' name='DEL_YN' value="N" />No</label>
+						</div>
+					</dd>
+				</div>
+				<div class="row">
 				<dt>PARAMETER</dt>
 					<dd><div> 	
 							<textarea rows="5" cols="22" id="PARAMETER">
-							여기에 100글자 이상의 텍스트를 입력하세요.
 							</textarea>
 						</div>
 					</dd>
