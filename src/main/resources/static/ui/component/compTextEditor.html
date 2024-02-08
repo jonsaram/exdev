@@ -12,6 +12,12 @@
 		ClassicEditor.create( document.querySelector( '#<@compId> #textEditor' ), {
 			 extraPlugins: [<@compId>.MyCustomUploadAdapterPlugin]
 			,language: "ko"
+		})
+		.then(editor =>{
+			window.editor = editor;
+		})
+		.catch(error => {
+			console.error(error);
 		});
 	});
 </script>

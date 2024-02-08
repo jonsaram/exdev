@@ -14,7 +14,6 @@ var <@pageId> = {
 					requestParm[item.name] = item.value;
 				});
 
-			dalert(requestParm)
 				return requestParm;
 				
 		}
@@ -187,8 +186,12 @@ var <@pageId> = {
 					return selectedValue;
 				 }
 		}
-		, createBoardPopup : function(parm) {
-			C_POP.open('popup_createBoardPopup', parm, function(retData) {
+		, createBoardPopup : function() {
+			const requestParm = {};
+			requestParm['BOARD_MST_ID'] = $("#BOARD_MST_ID").val();
+			<@pageId>.getSearchItems(requestParm);
+
+			C_POP.open('popup_createBoardPopup', requestParm, function(retData) {
 				if(retData.refresh == 'Y'){
 					<@pageId>.searchList();
 				}
