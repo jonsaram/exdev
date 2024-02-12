@@ -1521,6 +1521,14 @@ $.views.converters({
 			return value
 		}
 	 }
+	,toKb	: function(value) {
+		if(typeof value == "number") {
+			return Math.round(value / 10.24) / 100	
+		} else {
+			return "";
+		}
+			
+	 }
 });
 
 

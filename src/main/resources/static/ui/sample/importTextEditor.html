@@ -1,7 +1,9 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-
+		sendComp : function() {
+			<@pageId>.sendComp();
+		}
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -19,5 +21,5 @@
 	<div id="textEditorComp" style="width:100%;height:100%">
 	</div>
 
-
+	<input type="button" value="sendComp" onclick="<@pageId>.sendComp()"/> 
 </div>
