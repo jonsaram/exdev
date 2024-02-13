@@ -317,25 +317,27 @@ button.ui-button::-moz-focus-inner {
 .ui-datepicker .ui-datepicker-prev,
 .ui-datepicker .ui-datepicker-next {
 	position: absolute;
-	top: 2px;
-	width: 1.8em;
-	height: 1.8em;
+	top: 5px;
+	width: 24px;
+	height: 24px;
 }
 .ui-datepicker .ui-datepicker-prev-hover,
 .ui-datepicker .ui-datepicker-next-hover {
-	top: 1px;
+	top: 5px;
+	/*background:none!important;
+	border:0!important;*/
 }
 .ui-datepicker .ui-datepicker-prev {
-	left: 2px;
+	left: 5px;
 }
 .ui-datepicker .ui-datepicker-next {
-	right: 2px;
+	right: 5px;
 }
 .ui-datepicker .ui-datepicker-prev-hover {
-	left: 1px;
+	left: 5px;
 }
 .ui-datepicker .ui-datepicker-next-hover {
-	right: 1px;
+	right: 5px;
 }
 .ui-datepicker .ui-datepicker-prev span,
 .ui-datepicker .ui-datepicker-next span {
@@ -347,8 +349,9 @@ button.ui-button::-moz-focus-inner {
 	margin-top: -8px;
 }
 .ui-datepicker .ui-datepicker-title {
-	margin: 0 2.3em;
-	line-height: 1.8em;
+	font-size:12px;
+	margin: 0 24px;
+	line-height: 26px;
 	text-align: center;
 }
 .ui-datepicker .ui-datepicker-title select {
@@ -361,7 +364,7 @@ button.ui-button::-moz-focus-inner {
 }
 .ui-datepicker table {
 	width: 100%;
-	font-size: .9em;
+	font-size:12px;
 	border-collapse: collapse;
 	margin: 0 0 .4em;
 }
@@ -890,6 +893,8 @@ body .ui-tooltip {
 	font-size: 1em;
 }
 .ui-widget.ui-widget-content {
+	padding:10px;
+	min-width: 250px;
 	border: 1px solid #c5c5c5;
 }
 .ui-widget-content {
@@ -921,10 +926,15 @@ body .ui-tooltip {
 works properly when clicked or hovered */
 html .ui-button.ui-state-disabled:hover,
 html .ui-button.ui-state-disabled:active {
-	border: 1px solid #c5c5c5;
-	background: #f6f6f6;
+	margin:0 auto;
+	width:24px;
+	height:24px;
+	line-height:22px;
+	border-radius:50%;
+	font-size:12px;
 	font-weight: normal;
-	color: #454545;
+	text-align:center;
+	color: #333;
 }
 .ui-state-default a,
 .ui-state-default a:link,
@@ -945,9 +955,14 @@ a:visited.ui-button,
 .ui-button:hover,
 .ui-button:focus {
 	border: 1px solid #cccccc;
-	background: #ededed;
+	background: #fff;
 	font-weight: normal;
 	color: #2b2b2b;
+	border-radius:50%;
+	font-size:12px;
+	width:24px;
+	height:24px;
+	line-height:20px;
 }
 .ui-state-hover a,
 .ui-state-hover a:hover,
@@ -966,16 +981,21 @@ a.ui-button:focus {
 .ui-visual-focus {
 	box-shadow: 0 0 3px 1px rgb(94, 158, 214);
 }
+
 .ui-state-active,
 .ui-widget-content .ui-state-active,
 .ui-widget-header .ui-state-active,
 a.ui-button:active,
 .ui-button:active,
 .ui-button.ui-state-active:hover {
-	border: 1px solid #003eff;
-	background: #007fff;
+	border: 1px solid #27187F;
+	background: #27187F;
 	font-weight: normal;
 	color: #ffffff;
+	width:24px;
+	height:24px;
+	line-height:20px;
+	border-radius:50%;
 }
 .ui-icon-background,
 .ui-state-active .ui-icon-background {
@@ -989,15 +1009,24 @@ a.ui-button:active,
 	text-decoration: none;
 }
 
-/* Interaction Cues
-----------------------------------*/
 .ui-state-highlight,
 .ui-widget-content .ui-state-highlight,
 .ui-widget-header .ui-state-highlight {
-	border: 1px solid #dad55e;
-	background: #fffa90;
-	color: #777620;
+/*	border: 1px solid #3ba8c3;*/
+	border: 1px solid #e3d380;
+/*	background: rgba(59,168,195,.7);*/
+	background: #fff4bb;
+	color: #333;
+	width:24px;
+	height:24px;
+	line-height:20px;
+	border-radius:50%;
+	text-align:center;
 }
+
+/* Interaction Cues
+----------------------------------*/
+
 .ui-state-checked {
 	border: 1px solid #dad55e;
 	background: #fffa90;

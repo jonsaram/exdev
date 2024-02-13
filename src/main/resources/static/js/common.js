@@ -9,13 +9,26 @@
         });
         $($open_ul).find("input[type=radio]").on("click", function(){
             var $var = $( this ).next().text();
-            $( this ).parent().parent().prev().children().text( $var );
-            $( this ).parent().parent().prev().children().addClass( "active" );
+            var $state = $(this).parent().children().find(".status");
+            var $color = $(this).parent().children().find(".status").attr('class');
+            var $htmlState = '<i class="' +  $color + '" style="padding-right:5px;top:-1px"></i>';
+            if($state.hasClass("status") === true) {
+                $(this).parent().parent().prev().children().prepend($htmlState);
+            }
+            $(this).parent().parent().prev().children().find('span').text( $var );
+            $(this).parent().parent().prev().children().addClass( "active" );
             $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
-            $( this ).parent().parent().addClass("viewHide");
+            $(this).parent().parent().addClass("viewHide");
+
         });
         $($open_ul).find("input[type=radio]").on("focus", function(){
             var $var = $( this ).next().text();
+            var $state = $(this).parent().children().find(".status");
+            var $color = $(this).parent().children().find(".status").attr('class');
+            var $htmlState = '<i class="' +  $color + '" style="padding-right:5px;top:-1px"></i>';
+            if($state.hasClass("status") === true) {
+                $(this).parent().parent().prev().children().prepend($htmlState);
+            }
             $( this ).parent().parent().prev().children().text( $var );
             $( this ).parent().parent().prev().children().addClass( "active" );
             $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
@@ -199,16 +212,14 @@
     });
 
     /*==== 첨부파일 추가 ====*/
-    /*
     $(document).on("click", ".file", function(){
         $('input[type=file]#file-input').click();
     });
-    $(document).on("change", "input[type=file]#file-input", function(){
-        var title = $(this).val();
-        var html = '<li><span class="txt">'+ title +'</span><button class="pay_close">닫기</button></li>';
-        $(this).parent().children().find('.approver_list').append(html);
-    });
-     */
+    // $(document).on("change", "input[type=file]#file-input", function(){
+    //     var title = $(this).val();
+    //     var html = '<li><span class="txt">'+ title +'</span><button class="pay_close">닫기</button></li>';
+    //     $(this).parent().children().find('.approver_list').append(html);
+    // });
 
     /*==== bar chart ====*/
     $(function() {
@@ -229,6 +240,21 @@
         }
     });
 
+
+    /*==== tab ====*/
+    $(function() {
+        //$(".display").css("display","none");
+        $('div.tab_content').each(function() {
+            $(this).find('div.display:first').show();
+        });
+
+        $('.tab_wrap li').click(function() {
+            if (!$(this).hasClass('active')) {
+                $(this).addClass('active').siblings('li').removeClass('active');
+                $($(this).children().attr('href')).show("100").siblings('div.display').hide("100");
+            }
+        });
+    });
 
 })(window, window.jQuery);
 

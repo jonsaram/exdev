@@ -58,6 +58,7 @@
 		 }
 		/* 첨부파일 추가 */
 		,addFile : function(obj){
+			debugger;
 	        const file = obj.files[0];
 
 	        // 첨부파일 검증
@@ -66,17 +67,14 @@
 	            var reader = new FileReader();
 	            reader.onload = function () {
 	            	<@compId>.filesArr.push(file);
+			    	<@compId>.uploadMultiFile();		    	
+				    // 초기화
+				    $("#<@compId> input[type=file]").val("");
 	            };
 	            reader.readAsDataURL(file)
-
-	            setTimeout(function() {
-			    	<@compId>.uploadMultiFile();		    	
-			    }, 500);
 	        } else {
 
 	        }
-		    // 초기화
-		    $("#<@compId> input[type=file]").val("");
 		 }
 		/* 첨부파일 검증 */
 		,validation : function(obj){
