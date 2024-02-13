@@ -1,0 +1,118 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		 recvData : []	
+	 	 ,mode : ''
+	 	 ,BRANCH_DATA : {}
+		 ,hiarachySelData: []
+		 ,close : function(returnData) {
+			 
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+		 ,apply : () =>{
+			 
+			 if( <@popupId>.validation() == false){
+				 return;
+			 }
+
+			 let returnData = {};
+			 const $inputs = $("#<@popupId>_items input");
+			 $.each( $inputs, function(){
+				 
+				 let key = $(this).attr("id");
+				 let val = $(this).val();
+				 
+				 if(key)
+				 	returnData[key] = val;
+			 })
+			 
+			 <@popupId>.close(returnData);
+			 
+		 }
+		 ,validation : () =>{
+			 
+			 if( $("#<@popupId>_items #BUYER_NM").val() 		== "" ) {alert("고객명을 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #TEL").val() 				== "" ) {alert("연락처를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #ADDR").val() 			== "" ) {alert("본점주소를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #COMPANY_REGNUM").val()	== "" ) {alert("사업자등록번호를 입력하여 주십시오."); return false;}
+			 return true;
+			 
+		 }
+		,pageInit : () => {
+			
+			<@popupId>.setTitleHeight();
+ 			
+			if( <@popupId>.mode == "U" ){
+
+					$.each( <@popupId>.recvData.param , function(idx,obj){
+						
+						if(idx != 0 ){
+							
+							const id = $(this).attr("id");
+							const val = $(this).attr("value");
+						    $("#<@popupId>_items #" + id).val(val);
+						    
+						}
+					})	
+			}
+			
+		}
+		
+		,setTitleHeight : () => {
+			
+			<@popupId>.mode == "I" ? $("#<@popupId>_items #USER_ID").val( <@popupId>.makeSabunCode() ) : '';
+
+ 			<@popupId>.mode == "I" ? $(".updateMode").hide() : $(".updateMode").show();
+			let title = <@popupId>.mode == "I" ? "고객 등록" : "고객 정보 수정";
+	  	 	$(".tit").html( title );
+			
+		}
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+
+ 		<@popupId>.recvData	= data;
+
+		<@popupId>.mode = <@popupId>.recvData.mode;
+		
+		<@popupId>.pageInit();
+	});
+</script>
+
+<div class="modal_wrap" id="modal-ex">
+	<div class="modal" style="width:450px;height:350px;">
+		<div class="modal_header">
+			<strong class="tit">고객등록</strong>
+			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body" style="overflow:visible;" id="<@popupId>_items">
+			<input type="hidden" id="BUYER_ID">
+			<div class="clearFix mt15">
+				<ul class="info_wrap">
+					<li>
+						<label>고객명</label>
+						<div class="info"><input type="text" id="BUYER_NM" style="width:100%"></div>
+					</li>
+					<li>
+						<label>연락처</label>
+						<div class="info"><input type="text" id="TEL" style="width:100%"></div>
+					</li>
+					<li>
+						<label>본점 주소</label>
+						<div class="info"><input type="text" id="ADDR" style="width:100%"></div>
+					</li>
+					<li>
+						<label>사업자등록번호</label>
+						<div class="info"><input type="text" id="COMPANY_REGNUM" style="width:100%"></div>
+					</li>
+				</ul>
+			</div>
+
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select" onclick="<@popupId>.apply()" >등록</button>
+			<button type="button" class="btn close"  onclick="<@popupId>.close()" >취소</button>
+		</div>
+	</div>
+</div>

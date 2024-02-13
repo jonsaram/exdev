@@ -11,34 +11,36 @@ var <@pageId> = {
 			const requestParm = { USER_NM : searchName };
 			
 			var parm = {
-					 queryId 		: "cstm.getCstmList"
+					 queryId 		: "conResult.getContractList"
 					,requestParm	: requestParm
 			}
 			<@pageId>.excelParam = parm;
 			C_COM.requestQuery(parm, function(resultData) {
 				var rparm = {
-						 targetId 		: "<@pageId>_cstmList"
+						 targetId 		: "<@pageId>_contractList"
 						,list			: resultData.data
 				}
 			
 				C_COM.renderHtml("<@pageId>", rparm);
 				
-				//<@pageId>.chkHandler();
-				<@pageId>.setHandler();
+				<@pageId>.chkHandler();
 			});
 		}
 		,updateItem : (param) => {
 
 			const requestParm = param ? param : {} ;
-			if( !requestParm["BUYER_ID"] )
-				requestParm["BUYER_ID"] = C_COM.makeUniqueId();
+			requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
 			
 			var parm = {
 						queryGroup : [
 							 {
-								 queryId 		: "cstm.updateCstm"
+								 queryId 		: "hrInfo.updateHrInfo"
 								,requestParm	: requestParm
 							 }
+	  						,{
+								 queryId 		: "hrInfo.updateSuretyInsurance"
+								,requestParm	: requestParm
+							 } 
 						]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
@@ -55,8 +57,9 @@ var <@pageId> = {
 		,deleteItem : (delKey) => {
 			
 			var parm = {
-					 queryId 		: "cstm.deleteCstm"
-					,requestParm	: {"BUYER_ID":delKey.BUYER_ID}
+					 queryId 		: "hrInfo.deleteHrInfo"
+					,requestParm	: {"SP_CSTM_ID":delKey.SP_CSTM_ID
+									  ,"USER_ID":delKey.USER_ID}
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				if( resultData.state == 'S'){
@@ -68,21 +71,22 @@ var <@pageId> = {
 		}
 		, deleteOne : (key) =>{
 			
-    		const BUYER_ID 	= key;
-    		<@pageId>.deleteItem({BUYER_ID:BUYER_ID})
+    		const SP_CSTM_ID 	= key.split("||")[0];
+    		const USER_ID 		= key.split("||")[1];
+    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,USER_ID:USER_ID})
     		
 		}
 		,setHandler : () => {
 			
 			<@pageId>.chkHandler();
 		    
-		    $("#<@pageId>_insert").off().on('click',function(){
+		    $("#<@pageId>_insert").click(function(){
 		    	
 				<@pageId>.openPopup();
 
 		    })
 		    
-		    $("#<@pageId>_delete").off().on('click',function(){
+		    $("#<@pageId>_delete").click(function(){
 		    	
 		    	<@pageId>.checkedItems.forEach( key =>{
 					<@pageId>.deleteOne(key);
@@ -90,30 +94,15 @@ var <@pageId> = {
 		    	
 		    })
 		    
-		    $("#<@pageId>_excelDownload").off().on('click',function(){
+		    $("#<@pageId>_excelDownload").click(function(){
 
  		    	const $hds = $("#<@pageId>_headingColName th");
 		    	const $tds = $("[name='<@pageId>_tr_0'] td");
-		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"고객 리스트");  
+		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"직원 리스트");  
 		    	
 		    })
-		    			    
-		    $("[id^='<@pageId>_modify_']").off().on('click',function(){
-		    	debugger;
-		    	const index = $(this).attr("index");
-				const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
-				<@pageId>.openPopup($tds);
-				
-		    })
 		    
-		    $("[id^='<@pageId>_delete_']").off().on('click',function(){
-
-		    	const key = $(this).attr("key");
-				<@pageId>.deleteOne(key);
-				
-		    })
-		    
-			$("#<@pageId>_search").off().on('click', () =>{
+			$("#<@pageId>_search").click( () =>{
 		    	<@pageId>.searchList();
 		    })
 		    
@@ -141,14 +130,11 @@ var <@pageId> = {
 		    });
 		    
 		}		
-		,openPopup : ($tds) => {
+		,openPopup : () => {
 
-			let mode = "I";
-			let param = [];
-			if( $tds.length > 0 ){param = $tds;mode="U"}
-			
-			C_POP.open('popup_cstmUpdatePopup', {param:param, mode:mode}, function(retData) {
-				debugger;
+			let param = [];	
+			C_POP.open('popup_cstmUpdatePopup', {param:param, mode:"I"}, function(retData) {
+				
 				if(isValid(retData)){
 					<@pageId>.updateItem(retData);
 				}
@@ -197,7 +183,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 <div class="cont_wrap">
 
 		<div class="cont_top">
-			<h2><i class="icon_bullet"></i>고객리스트</h2>
+			<h2><i class="icon_bullet"></i>계약관리</h2>
 		</div>
 	
 		<section class="sec_wrap list" style="height:calc(100% - 43px);">
@@ -222,8 +208,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</div>
 	
 				<div class="search_right">
-					<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>상담 고객 추가</button>
-					<button type="button" class="btn fl" id="<@pageId>_excelDownload"><i class="icon_download"></i> 고객 리스트 다운로드</button>
+					<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>계약 등록</button>
+					<button type="button" class="btn fl" id="<@pageId>_excelDownload"><i class="icon_download"></i> 계약 리스트 다운로드</button>
 	
 					<!-- 실글 선택 -->
 					<div class="select_box fl" style="width:132px">
@@ -249,13 +235,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<div class="tbl01 col tbl_scroll" style="max-height:506px;">
 				<div class="tbl01 col tbl_head">
 					<table>
-						<caption>고객 리스트</caption>
+						<caption>계약 리스트</caption>
 						<colgroup>
 								<col style="width:40px;"/>
 								<col style="width:90px;">
 								<col style="width:80px;"/>
 								<col style="width:150px;"/>
 								<col style="width:100px;"/>
+								<col style="width:90px;"/>
+								<col style="width:90px;"/>
+								<col style="width:90px;"/>
+								<col style="width:90px;"/>
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
@@ -267,10 +257,15 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<th scope="col">고객번호</th>
 								<th scope="col">고객명</th>
 								<th scope="col">진행상태</th>
-								<th scope="col">연락처</th>
-								<th scope="col">본점주소</th>
 								<th scope="col">상담일</th>
 								<th scope="col">담당자</th>
+								<th scope="col">계약구분</th>
+								<th scope="col">계약금액</th>
+								
+								<th scope="col">자문계약일</th>
+								<th scope="col">자문료</th>
+								<th scope="col">총계약금액</th>
+								<th scope="col">컨설팅명</th>
 								<th scope="col"></th>
 							</tr>
 						</thead>
@@ -288,34 +283,49 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
+								<col style="width:90px;"/>
+								<col style="width:90px;"/>
+								<col style="width:90px;"/>
+								<col style="width:90px;"/>
 						</colgroup>
-						<tbody  id="<@pageId>_cstmList">
+						<tbody  id="<@pageId>_contractList">
 						</tbody>
-<script type="text/x-jsrender" id="<@pageId>_cstmList_template">						
+<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
 						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{{:BUYER_ID}}'>
-								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:BUYER_ID}}'></td>
-			 					<td id='BUYER_ID'		value='{{:BUYER_ID}}'		style="text-align:center">{{:BUYER_ID}}</td>
-			 					<td id='BUYER_NM'		value='{{:BUYER_NM}}'		style="text-align:center">{{:BUYER_NM}}</a></td>
-			 					<td id='PROCESS_STATUS'	value='{{:PROCESS_STATUS}}'	style="text-align:center">{{:PROCESS_STATUS}}</td>
-			 					<td id='TEL'			value='{{:TEL}}'			style="text-align:center">{{:TEL}}</td>
-								<td id='ADDR'			value='{{:ADDR}}'									 >{{:ADDR}}</td>
-								<td id='CONTACT_DATE'	value='{{:CONTACT_DATE}}'	style="text-align:center">{{:CONTACT_DATE}}</td>
-								<td id='CONTACT_USER_NM' value='{{:CONTACT_USER_NM}}' style="text-align:center">{{:CONTACT_USER_NM}}</td>
- 								<td id='CONTACT_USER_ID' value='{{:CONTACT_USER_ID}}' style='display:none'	 >{{:CONTACT_USER_ID}}</td>
- 								<td id='COMPANY_REGNUM'	 value='{{:COMPANY_REGNUM}}'  style='display:none'	 >{{:COMPANY_REGNUM}}</td>
- 								<td id='CONTRACT_ID'	 value='{{:CONTRACT_ID}}'	style='display:none'	 >{{:CONTRACT_ID}}</td>
- 								<td id='CONTRACT_DATE'	value='{{:CONTRACT_DATE}}'	style='display:none'	 >{{:CONTRACT_DATE}}</td>
+							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'></td>
+			 					<td id='USER_ID'		value='{{:USER_ID}}'		style="text-align:right">{{:USER_ID}}</td>
+			 					<td id='USER_NM'		value='{{:USER_NM}}'		style="text-align:right">>{{:USER_NM}}</a></td>
+			 					<td id='E_MAIL'			value='{{:E_MAIL}}'			style="text-align:right">{{:E_MAIL}}</td>
+			 					<td id='PHONE_NUM'		value='{{:PHONE_NUM}}'		style="text-align:right">{{:PHONE_NUM}}</td>
+								<td id='BASE_BRANCH_NM'	value='{{:BASE_BRANCH_NM}}'	>{{:BASE_BRANCH_NM}}</td>
+								<td id='SP_BRANCH_NM'	value='{{:SP_BRANCH_NM}}'	style="text-align:right">{{:SP_BRANCH_NM}}</td>
+								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
+								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
+								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
+								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
+								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
+								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
+ 								<td id='ROLE'			value='{{:ROLE}}'			style='display:none'>{{:ROLE}}</td>
+ 								<td id='GRADE'			value='{{:GRADE}}'			style='display:none'>{{:GRADE}}</td>
+ 								<td id='STATE'			value='{{:STATE}}'			style='display:none'>{{:STATE}}</td>
+ 								<td id='USER_DESC'		value='{{:USER_DESC}}'		style='display:none'>{{:USER_DESC}}</td>
+ 								<td id='BASE_BRANCH_ID'	value='{{:BASE_BRANCH_ID}}'	style='display:none'>{{:BASE_BRANCH_ID}}</td>
+ 								<td id='SP_BRANCH_ID'	value='{{:SP_BRANCH_ID}}'	style='display:none'>{{:SP_BRANCH_ID}}</td>
+ 								<td id='BRANCH_ID'		value='{{:BRANCH_ID}}'		style='display:none'>{{:BRANCH_ID}}</td>
+ 								<td id='JUMIN'			value='{{:JUMIN}}'			style='display:none'>{{:JUMIN}}</td>
+ 								<td id='POST_NUM'		value='{{:POST_NUM}}'		style='display:none'>{{:POST_NUM}}</td>
+ 								<td id='ADDR1'			value='{{:ADDR1}}'			style='display:none'>{{:ADDR1}}</td>
 			 					<td >
 									<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
-									<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:BUYER_ID}}'><i class="icon_trash"></i></button>
+									<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}||{{:CODE_ID}}'><i class="icon_trash"></i></button>
 								</td>
 							</tr>
 						{{/for}}
 </script>
-<script type="text/x-jsrender" id="<@pageId>_cstmList_noData_template">	
+<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
 				<tr>	
-					<td colspan=8>자료가 없습니다.</td>	
+					<td colspan=13>자료가 없습니다.</td>	
 				</tr>
 </script>
 					</table>

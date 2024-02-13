@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cstm">
+
+	<cache />
+
+	<!--
+	업무 관리 
+	 -->	
+	<select id="getCstmList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	cstm.getCstmList
+			고객 리스트 조회 
+		*/
+		SELECT B.BUYER_ID
+		, B.BUYER_NM
+		, DECODE( NVL( C.BUYER_ID ,'NO') , 'NO', '' ,'진행중' ) AS PROCESS_STATUS
+		, B.TEL
+		, B.ADDR
+		, B.COMPANY_REGNUM  
+		, TO_CHAR( C.CONTACT_DATE  , 'YYYY-MM-DD' ) AS CONTACT_DATE
+		, C.USER_ID AS CONTACT_USER_ID /*담당자*/
+		, GET_USER_NM(C.USER_ID) AS CONTACT_USER_NM /* 담당자*/
+		, C.CONTRACT_ID, C.BUYER_ID
+		, C.CONTRACT_DATE, C.CONTRACT_TYPE_CODE_ID
+		, C.CONSULTING_COST, C.EXPIRE_DATE, C.TOTAL_COST
+		, C.CONSULTING_ID, C.PROCESS_STATE, C.LAST_SOLUTION, C.TAX_MNG, C.LABOR_MNG
+		FROM ADMIN.TBL_EXP_BUYER B
+		,ADMIN.TBL_EXP_CONTRACT C
+		WHERE B.BUYER_ID = C.BUYER_ID(+)	
+		AND B.USE_YN = 'Y'
+		AND B.DEL_YN = 'N'
+	</select>
+	 	
+	<update id="updateCstm" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	cstm.updateCstm
+			고객  저장
+		*/
+		MERGE INTO TBL_EXP_BUYER T
+		USING (
+		  SELECT #{BUYER_ID}		AS BUYER_ID,
+		         #{BUYER_NM}		AS BUYER_NM,
+		         #{TEL} 			AS TEL,
+		         #{ADDR} 			AS ADDR,
+		         #{COMPANY_REGNUM} 	AS COMPANY_REGNUM
+		  FROM dual
+		) S
+		ON (T.BUYER_ID	= S.BUYER_ID 
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.BUYER_NM			= S.BUYER_NM,
+		    T.TEL 				= S.TEL,
+		    T.ADDR 				= S.ADDR,
+		    T.COMPANY_REGNUM	= S.COMPANY_REGNUM
+		WHEN NOT MATCHED THEN 
+    		INSERT (   BUYER_ID,   BUYER_NM,   TEL,   ADDR,   COMPANY_REGNUM )
+   			VALUES ( S.BUYER_ID, S.BUYER_NM, S.TEL, S.ADDR, S.COMPANY_REGNUM )
+	</update>
+	
+	<delete id="deleteCstm" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	cstm.deleteCstm
+			고객  삭제
+		*/
+		UPDATE TBL_EXP_BUYER
+		SET USE_YN = 'N' 
+		, DEL_YN = 'Y' 
+		WHERE BUYER_ID = #{BUYER_ID}  
+	</delete> 
+	
+</mapper>
