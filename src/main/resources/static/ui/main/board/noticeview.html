@@ -20,26 +20,35 @@ var <@pageId> = {
 		,getSearchItems : () =>{
 			return <@pageId>.getItems("<@pageId>_searchItems")
 		}
-		,searchObj : (queryId, targetId) => {
+		,searchObj : (queryId, parm) => {
+			dalert(parm);
 			
 				var parm = {
 						 queryId 		: queryId
-						,requestParm	: <@pageId>.getSearchItems()
+						,requestParm	: parm
 				}
 
 				C_COM.requestQuery(parm, function(resultData) {
 				
 					var rparm = {
-							 targetId 		: targetId
-							,list			: resultData.data
+							list			: resultData.data
 						}
-					C_COM.renderHtml("<@pageId>", rparm);
+					dalert(resultData.data);
+					<@pageId>.viewHtml(resultData.data);
+					//C_COM.renderHtml("<@pageId>", rparm);
 
 				});
 				
 		}
-		,searchList : () => {
-				<@pageId>.searchObj("board.getBoardList","boardList");
+		,searchView : (parm) => {
+				<@pageId>.searchObj("board.getBoardView",parm);
+		}
+		,viewHtml : (parm) =>{
+			$('h3#TITLE').text(parm[0].TITLE);
+			$(".board_cont>dd#UPDATE_USER").text(parm[0].UPDATE_USER);
+			$(".board_cont>dd#UPDATE_DATE").text(parm[0].UPDATE_DATE);
+			$(".board_cont>dd#VIEW_CNT").text(parm[0].VIEW_CNT);
+			$(".board_cont>dd#UPDATE_USER").text(parm[0].UPDATE_USER);
 		}
 		,updateCode : (loc, queryId) => {
 
@@ -201,29 +210,9 @@ var <@pageId> = {
 
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function(parm) {
-	dalert("====>");
-	dalert(parm);
-	return;
-		$("#BOARD_MST_ID").val(parm.BOARD_MST_ID);
 		
-		// Code List 읽어오기
-		var searchListCnt = C_COM.getCodeList("SEARCH_LIST_CNT");		
-		var singleboxSearchList = { 
-			 data : searchListCnt
-		 	,targetId : "searchListCnt" 
-		}
-		C_UICOM.makeSelectBox(singleboxSearchList, "single");
-		
-		// Code List 읽어오기
-		var searchCond = C_COM.getCodeList("BOARD_SEARCH_COND");
-		var multiboxSearchCondList = { 
-				 data : searchCond
-			 	,targetId : "searchCond" 
-			}
-		C_UICOM.makeSelectBox(multiboxSearchCondList, "multi");
-		
-		<@pageId>.searchList();
-		
+	<@pageId>.searchView(parm);
+
 });
 	
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -244,29 +233,34 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<table>
 							<caption>표 캡션</caption>
 							<colgroup>
-								<col />
+								<col style="*;"/>
+								<col style="width:260px;"/>
 							</colgroup>
 							<tbody>
 								<tr>
 									<td>
-										<h3>사내 직함/직급에 대한 승격 통보</h3>
+										<h3 id="TITLE"></h3>
 										<dl class="board_cont">
 											<dt>작성자 :</dt>
-											<dd>이희성</dd>
+											<dd id="UPDATE_USER"></dd>
 										</dl>
 										<dl class="board_cont">
 											<dt>작성일 :</dt>
-											<dd>2024-01-01 12:05:05</dd>
+											<dd id="UPDATE_DATE"></dd>
 										</dl>
 										<dl class="board_cont">
 											<dt>조회 :</dt>
-											<dd>112</dd>
+											<dd id="VIEW_CNT"></dd>
 										</dl>
 										<dl class="board_cont">
 											<dt>댓글 :</dt>
-											<dd>11</dd>
+											<dd id="REPLY_CNT"></dd>
 										</dl>
-
+									</td>
+									<td>
+										<button type="button" class="btn fl"><i class="icon_bullet"></i>수정</button>
+										<button type="button" class="btn fl"><i class="icon_trash"></i>삭제</button>
+										<button type="button" class="btn fr"><i class="icon_bullet"></i>목록</button>
 									</td>
 								</tr>
 								<tr>
