@@ -7,15 +7,24 @@
         ,filesArr : []
         ,requestParm : {}
         ,apprId: ''
+        ,editorData: ''
         ,memberSearchPopup : function() {
 
-            console.log("======= memberSearchPopup 2 =======");
             C_POP.open('popup_userSearchPopup', {}, function(retData) {
-                console.log("======= memberSearchPopup 3 =======");
-                console.log(retData);
                 <@popupId>.addMember(retData);
             });
          }
+
+        ,callCompFn : function() {
+            <@popupId>.textEditorComp.testFn("aaa");
+         }
+
+        ,callCompSetMode : function() {
+        	
+        	let parm = {mode:"R"}
+            <@popupId>.textEditorComp.setMode(parm);
+         }
+        
         ,addMember : function(retData) {
             
             for (let obj of retData) {
@@ -26,12 +35,9 @@
                 console.log("obj.user_desc =>"+obj.user_desc);
                 console.log("obj.e_mail =>"+obj.e_mail);
                 
-
                 <@popupId>.userArr.push(obj.user_id);
                 
                 let user = obj.user_nm+"/"+obj.user_desc+"/"+obj.user_id+"/"+obj.e_mail;
-                
-                
                 
                 let btnId1 = <@popupId>.userIndex +'0';
                 let btnId2 = <@popupId>.userIndex +'1';
@@ -73,7 +79,6 @@
                         else if( colNum == 2 ){ $('#apprType'+i).val('NOTICE');  }
                         else{}
                         
-                         
                         console.log("== colNum["+colNum+"]  ==");
                     }else{
                         $('#button'+i+j).addClass('stateBtn toggle');
@@ -87,17 +92,21 @@
         ,save : function (state) {
             
             var title = $("#<@popupId> #title").val();
+            console.log("== title ==>"+title);
             if (title.length < 1) {
                 alert("제목을 입력해 주세요.");
                 $("#<@popupId> #title").focus();
                 return false;
             }
-            var content = $("#<@popupId> #content").val();
+            
+            var content = <@popupId>.textEditorComp.getContent();
+            
             if (content.length < 1) {
                 alert("상신 내용을 입력해 주세요.");
                 $("#<@popupId> #content").focus();
                 return false;
             }
+            
             if (<@popupId>.userArr.length < 1) {
                 alert("결재자를 입력해 주세요.");
                 return false;
@@ -106,6 +115,7 @@
             var form = document.querySelector("#<@popupId> form");
             
             var formData = new FormData(form);
+            formData.append('content', content);
             formData.append("apprId", <@popupId>.apprId);
             formData.append("state", state);
             
@@ -156,12 +166,20 @@
         /*첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    첨부 파일    */
         
         /* 첨부파일 추가 */
+        ,addFile1: function(){
+
+            console.log("======= addFile1 =======");
+        }
         ,addFile : function(obj){
+            console.log("======= addFile =======");
+            
             var maxFileCnt = 5;   // 첨부파일 최대 개수
             var attFileCnt = document.querySelectorAll('.filebox').length;    // 기존 추가된 첨부파일 개수
             var remainFileCnt = maxFileCnt - attFileCnt;    // 추가로 첨부가능한 개수
+            
+            console.log("======= obj =======");
             var curFileCnt = obj.files.length;  // 현재 선택된 첨부파일 개수
-
+            console.log("======= curFileCnt ======="+curFileCnt);
             // 첨부파일 개수 확인
             if (curFileCnt > remainFileCnt) {
                 alert("첨부파일은 최대 " + maxFileCnt + "개 까지 첨부 가능합니다.");
@@ -307,6 +325,12 @@
     // Popup Load가 완료된후 실행 된다.
     C_POP.onLoadPopup("<@popupId>", function(data) {
         <@popupId>.apprId = C_COM.makeUniqueId();// 첨부파일
+        C_COMP.import("textEditorComp", "component_compTextEditor1", {content:"text sample"}, function(data) {
+            
+            console.log(data.editorData);
+            <@popupId>.editorData = data.editorData;
+            
+        });
     });
     
     
@@ -315,7 +339,7 @@
     <!-- 결재 상신 팝업 -->
     <div class="modal_wrap" id="modal-ex01">
         <form method="POST" id="theForm" onsubmit="return false;" enctype="multipart/form-data">
-        <div class="modal" style="width:700px;height:800px;">
+        <div class="modal" style="width:900px;height:1000px;">
             <div class="modal_header">
                 <strong class="tit">결재 상신</strong>
                 <button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
@@ -346,26 +370,32 @@
                     </dd>
                     <dt>상신 내용</dt>
                     <dd style="height:70px;">
-                        <textarea name="content" id="content" row=3 style="width:100%;height:100px;"></textarea>
+                        <div id="textEditorComp" style="width:100%;height:100%">
+                        </div>
+                        
                     </dd> 
+                    <!-- 
                     <dt>상신 내용</dt>
                     <dd style="height:70px;">
                         <input type="file" onchange="<@popupId>.addFile(this);" multiple />
                         <div class="file-list"></div>
                         <div id="result"/>
-                    </dd> 
+                    </dd>
+                     --> 
                 </dl>
             </div>
             <div class="modal_footer">
                 <button type="button" class="btn select" onclick="<@popupId>.save('REQUEST')">결재 상신</button>
                 <button type="button" class="btn select" onclick="<@popupId>.save('HOLD')">보류함</button>
                 <button type="button" class="btn close"  onclick="<@popupId>.close()"      >취소</button>
+                <!-- 
+                <button type="button" class="btn close"  onclick="<@popupId>.callCompFn()"      >compt function 호출</button>
+                <button type="button" class="btn close"  onclick="<@popupId>.callCompSetMode()"      >callCompSetMode</button>
+                 --> 
             </div>
         </div>
      </form>
-           
     </div>
-    
 
 
 

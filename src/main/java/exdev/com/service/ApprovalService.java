@@ -140,6 +140,13 @@ public class ApprovalService extends ExdevBaseService{
         Map<String, String> returnMap = new HashMap<String, String>();
         
         int result1 = 0;
+        
+        System.out.println("approvalId ==>"+apprMap.get("approvalId"));
+        System.out.println("title ==>"+apprMap.get("title"));
+        System.out.println("contents ==>"+apprMap.get("contents"));
+        System.out.println("state ==>"+apprMap.get("state"));
+        System.out.println("createUser ==>"+apprMap.get("createUser"));
+        
         int result = commonDao.insert("approval.insertApproval", apprMap);
         System.out.println("result =>"+result);
         if( result == 1 ) {
@@ -155,11 +162,15 @@ public class ApprovalService extends ExdevBaseService{
                 apprUseInsertMap.put("approvalId", apprMap.get("approvalId"));
                 apprUseInsertMap.put("approvalUserId", userId);
                 apprUseInsertMap.put("apprType", apprType);
-                apprUseInsertMap.put("state", "REQUEST");
                 apprUseInsertMap.put("approvalComment", "");
                 apprUseInsertMap.put("createDate", apprMap.get("createDate"));
+
+                System.out.println("approvalId ==>"+apprMap.get("approvalId"));
+                System.out.println("approvalUserId ==>"+userId);
+                System.out.println("apprType ==>"+apprType);
+                System.out.println("createDate ==>"+apprMap.get("createDate"));
                 
-                System.out.println("approvalId ==>"+apprMap.get("approvalId")+"   userId ==>"+userId);
+                System.out.println("approvalId ==>"+apprMap.get("approvalId")+"   approvalUserId ==>"+userId);
                 result1 += commonDao.insert("approval.insertApprovalUser", apprUseInsertMap);
                 System.out.println("result1 =>"+result1);
             }

@@ -45,27 +45,28 @@
     <!-- 첨부파일 조회 이응규 -->
     <select id="getFile" resultType="java.util.HashMap">
         /* Sample.getFile */
-        SELECT UUID      
-              ,GRP_UUID       
-              ,ORG_FILE_NAME    
-              ,STORED_FILE_NAME 
-              ,FILE_PATH        
-              ,FILE_SIZE        
-              ,FILE_TYPE
-              ,ORDER_NUMBER        
-              ,UPDATE_USER      
-              ,UPDATE_DATE      
-              ,CREATE_USER      
-              ,CREATE_DATE      
+        SELECT GRP_FILE_ID     
+              ,FILE_ID         
+              ,ORG_FILE_NM     
+              ,STORED_FILE_NM  
+              ,FILE_SIZE       
+              ,FILE_TYPE       
+              ,ORDER_NUM       
+              ,DEL_YN          
+              ,OWNER_CD         
+              ,UPDATE_USER     
+              ,UPDATE_DATE     
+              ,CREATE_USER     
+              ,CREATE_DATE       
         FROM   TBL_EXP_FILEMNG
         WHERE    1 = 1
-        <if test="grpUuid != null and grpUuid != '' " >
-          AND    GRP_UUID = #{grpUuid}
+        <if test="grpFileId != null and grpFileId != '' " >
+          AND    GRP_FILE_ID = #{grpFileId}
         </if>
-        <if test=" uuid != null and uuid != '' " >
-          AND    UUID = #{uuid}
+        <if test=" fileId != null and fileId != '' " >
+          AND    FILE_ID = #{fileId}
         </if>
-        ORDER BY ORDER_NUMBER , CREATE_DATE DESC
+        ORDER BY ORDER_NUM , CREATE_DATE DESC
     </select>
 	
 	<!-- 첨부파일 삭제  이응규 -->

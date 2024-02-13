@@ -242,7 +242,7 @@ var <@pageId> = {
 		    	
 		    	const sectionId = $(this).closest("section").attr("id");
 		    	if( <@pageId>.isGrpCodeSection(sectionId) ){
-		    		
+		    		console.log("== sectionId ==>"+sectionId);
 					<@pageId>.excelDownload(sectionId,"TB_EXP_GRPCODE");
 					
 		    	}else{
@@ -390,6 +390,10 @@ var <@pageId> = {
 		
 			const $hds = $("#"+sectionId + " #<@pageId>_headingColName th");
 			const $tds = $("#"+sectionId + " [name='<@pageId>_tr_0'] td");
+			
+			console.log("== title ==>"+title);
+            console.log("== excelParam ==>"+excelParam);
+			
   			_excelDownload($hds, $tds, excelParam, title );
   			
   		}

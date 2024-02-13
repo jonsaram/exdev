@@ -12,8 +12,9 @@ class UploadAdapter {
     }
 
     _initRequest() {
+        const url = _WEB_ROOT_URL + '/editImageUpload.do';
         const xhr = this.xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://localhost:8083/editImageUpload.do', true);
+        xhr.open('POST', url, true);
         xhr.responseType = 'json';
     }
 
@@ -32,8 +33,9 @@ class UploadAdapter {
 
             resolve({
                 default: response.url //업로드된 파일 주소
-            })
+            }) 
         })
+        
     }
 
     _sendRequest(file) {

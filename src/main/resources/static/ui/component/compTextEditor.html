@@ -1,26 +1,61 @@
 <meta charset="utf-8">
+<style>
+      .ck.ck-editor{ max-width: 100%; }
+      .ck-editor__editable { height: 300px; }
+</style>
 <script type="text/javascript">
-	var <@compId> = {
-		MyCustomUploadAdapterPlugin : function(editor) {
-	        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-	            return new UploadAdapter(loader)
-	        }
-		}
-	}
-	// Component Load가 완료된후 실행 된다.
-	C_COMP.onLoadComp("<@compId>", function(data) {
-		ClassicEditor.create( document.querySelector( '#<@compId> #textEditor' ), {
-			 extraPlugins: [<@compId>.MyCustomUploadAdapterPlugin]
-			,language: "ko"
-		})
-		.then(editor =>{
-			window.editor = editor;
-		})
-		.catch(error => {
-			console.error(error);
-		});
-	});
+    var <@compId> = {
+         textEditor:'' 
+        ,MyCustomUploadAdapterPlugin : function(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                return new UploadAdapter(loader)
+            }
+        }
+        ,returnFn : function() {
+            const editorData = <@compId>.textEditor.getData();
+            C_COMP.callback("<@compId>", {editorData:editorData});
+        }
+        ,getContent : function() {
+            const editorData = <@compId>.textEditor.getData();
+            return editorData;
+        }
+        ,setContent : function(data) {
+            <@compId>.textEditor.setData(data);
+        }
+        ,setMode : function(data) {
+            if( data.mode == "R" ){
+                //에디터 비활성화
+                <@compId>.textEditor.enableReadOnlyMode( '#<@compId> #textEditor' );
+            }else{
+                //에디터 활성화
+                <@compId>.textEditor.disableReadOnlyMode( '#<@compId> #textEditor' );
+            }
+        }
+    }
+    // Component Load가 완료된후 실행 된다.
+    C_COMP.onLoadComp("<@compId>", function(data) {
+
+        ClassicEditor.create( document.querySelector( '#<@compId> #textEditor' ), {
+                extraPlugins: [<@compId>.MyCustomUploadAdapterPlugin]
+               ,language: "ko"
+           }).then( newEditor => {
+                
+               <@compId>.textEditor = newEditor;
+               if( data.mode == "R" ){
+                   //에디터 비활성화
+                   <@compId>.textEditor.enableReadOnlyMode( '#<@compId> #textEditor' );
+               }else{
+                   //에디터 활성화
+                   <@compId>.textEditor.disableReadOnlyMode( '#<@compId> #textEditor' );
+               }
+               
+           }).catch( error => {
+               console.log( error );
+           });
+         
+   }); 
 </script>
 <div>
-	<div id="textEditor" style="width:100%;height:300px"><@content></div>
+    <div id="textEditor" style="width:100%;height:300px"><@content></div>
+    <input type=button value=callback onclick="<@compId>.returnFn()"> <br/><br/>
 </div>

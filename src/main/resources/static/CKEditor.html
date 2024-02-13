@@ -1,52 +1,30 @@
-<meta charset="utf-8">
-
-<script type="text/javascript" src="./js/libs/jquery-1.12.4.min.js"			></script>
-
-<script type="text/javascript"    src="./js/ckeditor/build/ckeditor.js"    ></script>
-<script type="text/javascript"    src="./js/ckeditor/build/UploadAdapter.js"    ></script>
-<script type="text/javascript" 	src="./ui/js/lib/jsrender.js"				></script>
-<script type="text/javascript" 	src="./ui/js/common/config.js"				></script>
-<script type="text/javascript" 	src="./ui/js/common/function_ajax.js"		></script>
-<script type="text/javascript" 	src="./ui/js/common/function_common.js"		></script>
-<script type="text/javascript" 	src="./ui/js/common/project_common.js"		></script>
-
-<script> 
-
-    function MyCustomUploadAdapterPlugin(editor) {
-        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-            return new UploadAdapter(loader)
-        }
-    }  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CKEditor 5 - Classic editor</title>
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.0.0/classic/ckeditor.js"></script>
+</head>
+<body>
+    <h1>Classic editor</h1>
     
-    
-    function abc() {
-        var abcdefg = CKEDITOR.instances.abcdefg;
-        // 에디터 내용 가져오기
-        var content = abcdefg.getData();
-        
-        alert(content)
-    }
-    
-</script>
-<div>
-    CKEditor 샘플111
-    <div>
-        <div>
-                <input name="title" type="text" placeholder="제목"/><br>
-                <div id="abcdefg"></div>
-                <input type="button" value="등록" onClick="abc()">
-    	</div>
-	</div>
-<script>
+        <textarea name="content" id="editor">
+            &lt;p&gt;This is some sample content.&lt;/p&gt;
+        </textarea>
+        <button onclick="afterBtnClick();">Button</button>
+    <script>
+       ClassicEditor.create( document.querySelector( '#editor' ) ).then( newEditor => {
+            editor = newEditor;
+        } ).catch( error => {
+            console.error( error );
+        } );
+         
+        function afterBtnClick()  {
+          console.log('btn_aaa 클릭');
+          const editorData = editor.getData();
+            alert(editorData);
+        };
 
-  ClassicEditor.create( document.querySelector( '#abcdefg' ), {
-    extraPlugins: [MyCustomUploadAdapterPlugin],
-    language: "ko"
-  } );
-  $(function() {
-		var html = $("#content").html();
-		alert(html);
-  });
-  
-  
-</script>
+    </script>
+</body>
+</html>

@@ -252,7 +252,7 @@ public class ExdevCommonController {
         apprMap.put("contents",content);
         apprMap.put("state",state);
         apprMap.put("approvalDate",strDate);
-        apprMap.put("createUser","createUser");
+        apprMap.put("createUser","trigger11kr");
         apprMap.put("createDate",strDate);
   
         String json = request.getParameter("apprUsers");
@@ -362,14 +362,14 @@ public class ExdevCommonController {
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
         
         
-        String localLocation = httpServletRequest.getSession().getServletContext().getRealPath("resources")+ "\\" + "editorFiles";
+        String localLocation = httpServletRequest.getSession().getServletContext().getRealPath("resources")+  File.separator  + "editorFiles";
 
         MultipartFile file = request.getFile("upload");
         String fileName = file.getOriginalFilename();
         String ext = fileName.substring(fileName.indexOf("."));
 
         String uuidFileName = UUID.randomUUID() + ext;
-        String localPath = localLocation +"\\"+ uuidFileName;
+        String localPath = localLocation + File.separator + uuidFileName;
         System.out.println("localPath ===>"+localPath); 
         File localFile = new File(localPath);
         if(!localFile.exists()) {
@@ -397,27 +397,30 @@ public class ExdevCommonController {
     @PostMapping("/editImageUpload.do")
     public @ResponseBody Map  editImageUpload( 
             MultipartRequest request,  HttpSession session,HttpServletRequest httpServletRequest)  throws Exception {
-        
+
         Map returnMap = new HashMap();
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
         
+        String localLocation = httpServletRequest.getSession().getServletContext().getRealPath("resources")+ File.separator + "editorFiles";
         
-        String localLocation = httpServletRequest.getSession().getServletContext().getRealPath("resources")+ "\\" + "editorFiles";
-
         MultipartFile file = request.getFile("upload");
         String fileName = file.getOriginalFilename();
         String ext = fileName.substring(fileName.indexOf("."));
-
+        
         String uuidFileName = UUID.randomUUID() + ext;
-        String localPath = localLocation +"\\"+ uuidFileName;
-        System.out.println("localPath ===>"+localPath); 
+        String localPath = localLocation + File.separator + uuidFileName;
+        System.out.println("editImageUpload.do localPath ===>"+localPath); 
         File localFile = new File(localPath);
         if(!localFile.exists()) {
             localFile.mkdirs();
         }
         file.transferTo(localFile);
         
-  
+
+        String url = "resources" + File.separator + "editorFiles" + File.separator + uuidFileName;; 
+        returnMap.put("uploaded", true);
+        returnMap.put("url", url);
+        
         return returnMap;
     }
 
