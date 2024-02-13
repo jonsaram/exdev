@@ -24,13 +24,12 @@
 		,allowExt		: []
 		,filesArr		: []
 		,init : function() {
-			
 			var parm = {
 				 queryId 		: "Filemng.getGrpFileList"
 				,requestParm	: {GRP_FILE_ID : "<@GRP_FILE_ID>"}
 			}
 			C_COM.requestQuery(parm, function(resultData) {
-				if(isValid(resultData.data)) <@compId>.viewFileList(resultData.data)
+				<@compId>.viewFileList(resultData.data);
 			});
 			
 		 }
@@ -97,17 +96,17 @@
 		            	<@compId>.filesArr.push(file);
 		            };
 		            reader.readAsDataURL(file)
-		            
-		            
-		            C_POP.confirm("선택한 파일을 업로드 하시겠습니까?", function() {
-		            	<@compId>.uploadMultiFile();
-		            })
 		        } else {
 		            continue;
 		        }
 		    }
+            C_POP.confirm("선택한 파일을 업로드 하시겠습니까?", function() {
+            	setTimeout(function() {
+                	<@compId>.uploadMultiFile();
+        		    $("#<@compId> input[type=file]").val("");
+            	}, 3000);
+            });
 		    // 초기화
-		    $("#<@compId> input[type=file]").val("");
 		}
 		/* 첨부파일 검증 */
 		,validation : function(obj){
@@ -130,6 +129,17 @@
 		 }
 		,selectFile : function() {
 			$("#<@compId>_select").trigger("click");
+		 }
+		,deleteFile : function(fileId) {
+			if(isEmpty(fileId)) return;
+			
+			var parm = {
+				 queryId 		: "Filemng.deleteFile"
+				,requestParm	: {FILE_ID : fileId}
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				<@compId>.init();
+			});
 		 }
 	}
 	// Component Load가 완료된후 실행 된다.
@@ -156,16 +166,16 @@
      	<input id="<@compId>_select" type="file" onchange="<@compId>.addFile(this);" tabindex="-1" multiple style="display:none"/>
     </form>
 	<div class="approver_list_wrap person" style="max-height:80px">
-		<ul class="approver_list col2" id="<@compId>_fileList">
+		<ul class="approver_list" id="<@compId>_fileList">
 		</ul>
 		
 		<script type="text/x-jsrender" id="<@compId>_fileList_template">  
 		{{for list}}
-			<li><span class="txt"><span>{{:ORG_FILE_NM}}</span> / <span>{{toKb:FILE_SIZE}}</span> Kb</span><button class="pay_close">닫기</button></li>
+			<li><span class="txt"><span>{{:ORG_FILE_NM}}</span> / <span>{{toKb:FILE_SIZE}}</span> Kb</span><button class="pay_close" onclick="<@compId>.deleteFile('{{:FILE_ID}}')">닫기</button></li>
 		{{/for}}
         </script>
 		<script type="text/x-jsrender" id="<@compId>_fileList_noData_template">    
-			<li><span class="txt"><span>첨부파일이 없습니다.</span></li>
+			<li class="tc"><span class="txt"><span>첨부파일이 없습니다.</span></li>
 		</script>
 		
 		

@@ -61,7 +61,9 @@
 			,GRP_FILE_ID   
 			,DEL_YN        
 		FROM TBL_EXP_FILEMNG
-		WHERE FILE_ID = #{FILE_ID}
+		WHERE 1=1
+			AND	FILE_ID = #{FILE_ID}
+			AND DEL_YN = 'N' 
    	</select>	
 
 	<select id="getGrpFileList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -85,7 +87,16 @@
 			,GRP_FILE_ID   
 			,DEL_YN        
 		FROM TBL_EXP_FILEMNG
-		WHERE GRP_FILE_ID = #{GRP_FILE_ID}
-   	</select>	
+		WHERE 1=1
+			AND GRP_FILE_ID = #{GRP_FILE_ID}
+			AND DEL_YN 		= 'N' 
+   	</select>
+   	
+  	<update id="deleteFile">
+  		UPDATE TBL_EXP_FILEMNG SET DEL_YN = 'Y' WHERE FILE_ID = #{FILE_ID}
+  	</update>
+  	
+   	
+   		
     
 </mapper>

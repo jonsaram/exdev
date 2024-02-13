@@ -20,14 +20,17 @@
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function(parm) {
 		var parm = {
-			 GRP_FILE_ID 	: "BBBBB"
-			,OWNER_CD 		: "BOARD"
+			 GRP_FILE_ID 	: "122345"
+			,OWNER_CD 		: "USER_PIC"
+			,allowExt		: ["jpg", "jpeg", "png", "gif", "bmp"]
 		}
 		C_COMP.import("importFilemng", "component_compFilemng",parm , function(fileId) {
 			
 			$("#viewFile").attr("src", "/filedownload.do?FILE_ID=" + fileId);
 			
 		});
+		
+		
 		<@pageId>.init();
 		
 	});
@@ -38,10 +41,16 @@
 </script>
 <div class="cont_wrap">
 
-	import Multi Filemng Sample <br/><br/>
+	importFilemng Sample <br/><br/>
 	
 	<div id="importFilemng">
 
+	</div>
+	
+	<div> 업로드 파일 보기</div>
+	
+	<div>
+		<img id="viewFile"/>
 	</div>
 	
 </div>
