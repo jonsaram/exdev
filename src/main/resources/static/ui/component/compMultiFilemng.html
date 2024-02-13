@@ -83,7 +83,8 @@
 		    if (curFileCnt > remainFileCnt) {
 		        alert("첨부파일은 한번에 최대 " + maxFileCnt + "개 까지 첨부 가능합니다.");
 		    }
-
+			let fileRdyCnt = 0
+			let fileEndCnt = 0
 		    for (var i = 0; i < Math.min(curFileCnt, remainFileCnt); i++) {
 
 		        const file = obj.files[i];
@@ -92,22 +93,25 @@
 		        if (<@compId>.validation(file)) {
 		            // 파일 배열에 담기
 		            var reader = new FileReader();
+		            fileRdyCnt++;
 		            reader.onload = function () {
+		            	fileEndCnt++;
 		            	<@compId>.filesArr.push(file);
+		            	if(fileRdyCnt == fileEndCnt) <@compId>.execUpload();
 		            };
 		            reader.readAsDataURL(file)
 		        } else {
 		            continue;
 		        }
 		    }
-            C_POP.confirm("선택한 파일을 업로드 하시겠습니까?", function() {
-            	setTimeout(function() {
-                	<@compId>.uploadMultiFile();
-        		    $("#<@compId> input[type=file]").val("");
-            	}, 3000);
-            });
 		    // 초기화
 		}
+		,execUpload : function() {
+            C_POP.confirm("선택한 파일을 업로드 하시겠습니까?", function() {
+               	<@compId>.uploadMultiFile();
+       		    $("#<@compId> input[type=file]").val("");
+            });
+		 }
 		/* 첨부파일 검증 */
 		,validation : function(obj){
 		    const fileTypes = ['application/pdf', 'image/gif', 'image/jpeg', 'image/png', 'image/bmp', 'image/tif', 'application/haansofthwp', 'application/x-hwp'];
