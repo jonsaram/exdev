@@ -1,0 +1,225 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+var <@popupId> = {
+	 recvData : []	
+ 	 ,mode : ''
+	 ,close : function(returnData) {
+		if(isEmpty(returnData)) returnData = {};
+		C_POP.close(returnData);
+	 }
+	 ,apply : () =>{
+		 
+		 if( <@popupId>.validation() == false){
+			 return;
+		 }
+
+		 let returnData = {};
+		 const $inputs = $("#<@popupId>_items input");
+		 $.each( $inputs, function(){
+			 
+			 let key = $(this).attr("id");
+			 let val = $(this).val();
+			 
+			 if(key)
+			 	returnData[key] = val;
+		 })
+		 
+		 <@popupId>.close(returnData);
+		 
+	 }
+	 ,validation : () =>{
+		 
+		 if( $("#<@popupId>_items #BUYER_NM").val() 		== "" ) {alert("고객명을 입력하여 주십시오."); return false;}
+		 if( $("#<@popupId>_items #TEL").val() 				== "" ) {alert("연락처를 입력하여 주십시오."); return false;}
+		 if( $("#<@popupId>_items #ADDR").val() 			== "" ) {alert("본점주소를 입력하여 주십시오."); return false;}
+		 if( $("#<@popupId>_items #COMPANY_REGNUM").val()	== "" ) {alert("사업자등록번호를 입력하여 주십시오."); return false;}
+		 return true;
+		 
+	 }
+	,pageInit : () => {
+		
+		<@popupId>.setTitleHeight();
+			
+		if( <@popupId>.mode == "U" ){
+
+				$.each( <@popupId>.recvData.param , function(idx,obj){
+					
+					if(idx != 0 ){
+						
+						const id = $(this).attr("id");
+						const val = $(this).attr("value");
+					    $("#<@popupId>_items #" + id).val(val);
+					    
+					}
+				})	
+		}
+		
+		C_UICOM.makeSelectBox({ 
+			 data : C_COM.getCodeList("CONTRACT_TYPE")
+ 			,targetId : "<@popupId>_selectContractType" }, "single");
+		//C_UICOM.setSingleBox("<@popupId>_selectContractType", <@popupId>.hiarachySelData["BRANCH_ID"]);
+		
+		C_UICOM.makeSelectBox({ 
+			 data : C_COM.getCodeList("CONSULTING_CLASS")
+ 			,targetId : "<@popupId>_selectConsultingClass" }, "single");
+		//C_UICOM.setSingleBox("<@popupId>_selectConsultingClass", <@popupId>.hiarachySelData["BRANCH_ID"]);
+		
+	}
+	,setTitleHeight : () => {
+		
+		/* 			
+			<@popupId>.mode == "I" ? $("#<@popupId>_items #USER_ID").val( <@popupId>.makeSabunCode() ) : '';
+			<@popupId>.mode == "I" ? $(".updateMode").hide() : $(".updateMode").show();
+		let title = <@popupId>.mode == "I" ? "고객 등록" : "고객 정보 수정";
+  	 	$(".tit").html( title ); */
+		
+	}
+	,memberSearchPopup : function(gubun) {
+      	
+		let param = {};
+		C_POP.open('popup_userSearchPopup2', {param:param, gubun:gubun}, function(retData) {
+              
+			Object.keys(retData).forEach( item =>{
+					
+        		const value = retData[item];
+        			
+				$("#<@popupId>_items #"+item).val(value);
+					
+			});
+          		
+			const buyerId = $("#<@popupId>_items #BUYER_ID").val();
+			const buyerNm = $("#<@popupId>_items #BUYER_NM").val();
+			if( buyerId )$("#<@popupId>_items #BUYER").val(buyerNm+ " ("+buyerId+")");
+			const userId = $("#<@popupId>_items #USER_ID").val();
+			const userNm = $("#<@popupId>_items #USER_NM").val();
+			if( userId )$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
+			
+		});
+	}
+	,setHandler : () => {
+	
+		$(".number").on( 'input', (e) => {
+
+			let inputValue = event.target.value.replace(/[^\d,]/g, '');
+				inputValue = <@popupId>.numberWithCommas(parseInt(inputValue.replace(/,/g, '')));
+
+				event.target.value = inputValue;
+			})
+			 
+	} 
+	,numberWithCommas : (x) => {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
+
+}
+// Popup Load가 완료된후 실행 된다.
+C_POP.onLoadPopup("<@popupId>", function(data) {
+	
+	<@popupId>.recvData	= data;
+
+	<@popupId>.mode = <@popupId>.recvData.mode;
+	
+	<@popupId>.pageInit();
+	
+	<@popupId>.setHandler();
+
+});
+</script>
+<style>
+.number {
+	text-align: right;
+}
+</style>
+<div class="modal_wrap" id="modal-ex">
+	<div class="modal" style="width:450px;height:650px;">
+		<div class="modal_header">
+			<strong class="tit">계약등록</strong>
+			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body" style="overflow:visible;" id="<@popupId>_items">
+			<div class="clearFix mt15">
+				<ul class="info_wrap">
+					<li>
+						<label>고객선택</label>
+						 <div class="search_inputWrap" style="width:75%">
+							<input type="search" id="BUYER" disabled>
+							<input type="hidden" id="BUYER_NM">
+							<input type="hidden" id="BUYER_ID">
+							<button class="search_btn">
+								<a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('customer');"><i class="icon_search"></i></a>
+							</button>
+                        </div>
+					</li>
+					<li>
+						<label>계약담당자</label>
+						 <div class="search_inputWrap" style="width:75%">
+                            <input type="search" id="USER" disabled>
+							<input type="hidden" id="USER_NM">
+							<input type="hidden" id="USER_ID">
+                              <button class="search_btn">
+                                  <a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('user');"><i class="icon_search"></i></a>
+                              </button>
+                        </div>
+					</li>
+					<li>
+						<label>상담일</label>
+						<div class="info"><div class="calendar_wrap">
+							<input type="text" class="datepicker" id="CONTACT_DATE" style="width:132px">
+						</div></div>
+					</li>
+					<li>
+						<label>자문예약일</label>
+						<div class="info"><div class="calendar_wrap">
+							<input type="text" class="datepicker" id="CONTRACT_DATE" style="width:132px">
+						</div></div>
+					</li>
+					<li>
+						<label>자문료</label>
+						<div class="info"><input type="text" class="number" id="CONSULTING_COST" style="width:100%"></div>
+					</li>
+					<li>
+						<label>만료일</label>
+						<div class="info"><div class="calendar_wrap">
+							<input type="text" class="datepicker" id="EXPIRE_DATE" style="width:132px">
+						</div></div>
+					</li>
+					<li>
+						<label>계약구분</label>
+						<div class="info">
+							<div id="<@popupId>_selectContractType" column = "CONTRACT_TYPE" class="select_box" style="width:100%">
+							</div>
+							<input type="hidden" id="CONTRACT_TYPE_CODE_NM" style="width:100%">
+							<input type="hidden" id="CONTRACT_TYPE_CODE_ID">
+						</div>
+					</li>
+					<li>
+						<label>총계약금액</label>
+						<div class="info"><input type="text" class="number"  id="TOTAL_COST" style="width:100%"></div>
+					</li>
+					<li>
+						<label>컨설팅상품</label>
+						<div class="info"><input type="text" id="COMPANY_REGNUM" style="width:100%"></div>
+					</li>
+					<li>
+						<label>컨설팅분야</label>
+						<div class="info">
+							<div id="<@popupId>_selectConsultingClass" column = "CONSULTING_CLASS" class="select_box" style="width:100%">
+							</div>
+						<input type="hidden" id="CONSULTING_CLASS"></div>
+					</li>
+					<li>
+						<label>세무담당</label>
+						<div class="info"><input type="text" id="TAX_MNG" style="width:100%"></div>
+					</li>
+					<li>
+						<label>노무담당</label>
+						<div class="info"><input type="text" id="LABOR_MNG" style="width:100%"></div>
+					</li>
+				</ul>
+			</div>
+
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select" onclick="<@popupId>.apply()" >등록</button>
+			<button type="button" class="btn close"  onclick="<@popupId>.close()" >취소</button>
+		</div>

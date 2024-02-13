@@ -133,7 +133,7 @@ var <@pageId> = {
 		,openPopup : () => {
 
 			let param = [];	
-			C_POP.open('popup_cstmUpdatePopup', {param:param, mode:"I"}, function(retData) {
+			C_POP.open('popup_contractUpdatePopup', {param:param, mode:"I"}, function(retData) {
 				
 				if(isValid(retData)){
 					<@pageId>.updateItem(retData);
@@ -239,8 +239,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<colgroup>
 								<col style="width:40px;"/>
 								<col style="width:90px;">
-								<col style="width:80px;"/>
-								<col style="width:150px;"/>
+								<col style="width:110px;"/>
+								<col style="width:100px;"/>
 								<col style="width:100px;"/>
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
@@ -248,8 +248,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
+								<col style="width:150px;"/>
+								<col/>
 						</colgroup>
 						<thead>
 							<tr id="<@pageId>_headingColName">
@@ -260,10 +260,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<th scope="col">상담일</th>
 								<th scope="col">담당자</th>
 								<th scope="col">계약구분</th>
-								<th scope="col">계약금액</th>
-								
 								<th scope="col">자문계약일</th>
 								<th scope="col">자문료</th>
+								<th scope="col">만료일</th>
 								<th scope="col">총계약금액</th>
 								<th scope="col">컨설팅명</th>
 								<th scope="col"></th>
@@ -276,8 +275,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<colgroup>
 								<col style="width:40px;"/>
 								<col style="width:90px;">
-								<col style="width:80px;"/>
-								<col style="width:150px;"/>
+								<col style="width:110px;"/>
+								<col style="width:100px;"/>
 								<col style="width:100px;"/>
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
@@ -285,40 +284,31 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
+								<col style="width:150px;"/>
+								<col/>
 						</colgroup>
 						<tbody  id="<@pageId>_contractList">
 						</tbody>
 <script type="text/x-jsrender" id="<@pageId>_contractList_template">						
 						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
-								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'></td>
-			 					<td id='USER_ID'		value='{{:USER_ID}}'		style="text-align:right">{{:USER_ID}}</td>
-			 					<td id='USER_NM'		value='{{:USER_NM}}'		style="text-align:right">>{{:USER_NM}}</a></td>
-			 					<td id='E_MAIL'			value='{{:E_MAIL}}'			style="text-align:right">{{:E_MAIL}}</td>
-			 					<td id='PHONE_NUM'		value='{{:PHONE_NUM}}'		style="text-align:right">{{:PHONE_NUM}}</td>
-								<td id='BASE_BRANCH_NM'	value='{{:BASE_BRANCH_NM}}'	>{{:BASE_BRANCH_NM}}</td>
-								<td id='SP_BRANCH_NM'	value='{{:SP_BRANCH_NM}}'	style="text-align:right">{{:SP_BRANCH_NM}}</td>
-								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
-								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
-								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
-								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
-								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
-								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
- 								<td id='ROLE'			value='{{:ROLE}}'			style='display:none'>{{:ROLE}}</td>
- 								<td id='GRADE'			value='{{:GRADE}}'			style='display:none'>{{:GRADE}}</td>
- 								<td id='STATE'			value='{{:STATE}}'			style='display:none'>{{:STATE}}</td>
- 								<td id='USER_DESC'		value='{{:USER_DESC}}'		style='display:none'>{{:USER_DESC}}</td>
- 								<td id='BASE_BRANCH_ID'	value='{{:BASE_BRANCH_ID}}'	style='display:none'>{{:BASE_BRANCH_ID}}</td>
- 								<td id='SP_BRANCH_ID'	value='{{:SP_BRANCH_ID}}'	style='display:none'>{{:SP_BRANCH_ID}}</td>
- 								<td id='BRANCH_ID'		value='{{:BRANCH_ID}}'		style='display:none'>{{:BRANCH_ID}}</td>
- 								<td id='JUMIN'			value='{{:JUMIN}}'			style='display:none'>{{:JUMIN}}</td>
- 								<td id='POST_NUM'		value='{{:POST_NUM}}'		style='display:none'>{{:POST_NUM}}</td>
- 								<td id='ADDR1'			value='{{:ADDR1}}'			style='display:none'>{{:ADDR1}}</td>
+							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
+								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
+			 					<td id='BUYER_ID'			value='{{:BUYER_ID}}'		style="text-align:center">{{:BUYER_ID}}</td>
+			 					<td id='BUYER_NM'			value='{{:BUYER_NM}}'		style="text-align:center">{{:BUYER_NM}}</a></td>
+			 					<td id='PROCESS_STATE'		value='{{:PROCESS_STATE}}'	style="text-align:center">{{:PROCESS_STATE}}</td>
+			 					<td id='CONTACT_DATE'		value='{{:CONTACT_DATE}}'	style="text-align:center">{{:CONTACT_DATE}}</td>
+								<td id='CONTRACT_USER_NM' 	value='{{:CONTRACT_USER_NM}}'	>{{:CONTRACT_USER_NM}}</td>
+								<td id='CONTRACT_TYPE_CODE'	value='{{:CONTRACT_TYPE_CODE}}'	style="text-align:center">{{:CONTRACT_TYPE_CODE}}</td>
+								<td id='CONTRACT_DATE'		value='{{:CONTRACT_DATE}}'		style="text-align:center">{{:CONTRACT_DATE}}</td>
+								<td id='CONSULTING_COST'	value='{{:CONSULTING_COST}}'	style="text-align:center">{{:CONSULTING_COST}}</td>
+								<td id='EXPIRE_DATE'		value='{{:EXPIRE_DATE}}'		style="text-align:center">{{:EXPIRE_DATE}}</td>
+								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			style="text-align:center">{{:TOTAL_COST}}</td>
+								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		style="text-align:center">{{:CONSULTING_NM}}</td>
+ 								<td id='CONTRACT_USER_ID'	value='{{:CONTRACT_USER_ID}}'	style='display:none'>{{:CONTRACT_USER_ID}}</td>
+ 								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'		style='display:none'>{{:CONTRACT_ID}}</td>
 			 					<td >
 									<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
-									<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}||{{:CODE_ID}}'><i class="icon_trash"></i></button>
+									<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:CONTRACT_ID}}'><i class="icon_trash"></i></button>
 								</td>
 							</tr>
 						{{/for}}

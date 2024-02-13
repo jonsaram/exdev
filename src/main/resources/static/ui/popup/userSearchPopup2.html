@@ -1,0 +1,218 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+ var <@popupId> = {
+	rcvData : {}
+ 	,returnData : {}
+ 	,queryId : ''	
+ 	,targetId : ''	
+    ,searchId : ''		 
+    ,close : function(returnData) {
+ 
+		if(isEmpty(returnData)) returnData = {};
+		C_POP.close(returnData);
+	}
+	,searchList : function(){
+
+		const requestParm = {SEARCH_ID: <@popupId>.searchId};
+		let parm = {
+			queryId        : <@popupId>.queryId
+			,requestParm    : requestParm
+		}
+        C_COM.requestQuery(parm, function(resultData) {
+        
+        	let rparm = {
+           			targetId   : <@popupId>.targetId
+					,list       : resultData.data
+			}
+            
+			C_COM.renderHtml("<@popupId>", rparm);
+			<@popupId>.setHandler();
+		});
+	}
+	,setTitle : (gubun) => {
+
+	   	$("#<@popupId> .tit").text		( gubun == "customer" ? "고객 선택"  : "사원 선택" 	);
+	   	$("#<@popupId> ._search").text	( gubun == "customer" ? "고객 검색"  : "사원 검색"	);
+	   	$("#<@popupId> ._list").text	( gubun == "customer" ? "고객 리스트": "사원 리스트");
+     	
+	}		
+	,setHandler : () => {
+
+ 			$("tr[name^='<@pageId>_tr_']").off().on('dblclick',function() {
+	 
+					let buyerId , buyerNm, address, userId, userNm,salesTypeCode, salesTypeCodeNm  = ''; 
+	 	
+					if( <@popupId>.rcvData.gubun == "customer"){
+	 		
+							buyerId	= $(this).find("#BUYER_ID"	).text();
+					 		buyerNm	= $(this).find("#BUYER_NM"	).text();
+					 		address	= $(this).find("#ADDR"		).text();
+	 		
+					}else{
+							userId	= $(this).find("#USER_ID"	).text();
+							userNm	= $(this).find("#USER_NM"	).text();
+							address	= $(this).find("#ADDR"		).text();
+							salesTypeCode	= $(this).find("#SALES_TYPE_CODE_ID").text();
+							salesTypeCodeNm = $(this).find("#SALES_TYPE_CODE_NM").text();
+					}
+	 	
+	 				<@popupId>.close({'BUYER_ID' : buyerId, 'BUYER_NM' : buyerNm
+				 					 ,'USER_ID'  : userId , 'USER_NM'  : userNm
+			 						 ,'ADDR' : address 
+				 					 ,'SALES_TYPE_CODE_ID' : salesTypeCode, 'SALES_TYPE_CODE_NM' : salesTypeCodeNm});
+ 			});
+	}
+}
+// Popup Load가 완료된후 실행 된다.
+C_POP.onLoadPopup("<@popupId>", function(data) {
+ 	
+		<@popupId>.rcvData = data;
+ 		
+		if(data.gubun == "customer"){
+			
+			$("#<@popupId>_customer_list").show();
+			$("#<@popupId>_user_list").hide();
+			<@popupId>.queryId = "conResult.getBuyerList";
+			<@popupId>.targetId= "<@pageId>_cstmList"
+			
+		}else {
+			
+			$("#<@popupId>_user_list").show();
+			$("#<@popupId>_customer_list").hide();
+			<@popupId>.queryId = "conResult.getUserList"
+			<@popupId>.targetId= "<@pageId>_userList"
+			
+		}
+
+		<@popupId>.setTitle(data.gubun);
+
+		<@popupId>.searchList();
+
+ });
+    
+    
+</script>
+   <!-- 고객 선택 팝업 -->
+<div class="modal_wrap" id="<@popupId>">
+	<div class="modal" style="width:500px;height:600px;">
+		<div class="modal_header">
+               <strong class="tit">고객 선택/사원 선택</strong>
+               <button type="button" class="btn_close" onclick="<@popupId>.close()"      ><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+               <dl class="info_wrap pay">
+                   <dt class="_search">고객 검색/사원 검색</dt>
+                   <dd>
+                       <div class="search_inputWrap" style="width:100%">
+                           <input type="search" name=""><button class="search_btn" onclick="<@popupId>.searchList()"><i class="icon_search"></i></button>
+                       </div>
+                   </dd>
+               </dl>
+               <dl class="info_wrap pay">
+                   <dt class="_list">고객 리스트/사원 리스트</dt>
+                   <dd class="mb0" style="height:15px;overflow-y:auto;">
+               </dd>
+               </dl>
+			<!-- 고객 리스트 -->
+			<div class="tbl01 col tbl_scroll" style="max-height:300px;" id="<@popupId>_customer_list">
+				<div class="tbl01 col tbl_head">
+					<table>
+						<caption>고객 리스트</caption>
+						<colgroup>
+								<col style="width:90px;">
+								<col style="width:80px;"/>
+								<col style="width:150px;"/>
+						</colgroup>
+						<thead>
+							<tr id="<@pageId>_headingColName">
+								<th scope="col">고객번호</th>
+								<th scope="col">고객명</th>
+								<th scope="col">본점주소</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div class="tbl01 col tbl_body_scroll">
+					<table>
+						<colgroup>
+								<col style="width:90px;">
+								<col style="width:100px;"/>
+								<col/>
+						</colgroup>
+						<tbody  id="<@pageId>_cstmList">
+						</tbody>
+	<script type="text/x-jsrender" id="<@pageId>_cstmList_template">						
+						{{for list}}
+							<tr name="<@pageId>_tr_{{:#index}}" value='{{{:BUYER_ID}}'>
+			 					<td id='BUYER_ID'		value='{{:BUYER_ID}}'		>{{:BUYER_ID}}</td>
+			 					<td id='BUYER_NM'		value='{{:BUYER_NM}}'		>{{:BUYER_NM}}</td>
+			 					<td id='ADDR'			value='{{:ADDR}}'			>{{:ADDR}}</td>
+			 					<td id='DEL_YN'			value='{{:DEL_YN}}' 		style="display:none">{{:DEL_YN}}</td>
+							</tr>
+						{{/for}}
+	</script>
+	<script type="text/x-jsrender" id="<@pageId>_cstmList_noData_template">	
+				<tr>	
+					<td colspan=3>자료가 없습니다.</td>	
+				</tr>
+	</script>
+					</table>
+				</div>
+			</div>
+			<!-- 사원 리스트 -->
+			<div class="tbl01 col tbl_scroll" style="max-height:300px;" id="<@popupId>_user_list">
+				<div class="tbl01 col tbl_head">
+					<table>
+						<caption>사원 리스트</caption>
+						<colgroup>
+								<col style="width:90px;">
+								<col style="width:80px;"/>
+								<col style="width:70px;"/>
+								<col style="width:80px;"/>
+						</colgroup>
+						<thead>
+							<tr id="<@pageId>_headingColName">
+								<th scope="col">사원ID</th>
+								<th scope="col">사원이름</th>
+								<th scope="col">등급</th>
+								<th scope="col">영업구분</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div class="tbl01 col tbl_body_scroll">
+					<table>
+						<colgroup>
+								<col style="width:90px;">
+								<col style="width:80px;"/>
+								<col style="width:70px;"/>
+								<col style="width:80px;"/>
+						</colgroup>
+						<tbody  id="<@pageId>_userList">
+						</tbody>
+	<script type="text/x-jsrender" id="<@pageId>_userList_template">						
+						{{for list}}
+							<tr name="<@pageId>_tr_{{:#index}}" value='{{{:USER_ID}}'>
+			 					<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
+			 					<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
+			 					<td id='ADDR'			value='{{:ADDR}}'			>{{:ADDR}}</td>
+			 					<td id='SALES_TYPE_CODE_NM' value='{{:SALES_TYPE_CODE_NM}}' >{{:SALES_TYPE_CODE_NM}}</td>
+			 					<td id='SALES_TYPE_CODE_ID' value='{{:SALES_TYPE_CODE_ID}}'	style="display:none">{{:SALES_TYPE_CODE_ID}}</td>
+			 					<td id='DEL_YN'			value='{{:DEL_YN}}' 		style="display:none">{{:DEL_YN}}</td>
+							</tr>
+						{{/for}}
+	</script>
+	<script type="text/x-jsrender" id="<@pageId>_userList_noData_template">	
+				<tr>	
+					<td colspan=3>자료가 없습니다.</td>	
+				</tr>
+	</script>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="modal_footer">
+		    <button type="button" class="btn close" onclick="<@popupId>.close()"      >닫기</button>
+		</div>
+	</div>
+</div>
