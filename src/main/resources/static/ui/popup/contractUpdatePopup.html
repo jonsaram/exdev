@@ -50,9 +50,11 @@ var <@popupId> = {
 					if(idx != 0 ){
 						
 						const id = obj.key;
-						const val = obj.val;
-
-					    $("#<@popupId>_items #" + id).val(val);
+						let val = obj.val;
+						
+						if( id == "CONSULTING_COST" || id ==  "TOTAL_COST" ) val = <@popupId>.numberWithCommas(val);
+						
+						$("#<@popupId>_items #" + id).val(val);
 					    
 					}
 				})	
