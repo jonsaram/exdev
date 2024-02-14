@@ -397,6 +397,12 @@ var C_COM = {
 		if(isEmpty(viewId)) viewId = C_PM.getCurrentPageId();
 		return viewId
 	 }
+	,showLeftMenu : function() {
+		$("#lnb_MenuList").show();
+	 }
+	,hideLeftMenu : function() {
+		$("#lnb_MenuList").hide();
+	 }
 }
 
 /**
