@@ -1,29 +1,197 @@
 <meta charset="utf-8">
 <script type="text/javascript">
-	var <@pageId> = {
-		 openPopup : function() {
-			C_POP.open('popup_samplePopup2', {}, function(retData) {
-				dalert(retData);
-			});
-		 }
+var <@pageId> = {
+	 checkedItems : []
+	,excelParam : {}
+	,pageInit : () =>{
+		
 	}
+	,searchList : (searchName) => {
+		
+		const requestParm = { USER_NM : searchName };
+		
+		var parm = {
+				 queryId 		: "cstm.getCstmList"
+				,requestParm	: requestParm
+		}
+		<@pageId>.excelParam = parm;
+		C_COM.requestQuery(parm, function(resultData) {
+			var rparm = {
+					 targetId 		: "<@pageId>_cstmList"
+					,list			: resultData.data
+			}
+		
+			C_COM.renderHtml("<@pageId>", rparm);
+			
+			//<@pageId>.chkHandler();
+			<@pageId>.setHandler();
+		});
+	}
+	,updateItem : (param) => {
+
+		const requestParm = param ? param : {} ;
+		if( !requestParm["BUYER_ID"] )
+			requestParm["BUYER_ID"] = C_COM.makeUniqueId();
+		
+		var parm = {
+					queryGroup : [
+						 {
+							 queryId 		: "cstm.updateCstm"
+							,requestParm	: requestParm
+						 }
+					]
+		}
+		C_COM.requestQuery(parm, function(resultData) {
+
+			if( resultData.state == "S"){
+
+				<@pageId>.searchList();
+			
+			}else{
+				alert(resultData.msg)
+			}
+		});				
+	} 
+	,deleteItem : (delKey) => {
+		
+		var parm = {
+				 queryId 		: "cstm.deleteCstm"
+				,requestParm	: {"BUYER_ID":delKey.BUYER_ID}
+		}
+		C_COM.requestQuery(parm, function(resultData) {
+			if( resultData.state == 'S'){
+				
+				<@pageId>.searchList();
+
+			}				
+		});				
+	}
+	, deleteOne : (key) =>{
+		
+		const BUYER_ID 	= key;
+		<@pageId>.deleteItem({BUYER_ID:BUYER_ID})
+		
+	}	
+	,setHandler : () => {
+		
+		<@pageId>.chkHandler();
+	    
+	    $("#<@pageId>_insert").off().on('click',function(){
+	    	
+			<@pageId>.openPopup();
+
+	    })
+	    
+	    $("#<@pageId>_delete").off().on('click',function(){
+	    	
+	    	<@pageId>.checkedItems.forEach( key =>{
+				<@pageId>.deleteOne(key);
+	    	})
+	    	
+	    })
+	    
+	    $("#<@pageId>_excelDownload").off().on('click',function(){
+
+		    	const $hds = $("#<@pageId>_headingColName th");
+	    	const $tds = $("[name='<@pageId>_tr_0'] td");
+	    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"고객 리스트");  
+	    	
+	    })
+	    			    
+	    $("[id^='<@pageId>_modify_']").off().on('click',function(){
+	    	debugger;
+	    	const index = $(this).attr("index");
+			const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
+			<@pageId>.openPopup($tds);
+			
+	    })
+	    
+	    $("[id^='<@pageId>_delete_']").off().on('click',function(){
+
+	    	const key = $(this).attr("key");
+			<@pageId>.deleteOne(key);
+			
+	    })
+	    
+		$("#<@pageId>_search").off().on('click', () =>{
+	    	<@pageId>.searchList();
+	    })
+	    
+	}
+	,chkHandler : () => {
+		
+	    $("#<@pageId>_ckAll").click(function() {
+
+	    	const isAllChk =  $(this).prop("checked");
+			$("[id^='<@pageId>_ck_']").prop("checked", isAllChk);
+			
+	    	const ckboxes = $("[id^='<@pageId>_ck_']");
+		    <@pageId>.checkedItems = isAllChk ? ckboxes.map(function() { return this.value; }).get() : [];
+
+	    });
+	    $("[id^='<@pageId>_ck_']").click(function() {
+
+		        if ($(this).prop("checked")){<@pageId>.checkedItems.push($(this).val());}
+	    	else { <@pageId>.checkedItems = <@pageId>.checkedItems.filter(item => item !== $(this).val());}  
+	        
+	        const $checkboxSelector = $("[id^='<@pageId>_ck_']")
+	        const allCheckboxChecked = $checkboxSelector.length === $checkboxSelector.filter(":checked").length;
+	        $("#<@pageId>_ckAll").prop("checked", allCheckboxChecked);
+	        
+	    });
+	    
+	}		
+	,openPopup : ($tds) => {
+
+		let mode = "I";
+		let param = [];
+		if( $tds.length > 0 ){param = $tds;mode="U"}
+		
+		C_POP.open('popup_cstmUpdatePopup', {param:param, mode:mode}, function(retData) {
+			debugger;
+			if(isValid(retData)){
+				<@pageId>.updateItem(retData);
+			}
+		});
+		
+	}
+	,goPage : (pageId,rowId) => {
+		
+		const $tds = $(`[name='<@pageId>_tr_${rowId}']`)
+		const jsonObject = {};
+		
+		$tds.children("td").each(function() {
+			
+		    const id = this.id;
+		    const value = $(this).text().trim();
+			if( id )
+		    	jsonObject[id] = value;
+		});
+		
+		C_PM.movePage( pageId.trim(), jsonObject );
+		
+	}
+		,nameSearch : (e) => {
+		
+		 if (e.key === "Enter") {
+			 
+		        var USER_NM = event.target.value;
+				<@pageId>.searchList( USER_NM );
+		}
+	}	
+}
 	
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
-		var multiboxList = { 
-			 data : [
-			 		 ["1111", "고객번호"	]
-			 		,["2222", "고객번호1"	]
-			 		,["3333", "고객번호2"	]
-			 		,["4444", "고객명"		]
-			 ]
-		 	,targetId : "customerType" 
-		 }
-		C_UICOM.makeSelectBox("<@pageId>", multiboxList, "single");
+
+		<@pageId>.pageInit();
+		<@pageId>.searchList();
+		<@pageId>.setHandler();
+
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
-
+		<@pageId>.searchList();
 	});
 </script>
 <div class="cont_wrap">

@@ -250,62 +250,83 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<div class="tbl01 col tbl_head">
 					<table>
 						<caption>고객 리스트</caption>
-						<colgroup>
+							<colgroup>
 								<col style="width:40px;"/>
-								<col style="width:90px;">
-								<col style="width:80px;"/>
-								<col style="width:150px;"/>
+								<col style="width:80px;">
 								<col style="width:100px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-						</colgroup>
-						<thead>
-							<tr id="<@pageId>_headingColName">
-								<th scope="col"><input type="checkbox"></th>
-								<th scope="col">고객번호</th>
-								<th scope="col">고객명</th>
-								<th scope="col">진행상태</th>
-								<th scope="col">연락처</th>
-								<th scope="col">본점주소</th>
-								<th scope="col">상담일</th>
-								<th scope="col">담당자</th>
-								<th scope="col"></th>
-							</tr>
-						</thead>
-					</table>
-				</div>
-				<div class="tbl01 col tbl_body_scroll">
-					<table>
-						<colgroup>
+								<col style="width:80px;" span="2"/>
+								<col style="width:105px;" span="6"/>
+								<col style="width:80px;" />
+								<col style="width:95px;" span="4"/>
+								<col style="width:95px;"/>
+								<col/>
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col"><input type="checkbox"></th>
+									<th scope="col">고객번호</th>
+									<th scope="col">고객명</th>
+									<th scope="col">DB경로</th>
+									<th scope="col">진행상태</th>
+									<th scope="col">연락처</th>
+									<th scope="col">본점주소</th>
+									<th scope="col">상담일</th>
+									<th scope="col">자문계약일</th>
+									<th scope="col">자문료</th>
+									<th scope="col">만료일</th>
+									<th scope="col">담당자</th>
+									<th scope="col">SUB담당자1</th>
+									<th scope="col">SUB담당자2</th>
+									<th scope="col">최종솔루션</th>
+									<th scope="col">세무담당</th>
+									<th scope="col">노무담당</th>
+									<th scope="col"></th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div class="tbl01 col tbl_body_scroll">
+						<table>
+							<caption>고객 리스트</caption>
+							<colgroup>
 								<col style="width:40px;"/>
-								<col style="width:90px;">
-								<col style="width:80px;"/>
-								<col style="width:150px;"/>
+								<col style="width:80px;">
 								<col style="width:100px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-						</colgroup>
+								<col style="width:80px;" span="2"/>
+								<col style="width:105px;" span="6"/>
+								<col style="width:80px;" />
+								<col style="width:95px;" span="4"/>
+								<col style="width:95px;"/>
+								<col/>
+							</colgroup>
 						<tbody  id="<@pageId>_cstmList">
 						</tbody>
 <script type="text/x-jsrender" id="<@pageId>_cstmList_template">						
 						{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{{:BUYER_ID}}'>
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:BUYER_ID}}'></td>
-			 					<td id='BUYER_ID'		value='{{:BUYER_ID}}'		style="text-align:center">{{:BUYER_ID}}</td>
-			 					<td id='BUYER_NM'		value='{{:BUYER_NM}}'		style="text-align:center">{{:BUYER_NM}}</a></td>
-			 					<td id='PROCESS_STATUS'	value='{{:PROCESS_STATUS}}'	style="text-align:center">{{:PROCESS_STATUS}}</td>
-			 					<td id='TEL'			value='{{:TEL}}'			style="text-align:center">{{:TEL}}</td>
-								<td id='ADDR'			value='{{:ADDR}}'									 >{{:ADDR}}</td>
-								<td id='CONTACT_DATE'	value='{{:CONTACT_DATE}}'	style="text-align:center">{{:CONTACT_DATE}}</td>
-								<td id='CONTACT_USER_NM' value='{{:CONTACT_USER_NM}}' style="text-align:center">{{:CONTACT_USER_NM}}</td>
- 								<td id='CONTACT_USER_ID' value='{{:CONTACT_USER_ID}}' style='display:none'	 >{{:CONTACT_USER_ID}}</td>
- 								<td id='COMPANY_REGNUM'	 value='{{:COMPANY_REGNUM}}'  style='display:none'	 >{{:COMPANY_REGNUM}}</td>
- 								<td id='CONTRACT_ID'	 value='{{:CONTRACT_ID}}'	style='display:none'	 >{{:CONTRACT_ID}}</td>
- 								<td id='CONTRACT_DATE'	value='{{:CONTRACT_DATE}}'	style='display:none'	 >{{:CONTRACT_DATE}}</td>
+			 					<td id='BUYER_ID'			value='{{:BUYER_ID}}'		>{{:BUYER_ID}}</td>
+			 					<td id='BUYER_NM'			value='{{:BUYER_NM}}'		>{{:BUYER_NM}}</a></td>
+			 					<td id='DB'					value='{{:DB}}'				>{{:DB}}</a></td>
+			 					<td id='PROCESS_STATUS'		value='{{:PROCESS_STATUS}}'	>{{:PROCESS_STATUS}}</td>
+			 					<td id='TEL'				value='{{:TEL}}'			>{{:TEL}}</td>
+								<td id='ADDR'				value='{{:ADDR}}'			>{{:ADDR}}</td>
+								<td id='CONTACT_DATE'		value='{{:CONTACT_DATE}}'	>{{:CONTACT_DATE}}</td>
+								<td id='CONTRACT_DATE'		value='{{:CONTRACT_DATE}}'	>{{:CONTRACT_DATE}}</td>
+								<td id='CONSULTING_COST' 	value='{{:CONSULTING_COST}}'>{{:CONSULTING_COST}}</td>
+								<td id='EXPIRE_DATE' 		value='{{:EXPIRE_DATE}}' 	>{{:EXPIRE_DATE}}</td>
+								<td id='CONTRACT_USER_NM' 	value='{{:CONTRACT_USER_NM}}'>{{:CONTRACT_USER_NM}}</td>
+								<td id='SUB1_USER_NM' 		value='{{:SUB1_USER_NM}}'	>{{:SUB1_USER_NM}}</td>
+								<td id='SUB2_USER_NM' 		value='{{:SUB2_USER_NM}}'	>{{:SUB2_USER_NM}}</td>
+								<td id='LAST_SOLUTION' 		value='{{:LAST_SOLUTION}}'	>{{:LAST_SOLUTION}}</td>
+								<td id='TAX_MNG' 			value='{{:TAX_MNG}}'		>{{:TAX_MNG}}</td>
+								<td id='LABOR_MNG' 			value='{{:LABOR_MNG}}'		>{{:LABOR_MNG}}</td>
+								<td id='TOTAL_COST' 		value='{{:TOTAL_COST}}'		 style='display:none'>{{:TOTAL_COST}}</td>
+ 								<td id='CONTRACT_ID'	 	value='{{:CONTRACT_ID}}'	 style='display:none'>{{:CONTRACT_ID}}</td>
+								<td id='CONTRACT_TYPE' 		value='{{:CONTRACT_TYPE}}'	 style='display:none'>{{:CONTRACT_TYPE}}</td>
+ 								<td id='CONTACT_USER_ID' 	value='{{:CONTACT_USER_ID}}' style='display:none'>{{:CONTACT_USER_ID}}</td>
+ 								<td id='COMPANY_REGNUM'	 	value='{{:COMPANY_REGNUM}}'  style='display:none'>{{:COMPANY_REGNUM}}</td>
+ 								<td id='CONSULTING_ID'	 	value='{{:CONSULTING_ID}}'   style='display:none'>{{:CONSULTING_ID}}</td>
 			 					<td >
 									<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
 									<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:BUYER_ID}}'><i class="icon_trash"></i></button>

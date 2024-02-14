@@ -22,25 +22,26 @@ var <@pageId> = {
 				}
 			
 				C_COM.renderHtml("<@pageId>", rparm);
-				
-				<@pageId>.chkHandler();
+				<@pageId>.setHandler();
 			});
 		}
 		,updateItem : (param) => {
 
 			const requestParm = param ? param : {} ;
 			requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
-			
+			if( !requestParm["CONTRACT_ID"] || requestParm["CONTRACT_ID"] == ''){
+				requestParm["CONTRACT_ID"] = C_COM.makeUniqueId();
+			}			
 			var parm = {
 						queryGroup : [
 							 {
-								 queryId 		: "hrInfo.updateHrInfo"
+								 queryId 		: "conResult.updateContract"
 								,requestParm	: requestParm
 							 }
-	  						,{
-								 queryId 		: "hrInfo.updateSuretyInsurance"
+	  						/* ,{
+								 queryId 		: "conResult.updateContractMember"
 								,requestParm	: requestParm
-							 } 
+							 }  */
 						]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
@@ -57,9 +58,8 @@ var <@pageId> = {
 		,deleteItem : (delKey) => {
 			
 			var parm = {
-					 queryId 		: "hrInfo.deleteHrInfo"
-					,requestParm	: {"SP_CSTM_ID":delKey.SP_CSTM_ID
-									  ,"USER_ID":delKey.USER_ID}
+					 queryId 		: "conResult.deleteContract"
+					,requestParm	: delKey
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				if( resultData.state == 'S'){
@@ -71,9 +71,8 @@ var <@pageId> = {
 		}
 		, deleteOne : (key) =>{
 			
-    		const SP_CSTM_ID 	= key.split("||")[0];
-    		const USER_ID 		= key.split("||")[1];
-    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,USER_ID:USER_ID})
+    		const CONTRACT_ID	= key;
+    		<@pageId>.deleteItem({CONTRACT_ID:CONTRACT_ID})
     		
 		}
 		,setHandler : () => {
@@ -101,6 +100,23 @@ var <@pageId> = {
 		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"직원 리스트");  
 		    	
 		    })
+		    
+		    $("[id^='<@pageId>_modify_']").off().on('click',function(){
+
+		    	const index = $(this).attr("index");
+				const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
+				<@pageId>.openPopup($tds);
+				
+		    })
+		    
+		    $("[id^='<@pageId>_delete_']").off().on('click',function(){
+
+		    	
+		    	const key = $(this).attr("key");
+				<@pageId>.deleteOne(key);
+				
+		    })
+		    
 		    
 			$("#<@pageId>_search").click( () =>{
 		    	<@pageId>.searchList();
@@ -130,14 +146,23 @@ var <@pageId> = {
 		    });
 		    
 		}		
-		,openPopup : () => {
+		,openPopup : ($tds) => {
 
 			let param = [];	
-			C_POP.open('popup_contractUpdatePopup', {param:param, mode:"I"}, function(retData) {
+			$.each( $tds , function(){
+				console.log(""+this)
+				const key = $(this).attr("id");
+				const val = $(this).attr("value");
+				param.push( { "key": key, "val": val } );
+				
+			})
+
+			C_POP.open('popup_contractUpdatePopup', {param:param, mode:param.length > 0 ? "U" : "I"}, function(retData) {
 				
 				if(isValid(retData)){
 					<@pageId>.updateItem(retData);
 				}
+				
 			});
 			
 		}
@@ -172,7 +197,7 @@ C_PM.onLoadPage("<@pageId>", function() {
 
 	<@pageId>.pageInit();
 	<@pageId>.searchList();
-	<@pageId>.setHandler();
+	
 
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -293,19 +318,28 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
-			 					<td id='BUYER_ID'			value='{{:BUYER_ID}}'		style="text-align:center">{{:BUYER_ID}}</td>
-			 					<td id='BUYER_NM'			value='{{:BUYER_NM}}'		style="text-align:center">{{:BUYER_NM}}</a></td>
-			 					<td id='PROCESS_STATE'		value='{{:PROCESS_STATE}}'	style="text-align:center">{{:PROCESS_STATE}}</td>
-			 					<td id='CONTACT_DATE'		value='{{:CONTACT_DATE}}'	style="text-align:center">{{:CONTACT_DATE}}</td>
-								<td id='CONTRACT_USER_NM' 	value='{{:CONTRACT_USER_NM}}'	>{{:CONTRACT_USER_NM}}</td>
-								<td id='CONTRACT_TYPE_CODE'	value='{{:CONTRACT_TYPE_CODE}}'	style="text-align:center">{{:CONTRACT_TYPE_CODE}}</td>
-								<td id='CONTRACT_DATE'		value='{{:CONTRACT_DATE}}'		style="text-align:center">{{:CONTRACT_DATE}}</td>
-								<td id='CONSULTING_COST'	value='{{:CONSULTING_COST}}'	style="text-align:center">{{:CONSULTING_COST}}</td>
-								<td id='EXPIRE_DATE'		value='{{:EXPIRE_DATE}}'		style="text-align:center">{{:EXPIRE_DATE}}</td>
-								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			style="text-align:center">{{:TOTAL_COST}}</td>
-								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		style="text-align:center">{{:CONSULTING_NM}}</td>
- 								<td id='CONTRACT_USER_ID'	value='{{:CONTRACT_USER_ID}}'	style='display:none'>{{:CONTRACT_USER_ID}}</td>
+			 					<td id='BUYER_ID'			value='{{:BUYER_ID}}'			>{{:BUYER_ID}}</td>
+			 					<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</a></td>
+			 					<td id='PROCESS_STATE'		value='{{:PROCESS_STATE}}'		>{{:PROCESS_STATE}}</td>
+			 					<td id='CONTACT_DATE'		value='{{:CONTACT_DATE}}'		>{{:CONTACT_DATE}}</td>
+								<td id='USER_NM' 			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
+								<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
+								<td id='CONTRACT_DATE'		value='{{:CONTRACT_DATE}}'		>{{:CONTRACT_DATE}}</td>
+								<td id='CONSULTING_COST'	value='{{:CONSULTING_COST}}'	>{{:CONSULTING_COST}}</td>
+								<td id='EXPIRE_DATE'		value='{{:EXPIRE_DATE}}'		>{{:EXPIRE_DATE}}</td>
+								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
+								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
+ 								<td id='USER_ID'			value='{{:USER_ID}}'			style='display:none'>{{:USER_ID}}</td>
+ 								<td id='CONTRACT_TYPE'		value='{{:CONTRACT_TYPE}}'		style='display:none'>{{:CONTRACT_TYPE}}</td>
  								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'		style='display:none'>{{:CONTRACT_ID}}</td>
+ 								<td id='TAX_MNG'			value='{{:TAX_MNG}}'			style='display:none'>{{:TAX_MNG}}</td>
+ 								<td id='LABOR_MNG'			value='{{:LABOR_MNG}}'			style='display:none'>{{:LABOR_MNG}}</td>
+ 								<td id='CONSULTING_ID'		value='{{:CONSULTING_ID}}'		style='display:none'>{{:CONSULTING_ID}}</td>
+ 								<td id='CONSULTING_CLASS'	value='{{:CONSULTING_CLASS}}'	style='display:none'>{{:CONSULTING_CLASS}}</td>
+ 								<td id='PROCESS_STATE'		value='{{:PROCESS_STATE}}'		style='display:none'>{{:PROCESS_STATE}}</td>
+ 								<td id='LAST_SOLUTION'		value='{{:LAST_SOLUTION}}'		style='display:none'>{{:LAST_SOLUTION}}</td>
+ 								<td id='USE_YN'				value='{{:USE_YN}}'				style='display:none'>{{:USE_YN}}</td>
+ 								<td id='DEL_YN'				value='{{:DEL_YN}}'				style='display:none'>{{:DEL_YN}}</td>
 			 					<td >
 									<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_download"></i></button>
 									<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:CONTRACT_ID}}'><i class="icon_trash"></i></button>

@@ -176,20 +176,27 @@
 		,C.BUYER_ID 
 		,B.BUYER_NM
 		,C.PROCESS_STATE 
-		,TO_CHAR( C.CONTACT_DATE , 'YYYY-MM-DD') AS CONTACT_DATE 
-		,C.USER_ID AS CONTRACT_USER_ID
-		,GET_USER_NM(C.USER_ID) AS CONTRACT_USER_NM /* 담당자*/
-		,C.CONTRACT_TYPE_CODE_ID
-		,GET_CODE_NM('CONTRACT_TYPE_CODE', C.CONTRACT_TYPE_CODE_ID)		AS CONTRACT_TYPE_CODE_NM
+		,TO_CHAR( C.CONTACT_DATE , 'YYYY-MM-DD') 	AS CONTACT_DATE 
+		,C.USER_ID 									AS USER_ID
+		,GET_USER_NM(C.USER_ID) 					AS USER_NM /* 담당자*/
+		,C.CONTRACT_TYPE
+		,GET_CODE_NM('CONTRACT_TYPE', C.CONTRACT_TYPE)	AS CONTRACT_TYPE_NM
 		,C.TOTAL_COST /* 계약금액 */
-		,TO_CHAR( C.CONTRACT_DATE , 'YYYY-MM-DD' ) AS CONTRACT_DATE 
+		,TO_CHAR( C.CONTRACT_DATE , 'YYYY-MM-DD' ) 	AS CONTRACT_DATE 
 		,C.CONSULTING_COST 
-		,TO_CHAR( C.EXPIRE_DATE , 'YYYY-MM-DD' ) AS EXPIRE_DATE 
+		,TO_CHAR( C.EXPIRE_DATE , 'YYYY-MM-DD' ) 	AS EXPIRE_DATE 
 		,C.TOTAL_COST /* 총계약금액 */
+		,C.CONSULTING_ID
 		,'컨설팅명' CONSULTING_NM /* 컨설팅명 */
+		,TAX_MNG
+		,LABOR_MNG
+		,CONSULTING_CLASS
+		,GET_CODE_NM('CONSULTING_CLASS', C.CONSULTING_CLASS)	AS CONSULTING_CLASS_NM
 		FROM TBL_EXP_CONTRACT C
 		,TBL_EXP_BUYER B
 		WHERE C.BUYER_ID = B.BUYER_ID(+)
+		AND C.USE_YN = 'Y'
+		AND C.DEL_YN = 'N'
 	</select>	
 
 	<select id="getBuyerList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -203,8 +210,9 @@
 		, COMPANY_REGNUM
 		FROM TBL_EXP_BUYER
 		WHERE  1=1
-		AND ( UPPER(BUYER_ID) like '%' || UPPER( #{SEARCH_ID} ) || '%'
-		OR    UPPER(BUYER_NM) like '%' || UPPER( #{SEARCH_ID} ) || '%'
+		AND ( UPPER(BUYER_ID)	like '%' || UPPER( #{SEARCH_ID} ) || '%'
+		OR    UPPER(BUYER_NM)	like '%' || UPPER( #{SEARCH_ID} ) || '%'
+		OR    UPPER(ADDR) 		like '%' || UPPER( #{SEARCH_ID} ) || '%'
 		)
 		AND USE_YN = 'Y'
 		AND DEL_YN = 'N'
@@ -223,6 +231,7 @@
 		, BRANCH_ID
 		, "ROLE"
 		, GRADE
+		, GET_CODE_NM('GRADE', GRADE)		AS GRADE_NM
 		, STATE
 		, REG_DATE
 		, JUMIN
@@ -233,15 +242,128 @@
 		, UPDATE_DATE
 		, SURETY_INSURANCE
 		, GENDER
-		, GRADE_CODE_ID
-		, SALES_TYPE_CODE_ID
-		, GET_CODE_NM('SALES_TYPE_CODE_ID', SALES_TYPE_CODE_ID)		AS SALES_TYPE_CODE_NM
+		, SALES_TYPE
+		, GET_CODE_NM('SALES_TYPE', SALES_TYPE)		AS SALES_TYPE_NM
 		FROM TBL_EXP_USER
 		WHERE 1=1
-		AND ( UPPER(USER_ID) like '%' || UPPER( #{SEARCH_ID} ) || '%'
-		OR    UPPER(USER_NM) like '%' || UPPER( #{SEARCH_ID} ) || '%'
+		AND ( UPPER(USER_ID) 	like '%' || UPPER( #{SEARCH_ID} ) || '%'
+		OR    UPPER(USER_NM) 	like '%' || UPPER( #{SEARCH_ID} ) || '%'
+		OR    UPPER(GRADE) like '%'||UPPER( #{SEARCH_ID} ) || '%'
+		OR    UPPER(GET_CODE_NM('GRADE', GRADE)) like '%'||UPPER( #{SEARCH_ID} ) || '%'
+		OR    UPPER(GET_CODE_NM('SALES_TYPE', SALES_TYPE)) 
+								like '%' || UPPER( #{SEARCH_ID} ) || '%'
 		)
 		AND USE_YN = 'Y'
 		AND DEL_YN = 'N'
 	</select>	
+	
+	<update id="updateContract" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	conResult.updateContract
+			계약  저장
+		*/
+		MERGE INTO TBL_EXP_CONTRACT T
+		USING (
+		  SELECT #{CONTRACT_ID}							AS CONTRACT_ID,
+		         #{USER_ID} 							AS USER_ID,
+		         #{BUYER_ID} 							AS BUYER_ID,
+		         TO_DATE(#{CONTACT_DATE},'YYYY-MM-DD') 	AS CONTACT_DATE,
+		         TO_DATE(#{CONTRACT_DATE},'YYYY-MM-DD')	AS CONTRACT_DATE,
+		         #{CONTRACT_TYPE} 						AS CONTRACT_TYPE,
+		         REPLACE(#{CONSULTING_COST},',','')		AS CONSULTING_COST,
+		         TO_DATE(#{EXPIRE_DATE},'YYYY-MM-DD')	AS EXPIRE_DATE,
+		         REPLACE(#{TOTAL_COST},',','') 			AS TOTAL_COST,
+				 #{CONSULTING_ID} 						AS CONSULTING_ID,
+				 #{PROCESS_STATE} 						AS PROCESS_STATE,
+		         #{LAST_SOLUTION} 						AS LAST_SOLUTION,
+		         #{TAX_MNG} 							AS TAX_MNG,
+		         #{LABOR_MNG} 							AS LABOR_MNG,
+		         #{CONSULTING_CLASS} 					AS CONSULTING_CLASS,
+		         #{USE_YN} 								AS USE_YN,
+		         #{DEL_YN} 								AS DEL_YN, 
+		         'trigger'								AS UPDATE_USER
+		  FROM dual
+		) S
+		ON (T.CONTRACT_ID	= S.CONTRACT_ID 
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		         T.USER_ID 			= S.USER_ID,
+		         T.BUYER_ID 		= S.BUYER_ID,
+		         T.CONTACT_DATE 	= S.CONTACT_DATE,
+		         T.CONTRACT_DATE 	= S.CONTRACT_DATE,
+		         T.CONTRACT_TYPE 	= S.CONTRACT_TYPE,
+		         T.CONSULTING_COST 	= S.CONSULTING_COST,
+		         T.EXPIRE_DATE 		= S.EXPIRE_DATE,
+		         T.TOTAL_COST 		= S.TOTAL_COST,
+ 		         T.CONSULTING_ID 	= S.CONSULTING_ID,
+ 		         T.PROCESS_STATE 	= S.PROCESS_STATE,
+		         T.LAST_SOLUTION 	= S.LAST_SOLUTION, 
+		         T.TAX_MNG 			= S.TAX_MNG,
+		         T.LABOR_MNG 		= S.LABOR_MNG,
+		         T.CONSULTING_CLASS	= S.CONSULTING_CLASS,
+		         T.USE_YN			= S.USE_YN,
+		         T.DEL_YN			= S.DEL_YN,
+		         T.UPDATE_USER		= S.UPDATE_USER,
+		         T.UPDATE_DATE		= SYSDATE
+		WHEN NOT MATCHED THEN 
+     		INSERT (  CONTRACT_ID, USER_ID, BUYER_ID, CONTACT_DATE, CONTRACT_DATE, CONTRACT_TYPE, CONSULTING_COST, EXPIRE_DATE
+    				, TOTAL_COST, CONSULTING_ID, PROCESS_STATE, LAST_SOLUTION,  TAX_MNG, LABOR_MNG, CONSULTING_CLASS, USE_YN
+    				, DEL_YN,  UPDATE_USER,   UPDATE_DATE )
+   			VALUES (  S.CONTRACT_ID, S.USER_ID, S.BUYER_ID, S.CONTACT_DATE, S.CONTRACT_DATE, S.CONTRACT_TYPE, S.CONSULTING_COST, S.EXPIRE_DATE
+    				, S.TOTAL_COST, S.CONSULTING_ID, S.PROCESS_STATE,  S.LAST_SOLUTION, S.TAX_MNG, S.LABOR_MNG, S.CONSULTING_CLASS, S.USE_YN
+    				, S.DEL_YN,  S.UPDATE_USER,   SYSDATE )
+    		
+	</update>
+	
+	<delete id="deleteContract" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	conResult.deleteContract
+			계약 삭제
+		*/
+		UPDATE TBL_EXP_CONTRACT
+		SET USE_YN = 'N'
+		,DEL_YN = 'Y'
+		WHERE CONTRACT_ID	 = #{CONTRACT_ID}
+	</delete>
+
+	<update id="updateContractMember" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	conResult.updateContractMember
+			계약 관계자 저장
+		*/
+		MERGE INTO TBL_EXP_CONTRACT_MEMBER T
+		USING (
+		  SELECT #{CONTRACT_ID}		AS CONTRACT_ID,
+		         #{USER_ID} 		AS USER_ID,
+		         #{RELATION_TYPE} 	AS RELATION_TYPE,
+		         #{BUSINESS_HIERARCHY} AS BUSINESS_HIERARCHY,
+		         #{USE_YN} 			AS USE_YN,
+		         #{DEL_YN} 			AS DEL_YN,
+		         #{UPDATE_USER}		AS UPDATE_USER
+		  FROM dual
+		) S
+		ON (T.CONTRACT_ID	= S.CONTRACT_ID 
+		AND T.USER_ID		= S.USER_ID 
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		         T.RELATION_TYPE 			= S.RELATION_TYPE,
+		         T.BUSINESS_HIERARCHY 		= S.BUSINESS_HIERARCHY,
+		         T.USE_YN					= S.USE_YN,
+		         T.DEL_YN					= S.DEL_YN,
+		         T.UPDATE_USER				= S.UPDATE_USER,
+		         T.UPDATE_DATE				= SYSDATE
+		WHEN NOT MATCHED THEN 
+    		INSERT (    CONTRACT_ID,   USER_ID,   RELATION_TYPE,   BUSINESS_HIERARCHY, USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
+   			VALUES (  S.CONTRACT_ID, S.USER_ID, S.RELATION_TYPE, S.BUSINESS_HIERARCHY, 'Y'	 , 	 'N'   , S.UPDATE_USER, SYSDATE)
+	</update>
+	
+	<delete id="deleteContractMember" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	conResult.deleteContractMember
+			계약 관계자 삭제
+		*/
+		UPDATE TBL_EXP_CONTRACT_MEMBER
+		SET DEL_YN = 'Y'
+		WHERE CONTRACT_ID	= #{CONTRACT_ID}
+		AND USER_ID	 		= #{USER_ID}
+	</delete>
+	
 </mapper>

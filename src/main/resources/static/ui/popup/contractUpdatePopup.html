@@ -24,6 +24,10 @@ var <@popupId> = {
 			 	returnData[key] = val;
 		 })
 		 
+		 returnData["CONTRACT_TYPE"]	= C_UICOM.getData("<@popupId>_selectContractType");
+		 returnData["CONSULTING_CLASS"]	= C_UICOM.getData("<@popupId>_selectConsultingClass");
+		 
+		 
 		 <@popupId>.close(returnData);
 		 
 	 }
@@ -32,46 +36,56 @@ var <@popupId> = {
 		 if( $("#<@popupId>_items #BUYER_NM").val() 		== "" ) {alert("고객명을 입력하여 주십시오."); return false;}
 		 if( $("#<@popupId>_items #TEL").val() 				== "" ) {alert("연락처를 입력하여 주십시오."); return false;}
 		 if( $("#<@popupId>_items #ADDR").val() 			== "" ) {alert("본점주소를 입력하여 주십시오."); return false;}
-		 if( $("#<@popupId>_items #COMPANY_REGNUM").val()	== "" ) {alert("사업자등록번호를 입력하여 주십시오."); return false;}
 		 return true;
 		 
 	 }
 	,pageInit : () => {
 		
 		<@popupId>.setTitleHeight();
-			
+		
 		if( <@popupId>.mode == "U" ){
 
 				$.each( <@popupId>.recvData.param , function(idx,obj){
 					
 					if(idx != 0 ){
 						
-						const id = $(this).attr("id");
-						const val = $(this).attr("value");
+						const id = obj.key;
+						const val = obj.val;
+
 					    $("#<@popupId>_items #" + id).val(val);
 					    
 					}
 				})	
 		}
+
+		const CONTRACT_TYPE 	= $("#<@popupId>_items #CONTRACT_TYPE").val();
+		const CONSULTING_CLASS 	= $("#<@popupId>_items #CONSULTING_CLASS").val();
+
+		const buyerId = $("#<@popupId>_items #BUYER_ID").val();
+		const buyerNm = $("#<@popupId>_items #BUYER_NM").val();
+		if( buyerId )$("#<@popupId>_items #BUYER").val(buyerNm+ " ("+buyerId+")");
+		const userId = $("#<@popupId>_items #USER_ID").val();
+		const userNm = $("#<@popupId>_items #USER_NM").val();
+		if( userId )$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
+
 		
 		C_UICOM.makeSelectBox({ 
 			 data : C_COM.getCodeList("CONTRACT_TYPE")
  			,targetId : "<@popupId>_selectContractType" }, "single");
-		//C_UICOM.setSingleBox("<@popupId>_selectContractType", <@popupId>.hiarachySelData["BRANCH_ID"]);
+		if( CONTRACT_TYPE ) 
+			C_UICOM.setSingleBox("<@popupId>_selectContractType", CONTRACT_TYPE);
 		
 		C_UICOM.makeSelectBox({ 
 			 data : C_COM.getCodeList("CONSULTING_CLASS")
  			,targetId : "<@popupId>_selectConsultingClass" }, "single");
-		//C_UICOM.setSingleBox("<@popupId>_selectConsultingClass", <@popupId>.hiarachySelData["BRANCH_ID"]);
+		if( CONSULTING_CLASS ) 
+			C_UICOM.setSingleBox("<@popupId>_selectConsultingClass", CONSULTING_CLASS);
 		
 	}
 	,setTitleHeight : () => {
 		
-		/* 			
-			<@popupId>.mode == "I" ? $("#<@popupId>_items #USER_ID").val( <@popupId>.makeSabunCode() ) : '';
-			<@popupId>.mode == "I" ? $(".updateMode").hide() : $(".updateMode").show();
-		let title = <@popupId>.mode == "I" ? "고객 등록" : "고객 정보 수정";
-  	 	$(".tit").html( title ); */
+		let title = <@popupId>.mode == "I" ? "계약 등록" : "계약 정보 수정";
+  	 	$("#<@popupId> .tit").html( title );
 		
 	}
 	,memberSearchPopup : function(gubun) {
@@ -114,7 +128,7 @@ var <@popupId> = {
 }
 // Popup Load가 완료된후 실행 된다.
 C_POP.onLoadPopup("<@popupId>", function(data) {
-	
+
 	<@popupId>.recvData	= data;
 
 	<@popupId>.mode = <@popupId>.recvData.mode;
@@ -130,13 +144,19 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	text-align: right;
 }
 </style>
-<div class="modal_wrap" id="modal-ex">
+<div class="modal_wrap">
 	<div class="modal" style="width:450px;height:650px;">
 		<div class="modal_header">
 			<strong class="tit">계약등록</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body" style="overflow:visible;" id="<@popupId>_items">
+			<input type="hidden" id="CONTRACT_ID">
+			<input type="hidden" id="CONSULTING_ID" value="xxx">
+			<input type="hidden" id="PROCESS_STATE" value="PRE_STATE">
+			<input type="hidden" id="LAST_SOLUTION" value="last">
+			<input type="hidden" id="USE_YN" value="Y">
+			<input type="hidden" id="DEL_YN" value="N">
 			<div class="clearFix mt15">
 				<ul class="info_wrap">
 					<li>
@@ -188,8 +208,8 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<div class="info">
 							<div id="<@popupId>_selectContractType" column = "CONTRACT_TYPE" class="select_box" style="width:100%">
 							</div>
-							<input type="hidden" id="CONTRACT_TYPE_CODE_NM" style="width:100%">
-							<input type="hidden" id="CONTRACT_TYPE_CODE_ID">
+							<input type="hidden" id="CONTRACT_TYPE_NM" style="width:100%">
+							<input type="hidden" id="CONTRACT_TYPE">
 						</div>
 					</li>
 					<li>

@@ -13,6 +13,8 @@
 	}
 	,searchList : function(){
 
+		<@popupId>.searchId = $("[name='SEARCH_ID']").val();
+		
 		const requestParm = {SEARCH_ID: <@popupId>.searchId};
 		let parm = {
 			queryId        : <@popupId>.queryId
@@ -47,6 +49,8 @@
 							buyerId	= $(this).find("#BUYER_ID"	).text();
 					 		buyerNm	= $(this).find("#BUYER_NM"	).text();
 					 		address	= $(this).find("#ADDR"		).text();
+	 						<@popupId>.close({'BUYER_ID' : buyerId, 'BUYER_NM' : buyerNm
+			 						 ,'ADDR' : address });
 	 		
 					}else{
 							userId	= $(this).find("#USER_ID"	).text();
@@ -54,14 +58,24 @@
 							address	= $(this).find("#ADDR"		).text();
 							salesTypeCode	= $(this).find("#SALES_TYPE_CODE_ID").text();
 							salesTypeCodeNm = $(this).find("#SALES_TYPE_CODE_NM").text();
-					}
-	 	
-	 				<@popupId>.close({'BUYER_ID' : buyerId, 'BUYER_NM' : buyerNm
-				 					 ,'USER_ID'  : userId , 'USER_NM'  : userNm
+	 						<@popupId>.close({'USER_ID'  : userId , 'USER_NM'  : userNm
 			 						 ,'ADDR' : address 
 				 					 ,'SALES_TYPE_CODE_ID' : salesTypeCode, 'SALES_TYPE_CODE_NM' : salesTypeCodeNm});
+					}
+	 	
  			});
+ 			 
 	}
+	,nameSearch : (e) => {
+		
+		 if (e.key === "Enter") {
+
+				<@popupId>.searchId = event.target.value;
+				<@popupId>.searchList();
+				
+		}
+	}
+	
 }
 // Popup Load가 완료된후 실행 된다.
 C_POP.onLoadPopup("<@popupId>", function(data) {
@@ -104,7 +118,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
                    <dt class="_search">고객 검색/사원 검색</dt>
                    <dd>
                        <div class="search_inputWrap" style="width:100%">
-                           <input type="search" name=""><button class="search_btn" onclick="<@popupId>.searchList()"><i class="icon_search"></i></button>
+                        <input type="search" name="SEARCH_ID" onkeydown="<@popupId>.nameSearch(event)"><button class="search_btn" onclick="<@popupId>.searchList()"><i class="icon_search"></i></button>
                        </div>
                    </dd>
                </dl>
@@ -119,9 +133,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					<table>
 						<caption>고객 리스트</caption>
 						<colgroup>
-								<col style="width:90px;">
-								<col style="width:80px;"/>
-								<col style="width:150px;"/>
+								<col style="width:130px;">
+								<col style="width:130px;"/>
+								<col/>
 						</colgroup>
 						<thead>
 							<tr id="<@pageId>_headingColName">
@@ -135,8 +149,8 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				<div class="tbl01 col tbl_body_scroll">
 					<table>
 						<colgroup>
-								<col style="width:90px;">
-								<col style="width:100px;"/>
+								<col style="width:130px;">
+								<col style="width:130px;"/>
 								<col/>
 						</colgroup>
 						<tbody  id="<@pageId>_cstmList">
@@ -146,7 +160,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<tr name="<@pageId>_tr_{{:#index}}" value='{{{:BUYER_ID}}'>
 			 					<td id='BUYER_ID'		value='{{:BUYER_ID}}'		>{{:BUYER_ID}}</td>
 			 					<td id='BUYER_NM'		value='{{:BUYER_NM}}'		>{{:BUYER_NM}}</td>
-			 					<td id='ADDR'			value='{{:ADDR}}'			>{{:ADDR}}</td>
+			 					<td id='ADDR'			value='{{:ADDR}}' style="text-align:left">{{:ADDR}}</td>
 			 					<td id='DEL_YN'			value='{{:DEL_YN}}' 		style="display:none">{{:DEL_YN}}</td>
 							</tr>
 						{{/for}}
@@ -195,10 +209,10 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<tr name="<@pageId>_tr_{{:#index}}" value='{{{:USER_ID}}'>
 			 					<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
 			 					<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
-			 					<td id='ADDR'			value='{{:ADDR}}'			>{{:ADDR}}</td>
-			 					<td id='SALES_TYPE_CODE_NM' value='{{:SALES_TYPE_CODE_NM}}' >{{:SALES_TYPE_CODE_NM}}</td>
-			 					<td id='SALES_TYPE_CODE_ID' value='{{:SALES_TYPE_CODE_ID}}'	style="display:none">{{:SALES_TYPE_CODE_ID}}</td>
-			 					<td id='DEL_YN'			value='{{:DEL_YN}}' 		style="display:none">{{:DEL_YN}}</td>
+			 					<td id='GRADE_NM'		value='{{:GRADE_NM}}'		>{{:GRADE_NM}}</td>
+			 					<td id='SALES_TYPE_NM'  value='{{:SALES_TYPE_NM}}'  >{{:SALES_TYPE_NM}}</td>
+			 					<td id='GRADE' 			value='{{:GRADE}}'			style="display:none">{{:GRADE}}</td>
+			 					<td id='SALES_TYPE' 	value='{{:SALES_TYPE}}'		style="display:none">{{:SALES_TYPE}}</td>
 							</tr>
 						{{/for}}
 	</script>
