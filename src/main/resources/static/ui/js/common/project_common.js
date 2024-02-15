@@ -838,10 +838,10 @@ var C_UICOM = {
 		  });
 	    });
 	 }
-	,makeSelectBox : function(mboxList, type) {
+	,makeSelectBox : function(parm, type) {
 		var viewId = C_COM.getCurrentViewId();
 		if(isEmpty(type)) type="single";
-		C_UICOM.makeSelectBoxExec(mboxList.data, mboxList.targetId, type)	 
+		C_UICOM.makeSelectBoxExec(parm, type)	 
 	 }
 	,toggleSingleSelectBox : function(targetId) {
 		var viewId = C_COM.getCurrentViewId();
@@ -854,7 +854,17 @@ var C_UICOM = {
 			$(pageWebUl).addClass("viewHide");	
 		}
 	 }
-	,makeSelectBoxExec : function(list, targetId, type) {
+	,makeSelectBoxExec : function(parm, type) {
+		
+		var defaultItem = parm.defaultItem
+		var list 		= parm.data;
+		var targetId 	= parm.targetId;
+
+		if(isValid(defaultItem)) {
+			nlist = [defaultItem];
+			$.each(list,function(){nlist.push(this)});
+			list = nlist;
+		}
 		
 		var viewId = C_COM.getCurrentViewId();
 
@@ -1574,8 +1584,21 @@ window.onpopstate = function () {
     }, 500);
 };
 
+var hiddencommand = "SHOWPAGEID";
+var hiddenconfirm = ""
 $(function() {
 	C_COM.init();
 	C_UICOM.init();
-	C_GRID.init()
+	//C_GRID.init()
+	$(window).bind("keydown",function() {
+		
+		hiddenconfirm += String.fromCharCode(event.keyCode);
+		if(hiddenconfirm.length > 10) {
+			hiddenconfirm = hiddenconfirm.substring(1,11);
+		}
+		if(hiddencommand == hiddenconfirm) {
+			var viewId = C_COM.getCurrentViewId();
+			alert(viewId);
+		}
+	});
 });
