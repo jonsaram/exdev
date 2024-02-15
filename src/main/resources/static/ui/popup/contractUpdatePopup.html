@@ -56,7 +56,7 @@ var <@popupId> = {
 						const id = obj.key;
 						let val = obj.val;
 						
-						if( id == "CONSULTING_COST" || id ==  "TOTAL_COST" ) val = <@popupId>.numberWithCommas(val);
+						if( id ==  "TOTAL_COST" ) val = <@popupId>.numberWithCommas(val);
 						
 						$("#<@popupId>_items #" + id).val(val);
 					    
@@ -342,10 +342,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<div class="info"><div class="calendar_wrap">
 							<input type="text" class="datepicker" id="CONTRACT_DATE" style="width:132px">
 						</div></div>
-					</li>
-					<li>
-						<label>자문료</label>
-						<div class="info"><input type="text" class="number" id="CONSULTING_COST" style="width:100%"></div>
 					</li>
 					<li>
 						<label>만료일</label>
