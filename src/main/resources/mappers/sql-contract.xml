@@ -2,15 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="conResult">
+<mapper namespace="contract">
 
 	<cache />
 
 	<!--
-	인사정보 관리 
+	계약 관리 
 	 -->	
 	<select id="getContractInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	conResult.getContractInfoList
+		/*	contract.getContractInfoList
 			실적 입력 내역 리스트 조회 
 		*/
 		WITH RESULT_LIST AS
@@ -169,7 +169,7 @@
 	계약 관리 
 	 -->	
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	conResult.getContractList
+		/*	contract.getContractList
 			계약 리스트 조회 
 		*/
 		SELECT C.CONTRACT_ID
@@ -202,7 +202,7 @@
 	</select>	
 
 	<select id="getBuyerList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	conResult.getBuyerList
+		/*	contract.getBuyerList
 			고객 리스트 조회 
 		*/
 		SELECT BUYER_ID
@@ -221,7 +221,7 @@
 	</select>		
 
 	<select id="getUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	conResult.getUserList
+		/*	contract.getUserList
 			계약 담당자 리스트 조회 
 		*/
 		SELECT SP_CSTM_ID
@@ -260,7 +260,7 @@
 	</select>	
 	
 	<update id="updateContract" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	conResult.updateContract
+		/*	contract.updateContract
 			계약  저장
 		*/
 		MERGE INTO TBL_EXP_CONTRACT T
@@ -318,7 +318,7 @@
 	</update>
 	
 	<delete id="deleteContract" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	conResult.deleteContract
+		/*	contract.deleteContract
 			계약 삭제
 		*/
 		UPDATE TBL_EXP_CONTRACT
@@ -328,7 +328,7 @@
 	</delete>
 
 	<update id="updateContractMember" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	conResult.updateContractMember
+		/*	contract.updateContractMember
 			계약 관계자 저장
 		*/
 		MERGE INTO TBL_EXP_CONTRACT_MEMBER T
@@ -339,7 +339,7 @@
 		         #{BUSINESS_HIERARCHY} AS BUSINESS_HIERARCHY,
 		         #{USE_YN} 			AS USE_YN,
 		         #{DEL_YN} 			AS DEL_YN,
-		         #{UPDATE_USER}		AS UPDATE_USER
+		         'trigger'		AS UPDATE_USER
 		  FROM dual
 		) S
 		ON (T.CONTRACT_ID	= S.CONTRACT_ID 
@@ -359,7 +359,7 @@
 	</update>
 	
 	<delete id="deleteContractMember" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	conResult.deleteContractMember
+		/*	contract.deleteContractMember
 			계약 관계자 삭제
 		*/
 		UPDATE TBL_EXP_CONTRACT_MEMBER
@@ -371,7 +371,7 @@
 	
 
 	<select id="getOverridingList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	conResult.getOverridingList
+		/*	contract.getOverridingList
 			Overriding 관련 상급자 조회 
 		*/
 		SELECT 'MAIN_HEADER' AS BUSINESS_HIERARCHY ,GET_CODE_NM('BUSINESS_HIERARCHY','MAIN_HEADER'  ) AS POSITION
@@ -395,5 +395,9 @@
 		FROM   TBL_EXP_USER U,TBL_EXP_BRANCH BR 
 		WHERE BR.BRANCH_ID = #{BRANCH_ID}  
 		AND U.USER_ID = BR.USER_ID
-	</select>			
+	</select>	
+	
+	
+	
+			
 </mapper>

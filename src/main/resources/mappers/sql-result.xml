@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="result">
+
+	<cache />
+
+	<!--
+	실적 관리 
+	 -->	
+	<select id="getResultList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	result.getResultList
+			실적 입력 내역 리스트 조회 
+		*/
+	 
+		SELECT CONTRACT_ID, RESULT_ID
+		, RESULT_DATE
+		, INCOME
+		, REMAINING_SUM
+		, ORG_SELLING_PRICE
+		, USE_YN
+		, DEL_YN
+		, UPDATE_USER
+		, UPDATE_DATE
+		FROM TBL_EXP_RESULT
+		WHERE 1=1
+	
+	</select>	
+	
+	<update id="updateResultItem" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	result.updateResultItem
+			실적 저장
+		*/
+		MERGE INTO TBL_EXP_RESULT T
+		USING (
+		
+		  SELECT #{CONTRACT_ID}				AS CONTRACT_ID,
+		         #{RESULT_ID} 				AS RESULT_ID,
+		         #{INCOME} 					AS INCOME,
+		         #{REMAINING_SUM} 			AS REMAINING_SUM,
+		         #{ORG_SELLING_PRICE} 		AS ORG_SELLING_PRICE,
+		         #{USE_YN} 					AS USE_YN,
+		         #{DEL_YN} 					AS DEL_YN,
+		         'trigger'					AS UPDATE_USER,
+		  FROM dual
+		  
+		) S
+		ON (T.CONTRACT_ID	= S.CONTRACT_ID 
+		AND T.RESULT_ID		= S.RESULT_ID 
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		         T.INCOME 				= S.INCOME,
+		         T.REMAINING_SUM 		= S.REMAINING_SUM,
+		         T.ORG_SELLING_PRICE	= S.ORG_SELLING_PRICE,
+		         T.USE_YN				= S.USE_YN,
+		         T.DEL_YN				= S.DEL_YN,
+		         T.UPDATE_USER			= S.UPDATE_USER,
+		         T.UPDATE_DATE			= SYSDATE
+		WHEN NOT MATCHED THEN 
+    		INSERT (  CONTRACT_ID,   RESULT_ID,   RESULT_DATE,   INCOME,   REMAINING_SUM,   ORG_SELLING_PRICE,   USE_YN,   DEL_YN,   UPDATE_USER,   UPDATE_DATE)
+   			VALUES (S.CONTRACT_ID, S.RESULT_ID, S.RESULT_DATE, S.INCOME, S.REMAINING_SUM, S.ORG_SELLING_PRICE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE)
+	</update>
+	
+	<delete id="deleteContractMember" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	contract.deleteContractMember
+			계약 관계자 삭제
+		*/
+		UPDATE TBL_EXP_RESULT
+		SET USE_YN = 'N'
+		,	DEL_YN = 'Y'
+		WHERE CONTRACT_ID	= #{CONTRACT_ID}
+		AND RESULT_ID	 	= #{RESULT_ID}
+	</delete>
+	
+	<select id="getCostList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	result.getCostList
+			실적 비용 내역 리스트 조회 
+		*/
+	 
+		SELECT CONTRACT_ID
+		, RESULT_ID
+		, COST_ID
+		, COST_NM
+		, COST_DESC
+		, COST_PRICE
+		, USE_YN
+		, DEL_YN
+		, UPDATE_USER
+		, UPDATE_DATE
+		FROM TBL_EXP_COST
+		WHERE 1=1
+	
+	</select>	
+	
+	<update id="updateCostItem" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	result.updateCostItem
+			실적 비용 저장
+		*/
+		MERGE INTO TBL_EXP_COST T
+		USING (
+		
+		  SELECT #{CONTRACT_ID}				AS CONTRACT_ID,
+		         #{RESULT_ID} 				AS RESULT_ID,
+		         #{COST_ID} 				AS COST_ID,
+		         #{COST_NM} 				AS COST_NM,
+		         #{COST_DESC} 				AS COST_DESC,
+		         #{USE_YN} 					AS USE_YN,
+		         #{DEL_YN} 					AS DEL_YN,
+		         'trigger'					AS UPDATE_USER,
+		  FROM dual
+		  
+		) S
+		ON (T.CONTRACT_ID	= S.CONTRACT_ID 
+		AND T.RESULT_ID		= S.RESULT_ID 
+		AND T.COST_ID		= S.COST_ID 
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		         T.COST_NM 			= S.COST_NM,
+		         T.COST_DESC 		= S.COST_DESC,
+		         T.DEL_YN			= S.DEL_YN,
+		         T.UPDATE_USER		= S.UPDATE_USER,
+		         T.UPDATE_DATE		= SYSDATE
+		WHEN NOT MATCHED THEN 
+    		INSERT (  CONTRACT_ID,   RESULT_ID,   COST_ID,   COST_NM,   COST_DESC,   COST_PRICE, USE_YN, DEL_YN,   UPDATE_USER, UPDATE_DATE)
+   			VALUES (S.CONTRACT_ID, S.RESULT_ID, S.COST_ID, S.COST_NM, S.COST_DESC, S.COST_PRICE,    'Y',    'N', S.UPDATE_USER, SYSDATE    )
+	</update>
+	
+	<delete id="deleteCostItem" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	contract.deleteCostItem
+			실적 비용 삭제
+		*/
+		UPDATE TBL_EXP_COST
+		SET USE_YN = 'N'
+		,	DEL_YN = 'Y'
+		WHERE CONTRACT_ID	= #{CONTRACT_ID}
+		AND RESULT_ID	 	= #{RESULT_ID}
+		AND COST_ID	 		= #{COST_ID}
+	</delete>
+	
+	
+	
+	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	result.getPaymentList
+			실적 수당 내역 리스트 조회 
+		*/
+	 
+		SELECT CONTRACT_ID
+		, USER_ID
+		, RESULT_ID
+		, PAYMENT
+		, PAYMENT_ID
+		, EXEC_TYPE
+		, PAY_ID
+		, RATE
+		, USE_YN
+		, DEL_YN
+		, UPDATE_USER
+		, UPDATE_DATE
+		FROM TBL_EXP_PAYMENT
+		WHERE 1=1
+	
+	</select>	
+	
+	<update id="updatePaymentItem" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	result.updatePaymentItem
+			실적 수당 저장
+		*/
+		MERGE INTO TBL_EXP_PAYMENT T
+		USING (
+		
+		  SELECT #{CONTRACT_ID}				AS CONTRACT_ID,
+		         #{USER_ID} 				AS USER_ID,
+		         #{RESULT_ID} 				AS RESULT_ID,
+		         #{PAYMENT_ID} 				AS PAYMENT_ID,
+		         #{PAYMENT} 				AS PAYMENT,
+		         #{EXEC_TYPE} 				AS EXEC_TYPE,
+		         #{PAY_ID} 					AS PAY_ID,
+		         #{RATE} 					AS RATE,
+		         #{USE_YN} 					AS USE_YN,
+		         #{DEL_YN} 					AS DEL_YN,
+		         'trigger'					AS UPDATE_USER,
+		  FROM dual
+		  
+		) S
+		ON (T.CONTRACT_ID	= S.CONTRACT_ID 
+		AND T.USER_ID		= S.USER_ID 
+		AND T.RESULT_ID		= S.RESULT_ID 
+		AND T.PAYMENT_ID	= S.PAYMENT_ID 
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		         T.PAYMENT 			= S.PAYMENT,
+		         T.EXEC_TYPE 		= S.EXEC_TYPE,
+		         T.PAY_ID			= S.PAY_ID,
+		         T.RATE				= S.RATE,
+		         T.USE_YN			= S.USE_YN,
+		         T.DEL_YN			= S.DEL_YN,
+		         T.UPDATE_USER		= S.UPDATE_USER,
+		         T.UPDATE_DATE		= SYSDATE
+		WHEN NOT MATCHED THEN 
+    		INSERT (  CONTRACT_ID,   USER_ID,   RESULT_ID,   PAYMENT,   PAYMENT_ID,   EXEC_TYPE,   PAY_ID,   RATE,   USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
+   			VALUES (S.CONTRACT_ID, S.USER_ID, S.RESULT_ID, S.PAYMENT, S.PAYMENT_ID, S.EXEC_TYPE, S.PAY_ID, S.RATE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, SYSDATE)
+	</update>
+	
+	<delete id="deletePaymentItem" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	contract.deletePaymentItem
+			실적 수당 삭제
+		*/
+		UPDATE TBL_EXP_PAYMENT
+		SET USE_YN = 'N'
+		,	DEL_YN = 'Y'
+		WHERE CONTRACT_ID	= #{CONTRACT_ID}
+		AND USER_ID	 		= #{USER_ID}
+		AND RESULT_ID	 	= #{RESULT_ID}
+		AND PAYMENT_ID	 	= #{PAYMENT_ID}
+	</delete>
+	
+</mapper>

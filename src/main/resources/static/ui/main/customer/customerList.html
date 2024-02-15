@@ -155,23 +155,7 @@ var <@pageId> = {
 		});
 		
 	}
-	,goPage : (pageId,rowId) => {
-		
-		const $tds = $(`[name='<@pageId>_tr_${rowId}']`)
-		const jsonObject = {};
-		
-		$tds.children("td").each(function() {
-			
-		    const id = this.id;
-		    const value = $(this).text().trim();
-			if( id )
-		    	jsonObject[id] = value;
-		});
-		
-		C_PM.movePage( pageId.trim(), jsonObject );
-		
-	}
-		,nameSearch : (e) => {
+	,nameSearch : (e) => {
 		
 		 if (e.key === "Enter") {
 			 

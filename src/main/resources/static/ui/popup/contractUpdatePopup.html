@@ -3,6 +3,9 @@
 var <@popupId> = {
 	 recvData : []	
  	 ,mode : ''
+ 	 ,addCoworkRtnData : []
+ 	 ,addSalseManRtnData : []
+ 	 ,contractMember : []
 	 ,close : function(returnData) {
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
@@ -23,9 +26,10 @@ var <@popupId> = {
 			 if(key)
 			 	returnData[key] = val;
 		 })
-		 
 		 returnData["CONTRACT_TYPE"]	= C_UICOM.getData("<@popupId>_selectContractType");
 		 returnData["CONSULTING_CLASS"]	= C_UICOM.getData("<@popupId>_selectConsultingClass");
+		 
+		 returnData["CONTRACT_MEMBER"]	= <@popupId>.getContractMember(returnData);
 		 
 		 
 		 <@popupId>.close(returnData);
@@ -82,6 +86,26 @@ var <@popupId> = {
  			,targetId : "<@popupId>_selectConsultingClass" }, "single");
 		if( CONSULTING_CLASS ) 
 			C_UICOM.setSingleBox("<@popupId>_selectConsultingClass", CONSULTING_CLASS);
+
+	}
+	,selectHierarchyList : (branchId) => {
+		
+		const requestParm = {};
+		
+		var parm = {
+				 queryId 		: "contract.getOverridingList"
+				,requestParm	: {BRANCH_ID : branchId}
+		}
+
+		C_COM.requestQuery(parm, function(resultData) {
+			var rparm = {
+					 targetId 		: "<@popupId>_overridingList"
+					,list			: resultData.data
+			}
+		
+			C_COM.renderHtml("<@popupId>", rparm);
+
+		});
 		
 	}
 	,setTitleHeight : () => {
@@ -108,7 +132,14 @@ var <@popupId> = {
 			if( buyerId )$("#<@popupId>_items #BUYER").val(buyerNm+ " ("+buyerId+")");
 			const userId = $("#<@popupId>_items #USER_ID").val();
 			const userNm = $("#<@popupId>_items #USER_NM").val();
-			if( userId )$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
+			if( userId ){
+				$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
+				$("#<@popupId>_items #CPY_USER_NM").val(userNm);
+				const branchId = $("#<@popupId>_items #BRANCH_ID").val();
+				<@popupId>.selectHierarchyList(branchId);
+			}
+			
+			
 			
 		});
 	}
@@ -120,11 +151,120 @@ var <@popupId> = {
 				inputValue = <@popupId>.numberWithCommas(parseInt(inputValue.replace(/,/g, '')));
 
 				event.target.value = inputValue;
-			})
+		})
+		
+		$("#<@popupId>_addCowork").on('click', () => {
+
+			let param = {};
+			C_POP.open('popup_userSearchPopup2', {param:param, gubun:'COWORK'}, function(retData) {
+
+				<@popupId>.addCoworkRtnData.push( retData );
+				var rparm = {
+						 targetId 		: "<@popupId>_coworkList"
+						,list			: <@popupId>.addCoworkRtnData
+				}
+				
+				C_COM.renderHtml("<@popupId>", rparm);
+			});
+		})
+		$("#<@popupId>_addSalesMan").on('click', () => {
+			
+			let param = {};
+			C_POP.open('popup_userSearchPopup2', {param:param, gubun:'SALES_MAN'}, function(retData) {
+				<@popupId>.addSalseManRtnData.push( retData );
+				var rparm = {
+						 targetId 		: "<@popupId>_salesManList"
+						,list			: <@popupId>.addSalseManRtnData
+				}
+			
+				C_COM.renderHtml("<@popupId>", rparm);
+			});
+		})
 			 
 	} 
 	,numberWithCommas : (x) => {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
+	,getContractMember : (returnData) => {
+		
+        var obj = {
+            	'CONTRACT_ID'		:	returnData["CONTRACT_ID"],
+                'USER_ID'			: 	returnData["USER_ID"],
+                'RELATION_TYPE'		:	'EXCEUTE',
+                'BUSINESS_HIERARCHY':	'' ,
+                'USE_YN'			:	'Y',
+                'DEL_YN'			:	'N',
+		};
+
+        <@popupId>.contractMember.push( obj );
+        
+        $('#<@popupId>_coworkList tr').each(function() {
+
+            var $cells = $(this).find('td');
+
+            var obj = {
+            	'CONTRACT_ID'		:	returnData["CONTRACT_ID"],
+                'USER_ID'			: 	$cells.eq(0).attr('value'),
+                'RELATION_TYPE'		:	'COWORK',
+                'BUSINESS_HIERARCHY':	'',
+                'USE_YN'			:	'Y',
+                'DEL_YN'			:	'N',
+            };
+
+            <@popupId>.contractMember.push(obj);
+        });
+
+        $('#<@popupId>_salesManList tr').each(function() {
+
+            var $cells = $(this).find('td');
+
+            var obj = {
+                	'CONTRACT_ID'		:	returnData["CONTRACT_ID"],
+                    'USER_ID'			: 	$cells.eq(0).attr('value'),
+                    'RELATION_TYPE'		:	'SALES',
+                    'BUSINESS_HIERARCHY':	'',
+                    'USE_YN'			:	'Y',
+                    'DEL_YN'			:	'N',
+                };
+
+            <@popupId>.contractMember.push(obj);
+        });
+
+        $('#<@popupId>_overridingList tr').each(function() {
+
+            var $cells = $(this).find('td');
+
+            var obj = {
+                	'CONTRACT_ID'		:	returnData["CONTRACT_ID"],
+                    'USER_ID'			: 	$cells.eq(1).attr('value'),
+                    'RELATION_TYPE'		:	'OVERRIDING',
+                    'BUSINESS_HIERARCHY':	$cells.eq(4).attr('value'),
+                    'USE_YN'			:	'Y',
+                    'DEL_YN'			:	'N',
+                };
+
+            <@popupId>.contractMember.push(obj);
+        });
+
+        return <@popupId>.contractMember;
+    }
+	,deleteMemeberRow : ( obj ) => {
+		
+		const trName = $(obj).closest("tr").attr("name").replace("overriding_","");
+		const userId = $(obj.parentNode.parentNode).find("#USER_ID").attr("value");
+		const relationType =  trName.toUpperCase();
+
+ 		switch( relationType )
+		{
+			case "COWORK" :
+				<@popupId>.addCoworkRtnData		= <@popupId>.addCoworkRtnData.filter(member => member.USER_ID !== userId);
+				break;
+			case "SALES" :
+				<@popupId>.addSalseManRtnData 	= <@popupId>.addSalseManRtnData.filter(member => member.USER_ID !== userId);
+				break;
+			default:
+		}
+		
 	}
 
 }
@@ -145,9 +285,16 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 .number {
 	text-align: right;
 }
+
+    .divider {
+        border-top: 1px solid #dadada;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
 </style>
 <div class="modal_wrap">
-	<div class="modal" style="width:450px;height:650px;">
+<!-- 	<div class="modal" style="width:450px;height:650px;"> -->
+	<div class="modal" style="width:450px;height:1350px;">
 		<div class="modal_header">
 			<strong class="tit">계약등록</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
@@ -159,6 +306,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			<input type="hidden" id="LAST_SOLUTION" value="last">
 			<input type="hidden" id="USE_YN" value="Y">
 			<input type="hidden" id="DEL_YN" value="N">
+			<input type="hidden" id="BRANCH_ID">
 			<div class="clearFix mt15">
 				<ul class="info_wrap">
 					<li>
@@ -185,9 +333,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					</li>
 					<li>
 						<label>상담일</label>
-						<div class="info"><div class="calendar_wrap">
+						<div class="calendar_wrap">
 							<input type="text" class="datepicker" id="CONTACT_DATE" style="width:132px">
-						</div></div>
+						</div>
 					</li>
 					<li>
 						<label>자문예약일</label>
@@ -238,6 +386,212 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<div class="info"><input type="text" id="LABOR_MNG" style="width:100%"></div>
 					</li>
 				</ul>
+			</div>
+
+<!-- --관련자 정보-- -->
+<hr class="divider">
+
+			<div class="clearFix mt15">
+				<ul class="info_wrap">
+					<li>
+						<label>담당컨설턴트</label>
+						<div class="info"><div class="calendar_wrap">
+							<input type="text" id="CPY_USER_NM" style="width:300px;">
+						</div></div>
+					</li>					
+					<li>
+						<label>코웍 사원등록</label>
+						
+						<div class="fr">
+							<button type="button" class="btn select fl" id="<@popupId>_addCowork">추가</button>
+						</div>
+						
+					</li>
+				</ul>
+
+<!-- 고객 리스트 -->
+			
+<div class="tbl01 col tbl_scroll" style="min-height:100px;max-height:300px;" id="<@popupId>_cowork_div">
+		<div class="tbl01 col tbl_head">
+			<table>
+				<caption>코웍 사원 리스트 </caption>
+				<colgroup>
+						<col style="width:100px;"/>
+						<col style="width:110px;"/>
+						<col style="width:120px;"/>
+						<col/>
+				</colgroup>
+				<thead>
+					<tr >
+						<th scope="col">사원ID</th>
+						<th scope="col">사원이름</th>
+						<th scope="col">등급</th>
+						<th/>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div class="tbl01 col tbl_body_scroll">
+			<table>
+				<colgroup>
+						<col style="width:100px;"/>
+						<col style="width:110px;"/>
+						<col style="width:120px;"/>
+						<col/>
+				</colgroup>
+				<tbody  id="<@popupId>_coworkList">
+				</tbody>
+<script type="text/x-jsrender" id="<@popupId>_coworkList_template">						
+				{{for list}}
+					<tr name="overriding_cowork">
+			 					<td id='USER_ID'		 value='{{:USER_ID}}'		>{{:USER_ID}}</td>
+			 					<td id='USER_NM'		 value='{{:USER_NM}}'		>{{:USER_NM}}</td>
+			 					<td id='GRADE'			 value='{{:GRADE}}'			>{{:GRADE}}</td>
+			 					<td >
+									<button type="button" class="btn fl" onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove();"><i class="icon_trash"></i></button>
+								</td>
+					</tr>
+				{{/for}}
+</script>
+<script type="text/x-jsrender" id="<@popupId>_coworkList_noData_template">	
+				<tr>	
+					<td colspan=4>자료가 없습니다.</td>	
+				</tr>
+</script>
+		</table>
+	</div>
+</div>
+
+<!-- 영업담당 리스트 -->
+<hr class="divider">
+				<ul class="info_wrap">
+					<li>
+						<label>영업담당등록</label>
+						
+						<div class="fr">
+							<button type="button" class="btn select fl" id="<@popupId>_addSalesMan">추가</button>
+						</div>
+						
+					</li>
+				</ul>
+<div class="tbl01 col tbl_scroll" style="min-height:100px;max-height:300px;" id="<@popupId>_salesMan_div">
+		<div class="tbl01 col tbl_head">
+			<table>
+				<caption>영업담당 사원 리스트 </caption>
+				<colgroup>
+						<col style="width:100px;"/>
+						<col style="width:110px;"/>
+						<col style="width:120px;"/>
+						<col/>
+				</colgroup>
+				<thead>
+					<tr >
+						<th scope="col">사원ID</th>
+						<th scope="col">사원이름</th>
+						<th scope="col">등급</th>
+						<th/>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div class="tbl01 col tbl_body_scroll">
+			<table>
+				<colgroup>
+						<col style="width:100px;"/>
+						<col style="width:110px;"/>
+						<col style="width:120px;"/>
+						<col/>
+				</colgroup>
+				<tbody  id="<@popupId>_salesManList">
+				</tbody>
+<script type="text/x-jsrender" id="<@popupId>_salesManList_template">						
+				{{for list}}
+					<tr name="overriding_sales">
+			 					<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
+			 					<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
+			 					<td id='GRADE'			value='{{:GRADE}}'			>{{:GRADE}}</td>
+			 					<td >
+									<button type="button" class="btn fl" onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button>
+								</td>
+					</tr>
+				{{/for}}
+</script>
+<script type="text/x-jsrender" id="<@popupId>_salesManList_noData_template">	
+				<tr>	
+					<td colspan=4>자료가 없습니다.</td>	
+				</tr>
+</script>
+		</table>
+	</div>
+</div>
+				
+
+
+<hr class="divider">
+<!-- Overriding관련 상급자 리스트 -->
+				<ul class="info_wrap">
+					<li>
+						<label>Overriding관련 상급자 등록</label>
+					</li>
+				</ul>
+<div class="tbl01 col tbl_scroll" style="max-height:300px;" id="<@popupId>_overriding_div">
+		<div class="tbl01 col tbl_head">
+			<table>
+				<caption>Overriding관련 상급자 리스트 </caption>
+				<colgroup>
+					<col style="width:80px;"/>
+					<col style="width:85px;"/>
+					<col style="width:85px;"/>
+					<col style="width:80px;"/>
+					<col/>
+				</colgroup>
+				<thead>
+					<tr >
+						<th scope="col">직책</th>
+						<th scope="col">사원ID</th>
+						<th scope="col">사원이름</th>
+						<th scope="col">등급</th>
+						<th/>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div class="tbl01 col tbl_body_scroll">
+			<table>
+				<colgroup>
+					<col style="width:80px;"/>
+					<col style="width:85px;"/>
+					<col style="width:85px;"/>
+					<col style="width:80px;"/>
+					<col/>
+				</colgroup>
+				<tbody  id="<@popupId>_overridingList">
+				</tbody>
+<script type="text/x-jsrender" id="<@popupId>_overridingList_template">						
+				{{for list}}
+					<tr name="overriding_overriding">
+			 					<td id='POSITION'		 	value='{{:POSITION}}'			>{{:POSITION}}</td>
+			 					<td id='USER_ID'		 	value='{{:USER_ID}}'			>{{:USER_ID}}</td>
+			 					<td id='USER_NM'		 	value='{{:USER_NM}}'			>{{:USER_NM}}</td>
+			 					<td id='OVERRIDING'		 	value='{{:OVERRIDING}}'			>{{:OVERRIDING}}</td>
+			 					<td id='BUSINESS_HIERARCHY'	value='{{:BUSINESS_HIERARCHY}}'	style='display:none'>{{:BUSINESS_HIERARCHY}}</td>
+			 					<td >
+									<button type="button" class="btn fl" onClick="this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button>
+								</td>
+
+					</tr>
+				{{/for}}
+</script>
+<script type="text/x-jsrender" id="<@popupId>_overridingList_noData_template">	
+				<tr>	
+					<td colspan=5>자료가 없습니다.</td>	
+				</tr>
+</script>
+		</table>
+	</div>
+</div>
+				
+				
 			</div>
 
 		</div>

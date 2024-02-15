@@ -42,7 +42,8 @@
 
  			$("tr[name^='<@pageId>_tr_']").off().on('dblclick',function() {
 	 
-					let buyerId , buyerNm, address, userId, userNm,salesTypeCode, salesTypeCodeNm  = ''; 
+					let buyerId , buyerNm, address, userId, userNm = '';
+					let grade, branchId, gradeNm,salesTypeCode, salesTypeCodeNm  = ''; 
 	 	
 					if( <@popupId>.rcvData.gubun == "customer"){
 	 		
@@ -56,10 +57,13 @@
 							userId	= $(this).find("#USER_ID"	).text();
 							userNm	= $(this).find("#USER_NM"	).text();
 							address	= $(this).find("#ADDR"		).text();
+							gradeNm	= $(this).find("#GRADE_NM"	).text();
+							grade	= $(this).find("#GRADE"		).text();
+							branchId= $(this).find("#BRANCH_ID"	).text();
 							salesTypeCode	= $(this).find("#SALES_TYPE_CODE_ID").text();
 							salesTypeCodeNm = $(this).find("#SALES_TYPE_CODE_NM").text();
 	 						<@popupId>.close({'USER_ID'  : userId , 'USER_NM'  : userNm
-			 						 ,'ADDR' : address 
+			 						 ,'ADDR' : address , 'GRADE' :grade, 'GRADE_NM' : gradeNm, 'BRANCH_ID' : branchId
 				 					 ,'SALES_TYPE_CODE_ID' : salesTypeCode, 'SALES_TYPE_CODE_NM' : salesTypeCodeNm});
 					}
 	 	
@@ -86,14 +90,14 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			
 			$("#<@popupId>_customer_list").show();
 			$("#<@popupId>_user_list").hide();
-			<@popupId>.queryId = "conResult.getBuyerList";
+			<@popupId>.queryId = "contract.getBuyerList";
 			<@popupId>.targetId= "<@pageId>_cstmList"
 			
 		}else {
 			
 			$("#<@popupId>_user_list").show();
 			$("#<@popupId>_customer_list").hide();
-			<@popupId>.queryId = "conResult.getUserList"
+			<@popupId>.queryId = "contract.getUserList"
 			<@popupId>.targetId= "<@pageId>_userList"
 			
 		}
@@ -213,6 +217,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			 					<td id='SALES_TYPE_NM'  value='{{:SALES_TYPE_NM}}'  >{{:SALES_TYPE_NM}}</td>
 			 					<td id='GRADE' 			value='{{:GRADE}}'			style="display:none">{{:GRADE}}</td>
 			 					<td id='SALES_TYPE' 	value='{{:SALES_TYPE}}'		style="display:none">{{:SALES_TYPE}}</td>
+			 					<td id='BRANCH_ID' 		value='{{:BRANCH_ID}}'		style="display:none">{{:BRANCH_ID}}</td>
 							</tr>
 						{{/for}}
 	</script>
