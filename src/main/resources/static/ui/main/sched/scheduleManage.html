@@ -1,134 +1,116 @@
 <meta charset="utf-8">
 <script type="text/javascript">
-	var <@pageId> = {
-		init : function() {
-			var calendarEl = document.getElementById('<@pageId>_calendar');
-			var calendar = new FullCalendar.Calendar(calendarEl, {
-				height: '100%',
-				expandRows: true,
-				// slotMinTime: '08:00',
-				// slotMaxTime: '20:00',
-				headerToolbar: {
-					// left: 'prev,next today',
-					left: '',
-					center: 'title',
-					right: 'timeGridDay,timeGridWeek,dayGridMonth,prev,next'
-					// right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-				},
-				initialView: 'dayGridMonth',
-				//initialDate: '2024-02-08',  //달력 처음 로드될때 표시되는 날짜
-				navLinks: true, // 요일이랑 날짜 클릭시 일단위,주단위로 보여주는 화면으로 넘어감
-				editable: false, // 드래그해서 수정 가능한지, 길게 확장도 가능
-				selectable: true,
-				nowIndicator: true,
-				dayMaxEvents: true, // "more" 표시 전 최대 이벤트 갯수, true는 셀 높이에 의해 결정
-				events: [
-					{
-						title: '세미나',
-						start: '2024-02-06T09:00:00',
-						color : "#d770c0",
-						textColor : "#fff"
-					},
-					{
-						title: '이메일 전송',
-						start: '2024-02-06T15:00:00',
-						end: '2024-02-06T16:00:00',
-						color : "#72bfd2",
-						textColor : "#fff"
-					},
-					{
-						title: '그 외 업무',
-						start: '2024-02-20T13:00:00',
-						end: '2024-02-20T15:00:00',
-						color : "#8dcc76",
-						textColor : "#fff"
-					},
-					{
-						title: '전화상담',
-						start: '2024-02-21T11:00:00',
-						end: '2024-02-21T11:30:00',
-						color : "#e5b266",
-						textColor : "#fff"
-					},
-					{
-						title: '미팅',
-						start: '2024-02-23T10:00:00',
-						end: '2024-02-23T11:00:00',
-						color : "#EE7C7C",
-						textColor : "#fff"
-					},
-					{
-						title: '회사 내부 일정',
-						start: '2024-02-23T15:00:00',
-						end: '2024-02-23T17:00:00',
-						color : "#7E7CEE",
-						textColor : "#fff"
-					}
-				]
-			});
-			calendar.render();
-		 }
-		,destroy : function() {
-			C_COM.showLeftMenu();
-		 }
-	}
-	// Page Load가 완료된후 실행 된다.
-	C_PM.onLoadPage("<@pageId>", function() {
-		C_COM.hideLeftMenu();
-		<@pageId>.init();
-	});
-	// History back으로 이동해왔을 경우 이루틴이 실행된다.
-	C_HM.onReturn("<@pageId>", function(pageId, data) {
+    var <@pageId> = {
+    		
+    	events : []
+       ,parmObj : {}
+       ,calendar : ''
+   	   ,addSchedulePopup : function() {    
+	        console.log("======= addSchedulePopup =======>");
+	        let requestParm = {}
+	        C_POP.open('popup_addSchedulePopup', requestParm, function(obj) {
+	            console.log("======= 부모창 retData =======");
+	            console.log("obj.title =>"+obj.title);
+	            
+	            <@pageId>.addEvent(obj);
+	            
+	        });
+        }   
+       ,init : function( value ) {
+    	    
+    	    console.log("value ==>"+value);
+    	    
+            var calendarEl = document.getElementById('<@pageId>_calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                height: '100%',
+                expandRows: true,
+                // slotMinTime: '08:00',
+                // slotMaxTime: '20:00',
+                headerToolbar: {
+                    // left: 'prev,next today',
+                    left: '',
+                    center: 'title',
+                    right: 'timeGridDay,timeGridWeek,dayGridMonth,prev,next'
+                    // right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                initialView: 'dayGridMonth',
+                //initialDate: '2024-02-08',  //달력 처음 로드될때 표시되는 날짜
+                navLinks: true, // 요일이랑 날짜 클릭시 일단위,주단위로 보여주는 화면으로 넘어감
+                editable: false, // 드래그해서 수정 가능한지, 길게 확장도 가능
+                selectable: true,
+                nowIndicator: true,
+                dayMaxEvents: true, // "more" 표시 전 최대 이벤트 갯수, true는 셀 높이에 의해 결정
+                
+            });
+            calendar.render();
+         }
+       ,addEvent : function(obj) {
+    	   console.log("addEvent 1==>");
+    	   calendar.addEvent(obj)
 
-	});
+           console.log("addEvent 2==>");
+        }
+        ,destroy : function() {
+            C_COM.showLeftMenu();
+         }
+    }
+    // Page Load가 완료된후 실행 된다.
+    C_PM.onLoadPage("<@pageId>", function() {
+        C_COM.hideLeftMenu();
+        <@pageId>.init("A");
+    });
+    // History back으로 이동해왔을 경우 이루틴이 실행된다.
+    C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+    });
 </script>
 <div class="cont_wrap lnb_none">
-	<div class="cont_top">
-		<h2><i class="icon_bullet"></i>캘린더</h2>
-	</div>
-	<div class="sec_scroll">
-		<section class="sec_wrap">
-			<!-- 스케줄 왼쪽 -->
-			<div class="schedule left">
-				<div class="cont_top">
-					<div class="today_schedule">
-						<i class="icon_calendar_mark"></i>
-						<div class="tit_schedule">오늘의 일정</div>
-						<span class="num">2개</span>
-					</div>
-				</div>
-				<!-- 왼쪽 박스 영역 -->
-				<div class="schedule_wrap">
-					<div class="datepicker"></div>
-					<div class="stit_schedule">하위 팀원 업무 스케줄 확인</div>
-					<div class="check_subTeam_wrap"></div>
-					<div class="stit_schedule">업무 유형</div>
-					<ul class="status_wrap">
-						<li><i class="status meeting"></i><span>미팅</span></li>
-						<li><i class="status tel_consul"></i><span>전화상담</span></li>
-						<li><i class="status other_work"></i><span>그 외 업무</span></li>
-						<li><i class="status send_email"></i><span>이메일 전송</span></li>
-						<li><i class="status schedule"></i><span>회사 내부 일정</span></li>
-						<li><i class="status seminar"></i><span>세미나</span></li>
-					</ul>
-				</div>
+    <div class="cont_top">
+        <h2><i class="icon_bullet"></i>캘린더</h2>
+    </div>
+    <div class="sec_scroll">
+        <section class="sec_wrap">
+            <!-- 스케줄 왼쪽 -->
+            <div class="schedule left">
+                <div class="cont_top">
+                    <div class="today_schedule">
+                        <i class="icon_calendar_mark"></i>
+                        <div class="tit_schedule">오늘의 일정</div>
+                        <span class="num">2개</span>
+                    </div>
+                </div>
+                <!-- 왼쪽 박스 영역 -->
+                <div class="schedule_wrap">
+                    <div class="datepicker"></div>
+                    <div class="stit_schedule">하위 팀원 업무 스케줄 확인</div>
+                    <div class="check_subTeam_wrap"></div>
+                    <div class="stit_schedule">업무 유형</div>
+                    <ul class="status_wrap">
+                        <li><i class="status meeting"></i><span>미팅</span></li>
+                        <li><i class="status tel_consul"></i><span>전화상담</span></li>
+                        <li><i class="status other_work"></i><span>그 외 업무</span></li>
+                        <li><i class="status send_email"></i><span>이메일 전송</span></li>
+                        <li><i class="status schedule"></i><span>회사 내부 일정</span></li>
+                        <li><i class="status seminar"></i><span>세미나</span></li>
+                    </ul>
+                </div>
 
-			</div>
-			<!-- 스케줄 오른쪽 -->
-			<div class="schedule right">
-				<div class="schedule_topArea">
-					<div class="search_inputWrap" style="width:215px;">
-						<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
-						<ul class="search_lst" style="display:none;">
-							<li>날짜 검색</li>
-							<li>제목 검색</li>
-						</ul>
-					</div>
-					<a href="#modal-ex" class="btn select schedule_btn"><i class="icon_add_circle"></i>일정추가하기</a>
-				</div>
-				<div id='<@pageId>_calendar'></div>
-			</div>
-		</section>
+            </div>
+            <!-- 스케줄 오른쪽 -->
+            <div class="schedule right">
+                <div class="schedule_topArea">
+                    <div class="search_inputWrap" style="width:215px;">
+                        <input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+                        <ul class="search_lst" style="display:none;">
+                            <li>날짜 검색</li>
+                            <li>제목 검색</li>
+                        </ul>
+                    </div>
+                    <a href="javascript:void(0);" onclick="<@pageId>.addSchedulePopup();" class="btn select schedule_btn"><i class="icon_add_circle"></i>일정추가하기</a>
+                </div>
+                <div id='<@pageId>_calendar'></div>
+            </div>
+        </section>
 
-	</div>
+    </div>
 </div>

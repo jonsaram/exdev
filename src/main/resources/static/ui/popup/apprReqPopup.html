@@ -325,7 +325,7 @@
     // Popup Load가 완료된후 실행 된다.
     C_POP.onLoadPopup("<@popupId>", function(data) {
         <@popupId>.apprId = C_COM.makeUniqueId();// 첨부파일
-        C_COMP.import("textEditorComp", "component_compTextEditor1", {content:"text sample"}, function(data) {
+        C_COMP.import("textEditorComp", "component_compTextEditor", {content:""}, function(data) {
             
             console.log(data.editorData);
             <@popupId>.editorData = data.editorData;
@@ -374,14 +374,19 @@
                         </div>
                         
                     </dd> 
-                    <!-- 
-                    <dt>상신 내용</dt>
-                    <dd style="height:70px;">
-                        <input type="file" onchange="<@popupId>.addFile(this);" multiple />
-                        <div class="file-list"></div>
-                        <div id="result"/>
+                    <dt>첨부파일</dt>
+                    <dd>
+                        <button type="button" class="stateBtn file"><span>파일선택</span></button>
+                        <input name="file" type="file" id="file-input" tabindex="-1" title="파일찾기">
+                        <div class="approver_list_wrap person" style="max-height:95px">
+                            <ul class="approver_list">
+                                <li><span class="txt">첨부파일 입니다.txt / 15.1 Mb</span><button class="pay_close">닫기</button></li>
+                                <li><span class="txt">첨부파일 입니다2.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
+                                <li><span class="txt">첨부파일 입니다3.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
+                                <li><span class="txt">첨부파일 입니다4.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
+                            </ul>
+                        </div>
                     </dd>
-                     --> 
                 </dl>
             </div>
             <div class="modal_footer">

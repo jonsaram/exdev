@@ -66,48 +66,68 @@
 	
     <!--  미결,기결 조회 이응규 -->
     <select id="getApprovalUserState" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /* approval.getApprovalUserState */
-        SELECT  A.APPROVAL_ID   
-               ,A.SP_CSTM_ID    
-               ,A.USER_ID   
-               ,(SELECT USER_NM FROM   TBL_EXP_USER WHERE  USER_ID = A.USER_ID AND SP_CSTM_ID = A.SP_CSTM_ID) AS USER_NM
-               ,A.TITLE         
-               ,A.CONTENTS      
-               ,A.STATE         
-               ,A.APPROVAL_DATE 
-               ,TO_CHAR( A.APPROVAL_DATE , 'YYYY-MM-DD HH24:MI:SS' ) APPROVAL_DATE1
-               ,A.COMPLETE_DATE 
-               ,TO_CHAR( A.COMPLETE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) COMPLETE_DATE1
-               ,A.UPDATE_USER   
-               ,A.UPDATE_DATE  
-               ,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE1 
-               ,A.CREATE_USER   
-               ,TO_CHAR( A.CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE1 
-        FROM   TBL_EXP_APPROVAL A
-        WHERE  1 = 1
-        AND    A.APPROVAL_ID IN (
-                        SELECT APPROVAL_ID
-                        FROM   TBL_EXP_APPROVAL_USER
-                        WHERE  1 = 1
-                        <if test=" approvalUserId != null and approvalUserId != '' " >
-                          AND    USER_ID = #{approvalUserId}     /* 'windrider' */
-                        </if>
-                        <if test=" searchType == 'SUSPENSE' " >/* 미결조회 */
-                          AND    APPROVAL_TYPE = 'APPR' /* 결재 */
-                          AND    STATE IS NULL  /* 'DECISION' */
-                        </if>
-                        <if test=" searchType == 'DECISION' " >/* 기결조회 */
-                          AND    APPROVAL_TYPE = 'APPR' /* 결재 */
-                          AND    STATE = 'COMPLETE'  /* 'COMPLETE' */
-                        </if>
-                        <if test=" searchType == 'NOTICE' " >/* 통보 조회 */
-                          AND    APPROVAL_TYPE = 'NOTICE' /* 결재 */
-                        </if>
-                       )
-        <if test=" sessionVo != null and !sessionVo.equals('') ">
-            AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
-        </if>               
-        ORDER BY A.APPROVAL_DATE DESC 
+	/* approval.getApprovalUserState */
+	 SELECT ROWNUM
+	       ,A.APPROVAL_ID   
+	       ,A.SP_CSTM_ID    
+	       ,A.USER_ID   
+	       ,A.USER_NM
+	       ,A.TITLE         
+	       ,A.CONTENTS      
+	       ,A.STATE         
+	       ,A.APPROVAL_DATE 
+	       ,A.APPROVAL_DATE1
+	       ,A.COMPLETE_DATE 
+	       ,A.COMPLETE_DATE1
+	       ,A.UPDATE_USER   
+	       ,A.UPDATE_DATE  
+	       ,A.UPDATE_DATE1 
+	       ,A.CREATE_USER   
+	       ,A.CREATE_DATE1 
+	 FROM   (
+	        /* approval.getApprovalUserState */
+	        SELECT  A.APPROVAL_ID   
+	               ,A.SP_CSTM_ID    
+	               ,A.USER_ID   
+	               ,(SELECT USER_NM FROM   TBL_EXP_USER WHERE  USER_ID = A.USER_ID AND SP_CSTM_ID = A.SP_CSTM_ID) AS USER_NM
+	               ,A.TITLE         
+	               ,A.CONTENTS      
+	               ,A.STATE         
+	               ,A.APPROVAL_DATE 
+	               ,TO_CHAR( A.APPROVAL_DATE , 'YYYY-MM-DD HH24:MI:SS' ) APPROVAL_DATE1
+	               ,A.COMPLETE_DATE 
+	               ,TO_CHAR( A.COMPLETE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) COMPLETE_DATE1
+	               ,A.UPDATE_USER   
+	               ,A.UPDATE_DATE  
+	               ,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE1 
+	               ,A.CREATE_USER   
+	               ,TO_CHAR( A.CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE1 
+	        FROM   TBL_EXP_APPROVAL A
+	        WHERE  1 = 1
+	        AND    A.APPROVAL_ID IN (
+	                        SELECT APPROVAL_ID
+	                        FROM   TBL_EXP_APPROVAL_USER
+	                        WHERE  1 = 1
+	                        <if test=" approvalUserId != null and approvalUserId != '' " >
+	                          AND    USER_ID = #{approvalUserId}     /* 'windrider' */
+	                        </if>
+	                        <if test=" searchType == 'SUSPENSE' " >/* 미결조회 */
+	                          AND    APPROVAL_TYPE = 'APPR' /* 결재 */
+	                          AND    STATE IS NULL  /* 'DECISION' */
+	                        </if>
+	                        <if test=" searchType == 'DECISION' " >/* 기결조회 */
+	                          AND    APPROVAL_TYPE = 'APPR' /* 결재 */
+	                          AND    STATE = 'COMPLETE'  /* 'COMPLETE' */
+	                        </if>
+	                        <if test=" searchType == 'NOTICE' " >/* 통보 조회 */
+	                          AND    APPROVAL_TYPE = 'NOTICE' /* 결재 */
+	                        </if>
+	                       )
+	        <if test=" sessionVo != null and !sessionVo.equals('') ">
+	            AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
+	        </if>               
+	        ORDER BY A.APPROVAL_DATE DESC
+	        ) A  
     </select>
     
         <!--  결재자 조회 이응규 -->
@@ -144,37 +164,56 @@
     <!--  결재 조회 이응규 -->
     <select id="getApproval" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* approval.getApproval */
-        SELECT  A.APPROVAL_ID   
-               ,A.SP_CSTM_ID    
-               ,A.USER_ID   
-               ,(SELECT USER_NM FROM   TBL_EXP_USER WHERE  USER_ID = A.USER_ID AND SP_CSTM_ID = A.SP_CSTM_ID) AS USER_NM
-               ,A.TITLE         
-               ,A.CONTENTS      
-               ,A.STATE         
-               ,A.APPROVAL_DATE 
-               ,TO_CHAR( A.APPROVAL_DATE , 'YYYY-MM-DD HH24:MI:SS' ) APPROVAL_DATE1
-               ,A.COMPLETE_DATE 
-               ,TO_CHAR( A.COMPLETE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) COMPLETE_DATE1
-               ,A.UPDATE_USER   
-               ,A.UPDATE_DATE  
-               ,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE1 
-               ,A.CREATE_USER   
-               ,TO_CHAR( A.CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE1 
-        FROM  TBL_EXP_APPROVAL A
-        WHERE 1 = 1
-        <if test=" sessionVo != null and !sessionVo.equals('') ">
-            AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
-        </if>
-        <if test=" searchUserId != null and searchUserId != '' " >
-          AND   A.USER_ID    = #{searchUserId}
-        </if>
-        <if test=" approvalId != null and approvalId != '' " >
-          AND   A.APPROVAL_ID = #{approvalId}
-        </if>
-        <if test=" state != null and state != '' " >
-          AND    STATE = #{state}
-        </if>
-        ORDER BY APPROVAL_DATE DESC
+		 SELECT ROWNUM
+		       ,A.APPROVAL_ID   
+		       ,A.SP_CSTM_ID    
+		       ,A.USER_ID   
+		       ,A.USER_NM
+		       ,A.TITLE         
+		       ,A.CONTENTS      
+		       ,A.STATE         
+		       ,A.APPROVAL_DATE 
+		       ,A.APPROVAL_DATE1
+		       ,A.COMPLETE_DATE 
+		       ,A.COMPLETE_DATE1
+		       ,A.UPDATE_USER   
+		       ,A.UPDATE_DATE  
+		       ,A.UPDATE_DATE1 
+		       ,A.CREATE_USER   
+		       ,A.CREATE_DATE1 
+		 FROM   (
+		        SELECT  A.APPROVAL_ID   
+		               ,A.SP_CSTM_ID    
+		               ,A.USER_ID   
+		               ,(SELECT USER_NM FROM   TBL_EXP_USER WHERE  USER_ID = A.USER_ID AND SP_CSTM_ID = A.SP_CSTM_ID) AS USER_NM
+		               ,A.TITLE         
+		               ,A.CONTENTS      
+		               ,A.STATE         
+		               ,A.APPROVAL_DATE 
+		               ,TO_CHAR( A.APPROVAL_DATE , 'YYYY-MM-DD HH24:MI:SS' ) APPROVAL_DATE1
+		               ,A.COMPLETE_DATE 
+		               ,TO_CHAR( A.COMPLETE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) COMPLETE_DATE1
+		               ,A.UPDATE_USER   
+		               ,A.UPDATE_DATE  
+		               ,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE1 
+		               ,A.CREATE_USER   
+		               ,TO_CHAR( A.CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE1 
+		        FROM  TBL_EXP_APPROVAL A
+		        WHERE 1 = 1
+		        <if test=" sessionVo != null and !sessionVo.equals('') ">
+		            AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
+		        </if>
+		        <if test=" searchUserId != null and searchUserId != '' " >
+		          AND   A.USER_ID    = #{searchUserId}
+		        </if>
+		        <if test=" approvalId != null and approvalId != '' " >
+		          AND   A.APPROVAL_ID = #{approvalId}
+		        </if>
+		        <if test=" state != null and state != '' " >
+		          AND    STATE = #{state}
+		        </if>
+		        ORDER BY APPROVAL_DATE DESC
+		        ) A    
     </select>
 
     <!-- 결재 입력  이응규 -->

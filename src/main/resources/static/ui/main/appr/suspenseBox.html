@@ -2,6 +2,7 @@
 <script type="text/javascript">
     var <@pageId> = {
              approvalList : [] 
+            ,excelParamGrp : {}
             ,searchApproval : () => {
             	    console.log("======= 부모창 searchApproval =======");
                     
@@ -14,6 +15,7 @@
                          queryId        : "approval.getApprovalUserState"
                         ,requestParm    : requestParm
                     }
+                    <@pageId>.excelParamGrp= parm;//엑셀
                     C_COM.requestQuery(parm, function(resultData) {
                         console.log( resultData.data);
                         <@pageId>.approvalList = resultData.data;
@@ -22,8 +24,30 @@
                                 ,list       : resultData.data
                             }
                         C_COM.renderHtml("<@pageId>", rparm);
-                        
+                        <@pageId>.setHandler();//엑셀
                     });            
+            }
+            ,setHandler : () => {//엑셀s
+                 
+                $("[name='<@pageId>_excelDownload']").off().on("click",function(){
+                    console.log("_excelDownload");
+                    const sectionId = $(this).closest("section").attr("id");
+                    <@pageId>.excelDownload(sectionId,"미결함 목록");
+                })
+            }       
+            ,excelDownload : (sectionId,title) => {
+                console.log("excelDownload sectionId ==>"+sectionId);
+                let excelParam = {};
+                excelParam = <@pageId>.excelParamGrp
+
+                console.log("excelDownload  excelParam ===="+excelParam);
+                
+                const $hds = $("#"+sectionId + " #<@pageId>_headingColName th");
+                const $tds = $("#"+sectionId + " [name='<@pageId>_tr_0'] td");
+
+                console.log("sectionId  ===="+sectionId);
+                _excelDownload($hds, $tds, excelParam, title );
+                
             }
             ,apprDtlPopup : function(uuid) {    
                 console.log("======= apprDtlPopup uuid =======>"+uuid);
@@ -91,7 +115,7 @@
                 <h2><i class="icon_bullet"></i>미결함</h2>
             </div>
             <div class="sec_scroll">
-                <section class="sec_wrap">
+                <section class="sec_wrap" id="<@pageId>_apprList_section">
                     <div class="cont_box">
                         <h3>미결함 목록</h3>
                         <!-- search area -->
@@ -101,7 +125,7 @@
                                 <input type="text" class="datepicker" style="width:132px">
                             </div>
                             <div class="search_right">
-                                <button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>
+                                <button type="button" class="btn fl" name="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
                                 <div class="select_box fl" style="width:132px">
                                     <button type="button" class="btn radio"><span>50개 보기</span></button>
                                     <ul class="select_lst">
@@ -124,7 +148,7 @@
                                     <col style="width:100px;"/>
                                 </colgroup>
                                 <thead>
-                                    <tr>
+                                    <tr id="<@pageId>_headingColName">
                                         <th scope="col">Num</th>
                                         <th scope="col">상신일</th>
                                         <th scope="col">상신자</th>
@@ -137,13 +161,13 @@
                                 </tbody>
                                 <script type="text/x-jsrender" id="tableId_template">    
                                     {{for list}}
-                                        <tr id="trId_{{:#index}}">
-                                            <td id='index'           value='{{:#index}}'         >{{:#index}}    </td>
+                                        <tr id="trId_{{:#index}}" name="<@pageId>_tr_{{:#index}}" value='{{:APPROVAL_ID}}'>
+                                            <td id='ROWNUM'          value='{{:ROWNUM}}'         >{{:ROWNUM}}    </td>
                                             <td id='APPROVAL_DATE1'  value='{{:APPROVAL_DATE1}}'  >{{:APPROVAL_DATE1}}</td>
                                             <td id='REQUEST_USER'    value='{{:REQUEST_USER}}'  >{{:REQUEST_USER}}</td>
                                             <td id='TITLE'           value='{{:TITLE}}'         class="tl"><a href="javascript:void(0);" onclick="<@pageId>.apprDtlPopup('{{:UUID}}');">{{:TITLE}}</a></td>
                                             <td id='STATE'           value='{{:STATE}}'          ><span class="state paying">{{:STATE}}</span></td>
-                                            <td>
+                                            <td id='UUID'            value='{{:UUID}}'         >
                                                 <button class="btn">
                                                     <a href="javascript:void(0);" onclick="<@pageId>.apprComplete('{{:UUID}}');">결재하기</a>
                                                 </button>

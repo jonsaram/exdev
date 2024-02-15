@@ -31,19 +31,17 @@
                         <@pageId>.setHandler();//엑셀
                     });            
             }
-
-            ,setHandler : () => {
+              
+            ,setHandler : () => {//엑셀
                  
                 $("[name='<@pageId>_excelDownload']").off().on("click",function(){
                     console.log("_excelDownload");
                     const sectionId = $(this).closest("section").attr("id");
-                    <@pageId>.excelDownload(sectionId,"TB_EXP_GRPCODE");
+                    <@pageId>.excelDownload(sectionId,"상신함 목록");
                 })
-                
-
             }       
             ,excelDownload : (sectionId,title) => {
-            	console.log("excelDownload  ====");
+            	console.log("excelDownload sectionId ==>"+sectionId);
                 let excelParam = {};
                 excelParam = <@pageId>.excelParamGrp
 
@@ -117,7 +115,7 @@
                 <button id='<@pageId>_apprReqPopupBtn' type="button" class="btn select" >결재 상신</button>
             </div>
             <div class="sec_scroll">
-                <section class="sec_wrap">
+                <section class="sec_wrap" id="<@pageId>_apprList_section">
                     <div class="cont_box">
                         <h3>상신함 목록</h3>
                         <!-- search area -->
@@ -160,7 +158,7 @@
                                     <col style="width:100px;"/>
                                 </colgroup>
                                 <thead>
-                                    <tr>
+                                    <tr id="<@pageId>_headingColName">
                                         <th scope="col">Num</th>
                                         <th scope="col">상신일</th>
                                         <th scope="col">제목</th>
@@ -171,9 +169,9 @@
                                 </tbody>
                                 <script type="text/x-jsrender" id="tableId_template">    
                                     {{for list}}
-                                        <tr id="trId_{{:#index}}">
-                                            <td id='index'           value='{{:#index}}'         >{{:#index}}    </td>
-                                            <td id='APPROVAL_DATE1'  value='{{:APPROVAL_DATE1}}'  >{{:APPROVAL_DATE1}}</td>
+                                        <tr id="trId_{{:#index}}" name="<@pageId>_tr_{{:#index}}" value='{{:APPROVAL_ID}}'>
+                                            <td id='ROWNUM'          value='{{:ROWNUM}}'         >{{:ROWNUM}}    </td>
+                                            <td id='APPROVAL_DATE1'  value='{{:APPROVAL_DATE1}}' >{{:APPROVAL_DATE1}}</td>
                                             <td id='TITLE'           value='{{:TITLE}}'         class="tl"><a href="javascript:void(0);" onclick="<@pageId>.apprDtlPopup('{{:APPROVAL_ID}}');">{{:TITLE}}</a></td>
                                             <td id='STATE'           value='{{:STATE}}'          ><span class="state paying">{{:STATE}}</span></td>
                                         </tr>
