@@ -15,7 +15,7 @@
             if($state.hasClass("status") === true) {
                 $(this).parent().parent().prev().children().prepend($htmlState);
             }
-            $(this).parent().parent().prev().children().find('span').text( $var );
+            $(this).parent().parent().prev().children().find('span').text($var);
             $(this).parent().parent().prev().children().addClass( "active" );
             $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
             $(this).parent().parent().addClass("viewHide");
@@ -29,7 +29,7 @@
             if($state.hasClass("status") === true) {
                 $(this).parent().parent().prev().children().prepend($htmlState);
             }
-            $( this ).parent().parent().prev().children().text( $var );
+            $( this ).parent().parent().prev().children().text($var);
             $( this ).parent().parent().prev().children().addClass( "active" );
             $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
         });
@@ -154,13 +154,11 @@
     var sl = 0;
     $(function(){
         $.fn.hasYScrollBar = function() {
-            return (this.prop("scrollHeight") == 0 && this.prop("clientHeight") == 0)
-                    || (this.prop("scrollHeight") > this.prop("clientHeight"));
+            return (this.prop("scrollHeight") == 0 && this.prop("clientHeight") == 0) || (this.prop("scrollHeight") > this.prop("clientHeight"));
         };
 
         $.fn.hasXScrollBar = function() {
-            return (this.prop("scrollWidth") == 0 && this.prop("clientWidth") == 0)
-                    || (this.prop("scrollWidth") > this.prop("clientWidth"));
+            return (this.prop("scrollWidth") == 0 && this.prop("clientWidth") == 0) || (this.prop("scrollWidth") > this.prop("clientWidth"));
         };
 
         $(".tbl_body_scroll").scroll(function(event){
@@ -171,11 +169,10 @@
             }
         });
 
+
         if ($(".tbl_body_scroll").hasYScrollBar()) {
             //y축 스크롤이 있으면 스크롤 넓이인 8px만큼 header 마지막 열 크기를 늘린다
-            $(".tbl_head colgroup col:last-child").width($(".tbl_body_scroll colgroup col:last-child").width() + 8);
-        } else {
-            $(".tbl_head colgroup col:last-child").width($(".tbl_body_scroll colgroup col:last-child").width());
+            $(".tbl_head colgroup col:last-child").width($(".tbl_body_scroll colgroup col:last-child").width() + 8 );
         }
     });
 
@@ -255,6 +252,30 @@
             }
         });
     });
+
+
+    /*============= Search Area ================*/
+    $(document).on("click", "#searchBtn", function(){
+        $(this).next().show();
+    });
+    $(document).on("click", ".search_lst", function(){
+        $(this).hide();
+    });
+
+
+    /*============= table select ================*/
+    $(document).on("click", ".tbl01 tr", function(){
+        $(this).addClass('select').siblings('tr').removeClass('select');
+    });
+    // 외부 링크
+    $(document).bind('click', function(e) {
+      var $clicked = $(e.target);
+      if (!$clicked.parents().hasClass("tbl01")) {
+        $(".tbl01 tr").removeClass('select');
+      };
+    });
+
+
 
 })(window, window.jQuery);
 

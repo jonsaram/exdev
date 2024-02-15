@@ -322,6 +322,45 @@
 		,DEL_YN = 'Y'
 		WHERE CONTRACT_ID	 = #{CONTRACT_ID}
 	</delete>
+	
+	<select id="getContractMemberList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	contract.getContractMemberList
+			계약 관계자 조회 
+		*/
+		SELECT 
+		  CM.CONTRACT_ID
+		, CM.USER_ID
+		, U.USER_NM
+		, U.GRADE
+		, GET_CODE_NM ( 'GRADE', U.GRADE) AS GRADE_NM
+		, CM.RELATION_TYPE
+		, CM.BUSINESS_HIERARCHY
+		, GET_CODE_NM('BUSINESS_HIERARCHY',CM.BUSINESS_HIERARCHY  ) AS POSITION
+		, CM.USE_YN
+		, CM.DEL_YN
+		, CM.UPDATE_USER
+		, CM.UPDATE_DATE
+		FROM TBL_EXP_CONTRACT_MEMBER CM
+		, TBL_EXP_USER U
+		WHERE 1=1 
+		AND CM.CONTRACT_ID =  #{CONTRACT_ID}
+		AND CM.USER_ID = U.USER_ID
+		AND CM.USE_YN = 'Y'
+		AND CM.DEL_YN = 'N'
+		ORDER BY 
+		CASE CM.RELATION_TYPE
+		    WHEN 'EXCEUTE'		THEN '1'
+		    WHEN 'COWORK' 		THEN '2'
+		    WHEN 'SALES' 		THEN '3'
+		    WHEN 'OVERRIDING'	THEN '4'
+	    END ,
+	    CASE CM.BUSINESS_HIERARCHY
+		    WHEN 'MAIN_HEADER'		THEN '1'
+		    WHEN 'LOCAL_HEADER' 	THEN '2'
+		    WHEN 'DEPT_HEADER' 		THEN '3' 
+	    END
+	</select>	
+		
 
 	<update id="updateContractMember" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	contract.updateContractMember
@@ -358,12 +397,9 @@
 		/*	contract.deleteContractMember
 			계약 관계자 삭제
 		*/
-		UPDATE TBL_EXP_CONTRACT_MEMBER
-		SET DEL_YN = 'Y'
+		DELETE FROM  TBL_EXP_CONTRACT_MEMBER
 		WHERE CONTRACT_ID	= #{CONTRACT_ID}
-		AND USER_ID	 		= #{USER_ID}
 	</delete>
-	
 	
 
 	<select id="getOverridingList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -371,7 +407,7 @@
 			Overriding 관련 상급자 조회 
 		*/
 		SELECT 'MAIN_HEADER' AS BUSINESS_HIERARCHY ,GET_CODE_NM('BUSINESS_HIERARCHY','MAIN_HEADER'  ) AS POSITION
-		,BB.USER_ID , GET_USER_NM(BB.USER_ID) AS USER_NM, GET_CODE_NM('GRADE',U.GRADE) AS OVERRIDING , 'OVERRIDING' AS RELATION_TYPE
+		,BB.USER_ID , GET_USER_NM(BB.USER_ID) AS USER_NM, GET_CODE_NM('GRADE',U.GRADE) AS GRADE_NM , 'OVERRIDING' AS RELATION_TYPE
 		FROM TBL_EXP_USER U, TBL_EXP_BASE_BRANCH BB,TBL_EXP_SP_BRANCH SB , TBL_EXP_BRANCH BR 
 		WHERE  BR.BRANCH_ID = #{BRANCH_ID} 
 		AND BR.SP_BRANCH_ID = SB.SP_BRANCH_ID AND SB.BASE_BRANCH_ID = BB.BASE_BRANCH_ID AND U.USER_ID = BB.USER_ID

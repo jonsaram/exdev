@@ -198,10 +198,11 @@
 .box_text .box_division{margin-top:3px;font-size:16px;font-weight:600;line-height:23px}
 
 /*search*/
-.search_area{margin-top:10px;margin-bottom:10px;width:100%}
+.search_area{margin-top:10px;margin-bottom:10px;width:100%;min-height:24px;position:relative;}
 .search_area:after{content:'';display:block;clear:both;}
 .dropdown + .search_inputWrap,button + button,button + .dropdown {margin-left:11px}
-.search_area .tit01{display:inline-block;width:67px;text-align:center;font-size:12px;font-weight:600;}
+.search_area .tit01,.search_area .tit02{display:inline-block;min-width:67px;text-align:center;font-size:12px;font-weight:600;}
+.search_area .tit02{position:absolute;bottom:0}
 .search_inputWrap{position:relative;display:inline-block;}
 .search_inputWrap .search_btn{position:absolute;top:10px;right:9px}
 .icon_search{display:inline-block;width:14px;height:15px;background:url(../img/icon_search.png) no-repeat;transform:rotate(270deg);}
@@ -252,7 +253,7 @@
 .tbl01 > table > tbody > tr > .textIndent{text-indent:20px;}
 .tbl01 > table > tbody > tr > td > a{color:#27187F;font-weight:600}
 .tbl01 > table > tbody > tr > td > a:hover{text-decoration:underline;}
-.tbl01.col > table > tbody > tr:hover{background:#f2f3ff;}
+.tbl01.col > table > tbody > tr:hover,.tbl01.col > table > tbody > tr.select{background:#f2f3ff;}
 .tbl01 > table > tbody > tr.expiration_date td{background:#FFF2F2}
 .tbl01 > table > tbody > tr.expiration_date td:nth-child(14){color:#e90808;font-weight:600}
 .tbl01.row.board > table > tbody > tr > td{padding:10px 15px;position:relative;border-bottom:1px solid #e3e3e3;}
@@ -324,7 +325,7 @@
 .info_wrap dt{padding:0 10px 0 0;text-align:left;width:70px;line-height:33px}
 .info_wrap dd{width:calc(100% - 70px)}
 .info_wrap.pay dt{width:100px;}
-.info_wrap.pay dd{width:calc(100% - 100px)}
+.info_wrap.pay dd{width:calc(100% - 100px);line-height:33px;font-weight:normal;}
 .modal_footer{margin-top:20px;position:absolute;bottom:25px;right:25px;text-align:right;}
 .modal_footer button{padding:0;min-width:100px;height:35px;line-height:35px;}
 .modal_wrap.alert .modal_footer{position:initial;bottom:inherit;right:inherit;text-align:center;}
@@ -481,14 +482,16 @@
 
 /* tap */
 .tab_wrap{height:100%;}
-.tab_wrap > ul{border-bottom:1px solid #c4c5c8;margin-bottom:15px;height:32px}
+.tab_wrap > ul{border-bottom:1px solid #c4c5c8;height:32px}
 .tab_wrap > ul:after{content:'';display:block;clear:both;}
 .tab_wrap > ul li{margin-right:-1px;float:left;text-align:center;color:#8A8C92;min-width:80px;padding:0 15px;font-size:15px;line-height:30px;cursor:pointer;border:1px solid #c4c5c8;}
+.modal_wrap .tab_wrap > ul li{border:0;background:0}
 .tab_wrap > ul li a{color:#8A8C92}
 .tab_wrap > ul li.active{color:#27187F;font-weight:600;border-bottom:2px solid #27187F;background:#fff}
 .tab_wrap > ul li.active a{color:#27187F}
+
 .tab_content{height:calc(100% - 47px);}
-.tab_content .display{height:100%;display:none}
+.tab_content .display{padding-top:15px;height:100%;display:none;}
 
 /* 반응형 */
 @media screen and (max-width: 1770px) { /* PC */

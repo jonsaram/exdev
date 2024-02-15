@@ -52,22 +52,29 @@ var <@pageId> = {
 
 				if( resultData.state == "S"){
 
-					const lastCnt = requestParmCM.length;
-					requestParmCM.forEach( (member,index) => {
-						
-						C_COM.requestQuery({
-							 queryId 		: "contract.updateContractMember"
-							,requestParm	: member
-						}, function(resultData) {
+					C_COM.requestQuery({
+						 queryId 		: "contract.deleteContractMember"
+						,requestParm	: {CONTRACT_ID : requestParm["CONTRACT_ID"]}
+					}, function(resultData) {
 
-							if( resultData.state == "S" && lastCnt == index+1){
-								
-								<@pageId>.searchList();
+						const lastCnt = requestParmCM.length;
+						requestParmCM.forEach( (member,index) => {
 							
-							} 
-						});	
+							C_COM.requestQuery({
+								 queryId 		: "contract.updateContractMember"
+								,requestParm	: member
+							}, function(resultData) {
+
+								if( resultData.state == "S" && lastCnt == index+1){
+									
+									<@pageId>.searchList();
+								
+								} 
+							});	
+							
+						})
 						
-					})
+					});
 				
 				}else{
 					alert(resultData.msg)
@@ -82,11 +89,18 @@ var <@pageId> = {
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				
-				if( resultData.state == 'S'){
+				var parm = {
+						 queryId 		: "contract.deleteContractMember"
+						,requestParm	: delKey
+				}
+				C_COM.requestQuery(parm, function(resultData) {
 					
-					<@pageId>.searchList();
+					if( resultData.state == 'S'){
+						
+						<@pageId>.searchList();
 
-				}				
+					}				
+				});					
 			});				
 		}
 		, deleteOne : (key) =>{

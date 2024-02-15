@@ -61,32 +61,65 @@ var <@popupId> = {
 						$("#<@popupId>_items #" + id).val(val);
 					    
 					}
-				})	
+				})
+				
+				<@popupId>.savedContractMemberSearch();
 		}
 
-		const CONTRACT_TYPE 	= $("#<@popupId>_items #CONTRACT_TYPE").val();
+		<@popupId>.memberSet();
+		
+ 		const CONTRACT_TYPE 	= $("#<@popupId>_items #CONTRACT_TYPE").val();
 		const CONSULTING_CLASS 	= $("#<@popupId>_items #CONSULTING_CLASS").val();
-
-		const buyerId = $("#<@popupId>_items #BUYER_ID").val();
-		const buyerNm = $("#<@popupId>_items #BUYER_NM").val();
-		if( buyerId )$("#<@popupId>_items #BUYER").val(buyerNm+ " ("+buyerId+")");
-		const userId = $("#<@popupId>_items #USER_ID").val();
-		const userNm = $("#<@popupId>_items #USER_NM").val();
-		if( userId )$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
-
 		
 		C_UICOM.makeSelectBox({ 
-			 data : C_COM.getCodeList("CONTRACT_TYPE")
+			 defaultItem 	: ["--", "선택"]
+			,data : C_COM.getCodeList("CONTRACT_TYPE")
  			,targetId : "<@popupId>_selectContractType" }, "single");
 		if( CONTRACT_TYPE ) 
 			C_UICOM.setSingleBox("<@popupId>_selectContractType", CONTRACT_TYPE);
 		
 		C_UICOM.makeSelectBox({ 
-			 data : C_COM.getCodeList("CONSULTING_CLASS")
+			 defaultItem 	: ["--", "선택"]
+			,data : C_COM.getCodeList("CONSULTING_CLASS")
  			,targetId : "<@popupId>_selectConsultingClass" }, "single");
 		if( CONSULTING_CLASS ) 
 			C_UICOM.setSingleBox("<@popupId>_selectConsultingClass", CONSULTING_CLASS);
 
+	}
+	,savedContractMemberSearch : () => {
+		
+		const CONTRACT_ID = $("#<@popupId>_items #CONTRACT_ID").val()
+		var parm = {
+				 queryId 		: "contract.getContractMemberList"
+				,requestParm	: {CONTRACT_ID : CONTRACT_ID}
+		}
+
+		C_COM.requestQuery(parm, function(resultData) {
+			
+			const USER 		= resultData.data.filter( member => member.RELATION_TYPE == 'EXECUTE');
+			<@popupId>.addCoworkRtnData	= resultData.data.filter( member => member.RELATION_TYPE == 'COWORK');
+			<@popupId>.addSalseManRtnData= resultData.data.filter( member => member.RELATION_TYPE == 'SALES');
+			const OVERRIDING= resultData.data.filter( member => member.RELATION_TYPE == 'OVERRIDING');
+			
+			var rparm1 = {
+					 targetId 		: "<@popupId>_coworkList"
+					,list			: <@popupId>.addCoworkRtnData
+			}
+			C_COM.renderHtml("<@popupId>", rparm1);
+			
+			var rparm2 = {
+					 targetId 		: "<@popupId>_salesManList"
+					,list			: <@popupId>.addSalseManRtnData
+			}
+			C_COM.renderHtml("<@popupId>", rparm2);
+			
+			var rparm3 = {
+					 targetId 		: "<@popupId>_overridingList"
+					,list			: OVERRIDING
+			}
+			C_COM.renderHtml("<@popupId>", rparm3);
+			
+		});
 	}
 	,selectHierarchyList : (branchId) => {
 		
@@ -117,7 +150,7 @@ var <@popupId> = {
 	,memberSearchPopup : function(gubun) {
       	
 		let param = {};
-		C_POP.open('popup_userSearchPopup2', {param:param, gubun:gubun}, function(retData) {
+		C_POP.open('popup_memberSearchPopup', {param:param, gubun:gubun}, function(retData) {
               
 			Object.keys(retData).forEach( item =>{
 					
@@ -126,22 +159,25 @@ var <@popupId> = {
 				$("#<@popupId>_items #"+item).val(value);
 					
 			});
-          		
-			const buyerId = $("#<@popupId>_items #BUYER_ID").val();
-			const buyerNm = $("#<@popupId>_items #BUYER_NM").val();
-			if( buyerId )$("#<@popupId>_items #BUYER").val(buyerNm+ " ("+buyerId+")");
-			const userId = $("#<@popupId>_items #USER_ID").val();
-			const userNm = $("#<@popupId>_items #USER_NM").val();
-			if( userId ){
-				$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
-				$("#<@popupId>_items #CPY_USER_NM").val(userNm);
-				const branchId = $("#<@popupId>_items #BRANCH_ID").val();
-				<@popupId>.selectHierarchyList(branchId);
-			}
-			
-			
+          	
+			<@popupId>.memberSet();
 			
 		});
+	}
+	,memberSet : () => {
+		
+		const buyerId = $("#<@popupId>_items #BUYER_ID").val();
+		const buyerNm = $("#<@popupId>_items #BUYER_NM").val();
+		if( buyerId )$("#<@popupId>_items #BUYER").val(buyerNm+ " ("+buyerId+")");
+		const userId = $("#<@popupId>_items #USER_ID").val();
+		const userNm = $("#<@popupId>_items #USER_NM").val();
+		if( userId ){
+			$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
+			$("#<@popupId>_items #CPY_USER_NM").text(userNm);
+			const branchId = $("#<@popupId>_items #BRANCH_ID").val();
+			if( branchId )<@popupId>.selectHierarchyList(branchId);
+		}
+
 	}
 	,setHandler : () => {
 	
@@ -166,7 +202,9 @@ var <@popupId> = {
 				
 				C_COM.renderHtml("<@popupId>", rparm);
 			});
+			
 		})
+		
 		$("#<@popupId>_addSalesMan").on('click', () => {
 			
 			let param = {};
@@ -179,6 +217,14 @@ var <@popupId> = {
 			
 				C_COM.renderHtml("<@popupId>", rparm);
 			});
+			
+		})
+		
+		$("#<@popupId>_items a[href^='#tab']").on('click', (obj) =>{
+			
+		    $('a[href^="#tab"]').parent().toggleClass('active');
+		    $('#<@popupId> #tab1, #<@popupId> #tab2').toggle();
+
 		})
 			 
 	} 
@@ -285,156 +331,142 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 .number {
 	text-align: right;
 }
-
-    .divider {
-        border-top: 1px solid #dadada;
-        margin-top: 10px;
-        margin-bottom: 10px;
-    }
 </style>
 <div class="modal_wrap">
-<!-- 	<div class="modal" style="width:450px;height:650px;"> -->
-	<div class="modal" style="width:450px;height:1350px;">
+	<div class="modal" style="width:640px;height:620px;">
 		<div class="modal_header">
-			<strong class="tit">계약등록</strong>
+			<strong class="tit">계약 등록</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
-		<div class="modal_body" style="overflow:visible;" id="<@popupId>_items">
-			<input type="hidden" id="CONTRACT_ID">
-			<input type="hidden" id="CONSULTING_ID" value="xxx">
-			<input type="hidden" id="PROCESS_STATE" value="PRE_STATE">
-			<input type="hidden" id="LAST_SOLUTION" value="last">
-			<input type="hidden" id="USE_YN" value="Y">
-			<input type="hidden" id="DEL_YN" value="N">
-			<input type="hidden" id="BRANCH_ID">
-			<div class="clearFix mt15">
-				<ul class="info_wrap">
-					<li>
-						<label>고객선택</label>
-						 <div class="search_inputWrap" style="width:75%">
-							<input type="search" id="BUYER" disabled>
-							<input type="hidden" id="BUYER_NM">
-							<input type="hidden" id="BUYER_ID">
-							<button class="search_btn">
-								<a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('customer');"><i class="icon_search"></i></a>
-							</button>
-                        </div>
-					</li>
-					<li>
-						<label>계약담당자</label>
-						 <div class="search_inputWrap" style="width:75%">
-                            <input type="search" id="USER" disabled>
-							<input type="hidden" id="USER_NM">
-							<input type="hidden" id="USER_ID">
-                              <button class="search_btn">
-                                  <a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('user');"><i class="icon_search"></i></a>
-                              </button>
-                        </div>
-					</li>
-					<li>
-						<label>상담일</label>
-						<div class="calendar_wrap">
-							<input type="text" class="datepicker" id="CONTACT_DATE" style="width:132px">
+		<div class="modal_body" id="<@popupId>_items">
+				<!-- tap area -->
+				<div class="tab_wrap mt15" style="height:calc(100% - 15px);">
+					<ul>
+						<li class="active"><a href="#tab1">계약정보</a></li>
+						<li><a href="#tab2">관련자정보</a></li>
+					</ul>
+					<div class="tab_content">
+						<div id="tab1" class="display" style='display:block;'>
+							<ul class="info_wrap col2 pay">
+								<li class="w100">
+									<label>고객선택</label>
+									<div class="info">
+										<div class="search_inputWrap" style="width:100%">
+											<input type="search" id="BUYER" placeholder="고객명(고객번호)"><a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('customer');" class="search_btn"><i class="icon_search"></i></a>
+										</div>
+									</div>
+								</li>
+								<li class="w100 ml0">
+									<label>계약담당자</label>
+									<div class="info">
+										<div class="search_inputWrap" style="width:100%">
+											<input type="search" id="USER" placeholder="사원이름(사원ID)"><a  href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('user');" class="search_btn"><i class="icon_search"></i></a>
+										</div>
+									</div>
+								</li>
+								<li>
+									<label>상담일</label>
+									<div class="info">
+										<div class="calendar_wrap">
+											<input type="text" class="datepicker" id="CONTACT_DATE" style="width:100%">
+										</div>
+									</div>
+								</li>
+								<li>
+									<label>자문계약일</label>
+									<div class="info">
+										<div class="calendar_wrap">
+											<input type="text" class="datepicker" id="CONTRACT_DATE" style="width:100%">
+										</div>
+									</div>
+								</li>
+								
+								<li>
+									<label>자문료</label>
+									<div class="info"><input type="text" style="width:100%" disabled></div>
+								</li>
+																
+								<li>
+									<label>만료일</label>
+									<div class="info">
+										<div class="calendar_wrap">
+											<input type="text" class="datepicker" id="EXPIRE_DATE"  style="width:100%">
+										</div>
+									</div>
+								</li>
+								<li class="w100">
+									<label>계약구분</label>
+									<div class="info">
+										<!-- 실글 선택 -->
+										<div id="<@popupId>_selectContractType" column = "CONTRACT_TYPE" class="select_box" style="width:100%">
+						                </div>
+									</div>
+								</li>
+								<li class="ml0">
+									<label>총계약금액</label>
+									<div class="info">
+										<input type="text"  class="number"   id="TOTAL_COST" style="width:100%">
+									</div>
+								</li>
+								<li class="w100">
+									<label>컨설팅 상품</label>
+									<div class="info">
+										<div class="search_inputWrap" style="width:100%">
+											<input type="search" name=""><a href="javascript:void(0);" class="search_btn"><i class="icon_search"></i></a>
+										</div>
+									</div>
+								</li>
+								<li class="w100 ml0">
+									<label>컨설팅 분야</label>
+									<div class="info">
+										<!-- 실글 선택 -->
+										<div id="<@popupId>_selectConsultingClass" column = "CONSULTING_CLASS" class="select_box" style="width:100%"></div>
+									</div>	
+								</li>
+								<li>
+									<label>세무담당</label>
+									<div class="info">
+										<input type="text" id='TAX_MNG' style="width:100%">
+									</div>
+								</li>
+								<li>
+									<label>노무담당</label>
+									<div class="info">
+										<input type="text" id='LABOR_MNG' style="width:100%">
+									</div>
+								</li>
+							</ul>
 						</div>
-					</li>
-					<li>
-						<label>자문예약일</label>
-						<div class="info"><div class="calendar_wrap">
-							<input type="text" class="datepicker" id="CONTRACT_DATE" style="width:132px">
-						</div></div>
-					</li>
-					<li>
-						<label>만료일</label>
-						<div class="info"><div class="calendar_wrap">
-							<input type="text" class="datepicker" id="EXPIRE_DATE" style="width:132px">
-						</div></div>
-					</li>
-					<li>
-						<label>계약구분</label>
-						<div class="info">
-							<div id="<@popupId>_selectContractType" column = "CONTRACT_TYPE" class="select_box" style="width:100%">
+						<div id="tab2" class="display" style="overflow:auto;">
+							<dl class="info_wrap pay mt0">
+								<dt class="mb0">담당 컨설턴트 :</dt>
+								<dd class="mb0" id="CPY_USER_NM"></dd>
+							</dl>
+							<!-- 코웍 사원 등록  -->
+							<div class="search_area">
+								<span class="tit02">코웍 사원 등록</span>
+								<div class="search_right">
+									<a class="btn small fr" href="#" id="<@popupId>_addCowork">추가</a>
+								</div>
 							</div>
-							<input type="hidden" id="CONTRACT_TYPE_NM" style="width:100%">
-							<input type="hidden" id="CONTRACT_TYPE">
-						</div>
-					</li>
-					<li>
-						<label>총계약금액</label>
-						<div class="info"><input type="text" class="number"  id="TOTAL_COST" style="width:100%"></div>
-					</li>
-					<li>
-						<label>컨설팅상품</label>
-						<div class="info"><input type="text" id="COMPANY_REGNUM" style="width:100%"></div>
-					</li>
-					<li>
-						<label>컨설팅분야</label>
-						<div class="info">
-							<div id="<@popupId>_selectConsultingClass" column = "CONSULTING_CLASS" class="select_box" style="width:100%">
-							</div>
-						<input type="hidden" id="CONSULTING_CLASS"></div>
-					</li>
-					<li>
-						<label>세무담당</label>
-						<div class="info"><input type="text" id="TAX_MNG" style="width:100%"></div>
-					</li>
-					<li>
-						<label>노무담당</label>
-						<div class="info"><input type="text" id="LABOR_MNG" style="width:100%"></div>
-					</li>
-				</ul>
-			</div>
-
-<!-- --관련자 정보-- -->
-<hr class="divider">
-
-			<div class="clearFix mt15">
-				<ul class="info_wrap">
-					<li>
-						<label>담당컨설턴트</label>
-						<div class="info"><div class="calendar_wrap">
-							<input type="text" id="CPY_USER_NM" style="width:300px;">
-						</div></div>
-					</li>					
-					<li>
-						<label>코웍 사원등록</label>
-						
-						<div class="fr">
-							<button type="button" class="btn select fl" id="<@popupId>_addCowork">추가</button>
-						</div>
-						
-					</li>
-				</ul>
-
-<!-- 고객 리스트 -->
-			
-<div class="tbl01 col tbl_scroll" style="min-height:100px;max-height:300px;" id="<@popupId>_cowork_div">
-		<div class="tbl01 col tbl_head">
-			<table>
-				<caption>코웍 사원 리스트 </caption>
-				<colgroup>
-						<col style="width:100px;"/>
-						<col style="width:110px;"/>
-						<col style="width:120px;"/>
-						<col/>
-				</colgroup>
-				<thead>
-					<tr >
-						<th scope="col">사원ID</th>
-						<th scope="col">사원이름</th>
-						<th scope="col">등급</th>
-						<th/>
-					</tr>
-				</thead>
-			</table>
-		</div>
-		<div class="tbl01 col tbl_body_scroll">
-			<table>
-				<colgroup>
-						<col style="width:100px;"/>
-						<col style="width:110px;"/>
-						<col style="width:120px;"/>
-						<col/>
-				</colgroup>
+							<!-- 테이블 -->
+							<div class="tbl01 col">
+								<table>
+									<caption>표 캡션</caption>
+									<colgroup>
+										<col style="width:25%;"/>
+										<col style="width:25%;"/>
+										<col style="width:25%;"/>
+										<col style="width:25%;"/>
+									</colgroup>
+									<thead>
+										<tr>
+											<th scope="col">사원ID</th>
+											<th scope="col">사원 이름</th>
+											<th scope="col">등급</th>
+											<th scope="col"></th>
+										</tr>
+									</thead>
 				<tbody  id="<@popupId>_coworkList">
 				</tbody>
 <script type="text/x-jsrender" id="<@popupId>_coworkList_template">						
@@ -444,7 +476,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			 					<td id='USER_NM'		 value='{{:USER_NM}}'		>{{:USER_NM}}</td>
 			 					<td id='GRADE'			 value='{{:GRADE}}'			>{{:GRADE}}</td>
 			 					<td >
-									<button type="button" class="btn fl" onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove();"><i class="icon_trash"></i></button>
+									<button type="button" class="btn small" onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove();"><i class="icon_trash"></i></button>
 								</td>
 					</tr>
 				{{/for}}
@@ -455,49 +487,34 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				</tr>
 </script>
 		</table>
-	</div>
+		
 </div>
 
-<!-- 영업담당 리스트 -->
-<hr class="divider">
-				<ul class="info_wrap">
-					<li>
-						<label>영업담당등록</label>
-						
-						<div class="fr">
-							<button type="button" class="btn select fl" id="<@popupId>_addSalesMan">추가</button>
-						</div>
-						
-					</li>
-				</ul>
-<div class="tbl01 col tbl_scroll" style="min-height:100px;max-height:300px;" id="<@popupId>_salesMan_div">
-		<div class="tbl01 col tbl_head">
-			<table>
-				<caption>영업담당 사원 리스트 </caption>
-				<colgroup>
-						<col style="width:100px;"/>
-						<col style="width:110px;"/>
-						<col style="width:120px;"/>
-						<col/>
-				</colgroup>
-				<thead>
-					<tr >
-						<th scope="col">사원ID</th>
-						<th scope="col">사원이름</th>
-						<th scope="col">등급</th>
-						<th/>
-					</tr>
-				</thead>
-			</table>
-		</div>
-		<div class="tbl01 col tbl_body_scroll">
-			<table>
-				<colgroup>
-						<col style="width:100px;"/>
-						<col style="width:110px;"/>
-						<col style="width:120px;"/>
-						<col/>
-				</colgroup>
+							<!-- 영업담당사원 등록  -->
+							<div class="search_area mt25">
+								<span class="tit02">영업담당사원 등록</span>
+								<div class="search_right">
+									<a class="btn small fr"  href="#" id="<@popupId>_addSalesMan">추가</a>
+								</div>
+							</div>
+							<!-- 테이블 -->
+							<div class="tbl01 col">
+								<table>
+									<caption>표 캡션</caption>
+									<colgroup>
+										<col style="width:25%;"/>
+										<col style="width:25%;"/>
+										<col style="width:25%;"/>
+										<col style="width:25%;"/>
+									</colgroup>
+									<thead>
+										<tr>
+											<th scope="col">사원ID</th>
+											<th scope="col">사원 이름</th>
+											<th scope="col">등급</th>
+											<th scope="col"></th>
+										</tr>
+									</thead>
 				<tbody  id="<@popupId>_salesManList">
 				</tbody>
 <script type="text/x-jsrender" id="<@popupId>_salesManList_template">						
@@ -518,49 +535,32 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				</tr>
 </script>
 		</table>
-	</div>
 </div>
-				
 
-
-<hr class="divider">
-<!-- Overriding관련 상급자 리스트 -->
-				<ul class="info_wrap">
-					<li>
-						<label>Overriding관련 상급자 등록</label>
-					</li>
-				</ul>
-<div class="tbl01 col tbl_scroll" style="max-height:300px;" id="<@popupId>_overriding_div">
-		<div class="tbl01 col tbl_head">
-			<table>
-				<caption>Overriding관련 상급자 리스트 </caption>
-				<colgroup>
-					<col style="width:80px;"/>
-					<col style="width:85px;"/>
-					<col style="width:85px;"/>
-					<col style="width:80px;"/>
-					<col/>
-				</colgroup>
-				<thead>
-					<tr >
-						<th scope="col">직책</th>
-						<th scope="col">사원ID</th>
-						<th scope="col">사원이름</th>
-						<th scope="col">등급</th>
-						<th/>
-					</tr>
-				</thead>
-			</table>
-		</div>
-		<div class="tbl01 col tbl_body_scroll">
-			<table>
-				<colgroup>
-					<col style="width:80px;"/>
-					<col style="width:85px;"/>
-					<col style="width:85px;"/>
-					<col style="width:80px;"/>
-					<col/>
-				</colgroup>
+							<!-- Overiding 관련 상급자   -->
+							<div class="search_area mt25">
+								<span class="tit02">Overiding 관련 상급자 </span>
+							</div>
+							<!-- 테이블 -->
+							<div class="tbl01 col">
+								<table>
+									<caption>Overriding관련 상급자 리스트 </caption>
+									<colgroup>
+										<col style="width:20%;"/>
+										<col style="width:20%;"/>
+										<col style="width:20%;"/>
+										<col style="width:20%;"/>
+										<col style="width:20%;"/>
+									</colgroup>
+									<thead>
+										<tr>
+											<th scope="col">직책</th>
+											<th scope="col">사원ID</th>
+											<th scope="col">사원 이름</th>
+											<th scope="col">등급</th>
+											<th scope="col"></th>
+										</tr>
+									</thead>
 				<tbody  id="<@popupId>_overridingList">
 				</tbody>
 <script type="text/x-jsrender" id="<@popupId>_overridingList_template">						
@@ -569,7 +569,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			 					<td id='POSITION'		 	value='{{:POSITION}}'			>{{:POSITION}}</td>
 			 					<td id='USER_ID'		 	value='{{:USER_ID}}'			>{{:USER_ID}}</td>
 			 					<td id='USER_NM'		 	value='{{:USER_NM}}'			>{{:USER_NM}}</td>
-			 					<td id='OVERRIDING'		 	value='{{:OVERRIDING}}'			>{{:OVERRIDING}}</td>
+			 					<td id='GRADE_NM'		 	value='{{:GRADE_NM}}'			>{{:GRADE_NM}}</td>
 			 					<td id='BUSINESS_HIERARCHY'	value='{{:BUSINESS_HIERARCHY}}'	style='display:none'>{{:BUSINESS_HIERARCHY}}</td>
 			 					<td >
 									<button type="button" class="btn fl" onClick="this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button>
@@ -584,14 +584,30 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				</tr>
 </script>
 		</table>
-	</div>
-</div>
-				
-				
-			</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<input type="hidden" id="CONTRACT_ID">
+				<input type="hidden" id="CONSULTING_ID" value="temp">
+				<input type="hidden" id="PROCESS_STATE" value="PRE_STATE">
+				<input type="hidden" id="LAST_SOLUTION" value="last">
+				<input type="hidden" id="USE_YN" value="Y">
+				<input type="hidden" id="DEL_YN" value="N">
+				<input type="hidden" id="BRANCH_ID">
+				<input type="hidden" id="BUYER_NM">
+				<input type="hidden" id="BUYER_ID">
+				<input type="hidden" id="USER_NM">
+				<input type="hidden" id="USER_ID">
+				<input type="hidden" id="CONTRACT_TYPE_NM">
+				<input type="hidden" id="CONTRACT_TYPE">
+				<input type="hidden" id="CONSULTING_CLASS">				
+	</div> <!-- //modal_body -->
 
-		</div>
 		<div class="modal_footer">
 			<button type="button" class="btn select" onclick="<@popupId>.apply()" >등록</button>
 			<button type="button" class="btn close"  onclick="<@popupId>.close()" >취소</button>
 		</div>
+	</div>
+</div>
+
