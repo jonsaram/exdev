@@ -3,24 +3,7 @@
 	var <@pageId> = {
 		 sampleVal : "예제 페이지입니다."
 		,sampleFunction : function() {
-			$("#<@pageId>_datepicker").datepicker({
-		            dateFormat: 'yy-mm-dd' //달력 날짜 형태
-		           ,showOtherMonths: true //빈 공간에 현재월의 앞뒤월의 날짜를 표시
-		           ,showMonthAfterYear:true // 월- 년 순서가아닌 년도 - 월 순서
-		           ,changeYear: true //option값 년 선택 가능
-		           ,changeMonth: true //option값  월 선택 가능                
-		           ,showOn: "both" //button:버튼을 표시하고,버튼을 눌러야만 달력 표시 ^ both:버튼을 표시하고,버튼을 누르거나 input을 클릭하면 달력 표시  
-		           ,buttonImage: "http://jqueryui.com/resources/demos/datepicker/images/calendar.gif" //버튼 이미지 경로
-		           ,buttonImageOnly: true //버튼 이미지만 깔끔하게 보이게함
-		           ,buttonText: "선택" //버튼 호버 텍스트              
-		           ,yearSuffix: "년" //달력의 년도 부분 뒤 텍스트
-		           ,monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 텍스트
-		           ,monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 Tooltip
-		           ,dayNamesMin: ['일','월','화','수','목','금','토'] //달력의 요일 텍스트
-		           ,dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'] //달력의 요일 Tooltip
-		           ,minDate: "-5Y" //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
-		           ,maxDate: "+5y" //최대 선택일자(+1D:하루후, -1M:한달후, -1Y:일년후)  
-		       });   
+				
 		 }	
 	}
 	// Page Load가 완료된후 실행 된다.
@@ -33,57 +16,5 @@
 	});
 </script>
 <div class="cont_wrap">
-
-    <div class="container">
-        <div class="cont_wrap lnb_none">
-            <div class="cont_top">
-                <h2><i class="icon_bullet"></i>캘린더</h2>
-            </div>
-            <div class="sec_scroll">
-                <section class="sec_wrap">
-                    <!-- 스케줄 왼쪽 -->
-                    <div class="schedule left">
-                        <div class="cont_top">
-                            <div class="today_schedule">
-                                <i class="icon_calendar_mark"></i>
-                                <div class="tit_schedule">오늘의 일정</div>
-                                <span class="num">2개</span>
-                            </div>
-                        </div>
-                        <!-- 왼쪽 박스 영역 -->
-                        <div class="schedule_wrap">
-                            <div class="datepicker" id="<@pageId>_datepicker"></div>
-                            <div class="stit_schedule">하위 팀원 업무 스케줄 확인</div>
-                            <div class="check_subTeam_wrap"></div>
-                            <div class="stit_schedule">업무 유형</div>
-                            <ul class="status_wrap">
-                                <li><i class="status meeting"></i><span>미팅</span></li>
-                                <li><i class="status tel_consul"></i><span>전화상담</span></li>
-                                <li><i class="status other_work"></i><span>그 외 업무</span></li>
-                                <li><i class="status send_email"></i><span>이메일 전송</span></li>
-                                <li><i class="status schedule"></i><span>회사 내부 일정</span></li>
-                                <li><i class="status seminar"></i><span>세미나</span></li>
-                            </ul>
-                        </div>
-
-                    </div>
-                    <!-- 스케줄 오른쪽 -->
-                    <div class="schedule right">
-                        <div class="schedule_topArea">
-                            <div class="search_inputWrap" style="width:215px;">
-                                <input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
-                                <ul class="search_lst" style="display:none;">
-                                    <li>날짜 검색</li>
-                                    <li>제목 검색</li>
-                                </ul>
-                            </div>
-                            <a href="#modal-ex" class="btn select schedule_btn"><i class="icon_add_circle"></i>일정추가하기</a>
-                        </div>
-                        <div id='calendar'></div>
-                    </div>
-                </section>
-
-            </div>
-        </div>
-    </div>
+	칼렌더
 </div>

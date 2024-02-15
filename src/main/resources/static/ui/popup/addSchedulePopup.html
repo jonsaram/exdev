@@ -1,0 +1,214 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+    var <@popupId> = {
+         requestParm : {}
+        ,save : function( value ) {
+            
+        	var obj = new Object();
+        	if( value == '1'){
+                obj.title = "세미나";
+                obj.start = "2024-02-04T09:00:00";
+                obj.end   = "";
+                obj.color = "##d770c0";
+                obj.textColor = "#fff";	
+        	}else if( value == '2'){
+                obj.title = "세미나";
+                obj.start = "2024-02-06T09:00:00";
+                obj.end   = "";
+                obj.color = "#d770c0";
+                obj.textColor = "#fff"; 
+            } else if( value == '3'){
+                obj.title = "이메일 전송";
+                obj.start = "2024-02-06T15:00:00";
+                obj.end   = "2024-02-06T16:00:00";
+                obj.color = "#72bfd2";
+                obj.textColor = "#fff"; 
+            } else if( value == '4'){
+                obj.title = "그 외 업무";
+                obj.start = "2024-02-20T13:00:00";
+                obj.end   = "2024-02-20T15:00:00";
+                obj.color = "#8dcc76";
+                obj.textColor = "#fff"; 
+            } else if( value == '5'){
+                obj.title = "전화상담";
+                obj.start = "2024-02-21T11:00:00";
+                obj.end   = "2024-02-21T11:30:00";
+                obj.color = "#e5b266";
+                obj.textColor = "#fff"; 
+            } else if( value == '6'){
+                obj.title = "미팅";
+                obj.start = "2024-02-23T10:00:00";
+                obj.end   = "2024-02-23T11:00:00";
+                obj.color = "#EE7C7C";
+                obj.textColor = "#fff"; 
+            } else if( value == '7'){
+                obj.title = "회사 내부 일정";
+                obj.start = "2024-02-23T15:00:00";
+                obj.end   = "2024-02-23T17:00:00";
+                obj.color = "##7E7CEE";
+                obj.textColor = "#fff"; 
+            }else{} 
+            
+            C_POP.close(obj);
+         }
+        ,close : function() {
+            console.log("======= 자식창 C_POP.close =======");
+
+            var obj = new Object();
+            obj.title = "그 외 업무";
+            obj.start = "2024-02-24T15:00:00";
+            obj.start = "2024-02-24T16:00:00";
+            obj.color = "#8dcc76";
+            obj.textColor = "#fff";
+            C_POP.close(obj);
+         }
+    }//var <@popupId>
+    
+    // Popup Load가 완료된후 실행 된다.
+    C_POP.onLoadPopup("<@popupId>", function(data) {
+        
+    });
+    
+    
+</script>
+    <!-- 캘린더 일정추가 팝업 -->
+    <div class="modal_wrap" id="modal-ex">
+        <div class="modal" style="width:700px;height:650px;">
+            <div class="modal_header">
+                <strong class="tit">캘린더 일정추가</strong>
+                <button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+                
+            </div>
+            <div class="modal_body" style="overflow:visible;">
+                <dl class="info_wrap">
+                    <dt>제목</dt>
+                    <dd><input type="text" style="width:100%"></dd>
+                    <dt>회사명</dt>
+                    <dd><button type="button" class="btn select">고객 불러오기</button></dd>
+                    <dt>업무 유형</dt>
+                    <dd>
+                        <div class="select_box">
+                            <button type="button" class="btn radio"><span>전체</span></button>
+                            <ul class="select_lst">
+                                <li>
+                                    <input name="<@popupId>_work" id="<@popupId>_work01" type="radio" value="">
+                                    <label for="work01"><i class="status meeting"></i><span>미팅</span><i class="icon_check"></i></label>
+                                </li>
+                                <!-- 
+                                <li>
+                                    <input name="<@popupId>_work" id="<@popupId>_work02" type="radio" value="">
+                                    <label for="work02"><i class="status tel_consul"></i><span>전화상담</span><i class="icon_check"></i></label>
+                                </li>
+                                <li>
+                                    <input name="<@popupId>_work" id="<@popupId>_work03" type="radio" value="">
+                                    <label for="work03"><i class="status other_work"></i><span>그 외 업무</span><i class="icon_check"></i></label>
+                                </li>
+                                <li>
+                                    <input name="<@popupId>_work" id="<@popupId>_work04" type="radio" value="">
+                                    <label for="work04"><i class="status send_email"></i><span>이메일 전송</span><i class="icon_check"></i></label>
+                                </li>
+                                <li>
+                                    <input name="<@popupId>_work" id="<@popupId>_work05" type="radio" value="">
+                                    <label for="work05"><i class="status schedule"></i><span>회사 내부 일정</span><i class="icon_check"></i></label>
+                                </li>
+                                <li>
+                                    <input name="<@popupId>_work" id="<@popupId>_work06" type="radio" value="">
+                                    <label for="work06"><i class="status seminar"></i><span>세미나</span><i class="icon_check"></i></label>
+                                </li>
+                                 --> 
+                            </ul>
+                        </div>
+                    </dd>
+                    <dt>일정</dt>
+                    <dd>
+                        <div class="clearFix">
+                            <div class="calendar_wrap fl">
+                                <input type="text" class="datepicker" style="width:185px">
+                            </div>
+                            <div class="select_box fl" style="width:calc(100% - 196px)">
+                                <button type="button" class="btn radio"><span>전체</span></button>
+                                <ul class="select_lst">
+                                    <li>
+                                        <input name="schedule" id="schedule01" type="radio" value="">
+                                        <label for="schedule01"><span>반복 안함</span><i class="icon_check"></i></label>
+                                    </li>
+                                    <!--
+                                    <li>
+                                        <input name="schedule" id="schedule02" type="radio" value="">
+                                        <label for="schedule02"><span>매일</span><i class="icon_check"></i></label>
+                                    </li>
+                                    <li>
+                                        <input name="schedule" id="schedule03" type="radio" value="">
+                                        <label for="schedule03"><span>매주</span><i class="icon_check"></i></label>
+                                    </li>
+                                    <li>
+                                        <input name="schedule" id="schedule04" type="radio" value="">
+                                        <label for="schedule04"><span>매월</span><i class="icon_check"></i></label>
+                                    </li>
+                                    <li>
+                                        <input name="schedule" id="schedule05" type="radio" value="">
+                                        <label for="schedule05"><span>매분기</span><i class="icon_check"></i></label>
+                                    </li>
+                                    <li>
+                                        <input name="schedule" id="schedule06" type="radio" value="">
+                                        <label for="schedule06"><span>매년</span><i class="icon_check"></i></label>
+                                    </li>
+                                     --> 
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="clearFix mt10">
+                            <div class="fl">
+                                <input type="text" value="" placeholder="09:00" style="width:86px"> - <input type="text" value="" placeholder="10:00" style="width:86px">
+                            </div>
+                            <div class="fl">
+                                <input type="checkbox" name="" id="day" class="pl10 lh33"><label for="day" class="ml5 lh33">종일</label>
+                            </div>
+                        </div>
+                    </dd>
+                    <dt>위치</dt>
+                    <dd><input type="text" placeholder="위치 추가" style="width:100%"></dd>
+                    <dt>참석자</dt>
+                    <dd>
+                        <div class="search_inputWrap w100">
+                            <input type="search" name="" placeholder="참석자 추가"><button class="search_btn"><i class="icon_search"></i></button>
+                        </div>
+                    </dd>
+                    <dt>공개 여부</dt>
+                    <dd>
+                        <div class="select_box">
+                            <button type="button" class="btn radio"><span>전체</span></button>
+                            <ul class="select_lst">
+                                <li>
+                                    <input name="open" id="open01" type="radio" value="">
+                                    <label for="open01"><span>공개</span><i class="icon_check"></i></label>
+                                </li>
+                                <!--
+                                <li>
+                                    <input name="open" id="open02" type="radio" value="">
+                                    <label for="open02"><span>비공개</span><i class="icon_check"></i></label>
+                                </li>
+                                 --> 
+                            </ul>
+                        </div>
+                    </dd>
+                    <dt>설명 추가</dt>
+                    <dd>
+                        <input type="text" style="width:100%">
+                    </dd>
+                </dl>
+            </div>
+            <div class="modal_footer">
+                <button type="button" class="btn select" onclick="<@popupId>.save('1')" >저장</button>
+                <button type="button" class="btn close" onclick="<@popupId>.close()" >취소</button>
+                <button type="button" class="btn select" onclick="<@popupId>.save('2')" >1</button>
+                <button type="button" class="btn select" onclick="<@popupId>.save('3')" >2</button>
+                <button type="button" class="btn select" onclick="<@popupId>.save('4')" >3</button>
+                <button type="button" class="btn select" onclick="<@popupId>.save('5')" >4</button>
+                <button type="button" class="btn select" onclick="<@popupId>.save('6')" >6</button>
+                <button type="button" class="btn select" onclick="<@popupId>.save('7')" >7</button>
+            </div>
+        </div>
+    </div>
+
+
