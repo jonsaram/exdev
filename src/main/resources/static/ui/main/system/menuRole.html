@@ -237,7 +237,8 @@
 							<col style="width:100px;"/>
 							<col style="width:100px;"/>
 							<col style="width:100px;"/>
-							<col style="width:80px;"/>
+							<col style="width:40px;"/>
+							<col style="width:40px;"/>
 						</colgroup>
 						<thead>
 							<tr id="<@pageId>_headingColName">
@@ -250,7 +251,8 @@
 								<th scope="col">MENU_DEPTH</th>
 								<th scope="col">MENU_DESC</th>
 								<th scope="col">AUTH_TYPE</th>
-								<th scope="col"></th>
+								<th scope="col"><i class="icon_pen"></i></th>
+								<th scope="col"><i class="icon_trash"></i></th>
 							</tr>
 						</thead>
 			</table>
@@ -269,7 +271,8 @@
 							<col style="width:100px;"/>
 							<col style="width:100px;"/>
 							<col style="width:100px;"/>
-							<col style="width:80px;"/>
+							<col style="width:40px;"/>
+							<col style="width:40px;"/>
 							</colgroup>		
 						<tbody  id="menuRoleList">
 						</tbody>
@@ -280,21 +283,20 @@
  					<td id='ROLE_ID'		value='{{:ROLE_ID}}'		>{{:ROLE_ID}}</td>
  					<td id='ROLE_NM'		value='{{:ROLE_NM}}'		>{{:ROLE_NM}}</td>
  					<td id='ROLE_DESC'		value='{{:ROLE_DESC}}' 		>{{:ROLE_DESC}}</td>
- 					<td id='MENU_ID'		value='{{:MENU_ID}}'		>{{:MENU_ID}}</td>
- 					<td id='MENU_NM' 		value='{{:MENU_NM}}'		>{{:MENU_NM}}</td>
+ 					<td id='MENU_ID'		value='{{:MENU_ID}}'		style="text-align:left">{{:MENU_ID}}</td>
+ 					<td id='MENU_NM' 		value='{{:MENU_NM}}'		style="text-align:left">{{:MENU_NM}}</td>
  					<td id='MENU_DEPTH'		value='{{:MENU_DEPTH}}' 	style="text-align:center">{{:MENU_DEPTH}}</td>
  					<td id='MENU_DESC'		value='{{:MENU_DESC}}' 		style="text-align:left">{{:MENU_DESC}}</td>
  					<td id='AUTH_TYPE_DESC'	value='{{:AUTH_TYPE_DESC}}'	>{{:AUTH_TYPE_DESC}}</td>
  					<td id='AUTH_TYPE'		value='{{:AUTH_TYPE}}' 		style='display:none'></td>
- 					<td><button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button>
-						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:ROLE_ID}}||{{:MENU_ID}}'><i class="icon_trash"></i></button>
-					</td>
+ 					<td><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
+					<td><button id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:ROLE_ID}}||{{:MENU_ID}}'><i class="icon_trash"></i></button></td>
 				</tr>
 				{{/for}}
 </script>
 <script type="text/x-jsrender" id="menuRoleList_noData_template">	
 				<tr>	
-					<td colspan=9>자료가 없습니다.</td>	
+					<td colspan=10>자료가 없습니다.</td>	
 				</tr>
 </script>
 					</table>

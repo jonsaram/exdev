@@ -220,7 +220,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
 								<col style="width:150px;"/>
-								<col/>
+								<col style="width:40px;" />
+								<col style="width:40px;" />
 						</colgroup>
 						<thead>
 							<tr id="<@pageId>_headingColName">
@@ -236,7 +237,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<th scope="col">만료일</th>
 								<th scope="col">총계약금액</th>
 								<th scope="col">컨설팅명</th>
-								<th scope="col"></th>
+								<th scope="col"><i class="icon_pen"></i></th>
+								<th scope="col"><i class="icon_trash"></i></th>
 							</tr>
 						</thead>
 					</table>
@@ -256,7 +258,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
 								<col style="width:150px;"/>
-								<col/>
+								<col style="width:40px;" />
+								<col style="width:40px;" />
 						</colgroup>
 						<tbody  id="<@pageId>_contractList">
 						</tbody>
@@ -286,10 +289,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
  								<td id='LAST_SOLUTION'		value='{{:LAST_SOLUTION}}'		style='display:none'>{{:LAST_SOLUTION}}</td>
  								<td id='USE_YN'				value='{{:USE_YN}}'				style='display:none'>{{:USE_YN}}</td>
  								<td id='DEL_YN'				value='{{:DEL_YN}}'				style='display:none'>{{:DEL_YN}}</td>
-			 					<td >
-									<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button>
-									<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:CONTRACT_ID}}'><i class="icon_trash"></i></button>
-								</td>
+			 					<td><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
+								<td><button id="<@pageId>_delete_{{:#index}}" key='{{:CONTRACT_ID}}'><i class="icon_trash"></i></button></td>
 							</tr>
 						{{/for}}
 </script>

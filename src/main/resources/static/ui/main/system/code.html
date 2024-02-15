@@ -448,7 +448,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<col style="width:100px;"/>
 					<col style="width:100px;"/>
 					<col style="width:100px;"/>
-					<col style="width:100px;"/>
+					<col style="width:40px;"/>
+					<col style="width:40px;"/>
 				</colgroup>
 				<thead>
 					<tr id="<@pageId>_headingColName">
@@ -462,7 +463,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<th scope="col">UPDATE_USER</th>
 						<th scope="col">UPDATE_DATE</th>
 						<th scope="col">TBL_EXP_CODE</th>
-						<th scope="col"></th>
+						<th scope="col"><i class="icon_pen"></i></th>
+						<th scope="col"><i class="icon_trash"></i></th>
 					</tr>
 				</thead>
 			</table>
@@ -481,7 +483,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<col style="width:100px;"/>
 					<col style="width:100px;"/>
 					<col style="width:100px;"/>
-					<col style="width:100px;"/>
+					<col style="width:40px;"/>
+					<col style="width:40px;"/>
 				</colgroup>
 			
 				<tbody  id="grpCodeList">
@@ -494,22 +497,21 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
  					<td id='GRP_CODE_ID'		value='{{:GRP_CODE_ID}}'		style="text-align:left">{{:GRP_CODE_ID}}</td>
  					<td id='GRP_CODE_NM'		value='{{:GRP_CODE_NM}}'		style="text-align:left">{{:GRP_CODE_NM}}</td>
  					<td id='CODE_DESC'			value='{{:CODE_DESC}}' 			style="text-align:left">{{:CODE_DESC}}</td>
- 					<td id='USE_YN'				value='{{:USE_YN}}' 			style="text-align:center">{{:USE_YN}}</td>
- 					<td id='DEL_YN'				value='{{:DEL_YN}}' 			style="text-align:center">{{:DEL_YN}}</td>
- 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}'			style="text-align:center">{{:SORT_ORDER}}</td>
- 					<td id='UPDATE_USER' 		value='{{:UPDATE_USER}}'		style="text-align:left">{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 		style="text-align:center">{{:UPDATE_DATE}}</td>
- 					<td id='TBL_EXP_CODE_CNT'	value='{{:TBL_EXP_CODE_CNT}}'	style="text-align:left">{{:TBL_EXP_CODE_CNT}}</td>
+ 					<td id='USE_YN'				value='{{:USE_YN}}' 			>{{:USE_YN}}</td>
+ 					<td id='DEL_YN'				value='{{:DEL_YN}}' 			>{{:DEL_YN}}</td>
+ 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}'			>{{:SORT_ORDER}}</td>
+ 					<td id='UPDATE_USER' 		value='{{:UPDATE_USER}}'		>{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 		>{{:UPDATE_DATE}}</td>
+ 					<td id='TBL_EXP_CODE_CNT'	value='{{:TBL_EXP_CODE_CNT}}'	>{{:TBL_EXP_CODE_CNT}}</td>
  					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}'	>
-						<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button>
-						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}'><i class="icon_trash"></i></button>
-					</td>
+						<button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
+					<td><button id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}'><i class="icon_trash"></i></button></td>
 				</tr>
 				{{/for}}
 </script>
 <script type="text/x-jsrender" id="grpCodeList_noData_template">	
 				<tr>	
-					<td colspan=11>자료가 없습니다.</td>	
+					<td colspan=12>자료가 없습니다.</td>	
 				</tr>
 </script>
 			</table>
@@ -566,7 +568,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<col style="width:100px;"/>
 					<col style="width:100px;"/> 
 					<col style="width:100px;"/>
-					<col style="width:100px;"/>
+					<col style="width:40px;"/>
+					<col style="width:40px;"/>
 				</colgroup>
 				<thead>
 					<tr id="<@pageId>_headingColName">
@@ -581,7 +584,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<th scope="col">SORT_ORDER</th>
 						<th scope="col">UPDATE_USER</th>
 						<th scope="col">UPDATE_DATE</th> 
-						<th scope="col"></th>
+						<th scope="col"><i class="icon_pen"></i></th>
+						<th scope="col"><i class="icon_trash"></i></th>
 					</tr>
 				</thead>
 			</table>
@@ -601,7 +605,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<col style="width:100px;"/>
 					<col style="width:100px;"/> 
 					<col style="width:100px;"/>
-					<col style="width:100px;"/>
+					<col style="width:40px;"/>
+					<col style="width:40px;"/>
 				</colgroup>
 			
 				<tbody  id="codeList">
@@ -615,21 +620,21 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
  					<td id='CODE_ID'		value='{{:CODE_ID}}'		style="text-align:left">{{:CODE_ID}}</td>
  					<td id='CODE_NM'		value='{{:CODE_NM}}' 		style="text-align:left">{{:CODE_NM}}</td>
  					<td id='CODE_DESC'		value='{{:CODE_DESC}}' 		style="text-align:left">{{:CODE_DESC}}</td>
- 					<td id='USE_YN'			value='{{:USE_YN}}' 		style="text-align:center">{{:USE_YN}}</td>
- 					<td id='DEL_YN'			value='{{:DEL_YN}}' 		style="text-align:center">{{:DEL_YN}}</td>
- 					<td id='SORT_ORDER'		value='{{:SORT_ORDER}}'		style="text-align:center">{{:SORT_ORDER}}</td>
- 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'	style="text-align:left">{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	style="text-align:center">{{:UPDATE_DATE}}</td>
+ 					<td id='USE_YN'			value='{{:USE_YN}}' 		>{{:USE_YN}}</td>
+ 					<td id='DEL_YN'			value='{{:DEL_YN}}' 		>{{:DEL_YN}}</td>
+ 					<td id='SORT_ORDER'		value='{{:SORT_ORDER}}'		>{{:SORT_ORDER}}</td>
+ 					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'	>{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
  					<td id='NEXT_SORT_ORDER'value='{{:NEXT_SORT_ORDER}}'>
-						<button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button>
-						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}||{{:CODE_ID}}'><i class="icon_trash"></i></button>
+						<button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
+ 					<td><button id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}||{{:CODE_ID}}'><i class="icon_trash"></i></button>
 					</td>
 				</tr>
 				{{/for}} 
 </script>
 <script type="text/x-jsrender" id="codeList_noData_template">	
 				<tr>	
-					<td colspan=12>자료가 없습니다.</td>	
+					<td colspan=13>자료가 없습니다.</td>	
 				</tr>
 </script>
 			</table>

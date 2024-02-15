@@ -89,7 +89,7 @@
 		         #{E_MAIL} 		AS E_MAIL,
 		         #{PHONE_NUM} 	AS PHONE_NUM,
 		         #{BRANCH_ID}	AS BRANCH_ID,
-		         #{ROLE}		AS ROLE,
+		         #{ROLE}		AS "ROLE",
 		         #{GRADE}		AS GRADE,
 		         NVL(#{STATE},'INUSE') AS STATE,
 		         TO_DATE( #{REG_DATE}, 'YYYY-MM-SS' )	AS REG_DATE,
@@ -97,6 +97,10 @@
 		         #{POST_NUM}	AS POST_NUM,
 		         #{ADDR1}		AS ADDR1,
 		         #{ADDR2}		AS ADDR2,
+		         'Y' 			AS USE_YN,
+		         'N' 			AS DEL_YN,
+		         '' 			AS SALES_TYPE,
+		         '' 			AS SURETY_INSURANCE,
 		         'system' 		AS UPDATE_USER,
 		         SYSDATE 		AS UPDATE_DATE
 		  FROM dual
@@ -112,7 +116,7 @@
 		    T.E_MAIL 		= S.E_MAIL,
 		    T.PHONE_NUM 	= S.PHONE_NUM,
 		    T.BRANCH_ID 	= S.BRANCH_ID,
-		    T.ROLE 			= S.ROLE,
+		    T."ROLE"		= S."ROLE",
 		    T.GRADE 		= S.GRADE,
 		    T.STATE 		= S.STATE,
 		    T.REG_DATE 		= S.REG_DATE,
@@ -120,19 +124,19 @@
 		    T.POST_NUM 		= S.POST_NUM,
 		    T.ADDR1 		= S.ADDR1,
 		    T.ADDR2 		= S.ADDR2,
+		    T.USE_YN 		= S.USE_YN,
+		    T.DEL_YN 		= S.DEL_YN,
+		    T.SALES_TYPE 	= S.SALES_TYPE,
+		    T.SURETY_INSURANCE = S.SURETY_INSURANCE,
 		    T.UPDATE_USER 	= S.UPDATE_USER,
 		    T.UPDATE_DATE 	= S.UPDATE_DATE
 		WHEN NOT MATCHED THEN 
-    		INSERT (  SP_CSTM_ID,   USER_ID,   USER_NM ,   GENDER ,   USER_DESC
-    		,   E_MAIL,   PHONE_NUM, 	BRANCH_ID,	ROLE,	GRADE,	STATE
-    		,	REG_DATE,	JUMIN,	POST_NUM,	ADDR1,	ADDR2		
-    		,   STATE
-    		,  UPDATE_USER,   UPDATE_DATE )
-   			VALUES ( S.SP_CSTM_ID, S.USER_ID, S.USER_NM , S.GENDER , S.USER_DESC
-   			, S.E_MAIL,  S.PHONE_NUM,  S.BRANCH_ID,	S.ROLE,	S.GRADE,	S.STATE
-   			, S.REG_DATE,	S.JUMIN,	S.POST_NUM,	S.ADDR1,	S.ADDR2
-   			, 'INUSE'
-   			, S.UPDATE_USER, S.UPDATE_DATE )
+    		INSERT (SP_CSTM_ID, USER_ID, USER_NM, USER_DESC, E_MAIL, PHONE_NUM, BRANCH_ID
+    		, "ROLE", GRADE, STATE, REG_DATE, JUMIN, POST_NUM, ADDR1, ADDR2, UPDATE_USER
+    		, UPDATE_DATE, SURETY_INSURANCE, GENDER, SALES_TYPE, USE_YN, DEL_YN)
+   			VALUES (S.SP_CSTM_ID, S.USER_ID, S.USER_NM, S.USER_DESC, S.E_MAIL, S.PHONE_NUM, S.BRANCH_ID
+   			, S."ROLE", S.GRADE, S.STATE, S.REG_DATE, S.JUMIN, S.POST_NUM, S.ADDR1, S.ADDR2, S.UPDATE_USER
+   			, S.UPDATE_DATE, S.SURETY_INSURANCE, S.GENDER, S.SALES_TYPE, S.USE_YN, S.DEL_YN)
 	</update>
 	
 	<delete id="deleteHrInfo" parameterType="java.util.HashMap"  flushCache="true" >

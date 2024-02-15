@@ -232,14 +232,13 @@
 							<col style="width:80px;"/>
 							<col style="width:100px;"/>
 							<col style="width:90px;"/>
-							
 							<col style="width:70px;"/>
 							<col style="width:60px;"/>
 							<col style="width:100px;"/>
-							
 							<col style="width:80px;"/>
 							<col style="width:80px;"/>
-							<col style="width:75px;"/>
+							<col style="width:40px;"/>
+							<col style="width:40px;"/>
 						</colgroup>
 						<thead>
 							<tr id="<@pageId>_headingColName">
@@ -255,7 +254,8 @@
 								
 								<th scope="col">UPDATE_USER</th>
 								<th scope="col">UPDATE_DATE</th>
-								<th scope="col"></th>
+								<th scope="col"><i class="icon_pen"></i></th>
+								<th scope="col"><i class="icon_trash"></i></th>
 							</tr>
 						</thead>
 					</table>
@@ -277,7 +277,8 @@
 							
 							<col style="width:80px;"/>
 							<col style="width:80px;"/>
-							<col style="width:75px;"/>
+							<col style="width:40px;"/>
+							<col style="width:40px;"/>
 						</colgroup>
 						
 						<tbody  id="userList">
@@ -288,18 +289,17 @@
 					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'></td>
  					<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
  					<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
- 					<td id='USER_DESC'		value='{{:USER_DESC}}' 		>{{:USER_DESC}}</td>
- 					<td id='E_MAIL'			value='{{:E_MAIL}}' 		>{{:E_MAIL}}</td>
+ 					<td id='USER_DESC'		value='{{:USER_DESC}}' 		style="text-align:left">{{:USER_DESC}}</td>
+ 					<td id='E_MAIL'			value='{{:E_MAIL}}' 		style="text-align:left">{{:E_MAIL}}</td>
  					<td id='PHONE_NUM'		value='{{:PHONE_NUM}}' 		>{{:PHONE_NUM}}</td>
  					<td id='STATE_NM' 		value='{{:STATE_NM}}'		>{{:STATE_NM}}</td>
- 					<td id='ROLE_NM'		value='{{:ROLE_NM}}'	 	>{{:ROLE_NM}}</td>
+ 					<td id='ROLE_NM'		value='{{:ROLE_NM}}'	 	style="text-align:left">{{:ROLE_NM}}</td>
  					<td id='UPDATE_USER'	value='{{:UPDATE_USER}}' 	>{{:UPDATE_USER}}</td>
  					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
  					<td id='ROLE_ID'		value='{{:ROLE_ID}}'	 	style='display:none'>{{:ROLE_ID}}</td> 
  					<td id='STATE'			value='{{:STATE}}'		 	style='display:none'>{{:STATE}}</td> 
- 					<td><button type="button" class="btn fl" id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button>
-						<button type="button" class="btn fl" id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:USER_ID}}'><i class="icon_trash"></i></button>
-					</td>
+ 					<td><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
+					<td><button id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:USER_ID}}'><i class="icon_trash"></i></button></td>
 				</tr>
 				{{/for}}
 </script>

@@ -68,7 +68,7 @@ function lefMenuShow(parentMenuId, parentMenuDesc, parameter){
 }
 
 function getMenuPage(menuId, pageId, parameter){
-
+debugger;
 	$("#lnb_MenuList li").removeClass("active");
 	$("#lnb_MenuList li[id='LNB_"+menuId+"']").addClass("active");	
 	goPage(pageId , parameter);
