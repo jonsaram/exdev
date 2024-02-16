@@ -45,22 +45,22 @@ public class ApprovalService extends ExdevBaseService{
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
         String strDate = dateFormat.format(Calendar.getInstance().getTime());
         
-        String approvalUuid = (String)map.get("approvalUuid");
+        String approvalId = (String)map.get("approvalId");
         String approvalUserId = (String)map.get("approvalUserId");
         String state = (String)map.get("state");
         
-        System.out.println("approvalUuid =>"+approvalUuid);
+        System.out.println("approvalId =>"+approvalId);
         System.out.println("approvalUserId =>"+approvalUserId);
         System.out.println("state =>"+state);
         
-        if( approvalUuid.length() < 1 || approvalUserId.length() < 1  ) {
+        if( approvalId.length() < 1 || approvalUserId.length() < 1  ) {
             returnMap.put("msg", ExdevConstants.REQUEST_FAIL);      
             return returnMap;
         }
         
         Map<String, String> apprUserMap = new HashMap<String, String>();
-        apprUserMap.put("approvalUuid", (String)map.get("approvalUuid"));
-        apprUserMap.put("approvalUserId", (String)map.get("approvalUserId"));
+        apprUserMap.put("approvalId", approvalId);
+        apprUserMap.put("approvalUserId", approvalUserId);
         apprUserMap.put("state", (String)map.get("state"));
         apprUserMap.put("updateUser", approvalUserId);
         apprUserMap.put("updateDate", strDate);
@@ -95,13 +95,12 @@ public class ApprovalService extends ExdevBaseService{
         int result = 0;
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
         String strDate = dateFormat.format(Calendar.getInstance().getTime());
-        
+        String approvalId = (String)map.get("approvalId");
         
         System.out.println("state =>"+(String)map.get("state"));
         
         Map<String, String> apprUserMap = new HashMap<String, String>();
-        apprUserMap.put("approvalUuid", (String)map.get("approvalUuid"));
-        apprUserMap.put("updateUser", "windrider");
+        apprUserMap.put("approvalId", approvalId);
         apprUserMap.put("updateDate", strDate);
         
         List<Map> list = commonDao.getList("approval.getApprovalState", apprUserMap);
@@ -110,10 +109,8 @@ public class ApprovalService extends ExdevBaseService{
             if( "COMPLETE".equals((String)apprMap.get("APPR_STATE")) ) {
                 Map<String, String> apprMap1 = new HashMap<String, String>();
                 
-                
-                apprMap1.put("uuid", (String)map.get("approvalUuid"));
+                apprMap1.put("uuid", approvalId);
                 apprMap1.put("state", (String)map.get("state"));
-                apprMap1.put("updateUser", "windrider");
                 apprMap1.put("updateDate", strDate);
                 
                 result = commonDao.update("approval.updateApproval", apprMap1);

@@ -2,13 +2,21 @@
 <script type="text/javascript">
     var <@pageId> = {
              approvalList : [] 
-            ,searchApproval : () => {
-            	    console.log("======= 부모창 searchApproval =======");
+            ,searchApproval : (pageLimit) => {
+            	    console.log("======= 부모창 searchApproval pageLimit["+pageLimit+"]=======");
+                    
+            	    let startDate = $('#<@pageId>_start_date').val();
+                    let endDate = $('#<@pageId>_end_date').val();
                     
                     let requestParm = {};
                     
                     requestParm["searchUserId"]  = $("#<@pageId>requestUser").val();
                     requestParm["state"]  = "HOLD";
+                    requestParm["pageLimit"]  = pageLimit;
+                    requestParm["startDate"]  = startDate;
+                    requestParm["endDate"]  = endDate;
+                    
+                    console.log("======= startDate["+startDate+"] endDate["+endDate+"]=======");
                     
                     let parm = {
                          queryId        : "approval.getApproval"
@@ -91,13 +99,46 @@
     }
     // Page Load가 완료된후 실행 된다.
     C_PM.onLoadPage("<@pageId>", function() {
-        <@pageId>.searchApproval();
 
         //조회 버튼 클릭      
         $('#<@pageId>_apprReqPopupBtn').on('click', function (e) {
             <@pageId>.apprReqPopup();
         })
         
+        // Code List 읽어오기
+        var userRoleList = C_COM.getCodeList("SEARCH_LIST_CNT");
+        
+        var singleboxList = { 
+             data : userRoleList
+            ,targetId : "selectBoxId" 
+        }
+        C_UICOM.makeSelectBox(singleboxList, "single");
+        
+        // 코드 Attr 읽어오기     
+        var codeAttrList = C_COM.getCodeAttr("SEARCH_LIST_CNT", "10");
+        
+        
+        C_UICOM.addChangeListner("selectBoxId", function(dataObj) {
+            console.log("dataObj =>"+dataObj);
+            <@pageId>.searchApproval(dataObj);
+        });
+
+        // 조회기간 세팅
+        let date = new Date();
+        let date2 = new Date(new Date().setDate(new Date().getDate() - 30));
+        
+        let endDate = date.getFullYear() +
+                          '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
+                          '-' + ( (date.getDate()) <= 9 ? "0" + (date.getDate()) : (date.getDate()) );
+        
+        let startDate = date2.getFullYear() +
+                          '-' + ( (date2.getMonth()+1) <= 9 ? "0" + (date2.getMonth()+1) : (date2.getMonth()+1) )+
+                          '-' + ( (date2.getDate()) <= 9 ? "0" + (date2.getDate()) : (date2.getDate()) );
+
+        $('#<@pageId>_start_date').val(startDate);
+        $('#<@pageId>_end_date').val(endDate);
+        
+        <@pageId>.searchApproval();
         
     });
     // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -116,28 +157,15 @@
                         <!-- search area -->
                         <div class="search_area">
                             <span class="tit01">조회기간</span>
-                            <div class="calendar_wrap">
-                                <input type="text" class="datepicker" style="width:132px">
-                            </div>
+				            <div class="calendar_wrap">
+				                <input type="text" class="datepicker" id="<@pageId>_start_date"style="width:132px">
+				            </div>~
+				            <div class="calendar_wrap">
+				                <input type="text" class="datepicker" id="<@pageId>_end_date"style="width:132px">
+				            </div>
                             <div class="search_right">
                                 <button type="button" class="btn fl" name="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
-                                <div class="select_box fl" style="width:132px">
-                                    <button type="button" class="btn radio"><span>50개 보기</span></button>
-                                    <ul class="select_lst">
-                                        <li>
-                                            <input name="number" id="num01" type="radio" value="">
-                                            <label for="num01">50개 보기<i class="icon_check"></i></label>
-                                        </li>
-                                        <li>
-                                            <input name="number" id="num02" type="radio" value="">
-                                            <label for="num02">30개 보기<i class="icon_check"></i></label>
-                                        </li>
-                                        <li>
-                                            <input name="number" id="num03" type="radio" value="">
-                                            <label for="num03">10개 보기<i class="icon_check"></i></label>
-                                        </li>
-                                    </ul>
-                                </div>
+                                <div id="selectBoxId" style="width:132px"></div>
                             </div>
                         </div>
 
@@ -167,7 +195,7 @@
                                             <td id='ROWNUM'          value='{{:ROWNUM}}'         >{{:ROWNUM}}    </td>
                                             <td id='APPROVAL_DATE1'  value='{{:APPROVAL_DATE1}}'  >{{:APPROVAL_DATE1}}</td>
                                             <td id='TITLE'           value='{{:TITLE}}'         class="tl"><a href="javascript:void(0);" onclick="<@pageId>.apprDtlPopup('{{:UUID}}');">{{:TITLE}}</a></td>
-                                            <td id='STATE'           value='{{:STATE}}'          ><span class="state paying">{{:STATE}}</span></td>
+                                            <td id='STATE'           value='{{:STATE}}'          ><span class="state paying">{{:STATE_NM}}</span></td>
                                         </tr>
                                     {{/for}}
                                 </script>
