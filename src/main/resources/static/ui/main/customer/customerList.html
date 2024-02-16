@@ -74,7 +74,7 @@ var <@pageId> = {
 	}	
 	,setHandler : () => {
 		
-		<@pageId>.chkHandler();
+		_chkHandler("<@pageId>",<@pageId>);
 	    
 	    $("#<@pageId>_insert").off().on('click',function(){
 	    	
@@ -118,29 +118,6 @@ var <@pageId> = {
 	    })
 	    
 	}
-	,chkHandler : () => {
-		
-	    $("#<@pageId>_ckAll").click(function() {
-
-	    	const isAllChk =  $(this).prop("checked");
-			$("[id^='<@pageId>_ck_']").prop("checked", isAllChk);
-			
-	    	const ckboxes = $("[id^='<@pageId>_ck_']");
-		    <@pageId>.checkedItems = isAllChk ? ckboxes.map(function() { return this.value; }).get() : [];
-
-	    });
-	    $("[id^='<@pageId>_ck_']").click(function() {
-
-		        if ($(this).prop("checked")){<@pageId>.checkedItems.push($(this).val());}
-	    	else { <@pageId>.checkedItems = <@pageId>.checkedItems.filter(item => item !== $(this).val());}  
-	        
-	        const $checkboxSelector = $("[id^='<@pageId>_ck_']")
-	        const allCheckboxChecked = $checkboxSelector.length === $checkboxSelector.filter(":checked").length;
-	        $("#<@pageId>_ckAll").prop("checked", allCheckboxChecked);
-	        
-	    });
-	    
-	}		
 	,openPopup : ($tds) => {
 
 		let mode = "I";
@@ -237,7 +214,7 @@ var <@pageId> = {
 					</colgroup>
 					<thead>
 						<tr>
-							<th scope="col"><input type="checkbox"></th>
+							<th scope="col"><input type="checkbox"  id="<@pageId>_ckAll"></th>
 							<th scope="col">고객번호</th>
 							<th scope="col">고객명</th>
 							<th scope="col">DB경로</th>

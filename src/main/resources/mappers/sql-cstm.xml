@@ -31,7 +31,7 @@
 		WHERE B.BUYER_ID = C.BUYER_ID(+)	
 		AND B.USE_YN = 'Y'
 		AND B.DEL_YN = 'N'
-		ORDER BY B.BUYER_ID , C.CONTACT_DATE
+		ORDER BY NVL(TO_CHAR(C.CONTACT_DATE,'YYYYMMDD'),'99999999') DESC, B.BUYER_ID
 	</select>
 	 	
 	<update id="updateCstm" parameterType="java.util.HashMap"  flushCache="true" >

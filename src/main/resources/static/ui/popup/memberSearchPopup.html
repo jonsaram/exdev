@@ -5,7 +5,8 @@
  	,returnData : {}
  	,queryId : ''	
  	,targetId : ''	
-    ,searchId : ''		 
+    ,searchId : ''	
+	,exceptMembers : []
     ,close : function(returnData) {
  
 		if(isEmpty(returnData)) returnData = {};
@@ -15,7 +16,7 @@
 
 		<@popupId>.searchId = $("[name='SEARCH_ID']").val();
 		
-		const requestParm = {SEARCH_ID: <@popupId>.searchId};
+		const requestParm = {SEARCH_ID: <@popupId>.searchId , EXCEPT_MEMERS : <@popupId>.exceptMembers};
 		let parm = {
 			queryId        : <@popupId>.queryId
 			,requestParm    : requestParm
@@ -84,7 +85,8 @@
 // Popup Load가 완료된후 실행 된다.
 C_POP.onLoadPopup("<@popupId>", function(data) {
  	
-		<@popupId>.rcvData = data;
+		<@popupId>.rcvData 		= data;
+		<@popupId>.exceptMembers= data.param.ALL_MEMBERS.map( member => member.USER_ID);
  		
 		if(data.gubun == "customer"){
 			

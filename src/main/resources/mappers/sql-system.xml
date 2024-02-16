@@ -434,6 +434,8 @@
 	        ,A.ROLE_ID  
 	        ,R.ROLE_NM 
 	        ,R.ROLE_DESC
+	        ,T.USE_YN
+	        ,T.DEL_YN
 		FROM TBL_EXP_USER T
         ,TBL_EXP_AUTH A
         ,TBL_EXP_ROLE R
@@ -460,7 +462,9 @@
 		         #{USER_DESC} 	AS USER_DESC,
 		         #{E_MAIL} 		AS E_MAIL,
 		         #{PHONE_NUM} 	AS PHONE_NUM,
-		         #{STATE} 		AS STATE,
+		         'INUSE' 		AS STATE,
+		         #{USE_YN}	 	AS USE_YN,
+		         #{DEL_YN} 		AS DEL_YN,
 		         'system' 		AS UPDATE_USER,
 		         SYSDATE 		AS UPDATE_DATE
 		  FROM dual

@@ -5,7 +5,6 @@ var <@popupId> = {
  	 ,mode : ''
  	 ,addCoworkRtnData : []
  	 ,addSalseManRtnData : []
- 	 ,contractMember : []
 	 ,close : function(returnData) {
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
@@ -29,7 +28,7 @@ var <@popupId> = {
 		 returnData["CONTRACT_TYPE"]	= C_UICOM.getData("<@popupId>_selectContractType");
 		 returnData["CONSULTING_CLASS"]	= C_UICOM.getData("<@popupId>_selectConsultingClass");
 		 
-		 returnData["CONTRACT_MEMBER"]	= <@popupId>.getContractMember(returnData);
+		 returnData["CONTRACT_MEMBER"]	= <@popupId>.getContractMember(returnData["CONTRACT_ID"],returnData["USER_ID"]);
 		 
 		 
 		 <@popupId>.close(returnData);
@@ -191,38 +190,51 @@ var <@popupId> = {
 		
 		$("#<@popupId>_addCowork").on('click', () => {
 
-			let param = {};
-			C_POP.open('popup_userSearchPopup2', {param:param, gubun:'COWORK'}, function(retData) {
+			const CONTRACT_ID	= 	$("#<@popupId>_items>#CONTRACT_ID").val();
+			const USER_ID		=	$("#<@popupId>_items>#USER_ID").val()
+			const contractMember= 	<@popupId>.getContractMember(CONTRACT_ID, USER_ID);
 
-				<@popupId>.addCoworkRtnData.push( retData );
-				var rparm = {
-						 targetId 		: "<@popupId>_coworkList"
-						,list			: <@popupId>.addCoworkRtnData
+			let param = {"ALL_MEMBERS": contractMember};
+			C_POP.open('popup_memberSearchPopup', {param:param, gubun:'COWORK'}, function(retData) {
+
+				if( isEmpty(retData) == false ){
+					<@popupId>.addCoworkRtnData.push( retData );
+					var rparm = {
+							 targetId 		: "<@popupId>_coworkList"
+							,list			: <@popupId>.addCoworkRtnData
+					}
+					
+					C_COM.renderHtml("<@popupId>", rparm);
 				}
-				
-				C_COM.renderHtml("<@popupId>", rparm);
 			});
 			
 		})
 		
 		$("#<@popupId>_addSalesMan").on('click', () => {
 			
-			let param = {};
-			C_POP.open('popup_userSearchPopup2', {param:param, gubun:'SALES_MAN'}, function(retData) {
-				<@popupId>.addSalseManRtnData.push( retData );
-				var rparm = {
-						 targetId 		: "<@popupId>_salesManList"
-						,list			: <@popupId>.addSalseManRtnData
-				}
+			const CONTRACT_ID	= 	$("#<@popupId>_items>#CONTRACT_ID").val();
+			const USER_ID		=	$("#<@popupId>_items>#USER_ID").val()
+			const contractMember= 	<@popupId>.getContractMember(CONTRACT_ID, USER_ID);
 			
-				C_COM.renderHtml("<@popupId>", rparm);
+			let param = {"ALL_MEMBERS": contractMember};
+			C_POP.open('popup_memberSearchPopup', {param:param, gubun:'SALES_MAN'}, function(retData) {
+				
+				if( isEmpty(retData) == false ){				
+					<@popupId>.addSalseManRtnData.push( retData );
+					var rparm = {
+							 targetId 		: "<@popupId>_salesManList"
+							,list			: <@popupId>.addSalseManRtnData
+					}
+				
+					C_COM.renderHtml("<@popupId>", rparm);
+				}
 			});
 			
 		})
 		
-		$("#<@popupId>_items a[href^='#tab']").on('click', (obj) =>{
+		$("#<@popupId>_items a[name^='tab']").on('click', (obj) =>{
 			
-		    $('a[href^="#tab"]').parent().toggleClass('active');
+		    $('a[name^="tab"]').parent().toggleClass('active');
 		    $('#<@popupId> #tab1, #<@popupId> #tab2').toggle();
 
 		})
@@ -231,25 +243,27 @@ var <@popupId> = {
 	,numberWithCommas : (x) => {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	}
-	,getContractMember : (returnData) => {
+	,getContractMember : (CONTRACT_ID, USER_ID) => {
+		
+		let contractMember = []
 		
         var obj = {
-            	'CONTRACT_ID'		:	returnData["CONTRACT_ID"],
-                'USER_ID'			: 	returnData["USER_ID"],
+            	'CONTRACT_ID'		:	CONTRACT_ID,
+                'USER_ID'			: 	USER_ID,
                 'RELATION_TYPE'		:	'EXCEUTE',
                 'BUSINESS_HIERARCHY':	'' ,
                 'USE_YN'			:	'Y',
                 'DEL_YN'			:	'N',
 		};
 
-        <@popupId>.contractMember.push( obj );
+        contractMember.push( obj );
         
         $('#<@popupId>_coworkList tr').each(function() {
 
             var $cells = $(this).find('td');
 
             var obj = {
-            	'CONTRACT_ID'		:	returnData["CONTRACT_ID"],
+            	'CONTRACT_ID'		:	CONTRACT_ID,
                 'USER_ID'			: 	$cells.eq(0).attr('value'),
                 'RELATION_TYPE'		:	'COWORK',
                 'BUSINESS_HIERARCHY':	'',
@@ -257,7 +271,7 @@ var <@popupId> = {
                 'DEL_YN'			:	'N',
             };
 
-            <@popupId>.contractMember.push(obj);
+            contractMember.push(obj);
         });
 
         $('#<@popupId>_salesManList tr').each(function() {
@@ -265,7 +279,7 @@ var <@popupId> = {
             var $cells = $(this).find('td');
 
             var obj = {
-                	'CONTRACT_ID'		:	returnData["CONTRACT_ID"],
+                	'CONTRACT_ID'		:	CONTRACT_ID,
                     'USER_ID'			: 	$cells.eq(0).attr('value'),
                     'RELATION_TYPE'		:	'SALES',
                     'BUSINESS_HIERARCHY':	'',
@@ -273,7 +287,7 @@ var <@popupId> = {
                     'DEL_YN'			:	'N',
                 };
 
-            <@popupId>.contractMember.push(obj);
+            contractMember.push(obj);
         });
 
         $('#<@popupId>_overridingList tr').each(function() {
@@ -281,7 +295,7 @@ var <@popupId> = {
             var $cells = $(this).find('td');
 
             var obj = {
-                	'CONTRACT_ID'		:	returnData["CONTRACT_ID"],
+                	'CONTRACT_ID'		:	CONTRACT_ID,
                     'USER_ID'			: 	$cells.eq(1).attr('value'),
                     'RELATION_TYPE'		:	'OVERRIDING',
                     'BUSINESS_HIERARCHY':	$cells.eq(4).attr('value'),
@@ -289,10 +303,10 @@ var <@popupId> = {
                     'DEL_YN'			:	'N',
                 };
 
-            <@popupId>.contractMember.push(obj);
+            contractMember.push(obj);
         });
 
-        return <@popupId>.contractMember;
+        return contractMember;
     }
 	,deleteMemeberRow : ( obj ) => {
 		
@@ -342,8 +356,8 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				<!-- tap area -->
 				<div class="tab_wrap mt15" style="height:calc(100% - 15px);">
 					<ul>
-						<li class="active"><a href="#tab1">계약정보</a></li>
-						<li><a href="#tab2">관련자정보</a></li>
+						<li class="active"><a href="javascript:void(0)" name="tab1">계약정보</a></li>
+						<li><a href="javascript:void(0)" name="tab2">관련자정보</a></li>
 					</ul>
 					<div class="tab_content">
 						<div id="tab1" class="display" style='display:block;'>
@@ -457,14 +471,14 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 										<col style="width:25%;"/>
 										<col style="width:25%;"/>
 										<col style="width:25%;"/>
-										<col style="width:25%;"/>
+										<col style="width:20%;"/>
 									</colgroup>
 									<thead>
 										<tr>
 											<th scope="col">사원ID</th>
 											<th scope="col">사원 이름</th>
 											<th scope="col">등급</th>
-											<th scope="col"></th>
+											<th scope="col"><i class="icon_trash"></i></th>
 										</tr>
 									</thead>
 				<tbody  id="<@popupId>_coworkList">
@@ -475,9 +489,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			 					<td id='USER_ID'		 value='{{:USER_ID}}'		>{{:USER_ID}}</td>
 			 					<td id='USER_NM'		 value='{{:USER_NM}}'		>{{:USER_NM}}</td>
 			 					<td id='GRADE'			 value='{{:GRADE}}'			>{{:GRADE}}</td>
-			 					<td >
-									<button type="button" class="btn small" onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove();"><i class="icon_trash"></i></button>
-								</td>
+			 					<td><button onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove();"><i class="icon_trash"></i></button></td>
 					</tr>
 				{{/for}}
 </script>
@@ -505,14 +517,14 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 										<col style="width:25%;"/>
 										<col style="width:25%;"/>
 										<col style="width:25%;"/>
-										<col style="width:25%;"/>
+										<col style="width:20%;"/>
 									</colgroup>
 									<thead>
 										<tr>
 											<th scope="col">사원ID</th>
 											<th scope="col">사원 이름</th>
 											<th scope="col">등급</th>
-											<th scope="col"></th>
+											<th scope="col"><i class="icon_trash"></i></th>
 										</tr>
 									</thead>
 				<tbody  id="<@popupId>_salesManList">
@@ -523,9 +535,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			 					<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
 			 					<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
 			 					<td id='GRADE'			value='{{:GRADE}}'			>{{:GRADE}}</td>
-			 					<td >
-									<button type="button" class="btn fl" onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button>
-								</td>
+			 					<td><button onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button></td>
 					</tr>
 				{{/for}}
 </script>
@@ -550,7 +560,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 										<col style="width:20%;"/>
 										<col style="width:20%;"/>
 										<col style="width:20%;"/>
-										<col style="width:20%;"/>
+										<col style="width:21%;"/>
 									</colgroup>
 									<thead>
 										<tr>
@@ -558,7 +568,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 											<th scope="col">사원ID</th>
 											<th scope="col">사원 이름</th>
 											<th scope="col">등급</th>
-											<th scope="col"></th>
+											<th scope="col"><i class="icon_trash"></i></th>
 										</tr>
 									</thead>
 				<tbody  id="<@popupId>_overridingList">
@@ -571,10 +581,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			 					<td id='USER_NM'		 	value='{{:USER_NM}}'			>{{:USER_NM}}</td>
 			 					<td id='GRADE_NM'		 	value='{{:GRADE_NM}}'			>{{:GRADE_NM}}</td>
 			 					<td id='BUSINESS_HIERARCHY'	value='{{:BUSINESS_HIERARCHY}}'	style='display:none'>{{:BUSINESS_HIERARCHY}}</td>
-			 					<td >
-									<button type="button" class="btn fl" onClick="this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button>
-								</td>
-
+			 					<td><button onClick="this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button></td>
 					</tr>
 				{{/for}}
 </script>

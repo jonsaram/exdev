@@ -197,6 +197,7 @@
 		WHERE C.BUYER_ID = B.BUYER_ID(+)
 		AND C.USE_YN = 'Y'
 		AND C.DEL_YN = 'N'
+		ORDER BY C.UPDATE_DATE DESC
 	</select>	
 
 	<select id="getBuyerList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -255,6 +256,13 @@
 		)
 		AND USE_YN = 'Y'
 		AND DEL_YN = 'N'
+		<if test=" EXCEPT_MEMERS != null and !EXCEPT_MEMERS.equals('') ">
+		AND USER_ID  NOT IN 
+		    <foreach item="member" collection="EXCEPT_MEMERS" open="(" close=")" separator=",">
+    			#{member}
+    		</foreach>	
+		</if>
+		ORDER BY USER_NM				
 	</select>	
 	
 	<update id="updateContract" parameterType="java.util.HashMap"  flushCache="true" >

@@ -74,7 +74,7 @@ var <@pageId> = {
 		}
 		,setHandler : () => {
 			
-			<@pageId>.chkHandler();
+			_chkHandler("<@pageId>",<@pageId>);
 		    
 		    $("#<@pageId>_insert").off().on('click',function(){
 		    	
@@ -248,7 +248,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</colgroup>
 						<thead>
 							<tr id="<@pageId>_headingColName">
-								<th scope="col"><input type="checkbox"></th>
+								<th scope="col"><input type="checkbox"  id="<@pageId>_ckAll"></th>
 								<th scope="col">고객번호</th>
 								<th scope="col">고객명</th>
 								<th scope="col">진행상태</th>
