@@ -403,6 +403,9 @@ var C_COM = {
 	,hideLeftMenu : function() {
 		$("#lnb_MenuList").hide();
 	 }
+	,fileDownload : function(fileId) {
+		location.href="/filedownload.do?FILE_ID=" + fileId;	
+	 }
 }
 
 /**

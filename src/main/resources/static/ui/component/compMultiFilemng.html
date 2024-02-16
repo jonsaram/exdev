@@ -4,6 +4,7 @@
 	var parm = {
 		 GRP_FILE_ID 	: [고유ID]
 		,OWNER_CD 		: [사용Type ID]        						// => 공통 코드로 관리됨. GRP_CODE_ID = FILE_USE_TYPE
+		,mode	 		: "R" 		        						// => R : Read Only			/ 		M : 등록 수정 가능
 		,allowExt		: ["jpg", "jpeg", "png", "gif", "bmp"]		// => 사용 가능 확장자 설정 / 생략시 모두 허용
 		,buttonName		: "이미지선택"								// => 나타나는 버튼 명 정의 / 생략시 파일선택이 기본으로 나타남 
 	}
@@ -21,6 +22,7 @@
 	var <@compId> = {
 		 GRP_FILE_ID 	: ""
 		,OWNER_CD 		: ""
+		,mode			: ""
 		,allowExt		: []
 		,filesArr		: []
 		,init : function() {
@@ -30,7 +32,13 @@
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				<@compId>.viewFileList(resultData.data);
+				// 읽기모드인경우
+				if(<@compId>.mode == "R") {
+					$("#<@compId> button"		).hide();
+					$("#<@compId> .pay_close"	).hide();
+				}
 			});
+			
 			
 		 }
 		,viewFileList : function(list) {
@@ -145,6 +153,9 @@
 				<@compId>.init();
 			});
 		 }
+		,download : function(fileId) {
+			C_COM.fileDownload(fileId);
+		 }
 	}
 	// Component Load가 완료된후 실행 된다.
 	C_COMP.onLoadComp("<@compId>", function(parm) {
@@ -158,6 +169,9 @@
 		}
 		<@compId>.GRP_FILE_ID 	= parm.GRP_FILE_ID	;
 		<@compId>.OWNER_CD 		= parm.OWNER_CD		;
+		<@compId>.mode 			= parm.mode			;
+		
+		if(isEmpty(<@compId>.mode)) <@compId>.mode = "R";
 		
 		<@compId>.init();
 		
@@ -175,7 +189,7 @@
 		
 		<script type="text/x-jsrender" id="<@compId>_fileList_template">  
 		{{for list}}
-			<li><span class="txt"><span>{{:ORG_FILE_NM}}</span> / <span>{{toKb:FILE_SIZE}}</span> Kb</span><button class="pay_close" onclick="<@compId>.deleteFile('{{:FILE_ID}}')">닫기</button></li>
+			<li><span class="txt" onclick="<@compId>.download('{{:FILE_ID}}')"><span>{{:ORG_FILE_NM}}</span> / <span>{{toKb:FILE_SIZE}}</span> Kb</span><button class="pay_close" onclick="<@compId>.deleteFile('{{:FILE_ID}}')">닫기</button></li>
 		{{/for}}
         </script>
 		<script type="text/x-jsrender" id="<@compId>_fileList_noData_template">    
