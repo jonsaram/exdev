@@ -26,20 +26,20 @@ var <@pageId> = {
 						 queryId 		: queryId
 						,requestParm	: <@pageId>.getSearchItems()
 				}
-
 				C_COM.requestQuery(parm, function(resultData) {
 				
 					var rparm = {
 							 targetId 		: targetId
 							,list			: resultData.data
 						}
+					console.log(resultData.data);
 					C_COM.renderHtml("<@pageId>", rparm);
 
 				});
 				
 		}
 		,searchList : () => {
-				<@pageId>.searchObj("board.getBoardList","boardList");
+				<@pageId>.searchObj("board.getBoardList","<@pageId>_boardList");
 		}
 		,goPage : (pageId,rowId) => {
 
@@ -251,8 +251,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 </script>
 
 </head>
-<body class="main">
-	<div class="container">
 		<div class="cont_wrap">
 			<div class="cont_top">
 				<h2><i class="icon_bullet"></i>공지사항</h2>
@@ -354,9 +352,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<col style="width:90px;"/>
 							</colgroup>
 							
-					       <tbody id="boardList">
+					       <tbody id="<@pageId>_boardList">
 					       </tbody>
-					<script type="text/x-jsrender" id="boardList_template">	
+					<script type="text/x-jsrender" id="<@pageId>_boardList_template">	
 							{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}">
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:BOARD_ID}}'></td>
@@ -370,7 +368,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							</tr>
 							{{/for}}
 					</script>
-					<script type="text/x-jsrender" id="boardList_noData_template">
+					<script type="text/x-jsrender" id="<@pageId>_boardList_noData_template">
 							<tr>	
 								<td colspan=7>자료가 없습니다.</td>	
 							</tr>
@@ -393,7 +391,3 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			</section>
 
 		</div>
-	</div>
-
-</body>
-</html>

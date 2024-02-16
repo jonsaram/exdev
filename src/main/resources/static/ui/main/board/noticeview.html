@@ -1,4 +1,13 @@
 <meta charset="utf-8">
+<style>
+	.ck.ck-editor {
+    	max-width: 100%;
+	}
+	.ck-editor__editable {
+	    min-height: 460px;
+	    max-height: 460px;
+	}
+</style>
 <script type="text/javascript">
 var <@pageId> = {
 		 selectedCheck :{ "grpCodeList": [],"normalCodeList": [] }
@@ -33,9 +42,7 @@ var <@pageId> = {
 					var rparm = {
 							list			: resultData.data
 						}
-					dalert(resultData.data);
 					<@pageId>.viewHtml(resultData.data);
-					//C_COM.renderHtml("<@pageId>", rparm);
 
 				});
 				
@@ -44,11 +51,22 @@ var <@pageId> = {
 				<@pageId>.searchObj("board.getBoardView",parm);
 		}
 		,viewHtml : (parm) =>{
-			$('h3#TITLE').text(parm[0].TITLE);
-			$(".board_cont>dd#UPDATE_USER").text(parm[0].UPDATE_USER);
-			$(".board_cont>dd#UPDATE_DATE").text(parm[0].UPDATE_DATE);
-			$(".board_cont>dd#VIEW_CNT").text(parm[0].VIEW_CNT);
-			$(".board_cont>dd#UPDATE_USER").text(parm[0].UPDATE_USER);
+			$('#<@pageId> #TITLE').text(parm[0].TITLE);
+			$('#<@pageId> #UPDATE_USER').text(parm[0].UPDATE_USER);
+			$('#<@pageId> #UPDATE_DATE').text(parm[0].UPDATE_DATE);
+			$('#<@pageId> #VIEW_CNT').text(parm[0].VIEW_CNT);
+			$('#<@pageId> #UPDATE_USER').text(parm[0].UPDATE_USER);
+			<@pageId>.textEditorComp.setContent(parm[0].CONTENT);
+			
+			var parm = {
+					 GRP_FILE_ID 	: parm[0].BOARD_ID
+					,OWNER_CD 		: "BOARD"
+					,mode			: "R"
+					,allowExt		: ["jpg", "jpeg", "png", "gif", "bmp"]
+			}
+			C_COMP.import("importMultiFilemng", "component_compMultiFilemng", parm , function() {
+					
+			});
 		}
 		,updateCode : (loc, queryId) => {
 
@@ -210,7 +228,7 @@ var <@pageId> = {
 
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function(parm) {
-		
+	C_COMP.import("textEditorComp", "component_compTextEditor", {mode:"R"});
 	<@pageId>.searchView(parm);
 
 });
@@ -221,8 +239,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 });
 
 </script>
-<body class="main">
-	<div class="container">
 		<div class="cont_wrap">
 			<div class="cont_top">
 				<h2><a href="company_board.html" class="before"><i class="icon_long_arrow_left"></i>공지사항</a></h2>
@@ -263,41 +279,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<button type="button" class="btn fr"><i class="icon_bullet"></i>목록</button>
 									</td>
 								</tr>
+									<tr>
+										<td id=importMultiFilemng>
+										</td>
+									</tr>
 								<tr>
 									<td>
-										<h4>첨부파일</h4>
-										<button type="button" class="stateBtn file"><span>파일선택</span></button>
-		            					<input name="file" type="file" id="file-input" tabindex="-1" title="파일찾기">
-										<div class="approver_list_wrap person" style="max-height:80px">
-											<ul class="approver_list col2">
-												<li><span class="txt"><span>첨부파일 입니다.txt</span> / <span>15.1</span> Mb</span><button class="pay_close">닫기</button></li>
-												<li><span class="txt"><span>첨부파일 입니다2.txt</span> / <span>18.1</span> Mb</span><button class="pay_close">닫기</button></li>
-												<li><span class="txt"><span>첨부파일 입니다3.txt</span> / <span>18.1</span> Mb</span><button class="pay_close">닫기</button></li>
-												<li><span class="txt"><span>첨부파일 입니다4.txt</span> / <span>18.1</span> Mb</span><button class="pay_close">닫기</button></li>
-											</ul>
-										</div>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<div class="lh20" style="min-height:200px;overflow:auto;">
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-											고객 컨설팅 비용 결재 부탁 드립니다.<br>
-										</div>
+										<div id="textEditorComp" name="CONTENT" style="width:100%;height:100%;"></div>
 									</td>
 								</tr>
 								<tr>
@@ -333,6 +321,3 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</section>
 			</div>
 		</div>
-	</div>
-</body>
-</html>
