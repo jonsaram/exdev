@@ -289,7 +289,7 @@ var C_COM = {
 	,makeNumberTypeToInput : function(domObj) {
 		$(domObj).find("input[number]").each(function() {
 			$(this).addClass	("tr"			);
-			$(this).attr		("maxlength", 15);
+			$(this).attr		("maxlength", 20);
 			$(this).unbind		("keydown"		);
 			$(this).bind		("keydown", function() {
 				var val = $(this).val();
@@ -297,7 +297,7 @@ var C_COM = {
 			});
 			$(this).unbind		("keyup"		);
 			$(this).bind		("keyup", function() {
-				var val = $(this).val();
+				var val = $(this).nval();
 				if(val != "-" && val != "" && !isNumber(val)) {
 					var preval = $(this).attr("preval");
 					$(this).val(preval);
@@ -305,7 +305,13 @@ var C_COM = {
 					val = val.replaceAll(",", "");
 					var lastCharCheck = val.substring(val.length - 1);
 					var fix = $(this).attr("fix");
+
 					if(isEmpty(fix)) fix = C_COM._DEFAULT_FIX;
+					
+					fix = Number(fix);
+					
+					debugger;
+					
 					if(lastCharCheck == "."){
 						if(fix == 0) {
 							var preval = $(this).attr("preval");
@@ -334,7 +340,7 @@ var C_COM = {
 								else		val = Math.floor(val * xx2) / xx1;
 							}
 						}
-						//$(this).val(addComma(val));
+						$(this).val(addComma(val));
 					}
 				}
 			});
@@ -392,10 +398,10 @@ var C_COM = {
 	,hideUploadingBar : function() {
 		$("#uploadingBar").hide();
 	 }
-	,getCurrentViewId : function() {
-		var viewId = C_POP.getCurrentPopupId();
-		if(isEmpty(viewId)) viewId = C_PM.getCurrentPageId();
-		return viewId
+	,getCurrentTemplateId : function() {
+		var templateId = C_POP.getCurrentPopupId();
+		if(isEmpty(templateId)) templateId = C_PM.getCurrentPageId();
+		return templateId
 	 }
 	,showLeftMenu : function() {
 		$("#lnb_MenuList").show();
@@ -406,6 +412,21 @@ var C_COM = {
 	,fileDownload : function(fileId) {
 		location.href="/filedownload.do?FILE_ID=" + fileId;	
 	 }
+	//Template 사용하는 모든페이지에 대해 초기화
+	,preInitTemplate : function(templateId) {
+		var templateWebId = "#" + templateId + " ";
+	    /*====== 달력 =======*/
+	    $(function () {
+	        $(templateWebId + ".datepicker").datepicker({
+	          showOn: "button",
+	          buttonImage: "./img/icon_calendar.png",
+	          buttonImageOnly: true,
+	          buttonText: "Select date",
+	        });
+	    });
+
+		C_COM.makeNumberTypeToInput(templateWebId);
+	}
 }
 
 /**
@@ -513,19 +534,10 @@ var C_PM = {
 	}
 	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
 	,preInitPage : function(pageId, targetDomId) {
+		C_COM.preInitTemplate(pageId);
 	 }
 	// Page에 Load시 스크립트 실행 후 공통 설정을 한다.
 	,afterInitPage : function(pageId) {
-		var pageWebId = "#" + pageId + " ";
-	    /*====== 달력 =======*/
-	    $(function () {
-	        $(pageWebId + ".datepicker").datepicker({
-	          showOn: "button",
-	          buttonImage: "./img/icon_calendar.png",
-	          buttonImageOnly: true,
-	          buttonText: "Select date",
-	        });
-	    });
 	 }
 	,setCurrentPageId : function(pageId) {
 		C_COM.saveSessionData("PAGE_ID", pageId);
@@ -678,16 +690,7 @@ var C_POP = {
 	 }
 	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
 	,preInitPopup : function(popupId) {
-		var popupWebId = "#" + popupId + " ";
-	    /*====== 달력 =======*/
-	    $(function () {
-	        $(popupWebId + ".datepicker").datepicker({
-	          showOn: "button",
-	          buttonImage: "./img/icon_calendar.png",
-	          buttonImageOnly: true,
-	          buttonText: "Select date",
-	        });
-	    });
+		C_COM.preInitTemplate(popupId);
 	 }
 	,close	: function(returnData) {
 		var popupId = C_POP.getCurrentPopupId();
@@ -784,24 +787,24 @@ var C_UICOM = {
 	,listnerChangeFnMap	: {}
 	,getData : function(targetId){
 
-		var viewId = C_COM.getCurrentViewId();
+		var templateId = C_COM.getCurrentTemplateId();
 
-		var viewTargetId = viewId + targetId;
+		var templateTargetId = templateId + targetId;
 
-		return C_UICOM.dataListMap[viewTargetId];
+		return C_UICOM.dataListMap[templateTargetId];
 		
 	 }
 	,_setDataListMap : function(targetId, valObj) {
 
-		var viewId = C_COM.getCurrentViewId();
+		var templateId = C_COM.getCurrentTemplateId();
 
-		var viewTargetId = viewId + targetId;
+		var templateTargetId = templateId + targetId;
 		
-		let preData = C_UICOM.dataListMap[viewTargetId];
+		let preData = C_UICOM.dataListMap[templateTargetId];
 		
-		C_UICOM.dataListMap[viewTargetId] = valObj;	
+		C_UICOM.dataListMap[templateTargetId] = valObj;	
 
-		let fn = C_UICOM.listnerChangeFnMap[viewTargetId];
+		let fn = C_UICOM.listnerChangeFnMap[templateTargetId];
 
 		if(isValid(fn)) {
 			if(isEmpty(preData) || typeof preData == "string") {
@@ -811,17 +814,17 @@ var C_UICOM = {
 			} else {
 				return;
 			}
-			fn(C_UICOM.dataListMap[viewTargetId]);	
+			fn(C_UICOM.dataListMap[templateTargetId]);	
 		}
 	 }
 	// onchange 저장
 	,addChangeListner : function(targetId, fn) {
 		
-		var viewId = C_COM.getCurrentViewId();
+		var templateId = C_COM.getCurrentTemplateId();
 
-		var viewTargetId = viewId + targetId;
+		var templateTargetId = templateId + targetId;
 
-		C_UICOM.listnerChangeFnMap[viewTargetId] = fn;
+		C_UICOM.listnerChangeFnMap[templateTargetId] = fn;
 	 }  
 	,init : function() {
 	    // 외부 링크
@@ -831,7 +834,7 @@ var C_UICOM = {
           if(isEmpty(targetId)) targetId = $clicked.parent().parent().attr("uid");
 		  $.each(C_UICOM.useSelectBoxIdList, function(key, obj) {
 			if(obj.targetId != targetId) {
-				var pageWebUl = "#" + obj.viewId + " #" + obj.targetId + "_ul";
+				var pageWebUl = "#" + obj.templateId + " #" + obj.targetId + "_ul";
 				if($(pageWebUl).hasClass("select_lst")) {
 					$(pageWebUl).addClass("viewHide");
 				} else {
@@ -842,14 +845,15 @@ var C_UICOM = {
 	    });
 	 }
 	,makeSelectBox : function(parm, type) {
-		var viewId = C_COM.getCurrentViewId();
+		var templateId = C_COM.getCurrentTemplateId();
 		if(isEmpty(type)) type="single";
 		C_UICOM.makeSelectBoxExec(parm, type)	 
 	 }
 	,toggleSingleSelectBox : function(targetId) {
-		var viewId = C_COM.getCurrentViewId();
+		debugger;
+		var templateId = C_COM.getCurrentTemplateId();
 
-		var pageWebUl = "#" + viewId + " #" + targetId + "_ul ";
+		var pageWebUl = "#" + templateId + " #" + targetId + "_ul ";
 		$(pageWebUl).show();
 		if ( $(pageWebUl).hasClass("viewHide") ) {
 			$(pageWebUl).removeClass("viewHide")	
@@ -869,16 +873,16 @@ var C_UICOM = {
 			list = nlist;
 		}
 		
-		var viewId = C_COM.getCurrentViewId();
+		var templateId = C_COM.getCurrentTemplateId();
 
-		var viewWebId = "#" + viewId + " #" + targetId + " ";
+		var templateWebId = "#" + templateId + " #" + targetId + " ";
 
-		var viewTargetId = viewId + targetId;
+		var templateTargetId = templateId + targetId;
 
 		// SelectBox ID 등록		
-		C_UICOM.useSelectBoxIdList[viewTargetId] = {viewId : viewId, targetId : targetId};
+		C_UICOM.useSelectBoxIdList[templateTargetId] = {templateId : templateId, targetId : targetId};
 		
-		C_UICOM.dataListMap[viewTargetId] = undefined;
+		C_UICOM.dataListMap[templateTargetId] = undefined;
 		
 		if( type == "single") {
 			var rlist = [];
@@ -900,9 +904,9 @@ var C_UICOM = {
 			
 			var html = $("#_comSinglebox_template").render(rparm)
 
-			$(viewWebId).addClass("select_box").addClass("fl");
+			$(templateWebId).addClass("select_box").addClass("fl");
 
-			$(viewWebId).html(html);
+			$(templateWebId).html(html);
 
 			C_UICOM.initSingleBox(targetId);
 			
@@ -922,22 +926,22 @@ var C_UICOM = {
 			
 			var html = $("#_comMultibox_template").render(rparm)
 
-			$(viewWebId).addClass("dropdown").addClass("fl");
+			$(templateWebId).addClass("dropdown").addClass("fl");
 
-			$(viewWebId).html(html);
+			$(templateWebId).html(html);
 			
 			C_UICOM.initMultiBox(targetId);
 
 		}
 	 }
 	,initSingleBox : function(targetId) {
-		var viewId = C_COM.getCurrentViewId();
+		var templateId = C_COM.getCurrentTemplateId();
 
-		var viewWebUl = "#" + viewId + " #" + targetId + "_ul ";
+		var templateWebUl = "#" + templateId + " #" + targetId + "_ul ";
 		
-		var viewTargetId = viewId + targetId;
+		var templateTargetId = templateId + targetId;
 
-        var $open_ul = $(viewWebUl);
+        var $open_ul = $(templateWebUl);
         $($open_ul).find("input[type=radio]").on("click", function(){
 			C_UICOM.setDataSingleBox(this, targetId);
         });
@@ -952,20 +956,20 @@ var C_UICOM = {
         });
 	 }
 	,setSingleBox : function(targetId, val) {
-		var viewId = C_COM.getCurrentViewId();
-		var viewWebId = "#" + viewId + " #" + targetId + " ";
-		var viewTargetId = viewId + targetId;
+		var templateId = C_COM.getCurrentTemplateId();
+		var templateWebId = "#" + templateId + " #" + targetId + " ";
+		var templateTargetId = templateId + targetId;
 		
-		$(viewWebId + " input[value='" + val + "']").each(function(){
+		$(templateWebId + " input[value='" + val + "']").each(function(){
 			C_UICOM.setDataSingleBox(this, targetId);
 			return false;
 		});
 	 }
 	,setDataSingleBox : function(dom, targetId) {
 		
-		var viewId = C_COM.getCurrentViewId();
+		var templateId = C_COM.getCurrentTemplateId();
 
-		var viewTargetId = viewId + targetId;
+		var templateTargetId = templateId + targetId;
 		
         var $var = $( dom ).next().text();
         $( dom ).parent().parent().prev().children().text( $var );
@@ -979,9 +983,9 @@ var C_UICOM = {
 	 }
 	,initMultiBox : function(targetId) {
 
-		var viewId = C_COM.getCurrentViewId();
+		var templateId = C_COM.getCurrentTemplateId();
 
-		var pageWebId = "#" + viewId + " #" + targetId + " ";
+		var pageWebId = "#" + templateId + " #" + targetId + " ";
 
 	    /*============= 멀티선택 ================*/
 		$(pageWebId + "button").unbind("click");
@@ -991,37 +995,37 @@ var C_UICOM = {
 	 }
 	,clickMultiBox : function(targetId) {
 		
-		var viewId = C_COM.getCurrentViewId();
+		var templateId = C_COM.getCurrentTemplateId();
 		
-		var pageWebId = "#" + viewId + " #" + targetId + " ";
+		var pageWebId = "#" + templateId + " #" + targetId + " ";
 
-		var viewTargetId = viewId + targetId;
+		var templateTargetId = templateId + targetId;
 		
-		var viewtext 	= "";
+		var templatetext 	= "";
 		var valList		= [];
 		var selectCnt   = -1;
 		$(pageWebId + " input[type=checkbox]:checked").each(function(idx) {
 			var val  = $(this).val();
 			var name = $(this).attr("nametext");
-			if(viewtext == "") viewtext = name;
+			if(templatetext == "") templatetext = name;
 			valList.push(val);
 			selectCnt = idx;
 		});
-		if(selectCnt < 0) viewtext = "선택";
-		if(selectCnt > 0) viewtext = viewtext + " 외 " + selectCnt;
+		if(selectCnt < 0) templatetext = "선택";
+		if(selectCnt > 0) templatetext = templatetext + " 외 " + selectCnt;
 		
-		$(pageWebId + " .hida").html(viewtext);
+		$(pageWebId + " .hida").html(templatetext);
 
 		C_UICOM._setDataListMap(targetId, valList); 
 		
 	 }
 	,setMultiBox : function(targetId, valList) {
-		var viewId = C_COM.getCurrentViewId();
-		var viewWebId = "#" + viewId + " #" + targetId + " ";
+		var templateId = C_COM.getCurrentTemplateId();
+		var templateWebId = "#" + templateId + " #" + targetId + " ";
 		
 		if(typeof valList == "string") valList = [valList]
 		$.each(valList, function() {
-			$(viewWebId + " input[value='" + this + "']").prop("checked", true);
+			$(templateWebId + " input[value='" + this + "']").prop("checked", true);
 		});
 		C_UICOM.clickMultiBox(targetId);
 	 }
@@ -1445,8 +1449,8 @@ var C_COMP = {
 	,import	: function(targetId, compId, parm, callback) {
 		if(parm == undefined) parm = {};
 		
-		var viewId = C_COM.getCurrentViewId();
-		var viewWebId = "#" + viewId + " #" + targetId + " ";
+		var templateId = C_COM.getCurrentTemplateId();
+		var templateWebId = "#" + templateId + " #" + targetId + " ";
 		
 		
 		// Comp ID에 해당하는 Url의 html을 가져온다.
@@ -1454,11 +1458,11 @@ var C_COMP = {
 		var url 	= "ui/" + urlBody + ".html";
 		var html 	= C_COM.getHtmlFile(url);
 
-		compId = viewId + compId;
+		compId = templateId + compId;
 
 		parm.compId = compId;
 		
-		parm.parentId = viewId;
+		parm.parentId = templateId;
 		
 		C_COMP.callbackMap[compId] = callback;
 		
@@ -1474,7 +1478,7 @@ var C_COMP = {
 		
 		htmlSrc = htmlSrc.render("<@", ">", parm);
 		
-		$(viewWebId).html(htmlSrc);
+		$(templateWebId).html(htmlSrc);
 		
 		// onLoadComp로 설정된 Function 실행
 		if(typeof C_COMP.eventFn[compId] == "function") C_COMP.eventFn[compId](parm);
@@ -1482,21 +1486,12 @@ var C_COMP = {
 		// Page 내의 처리는 Comp도 Page와 동일하기 떄문에 C_PM의 initPage를 사용한다.
 		C_COMP.preInitComp(compId);
 		
-		eval(viewId + "." + targetId + " = " + compId);
+		eval(templateId + "." + targetId + " = " + compId);
 		
 	 }
 	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
 	,preInitComp : function(compId) {
-		var compWebId = "#" + compId + " ";
-	    /*====== 달력 =======*/
-	    $(function () {
-	        $(compWebId + ".datepicker").datepicker({
-	          showOn: "button",
-	          buttonImage: "./img/icon_calendar.png",
-	          buttonImageOnly: true,
-	          buttonText: "Select date",
-	        });
-	    });
+		C_COM.preInitTemplate(compId);
 	 }
 	,onLoadComp : function(compId, callback) {
 		C_COMP.eventFn[compId] = callback;
@@ -1506,8 +1501,8 @@ var C_COMP = {
 	 }
 	,getCompObj : function(compId) {
 		try {
-			var viewId = C_COM.getCurrentViewId();
-			eval("let compObj = " + viewId + compId);
+			var templateId = C_COM.getCurrentTemplateId();
+			eval("let compObj = " + templateId + compId);
 			return compObj;
 		} catch(e) {
 			alert('Component Object를 가져오는데 실패 했습니다.');
@@ -1566,7 +1561,6 @@ $.fn.nval = function(value){
 	}
 };
 
-
 //
 // 최초 공통 설정 사항
 //
@@ -1600,8 +1594,8 @@ $(function() {
 			hiddenconfirm = hiddenconfirm.substring(1,11);
 		}
 		if(hiddencommand == hiddenconfirm) {
-			var viewId = C_COM.getCurrentViewId();
-			alert(viewId);
+			var templateId = C_COM.getCurrentTemplateId();
+			alert(templateId);
 		}
 	});
 });

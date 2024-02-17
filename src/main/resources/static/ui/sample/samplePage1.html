@@ -30,6 +30,10 @@
 				dalert(retData);
 			});
 		 }
+		,getNumber : function() {
+			var num = $("#<@pageId> #numberSample").nval();
+			alert(num);
+		 }
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -53,5 +57,9 @@
 	<br/><br/> <a href="javascript:C_PM.movePage('sample_highchart')">chart sample</a>
 	
 	<br/><br/> <a href="javascript:<@pageId>.openPopup()">open popup</a>
+	
+	<br/><br/> 숫자 Input 사용방법 소숫점 2째짜리까지 <input id="numberSample" fix="2" number/> <input type=button value="숫자읽기" onclick="<@pageId>.getNumber()"/>
+	
+	
 
 </div>
