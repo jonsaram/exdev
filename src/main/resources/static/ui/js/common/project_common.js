@@ -310,8 +310,6 @@ var C_COM = {
 					
 					fix = Number(fix);
 					
-					debugger;
-					
 					if(lastCharCheck == "."){
 						if(fix == 0) {
 							var preval = $(this).attr("preval");
@@ -326,7 +324,7 @@ var C_COM = {
 							var xx1	= Math.pow(10, fix);
 							
 							// PC 계산 오류에 의한 버그 방어 코드(floor를 사용할 경우 10.12 -> 10.199999999.. -> 10.11 오류 발생)
-							var xx2	= xx1 + 0.0000000001;		
+							var xx2	= xx1 + 0.0000000000000000000001;		
 							
 							// 붙여넣기 여부 확인
 							var pasteCheck = $(this).attr("paste");
