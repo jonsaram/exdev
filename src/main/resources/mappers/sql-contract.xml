@@ -257,8 +257,7 @@
 		AND USE_YN = 'Y'
 		AND DEL_YN = 'N'
 		<if test=" EXCEPT_MEMERS != null and !EXCEPT_MEMERS.equals('') ">
-		AND USER_ID  NOT IN 
-		    <foreach item="member" collection="EXCEPT_MEMERS" open="(" close=")" separator=",">
+		    <foreach item="member" collection="EXCEPT_MEMERS" open="AND USER_ID  NOT IN (" close=")" separator=",">
     			#{member}
     		</foreach>	
 		</if>
@@ -357,7 +356,7 @@
 		AND CM.DEL_YN = 'N'
 		ORDER BY 
 		CASE CM.RELATION_TYPE
-		    WHEN 'EXCEUTE'		THEN '1'
+		    WHEN 'EXECUTE'		THEN '1'
 		    WHEN 'COWORK' 		THEN '2'
 		    WHEN 'SALES' 		THEN '3'
 		    WHEN 'OVERRIDING'	THEN '4'

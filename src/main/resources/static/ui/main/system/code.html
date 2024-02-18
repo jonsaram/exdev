@@ -238,6 +238,12 @@ var <@pageId> = {
 				
 		    })
 		    
+		    $("[name='<@pageId>_excelUpload']").off().on("click",function(){
+		    	
+		    	_excelUpload('<@pageId>',"system.updateGrpCode",<@pageId>.searchList)
+		    	
+		    })
+		    
 		    $("[name='<@pageId>_excelDownload']").off().on("click",function(){
 		    	
 		    	const sectionId = $(this).closest("section").attr("id");
@@ -430,6 +436,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<div class="search_right">
 				<button type="button" class="btn select fl" name="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button>
 				<button type="button" class="btn fl"  name="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
+				<button type="button" class="btn fl"  name="<@pageId>_excelUpload"><i class="icon_download"></i> Excel 업로드</button>
+				<input type="file" id="<@pageId>_excelFileInput" style="padding-left:5px;padding-top:5px;width: calc(100% - 350px); "/>
             </div>
 		</div>
 		<!-- 테이블 -->
@@ -653,5 +661,5 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<a href="#none" class="btn_pg_last">마지막 페이지</a>
 		</div>
 	</section>			
-			
+	<div id="<@pageId>_uploadExcelResult"/></div>	
 </div>

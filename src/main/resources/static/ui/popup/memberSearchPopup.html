@@ -86,7 +86,9 @@
 C_POP.onLoadPopup("<@popupId>", function(data) {
  	
 		<@popupId>.rcvData 		= data;
-		<@popupId>.exceptMembers= data.param.ALL_MEMBERS.map( member => member.USER_ID);
+		if(data.param.ALL_MEMBERS){
+			<@popupId>.exceptMembers= data.param.ALL_MEMBERS.map( member => member.USER_ID);
+		}
  		
 		if(data.gubun == "customer"){
 			

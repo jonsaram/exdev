@@ -9,22 +9,72 @@
 	<!--
 	실적 관리 
 	 -->	
+	 
 	<select id="getResultList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	result.getResultList
 			실적 입력 내역 리스트 조회 
 		*/
+		
+		SELECT 
+		 C.TOTAL_COST 
+		,R.RESULT_DATE
+		,R.INCOME
+		,R.REMAINING_SUM
+		,NVL(CO.SUM_COST_PRICE ,0) AS COST_PRICE
+		,R.CONTRACT_ID
+		,R.RESULT_ID
+		,R.ORG_SELLING_PRICE
+		,R.USE_YN
+		,R.DEL_YN
+		,R.UPDATE_USER
+		,R.UPDATE_DATE
+		FROM TBL_EXP_RESULT R
+		,TBL_EXP_CONTRACT C
+		,(
+			SELECT CONTRACT_ID, RESULT_ID, SUM(COST_PRICE) SUM_COST_PRICE
+			FROM TBL_EXP_COST
+			GROUP BY CONTRACT_ID, RESULT_ID 
+		) CO
+		WHERE C.CONTRACT_ID	= R.CONTRACT_ID 
+		AND C.CONTRACT_ID	= CO.CONTRACT_ID(+) 
+		AND R.RESULT_ID		= CO.RESULT_ID(+)
+		ORDER BY C.CONTRACT_DATE DESC, R.RESULT_DATE 
+	
+	</select>	
 	 
-		SELECT CONTRACT_ID, RESULT_ID
-		, RESULT_DATE
-		, INCOME
-		, REMAINING_SUM
-		, ORG_SELLING_PRICE
-		, USE_YN
-		, DEL_YN
-		, UPDATE_USER
-		, UPDATE_DATE
-		FROM TBL_EXP_RESULT
+	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	result.getContractList
+			실적 입력을 위한 계약 리스트 조회 
+		*/
+	 
+		SELECT 
+		 C.BUYER_ID
+		,B.BUYER_NM
+		,U.USER_NM
+		,C.TOTAL_COST 
+		,C.CONTACT_DATE
+		,C.CONTRACT_ID
+		,C.EXPIRE_DATE
+		,GET_CODE_NM( 'CONTRACT_TYPE', C.CONTRACT_TYPE) CONTRACT_TYPE_NM
+		,C.USER_ID, C.CONTRACT_DATE, C.CONTRACT_TYPE
+		,C.CONSULTING_ID, C.PROCESS_STATE, C.LAST_SOLUTION, C.TAX_MNG, C.LABOR_MNG, C.CONSULTING_CLASS
+		,C.USE_YN,C.DEL_YN,C.UPDATE_USER,C.UPDATE_DATE
+		/*, U.* ,B.* */
+		FROM TBL_EXP_CONTRACT C
+		,TBL_EXP_USER U
+		,TBL_EXP_BUYER B
 		WHERE 1=1
+		AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
+		AND TO_CHAR(C.CONTRACT_DATE,'YYYY-MM-DD') BETWEEN #{FROM_CONTRACT_DATE} AND  #{TO_CONTRACT_DATE}
+		AND C.USER_ID	= U.USER_ID
+		AND C.BUYER_ID	= B.BUYER_ID 
+		AND (C.USER_ID LIKE '%' || #{USER} || '%'
+		 OR  U.USER_NM LIKE '%' || #{USER} || '%'
+		)
+		AND (C.BUYER_ID LIKE '%' || #{BUYER} || '%'
+		 OR  B.BUYER_NM LIKE '%' || #{BUYER} || '%'
+		)
+		ORDER BY C.CONTRACT_DATE DESC , C.CONTACT_DATE DESC
 	
 	</select>	
 	
@@ -63,9 +113,9 @@
    			VALUES (S.CONTRACT_ID, S.RESULT_ID, S.RESULT_DATE, S.INCOME, S.REMAINING_SUM, S.ORG_SELLING_PRICE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE)
 	</update>
 	
-	<delete id="deleteContractMember" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	contract.deleteContractMember
-			계약 관계자 삭제
+	<delete id="deleteResultItem" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	result.deleteResultItem
+			실적 삭제
 		*/
 		UPDATE TBL_EXP_RESULT
 		SET USE_YN = 'N'
@@ -73,6 +123,190 @@
 		WHERE CONTRACT_ID	= #{CONTRACT_ID}
 		AND RESULT_ID	 	= #{RESULT_ID}
 	</delete>
+	
+	
+		
+	<sql id="cmUsers"> 
+		SELECT DISTINCT CM.CONTRACT_ID, CM.USER_ID  
+		,U.USER_NM 
+		,DECODE( CM.RELATION_TYPE, 'EXECUTE','EXEC','SALES' ) AS EXEC_TYPE
+		,GET_CODE_NM('RELATION_TYPE', CM.RELATION_TYPE) RELATION_TYPE_NM
+		,U.ROLE
+		,U.GRADE
+		,GET_CODE_NM('GRADE', U.GRADE) GRADE_NM
+		,CM.RELATION_TYPE
+		,U.BRANCH_ID 
+		,CM.BUSINESS_HIERARCHY
+		,U.SALES_TYPE
+		FROM TBL_EXP_CONTRACT_MEMBER CM 
+		,TBL_EXP_USER U
+		WHERE CM.CONTRACT_ID = #{CONTRACT_ID}
+		AND CM.USER_ID = U.USER_ID
+	</sql>
+	
+	<sql id="buisnessHierarchyOrderBy"> 
+          CASE	
+              WHEN RELATION_TYPE = 'EXECUTE'	THEN 10
+              WHEN RELATION_TYPE = 'COWORK'		THEN 
+                  CASE 
+                      WHEN GRADE = 'S_MASTER'	THEN 20
+                      WHEN GRADE = 'MASTER'		THEN 21
+                      WHEN GRADE = 'FA' 		THEN 22
+                      WHEN GRADE = 'RECOMMENDER' THEN 23
+                  END
+              WHEN RELATION_TYPE = 'SALES' 		THEN
+                  CASE 
+                      WHEN GRADE = 'S_MASTER' 	THEN 30
+                      WHEN GRADE = 'MASTER' 	THEN 31
+                      WHEN GRADE = 'FA' 		THEN 32
+                      WHEN GRADE = 'RECOMMENDER' THEN 33
+                  END
+              WHEN RELATION_TYPE = 'OVERRIDING' THEN 
+                  CASE 
+                      WHEN BUSINESS_HIERARCHY = 'MAIN_HEADER'	THEN 41
+                      WHEN BUSINESS_HIERARCHY = 'LOCAL_HEADER' 	THEN 42
+                      WHEN BUSINESS_HIERARCHY = 'DEPT_HEADER' 	THEN 43
+                  END
+          END
+	</sql>
+	<insert id="insertPaymentItem" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	result.insertPaymentItem
+			실적 수당 테이블 입력
+		*/
+	
+		INSERT INTO TBL_EXP_PAYMENT
+		      (CONTRACT_ID, USER_ID, RESULT_ID, 	PAYMENT_ID, PAYMENT,EXEC_TYPE, PAY_ID, 	RATE, USE_YN, DEL_YN, UPDATE_USER, UPDATE_DATE)
+		SELECT CONTRACT_ID, USER_ID, #{RESULT_ID} , PAYMENT_ID, NULL, 	EXEC_TYPE, NULL, 	NULL, 	'Y', 	'N', 	'trigger', sysdate
+		FROM (
+			WITH CM_USER AS (
+				<include refid="cmUsers"/>
+			)
+			SELECT A.*
+			 ,ROW_NUMBER() OVER (ORDER BY <include refid="buisnessHierarchyOrderBy"/> ) AS PAYMENT_ID
+			FROM(
+				SELECT CMU.CONTRACT_ID 
+				,CMU.USER_ID
+				,CMU.USER_NM
+				,CMU.GRADE_NM
+				,CMU.EXEC_TYPE
+				,CMU.RELATION_TYPE_NM
+				,CMU.ROLE
+				,CMU.GRADE
+				,CMU.RELATION_TYPE
+				,CMU.BRANCH_ID
+				,CMU.BUSINESS_HIERARCHY
+				FROM CM_USER CMU
+				WHERE CMU.RELATION_TYPE !='OVERRIDING'
+				
+				UNION ALL 
+				
+				SELECT CMU.CONTRACT_ID 
+				,CMU.USER_ID
+				,CMU.USER_NM
+				,BH.POSITION  GRADE_NM
+				,CMU.EXEC_TYPE
+				,GET_CODE_NM('RELATION_TYPE', CMU.RELATION_TYPE) RELATION_TYPE_NM
+				,'OVERRIDING' AS ROLE
+				,BH.POSITION GRADE
+				,CMU.RELATION_TYPE
+				,CMU.BRANCH_ID
+				,BH.BUSINESS_HIERARCHY
+				FROM CM_USER CMU
+				,VIEW_EXP_BRANCH_BUSINESS_HIERARCHY BH
+				WHERE CMU.RELATION_TYPE ='OVERRIDING'
+				AND BH.BRANCH_ID = CMU.BRANCH_ID 
+				AND BH.USER_ID = CMU.USER_ID
+				
+			) A
+			ORDER BY <include refid="buisnessHierarchyOrderBy"/>
+
+		)	
+	</insert>
+	
+	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	result.getPaymentList
+			수당 받을 USER 리스트 
+		*/
+	 
+		SELECT P.CONTRACT_ID
+		,P.USER_ID
+		,P.RESULT_ID
+		,P.PAYMENT
+		,P.PAYMENT_ID
+		,P.EXEC_TYPE
+		,CM.RELATION_TYPE
+		,P.PAY_ID
+		,P.RATE
+		,P.USE_YN
+		,P.DEL_YN
+		,P.UPDATE_USER
+		,P.UPDATE_DATE
+		FROM TBL_EXP_PAYMENT P
+		,TBL_EXP_CONTRACT_MEMBER CM 
+		WHERE 1=1
+		AND P.CONTRACT_ID	= #{CONTRACT_ID}
+		AND P.RESULT_ID 	= #{RESULT_ID}
+		AND P.USER_ID		= CM.USER_ID
+		ORDER BY P.PAYMENT_ID
+			
+	</select>
+		
+	
+	<select id="getPayId" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	result.getPayId
+			수수료 PAY ID 조회
+		*/
+	 
+		WITH CMU AS(
+			<include refid="cmUsers"/>
+		)
+       <choose>
+           <when test="EXEC_TYPE != null and EXEC_TYPE.equals('EXEC')">
+           
+			SELECT P.EXEC_PAY_ID AS PAY_ID
+			FROM TBL_EXP_EXEC_PAY  P
+			,TBL_EXP_CONTRACT C
+			,CMU
+			WHERE C.CONTRACT_ID		= #{CONTRACT_ID}
+			AND P.CONTRACT_TYPE		= C.CONTRACT_TYPE
+			AND CMU.RELATION_TYPE	= 'EXECUTE'
+			AND CMU.USER_ID 		= #{USER_ID}
+			AND P.GRADE 			= CMU.GRADE
+
+           </when>
+           <when test="EXEC_TYPE != null and EXEC_TYPE.equals('SALES')">
+            
+			SELECT P.SALES_PAY_ID AS PAY_ID
+			FROM TBL_EXP_SALES_PAY P
+			,TBL_EXP_CONTRACT C
+			,CMU
+			WHERE C.CONTRACT_ID = #{CONTRACT_ID}
+			AND P.CONTRACT_TYPE = C.CONTRACT_TYPE
+			AND CMU.RELATION_TYPE = #{RELATION_TYPE}
+			AND CMU.USER_ID = #{USER_ID}
+			AND P.GRADE =  CMU.GRADE
+			AND P.SALES_TYPE  = CMU.SALES_TYPE
+
+           </when>
+       </choose>
+	
+	</select>	
+	
+	<update id="addPaymentItem" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	result.addPaymentItem
+			실적 수당 테이블 추가 입력
+		*/
+		
+		UPDATE TBL_EXP_PAYMENT 
+		SET PAY_ID 	= #{PAY_ID}
+		,RATE 		= #{RATE}
+		,PAYMENT 	= #{PAYMENT}
+		WHERE 1=1 
+		AND CONTRACT_ID	= #{CONTRACT_ID}
+		AND RESULT_ID	= #{RESULT_ID}
+		AND USER_ID		= #{USER_ID}
+		
+	</update>
 	
 	<select id="getCostList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	result.getCostList
@@ -129,7 +363,7 @@
 	</update>
 	
 	<delete id="deleteCostItem" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	contract.deleteCostItem
+		/*	result.deleteCostItem
 			실적 비용 삭제
 		*/
 		UPDATE TBL_EXP_COST
@@ -142,7 +376,7 @@
 	
 	
 	
-	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+<!-- 	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	result.getPaymentList
 			실적 수당 내역 리스트 조회 
 		*/
@@ -162,7 +396,7 @@
 		FROM TBL_EXP_PAYMENT
 		WHERE 1=1
 	
-	</select>	
+	</select> -->	
 	
 	<update id="updatePaymentItem" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	result.updatePaymentItem
@@ -206,7 +440,7 @@
 	</update>
 	
 	<delete id="deletePaymentItem" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	contract.deletePaymentItem
+		/*	result.deletePaymentItem
 			실적 수당 삭제
 		*/
 		UPDATE TBL_EXP_PAYMENT
