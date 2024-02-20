@@ -413,14 +413,103 @@ var C_COM = {
 	//Template 사용하는 모든페이지에 대해 초기화
 	,preInitTemplate : function(templateId) {
 		var templateWebId = "#" + templateId + " ";
+
 	    /*====== 달력 =======*/
 	    $(function () {
-	        $(templateWebId + ".datepicker").datepicker({
+	        $(templateWebId + " .datepicker").datepicker({
 	          showOn: "button",
-	          buttonImage: "./img/icon_calendar.png",
+	          buttonImage: "../img/icon_calendar.png",
 	          buttonImageOnly: true,
 	          buttonText: "Select date",
 	        });
+	    });
+	    /*====== 달력 =======*/
+	    $( function() {
+	        var dateFormat = "mm/dd/yy",
+	            from = $(templateWebId + " #from" )
+	            .datepicker({
+	                defaultDate: "+1w",
+	                changeMonth: true,
+	                numberOfMonths: 1
+	            })
+	            .on( "change", function() {
+	                to.datepicker( "option", "minDate", getDate( this ) );
+	            }),
+	            to = $(templateWebId + " #to" ).datepicker({
+	                defaultDate: "+1w",
+	                changeMonth: true,
+	                numberOfMonths: 1
+	            })
+	            .on( "change", function() {
+	                from.datepicker( "option", "maxDate", getDate( this ) );
+	            });
+	
+	        function getDate( element ) {
+	            var date;
+	            try {
+	                date = $.datepicker.parseDate( dateFormat, element.value );
+	                } catch( error ) {
+	                date = null;
+	            }
+	            return date;
+	        }
+	    });
+	
+	    /*==== 결재 버튼 ====*/
+	    $(templateWebId).on("click", templateWebId + " .toggle", function(){
+	        $(this).parent().children().removeClass('active');
+	        $(this).addClass('active');
+	    });
+	
+	    /*==== bar chart ====*/
+        var animated_contents = function() {
+            $(templateWebId + " .zt-skill-bar .data ").each(function (i) {
+                var $this  = $(this),
+                    skills = $this.data('width');
+                $this.css({'width' : skills + '%'});
+            });
+        }
+
+        if(jQuery().appear) {
+            $('.zt-skill-bar').appear().on('appear', function() {
+                animated_contents();
+            });
+        } else {
+            animated_contents();
+        }
+	
+	    /*==== tab ====*/
+        //$(".display").css("display","none");
+        $(templateWebId + ' div.tab_content').each(function() {
+            $(this).find('div.display:first').show();
+        });
+
+        $(templateWebId + ' .tab_wrap li').click(function() {
+            if (!$(this).hasClass('active')) {
+                $(this).addClass('active').siblings('li').removeClass('active');
+                $($(this).children().attr('href')).show("100").siblings('div.display').hide("100");
+            }
+        });
+	
+	    /*============= Search Area ================*/
+	    $(templateWebId).on("click", templateWebId + " #searchBtn", function(){
+	        $(this).next().show();
+	    });
+	    $(templateWebId).on("click", templateWebId + " .search_lst", function(){
+	        $(this).hide();
+	    });
+	
+	
+	    /*============= table select ================*/
+	    $(templateWebId).on("click", templateWebId + " .tbl01 tr", function(){
+	        $(this).addClass('select').siblings('tr').removeClass('select');
+	    });
+	    // 외부 링크
+	    $(templateWebId).bind('click', function(e) {
+	      var $clicked = $(e.target);
+	      if (!$clicked.parents().hasClass("tbl01")) {
+	        $(templateWebId + " .tbl01 tr").removeClass('select');
+	      };
 	    });
 
 		C_COM.makeNumberTypeToInput(templateWebId);
