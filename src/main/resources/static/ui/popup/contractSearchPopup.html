@@ -1,0 +1,190 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+ var <@popupId> = {
+    close : function(returnData) {
+ 
+		if(isEmpty(returnData)) returnData = {};
+		C_POP.close(returnData);
+	}
+	,searchList : function(){
+
+		const fromData 	= $("#<@popupId>_items #FROM_DATE").val();
+		const toDate 	= $("#<@popupId>_items #TO_DATE").val();
+		const userId 	= $("#<@popupId>_items #USER_ID").val();
+		const buyerId 	= $("#<@popupId>_items #BUYER_ID").val();
+
+		const requestParm = {FROM_DATE:fromData, TO_DATE:toDate, USER_ID: userId , BUYER_ID : buyerId};
+
+		let parm = {
+			 queryId        : "result.getContractList"
+			,requestParm    : requestParm
+		}
+        C_COM.requestQuery(parm, function(resultData) {
+        
+        	let rparm = {
+           			targetId   : "<@pageId>_contractList"
+					,list       : resultData.data
+			}
+            
+			C_COM.renderHtml("<@popupId>", rparm);
+			<@popupId>.setHandler();
+		});
+	}
+	,memberSearchPopup : function(gubun) {
+      	
+		let param = {};
+		C_POP.open('popup_memberSearchPopup', {param:param, gubun:gubun}, function(retData) {
+			
+			Object.keys(retData).forEach( item =>{
+				
+        		const value = retData[item];
+        			
+				$("#<@popupId>_items #"+item).val(value);
+					
+			});
+			<@popupId>.memberSet();
+			
+		});
+		
+	}
+	,memberSet : () => {
+
+		const buyerId = $("#<@popupId>_items #BUYER_ID").val();
+		const buyerNm = $("#<@popupId>_items #BUYER_NM").val();
+		if( buyerId )$("#<@popupId>_items #BUYER").val(buyerNm+ " ("+buyerId+")");
+		const userId = $("#<@popupId>_items #USER_ID").val();
+		const userNm = $("#<@popupId>_items #USER_NM").val();
+		if( userId ){
+			$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
+			$("#<@popupId>_items #CPY_USER_NM").text(userNm);
+			const branchId = $("#<@popupId>_items #BRANCH_ID").val();
+			if( branchId )<@popupId>.selectHierarchyList(branchId);
+		}
+
+	}
+	,setHandler : () => {
+		
+ 	    $("#<@popupId>_search").off().on("click", () =>{
+	    	
+	    	<@popupId>.searchList();
+	    	
+	    });
+ 	    
+	    $("[name^='<@pageId>_tr']").off().on("click",function(e){
+
+	    	const value = $(this).attr("value");
+	    	
+	    	<@popupId>.close(value);
+	    	
+	    });
+	    
+	}
+	
+}
+// Popup Load가 완료된후 실행 된다.
+C_POP.onLoadPopup("<@popupId>", function(data) {
+ 	
+	<@popupId>.searchList();
+	<@popupId>.setHandler();
+ });
+    
+    
+</script>
+
+<!-- 계약 선택 팝업 -->
+<div class="modal_wrap" id="modal-ex02">
+	<div class="modal" style="width:700px;height:500px;">
+		<div class="modal_header">
+			<strong class="tit">계약 선택</strong>
+			<button type="button" class="btn_close"><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body" id="<@popupId>_items">
+			<h4><i class="icon_bullet"></i>검색 조건</h4>
+			<ul class="info_wrap col2 search">
+				<li>
+					<label>계약일</label>
+					<div class="info">
+						<div class="calendar_wrap">
+							<input type="text" id="FROM_DATE" 	name="FROM_DATE" class="datepicker" style="width:114px">
+							<label for="to">~</label>
+							<input type="text" id="TO_DATE" 	name="TO_DATE" class="datepicker" style="width:114px">
+						</div>
+					</div>
+				</li>
+				<li>
+					<label>담당자</label>
+					<div class="info">
+						<div class="search_inputWrap" style="width:100%">
+							<input type="search" id="USER" placeholder="사원이름(사원ID)"><a  href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('user');" class="search_btn"><i class="icon_search"></i></a>
+						</div>
+					</div>
+				</li>
+				<li>
+					<label>고객명</label>
+					<div class="info">
+						<div class="search_inputWrap" style="width:100%">
+							<input type="search" id="BUYER" placeholder="고객명(고객번호)"><a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('customer');" class="search_btn"><i class="icon_search"></i></a>
+						</div>
+					</div>
+				</li>
+				<li>
+					<label>&nbsp;</label>
+					<div class="info">
+						<button class="btn select fr" id="<@popupId>_search">검색</button>
+					</div>
+				</li>
+			</ul>
+
+			<h4 class="mt25"><i class="icon_bullet"></i>계약 리스트</h4>
+			<!-- 테이블 -->
+			<div class="tbl01 col">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:20%;"/>
+						<col style="width:20%;"/>
+						<col style="width:20%;"/>
+						<col style="width:20%;"/>
+						<col style="width:20%;"/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">고객번호</th>
+							<th scope="col">고객명</th>
+							<th scope="col">담당자</th>
+							<th scope="col">진행상태</th>
+							<th scope="col">자문계약일</th>
+						</tr>
+					</thead>
+						<tbody  id="<@pageId>_contractList">
+						</tbody>			 					
+						
+<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
+						{{for list}}
+							<tr class="select"	name="<@pageId>_tr_{{:#index}}" value='{{:CONTRACT_ID}}'>
+							<td id='BUYER_ID'			value='{{:BUYER_ID}}'			>{{:BUYER_ID}}</td>
+							<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
+							<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
+							<td id='PROCESS_STATE_MN'	value='{{:PROCESS_STATE_MN}}'	>{{:PROCESS_STATE_MN}}</td>
+							<td id='CONTRACT_DATE'		value='{{:CONTRACT_DATE}}'		>{{:CONTRACT_DATE}}</td>							
+							</tr>
+						{{/for}}
+</script>
+<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
+				<tr>	
+					<td colspan=5>자료가 없습니다.</td>	
+				</tr>
+</script>					
+				</table>
+			</div>
+				<input type="hidden" id="USER_ID">
+				<input type="hidden" id="USER_NM">
+				<input type="hidden" id="BUYER_ID">
+				<input type="hidden" id="BUYER_NM">
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn close">닫기</button>
+		</div>
+	</div>
+</div>
+

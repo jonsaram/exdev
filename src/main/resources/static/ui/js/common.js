@@ -1,3 +1,9 @@
+function _numberWithCommas (num) {
+	
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+
 function _chkHandler(pageId, page)
 {
 			

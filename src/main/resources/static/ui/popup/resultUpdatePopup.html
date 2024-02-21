@@ -1,0 +1,351 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+var <@popupId> = {
+	 recvData : []	
+	 ,RESULT_ID: '' 
+	 ,close : function(returnData) {
+		if(isEmpty(returnData)) returnData = {};
+		C_POP.close(returnData);
+	 }
+	 ,apply : () =>{
+		 
+		 let returnData = {};
+		 const $inputs = $("#<@popupId>_items");
+		 <@popupId>.close(
+				 			{	costInfo	: <@popupId>.getJson($("#<@popupId>_costList"))
+					 		, 	resultInfo	: {	RESULT_ID : <@popupId>.RESULT_ID, INCOME : $("#<@popupId>_resultInfo #INCOME").val()}
+					 		, 	paymentInf	: <@popupId>.getJson($("#<@popupId>_paymentList"))
+					 		} 
+				 	) ; 
+		 
+	 }
+	 ,getJson : ( list ) => {
+		 
+		 let jsonArray = [];
+   		 $.each( $(list).children("tr") , (idx, tr) => {
+   			 
+			 let colArray = [];
+ 			 $.each( $(tr).children("td"), (idx2, td) => {
+ 				 
+				 const id 		=  	$(td).attr("id");
+				 const value 	=	$(td).attr("value");
+				 const obj 		=  	{ [id] : value };
+				 colArray.push( obj );
+			 })
+			 
+			 jsonArray .push( colArray);
+			 
+		 }) 
+		 
+   		 return jsonArray;
+
+	 }
+	,pageInit : () => {
+
+		$("#<@popupId>_contractInfo #TOTAL_COST").html	 ( _numberWithCommas(<@popupId>.recvData.param.TOTAL_COST)		);
+		$("#<@popupId>_contractInfo #REMAINING_SUM").html( _numberWithCommas(<@popupId>.recvData.param.REMAINING_SUM)	);
+		
+		const today = dayjs().format("YYYY-MM-DD");
+		$("#<@popupId>_resultInfo #RESULT_DATE").val(today) ;
+		
+		<@popupId>.selectTempPayment() ;
+		
+	}
+	,selectTempPayment : () =>{
+		
+		const CONTRACT_ID 		= <@popupId>.recvData.param.CONTRACT_ID;
+		<@popupId>.RESULT_ID 	= <@popupId>.recvData.param.RESULT_ID;
+		if( !<@popupId>.RESULT_ID )	<@popupId>.RESULT_ID =  C_COM.makeUniqueId();
+		
+		const requestParm = {CONTRACT_ID : CONTRACT_ID, RESULT_ID : <@popupId>.RESULT_ID };
+		
+		var parm = {
+				 queryId 		: "result.selectTempPaymentItem"
+				,requestParm	: requestParm
+		}
+		C_COM.requestQuery(parm, function(resultData) {
+			
+			let tempPayment = resultData.data;
+			tempPayment.orderBy("PAYMENT_ID");			
+			var rparm = {
+					 targetId 		: "<@popupId>_paymentList"
+					,list			: tempPayment
+			}
+		
+			C_COM.renderHtml("<@popupId>", rparm);
+			
+			 
+			tempPayment.forEach( user => {
+				
+				var parm = {
+						 queryId 		: "result.getPayId"
+						,requestParm	: user
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+
+						const userId 	= resultData.data[0].USER_ID;
+						const payId 	= resultData.data[0].PAY_ID;
+						const rate 		= resultData.data[0].RATE;
+
+						const tr		= `#<@popupId>_paymentList tr[value=${userId}]`;
+						
+						if( $(tr+" td[id='RELATION_TYPE']").attr("value") == "COWORK"  && $(tr+" td[id='RATE'] > [name='coworkRate']")  ){
+							
+							$(tr+" td[id='RATE']").attr("value","").append(`<Input name='coworkRate' type='text' style='width:60px;' number />`);
+							
+						    $("[name='coworkRate']").off().on('input',function(event){
+						    	
+			    		        const val = $(this).nval();
+			    				const INCOME = $("#<@popupId>_contractInfo #INCOME").nval();
+			    				const payment = ( Number(val ) * INCOME ) / 100; 
+			    				$(event.target).parent().siblings("#PAYMENT").attr("value",payment).html(payment);
+							});
+						    
+						}else{
+							
+							$(tr+" td[id='RATE']").attr("value",rate).html(rate);
+							
+						} 
+					
+				});
+			})
+			
+		});
+		
+	}
+	,calcPayment : (rate) => {
+
+		const INCOME = $("#<@popupId>_contractInfo #INCOME").nval();
+		
+		$.each( $("#<@popupId>_paymentList tr td[id='RATE']") , (idx,obj) => {
+			
+			const objValue 			= $(obj).attr("value");
+			const objChildrenValue	= $(obj).children("[name='coworkRate']").val();
+			
+			if( objValue != "" || objChildrenValue != ""){
+
+				let rateVal = objValue != "" ? $(obj).attr("value") : objChildrenValue;
+				const payment = (Number(rateVal)  * INCOME ) / 100; 
+				$(obj).siblings("#PAYMENT").attr("value",payment).html(payment);
+			}
+			
+		})
+
+		return rate ;
+	}
+	,setHandler : () => {
+		
+		$("#<@pageId>_addCost").on('click', () => {
+			debugger;
+			let cnt 		= $("#<@popupId>_costList tr").length;
+			if ( !cnt)cnt 	= 0;
+			const trTemplate = `
+			<tr name="<@popupId>_tr_${cnt}"       value=''>
+				<td id='COST_NM'			value=''><input type='text' style="width:100%"/></td>
+				<td id='COST_DESC'			value=''><input type='text' style="width:100%"/></td>
+				<td id='COST_PRICE'			value=''><input type='text' style="width:100%"/></td>
+				<td id='CONTRACT_ID'		value=''			style='display:none'></td>
+				<td id='RESULT_ID'			value=''			style='display:none'></td>
+				<td id='COST_ID'			value=''			style='display:none'></td>
+			</tr>
+			` ;
+
+			$("#<@popupId>_costList").append(trTemplate);
+			
+		})
+	
+	    $('#<@popupId>_contractInfo #INCOME').on('input',function(event){
+
+	        const val = $(this).nval();
+	    	<@popupId>.calcPayment(val);
+	        
+	    }); 	
+	}  
+
+}
+// Popup Load가 완료된후 실행 된다.
+C_POP.onLoadPopup("<@popupId>", function(data) {
+
+	<@popupId>.recvData	= data;
+	
+	<@popupId>.pageInit();
+	
+	<@popupId>.setHandler();
+
+});
+</script>
+<style>
+.number {
+	text-align: right;
+}
+</style>
+<!-- 실적 등록 팝업 -->
+<div class="modal_wrap" id="<@popupId>_items">
+		<div class="modal" style="width:750px;height:900px;">
+			<div class="modal_header">
+				<strong class="tit">실적 등록</strong>
+				<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+			</div>
+			<div class="modal_body">
+				<h4><i class="icon_bullet"></i>계약 정보</h4>
+				<div class="tbl01 row" id="<@popupId>_contractInfo">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:100px;">
+							<col>
+							<col style="width:100px;">
+							<col>
+						</colgroup>
+						<tbody">
+							<tr>
+								<th scope="row">총계약금액</th>
+								<td id="TOTAL_COST"></td>
+								<th scope="row">잔금</th>
+								<td id="REMAINING_SUM"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<h4 class="mt20"><i class="icon_bullet"></i>입금 정보</h4>
+				<ul class="info_wrap col2"  id="<@popupId>_resultInfo">
+					<li>
+						<label>입금일</label>
+						<div class="info">
+							<div class="calendar_wrap">
+								<input type="text" id="RESULT_DATE" name="RESULT_DATE" class="datepicker" style="width:100%">
+							</div>
+						</div>
+					</li>
+					<li>
+						<label>입금액</label>
+						<div class="info">
+							<input type="text"  id="INCOME" name="INCOME" style="width:100%" number>
+						</div>
+					</li>
+				</ul>
+				
+				<div class="search_area mt0">
+					<h4 class="mt15"><i class="icon_bullet"></i>비용 산출</h4>
+					<div class="fr">
+						<a href="javascript:void(0)" id="<@pageId>_addCost" class="btn fl">추가</a>
+					</div>
+				</div>
+				<!-- 테이블 -->
+				<div class="tbl01 col" style="padding-right:8px;">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:33%;"/>
+							<col style="width:33%;"/>
+							<col style="width:34%;"/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">비용이름</th>
+								<th scope="col">비용설명</th>
+								<th scope="col">비용</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div class="tbl01 col" style="max-height:210px;overflow:auto;">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:33%;"/>
+							<col style="width:33%;"/>
+							<col style="width:34%;"/>
+						</colgroup>
+						<tbody  id="<@popupId>_costList">
+						</tbody>
+<script type="text/x-jsrender" id="<@popupId>_costList_template">						
+						{{for list}}
+							<tr name="<@popupId>_tr_{{:#index}}"                          value='{{:COST_ID}}'>
+			 					<td id='COST_NM'			value='{{:COST_NM}}'			>{{:COST_NM}}</td>
+								<td id='COST_DESC'			value='{{:COST_DESC}}'			>{{:COST_DESC}}</td>
+								<td id='COST_PRICE'			value='{{:COST_PRICE}}'			>{{:COST_PRICE}}</td>
+ 								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'		style='display:none'>{{:CONTRACT_ID}}</td>
+ 								<td id='RESULT_ID'			value='{{:RESULT_ID}}'			style='display:none'>{{:RESULT_ID}}</td>
+								<td id='COST_ID'			value='{{:COST_ID}}'			style='display:none'>{{:COST_ID}}</td>
+							</tr>
+						{{/for}}
+</script>
+<script type="text/x-jsrender" id="<@popupId>_costList_noData_template">	
+				<tr>	
+					<td colspan=3>자료가 없습니다.</td>	
+				</tr>
+</script>
+					</table>
+				</div>
+
+				<h4 class="mt15"><i class="icon_bullet"></i>수수료 산출</h4>
+				<!-- 테이블 -->
+				<div class="tbl01 col" style="padding-right:8px;">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:14%;"/>
+							<col style="width:14%;"/>
+							<col style="width:14%;"/>
+							<col style="width:14%;"/>
+							<col style="width:32%;"/>
+							<col style="width:20%;"/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">사원ID</th>
+								<th scope="col">사원이름</th>
+								<th scope="col">등급/직위</th>
+								<th scope="col">역할</th>
+								<th scope="col">수수료율</th>
+								<th scope="col" class="tr">수수료</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div class="tbl01 col" style="max-height:210px;overflow:auto;">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:14%;"/>
+							<col style="width:14%;"/>
+							<col style="width:14%;"/>
+							<col style="width:14%;"/>
+							<col style="width:32%;"/>
+							<col style="width:20%;"/>
+						</colgroup>
+						<tbody  id="<@popupId>_paymentList">
+						</tbody>
+<script type="text/x-jsrender" id="<@popupId>_paymentList_template">						
+						{{for list}}
+							<tr name="<@popupId>_tr_{{:#index}}"                          	value='{{:USER_ID}}'>
+			 					<td id='USER_ID'			value='{{:USER_ID}}'			>{{:USER_ID}}</td>
+								<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
+								<td id='GRADE'				value='{{:GRADE}}'				>{{:GRADE}}</td>
+								<td id='RELATION_TYPE_NM'	value='{{:RELATION_TYPE_NM}}'	>{{:RELATION_TYPE_NM}}</td>
+								<td id='RATE'				value='{{:RATE}}'				>{{:RATE}}</td>
+								<td id='PAYMENT'			value='{{:PAYMENT}}'			>{{:PAYMENT}}</td>
+								<td id='RELATION_TYPE'		value='{{:RELATION_TYPE}}'		style='display:none'>{{:RELATION_TYPE}}</td>
+ 								<td id='PAY_ID'				value='{{:PAY_ID}}'				style='display:none'>{{:PAY_ID}}</td>
+ 								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'		style='display:none'>{{:CONTRACT_ID}}</td>
+ 								<td id='RESULT_ID'			value='{{:RESULT_ID}}'			style='display:none'>{{:RESULT_ID}}</td>
+								<td id='PAYMENT_ID'			value='{{:PAYMENT_ID}}'			style='display:none'>{{:USER_ID}}</td>
+							</tr>
+						{{/for}}
+</script>
+<script type="text/x-jsrender" id="<@popupId>_paymentList_noData_template">	
+				<tr>	
+					<td colspan=13>자료가 없습니다.</td>	
+				</tr>
+</script>
+					</table>
+				</div>
+			</div>
+			<div class="modal_footer">
+				<button type="button" class="btn select close" 	onclick="<@popupId>.apply()" >저장</button>
+				<button type="button" class="btn close"			onclick="<@popupId>.close()" >닫기</button>
+			</div>
+		</div>
+</div>

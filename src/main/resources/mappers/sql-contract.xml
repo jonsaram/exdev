@@ -167,6 +167,37 @@
 	<!--
 	계약 관리 
 	 -->	
+	<select id="getContractItem" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	contract.getContractItem
+			계약 조회 
+		*/
+		SELECT C.CONTRACT_ID
+		,C.BUYER_ID 
+		,C.PROCESS_STATE 
+		,TO_CHAR( C.CONTACT_DATE , 'YYYY-MM-DD') 	AS CONTACT_DATE 
+		,C.USER_ID 									AS USER_ID
+		,GET_USER_NM(C.USER_ID) 					AS USER_NM /* 담당자*/
+		,C.CONTRACT_TYPE
+		,GET_CODE_NM('CONTRACT_TYPE', C.CONTRACT_TYPE)	AS CONTRACT_TYPE_NM
+		,C.TOTAL_COST /* 계약금액 */
+		,TO_CHAR( C.CONTRACT_DATE , 'YYYY-MM-DD' ) 	AS CONTRACT_DATE 
+		,TO_CHAR( C.EXPIRE_DATE , 'YYYY-MM-DD' ) 	AS EXPIRE_DATE 
+		,C.TOTAL_COST /* 총계약금액 */
+		,C.CONSULTING_ID
+		,'컨설팅명' CONSULTING_NM /* 컨설팅명 */
+		,TAX_MNG
+		,LABOR_MNG
+		,CONSULTING_CLASS
+		,GET_CODE_NM('CONSULTING_CLASS', C.CONSULTING_CLASS)	AS CONSULTING_CLASS_NM
+		,C.USE_YN
+		,C.DEL_YN
+		FROM TBL_EXP_CONTRACT C 
+		WHERE 1=1
+		AND C.CONTRACT_ID = #{CONTRACT_ID}
+		AND C.USE_YN = 'Y'
+		AND C.DEL_YN = 'N'
+	</select>		
+	
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getContractList
 			계약 리스트 조회 
@@ -192,9 +223,13 @@
 		,GET_CODE_NM('CONSULTING_CLASS', C.CONSULTING_CLASS)	AS CONSULTING_CLASS_NM
 		,C.USE_YN
 		,C.DEL_YN
+		,( SELECT MIN( REMAINING_SUM ) FROM TBL_EXP_RESULT I WHERE I.CONTRACT_ID = C.CONTRACT_ID) AS REMAINING_SUM
 		FROM TBL_EXP_CONTRACT C
 		,TBL_EXP_BUYER B
 		WHERE C.BUYER_ID = B.BUYER_ID(+)
+		<if test=" CONTRACT_ID != null and !CONTRACT_ID.equals('') ">
+		AND C.CONTRACT_ID = #{CONTRACT_ID}
+		</if>
 		AND C.USE_YN = 'Y'
 		AND C.DEL_YN = 'N'
 		ORDER BY C.UPDATE_DATE DESC
