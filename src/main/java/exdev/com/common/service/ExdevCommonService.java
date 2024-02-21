@@ -80,15 +80,32 @@ public class ExdevCommonService extends ExdevBaseService
 	@SuppressWarnings("unchecked")
 	public Map requestQuery(Map map, HttpSession session) throws Exception {
 		
-		String 	queryId 	= (String)map.get("queryId");
+		String 		queryId 		= (String)map.get("queryId");
 		
-		Map		requestParm = (Map)map.get("requestParm"); 
+		List<Map>	requestParmList = (List<Map>)map.get("requestParmList");
+
 		
-		// Session이 필요하다면 여기서 넣어준다.
-		requestParm.put("sessionVo", session.getAttribute(ExdevConstants.SESSION_ID));
-		
-		resultList = (List<Map>)commonDao.getList(queryId, requestParm);
-		
+		// Data Update에만 사용한다.
+		if(requestParmList != null) {
+			for (Map requestParm : requestParmList) {
+				// Session이 필요하다면 여기서 넣어준다.
+				requestParm.put("sessionVo", session.getAttribute(ExdevConstants.SESSION_ID));
+				
+				Integer i = commonDao.update(queryId, requestParm);
+				
+				HashMap<String, Integer> hm = new HashMap<String, Integer>();
+				hm.put("cnt", i);
+				
+				resultList.add(hm);
+			}
+		} else {
+			Map			requestParm 	= (Map)map.get("requestParm");
+
+			// Session이 필요하다면 여기서 넣어준다.
+			requestParm.put("sessionVo", session.getAttribute(ExdevConstants.SESSION_ID));
+			
+			resultList = (List<Map>)commonDao.getList(queryId, requestParm);
+		}
 		resultInfo = makeResult(ExdevBaseService.REQUEST_SUCCESS, "", resultList);
 		
 		return resultInfo;
@@ -102,18 +119,39 @@ public class ExdevCommonService extends ExdevBaseService
 		HashMap resultMap = new HashMap();
 		int idx = 1;
 		for (Map qmap : queryGroup) {
-			String 	queryId 	= (String)qmap.get("queryId");
+			String 	queryId 			= (String)qmap.get("queryId");
+			List<Map>	requestParmList = (List<Map>)qmap.get("requestParmList");
 			
-			Map		requestParm = (Map)qmap.get("requestParm"); 
-			
-			// Session이 필요하다면 여기서 넣어준다.
-			// requestParm.put("sessionVo", sessionVo);
-			
-			resultList = (List<Map>)commonDao.getList(queryId, requestParm);
-			
-			if(ExdevCommonAPI.isValid(resultMap.get(queryId))) queryId = queryId + "_" + idx++;
-			
-			resultMap.put(queryId, resultList);
+			// Data Update에만 사용한다.
+			if(requestParmList != null) {
+				for (Map requestParm : requestParmList) {
+					
+					// Session이 필요하다면 여기서 넣어준다.
+					requestParm.put("sessionVo", session.getAttribute(ExdevConstants.SESSION_ID));
+					
+					Integer i = commonDao.update(queryId, requestParm);
+					
+					HashMap<String, Integer> hm = new HashMap<String, Integer>();
+					
+					hm.put("cnt", i);
+					
+					resultList.add(hm);
+				}
+				if(ExdevCommonAPI.isValid(resultMap.get(queryId))) queryId = queryId + "_" + idx++;
+				
+				resultMap.put(queryId, resultList);
+			} else {
+				Map		requestParm = (Map)qmap.get("requestParm"); 
+
+				// Session이 필요하다면 여기서 넣어준다.
+				requestParm.put("sessionVo", session.getAttribute(ExdevConstants.SESSION_ID));
+				
+				resultList = (List<Map>)commonDao.getList(queryId, requestParm);
+				
+				if(ExdevCommonAPI.isValid(resultMap.get(queryId))) queryId = queryId + "_" + idx++;
+				
+				resultMap.put(queryId, resultList);
+			}
 		}
 
 		resultInfo = makeResult(ExdevBaseService.REQUEST_SUCCESS, "", resultMap);
