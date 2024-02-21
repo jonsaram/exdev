@@ -96,7 +96,7 @@ var <@popupId> = {
 						    $("[name='coworkRate']").off().on('input',function(event){
 						    	
 			    		        const val = $(this).nval();
-			    				const INCOME = $("#<@popupId>_contractInfo #INCOME").nval();
+			    				const INCOME = $("#<@popupId>_resultInfo #INCOME").nval();
 			    				const payment = ( Number(val ) * INCOME ) / 100; 
 			    				$(event.target).parent().siblings("#PAYMENT").attr("value",payment).html(payment);
 							});
@@ -114,8 +114,8 @@ var <@popupId> = {
 		
 	}
 	,calcPayment : (rate) => {
-
-		const INCOME = $("#<@popupId>_contractInfo #INCOME").nval();
+debugger;
+		const INCOME = $("#<@popupId>_resultInfo #INCOME").nval();
 		
 		$.each( $("#<@popupId>_paymentList tr td[id='RATE']") , (idx,obj) => {
 			
@@ -136,7 +136,7 @@ var <@popupId> = {
 	,setHandler : () => {
 		
 		$("#<@pageId>_addCost").on('click', () => {
-			debugger;
+
 			let cnt 		= $("#<@popupId>_costList tr").length;
 			if ( !cnt)cnt 	= 0;
 			const trTemplate = `
@@ -154,7 +154,7 @@ var <@popupId> = {
 			
 		})
 	
-	    $('#<@popupId>_contractInfo #INCOME').on('input',function(event){
+	    $('#<@popupId>_resultInfo #INCOME').on('input',function(event){
 
 	        const val = $(this).nval();
 	    	<@popupId>.calcPayment(val);
