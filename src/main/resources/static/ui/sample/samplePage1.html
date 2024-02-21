@@ -20,6 +20,33 @@
 				dalert(resultData);
 			});
 		 }
+		,updateQuery : function() {
+			var parm = {
+				 queryId 			: "Sample.updateSample"
+				,requestParmList	: [{parm : "XXX"}]
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				dalert(resultData);
+			});
+		 }
+		,updateQueryGroup : function() {
+			var parm = {
+				queryGroup : [
+					{
+						 queryId 			: "Sample.updateSample"
+						,requestParmList	: [{parm : "XXX"}]
+					}
+					,
+					{
+						 queryId 			: "Sample.updateSample"
+						,requestParmList	: [{parm : "XXX"}]
+					}
+				]
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				dalert(resultData);
+			});
+		 }
 		,makeUniqueId : function() {
 			var id = C_COM.makeUniqueId();
 			alert(id);
@@ -51,6 +78,10 @@
 	<br/><br/> <a class="a_search" href="javascript:<@pageId>.callService()">call service</a>
 	
 	<br/><br/> <a class="a_search" href="javascript:<@pageId>.callQuery()">call query</a>
+
+	<br/><br/> <a class="a_search" href="javascript:<@pageId>.updateQuery()">update query</a>
+
+	<br/><br/> <a class="a_search" href="javascript:<@pageId>.updateQueryGroup()">update query Group</a>
 
 	<br/><br/> <a class="a_search" href="javascript:<@pageId>.makeUniqueId()">make Unique Id</a>
 

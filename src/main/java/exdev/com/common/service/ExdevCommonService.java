@@ -1,6 +1,7 @@
 package exdev.com.common.service;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,8 @@ public class ExdevCommonService extends ExdevBaseService
 	@SuppressWarnings("unchecked")
 	public Map requestQuery(Map map, HttpSession session) throws Exception {
 		
+		List<Map> resultList = new ArrayList<Map>();
+		
 		String 		queryId 		= (String)map.get("queryId");
 		
 		List<Map>	requestParmList = (List<Map>)map.get("requestParmList");
@@ -113,6 +116,8 @@ public class ExdevCommonService extends ExdevBaseService
 	
 	@SuppressWarnings("unchecked")
 	public Map requestQueryGroup(Map map, HttpSession session) throws Exception {
+
+		List<Map> resultList = new ArrayList<Map>();
 		
 		List<Map> 	queryGroup 	= (List<Map>)map.get("queryGroup");
 		
