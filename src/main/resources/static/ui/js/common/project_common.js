@@ -512,6 +512,31 @@ var C_COM = {
 	      };
 	    });
 
+	    /*====== 테이블 헤더 고정 =======*/
+        $.fn.hasYScrollBar = function() {
+            return (this.prop("scrollHeight") == 0 && this.prop("clientHeight") == 0) || (this.prop("scrollHeight") > this.prop("clientHeight"));
+        };
+
+        $.fn.hasXScrollBar = function() {
+            return (this.prop("scrollWidth") == 0 && this.prop("clientWidth") == 0) || (this.prop("scrollWidth") > this.prop("clientWidth"));
+        };
+
+		let sl = 0;
+
+        $(templateWebId + " .tbl_body_scroll").scroll(function(event){
+            // data 테이블 x축 스크롤을 움직일 때header 테이블 x축 스크롤을 똑같이 움직인다
+            if (sl != $(templateWebId + " .tbl_body_scroll").scrollLeft()) {
+                sl = $(templateWebId + " .tbl_body_scroll").scrollLeft();
+                $(templateWebId + " .tbl_head").scrollLeft(sl);
+            }
+        });
+
+
+        if ($(templateWebId + " .tbl_body_scroll").hasYScrollBar()) {
+            //y축 스크롤이 있으면 스크롤 넓이인 8px만큼 header 마지막 열 크기를 늘린다
+            $(templateWebId + " .tbl_head colgroup col:last-child").width($(templateWebId + " .tbl_body_scroll colgroup col:last-child").width() + 8 );
+        }
+
 		C_COM.makeNumberTypeToInput(templateWebId);
 	}
 }
