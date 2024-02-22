@@ -16,14 +16,26 @@
 		*/
 		
 		SELECT 
-		 C.TOTAL_COST 
-		,R.RESULT_DATE
+		 0 AS RN
+		,C.TOTAL_COST 
+		,TO_CHAR( R.RESULT_DATE, 'YYYY-MM-DD') AS RESULT_DATE
 		,R.INCOME
 		,R.REMAINING_SUM
 		,NVL(CO.SUM_COST_PRICE ,0) AS COST_PRICE
 		,R.CONTRACT_ID
 		,R.RESULT_ID
+		,U.USER_ID
+		,U.USER_NM
+		,U.GRADE
+		,GET_CODE_NM( 'GRADE'	, U.GRADE ) GRADE_NM 
+		,GET_CODE_NM( 'ROLE'	, U.ROLE  ) ROLE_NM
+		,U.ROLE
+		,CM.RELATION_TYPE
+		,GET_CODE_NM( 'RELATION_TYPE', CM.RELATION_TYPE ) AS RELATION_TYPE_NM
+		,P.RATE
+		,P.PAYMENT
 		,R.ORG_SELLING_PRICE
+		,TO_NUMBER(R.ORG_SELLING_PRICE) - TO_NUMBER( P.PAYMENT ) AS REAL_PROFIT
 		,R.USE_YN
 		,R.DEL_YN
 		,R.UPDATE_USER
@@ -35,10 +47,22 @@
 			FROM TBL_EXP_COST
 			GROUP BY CONTRACT_ID, RESULT_ID 
 		) CO
+		,TBL_EXP_PAYMENT P
+		,TBL_EXP_CONTRACT_MEMBER CM
+		,TBL_EXP_USER U
 		WHERE C.CONTRACT_ID	= R.CONTRACT_ID 
 		AND C.CONTRACT_ID	= CO.CONTRACT_ID(+) 
 		AND R.RESULT_ID		= CO.RESULT_ID(+)
-		ORDER BY C.CONTRACT_DATE DESC, R.RESULT_DATE 
+		AND R.CONTRACT_ID	= P.CONTRACT_ID 
+		AND R.RESULT_ID		= P.RESULT_ID 
+		AND R.CONTRACT_ID 	= #{CONTRACT_ID}
+		<if test=" RESULT_ID != null and !RESULT_ID.equals('') ">
+		AND R.RESULT_ID 	= #{RESULT_ID}
+		</if>
+		AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
+		AND P.USER_ID 		= CM.USER_ID
+		AND P.USER_ID 		= U.USER_ID 
+		ORDER BY R.RESULT_DATE , <include refid="buisnessHierarchyOrderBy"/>
 	
 	</select>	
 	 
@@ -97,11 +121,32 @@
 		  SELECT #{CONTRACT_ID}				AS CONTRACT_ID,
 		         #{RESULT_ID} 				AS RESULT_ID,
 		         #{INCOME} 					AS INCOME,
-		         #{REMAINING_SUM} 			AS REMAINING_SUM,
-		         #{ORG_SELLING_PRICE} 		AS ORG_SELLING_PRICE,
-		         #{USE_YN} 					AS USE_YN,
-		         #{DEL_YN} 					AS DEL_YN,
+		         'Y'	 					AS USE_YN,
+		         'N'	 					AS DEL_YN,
 		         'trigger'					AS UPDATE_USER,
+		         SYSDATE					AS UPDATE_DATE,
+				 SYSDATE			        AS RESULT_DATE,
+		         (
+		          SELECT TO_NUMBER(TOTAL_COST) FROM TBL_EXP_CONTRACT 
+		           WHERE 	CONTRACT_ID = #{CONTRACT_ID}
+				  )
+		         -	
+		         ( SELECT TO_NUMBER(SUM(INCOME)) FROM TBL_EXP_RESULT 
+		           WHERE 	CONTRACT_ID = #{CONTRACT_ID}
+		           AND 		RESULT_ID 	= #{RESULT_ID}
+		          )				AS REMAINING_SUM,
+		         ( SELECT TOTAL_COST FROM TBL_EXP_CONTRACT 
+		           WHERE 	CONTRACT_ID = #{CONTRACT_ID}
+		         )										AS TOTAL_COST,
+		         ( SELECT SUM(INCOME) FROM TBL_EXP_RESULT 
+		           WHERE 	CONTRACT_ID = #{CONTRACT_ID}
+		           AND 		RESULT_ID 	= #{RESULT_ID}
+		          )										AS INCOME_SUM ,
+		          
+				  ( SELECT SUM(COST_PRICE) FROM TBL_EXP_COST
+		           WHERE 	CONTRACT_ID = #{CONTRACT_ID}
+		           AND 		RESULT_ID 	= #{RESULT_ID}
+		          )										AS ORG_SELLING_PRICE
 		  FROM dual
 		  
 		) S
@@ -111,7 +156,7 @@
 		WHEN MATCHED THEN
 		  UPDATE SET
 		         T.INCOME 				= S.INCOME,
-		         T.REMAINING_SUM 		= S.REMAINING_SUM,
+		         T.REMAINING_SUM 		= TO_NUMBER( S.TOTAL_COST ) - TO_NUMBER( S.INCOME_SUM ),
 		         T.ORG_SELLING_PRICE	= S.ORG_SELLING_PRICE,
 		         T.USE_YN				= S.USE_YN,
 		         T.DEL_YN				= S.DEL_YN,
@@ -188,12 +233,12 @@
 		, #{RESULT_ID} AS RESULT_ID
 		, PAYMENT_ID
 		, EXEC_TYPE
-		,CM.RELATION_TYPE
-		,GET_CODE_NM('RELATION_TYPE', CM.RELATION_TYPE ) AS RELATION_TYPE_NM
-		,CM.BUSINESS_HIERARCHY
-		,NVL(CM.BUSINESS_HIERARCHY , U.GRADE ) AS GRADE
-		,NULL RATE
-		,NULL PAYMENT
+		, CM.RELATION_TYPE
+		, GET_CODE_NM('RELATION_TYPE', CM.RELATION_TYPE ) AS RELATION_TYPE_NM
+		, CM.BUSINESS_HIERARCHY
+		, NVL(CM.BUSINESS_HIERARCHY , U.GRADE ) AS GRADE
+		, NULL RATE
+		, NULL PAYMENT
 		FROM (
 			WITH CM_USER AS (
 				<include refid="cmUsers"/>
@@ -328,7 +373,8 @@
            </when>
            <when test="EXEC_TYPE != null and EXEC_TYPE.equals('SALES')">
             
-			SELECT CMU.USER_ID, P.SALES_PAY_ID AS PAY_ID , P.RATE
+			SELECT CMU.USER_ID, P.SALES_PAY_ID AS PAY_ID , 
+			DECODE( CMU.RELATION_TYPE, 'COWORK',NULL,  P.RATE ) RATE
 			FROM TBL_EXP_SALES_PAY P
 			,TBL_EXP_CONTRACT C
 			,CMU
@@ -429,9 +475,10 @@
 		         #{COST_ID} 				AS COST_ID,
 		         #{COST_NM} 				AS COST_NM,
 		         #{COST_DESC} 				AS COST_DESC,
-		         #{USE_YN} 					AS USE_YN,
-		         #{DEL_YN} 					AS DEL_YN,
-		         'trigger'					AS UPDATE_USER,
+		         #{COST_PRICE} 				AS COST_PRICE,
+		         'Y'	 					AS USE_YN,
+		         'N' 						AS DEL_YN,
+		         'trigger'					AS UPDATE_USER
 		  FROM dual
 		  
 		) S
@@ -443,12 +490,14 @@
 		  UPDATE SET
 		         T.COST_NM 			= S.COST_NM,
 		         T.COST_DESC 		= S.COST_DESC,
+		         T.COST_PRICE 		= S.COST_PRICE,
 		         T.DEL_YN			= S.DEL_YN,
 		         T.UPDATE_USER		= S.UPDATE_USER,
 		         T.UPDATE_DATE		= SYSDATE
 		WHEN NOT MATCHED THEN 
     		INSERT (  CONTRACT_ID,   RESULT_ID,   COST_ID,   COST_NM,   COST_DESC,   COST_PRICE, USE_YN, DEL_YN,   UPDATE_USER, UPDATE_DATE)
    			VALUES (S.CONTRACT_ID, S.RESULT_ID, S.COST_ID, S.COST_NM, S.COST_DESC, S.COST_PRICE,    'Y',    'N', S.UPDATE_USER, SYSDATE    )
+
 	</update>
 	
 	<delete id="deleteCostItem" parameterType="java.util.HashMap"  flushCache="true" >
@@ -463,34 +512,11 @@
 		AND COST_ID	 		= #{COST_ID}
 	</delete>
 	
-	
-	
-<!-- 	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	result.getPaymentList
-			실적 수당 내역 리스트 조회 
-		*/
-	 
-		SELECT CONTRACT_ID
-		, USER_ID
-		, RESULT_ID
-		, PAYMENT
-		, PAYMENT_ID
-		, EXEC_TYPE
-		, PAY_ID
-		, RATE
-		, USE_YN
-		, DEL_YN
-		, UPDATE_USER
-		, UPDATE_DATE
-		FROM TBL_EXP_PAYMENT
-		WHERE 1=1
-	
-	</select> -->	
-	
 	<update id="updatePaymentItem" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	result.updatePaymentItem
 			실적 수당 저장
 		*/
+
 		MERGE INTO TBL_EXP_PAYMENT T
 		USING (
 		
@@ -502,9 +528,9 @@
 		         #{EXEC_TYPE} 				AS EXEC_TYPE,
 		         #{PAY_ID} 					AS PAY_ID,
 		         #{RATE} 					AS RATE,
-		         #{USE_YN} 					AS USE_YN,
-		         #{DEL_YN} 					AS DEL_YN,
-		         'trigger'					AS UPDATE_USER,
+		         'Y'	 					AS USE_YN,
+		         'N' 						AS DEL_YN,
+		         'trigger'					AS UPDATE_USER
 		  FROM dual
 		  
 		) S

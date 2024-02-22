@@ -4,19 +4,41 @@ var <@popupId> = {
 	 recvData : []	
 	 ,RESULT_ID: '' 
 	 ,close : function(returnData) {
+
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
 	 }
 	 ,apply : () =>{
-		 
-		 let returnData = {};
+
 		 const $inputs = $("#<@popupId>_items");
-		 <@popupId>.close(
-				 			{	costInfo	: <@popupId>.getJson($("#<@popupId>_costList"))
-					 		, 	resultInfo	: {	RESULT_ID : <@popupId>.RESULT_ID, INCOME : $("#<@popupId>_resultInfo #INCOME").val()}
-					 		, 	paymentInf	: <@popupId>.getJson($("#<@popupId>_paymentList"))
-					 		} 
-				 	) ; 
+		 const returnData = 	{	
+				 			costInfo	: <@popupId>.getJson($("#<@popupId>_costList")).map(tr => 
+											{ 
+												let newTr={};
+ 												Object.keys( tr ) .forEach(key => {
+ 													
+													    if ( key === "CONTRACT_ID") {
+													    		newTr[key] = <@popupId>.recvData.param.CONTRACT_ID;
+													    }else
+														if (key === "RESULT_ID") {
+														    	newTr[key] = <@popupId>.RESULT_ID;
+														}else
+														if (key === "COST_ID") {
+															debugger;
+															    newTr[key] =  C_COM.makeUniqueId() ;
+														}else
+													    	newTr[key] = tr[key];
+										  		});
+ 												 
+												 return newTr;
+											})
+							, 	resultInfo	: {	CONTRACT_ID : <@popupId>.recvData.param.CONTRACT_ID
+												,RESULT_ID : <@popupId>.RESULT_ID
+												,INCOME : $("#<@popupId>_resultInfo #INCOME").nval()
+												}
+							, 	paymentInfo	: <@popupId>.getJson($("#<@popupId>_paymentList"))
+							} 
+		 <@popupId>.close( returnData ) ; 
 		 
 	 }
 	 ,getJson : ( list ) => {
@@ -24,16 +46,15 @@ var <@popupId> = {
 		 let jsonArray = [];
    		 $.each( $(list).children("tr") , (idx, tr) => {
    			 
-			 let colArray = [];
+			 let trObj = {};
  			 $.each( $(tr).children("td"), (idx2, td) => {
  				 
 				 const id 		=  	$(td).attr("id");
-				 const value 	=	$(td).attr("value");
-				 const obj 		=  	{ [id] : value };
-				 colArray.push( obj );
+				 const value 	=	$(td).attr("value") == "" ? $(td).children("input").val() : $(td).attr("value");
+				 trObj[id]		= value
 			 })
 			 
-			 jsonArray .push( colArray);
+			 jsonArray .push( trObj);
 			 
 		 }) 
 		 
@@ -89,7 +110,7 @@ var <@popupId> = {
 
 						const tr		= `#<@popupId>_paymentList tr[value=${userId}]`;
 						
-						if( $(tr+" td[id='RELATION_TYPE']").attr("value") == "COWORK"  && $(tr+" td[id='RATE'] > [name='coworkRate']")  ){
+						if( $(tr+" td[id='RELATION_TYPE']").attr("value") == "COWORK"  && $(tr+" td[id='RATE'] > [name='coworkRate']") .length == 0 ){
 							
 							$(tr+" td[id='RATE']").attr("value","").append(`<Input name='coworkRate' type='text' style='width:60px;' number />`);
 							
@@ -106,6 +127,8 @@ var <@popupId> = {
 							$(tr+" td[id='RATE']").attr("value",rate).html(rate);
 							
 						} 
+						
+						$(tr+" td[id='PAY_ID']").attr("value",payId).html(payId);
 					
 				});
 			})
@@ -114,7 +137,7 @@ var <@popupId> = {
 		
 	}
 	,calcPayment : (rate) => {
-debugger;
+
 		const INCOME = $("#<@popupId>_resultInfo #INCOME").nval();
 		
 		$.each( $("#<@popupId>_paymentList tr td[id='RATE']") , (idx,obj) => {
@@ -139,17 +162,7 @@ debugger;
 
 			let cnt 		= $("#<@popupId>_costList tr").length;
 			if ( !cnt)cnt 	= 0;
-			const trTemplate = `
-			<tr name="<@popupId>_tr_${cnt}"       value=''>
-				<td id='COST_NM'			value=''><input type='text' style="width:100%"/></td>
-				<td id='COST_DESC'			value=''><input type='text' style="width:100%"/></td>
-				<td id='COST_PRICE'			value=''><input type='text' style="width:100%"/></td>
-				<td id='CONTRACT_ID'		value=''			style='display:none'></td>
-				<td id='RESULT_ID'			value=''			style='display:none'></td>
-				<td id='COST_ID'			value=''			style='display:none'></td>
-			</tr>
-			` ;
-
+ 			const trTemplate = $("#<@popupId>_costList_add_template").render({cnt : cnt});
 			$("#<@popupId>_costList").append(trTemplate);
 			
 		})
@@ -260,8 +273,8 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</colgroup>
 						<tbody  id="<@popupId>_costList">
 						</tbody>
-<script type="text/x-jsrender" id="<@popupId>_costList_template">						
-						{{for list}}
+						<script type="text/x-jsrender" id="<@popupId>_costList_template">						
+							{{for list}}
 							<tr name="<@popupId>_tr_{{:#index}}"                          value='{{:COST_ID}}'>
 			 					<td id='COST_NM'			value='{{:COST_NM}}'			>{{:COST_NM}}</td>
 								<td id='COST_DESC'			value='{{:COST_DESC}}'			>{{:COST_DESC}}</td>
@@ -270,13 +283,24 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
  								<td id='RESULT_ID'			value='{{:RESULT_ID}}'			style='display:none'>{{:RESULT_ID}}</td>
 								<td id='COST_ID'			value='{{:COST_ID}}'			style='display:none'>{{:COST_ID}}</td>
 							</tr>
-						{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@popupId>_costList_noData_template">	
-				<tr>	
-					<td colspan=3>자료가 없습니다.</td>	
-				</tr>
-</script>
+							{{/for}}
+							
+						</script>
+						<script type="text/x-jsrender" id="<@popupId>_costList_noData_template">	
+							<tr>	
+								<td colspan=3>자료가 없습니다.</td>	
+							</tr>
+						</script>
+						<script type="text/x-jsrender" id="<@popupId>_costList_add_template">	
+							<tr name="<@popupId>_tr_{{:cnt}}" value=''>
+								<td id='COST_NM'			value=''><input type='text' style="width:100%"/></td>
+								<td id='COST_DESC'			value=''><input type='text' style="width:100%"/></td>
+								<td id='COST_PRICE'			value=''><input type='text' style="width:100%"/></td>
+								<td id='CONTRACT_ID'		value=''			style='display:none'></td>
+								<td id='RESULT_ID'			value=''			style='display:none'></td>
+								<td id='COST_ID'			value=''			style='display:none'></td>
+							</tr>
+						</script>
 					</table>
 				</div>
 
@@ -299,8 +323,8 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<th scope="col">사원이름</th>
 								<th scope="col">등급/직위</th>
 								<th scope="col">역할</th>
-								<th scope="col">수수료율</th>
-								<th scope="col" class="tr">수수료</th>
+								<th scope="col">수수료율(%)</th>
+								<th scope="col" class="tr">수수료(원)</th>
 							</tr>
 						</thead>
 					</table>
@@ -318,7 +342,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</colgroup>
 						<tbody  id="<@popupId>_paymentList">
 						</tbody>
-<script type="text/x-jsrender" id="<@popupId>_paymentList_template">						
+						<script type="text/x-jsrender" id="<@popupId>_paymentList_template">						
 						{{for list}}
 							<tr name="<@popupId>_tr_{{:#index}}"                          	value='{{:USER_ID}}'>
 			 					<td id='USER_ID'			value='{{:USER_ID}}'			>{{:USER_ID}}</td>
@@ -326,20 +350,26 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<td id='GRADE'				value='{{:GRADE}}'				>{{:GRADE}}</td>
 								<td id='RELATION_TYPE_NM'	value='{{:RELATION_TYPE_NM}}'	>{{:RELATION_TYPE_NM}}</td>
 								<td id='RATE'				value='{{:RATE}}'				>{{:RATE}}</td>
-								<td id='PAYMENT'			value='{{:PAYMENT}}'			>{{:PAYMENT}}</td>
+								<td id='PAYMENT'			value='{{:PAYMENT}}'  class="tr">{{:PAYMENT}}</td>
 								<td id='RELATION_TYPE'		value='{{:RELATION_TYPE}}'		style='display:none'>{{:RELATION_TYPE}}</td>
  								<td id='PAY_ID'				value='{{:PAY_ID}}'				style='display:none'>{{:PAY_ID}}</td>
  								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'		style='display:none'>{{:CONTRACT_ID}}</td>
  								<td id='RESULT_ID'			value='{{:RESULT_ID}}'			style='display:none'>{{:RESULT_ID}}</td>
 								<td id='PAYMENT_ID'			value='{{:PAYMENT_ID}}'			style='display:none'>{{:USER_ID}}</td>
+								<td id='EXEC_TYPE'			value='{{:EXEC_TYPE}}'			style='display:none'>{{:EXEC_TYPE}}</td>
 							</tr>
 						{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@popupId>_paymentList_noData_template">	
-				<tr>	
-					<td colspan=13>자료가 없습니다.</td>	
-				</tr>
-</script>
+							<tr>
+								<td colspan="4">계</td>
+								<td id='RATE_SUM'			value=''></td>
+								<td id='PAYMENT_SUM' 		value='' class="tr"></td>
+							</tr>
+						</script>
+						<script type="text/x-jsrender" id="<@popupId>_paymentList_noData_template">	
+							<tr>	
+								<td colspan=13>자료가 없습니다.</td>	
+							</tr>
+						</script>
 					</table>
 				</div>
 			</div>
