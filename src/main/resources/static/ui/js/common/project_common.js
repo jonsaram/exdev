@@ -937,7 +937,6 @@ var C_UICOM = {
 		C_UICOM.makeSelectBoxExec(parm, type)	 
 	 }
 	,toggleSingleSelectBox : function(targetId) {
-		debugger;
 		var templateId = C_COM.getCurrentTemplateId();
 
 		var pageWebUl = "#" + templateId + " #" + targetId + "_ul ";

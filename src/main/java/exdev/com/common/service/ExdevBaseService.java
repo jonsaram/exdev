@@ -11,7 +11,9 @@ public class ExdevBaseService
 
 	protected Map 		resultInfo = null;
 	protected List<Map>	resultList = null;
-
+	
+	//공통코드 : 일정관리 반복주기 
+	public static enum SCHEDULE_LOOP_TYPE {	NOT_REPEAT, DAY, WEEK, MONTH, QUARTER, YEAR	}
 	/**
 	 * 서비스 결과 리턴
 	 * @param state

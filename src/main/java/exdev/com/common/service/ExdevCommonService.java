@@ -19,6 +19,7 @@ import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.service.ApprovalService;
 import exdev.com.service.EmailService;
 import exdev.com.service.ExdevSampleService;
+import exdev.com.service.ScheduleService;
 
 @Service("ExdevCommonService")
 @Transactional(rollbackFor = { Exception.class }, propagation = Propagation.REQUIRED)
@@ -33,7 +34,9 @@ public class ExdevCommonService extends ExdevBaseService
 	
 	@Autowired
     private ApprovalService    approvalService;
-	
+
+    @Autowired
+    private ScheduleService    scheduleService;
 	
 	@Autowired
 	private ExdevCommonDao commonDao;
@@ -70,6 +73,9 @@ public class ExdevCommonService extends ExdevBaseService
 		} else if("ApprovalService".equals(classId)) {
             targetService = approvalService;
             targetMethod = ApprovalService.class.getMethod(methodId, Map.class);
+        } else if("ScheduleService".equals(classId)) {
+            targetService = scheduleService;
+            targetMethod = ScheduleService.class.getMethod(methodId, Map.class);
         }
 			
 		Object resultObject = (Object)targetMethod.invoke(targetService, requestParm);
