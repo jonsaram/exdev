@@ -40,13 +40,21 @@
 		var sendParm = {
 			 targetUrl 	: _WEB_ROOT_URL + "/setSession.do"
 			,data		: {
-                spCstmId   : "starasset"
-               ,userId     : "jonsaram"
-               ,userNm     : "위성열"
+                spCstmId	: "starasset"
+               ,userId  	: "jonsaram"
+               ,deptNm		: "경영지원그룹"
+               ,userNm  	: "위성열"
 			 }
 		}
+		
 		ajaxRequest(sendParm);
 		
+		G_VAL.session = {
+			 spCstmId	: "starasset"
+			,userId  	: "jonsaram"
+			,deptNm		: "경영지원그룹"
+			,userNm  	: "위성열"
+		}
 		
 		
 	
@@ -69,7 +77,13 @@
 			 $("#mainContainer").toggleClass('collapse');
 		}
 	</script>
-
+	
+	
+	<!-- CKEditor Style 높이/Font 설정 -->  
+	<style>
+	  .ck-editor__editable { height: 250px; }
+	  .ck-content { font-size: 12px; }
+	</style>
 
 </head>
 <body class="main">
