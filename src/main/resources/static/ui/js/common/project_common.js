@@ -534,6 +534,12 @@ var C_COM = {
         });
 
 		C_COM.makeNumberTypeToInput(templateWebId);
+		
+	    /*==== consulting active ====*/
+	    $(templateWebId).on("click", templateWebId + " .listBtn li a", function(){
+	        $(templateWebId + ' .listBtn li a').removeClass('active');
+	        $(this).addClass('active');
+	    });
 	 }
 
 	,adjustTableScroll : function(templateId) {
@@ -541,6 +547,8 @@ var C_COM = {
         if ($(templateWebId + " .tbl_body_scroll").hasYScrollBar()) {
             //y축 스크롤이 있으면 스크롤 넓이인 8px만큼 header 마지막 열 크기를 늘린다
             $(templateWebId + " .tbl_head colgroup col:last-child").width($(templateWebId + " .tbl_body_scroll colgroup col:last-child").width() + 8 );
+        }else{
+            $(templateWebId + " .tbl_head colgroup col:last-child").width();
         }
 	}
 	

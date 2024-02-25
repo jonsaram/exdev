@@ -1,8 +1,4 @@
 <meta charset="utf-8">
-<style>
-      .ck.ck-editor{ max-width: 100%; }
-      .ck-editor__editable { height: 50px; }
-</style>
 <script type="text/javascript">
     var <@compId> = {
          textEditor:'' 
@@ -36,27 +32,27 @@
     C_COMP.onLoadComp("<@compId>", function(data) {
 
         ClassicEditor.create( document.querySelector( '#<@compId> #textEditor' ), {
-                extraPlugins: [<@compId>.MyCustomUploadAdapterPlugin]
-               ,language: "ko"
-           }).then( newEditor => {
-                
-               <@compId>.textEditor = newEditor;
-               if( data.mode == "R" ){
-                   //에디터 비활성화
-                   <@compId>.textEditor.enableReadOnlyMode( '#<@compId> #textEditor' );
-               }else{
-                   //에디터 활성화
-                   <@compId>.textEditor.disableReadOnlyMode( '#<@compId> #textEditor' );
-               }
-               
-           }).catch( error => {
-               console.log( error );
-           });
+             extraPlugins: [<@compId>.MyCustomUploadAdapterPlugin]
+            ,language: "ko"
+        }).then( newEditor => {
+             
+            <@compId>.textEditor = newEditor;
+            if( data.mode == "R" ){
+                //에디터 비활성화
+                <@compId>.textEditor.enableReadOnlyMode( '#<@compId> #textEditor' );
+            }else{
+                //에디터 활성화
+                <@compId>.textEditor.disableReadOnlyMode( '#<@compId> #textEditor' );
+            }
+            
+        }).catch( error => {
+            console.log( error );
+        });
          
    }); 
 </script>
 <div>
-    <div id="textEditor" style="width:100%;height:300px"><@content></div>
+    <div id="textEditor"><@content></div>
      <!-- 
     <input type=button value=callback onclick="<@compId>.returnFn()"> <br/><br/>
      -->

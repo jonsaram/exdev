@@ -15,7 +15,10 @@ public class SessionVO {
 
 	private String userId; 
 	private String userNm;
+	private String grade;
+	private String email;
 	private String spCstmId;
+	
 	public String getUserId() {
 		return userId;
 	}
@@ -28,11 +31,24 @@ public class SessionVO {
 	public void setUserNm(String userNm) {
 		this.userNm = userNm;
 	}
+	public String getGrade() {
+		return grade;
+	}
+	public void setGrade(String grade) {
+		this.grade = grade;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
 	public String getSpCstmId() {
 		return spCstmId;
 	}
 	public void setSpCstmId(String spCstmId) {
 		this.spCstmId = spCstmId;
 	}
+
 	
 }

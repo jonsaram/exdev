@@ -1,4 +1,80 @@
 (function (win, $) {
+    /*========= 싱글 선택 ==========*/
+    $.fn.dropdown = function(){
+        var $btn_click = $('.radio');
+        var $open_ul = $('ul.select_lst');
+        $( $btn_click ).next().addClass("viewHide");
+        $( $btn_click ).on("click", function(){
+            $( this ).next().removeClass("viewHide");
+        });
+        $($open_ul).find("input[type=radio]").on("click", function(){
+            var $var = $( this ).next().text();
+            var $state = $(this).parent().children().find(".status");
+            var $color = $(this).parent().children().find(".status").attr('class');
+            var $htmlState = '<i class="' +  $color + '" style="padding-right:5px;top:-1px"></i>';
+            if($state.hasClass("status") === true) {
+                $(this).parent().parent().prev().children().prepend($htmlState);
+            }
+            $(this).parent().parent().prev().children().find('span').text($var);
+            $(this).parent().parent().prev().children().addClass( "active" );
+            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
+            $(this).parent().parent().addClass("viewHide");
+
+        });
+        $($open_ul).find("input[type=radio]").on("focus", function(){
+            var $var = $( this ).next().text();
+            var $state = $(this).parent().children().find(".status");
+            var $color = $(this).parent().children().find(".status").attr('class');
+            var $htmlState = '<i class="' +  $color + '" style="padding-right:5px;top:-1px"></i>';
+            if($state.hasClass("status") === true) {
+                $(this).parent().parent().prev().children().prepend($htmlState);
+            }
+            $( this ).parent().parent().prev().children().text($var);
+            $( this ).parent().parent().prev().children().addClass( "active" );
+            $(this).next().addClass("active"); $(this).parent().siblings().find("label").removeClass("active");
+        });
+        $($open_ul).find("input[type=radio]").on("blur", function(){
+            $( this ).parent().parent().prev().children().removeClass( "active" );
+        });
+        $( $btn_click ).next().on("mouseleave", function(){
+            $( $btn_click ).next().addClass( "viewHide" );
+        });
+    };
+
+
+    /*============= 멀티선택 ================*/
+    $(document).on("click", ".dropdown button", function(){
+        $(this).parent().children().find("ul").slideToggle('fast');
+    });
+
+    // 외부 링크
+    $(document).bind('click', function(e) {
+      var $clicked = $(e.target);
+      if (!$clicked.parents().hasClass("dropdown")) {
+        $(".dropdown ul").hide();
+      };
+    });
+
+    //체크박스 체크할때
+    $(document).on("click", ".mutliSelect input[type='checkbox']", function(){
+      var title = $(this).closest('.mutliSelect').find('input[type="checkbox"]').val(),
+        title = $(this).val() + ",";
+
+      if ($(this).is(':checked')) {
+        var html = '<span title="' + title + '">' + title + '</span>';
+        $(this).closest('.mutliSelect').parent().children().find(".multiSel").append(html);
+        $(this).closest('.mutliSelect').parent().children().find(".hida").hide();
+      }
+      else {
+        $(this).closest('.mutliSelect').parent().children().find(".multiSel").find('span[title="' + title + '"]').remove();
+        var checkLength = $(this).closest('.mutliSelect').parent().children().find(".multiSel").find('span').length;
+        if(checkLength == 0){
+            $(this).closest('.mutliSelect').parent().children().find(".hida").show();
+        }
+      }
+    });
+
+
     /*==== Gnb 영역 너무 길때 생긴 버튼 ====*/
     // $(document).on("click", ".btn_arrow", function(){
     //     $(this).parents().find('.wrap').toggleClass('resize');
@@ -106,7 +182,6 @@
     });
 
     /*====== 테이블 헤더 고정 =======*/
-    var sl = 0;
     $(function(){
         $.fn.hasYScrollBar = function() {
             return (this.prop("scrollHeight") == 0 && this.prop("clientHeight") == 0) || (this.prop("scrollHeight") > this.prop("clientHeight"));
@@ -117,6 +192,7 @@
         };
 
         $(".tbl_body_scroll").scroll(function(event){
+            var sl = 0;
             // data 테이블 x축 스크롤을 움직일 때header 테이블 x축 스크롤을 똑같이 움직인다
             if (sl != $(".tbl_body_scroll").scrollLeft()) {
                 sl = $(".tbl_body_scroll").scrollLeft();
@@ -124,10 +200,11 @@
             }
         });
 
-
         if ($(".tbl_body_scroll").hasYScrollBar()) {
             //y축 스크롤이 있으면 스크롤 넓이인 8px만큼 header 마지막 열 크기를 늘린다
             $(".tbl_head colgroup col:last-child").width($(".tbl_body_scroll colgroup col:last-child").width() + 8 );
+        }else{
+            $(".tbl_head colgroup col:last-child").width();
         }
     });
 
@@ -231,5 +308,14 @@
     });
 
 
+    /*==== consulting active ====*/
+    $(document).on("click", ".listBtn li a", function(){
+        $('.listBtn li a').removeClass('active');
+        $(this).addClass('active');
+    });
 
 })(window, window.jQuery);
+
+$(document).ready(function() {
+    $('.select_box').dropdown();
+});

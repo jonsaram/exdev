@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Start Asset</title>
+	<link rel="stylesheet" type="text/css" href="../css/libs/jquery-ui.css"/>
+	<link rel="stylesheet" type="text/css" href="../css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="../css/common.css"/>
+	<script type="text/javascript" src="../js/libs/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="../js/libs/jquery-ui.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+	<script type="text/javascript" src="../js/libs/highcharts.js"></script>
+
+
+</head>
+<body class="main">
+	<header id="header">
+		<div class="wrap">
+			<h1 class="logo"><a href="main.html">Start Asset</a></h1>
+			<nav class="gnb">
+				<ul>
+					<li><a href="main.html">성과관리</a></li>
+					<li class="active"><a href="fa_dashboard.html">FA 대쉬보드</a></li>
+					<li><a href="personnel_info.html">인사정보</a></li>
+					<li><a href="performance_ranking.html">실적랭킹</a></li>
+					<li><a href="calender.html">캘린더</a></li>
+					<li><a href="qdvisory_progress_status.html">자문 진행 현황</a></li>
+					<li><a href="customer_list.html">고객리스트</a></li>
+					<li><a href="customer_dashboard.html">고객 대쉬보드</a></li>
+					<!-- <li><a href="salary_info.html">급여정보</a></li> -->
+					<li><a href="enter_performance.html">실적입력</a></li>
+					<!-- <li><a href="electronic_pay.html">전자결재</a></li>
+					<li><a href="erp.html">ERP</a></li> -->
+					<li><a href="company_board.html">사내게시판</a></li>
+					<li><a href="work_history.html">작업 히스토리</a></li>
+				</ul>
+			</nav>
+			<div class="header_right">
+				<div class="head-btn-wrap">
+			        <button class="menu-btn">
+			            <span class="line line1"></span>
+			            <span class="line line2"></span>
+			            <span class="line line3"></span>
+			        </button>
+			    </div>
+				<button type="button" class="btn_arrow"></button>
+				<a href="#" class="alarm">알림</a>
+				<a href="#" class="user_login"><span>이희성</span></a>
+				<ul class="user_menu">
+					<li><a href="../admin/admin_01.html"><i class="icon_admin"></i>관리자 페이지</a></li>
+					<li><a href="#"><i class="icon_pwEdit"></i>비밀번호 변경</a></li>
+					<li><a href="#"><i class="icon_logout"></i>로그아웃</a></li>
+				</ul>
+			</div>
+		</div>
+	</header>
+	<div class="container">
+
+		<div class="cont_wrap lnb_none">
+			<div class="cont_top">
+				<h2><i class="icon_bullet"></i>FA 대쉬보드</h2>
+			</div>
+			<div class="sec_scroll">
+				<section class="sec_wrap">
+					<div class="left">
+						<section class="sec_wrap">
+							<div class="cont_box left">
+								<h3 class="dashboard_tit">당월 순매출(2023.08.)</h3>
+								<div class="sales_wrap">
+									<div class="sales">
+										<i class="icon_presentation"></i>
+										<div class="won_wrap">
+											<div class="big_won"><span class="num">17,529,465,969</span>원</div>
+											<div class="small_won"><span class="num">30,000,000,000</span>원</div>
+										</div>
+									</div>
+									<div class="potential">
+										<i class="icon_users_group"></i>
+										<div class="member_wrap">
+											<span class="txt">잠재고객</span>
+											<span class="num_wrap"><span class="num">2</span>명</span>
+										</div>
+									</div>
+									<div class="customer">
+										<i class="icon_users_group"></i>
+										<div class="member_wrap">
+											<span class="txt">가맹 수</span>
+											<span class="num_wrap"><span class="num">16</span>명</span>
+										</div>
+									</div>
+								</div>
+								<div class="price_wrap">
+									<div class="won_wrap">
+										<span class="stit">가맹점 매출</span>
+										<div class="num_wrap"><span class="num">2,061,749</span>원</div>
+									</div>
+									<div class="won_wrap">
+										<span class="stit">오픈 매출</span>
+										<div class="num_wrap"><span class="num">408,734</span>원</div>
+									</div>
+									<div class="won_wrap">
+										<span class="stit">오픈 가맹점 매출</span>
+										<div class="num_wrap"><span class="num">300</span>억원</div>
+									</div>
+								</div>
+							</div>
+							<div class="cont_box right">
+								<div class="piechart_wrap">
+									<div class="percent"><span class="num">58.43</span>%</div>
+									<div class="won"><span class="num">300</span>억원</div>
+								</div>
+								<figure>
+									<div class="chart" style="height:230px"></div>
+								</figure>
+							</div>
+						</section>
+						<section class="sec_wrap">
+							<div class="cont_box">
+								<div class="cont_top">
+									<div class="select_box fl" style="width:180px">
+										<button type="button" class="btn radio"><span>전체</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="pay" id="pay01" type="radio" value="">
+					                            <label for="pay01">수수료 합계 추이<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="pay" id="pay02" type="radio" value="">
+					                            <label for="pay02">월자문 보수 추이<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="pay" id="pay03" type="radio" value="">
+					                            <label for="pay03">컨설팅 보수 추이<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="pay" id="pay04" type="radio" value="">
+					                            <label for="pay04">자문 고객 추이<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+					                <div class="calendar_wrap fl">
+										<input type="text" class="datepicker" style="width:132px">
+									</div>
+								</div>
+
+								<figure>
+							    	<div class="chart01" style="height:190px;"></div>
+								</figure>
+
+							</div>
+						</section>
+						<section class="sec_wrap">
+							<div class="cont_box">
+								<div class="cont_top">
+									<div class="select_box fl" style="width:180px">
+										<button type="button" class="btn radio"><span>전체</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="pay2" id="pay2_01" type="radio" value="">
+					                            <label for="pay2_01">수수료 합계 추이<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="pay2" id="pay2_02" type="radio" value="">
+					                            <label for="pay2_02">월자문 보수 추이<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="pay2" id="pay2_03" type="radio" value="">
+					                            <label for="pay2_03">컨설팅 보수 추이<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="pay2" id="pay2_04" type="radio" value="">
+					                            <label for="pay2_04">자문 고객 추이<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+					                <div class="calendar_wrap fl">
+										<input type="text" class="datepicker" style="width:132px">
+									</div>
+								</div>
+
+								<figure>
+							    	<div class="chart02" style="height:190px;"></div>
+								</figure>
+							</div>
+						</section>
+					</div>
+
+					<div class="right">
+						<section class="sec_wrap" style="height:calc(50% - 7.5px)">
+							<div class="cont_box">
+								<div class="clearFix">
+									<h3 class="fl lh33">To do list</h3>
+									<button type="button" class="btn select fr">추가하기</button>
+								</div>
+								<ul class="todoList_wrap">
+									<li>
+										<input type="checkbox" id="todo_list01"><label for="todo_list01">바인투자자문(주) 고객님 뉴스레터 전송</label>
+									</li>
+									<li>
+										<input type="checkbox" id="todo_list02"><label for="todo_list02">이오에프씨(주) 고객님 뉴스레터 전송</label>
+									</li>
+									<li>
+										<input type="checkbox" id="todo_list03"><label for="todo_list03">이오에프씨(주) 고객님 고용지원금 관련 안내 통화</label>
+									</li>
+								</ul>
+							</div>
+						</section>
+						<section class="sec_wrap" style="height:calc(50% - 7.5px)">
+							<div class="cont_box">
+								<div class="clearFix">
+									<h3 class="fl lh33">예정 업무</h3>
+									<div class="search_inputWrap fr">
+										<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+									</div>
+								</div>
+								<section class="sec_wrap pd0 mt15">
+									<div class="cont_box col2">
+										<h4><strong>이오에프씨(주)</strong> 고객님</h4>
+										<div class="content">
+											<i class="status meeting"></i><span>미팅</span>
+											<dl>
+												<dt>일정:</dt>
+												<dd>
+													<span class="date">2023.08.25</span>
+													<span class="time">10:00 ~ 11:00</span>
+												</dd>
+												<dt>장소:</dt>
+												<dd>이오에프씨(주) 회의실</dd>
+											</dl>
+											<div class="note">Note (1)</div>
+										</div>
+									</div>
+									<div class="cont_box col2">
+										<h4>운영진 회의</h4>
+										<div class="content">
+											<i class="status schedule"></i><span>회사 내부 일정</span>
+											<dl>
+												<dt>일정:&nbsp;</dt>
+												<dd>
+													<span class="date">2023.08.25</span>
+													<span class="time">15:00 ~ 18:00</span>
+												</dd>
+
+												<dt>장소:&nbsp;</dt>
+												<dd>본사 대회의실</dd>
+											</dl>
+											<div class="note">Note (0)</div>
+										</div>
+									</div>
+								</section>
+							</div>
+						</section>
+					</div>
+				</section>
+
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+$(function () {
+	$('.chart').highcharts({
+	    chart: {
+	        plotBackgroundColor: null,
+	        plotBorderWidth: 0,
+	        plotShadow: false,
+	        margin: [0, 0, 0, 0],
+	    },
+	    credits: {enabled: false},// 하이차트 워터마크 삭제
+	    title: {
+	        text: '',
+
+	    },
+	    tooltip: {
+	        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+	    },
+	    legend: {
+	        x:30,
+	        verticalAlign: 'bottom',
+	        y:5,
+	        itemStyle: {
+	            fontWeight:'bold',
+	            fontFamily: 'Noto Sans KR',
+	            fontSize: '14px'
+	        },
+	    },
+	    accessibility: {
+	        point: {
+	            valueSuffix: '%'
+	        }
+	    },
+	    plotOptions: {
+	        pie: {
+	            dataLabels: {
+	                enabled: false
+	            },
+	            startAngle: -140,
+	            endAngle: 220,
+	            center: ['50%', '50%'],
+	            size: '100%',
+	            borderRadius: 50,
+	            showInLegend: true
+	        },
+
+	    },
+	    colors: ['#3ba8c3', '#fff'],
+	    series: [{
+	        type: 'pie',
+	        name: 'Browser share',
+	        innerSize: '82%',
+	        data: [
+	            ['목표 순매출 달성률', 58.43],
+	            ['', 41.57]
+	        ]
+	    }]
+	});
+
+	Highcharts.setOptions({
+		colors: ['#27187F', '#F29423']
+	});
+	$('.chart01').highcharts({
+	    chart: {
+	        zoomType: 'xy',
+            margin: [20, 0, 30, 45],
+	    },
+	    credits: {enabled: false},// 하이차트 워터마크 삭제
+	    title: {
+	        text: '',
+	        align: 'left'
+	    },
+	    subtitle: {
+	        text: '',
+	        align: 'left'
+	    },
+	    xAxis: [{
+	    	labels: {
+	            style: {
+	                color: '#8A8C92',
+	                fontFamily: 'Noto Sans KR',
+	                fontSize: '11px'
+	            }
+	        },
+	        lineColor: '#DADADA', /* x축 라인색 */
+	        categories: ['202307', '202308', '202309', '202310', '202311', '202312',
+	            '202401', '202402', '202403', '202404', '202405', '202406'],
+	        crosshair: true /* 선택 영역 마우스 오버시 보임*/
+	    }],
+	    yAxis: [{
+	        labels: {
+	            format: '{value}억',
+	            style: {
+	                color: '#8A8C92',
+	                fontFamily: 'Noto Sans KR',
+	                fontSize: '11px'
+	            }
+	        },
+	        title: {
+	            text: ''
+	        }
+	    }],
+	    tooltip: {
+	        shared: true
+	    },
+	    legend: {
+	        align: 'right',
+	        x:0,
+	        verticalAlign: 'top',
+	        y:-20,
+	        itemStyle: {
+				color: '#8A8C92',
+				fontFamily: 'Noto Sans KR',
+				fontSize: '11px'
+			},
+			symbolRadius:0, //범례 심볼 radius 지정
+          	symbolWidth:10, //범례 심볼 가로 지정
+          	symbolHeight:10 //범례 심볼 세로 지정
+
+	    },
+	    plotOptions: {//라인에 원표시 삭제
+	        line:{
+        		marker: {
+                	enabled: false
+            	}
+	        }
+	    },
+	    series: [{
+	        name: '2023년',
+	        type: 'column',
+	        yAxis: 0,
+	        data: [100, 140, 160, 180, 190, 240, 160, 140, 150,
+	            120, 130, 170],
+	        tooltip: {
+	            valueSuffix: '억'
+	        }
+
+	    }]
+	});
+});
+</script>
+</html>

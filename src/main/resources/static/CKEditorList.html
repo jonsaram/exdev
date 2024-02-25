@@ -9,24 +9,26 @@
 	        return new UploadAdapter(loader)
 	    }
 	}  
+	$(function() {
+	  ClassicEditor.create( document.querySelector( '#content' ), {
+		extraPlugins: [MyCustomUploadAdapterPlugin],
+	    language: "ko"
+	  } );
+	});
     
 </script>
+
+	<style>
+	  .ck-editor__editable { height: 400px; }
+	  .ck-content { font-size: 12px; }
+	</style>
+
 <div>
     CKEditor 샘플
-    <div>
-        <div>
-			<form action="/save" method="POST">
-			    <input name="title" type="text" placeholder="제목"/><br>
-			    <textarea name="content" id="content"></textarea><br>
-			    <input type="submit" value="등록">
-			</form>
-    </div>
+    <div id=content></div>
+    <br>
 </div>
 <script>
 
-  ClassicEditor.create( document.querySelector( '#content' ), {
-	extraPlugins: [MyCustomUploadAdapterPlugin],
-    language: "ko"
-  } );
 
 </script>

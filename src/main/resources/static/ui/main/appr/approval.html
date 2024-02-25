@@ -1,5 +1,3 @@
-<meta charset="utf-8">
-<script src="https://cdn.ckeditor.com/ckeditor5/41.0.0/classic/ckeditor.js"></script>
 <script type="text/javascript">
 
     var <@pageId> = {
@@ -8,7 +6,7 @@
             ,fileNo : 0
             ,filesArr : []
 		    ,searchApproval : () => {
-		        console.log("======= ë¶€ëª¨ì°½ searchApproval =======");
+		        console.log("======= ºÎ¸ğÃ¢ searchApproval =======");
 		        
 		        let requestParm = {};
 		        requestParm["state"]  = "REQUEST";
@@ -18,22 +16,22 @@
 		        console.log("======= apprReqPopup =======>");
 		        let requestParm = {}
 		        C_POP.open('popup_apprReqPopup', requestParm, function() {
-		            console.log("======= ë¶€ëª¨ì°½ retData =======");
+		            console.log("======= ºÎ¸ğÃ¢ retData =======");
 		            <@pageId>.searchApproval();
 		        });
 		        
 		     }
 		   
     }    
-    // Page Loadê°€ ì™„ë£Œëœí›„ ì‹¤í–‰ ëœë‹¤.
+    // Page Load°¡ ¿Ï·áµÈÈÄ ½ÇÇà µÈ´Ù.
     C_PM.onLoadPage("<@pageId>", function() {
 
-        //ì¡°íšŒ ë²„íŠ¼ í´ë¦­      
+        //Á¶È¸ ¹öÆ° Å¬¸¯      
         $('#<@pageId>_apprReqPopupBtn').on('click', function (e) {
             <@pageId>.apprReqPopup();
         })
     });
-    // History backìœ¼ë¡œ ì´ë™í•´ì™”ì„ ê²½ìš° ì´ë£¨í‹´ì´ ì‹¤í–‰ëœë‹¤.
+    // History backÀ¸·Î ÀÌµ¿ÇØ¿ÔÀ» °æ¿ì ÀÌ·çÆ¾ÀÌ ½ÇÇàµÈ´Ù.
     C_HM.onReturn("<@pageId>", function(pageId, data) {
 
     });
@@ -41,36 +39,36 @@
 <div class="cont_wrap">
      <form method="POST" id="theForm" onsubmit="return false;" enctype="multipart/form-data">
          <div class="cont_top">
-             <h2><i class="icon_bullet"></i>ê²°ì¬ìƒì‹  Ckeditor Test</h2>
+             <h2><i class="icon_bullet"></i>°áÀç»ó½Å Ckeditor Test</h2>
          </div>
          <section class="sec_wrap">
              <!-- search area -->
              <div class="search_area mt0">
-                 <!-- ë©€í‹° ì„ íƒ -->
+                 <!-- ¸ÖÆ¼ ¼±ÅÃ -->
                  <div class="fl">
                      <div class="search_inputWrap">
-                         ì œëª© :   <input type='text'   id='title' name='title' value='windrider'> 
+                         Á¦¸ñ :   <input type='text'   id='title' name='title' value='windrider'> 
                      </div>
                  </div>
     
              </div>
              <div class="search_area mt0">
-                 <!-- ë©€í‹° ì„ íƒ -->
+                 <!-- ¸ÖÆ¼ ¼±ÅÃ -->
                  <div class="fl">
                      <div class="search_inputWrap">
-                         ê²°ì¬ìê²€ìƒ‰ :   <input type='text'   id='<@pageId>requestUser' name='<@pageId>requestUser' value='windrider'> 
+                         °áÀçÀÚ°Ë»ö :   <input type='text'   id='<@pageId>requestUser' name='<@pageId>requestUser' value='windrider'> 
                      </div>
                  </div>
-                 <button id='<@pageId>_memberSearchPopup'  >ê²€ìƒ‰</button>
+                 <button id='<@pageId>_memberSearchPopup'  >°Ë»ö</button>
              </div>
              <div class="search_area mt0">
-	             <!-- ê²°ì¬ì -->    
+	             <!-- °áÀçÀÚ -->    
 	             <div class="member-list"></div>
              </div>
         
         
 	         <div class="search_area mt0">
-	             íŒŒì¼ê·¸ë£¹ ID : <input type="text" name="groupId" id="groupId" value="TBL_EXP_APPROVAL"><br>
+	             ÆÄÀÏ±×·ì ID : <input type="text" name="groupId" id="groupId" value="TBL_EXP_APPROVAL"><br>
                  <input type="file" onchange="<@pageId>.addFile(this);" multiple />
                  <div class="file-list"></div>
                  <!-- 
@@ -79,11 +77,11 @@
 	             <div id="result"/>
 	         </div>
 	         
-             <!-- í…Œì´ë¸” -->
+             <!-- Å×ÀÌºí -->
              <div class="search_right">
-                 <button type="button" class="btn select fl" id='<@pageId>_apprReqPopupBtn' ><strong title="í˜„ì¬ í˜ì´ì§€">ê²°ì¬ ìƒì‹ </strong></button>
-                 <button type="button" class="btn select fl"><strong title="í˜„ì¬ í˜ì´ì§€">ë³´ë¥˜í•¨</strong></button>
-                 <button type="button" class="btn select fl"><strong title="í˜„ì¬ í˜ì´ì§€">ì·¨ì†Œ</strong></button>
+                 <button type="button" class="btn select fl" id='<@pageId>_apprReqPopupBtn' ><strong title="ÇöÀç ÆäÀÌÁö">°áÀç »ó½Å</strong></button>
+                 <button type="button" class="btn select fl"><strong title="ÇöÀç ÆäÀÌÁö">º¸·ùÇÔ</strong></button>
+                 <button type="button" class="btn select fl"><strong title="ÇöÀç ÆäÀÌÁö">Ãë¼Ò</strong></button>
              </div>
          </section>
      </form>            

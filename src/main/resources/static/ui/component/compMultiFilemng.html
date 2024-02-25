@@ -175,10 +175,11 @@
 		
 		<@compId>.init();
 		
+		if(parm.title == "NA") $("#<@compId> #title").hide();
 	});
 </script>
 <div>
-	<h4>첨부파일</h4>
+	<h4 id="title">첨부파일</h4>
 	<button type="button" class="stateBtn file" onclick="<@compId>.selectFile()"><span>파일선택</span></button>
 	<form method="POST" id="<@compId>_form" onsubmit="return false;" enctype="multipart/form-data">
      	<input id="<@compId>_select" type="file" onchange="<@compId>.addFile(this);" tabindex="-1" multiple style="display:none"/>
