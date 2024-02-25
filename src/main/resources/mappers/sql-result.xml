@@ -12,7 +12,7 @@
 	 
 	<select id="getResultList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	result.getResultList
-			실적 입력 내역 리스트 조회 
+			실적 내역 리스트 조회 
 		*/
 		
 		SELECT 
@@ -44,7 +44,8 @@
 		,TBL_EXP_CONTRACT C
 		,(
 			SELECT CONTRACT_ID, RESULT_ID, SUM(COST_PRICE) SUM_COST_PRICE
-			FROM TBL_EXP_COST
+			FROM TBL_EXP_COST CS WHERE CS.CONTRACT_ID = #{CONTRACT_ID}
+			AND USE_YN = 'Y' AND DEL_YN = 'N'
 			GROUP BY CONTRACT_ID, RESULT_ID 
 		) CO
 		,TBL_EXP_PAYMENT P
@@ -62,7 +63,13 @@
 		AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
 		AND P.USER_ID 		= CM.USER_ID
 		AND P.USER_ID 		= U.USER_ID 
-		ORDER BY R.RESULT_DATE , <include refid="buisnessHierarchyOrderBy"/>
+		AND R.USE_YN		= 'Y'
+		AND R.DEL_YN		= 'N'
+		AND P.USE_YN		= 'Y'
+		AND P.DEL_YN		= 'N'
+		AND CM.USE_YN		= 'Y'
+		AND CM.DEL_YN		= 'N'
+		ORDER BY R.UPDATE_DATE , <include refid="buisnessHierarchyOrderBy"/>
 	
 	</select>	
 	 
@@ -86,20 +93,32 @@
 		,C.USER_ID, C.CONTRACT_DATE, C.CONTRACT_TYPE
 		,C.CONSULTING_ID, C.PROCESS_STATE, C.LAST_SOLUTION, C.TAX_MNG, C.LABOR_MNG, C.CONSULTING_CLASS
 		,C.USE_YN,C.DEL_YN,C.UPDATE_USER,C.UPDATE_DATE
-		,( SELECT MIN( REMAINING_SUM ) FROM TBL_EXP_RESULT I WHERE I.CONTRACT_ID = C.CONTRACT_ID) AS REMAINING_SUM 
-		/*, U.* ,B.* */
+		,( SELECT MIN( REMAINING_SUM ) FROM TBL_EXP_RESULT I 
+		   WHERE I.CONTRACT_ID	= C.CONTRACT_ID
+		   AND   I.USE_YN = 'Y' AND I.DEL_YN = 'N'  ) AS REMAINING_SUM 
 		FROM TBL_EXP_CONTRACT C
 		,TBL_EXP_USER U
 		,TBL_EXP_BUYER B
 		WHERE 1=1
-		AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
+		AND C.USE_YN	= 'Y' 
+		AND C.DEL_YN 	= 'N'
 		AND C.USER_ID	= U.USER_ID
 		AND C.BUYER_ID	= B.BUYER_ID
 		<if test=" USER_ID != null and !USER_ID.equals('') ">
-		AND C.USER_ID  LIKE '%' || #{USER_ID} || '%'
+		AND ( C.USER_ID  LIKE '%' || #{USER_ID} || '%'
+		  OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'   )
 		</if>
 		<if test=" BUYER_ID != null and !BUYER_ID.equals('') ">
-		AND C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
+		AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
+		   OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     )
+		</if>
+		<if test=" USER != null and !USER.equals('') ">
+		AND ( C.USER_ID  LIKE '%' || #{USER} || '%'
+		  OR  U.USER_NM  LIKE '%' || #{USER} || '%'   )
+		</if>
+		<if test=" BUYER != null and !BUYER.equals('') ">
+		AND ( C.BUYER_ID LIKE '%' || #{BUYER} || '%'
+		   OR B.BUYER_NM LIKE '%' || #{BUYER} || '%'     )
 		</if>
 		<if test=" FROM_DATE != null and !FROM_DATE.equals('') ">
 		AND TO_CHAR( C.CONTACT_DATE, 'YYYY-MM-DD' )  <![CDATA[ >= ]]> #{FROM_DATE}
@@ -112,59 +131,76 @@
 	</select>	
 	
 	<update id="updateResultItem" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	result.updateResultItem
+		<!-- x	result.updateResultItem
 			실적 저장
-		*/
-		MERGE INTO TBL_EXP_RESULT T
-		USING (
-		
-		  SELECT #{CONTRACT_ID}				AS CONTRACT_ID,
-		         #{RESULT_ID} 				AS RESULT_ID,
-		         #{INCOME} 					AS INCOME,
-		         'Y'	 					AS USE_YN,
-		         'N'	 					AS DEL_YN,
-		         'trigger'					AS UPDATE_USER,
-		         SYSDATE					AS UPDATE_DATE,
-				 SYSDATE			        AS RESULT_DATE,
-		         (
-		          SELECT TO_NUMBER(TOTAL_COST) FROM TBL_EXP_CONTRACT 
-		           WHERE 	CONTRACT_ID = #{CONTRACT_ID}
-				  )
-		         -	
-		         ( SELECT TO_NUMBER(SUM(INCOME)) FROM TBL_EXP_RESULT 
-		           WHERE 	CONTRACT_ID = #{CONTRACT_ID}
-		           AND 		RESULT_ID 	= #{RESULT_ID}
-		          )				AS REMAINING_SUM,
-		         ( SELECT TOTAL_COST FROM TBL_EXP_CONTRACT 
-		           WHERE 	CONTRACT_ID = #{CONTRACT_ID}
-		         )										AS TOTAL_COST,
-		         ( SELECT SUM(INCOME) FROM TBL_EXP_RESULT 
-		           WHERE 	CONTRACT_ID = #{CONTRACT_ID}
-		           AND 		RESULT_ID 	= #{RESULT_ID}
-		          )										AS INCOME_SUM ,
-		          
-				  ( SELECT SUM(COST_PRICE) FROM TBL_EXP_COST
-		           WHERE 	CONTRACT_ID = #{CONTRACT_ID}
-		           AND 		RESULT_ID 	= #{RESULT_ID}
-		          )										AS ORG_SELLING_PRICE
-		  FROM dual
-		  
-		) S
-		ON (T.CONTRACT_ID	= S.CONTRACT_ID 
-		AND T.RESULT_ID		= S.RESULT_ID 
-		)
-		WHEN MATCHED THEN
-		  UPDATE SET
-		         T.INCOME 				= S.INCOME,
-		         T.REMAINING_SUM 		= TO_NUMBER( S.TOTAL_COST ) - TO_NUMBER( S.INCOME_SUM ),
-		         T.ORG_SELLING_PRICE	= S.ORG_SELLING_PRICE,
-		         T.USE_YN				= S.USE_YN,
-		         T.DEL_YN				= S.DEL_YN,
-		         T.UPDATE_USER			= S.UPDATE_USER,
-		         T.UPDATE_DATE			= SYSDATE
-		WHEN NOT MATCHED THEN 
-    		INSERT (  CONTRACT_ID,   RESULT_ID,   RESULT_DATE,   INCOME,   REMAINING_SUM,   ORG_SELLING_PRICE,   USE_YN,   DEL_YN,   UPDATE_USER,   UPDATE_DATE)
-   			VALUES (S.CONTRACT_ID, S.RESULT_ID, S.RESULT_DATE, S.INCOME, S.REMAINING_SUM, S.ORG_SELLING_PRICE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE)
+		-->
+	    { CALL
+		    DECLARE
+		        p_CONTRACT_ID	VARCHAR2(30);
+		        p_RESULT_ID		VARCHAR2(30);
+		        p_RESULT_DATE	VARCHAR2(30);
+		        p_INCOME		VARCHAR2(30);
+		    BEGIN
+		    
+		    	p_CONTRACT_ID 	:= #{CONTRACT_ID};
+		        p_RESULT_ID   	:= #{RESULT_ID};
+		        p_RESULT_DATE   := #{RESULT_DATE};
+		        p_INCOME   		:= #{INCOME};
+		    
+		    
+				MERGE INTO TBL_EXP_RESULT T
+				USING (
+				
+				  SELECT p_CONTRACT_ID				AS CONTRACT_ID,
+				         p_RESULT_ID 				AS RESULT_ID,
+				         TO_NUMBER(p_INCOME)		AS INCOME,
+				         p_RESULT_DATE				AS RESULT_DATE,
+				         'Y'	 					AS USE_YN,
+				         'N'	 					AS DEL_YN,
+				         'trigger'					AS UPDATE_USER,
+				         SYSDATE					AS UPDATE_DATE
+				  FROM dual
+				  
+				) S
+				ON (T.CONTRACT_ID	= S.CONTRACT_ID 
+				AND T.RESULT_ID		= S.RESULT_ID 
+				)
+				WHEN MATCHED THEN
+				  UPDATE SET
+				         T.RESULT_DATE 			= TO_DATE(S.RESULT_DATE,'YYYY-MM-DD'),
+				         T.USE_YN				= S.USE_YN,
+				         T.DEL_YN				= S.DEL_YN,
+				         T.UPDATE_USER			= S.UPDATE_USER,
+				         T.UPDATE_DATE			= SYSDATE
+				WHEN NOT MATCHED THEN 
+		    		INSERT (  CONTRACT_ID,   RESULT_ID,   RESULT_DATE,   INCOME,   USE_YN,   DEL_YN,   UPDATE_USER,   UPDATE_DATE)
+		   			VALUES (S.CONTRACT_ID, S.RESULT_ID, S.RESULT_DATE, S.INCOME, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE)
+		   			;
+		   			
+		   		COMMIT;
+		   			
+		   		UPDATE TBL_EXP_RESULT T
+		   		SET
+					T.REMAINING_SUM			= 	( SELECT TOTAL_COST FROM TBL_EXP_CONTRACT 
+				           							WHERE 	CONTRACT_ID = p_CONTRACT_ID
+				           							AND USE_YN= 'Y' AND DEL_YN = 'N'
+				         						)	- 
+				         						( SELECT SUM(INCOME) FROM TBL_EXP_RESULT 
+				           							WHERE 	CONTRACT_ID = p_CONTRACT_ID
+				           							AND 	RESULT_ID 	= p_RESULT_ID
+				           							AND 	USE_YN= 'Y' AND DEL_YN = 'N'
+				          						)	,
+					T.ORG_SELLING_PRICE		= T.INCOME - 						  
+												( SELECT SUM(COST_PRICE) FROM TBL_EXP_COST
+				           							WHERE CONTRACT_ID = p_CONTRACT_ID
+				           							AND   RESULT_ID 	= p_RESULT_ID
+				           							AND   USE_YN= 'Y' AND DEL_YN = 'N'
+				          						)
+		   		WHERE  T.CONTRACT_ID	= p_CONTRACT_ID
+				   AND T.RESULT_ID		= p_RESULT_ID	
+				;
+			END
+		}		   			
 	</update>
 	
 	<delete id="deleteResultItem" parameterType="java.util.HashMap"  flushCache="true" >
@@ -177,8 +213,6 @@
 		WHERE CONTRACT_ID	= #{CONTRACT_ID}
 		AND RESULT_ID	 	= #{RESULT_ID}
 	</delete>
-	
-	
 		
 	<sql id="cmUsers"> 
 		SELECT DISTINCT CM.CONTRACT_ID, CM.USER_ID  
@@ -223,6 +257,7 @@
                   END
           END
 	</sql>
+	
 	<select id="selectTempPaymentItem" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	result.selectTempPaymentItem
 			실적 수당 테이블 조회
@@ -231,14 +266,15 @@
 		, A.USER_ID
 		, GET_USER_NM( A.USER_ID ) USER_NM
 		, #{RESULT_ID} AS RESULT_ID
-		, PAYMENT_ID
-		, EXEC_TYPE
+		, A.PAYMENT_ID
+		, A.EXEC_TYPE
 		, CM.RELATION_TYPE
 		, GET_CODE_NM('RELATION_TYPE', CM.RELATION_TYPE ) AS RELATION_TYPE_NM
 		, CM.BUSINESS_HIERARCHY
 		, NVL(CM.BUSINESS_HIERARCHY , U.GRADE ) AS GRADE
-		, NULL RATE
-		, NULL PAYMENT
+		, P.PAY_ID
+		, P.RATE
+		, P.PAYMENT
 		FROM (
 			WITH CM_USER AS (
 				<include refid="cmUsers"/>
@@ -285,69 +321,21 @@
 		) A
 		,TBL_EXP_CONTRACT_MEMBER CM 
 		,TBL_EXP_USER U
+		,TBL_EXP_PAYMENT P
 		WHERE 1=1
 		AND A.CONTRACT_ID	= #{CONTRACT_ID}
 		AND A.USER_ID		= CM.USER_ID
 		AND A.CONTRACT_ID   = CM.CONTRACT_ID 
 		AND A.USER_ID 		= U.USER_ID 
+		AND A.CONTRACT_ID 	= P.CONTRACT_ID(+)
+		AND #{RESULT_ID}	= P.RESULT_ID(+)
+		AND A.USER_ID		= P.USER_ID(+)
+		AND P.USE_YN(+)		= 'Y'
+		AND P.DEL_YN(+)		= 'N'
+		AND CM.USE_YN		= 'Y'
+		AND CM.DEL_YN		= 'N'
 			
 	</select>	
-	
-	<insert id="insertPaymentItem" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	result.insertPaymentItem
-			실적 수당 테이블 입력
-		*/
-	
-		INSERT INTO TBL_EXP_PAYMENT
-		      (CONTRACT_ID, USER_ID, RESULT_ID, 	PAYMENT_ID, PAYMENT,EXEC_TYPE, PAY_ID, 	RATE, USE_YN, DEL_YN, UPDATE_USER, UPDATE_DATE)
-		      
-		SELECT CONTRACT_ID, USER_ID, #{RESULT_ID} , PAYMENT_ID, NULL, 	EXEC_TYPE, NULL, 	NULL, 	'Y', 	'N', 	'trigger', sysdate
-		FROM (
-			WITH CM_USER AS (
-				<include refid="cmUsers"/>
-			)
-			SELECT A.*
-			 ,ROW_NUMBER() OVER (ORDER BY <include refid="buisnessHierarchyOrderBy"/> ) AS PAYMENT_ID
-			FROM(
-				SELECT CMU.CONTRACT_ID 
-				,CMU.USER_ID
-				,CMU.USER_NM
-				,CMU.GRADE_NM
-				,CMU.EXEC_TYPE
-				,CMU.RELATION_TYPE_NM
-				,CMU.ROLE
-				,CMU.GRADE
-				,CMU.RELATION_TYPE
-				,CMU.BRANCH_ID
-				,CMU.BUSINESS_HIERARCHY
-				FROM CM_USER CMU
-				WHERE CMU.RELATION_TYPE !='OVERRIDING'
-				
-				UNION ALL 
-				
-				SELECT CMU.CONTRACT_ID 
-				,CMU.USER_ID
-				,CMU.USER_NM
-				,BH.POSITION  GRADE_NM
-				,CMU.EXEC_TYPE
-				,GET_CODE_NM('RELATION_TYPE', CMU.RELATION_TYPE) RELATION_TYPE_NM
-				,'OVERRIDING' AS ROLE
-				,BH.POSITION GRADE
-				,CMU.RELATION_TYPE
-				,CMU.BRANCH_ID
-				,BH.BUSINESS_HIERARCHY
-				FROM CM_USER CMU
-				,VIEW_EXP_BRANCH_BUSINESS_HIERARCHY BH
-				WHERE CMU.RELATION_TYPE ='OVERRIDING'
-				AND BH.BRANCH_ID = CMU.BRANCH_ID 
-				AND BH.USER_ID = CMU.USER_ID
-				
-			) A
-			ORDER BY <include refid="buisnessHierarchyOrderBy"/>
-
-		)	
-	</insert>
-	
 	
 	<select id="getPayId" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	result.getPayId
@@ -389,63 +377,10 @@
        </choose>
 	
 	</select>	
-	
-	<update id="addPaymentItem" parameterType="java.util.HashMap"  flushCache="true" >
-		/*	result.addPaymentItem
-			실적 수당 테이블 추가 입력
-		*/
 		
-		UPDATE TBL_EXP_PAYMENT 
-		SET PAY_ID 	= #{PAY_ID}
-		,RATE 		= #{RATE}
-		,PAYMENT 	= #{PAYMENT}
-		WHERE 1=1 
-		AND CONTRACT_ID	= #{CONTRACT_ID}
-		AND RESULT_ID	= #{RESULT_ID}
-		AND USER_ID		= #{USER_ID}
-		
-	</update>
-	
-	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	result.getPaymentList
-			수당 받을 USER 리스트 
-		*/
-	 
-		SELECT DISTINCT P.CONTRACT_ID
-		,P.USER_ID
-		,GET_USER_NM( P.USER_ID ) USER_NM
-		,P.RESULT_ID
-		,CM.RELATION_TYPE
-		,GET_CODE_NM('RELATION_TYPE', CM.RELATION_TYPE ) AS RELATION_TYPE_NM
-		,CM.BUSINESS_HIERARCHY
-		,NVL(CM.BUSINESS_HIERARCHY , U.GRADE ) AS GRADE
-		,P.PAYMENT
-		,P.PAYMENT_ID
-		,P.EXEC_TYPE
-		,P.PAY_ID
-		,P.RATE
-		,P.USE_YN
-		,P.DEL_YN
-		,P.UPDATE_USER
-		,P.UPDATE_DATE
-		FROM TBL_EXP_PAYMENT P
-		,TBL_EXP_CONTRACT_MEMBER CM 
-		,TBL_EXP_USER U
-		WHERE 1=1
-		AND P.CONTRACT_ID	= #{CONTRACT_ID}
-		AND P.RESULT_ID 	= #{RESULT_ID}
-		AND P.USER_ID		= CM.USER_ID
-		AND P.CONTRACT_ID   = CM.CONTRACT_ID 
-		AND P.USER_ID 		= U.USER_ID 
-		ORDER BY P.PAYMENT_ID
-			
-	</select>
-		
-	
-	
 	<select id="getCostList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	result.getCostList
-			실적 비용 내역 리스트 조회 
+			비용 내역(실적비용) 리스트 조회 
 		*/
 	 
 		SELECT CONTRACT_ID
@@ -460,12 +395,16 @@
 		, UPDATE_DATE
 		FROM TBL_EXP_COST
 		WHERE 1=1
-	
+		AND CONTRACT_ID = #{CONTRACT_ID}
+		AND RESULT_ID	= #{RESULT_ID}
+		AND USE_YN		= 'Y'
+		AND DEL_YN		= 'N'
+		ORDER BY COST_ID  
 	</select>	
 	
 	<update id="updateCostItem" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	result.updateCostItem
-			실적 비용 저장
+			비용(실적비용) 저장
 		*/
 		MERGE INTO TBL_EXP_COST T
 		USING (
@@ -475,7 +414,8 @@
 		         #{COST_ID} 				AS COST_ID,
 		         #{COST_NM} 				AS COST_NM,
 		         #{COST_DESC} 				AS COST_DESC,
-		         #{COST_PRICE} 				AS COST_PRICE,
+		         TO_NUMBER(REPLACE(#{COST_PRICE},',',''))	
+		         							AS COST_PRICE,
 		         'Y'	 					AS USE_YN,
 		         'N' 						AS DEL_YN,
 		         'trigger'					AS UPDATE_USER
@@ -502,7 +442,7 @@
 	
 	<delete id="deleteCostItem" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	result.deleteCostItem
-			실적 비용 삭제
+			비용(실적비용) 삭제
 		*/
 		UPDATE TBL_EXP_COST
 		SET USE_YN = 'N'
@@ -523,7 +463,7 @@
 		  SELECT #{CONTRACT_ID}				AS CONTRACT_ID,
 		         #{USER_ID} 				AS USER_ID,
 		         #{RESULT_ID} 				AS RESULT_ID,
-		         #{PAYMENT_ID} 				AS PAYMENT_ID,
+		         TO_NUMBER(#{PAYMENT_ID})	AS PAYMENT_ID,
 		         #{PAYMENT} 				AS PAYMENT,
 		         #{EXEC_TYPE} 				AS EXEC_TYPE,
 		         #{PAY_ID} 					AS PAY_ID,
@@ -567,4 +507,41 @@
 		AND PAYMENT_ID	 	= #{PAYMENT_ID}
 	</delete>
 	
+	<select id="deleteResultTabSeries" statementType="CALLABLE" parameterType="java.util.HashMap" flushCache="true">
+	    <!-- result.deleteResultTabSeries
+	         실적 SERIES 테이블 삭제
+	    -->
+	    { CALL
+		    DECLARE
+		        p_CONTRACT_ID	VARCHAR2(30);
+		        p_RESULT_ID		VARCHAR2(30);
+		    BEGIN
+		    
+		        p_CONTRACT_ID := #{CONTRACT_ID};
+		        p_RESULT_ID   := #{RESULT_ID};
+		    
+		        UPDATE TBL_EXP_RESULT
+		        SET USE_YN = 'N',
+		            DEL_YN = 'Y'
+		        WHERE CONTRACT_ID = p_CONTRACT_ID
+		        AND RESULT_ID     = p_RESULT_ID
+		        ;
+		        
+		        UPDATE TBL_EXP_PAYMENT
+		        SET USE_YN = 'N',
+		            DEL_YN = 'Y'
+		        WHERE CONTRACT_ID = p_CONTRACT_ID
+		        AND RESULT_ID     = p_RESULT_ID
+		        ;
+		        
+		        UPDATE TBL_EXP_COST
+		        SET USE_YN = 'N',
+		            DEL_YN = 'Y'
+		        WHERE CONTRACT_ID = p_CONTRACT_ID
+		        AND RESULT_ID     = p_RESULT_ID
+		        ;
+		    END
+	    }
+	</select>
+
 </mapper>

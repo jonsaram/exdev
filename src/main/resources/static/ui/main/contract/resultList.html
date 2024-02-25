@@ -2,94 +2,157 @@
 <script type="text/javascript">
 var <@pageId> = {
 		
-	 contractItem : {}	
-	 ,pageInit : () =>{
+	 contractItem 	: {}	
+	,selectedList : []
+	,pageInit : () =>{
 		
-	 }	
-	 ,searchList : function(){
+	}	
+	,searchList : function(){
 
-			const requestParm = {CONTRACT_ID: <@pageId>.contractItem.CONTRACT_ID , RESULT_ID : <@pageId>.contractItem.RESULT_ID};
-			let parm = {
-				queryId        	: "result.getResultList"
-				,requestParm    : requestParm
-			}
-	        C_COM.requestQuery(parm, function(resultData) {
-	        
-	        	let no = 0,resultId='';
-	        	resultData.data.forEach( row => {
-
-	        		if( row.RESULT_ID != resultId){
-	        			resultId = row.RESULT_ID;
-	        			row['RN'] = ++no;
-	        		}else{
-	        			row['RN'] = no;
-	        		}
-	        		
-	        	})
-	        	
-	        	let rparm = {
-	           			targetId   : "<@pageId>_resultList"
-						,list       : resultData.data
-				}
-	            
-				C_COM.renderHtml("<@pageId>", rparm);
-				<@pageId>.setHandler();
-			});
-	}
-	 ,updateItem : (param) => {
-		
-		const requestParm = param ? param : {} ;
-		requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
-debugger;
-		var parm = { 
-				queryGroup:		
-					[
-						{	 queryId 		: "result.updatePaymentItem"
-							,requestParmList	: requestParm.paymentInfo
-
-						},
-						{
-						 queryId 		: "result.updateCostItem"
-						,requestParmList: requestParm.costInfo
-						}
-					] 
+		const requestParm = {CONTRACT_ID: <@pageId>.contractItem.CONTRACT_ID , RESULT_ID : <@pageId>.contractItem.RESULT_ID};
+		let parm = {
+			queryId        	: "result.getResultList"
+			,requestParm    : requestParm
 		}
+        C_COM.requestQuery(parm, function(resultData) {
+        
+			<@pageId>.selectedList = resultData.data;
+        	
+        	let no = 0,resultId='';
+        	resultData.data.forEach( (row,idx) => {
+
+        		<@pageId>.selectedList[idx] = row;
+        		
+        		if( row.RESULT_ID != resultId){
+        			resultId = row.RESULT_ID;
+        			row['RN'] = ++no;
+        		}else{
+        			row['RN'] = no;
+        		}
+        		
+        	})
+        	
+        	let rparm = {
+           			targetId   : "<@pageId>_resultList"
+					,list       : resultData.data
+			}
+            
+			C_COM.renderHtml("<@pageId>", rparm);
+       	
+    		if( <@pageId>.selectedList.length > 0 ){
+    			
+    			<@pageId>.contractItem.REMAINING_SUM = <@pageId>.selectedList[0].REMAINING_SUM; 
+    		}
+        	
+			<@pageId>.setHandler();
+		});
+	}
+	,updateItem : (param) => {
 		 
-		C_COM.requestQuery(parm, function(resultData) {
-			
-			if( resultData.state == 'S'){
-debugger;
+		const requestParm = param ? param : {} ;
+
+		const paymentInfo 	= requestParm.paymentInfo 	|| [];
+		const constInfo		= requestParm.costInfo		|| [];
+		const resultInfo	= requestParm.resultInfo;
+		
+		paymentInfo.forEach( item => {
+				
 				var parm = {
-						
-						queryId 		: "result.updateResultItem"
-						,requestParm	: requestParm.resultInfo
+							queryId 	: "result.updatePaymentItem"
+						   ,requestParm	: item
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 					
-					<@pageId>.searchList();
+	                if (resultData.state === 'S') {
+	                }
 				});				
-				
-				
-				console.log("Item 저장 성공");
-			}				
-		});
-	 }  
-	 ,setHandler : () => {
+	    
+		})
 		
-	    $("#<@pageId>_constractSel").click(function(){
+		constInfo.forEach( item => {
+				
+				var parm = {
+							queryId 	: "result.updateCostItem"
+						   ,requestParm	: item
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					
+	                if (resultData.state === 'S') {
+	                }
+				});				
+	    
+		})
+			
+
+		var parm = {
+						queryId 	: "result.updateResultItem"
+					   ,requestParm	: resultInfo
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+	            if (resultData.state === 'S') {
+	            }
+		});		
+		
+		setTimeout( ()=>{
+			
+            <@pageId>.searchList();
+            
+		},1000)
+
+	}		
+	,deleteItem : (delKey) => {
+			
+			var parm = {
+					 queryId 		: "result.deleteResultTabSeries"
+					,requestParm	: delKey
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				 <@pageId>.searchList();
+			});				
+	}
+	,deleteOne : (key) =>{
+			
+ 		const CONTRACT_ID	= key.split("||")[0];
+ 		const RESULT_ID		= key.split("||")[1];
+ 		<@pageId>.deleteItem({CONTRACT_ID:CONTRACT_ID,RESULT_ID:RESULT_ID})
+ 		
+	}
+	,updateContractInfo : () => {
+		
+
+	}
+	,setHandler : () => {
+		
+	    $("#<@pageId>_constractSel").off().on('click',function(){
 	    	
 			<@pageId>.openSelPopup();
 
 	    })
 		
-	    $("#<@pageId>_regResult").click(function(){
+	    $("#<@pageId>_regResult").off().on('click',function(){
 
 			<@pageId>.openRegPopup();
 
 	    })
 	    
-	 }
-	 ,openSelPopup : () => {
+	    $("[id^='<@pageId>_modify_']").off().on('click',function(){
+
+	    	const index = $(this).attr("index");
+			const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
+			<@pageId>.openRegPopup($tds);
+			
+	    })
+	    
+	    $("[id^='<@pageId>_delete_']").off().on('click',function(){
+
+	    	const key = $(this).attr("key");
+			<@pageId>.deleteOne(key);
+			
+	    })
+	    
+	}
+	,openSelPopup : () => {
 
 		let param = [];	
 
@@ -107,12 +170,14 @@ debugger;
 
 					<@pageId>.contractItem =  resultData.data[0];
 					const obj 				= resultData.data[0];
-					$.each( obj, key =>{
+
+					Object.entries(obj).forEach( item =>{
 						
-						$("#<@pageId>_items #"+key).html(obj[key]);
+						const key	= item[0],value = item[1];
+						const val	= key == "TOTAL_COST" ? _numberWithCommas( value ) : value;
+						$("#<@pageId>_items #"+ key).html(val);
 						
 					});
-					
 					
 					<@pageId>.searchList();
 				});
@@ -121,17 +186,37 @@ debugger;
 			
 		});
 		
-	 }
-	 ,openRegPopup : () => {
+	}
+	,openRegPopup : ($tds) => {
+		
+		let arrList = [];
+		$.each( $tds , function(){
 
- 		C_POP.open('popup_resultUpdatePopup', {param:<@pageId>.contractItem}, function(retData) {
-debugger;
-			if(isValid(retData)){
-					<@pageId>.updateItem( retData ) ; 
+			const key = $(this).attr("id");
+			const val = $(this).attr("value");
+			
+			if(key){
+				
+				arrList.push( { "key": key, "val": val } );
 			}
 			
+		})
+
+		const param = arrList.reduce((acc, obj) => {
+		    acc[obj.key] = obj.val;
+		    return acc;
+		}, {}); 
+		
+ 		C_POP.open('popup_resultUpdatePopup', {	  mode:Object.keys(param).length > 0 ? "U" : "I"
+ 												, param:param 
+ 												, contractItem :<@pageId>.contractItem }
+			, function(retData) {
+
+				if(isValid(retData)){
+						<@pageId>.updateItem( retData ) ; 
+				}
 		});
-	 }
+	}
 }
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
@@ -275,15 +360,15 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td id="RELATION_TYPE"	value='{{:RELATION_TYPE}}'		style="display:none">{{:RELATION_TYPE}}</td>
 								<td id="RESULT_ID" 		value='{{:RESULT_ID}}'			style="display:none">{{:RESULT_ID}}</td>
 								<td id="ROLE"	 		value='{{:ROLE}}'				style="display:none">{{:ROLE}}</td>
-								<td id="RATE"	 		value='{{:RATE}}'				style="display:none">{{:RATE}}</td>
-								<td><button><i class="icon_pen"></i></button></td>
-								<td><button><i class="icon_trash"></i></button></td>
+			 					<td><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
+								<td><button id="<@pageId>_delete_{{:#index}}" key='{{:CONTRACT_ID}}||{{:RESULT_ID}}'><i class="icon_trash"></i></button></td>
+
 							</tr>
 						{{/for}}
 					</script>
 					<script type="text/x-jsrender" id="<@pageId>_resultList_noData_template">	
 						<tr>	
-							<td colspan=14>자료가 없습니다.</td>	
+							<td colspan=16>자료가 없습니다.</td>	
 						</tr>
 					</script>
 					

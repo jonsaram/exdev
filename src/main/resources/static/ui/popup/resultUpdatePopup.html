@@ -3,6 +3,7 @@
 var <@popupId> = {
 	 recvData : []	
 	 ,RESULT_ID: '' 
+	 ,mode:''
 	 ,close : function(returnData) {
 
 		if(isEmpty(returnData)) returnData = {};
@@ -18,23 +19,25 @@ var <@popupId> = {
  												Object.keys( tr ) .forEach(key => {
  													
 													    if ( key === "CONTRACT_ID") {
-													    		newTr[key] = <@popupId>.recvData.param.CONTRACT_ID;
+													    		newTr[key] = <@popupId>.recvData.contractItem.CONTRACT_ID;
 													    }else
 														if (key === "RESULT_ID") {
 														    	newTr[key] = <@popupId>.RESULT_ID;
 														}else
 														if (key === "COST_ID") {
-															debugger;
-															    newTr[key] =  C_COM.makeUniqueId() ;
+															
+															    newTr[key] =  <@popupId>.mode =="U" ? tr[key] : C_COM.makeUniqueId() ;
+															    if( !newTr[key]  )newTr[key]= C_COM.makeUniqueId();
 														}else
 													    	newTr[key] = tr[key];
 										  		});
- 												 
+ 												
 												 return newTr;
 											})
-							, 	resultInfo	: {	CONTRACT_ID : <@popupId>.recvData.param.CONTRACT_ID
+							, 	resultInfo	: {	CONTRACT_ID : <@popupId>.recvData.contractItem.CONTRACT_ID
 												,RESULT_ID : <@popupId>.RESULT_ID
 												,INCOME : $("#<@popupId>_resultInfo #INCOME").nval()
+												,RESULT_DATE : $("#<@popupId>_resultInfo #RESULT_DATE").val()
 												}
 							, 	paymentInfo	: <@popupId>.getJson($("#<@popupId>_paymentList"))
 							} 
@@ -51,89 +54,182 @@ var <@popupId> = {
  				 
 				 const id 		=  	$(td).attr("id");
 				 const value 	=	$(td).attr("value") == "" ? $(td).children("input").val() : $(td).attr("value");
-				 trObj[id]		= value
+				 trObj[id]		= 	value
 			 })
 			 
 			 jsonArray .push( trObj);
 			 
 		 }) 
-		 
+	 
    		 return jsonArray;
 
 	 }
-	,pageInit : () => {
+	,pageInit : (parentData) => {
 
-		$("#<@popupId>_contractInfo #TOTAL_COST").html	 ( _numberWithCommas(<@popupId>.recvData.param.TOTAL_COST)		);
-		$("#<@popupId>_contractInfo #REMAINING_SUM").html( _numberWithCommas(<@popupId>.recvData.param.REMAINING_SUM)	);
+		<@popupId>.setTitleHeight();
+
+		<@popupId>.RESULT_ID 		= C_COM.makeUniqueId();
+		<@popupId>.mode				= parentData.mode;
+		let resultDate				= dayjs().format("YYYY-MM-DD");
 		
-		const today = dayjs().format("YYYY-MM-DD");
-		$("#<@popupId>_resultInfo #RESULT_DATE").val(today) ;
+		if( parentData.mode == "U"){
+			
+			<@popupId>.RESULT_ID 	= parentData.param["RESULT_ID" 		] ;
+			resultDate				= parentData.param["RESULT_DATE"	] ;
+			
+			<@popupId>.setModiPage(parentData.param);
+			
+			$("#<@popupId>_resultInfo #INCOME").val( _numberWithCommas( parentData.param["INCOME"])	);	
+		}
 		
-		<@popupId>.selectTempPayment() ;
+		$("#<@popupId>_contractInfo #TOTAL_COST"	).html( _numberWithCommas( parentData.contractItem.TOTAL_COST )		);
+		$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( _numberWithCommas( parentData.contractItem.REMAINING_SUM )	);
+		$("#<@popupId>_resultInfo	#RESULT_DATE"	).val(resultDate) ;
+		
+		
+		<@popupId>.selectTempPayment(parentData) ;
 		
 	}
-	,selectTempPayment : () =>{
-		
-		const CONTRACT_ID 		= <@popupId>.recvData.param.CONTRACT_ID;
-		<@popupId>.RESULT_ID 	= <@popupId>.recvData.param.RESULT_ID;
-		if( !<@popupId>.RESULT_ID )	<@popupId>.RESULT_ID =  C_COM.makeUniqueId();
-		
-		const requestParm = {CONTRACT_ID : CONTRACT_ID, RESULT_ID : <@popupId>.RESULT_ID };
+	,setModiPage : (param) => {
 		
 		var parm = {
-				 queryId 		: "result.selectTempPaymentItem"
-				,requestParm	: requestParm
+				 queryId 		: "result.getCostList"
+				,requestParm	: {CONTRACT_ID : param["CONTRACT_ID"] , RESULT_ID: param["RESULT_ID"] }
 		}
 		C_COM.requestQuery(parm, function(resultData) {
-			
-			let tempPayment = resultData.data;
-			tempPayment.orderBy("PAYMENT_ID");			
+
 			var rparm = {
-					 targetId 		: "<@popupId>_paymentList"
-					,list			: tempPayment
+					 targetId 		: "<@popupId>_costList"
+					,list			: resultData.data
 			}
 		
 			C_COM.renderHtml("<@popupId>", rparm);
 			
-			 
-			tempPayment.forEach( user => {
-				
-				var parm = {
-						 queryId 		: "result.getPayId"
-						,requestParm	: user
-				}
-				C_COM.requestQuery(parm, function(resultData) {
+		    $('#<@popupId>_costList input').on('input',function(event){
 
-						const userId 	= resultData.data[0].USER_ID;
-						const payId 	= resultData.data[0].PAY_ID;
-						const rate 		= resultData.data[0].RATE;
-
-						const tr		= `#<@popupId>_paymentList tr[value=${userId}]`;
-						
-						if( $(tr+" td[id='RELATION_TYPE']").attr("value") == "COWORK"  && $(tr+" td[id='RATE'] > [name='coworkRate']") .length == 0 ){
-							
-							$(tr+" td[id='RATE']").attr("value","").append(`<Input name='coworkRate' type='text' style='width:60px;' number />`);
-							
-						    $("[name='coworkRate']").off().on('input',function(event){
-						    	
-			    		        const val = $(this).nval();
-			    				const INCOME = $("#<@popupId>_resultInfo #INCOME").nval();
-			    				const payment = ( Number(val ) * INCOME ) / 100; 
-			    				$(event.target).parent().siblings("#PAYMENT").attr("value",payment).html(payment);
-							});
-						    
-						}else{
-							
-							$(tr+" td[id='RATE']").attr("value",rate).html(rate);
-							
-						} 
-						
-						$(tr+" td[id='PAY_ID']").attr("value",payId).html(payId);
-					
-				});
-			})
+    		        const val = $(this).val();
+    		        $(this).attr("value",val);
+    		        $(this).parent("td").attr("value",val);
+		    		        
+   		    }); 
 			
 		});
+		
+	}	
+	,selectTempPayment : (data) =>{
+		
+		var parm = {
+				 queryId 		: "result.selectTempPaymentItem"
+				,requestParm	: {
+									CONTRACT_ID	: data.contractItem.CONTRACT_ID
+								  , RESULT_ID	: <@popupId>.RESULT_ID 
+								  }
+		}
+		C_COM.requestQuery(parm, function(resultData) {
+			
+			let tempPayment = resultData.data;
+			tempPayment.orderBy("PAYMENT_ID");	
+			
+			C_COM.renderHtml("<@popupId>", {
+				 						 targetId 		: "<@popupId>_paymentList"
+										,list			: tempPayment
+			});
+
+ 			if( data.mode == "I"){
+
+				<@popupId>.getPayId(data, tempPayment);
+			}else {
+ 
+			    $("[name='coworkRate']").off().on('input',function(event){
+			    	
+			        const val = $(this).nval();
+					const INCOME = $("#<@popupId>_resultInfo #INCOME").nval();
+					const payment = ( Number(val ) * INCOME ) / 100; 
+					$(event.target).attr("value",val)
+					$(event.target).parent("#RATE").attr("value",val);
+					$(event.target).parent().siblings("#PAYMENT").attr("value",payment).html(payment);
+				});
+			}
+ 	 
+			const rateSum = tempPayment.reduce((acc, obj) => {
+			    acc["RATE_SUM"] = (acc["RATE_SUM"] || 0) + Number(obj.RATE);
+			    acc["PAYMENT_SUM"] = (acc["PAYMENT_SUM"] || 0) + Number(obj.PAYMENT);
+			    return acc;
+			}, { RATE_SUM: 0, PAYMENT_SUM: 0 }); 			
+ 	
+ 			const sumTemplate = $("#<@popupId>_paymentList_sum_template").render({RATE_SUM : rateSum["RATE_SUM"], PAYMENT_SUM :  rateSum["PAYMENT_SUM"] });
+			$("#<@popupId>_paymentList").append(sumTemplate);
+				
+		});
+		
+	}
+	,getPayId	: (data, tempPayment) => {
+
+		const userIdList = tempPayment.map( user =>  { 
+					return {"CONTRACT_ID" : user.CONTRACT_ID
+						,"EXEC_TYPE" : user.EXEC_TYPE 
+						,"RELATION_TYPE" : user.RELATION_TYPE 
+						,"USER_ID" : user.USER_ID} 
+					}) 
+		
+		const payInfoList			= []; 					
+		const userIdListCnt 		= userIdList.length ; 
+		userIdList.forEach( (user,idx) => {
+			
+			var parm = {
+					 queryId 	: "result.getPayId"
+					,requestParm: user
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+	
+				payInfoList.push( resultData.data[0]);
+				
+				userIdListCnt <= (idx+1) ? <@popupId>.setRatePayment(data.mode, tempPayment,payInfoList) : '';
+				
+			});
+		})
+		
+	}
+	,setRatePayment : (mode, tempPayment,payInfoList) => {
+
+		$("[name='coworkRate']").remove();
+		payInfoList.forEach( payInfo =>{
+			
+			const userId 	= payInfo.USER_ID;
+			const payId 	= payInfo.PAY_ID;
+			const rate 		= payInfo.RATE;		
+			
+			const tr		= `#<@popupId>_paymentList tr[value=${userId}]`;
+			const coworkRate= tempPayment.filter( item => item.USER_ID == userId )[0].RATE;
+			
+			if( $(tr+" td[id='RELATION_TYPE']").attr("value") == "COWORK" ){
+	
+				const rateVal = mode == "U" ?  coworkRate : "";
+
+				$(tr+" td[id='RATE']").attr("value",rateVal).append(`<Input name='coworkRate' type='text' value='${rateVal}' style='width:60px;' number />`)
+				mode == "U" ?
+				$(tr+" td[id='RATE']>[name='coworkRate']").html(rateVal) : '';
+				
+			    $("[name='coworkRate']").off().on('input',function(event){
+			    	
+			        const val = $(this).nval();
+					const INCOME = $("#<@popupId>_resultInfo #INCOME").nval();
+					const payment = ( Number(val ) * INCOME ) / 100;
+					$(event.target).attr("value",val)
+					$(event.target).parent("#RATE").attr("value",val);
+					$(event.target).parent().siblings("#PAYMENT").attr("value",payment).html(payment);
+				});
+			}else{
+				
+				$(tr+" td[id='RATE']").attr("value",rate).html(rate);
+				
+			} 
+			
+			$(tr+" td[id='PAY_ID']").attr("value",payId).html(payId);
+			
+			
+		})
+		
 		
 	}
 	,calcPayment : (rate) => {
@@ -156,13 +252,45 @@ var <@popupId> = {
 
 		return rate ;
 	}
+	,deleteItem : (delKey,idx) => {
+		
+		const COST_ID = delKey["COST_ID"];
+		var parm = {
+				 queryId 		: "result.deleteCostItem"
+				,requestParm	: delKey
+		}
+		C_COM.requestQuery(parm, function(resultData) {
+			
+			const costId =$("#popup_resultUpdatePopup_costList").children("tr").children("#COST_ID");//.eq(1).attr("value")
+			$.each( costId ,  (id,obj) => {
+				
+				if( $(obj).attr("value") == COST_ID){
+					$("#<@popupId>_costList tr").eq(idx).remove()
+				}
+				
+			})
+			
+			
+		});				
+	}
+	,deleteOne : (key,idx) =>{
+			
+		const CONTRACT_ID	= <@popupId>.recvData.contractItem.CONTRACT_ID;
+		const RESULT_ID		= <@popupId>.RESULT_ID;
+		const COST_ID		= key;
+		<@popupId>.deleteItem({CONTRACT_ID:CONTRACT_ID,RESULT_ID:RESULT_ID,COST_ID:COST_ID},idx)
+			
+	}  	
 	,setHandler : () => {
 		
-		$("#<@pageId>_addCost").on('click', () => {
-
+		$("#<@popupId>_addCost").on('click', () => {
+			
+			if( $("[name='<@popupId>_tr_-1']").length > 0)$("[name='<@popupId>_tr_-1']").remove();
+			
 			let cnt 		= $("#<@popupId>_costList tr").length;
 			if ( !cnt)cnt 	= 0;
- 			const trTemplate = $("#<@popupId>_costList_add_template").render({cnt : cnt});
+			const COST_ID	= C_COM.makeUniqueId();
+ 			const trTemplate = $("#<@popupId>_costList_add_template").render({cnt : cnt, COST_ID :  COST_ID });
 			$("#<@popupId>_costList").append(trTemplate);
 			
 		})
@@ -172,8 +300,23 @@ var <@popupId> = {
 	        const val = $(this).nval();
 	    	<@popupId>.calcPayment(val);
 	        
-	    }); 	
-	}  
+	    }); 
+
+	    $(document).off().on('click', "[id^='<@popupId>_delete_']", function(event) {
+	    	
+	        
+	        const idx = $(this).attr("id").replace("<@popupId>_delete_","")
+  	    	const key = $(this).attr("key");
+			<@popupId>.deleteOne(key,Number(idx));
+	    });
+	    
+	} 	
+	,setTitleHeight : () => {
+		
+		let title = <@popupId>.mode == "I" ? "실적 등록" : "실적 정보 수정";
+  	 	$("#<@popupId> .tit").html( title );
+		
+	} 
 
 }
 // Popup Load가 완료된후 실행 된다.
@@ -181,22 +324,17 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 
 	<@popupId>.recvData	= data;
 	
-	<@popupId>.pageInit();
+	<@popupId>.pageInit(data);
 	
 	<@popupId>.setHandler();
 
 });
 </script>
-<style>
-.number {
-	text-align: right;
-}
-</style>
 <!-- 실적 등록 팝업 -->
 <div class="modal_wrap" id="<@popupId>_items">
-		<div class="modal" style="width:750px;height:900px;">
+		<div class="modal" style="width:770px;height:860px;">
 			<div class="modal_header">
-				<strong class="tit">실적 등록</strong>
+				<strong class="tit">실적 등록/실적 정보 수정</strong>
 				<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 			</div>
 			<div class="modal_body">
@@ -239,10 +377,10 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					</li>
 				</ul>
 				
-				<div class="search_area mt0">
-					<h4 class="mt15"><i class="icon_bullet"></i>비용 산출</h4>
-					<div class="fr">
-						<a href="javascript:void(0)" id="<@pageId>_addCost" class="btn fl">추가</a>
+				<div class="search_area mt20">
+					<h4 class="mt15" style="display: inline-block;"><i class="icon_bullet"></i>비용 산출</h4>
+					<div class="fr" style="padding-top: 10px;">
+						<a href="javascript:void(0)" id="<@popupId>_addCost" class="btn fl">추가</a>
 					</div>
 				</div>
 				<!-- 테이블 -->
@@ -250,55 +388,60 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					<table>
 						<caption>표 캡션</caption>
 						<colgroup>
-							<col style="width:33%;"/>
-							<col style="width:33%;"/>
-							<col style="width:34%;"/>
+							<col style="width:32%;"/>
+							<col style="width:32%;"/>
+							<col style="width:30%;"/>
+							<col style="width:6%;"/>
 						</colgroup>
 						<thead>
 							<tr>
 								<th scope="col">비용이름</th>
 								<th scope="col">비용설명</th>
 								<th scope="col">비용</th>
+								<th scope="col"><i class="icon_trash"></i></th>
 							</tr>
 						</thead>
 					</table>
 				</div>
-				<div class="tbl01 col" style="max-height:210px;overflow:auto;">
+				<div class="tbl01 col" style="min-height:150px;max-height:150px;overflow:auto;">
 					<table>
 						<caption>표 캡션</caption>
 						<colgroup>
-							<col style="width:33%;"/>
-							<col style="width:33%;"/>
-							<col style="width:34%;"/>
+							<col style="width:32%;"/>
+							<col style="width:32%;"/>
+							<col style="width:30%;"/>
+							<col style="width:6%;"/>
 						</colgroup>
 						<tbody  id="<@popupId>_costList">
 						</tbody>
 						<script type="text/x-jsrender" id="<@popupId>_costList_template">						
 							{{for list}}
 							<tr name="<@popupId>_tr_{{:#index}}"                          value='{{:COST_ID}}'>
-			 					<td id='COST_NM'			value='{{:COST_NM}}'			>{{:COST_NM}}</td>
-								<td id='COST_DESC'			value='{{:COST_DESC}}'			>{{:COST_DESC}}</td>
-								<td id='COST_PRICE'			value='{{:COST_PRICE}}'			>{{:COST_PRICE}}</td>
+			 					<td id='COST_NM'			value='{{:COST_NM}}'			><input type='text' style="width:100%" value="{{:COST_NM}}"/></td>
+								<td id='COST_DESC'			value='{{:COST_DESC}}'			><input type='text' style="width:100%" value="{{:COST_DESC}}"/></td>
+								<td id='COST_PRICE'			value='{{:COST_PRICE}}'			><input type='text' style="width:100%" value="{{numb:COST_PRICE}}" number/></td>
  								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'		style='display:none'>{{:CONTRACT_ID}}</td>
  								<td id='RESULT_ID'			value='{{:RESULT_ID}}'			style='display:none'>{{:RESULT_ID}}</td>
 								<td id='COST_ID'			value='{{:COST_ID}}'			style='display:none'>{{:COST_ID}}</td>
+								<td><button id="<@popupId>_delete_{{:#index}}" key='{{:COST_ID}}'><i class="icon_trash"></i></button></td>
 							</tr>
 							{{/for}}
 							
 						</script>
 						<script type="text/x-jsrender" id="<@popupId>_costList_noData_template">	
-							<tr>	
-								<td colspan=3>자료가 없습니다.</td>	
+							<tr name="<@popupId>_tr_-1">	
+								<td colspan=4>자료가 없습니다.</td>	
 							</tr>
 						</script>
 						<script type="text/x-jsrender" id="<@popupId>_costList_add_template">	
 							<tr name="<@popupId>_tr_{{:cnt}}" value=''>
 								<td id='COST_NM'			value=''><input type='text' style="width:100%"/></td>
 								<td id='COST_DESC'			value=''><input type='text' style="width:100%"/></td>
-								<td id='COST_PRICE'			value=''><input type='text' style="width:100%"/></td>
-								<td id='CONTRACT_ID'		value=''			style='display:none'></td>
-								<td id='RESULT_ID'			value=''			style='display:none'></td>
-								<td id='COST_ID'			value=''			style='display:none'></td>
+								<td id='COST_PRICE'			value=''><input type='text' style="width:100%" number/></td>
+								<td id='CONTRACT_ID'		value=''			 style='display:none'></td>
+								<td id='RESULT_ID'			value=''			 style='display:none'></td>
+								<td id='COST_ID'			value='{{:COST_ID}}' style='display:none'></td>								
+								<td><button id="<@popupId>_delete_{{:cnt}}" key='{{:COST_ID}}'><i class="icon_trash"></i></button></td>
 							</tr>
 						</script>
 					</table>
@@ -329,7 +472,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</thead>
 					</table>
 				</div>
-				<div class="tbl01 col" style="max-height:210px;overflow:auto;">
+				<div class="tbl01 col" style="max-height:190px;overflow:auto;">
 					<table>
 						<caption>표 캡션</caption>
 						<colgroup>
@@ -349,7 +492,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
 								<td id='GRADE'				value='{{:GRADE}}'				>{{:GRADE}}</td>
 								<td id='RELATION_TYPE_NM'	value='{{:RELATION_TYPE_NM}}'	>{{:RELATION_TYPE_NM}}</td>
-								<td id='RATE'				value='{{:RATE}}'				>{{:RATE}}</td>
+								<td id='RATE'				value='{{:RATE}}' 				>
+								    {{if RELATION_TYPE == 'COWORK'}}
+								              <Input name='coworkRate' type='text' value='{{:RATE}}' style='width:60px;' number />
+								    {{else}}{{:RATE}}
+									{{/if}}
+								</td>
 								<td id='PAYMENT'			value='{{:PAYMENT}}'  class="tr">{{:PAYMENT}}</td>
 								<td id='RELATION_TYPE'		value='{{:RELATION_TYPE}}'		style='display:none'>{{:RELATION_TYPE}}</td>
  								<td id='PAY_ID'				value='{{:PAY_ID}}'				style='display:none'>{{:PAY_ID}}</td>
@@ -359,17 +507,19 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<td id='EXEC_TYPE'			value='{{:EXEC_TYPE}}'			style='display:none'>{{:EXEC_TYPE}}</td>
 							</tr>
 						{{/for}}
-							<tr>
-								<td colspan="4">계</td>
-								<td id='RATE_SUM'			value=''></td>
-								<td id='PAYMENT_SUM' 		value='' class="tr"></td>
-							</tr>
 						</script>
 						<script type="text/x-jsrender" id="<@popupId>_paymentList_noData_template">	
 							<tr>	
 								<td colspan=13>자료가 없습니다.</td>	
 							</tr>
 						</script>
+						<script type="text/x-jsrender" id="<@popupId>_paymentList_sum_template">	
+							<tr>
+								<td colspan="4">계</td>
+								<td id='RATE_SUM'				>{{numb:RATE_SUM}}</td>
+								<td id='PAYMENT_SUM' class="tr"	>{{numb:PAYMENT_SUM}}</td>
+							</tr>
+						</script>						
 					</table>
 				</div>
 			</div>
