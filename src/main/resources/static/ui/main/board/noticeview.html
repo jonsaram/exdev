@@ -113,7 +113,15 @@ var <@pageId> = {
 					}				
 				});		
 				
-		}  
+		}
+		,modify : (parm) => {
+   			debugger;
+   			console.log($(`textarea[name="<@pageId>_${parm}_rReply"]`).val());
+   			return;
+   			//const loc =$(this).parents(".item-box").attr("id"); 
+   			//const queryId = loc.indexOf("grp") > -1 ? "system.updateGrpCode" :  "system.updateCode" ;
+   			//<@pageId>.updateCode(loc, queryId);
+		}
 		,setHandler : (parm) => {
 			//chat room row click
 	        $("#chatRoomList").on('click', 'tr', function () {
@@ -144,7 +152,6 @@ var <@pageId> = {
    			})
    				
    			$('button[name="<@pageId>_save"]').on('click', function (e) {
-   				debugger;
    				const requestParm = {};
    				requestParm['BOARD_ADD_ID'] = C_COM.makeUniqueId();
    				requestParm['ADD_CONTENT'] = $('textarea[name="<@pageId>_rReply"]').val();
@@ -152,14 +159,6 @@ var <@pageId> = {
    				<@pageId>.updateCode(requestParm, "board.insertBoardAdd");
    			})
    			
-   			$('button[name="<@pageId>_modify"]').on('click', function (e) {
-dalert("modify");
-return;
-   				const loc =$(this).parents(".item-box").attr("id"); 
-   				const queryId = loc.indexOf("grp") > -1 ? "system.updateGrpCode" :  "system.updateCode" ;
-   				<@pageId>.updateCode(loc, queryId);
-   			})
-   				
    			$('button[name="<@pageId>_delete"]').on('click', function (e) {
 dalert("delete");
 return;
@@ -326,25 +325,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 													<button class="btn ml5" style="height:58px" name="<@pageId>_save">등록</button>
 												</p>
 											</div>
-											<div class="comment">
-												<strong>위성열</strong>
-												<span>2024-01-01 12:05:05</span>
-												<p><input type="text" style="width:100%" name="<@pageId>_mReply"></p>
-												<div class="com_btnArea">
-													<button class="btn" name="<@pageId>_modify">수정</button>
-													<button class="btn" name="<@pageId>_delete">삭제</button>
-												</div>
-											</div>
-											
 											<div id="<@pageId>_commentList">
 						       				</div>
 						       				<script type="text/x-jsrender" id="<@pageId>_commentList_template">
 												{{for list}}
-												<div class="comment">
+												<div class="comment"><p>
 													<strong id="<@pageId>_UPDATE_USER">{{:UPDATE_USER}}</strong>
 													<span id="<@pageId>_UPDATE_DATE">{{:UPDATE_DATE}}</span>
-													<p id="<@pageId>_ADD_CONTENT">{{:ADD_CONTENT}}</p>
-												</div>
+													<textarea rows="2" style="width:calc(100% - 260px)" name="<@pageId>_{{:BOARD_ADD_ID}}_rReply">{{:ADD_CONTENT}}</textarea>
+														<button class="btn ml5" onClick="<@pageId>.modify('{{:BOARD_ADD_ID}}');">수정</button>
+														<button class="btn ml5" onClick="<@pageId>.delete('{{:BOARD_ADD_ID}}');">삭제</button>
+												</p></div>
 												{{/for}}
 											</script>
 										</div>
