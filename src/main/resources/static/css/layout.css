@@ -98,6 +98,8 @@
 .cont_wrap.lnb_none{margin:0 17px;width:calc(100% - 32px);}
 .cont_top{margin-bottom:5px;}
 .cont_wrap > .cont_top{padding:0 0 0 10px}
+.backWhite{background:#fff!important}
+.backGray{background: #F5F5F5 !important;}
 .cont_top:after{content:'';display:block;clear:both;}
 .cont_top h2{float:left;color:#27187F;font-size:22px;line-height:33px;font-family:"GmarketSans";font-weight:400;}
 .sec_scroll{overflow-y:auto;width:100%;height:calc(100% - 43px)}
@@ -310,8 +312,8 @@
 .paging > a:hover.btn_pg_first:after,.paging > a:hover.btn_pg_last:after{border-bottom:2px solid #0066FF;border-right:2px solid #0066FF;}
 
 /*chart*/
-.price{margin:0 0 2px 0;font-size:20px;font-weight:600;position:relative;z-index:2;}
-.prepare,.percent{font-size:11px;font-weight:600;position:relative;z-index:2;}
+.price{margin:0 0 2px 0;font-size:20px;font-weight:600;position:relative;z-index:1;}
+.prepare,.percent{font-size:11px;font-weight:600;position:relative;z-index:1;}
 .prepare{color:#8A8C92}
 .percent{color:#0066FF}
 .minus{color:#FF0000}
@@ -408,6 +410,7 @@
 .photo_wrap.no_img{margin-right:15px;float:left}
 .photo_wrap.no_img:after{content:'';width:98px;height:128px;display:inline-block;background:url(../img/icon_noimg.png) no-repeat 0 bottom;background-size:contain;}
 .photo_wrap + .info_wrap{margin-top:5px;float:left;width:calc(100% - 115px);}
+.photo_wrap.sm{width:52px;height:66px;}
 .info_wrap > li{margin-bottom:10px;width:100%}
 .info_wrap > li > label{float:left;width:100px;line-height:33px}
 .info_wrap > li .info{float:left;width:calc(100% - 100px);}
@@ -509,15 +512,33 @@
 .tab_wrap > ul li a{color:#8A8C92}
 .tab_wrap > ul li.active{color:#27187F;font-weight:600;border-bottom:2px solid #27187F;background:#fff}
 .tab_wrap > ul li.active a{color:#27187F}
-.tab_content{height:calc(100% - 47px);}
+.tab_content{width:100%;height:calc(100% - 47px);overflow:auto;}
 .tab_content .display{padding-top:15px;height:100%;display:none;}
 
 /* list btn */
 .listBtn{font-size:0;letter-spacing:0}
-.listBtn li{margin:0 10px 10px 0;display:inline-block;width:243px}
-.listBtn li a{width:100%;text-align:center;}
+.listBtn li{margin:0 10px 10px 0;display:inline-block;width:200px}
+.listBtn li a{width:100%;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .listBtn li a.active{color:#27187f;border:1px solid #968dcc;background:#f0eeff}
 .btn.add{position:absolute;right:0;top:0}
+
+/* work history */
+.workHistory_info{padding:15px 20px;border:1px solid #ccc;background:#F5F5F5}
+.workHistory_info .info_wrap,
+.workHistory_info .work_history{margin:3px 0 0 20px}
+.workHistory_info .info_wrap > li,
+.work_history .info_wrap > li{margin-bottom:5px;}
+.workHistory_info .info_wrap > li > label,
+.work_history .info_wrap > li > label{line-height:25px;}
+.workHistory_info .info_wrap > li .info,
+.work_history .info_wrap > li .info{line-height:25px;}
+.work_history .info_wrap{margin-top:0}
+.work_history .info_wrap > li > label{width:170px;color:#8A8C92}
+.work_history .info_wrap > li .info{width:calc(100% - 170px);color:#8A8C92}
+.work_history .info_wrap > li .info .custom{color:#27187F;font-weight:600}
+.work_history .info_wrap > li .info .state{color:#27187F;font-weight:600}
+.work_history{padding:50px 20px 15px;position:relative;border:1px solid #ccc;border-radius:5px;}
+.work_history h3{padding:5px 20px;position:absolute;top:0;left:0;right:0;border-radius:5px 5px 0 0;border-bottom:1px solid #e1e2e4;background:#F5F5F5}
 
 /* 반응형 */
 @media screen and (max-width: 1770px) { /* PC */

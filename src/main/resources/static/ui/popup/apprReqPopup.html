@@ -1,8 +1,7 @@
 <meta charset="utf-8">
 <script type="text/javascript">
     var <@popupId> = {
-    	 regMember : {}
-    	,appMember : []	
+    	 appMember : {}	
         ,memberSearchPopup : function() {
             C_POP.open('popup_userSearchPopup', {}, function(retData) {
                 <@popupId>.addMember(retData);
@@ -17,17 +16,28 @@
          }
         ,addMember : function(retData) {
         	
+        	retData.APPROVAL_TYPE = 'APPR';		// Member 최초 등록시 결재로 설정
+        	
+    		// 결재자 추가
+            let rparm = {
+                 targetId   : "signMember"
+                ,addMember  : retData
+                ,append		: "Y"
+            }
+            C_COM.renderHtml("<@popupId>", rparm);
+    		
+            <@popupId>.appMember[retData.USER_ID] = retData;
          }
-
-        ,setSelectUser : function(buttonId) {
-            
+        // 결재 Type 설정
+        ,setApprovalType : function(userId, approvalType) {
+        	<@popupId>.appMember[userId] = approvalType;
+         }
+        ,delMember : function(userId) {/* 결재자 삭제 */
+        	<@popupId>.appMember[userId] = undefined;
          }
         /* 결재상신 */
         ,save : function (state) {
             
-         }
-        ,deleteUser : function(num) {/* 결재자 삭제 */
-
          }
         ,close : function() {
             C_POP.close();
@@ -57,18 +67,19 @@
 			
 		});
 		
+		// 기안자 추가
+    	let reqMember = fn_copyObject(G_VAL.session);
 		
-		// 기안자 추기
-    	<@popupId>.regMember = fn_copyObject(G_VAL.session);
+		reqMember.APPROVAL_TYPE = "RQST";
+		
+    	<@popupId>.appMember[reqMember.USER_ID] = reqMember;
 
-    	html = $("#<@popupId> "	).render(parm);    	
-    	
-        let parm = {
-             targetId   : "tableId"
+        let rparm = {
+             targetId   : "signMember"
             ,templateId : "reqMember"
-            ,regMember  : <@popupId>.regMember
+            ,regMember  : reqMember
         }
-        C_COM.renderHtml("<@pageId>", parm);
+        C_COM.renderHtml("<@popupId>", rparm);
     });
     
     
@@ -102,11 +113,11 @@
 							</ul>
 							<script type="text/x-jsrender" id="signMember_template">	
 								<li>
-									<button class="stateBtn toggle active">결재</button>
-									<button class="stateBtn toggle">합의</button>
-									<button class="stateBtn toggle">통보</button>
-									<span class="txt">{{:userNm}} / {{:grade}} / {{:email}}</span>
-									<button class="pay_close">닫기</button>
+									<button class="stateBtn toggle active" 	onclick="<@popupId>.setApprovalType('{{:USER_ID}}','APPR'	)">결재</button>
+									<button class="stateBtn toggle" 		onclick="<@popupId>.setApprovalType('{{:USER_ID}}','AGREE'	)">합의</button>
+									<button class="stateBtn toggle" 		onclick="<@popupId>.setApprovalType('{{:USER_ID}}','NOTICE'	)">통보</button>
+									<span class="txt">{{:addMember.USER_NM}} / {{:addMember.GRADE}} / {{:addMember.E_MAIL}}</span>
+									<button class="pay_close" onclick=""<@popupId>.delMember('{{:USER_ID}}'">닫기</button>
 								</li>
 							</script>
 							<script type="text/x-jsrender" id="reqMember_template">	

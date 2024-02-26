@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
     var <@popupId> = {
-         requestParm : {}
+         requestParm 	: {}
+    	,userSearchList : []
         ,searchList : function(){
 
              const requestParm = {};
@@ -12,16 +13,19 @@
              C_COM.requestQuery(parm, function(resultData) {
                 
                  let rparm = {
-                          targetId   : "tableId"
-                         ,list       : resultData.data
-                     }
+                      targetId   : "userSearchList"
+                     ,list       : resultData.data
+                 }
                  console.log(resultData.data)
                  C_COM.renderHtml("<@popupId>", rparm);
                  
+                 <@popupId>.userSearchList = resultData.data;
+                 
              });
          }
-        ,selectUser : function( spCstmId, user_id, user_nm, user_desc, e_mail ) {
-            
+        ,selectUser : function( index ) {
+        	let returnData = <@popupId>.userSearchList[index];
+/*             
             var peopleArr = new Array();
             console.log( "spCstmId["+spCstmId+"] user_id["+user_id+"] user_nm["+user_nm+"] user_desc["+user_desc+"]  e_mail["+e_mail+"] ");
             var obj = new Object();
@@ -42,12 +46,12 @@
             peopleArr.push(obj);
             
             console.log(peopleArr);
+ */
             //if(isEmpty(returnData)) returnData = {};
-            C_POP.close(peopleArr);
+            C_POP.close(returnData);
          }
-        ,close : function() {
-            var peopleArr = new Array();
-            C_POP.close(peopleArr);
+        ,close : function(returnData) {
+            C_POP.close(returnData);
          }
     }
     // Popup Load가 완료된후 실행 된다.
@@ -66,7 +70,7 @@
 
     <!-- 결재자 선택 팝업 -->
     <div class="modal_wrap" id="modal-ex02">
-        <div class="modal" style="width:450px;height:400px;">
+        <div class="modal" style="width:450px;height:450px;">
             <div class="modal_header">
                 <strong class="tit">결재자 선택</strong>
                 <button type="button" class="btn_close" onclick="<@popupId>.close()"      ><span class="sp">팝업 닫기</span></button>
@@ -80,22 +84,22 @@
                         </div>
                     </dd>
                     <dt>사원 리스트</dt>
-                        <dd class="mb0" style="height:200px;overflow-y:auto;">
+                        <dd class="mb0">
                         <div class="approver_list_wrap person">
-                            <ul id="tableId" class="approver_list">
+                            <ul id="userSearchList" class="approver_list">
                             </ul>
-                            <script type="text/x-jsrender" id="tableId_template">    
+                            <script type="text/x-jsrender" id="userSearchList_template">    
                                 {{for list}}
                                     <li>
                                         <span class="txt">
-                                            <a href="javascript:void(0);" onclick="<@popupId>.selectUser( '{{:SP_CSTM_ID}}','{{:USER_ID}}', '{{:USER_NM}}', '{{:USER_DESC}}', '{{:E_MAIL}}' );">
+                                            <a href="javascript:void(0);" onclick="<@popupId>.selectUser( '{{:#index}}' );">
                                                 {{:USER_NM}} / {{:USER_DESC}} / {{:USER_ID}} / {{:E_MAIL}}
                                             </a>
                                         </span>
                                     </li>
                                 {{/for}}
                             </script>
-                            <script type="text/x-jsrender" id="tableId_noData_template"> 
+                            <script type="text/x-jsrender" id="userSearchList_noData_template"> 
                                <li>
                                    <span class="txt">자료가 없습니다.</span>
                                </li> 
