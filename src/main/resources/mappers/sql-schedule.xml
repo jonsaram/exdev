@@ -6,7 +6,40 @@
 
 	<cache />
 	
-    <!-- 결재 입력  이응규 -->
+    <update id="updateSchedule" parameterType="java.util.HashMap"  flushCache="true" >
+        /*  schedule.updateSchedule */
+        UPDATE TBL_EXP_SCHEDULE
+        SET    TITLE              = #{title}
+              ,WORK_TYPE          = #{workType} 
+              ,TIME_TYPE          = 'TIME_TYPE'
+              ,START_TIME_HOUR    = #{startTimeH}
+              ,START_TIME_MINUTE  = #{startTimeM}
+              ,END_TIME_HOUR      = #{endTimeH}
+              ,END_TIME_MINUTE    = #{endTimeM}
+              ,POSITION           = #{position}
+              ,SECRET_YN          = #{secretYn}
+              ,DESCRIPTION        = #{description}
+        WHERE 1 = 1
+        AND   SCHEDULE_ID = #{scheduleId}
+    </update>
+    
+    <delete id="deleteSchedule" parameterType="java.util.HashMap"  flushCache="true" >
+        /*  schedule.deleteSchedule */
+        DELETE FROM TBL_EXP_SCHEDULE 
+        WHERE SCHEDULE_ID = #{scheduleId} 
+    </delete>
+    
+    <delete id="deleteScheduleShare" parameterType="java.util.HashMap"  flushCache="true" >
+        /*  schedule.deleteScheduleShare */
+        DELETE FROM TBL_EXP_SCHEDULE_SHARE 
+        WHERE  1 = 1
+        AND    SCHEDULE_ID = #{scheduleId}
+        <if test=" userId != null and userId != '' " >
+            AND    USER_ID = #{userId}
+        </if>
+    </delete>
+    
+    <!-- 일정 입력  이응규 -->
     <insert id="insertSchedule" parameterType="map" >
         /* schedule.insertSchedule */
         INSERT INTO TBL_EXP_SCHEDULE (
@@ -44,7 +77,7 @@
     </insert>
     
     
-    <!-- 결재자 입력  이응규 -->
+    <!-- 일정공유 입력  이응규 -->
     <insert id="insertScheduleShare" parameterType="map" >
         /* schedule.insertScheduleShare */
         INSERT INTO TBL_EXP_SCHEDULE_SHARE (
@@ -57,4 +90,28 @@
            )    
     </insert>
     
+    <select id="getScheduleList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getScheduleList */
+        SELECT SCHEDULE_ID       
+              ,TITLE             
+              ,WORK_TYPE         
+              ,SCHEDULE_DATE   
+              ,TO_CHAR(SCHEDULE_DATE,'YYYY-MM-DD') AS SCHEDULE_DATE1    
+              ,LOOP_TYPE         
+              ,TIME_TYPE         
+              ,START_TIME_HOUR   
+              ,START_TIME_MINUTE 
+              ,END_TIME_HOUR     
+              ,END_TIME_MINUTE   
+              ,POSITION          
+              ,SECRET_YN         
+              ,DESCRIPTION       
+              ,USER_ID 
+        FROM   TBL_EXP_SCHEDULE
+        WHERE 1 = 1
+        <if test=" scheduleId != null and scheduleId != '' " >
+            AND    SCHEDULE_ID = #{scheduleId}
+        </if>
+    </select>
+
 </mapper>

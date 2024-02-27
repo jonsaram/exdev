@@ -4,6 +4,87 @@
          userArr : []
         ,scheduleId : ''
         ,userIndex : 0
+        ,mode : ''
+        ,close : function() {
+            console.log("=== close ===");
+            var obj = new Object();
+            C_POP.close(obj);
+         }
+	    ,searchSchedule : function(scheduleId) {
+	    	console.log("== searchSchedule 2=>"+scheduleId);
+	    	
+	    	let requestParm = {};
+            requestParm["scheduleId"]  = scheduleId;
+            let parm = {
+                 queryId        : "schedule.getScheduleList"
+                ,requestParm    : requestParm
+            }
+            C_COM.requestQuery(parm, function(resultData) {
+            	
+                <@popupId>.setSchedule(resultData.data[0]);
+            });
+            
+            /* 결재자 조회*/
+            /*
+            let parmDtl = {
+                 queryId        : "approval.getApprovalUser"
+                ,requestParm    : requestParm
+            }
+            C_COM.requestQuery(parmDtl, function(resultData) {
+
+                let rparmDtl = {
+                         targetId   : "tableId"
+                        ,list       : resultData.data
+                    }
+                C_COM.renderHtml("<@popupId>", rparmDtl);
+                
+            });
+            */
+	     }
+	    ,setSchedule : function( data ) {
+	    	console.log("== requestQuery SCHEDULE_ID=>"+data.SCHEDULE_ID);
+            console.log("== requestQuery TITLE=>"+data.TITLE);
+            console.log("== requestQuery WORK_TYPE=>"+data.WORK_TYPE);
+            
+            $('#<@popupId>_title').val(data.TITLE);
+            $('#<@popupId>_position').val(data.POSITION);
+            $('#<@popupId>_description').val(data.DESCRIPTION);
+            
+            /////////////////////////////////////////////////////////////////////////////////////////////
+            
+            // 셀렉트 박스 세팅
+            C_UICOM.setSingleBox("selectBoxWorkType", data.WORK_TYPE);
+            C_UICOM.setSingleBox("selectBoxLoopType", data.LOOP_TYPE);
+            C_UICOM.setSingleBox("scheduleSecretYn", data.WORK_TYPE);
+            C_UICOM.setSingleBox("selectBoxStartTime", data.START_TIME_HOUR);
+            C_UICOM.setSingleBox("selectBoxStartMinute", data.START_TIME_MINUTE);
+            C_UICOM.setSingleBox("selectBoxEndTime", data.END_TIME_HOUR);
+            C_UICOM.setSingleBox("selectBoxEndMinute", data.END_TIME_MINUTE);
+            
+            // 참석자
+            var peopleArr = new Array();
+            var obj = new Object();
+            
+            obj.index = "user_id";
+            obj.spCstmId = "spCstmId";
+            obj.user_id = "user_id";
+            obj.user_nm = "user_nm";
+            obj.user_desc = "user_desc";
+            obj.e_mail = "e_mail";
+            
+            console.log("obj.spCstmId =>"+obj.spCstmId);
+            console.log("obj.user_id =>"+obj.user_id);
+            console.log("obj.user_nm =>"+obj.user_nm);
+            console.log("obj.user_desc =>"+obj.user_desc);
+            console.log("obj.e_mail =>"+obj.e_mail);
+            
+            peopleArr.push(obj);
+            
+            console.log(peopleArr);
+            
+            //<@popupId>.addMember(retData);
+	    }
+	    
 	    ,memberSearchPopup : function() {
 	
 	        C_POP.open('popup_userSearchPopup', {}, function(retData) {
@@ -34,22 +115,38 @@
             $("#<@popupId> #approvalUser" + num).remove();
             <@popupId>.userArr[num].is_delete = true;
          }
-        ,save : function( value ) {
+        
+        ,delete : function() {
         	
-        	let scheduleId = <@popupId>.scheduleId;
-        	let title = $('#<@popupId>_title').val();
-        	let date  = $('#<@popupId>_date').val();
-        	let position  = $('#<@popupId>_position').val();
-        	let description  = $('#<@popupId>_description').val();
-        	let loopType  = <@popupId>.loopType;
-        	let workType  = <@popupId>.workType;
-            let startTimeH  = <@popupId>.startTimeH;
-            let startTimeM  = <@popupId>.startTimeM;
-            let endTimeH  = <@popupId>.endTimeH;
-            let endTimeM  = <@popupId>.endTimeM;
-            let secretYn  = <@popupId>.secretYn;
+        	console.log("deleteSchedule");
+        	
+        	let requestParm = {};            
+            requestParm["scheduleId"]  = <@popupId>.scheduleId;
             
-        	
+            // 데이타 삭제
+            var parm = {
+                 serviceId              : "ScheduleService.deleteSchedule"
+                ,requestParm            : requestParm
+            }
+            C_COM.requestService(parm, function(resultData) {
+                
+                console.log("resultData.data.state =>"+resultData.data.state);
+                if("S" == resultData.data.state){
+                	dalert("일정이 삭제에 성공하였습니다.");
+                }else{
+                    dalert("일정이 삭제에 실패하였습니다.");
+                }
+                
+            });
+            
+        }
+        ,update : function() {
+            
+            console.log("update");
+
+            let title = $('#<@popupId>_title').val();
+            let date  = $('#<@popupId>_date').val();
+            
             if (title.length < 1) {
                 alert("제목을 입력해 주세요.");
                 $("#<@popupId>_title").focus();
@@ -61,40 +158,43 @@
                 $("#<@popupId>_date").focus();
                 return false;
             }
-                        
+            
             let requestParm = {};            
-            requestParm["scheduleId"]  = scheduleId;
+            requestParm["scheduleId"]  = <@popupId>.scheduleId;
             requestParm["title"]  = title;
             requestParm["date"]  = date;
-            requestParm["position"]  = position;
-            requestParm["description"]  = description;
-            requestParm["loopType"]  = loopType;
-            requestParm["workType"]  = workType;
-            requestParm["startTimeH"]  = startTimeH;
-            requestParm["startTimeM"]  = startTimeM;
-            requestParm["endTimeH"]  = endTimeH;
-            requestParm["endTimeM"]  = endTimeM;
-            requestParm["secretYn"]  = secretYn;
-            requestParm["userId"]  = "trigger11kr";
+            requestParm["position"]  = $('#<@popupId>_position').val();
+            requestParm["description"]  = $('#<@popupId>_description').val();
+            requestParm["loopType"]  = <@popupId>.loopType;
+            requestParm["workType"]  = <@popupId>.workType;
+            requestParm["startTimeH"]  = <@popupId>.startTimeH;
+            requestParm["startTimeM"]  = <@popupId>.startTimeM;
+            requestParm["endTimeH"]  = <@popupId>.endTimeH;
+            requestParm["endTimeM"]  = <@popupId>.endTimeM;
+            requestParm["secretYn"]  = <@popupId>.secretYn;
             
-            console.log("workType =>"+workType);
-            console.log("startTimeH =>"+startTimeH);
-            console.log("startTimeM =>"+startTimeM);
-            console.log("endTimeH =>"+endTimeH);
-            console.log("endTimeM =>"+endTimeM);
+            console.log(" == scheduleId ==>"+requestParm["scheduleId"]);
+            console.log(" == title ==>"+requestParm["title"]);
+            console.log(" == date ==>"+requestParm["date"]);
+            console.log(" == position ==>"+requestParm["position"]);
+            console.log(" == description ==>"+requestParm["description"]);
+            console.log(" == loopType ==>"+requestParm["loopType"]);
+            console.log(" == workType ==>"+requestParm["workType"]);
+            console.log(" == startTimeH ==>"+requestParm["startTimeH"]);
+            console.log(" == startTimeM ==>"+requestParm["startTimeM"]);
+            console.log(" == endTimeH ==>"+requestParm["endTimeH"]);
+            console.log(" == endTimeM ==>"+requestParm["endTimeM"]);
+            console.log(" == secretYn ==>"+requestParm["secretYn"]);
             
             /////////////////////////////////////////////////////////////////////
             var scheduleIdArry = new Array();
             
             for(i=0; i< 30; i++){
-            	scheduleIdArry.push(C_COM.makeUniqueId());
+                scheduleIdArry.push(C_COM.makeUniqueId());
             }
 
             requestParm["scheduleIdArry"]  = scheduleIdArry;
             /////////////////////////////////////////////////////////////////////
-            
-                
-            
             
             var userArry = new Array();
             
@@ -111,11 +211,102 @@
                     
             // 데이타 저장
             var parm = {
-                 serviceId              : "ScheduleService.scheduleSave"
+                 serviceId              : "ScheduleService.updateSchedule"
                 ,requestParm            : requestParm
             }
             C_COM.requestService(parm, function(resultData) {
-            	
+                
+                console.log("resultData.data.state =>"+resultData.data.state);
+                if("S" == resultData.data.state){
+
+                    var obj = new Object();
+                    obj.title = title;
+                    obj.start = date+"T"+startTimeH+":"+startTimeM+":"+"00";
+                    obj.end   = date+"T"+endTimeH+":"+endTimeM+":"+"00";
+                    obj.textColor = "#fff";
+                    
+                    if( workType == 'SEMINAR'){//세미나
+                        obj.color = "#d770c0";  
+                    }else if( workType == 'SEND_EMAIL'){//이메일 전송
+                        obj.color = "#72bfd2"; 
+                    } else if( workType == 'OTHER_WORK'){//그 외 업무
+                        obj.color = "#8dcc76"; 
+                    } else if( workType == 'TEL_CONSUL'){//전화상담
+                        obj.color = "#e5b266"; 
+                    } else if( workType == 'MEETING'){//미팅
+                        obj.color = "#EE7C7C"; 
+                    } else if( workType == 'SCHEDULE'){//회사 내부 일정
+                        obj.color = "#7E7CEE"; 
+                    } else{} 
+                    C_POP.close(obj);
+                }else{
+                    dalert("일정이 추가에 실패하였습니다.");
+                }
+                
+            });
+            
+        }
+        ,save : function( ) {
+        	
+        	let title = $('#<@popupId>_title').val();
+        	let date  = $('#<@popupId>_date').val();
+        	
+            if (title.length < 1) {
+                alert("제목을 입력해 주세요.");
+                $("#<@popupId>_title").focus();
+                return false;
+            }
+            
+            if (date.length < 1) {
+                alert("일정을 입력해 주세요.");
+                $("#<@popupId>_date").focus();
+                return false;
+            }
+            
+            let requestParm = {};            
+            requestParm["scheduleId"]  = <@popupId>.scheduleId;
+            requestParm["title"]  = title;
+            requestParm["date"]  = date;
+            requestParm["position"]  = $('#<@popupId>_position').val();
+            requestParm["description"]  = $('#<@popupId>_description').val();
+            requestParm["loopType"]  = <@popupId>.loopType;
+            requestParm["workType"]  = <@popupId>.workType;
+            requestParm["startTimeH"]  = <@popupId>.startTimeH;
+            requestParm["startTimeM"]  = <@popupId>.startTimeM;
+            requestParm["endTimeH"]  = <@popupId>.endTimeH;
+            requestParm["endTimeM"]  = <@popupId>.endTimeM;
+            requestParm["secretYn"]  = <@popupId>.secretYn;
+            requestParm["userId"]  = "trigger11kr";
+            
+            /////////////////////////////////////////////////////////////////////
+            var scheduleIdArry = new Array();
+            
+            for(i=0; i< 30; i++){
+            	scheduleIdArry.push(C_COM.makeUniqueId());
+            }
+
+            requestParm["scheduleIdArry"]  = scheduleIdArry;
+            /////////////////////////////////////////////////////////////////////
+            
+            var userArry = new Array();
+            
+            for(i=0; i< <@popupId>.userIndex; i++){
+                var userId = $('#userId'+i).val();
+
+                if(typeof userId != "undefined" && userId != null && userId != ""){
+                    var item = new Object();
+                    item.user_id  = userId;
+                    userArry.push(item);
+                }
+            }
+            requestParm["users"]  = JSON.stringify(userArry);
+                    
+            // 데이타 저장
+            var parm = {
+                 serviceId              : "ScheduleService.saveSchedule"
+                ,requestParm            : requestParm
+            }
+            C_COM.requestService(parm, function(resultData) {
             	
                 console.log("resultData.data.state =>"+resultData.data.state);
             	if("S" == resultData.data.state){
@@ -147,16 +338,33 @@
             });
             
          }
-        ,close : function() {
-            var obj = new Object();
-            C_POP.close(obj);
-         }
     }//var <@popupId>
     
     // Popup Load가 완료된후 실행 된다.
     C_POP.onLoadPopup("<@popupId>", function(data) {
 
-    	<@popupId>.scheduleId = C_COM.makeUniqueId();// PK 생성
+    	 
+    	
+    	var scheduleId = data["scheduleId"];
+    	
+    	console.log("=== scheduleId ===>"+scheduleId);
+    	
+    	if(typeof scheduleId != "undefined" && scheduleId != null && scheduleId != ""){
+    		
+    		console.log("=== 1111 ===>");
+    		<@popupId>.scheduleId = scheduleId;
+            <@popupId>.searchSchedule(<@popupId>.scheduleId);
+            <@popupId>.mode = 'UPDATE';
+    	}else{
+
+            console.log("=== 2221 ===>");
+    		<@popupId>.scheduleId = C_COM.makeUniqueId();// PK 생성
+    		console.log("=== 2222 ===>");
+    		<@popupId>.mode = 'INSERT';
+    		console.log("=== 2223 ===>");
+    		
+    	}
+    	console.log("=== 1 ===>");
     	
         //************** 업무유형 **************
         var workTypeList = C_COM.getCodeList("SCHEDULE_WORK_TYPE");
@@ -308,9 +516,32 @@
         });
 
         //============== 종료분 ==============
-                
         	
+        console.log("=== 2 ===>");
+        	
+        // 오늘날짜 세팅
+        let date = new Date();
         
+        let today = date.getFullYear() +
+                          '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
+                          '-' + ( (date.getDate()) <= 9 ? "0" + (date.getDate()) : (date.getDate()) );
+        
+        $('#<@popupId>_date').val(today);
+
+        //버튼 보임 처리
+        if ( <@popupId>.mode == 'UPDATE') {
+            $('#<@popupId>_btnDelete').show();
+            $('#<@popupId>_btnUpdate').show();
+            $('#<@popupId>_btnSave').hide();
+            
+            
+        } else if ( <@popupId>.mode == 'INSERT') {
+        	$('#<@popupId>_btnDelete').hide();
+            $('#<@popupId>_btnUpdate').hide();
+            $('#<@popupId>_btnSave').show();
+            
+        } else{}
+
     });
     
     
@@ -393,14 +624,10 @@
                 </dl>
             </div>
             <div class="modal_footer">
-                <button type="button" class="btn select" onclick="<@popupId>.save('1')" >저장</button>
-                <button type="button" class="btn close" onclick="<@popupId>.close()" >취소</button>
-                <button type="button" class="btn select" onclick="<@popupId>.save('2')" >1</button>
-                <button type="button" class="btn select" onclick="<@popupId>.save('3')" >2</button>
-                <button type="button" class="btn select" onclick="<@popupId>.save('4')" >3</button>
-                <button type="button" class="btn select" onclick="<@popupId>.save('5')" >4</button>
-                <button type="button" class="btn select" onclick="<@popupId>.save('6')" >6</button>
-                <button type="button" class="btn select" onclick="<@popupId>.save('7')" >7</button>
+                <button type="button" id="<@popupId>_btnDelete" class="btn select" onclick="<@popupId>.delete()" >삭제</button>
+                <button type="button" id="<@popupId>_btnUpdate" class="btn select" onclick="<@popupId>.update()" >수정</button>
+                <button type="button" id="<@popupId>_btnSave"   class="btn select" onclick="<@popupId>.save()" >저장</button>
+                <button type="button" id="<@popupId>_btnClose"  class="btn close"  onclick="<@popupId>.close()" >취소</button>
             </div>
         </div>
     </div>

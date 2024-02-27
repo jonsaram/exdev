@@ -13,11 +13,12 @@
 	        });
         }   
        ,init : function( value ) {
-    	    
+    	   console.log("init");
             var calendarEl = document.getElementById('<@pageId>_calendar');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 height: '100%',
                 expandRows: true,
+                locale: 'ko', // 한국어 설정
                 // slotMinTime: '08:00',
                 // slotMaxTime: '20:00',
                 headerToolbar: {
@@ -28,12 +29,31 @@
                     // right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                 },
                 initialView: 'dayGridMonth',
-                //initialDate: '2024-02-08',  //달력 처음 로드될때 표시되는 날짜
+                //initialDate: '2024-01-08',  //달력 처음 로드될때 표시되는 날짜
                 navLinks: true, // 요일이랑 날짜 클릭시 일단위,주단위로 보여주는 화면으로 넘어감
                 editable: false, // 드래그해서 수정 가능한지, 길게 확장도 가능
                 selectable: true,
                 nowIndicator: true,
                 dayMaxEvents: true, // "more" 표시 전 최대 이벤트 갯수, true는 셀 높이에 의해 결정
+
+                eventClick : function(obj) {
+                    //delete event from calender
+                   console.log('1 info.event.title =>'+obj.event.title);
+                   console.log('1 info.event.id =>'+obj.event.id);
+                   
+                   let requestParm = {};
+                   requestParm["scheduleId"]  = obj.event.id;
+                   
+                   C_POP.open('popup_addSchedulePopup', requestParm, function(obj) {
+                	   
+                       <@pageId>.addEvent(obj.id);
+                       
+                   })
+
+                }
+                ,dateClick: function() {
+                    console.log('1 a day has been clicked!');
+                }
                 
             });
             calendar.render();
@@ -42,14 +62,102 @@
     	   calendar.addEvent(obj)
 
         }
-        ,destroy : function() {
-            C_COM.showLeftMenu();
-         }
+       ,destroy : function() {
+           C_COM.showLeftMenu();
+        }
+       ,getAllschedule : function(  ) {
+    	   console.log("getAllschedule");
+    	   let requestParm = {};
+           requestParm["approvalUserId"]  = 'trigger11kr';
+            
+           let parm = {
+                queryId        : "schedule.getScheduleList"
+               ,requestParm    : requestParm
+           }
+            
+           C_COM.requestQuery(parm, function(resultData) {
+               console.log("schedule.getScheduleList");
+               //console.log( resultData.data);
+                
+               for (var i=0; i<resultData.data.length; i++){
+                  // console.log(resultData.data[i].TITLE);
+                    
+                   var obj = new Object();
+                   obj.id    = resultData.data[i].SCHEDULE_ID;
+                   obj.title = resultData.data[i].TITLE;
+                   obj.start = resultData.data[i].SCHEDULE_DATE1+'T'+resultData.data[i].START_TIME_HOUR+':'+resultData.data[i].START_TIME_MINUTE+':00';
+                   obj.end   = resultData.data[i].SCHEDULE_DATE1+'T'+resultData.data[i].END_TIME_HOUR+':'+resultData.data[i].END_TIME_MINUTE+':00';
+                   obj.textColor = "#fff";
+                   obj.color = "#8dcc76";
+                   calendar.addEvent(obj);
+                    
+                }
+                calendar('rerenderEvents' );
+            }); 
+       }
+       ,test : function(value) {
+    	   console.log("value["+value+"]");
+    	   
+    	   
+           ///////////////////////////////////////////////////////////////////////////////////////////
+           //var intervalStart = calendar.fullCalendar('getView').intervalStart.format("YYYY-MM-DD");//변경된 날짜값
+           
+           var slotDuration = <@pageId>.calendar.initialDate;
+           console.log('slotDuration =>'+slotDuration)
+           
+           //모든 소스의 이벤트를 다시 가져와 화면에 다시 표시합니다.
+           //$('#calendar').fullCalendar('removeEvents');
+           //$('#calendar').fullCalendar('addEventSource', events);         
+           //$('#calendar').fullCalendar('rerenderEvents' );         
+           
+           calendar('removeEvents');
+           let requestParm = {};
+           requestParm["approvalUserId"]  = 'trigger11kr';
+            
+           let parm = {
+                queryId        : "schedule.getScheduleList"
+               ,requestParm    : requestParm
+           }
+            
+           C_COM.requestQuery(parm, function(resultData) {
+           	   console.log("schedule.getScheduleList");
+               //console.log( resultData.data);
+                
+               for (var i=0; i<resultData.data.length; i++){
+                  // console.log(resultData.data[i].TITLE);
+                	
+                   var obj = new Object();
+                   obj.id    = resultData.data[i].SCHEDULE_ID;
+                   obj.title = resultData.data[i].TITLE;
+                   obj.start = resultData.data[i].SCHEDULE_DATE1+'T'+resultData.data[i].START_TIME_HOUR+':'+resultData.data[i].START_TIME_MINUTE+':00';
+                   obj.end   = resultData.data[i].SCHEDULE_DATE1+'T'+resultData.data[i].END_TIME_HOUR+':'+resultData.data[i].END_TIME_MINUTE+':00';
+                   obj.textColor = "#fff";
+                   obj.color = "#8dcc76";
+                   calendar.addEvent(obj);
+                    
+                }
+                calendar('rerenderEvents' );
+            });  
+           
+            
+           
+           ///////////////////////////////////////////////////////////////////////////////////////////
+        }
+       ,removeEvents : function() {
+           console.log("removeEvents");
+    	   calendar('removeEvents');
+        }
+
     }
     // Page Load가 완료된후 실행 된다.
     C_PM.onLoadPage("<@pageId>", function() {
         C_COM.hideLeftMenu();
+        
         <@pageId>.init("A");
+        <@pageId>.getAllschedule();
+        <@pageId>.calendar.on('dateClick', function(info) {
+            console.log('a day has been clicked!');
+         });
     });
     // History back으로 이동해왔을 경우 이루틴이 실행된다.
     C_HM.onReturn("<@pageId>", function(pageId, data) {

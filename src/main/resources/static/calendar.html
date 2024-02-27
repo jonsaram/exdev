@@ -1,167 +1,181 @@
 <!DOCTYPE html>
-<html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    <script>
 
-<head>
-    <meta charset='utf-8' /> <!-- 화면 해상도에 따라 글자 크기 대응(모바일 대응) -->
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"> <!-- jquery CDN -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- fullcalendar CDN -->
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.css' rel='stylesheet' />
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.js'></script> <!-- fullcalendar 언어 CDN -->
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/locales-all.min.js'></script>
-    <style>
-        /* body 스타일 */
-        html,
-        body {
-            overflow: hidden;
-            font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
-            font-size: 14px;
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+           headerToolbar: {
+                // left: 'prev,next today',
+              left: '',
+              center: 'title',
+              right: 'timeGridDay,timeGridWeek,dayGridMonth,prev,next'
+              // right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+           },
+           views: {
+               dayGridMonth: { // name of view
+        	       titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' }
+        	      // other view-specific options here
+               }
+           },
+          dateClick: function() {
+        	  console.log('a day has been clicked!');
+       	  },
+          eventClick : function(info) {
+              //delete event from calender
+             console.log('info.event.title =>'+info.event.title);
+             console.log('info.event.id =>'+info.event.id);
+             info.event.remove();
+  
+          },
+       	  locale: 'ko', // 한국어 설정
+          initialView: 'dayGridMonth',
+          
+          events: [
+        	      {
+        		    // Just an event
+        		    title: 'Long Event',
+        		    start: '2024-02-07',
+        		    end: '2024-02-10',
+        		    className: 'scheduler_basic_event'
+        		  },
+        		  {
+        		    // Custom repeating event
+        		    id: 999,
+        		    title: 'Repeating Event',
+        		    start: '2024-02-09T16:00:00',
+        		    className: 'scheduler_basic_event'
+        		  },
+        		  {
+        		    // Custom repeating event
+        		    id: 999,
+        		    title: 'Repeating Event',
+        		    start: '2024-02-16T16:00:00',
+        		    className: 'scheduler_basic_event'
+        		  },
+        		  {
+        		    // Just an event
+        		    title: 'Lunch',
+        		    start: '2024-02-12T12:00:00',
+        		    className: 'scheduler_basic_event',
+        		  },
+        		  {
+        		    // Just an event
+        		    title: 'Happy Hour',
+        		    start: '2024-02-12T17:30:00',
+        		    className: 'scheduler_basic_event'
+        		  },
+        		  {   
+        		    // Monthly event
+        		    id: 111,
+        		    title: 'Meeting1',
+        		    start: '2024-02-26T00:00:00',
+        		    className: 'scheduler_basic_event',
+        		    repeat: 1
+        		  },
+        		  {
+        		    // Annual avent
+        		    id: 222,
+        		    title: 'Birthday Party',
+        		    start: '2024-02-04T07:00:00',
+        		    description: 'This is a cool event',
+        		    className: 'scheduler_basic_event',
+        		    repeat: 2
+        		  },
+        		  {
+        		    // Weekday event
+        		    title: 'Click for Google',
+        		    url: 'http://google.com/',
+        		    start: '2024-02-28',
+        		    className: 'scheduler_basic_event',
+        		    dow: [1,5]
+        		  },
+        	    {
+        	      title  : 'event1',
+        	      start  : '2024-02-01'
+        	    },
+        	    {
+        	      title  : 'event2',
+        	      start  : '2024-02-05',
+        	      end    : '2024-02-07'
+        	    },
+        	    {
+        	      title  : 'event3',
+        	      start  : '2024-02-09T12:30:00',
+        	      allDay : false // will make the time show
+        	    }
+        	  ],
+       	
+          
+        });//var calendar
+        
+        calendar.render();
+
+        calendar.on('dateClick', function(info) {
+            console.log('clicked on ' + info.dateStr);
+            
+            if( info.dateStr == "2024-02-01" ){
+            	var eventSources = calendar.getEventSources();
+                console.log('EventSources => ' + eventSources);
+                var len = eventSources.length;
+                for (var i = 0; i < len; i++) { 
+                	console.log('eventSources['+i+'] => ' + eventSources[i]);
+                    //eventSources[i].remove(); 
+                } 
+            }else if( info.dateStr == "2024-02-02" ){
+            	calendar.next();
+            }else if( info.dateStr == "2024-02-03" ){
+            	calendar.destroy();
+            }else if( info.dateStr == "2024-02-04" ){
+                console.log('2024-02-04 => ');
+                var obj = new Object();
+                obj.title = 'event1';
+                obj.start = '2024-02-09T12:30:00';
+                obj.end   = '2024-02-09T15:30:00';
+                obj.textColor = "#fff";
+                obj.color = "#8dcc76";
+                calendar.addEvent(obj);
+                
+            }else if( info.dateStr == "2024-02-05" ){
+                console.log('2024-02-05 => '+calendar.initialDate);
+                calendar.initialDate;
+                calendar.refetchEvents();
+	        }else if( info.dateStr == "2024-02-06" ){
+	            console.log('2024-02-06 => ');
+	            //calendar.fullCalendar( 'addEventSource', {id:123, stuff:'stuff'});
+            }else if( info.dateStr == "2024-02-07" ){
+            	//calendar.fullCalendar( 'removeEvent', 222);
+            }
+            
+            //calendar.next();
+            //calendar.destroy();
+        });
+
+        calendar.on('eventClick', function(info) {
+            console.log('eventClick on ' + info.dateStr);
+            
+        });
+        // ... other calendar things here...
+        calendar.fullCalendar( 'removeEvent', 123);
+        /**/
+        function test() {
+            console.log("test");
+            //calendar.destroy();
         }
+        
+      });
 
-        /* 캘린더 위의 해더 스타일(날짜가 있는 부분) */
-        .fc-header-toolbar {
-            padding-top: 1em;
-            padding-left: 1em;
-            padding-right: 1em;
-        }
-    </style>
-</head>
-
-<body style="padding:30px;">
-    <!-- calendar 태그 -->
-    <div id='calendar-container'>
-        <div id='calendar'></div>
-    </div>
-   <script>
-        (function() {
-             $(function() { // calendar element 취득      
-                 var calendarEl = $('#calendar')[0]; // full-calendar 생성하기      
-                 var calendar = new FullCalendar.Calendar(calendarEl, {
-                    height: '700px', // calendar 높이 설정             
-                    expandRows: true, // 화면에 맞게 높이 재설정        
-                    slotMinTime: '08:00', // Day 캘린더에서 시작 시간        
-                    slotMaxTime: '20:00', // Day 캘린더에서 종료 시간       
-                    // 해더에 표시할 툴바        
-                    headerToolbar: {          
-                        left: 'prev,next today',          
-                        center: 'title',          
-                        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'       
-                    },        
-                    initialView: 'dayGridMonth', // 초기 로드 될때 보이는 캘린더 화면(기본 설정: 달)        
-                    initialDate: '2024-02-14', // 초기 날짜 설정 (설정하지 않으면 오늘 날짜가 보인다.)        
-                    navLinks: true, // 날짜를 선택하면 Day 캘린더나 Week 캘린더로 링크        
-                    editable: true, // 수정 가능?        
-                    selectable: true, // 달력 일자 드래그 설정가능        
-                    nowIndicator: true, // 현재 시간 마크        
-                    dayMaxEvents: true, // 이벤트가 오버되면 높이 제한 (+ 몇 개식으로 표현)        
-                    locale: 'ko', // 한국어 설정        
-                    eventAdd: function(obj) { // 이벤트가 추가되면 발생하는 이벤트   
-                    	console.log("eventAdd"); 
-                        console.log(obj);        
-                    },        
-                    eventChange: function(obj) { // 이벤트가 수정되면 발생하는 이벤트   
-                        console.log("eventChange");           
-                        console.log(obj);        
-                    },        
-                    eventRemove: function(obj){ // 이벤트가 삭제되면 발생하는 이벤트   
-                        console.log("eventRemove");           
-                        console.log(obj);        
-                    }, 
-                    select: function(arg) { // 캘린더에서 드래그로 이벤트를 생성할 수 있다.          
-                        var title = prompt('일정등록:');    
-                        
-                        var allEvent = calendar.getEvents(); // .getEvents() 함수로 모든 이벤트를 Array 형식으로 가져온다. (FullCalendar 기능 참조)
-                        
-                        var events = new Array(); // Json 데이터를 받기 위한 배열 선언
-                        for (var i = 0; i < allEvent.length; i++) {
-                            var obj = new Object();     // Json 을 담기 위해 Object 선언
-                            // alert(allEvent[i]._def.title); // 이벤트 명칭 알람
-                            obj.title = allEvent[i]._def.title; // 이벤트 명칭  ConsoleLog 로 확인 가능.
-                            obj.start = allEvent[i]._instance.range.start; // 시작
-                            obj.end = allEvent[i]._instance.range.end; // 끝
-                            
-                            console.log("obj.title =>"+obj.title); 
-                            console.log("obj.start =>"+obj.start);
-                            console.log("obj.end =>"+obj.end);
-                            
-                            events.push(obj);
-                        }
-                        
-                        console.log("select"); 
-                        if (title) {  
-                        	console.log("title"+title);
-                            console.log("arg.start"+arg.start);
-                            console.log("arg.end"+arg.end);
-                            console.log("arg.allDay"+arg.allDay); 
-                            calendar.addEvent({             
-                                title: title,             
-                                start: arg.start,              
-                                end: arg.end,              
-                                allDay: arg.allDay            
-                            })  
-                        }         
-                        calendar.unselect()        
-                    },        
-                    // 이벤트        
-                    events: [         
-                        {
-                          title: 'All Day Event',            
-                          start: '2024-02-01',          
-                        },
-                        {            
-                          title: 'Long Event',           
-                          start: '2024-02-07',            
-                          end: '2024-02-10'         
-                        },          
-                        {           
-                            groupId: 999,           
-                            title: 'Repeating Event',           
-                            start: '2024-02-09T16:00:00'       
-                        },        
-                        {           
-                            groupId: 999,           
-                            title: 'Repeating Event', 
-                            start: '2024-02-16T16:00:00'  
-                        },        
-                        {           
-                            title: 'Conference',   
-                            start: '2024-02-11', 
-                            end: '2024-02-13'       
-                        },        
-                        {       
-                            title: 'Meeting', 
-                            start: '2024-02-12T10:30:00', 
-                            end: '2024-02-12T12:30:00'         
-                        },        
-                        {         
-                            title: 'Lunch',   
-                            start: '2024-02-12T12:00:00' 
-                        },        
-                        {         
-                            title: 'Meeting',  
-                            start: '2024-02-12T14:30:00'    
-                        },    
-                        {       
-                            title: 'Happy Hour',  
-                            start: '2024-02-12T17:30:00'     
-                        },     
-                        {        
-                            title: 'Dinner',   
-                            start: '2024-02-12T20:00:00'  
-                        },        
-                        {          
-                            title: 'Birthday Party',    
-                            start: '2024-02-13T07:00:00'  
-                        },        
-                        {          
-                            title: 'Click for Google',  
-                            url: 'http://google.com/', // 클릭시 해당 url로 이동   
-                            start: '2024-02-28'         
-                        }    
-                    ]     
-                 });      // 캘린더 랜더링  
-                 calendar.render();    
-             }); 
-        })();
+      function functionToExecute() {
+    	  console.log("functionToExecute");
+    	  test();
+      }
     </script>
-</body>
+  </head>
+  <body>
+    <button onclick="functionToExecute()">Click</button>
+    <div id='calendar'></div>
+  </body>
 </html>
