@@ -1,7 +1,22 @@
 <meta charset="utf-8">
 <script type="text/javascript">
     var <@popupId> = {
-    	 appMember : {}	
+    	 APPROVAL_ID	: ""
+    	,appMember 		: {}
+    	,getAppMemberToList : function() {
+    		let resultList = []
+    		$.each(<@popupId>.appMember, function(key, obj) {
+    			// 결재 Type 설정
+    			obj["AL_APPR"]		= "";
+    			obj["AL_AGREE"]		= "";
+    			obj["AL_NOTICE"]	= "";
+    			obj["AL_" + obj["APPROVAL_TYPE"]] = "active";
+    			
+    			resultList.push(obj);
+    		});
+    		resultList.orderBy("ORDER_NUM", "ASC");
+    		return resultList;
+    	 }
         ,memberSearchPopup : function() {
             C_POP.open('popup_userSearchPopup', {}, function(retData) {
                 <@popupId>.addMember(retData);
@@ -16,38 +31,155 @@
          }
         ,addMember : function(retData) {
         	
+        	if(isValid(<@popupId>.appMember[retData.USER_ID])) {
+        		alert('이미 등록되어 있는 사원입니다.');
+        		return;
+        	}
+        	
         	retData.APPROVAL_TYPE = 'APPR';		// Member 최초 등록시 결재로 설정
         	
-    		// 결재자 추가
+        	let mlst = <@popupId>.getAppMemberToList();
+        	
+        	retData.ORDER_NUM = mlst.length;
+        	
+            <@popupId>.appMember[retData.USER_ID] = retData;
+            
+            <@popupId>.loadAppMember();
+            
+         }
+        ,loadAppMember : function() {
+        	let mlst = <@popupId>.getAppMemberToList();
+        	
+        	// 기안자 표시
             let rparm = {
                  targetId   : "signMember"
-                ,addMember  : retData
-                ,append		: "Y"
+                ,templateId : "reqMember"
+                ,regMember  : mlst[0]
             }
             C_COM.renderHtml("<@popupId>", rparm);
-    		
-            <@popupId>.appMember[retData.USER_ID] = retData;
+        	
+        	// 결재자 표시
+        	$.each(mlst, function(idx) {
+        		if(idx > 0) {
+            		// 결재자 추가
+                    let rparm = {
+                         targetId   : "signMember"
+                        ,addMember  : this
+                        ,append		: "Y"
+                    }
+                    C_COM.renderHtml("<@popupId>", rparm);
+        		}
+        	});
          }
         // 결재 Type 설정
         ,setApprovalType : function(userId, approvalType) {
-        	<@popupId>.appMember[userId] = approvalType;
+        	<@popupId>.appMember[userId].APPROVAL_TYPE = approvalType;
          }
         ,delMember : function(userId) {/* 결재자 삭제 */
-        	<@popupId>.appMember[userId] = undefined;
+        	let delIdx = <@popupId>.appMember[userId].ORDER_NUM;
+        	<@popupId>.appMember = removeMember(<@popupId>.appMember, userId);
+        	$.each(<@popupId>.appMember, function(key, obj) {
+				if(obj.ORDER_NUM > delIdx) obj.ORDER_NUM = obj.ORDER_NUM - 1;         		
+        	});
+            <@popupId>.loadAppMember();
          }
         /* 결재상신 */
-        ,save : function (state) {
+        ,approvalSave : function (state) {
+        	let mlst = <@popupId>.getAppMemberToList();
             
+            var TITLE = $("#<@popupId> #TITLE").val();
+            console.log("== title ==>"+TITLE);
+            if (TITLE.length < 1) {
+                alert("제목을 입력해 주세요.");
+                $("#<@popupId> #title").focus();
+                return false;
+            }
+            
+            var CONTENTS = <@popupId>.textEditorComp.getContent();
+            
+            if (CONTENTS.length < 1) {
+                alert("상신 내용을 입력해 주세요.");
+                $("#<@popupId> #CONTENTS").focus();
+                return false;
+            }
+            
+            if (mlst.length < 2) {
+                alert("결재자를 입력해 주세요.");
+                return false;
+            }
+            
+            var approvalInfo = {
+            	 APPROVAL_ID 	: <@popupId>.APPROVAL_ID
+            	,TITLE 			: TITLE
+            	,CONTENTS 		: CONTENTS
+            	,STATE			: "ONGOING"		// 진행중
+            }
+			var parm = {
+				queryGroup : [
+					 {
+						 queryId 		: "approval.insertApproval"
+						,requestParm	: approvalInfo
+					 }
+				]
+			}
+            $.each(mlst, function() {
+            	
+            	let apUserInfo = this;
+            	
+            	apUserInfo.APPROVAL_ID = <@popupId>.APPROVAL_ID;
+            	
+            	let rparm = {
+					 queryId 		: "approval.insertApprovalUser"
+					,requestParm	: apUserInfo
+            	}
+            	parm.queryGroup.push(rparm);
+            });
+            
+			C_COM.requestQuery(parm, function(resultData) {
+				if( resultData.state == "S"){
+					alert("결재 상신 되었습니다.");
+					<@popupId>.close();
+				}else{
+					alert(resultData.msg)
+				}
+			});				
+            
+         }
+         // 결재자 위로 이동
+        ,upMember : function(userId) {
+        	let orderNum = <@popupId>.appMember[userId].ORDER_NUM;
+        	if(orderNum == 1) {
+        		return;
+        	}
+        	$.each(<@popupId>.appMember, function(key, obj) {
+        		if(obj.ORDER_NUM == (orderNum - 1) ) {
+        			<@popupId>.appMember[key].ORDER_NUM 	= orderNum;
+        			<@popupId>.appMember[userId].ORDER_NUM 	= orderNum - 1;
+        			return false;
+        		}
+        	});
+        	<@popupId>.loadAppMember();
+         }
+        // 결재자 아래로 이동
+        ,dnMember : function(userId) {
+        	let orderNum = <@popupId>.appMember[userId].ORDER_NUM;
+        	$.each(<@popupId>.appMember, function(key, obj) {
+        		if(obj.ORDER_NUM == (orderNum + 1) ) {
+        			<@popupId>.appMember[key].ORDER_NUM 	= orderNum;
+        			<@popupId>.appMember[userId].ORDER_NUM 	= orderNum + 1;
+        			return false;
+        		}
+        	});
+        	<@popupId>.loadAppMember();
          }
         ,close : function() {
             C_POP.close();
          }
-        
     }
     // Popup Load가 완료된후 실행 된다.
     C_POP.onLoadPopup("<@popupId>", function(data) {
 
-    	<@popupId>.apprId = C_COM.makeUniqueId();// 결재 ID 생성
+    	<@popupId>.APPROVAL_ID = C_COM.makeUniqueId();// 결재 ID 생성
     	
     	// 결재 Textarea Component Include
     	C_COMP.import("textEditorComp", "component_compTextEditor", {content:""}, function(data) {
@@ -57,7 +189,7 @@
         
 		// 첨부파일 컴포넌트 추가
     	var parm = {
-			 GRP_FILE_ID 	: <@popupId>.apprId
+			 GRP_FILE_ID 	: <@popupId>.APPROVAL_ID
 			,OWNER_CD 		: "APPROVAL"
 			,mode			: "M"
 			,title			: "NA"
@@ -71,6 +203,7 @@
     	let reqMember = fn_copyObject(G_VAL.session);
 		
 		reqMember.APPROVAL_TYPE = "RQST";
+		reqMember.ORDER_NUM		= 0;
 		
     	<@popupId>.appMember[reqMember.USER_ID] = reqMember;
 
@@ -96,7 +229,7 @@
 			<div class="modal_body">
 				<dl class="info_wrap pay">
                     <dt>제목</dt>
-                    <dd><input type="text"  id='title' name='title' value='' style="width:100%"></dd>
+                    <dd><input type="text"  id='TITLE' name='TITLE' value='' style="width:100%"></dd>
 					<dt>결재자 검색</dt>
 					<dd>
                         <div class="search_inputWrap" style="width:100%">
@@ -113,11 +246,13 @@
 							</ul>
 							<script type="text/x-jsrender" id="signMember_template">	
 								<li>
-									<button class="stateBtn toggle active" 	onclick="<@popupId>.setApprovalType('{{:USER_ID}}','APPR'	)">결재</button>
-									<button class="stateBtn toggle" 		onclick="<@popupId>.setApprovalType('{{:USER_ID}}','AGREE'	)">합의</button>
-									<button class="stateBtn toggle" 		onclick="<@popupId>.setApprovalType('{{:USER_ID}}','NOTICE'	)">통보</button>
+									<button class="stateBtn toggle {{:addMember.AL_APPR}}" 		onclick="<@popupId>.setApprovalType('{{:addMember.USER_ID}}','APPR'	)">결재</button>
+									<button class="stateBtn toggle {{:addMember.AL_AGREE}}" 	onclick="<@popupId>.setApprovalType('{{:addMember.USER_ID}}','AGREE'	)">합의</button>
+									<button class="stateBtn toggle {{:addMember.AL_NOTICE}}"	onclick="<@popupId>.setApprovalType('{{:addMember.USER_ID}}','NOTICE'	)">통보</button>
 									<span class="txt">{{:addMember.USER_NM}} / {{:addMember.GRADE}} / {{:addMember.E_MAIL}}</span>
-									<button class="pay_close" onclick=""<@popupId>.delMember('{{:USER_ID}}'">닫기</button>
+									<button class="pay_up"		onclick="<@popupId>.upMember ('{{:addMember.USER_ID}}')">위로</button>
+									<button class="pay_down"	onclick="<@popupId>.dnMember ('{{:addMember.USER_ID}}')">아래로</button>
+									<button class="pay_close" 	onclick="<@popupId>.delMember('{{:addMember.USER_ID}}')">닫기</button>
 								</li>
 							</script>
 							<script type="text/x-jsrender" id="reqMember_template">	
@@ -136,7 +271,7 @@
 				</dl>
 			</div>
 			<div class="modal_footer">
-				<button type="button" class="btn select">결재 상신</button>
+				<button type="button" class="btn select" onclick="<@popupId>.approvalSave()">결재 상신</button>
 				<button type="button" class="btn select">보류함</button>
 				<button type="button" class="btn close">취소</button>
 			</div>

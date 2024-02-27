@@ -218,9 +218,6 @@
         $(this).parent().children().removeClass('active');
         $(this).addClass('active');
     });
-    $(document).on("click", ".pay_close", function(){
-        $(this).parent().remove()
-    });
     $(document).on("click", ".approver_list_wrap.person .approver_list li", function(){
         $('.approver_list_wrap.person .approver_list li').removeClass('active');
         $(this).addClass('active');

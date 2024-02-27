@@ -750,6 +750,8 @@
 		});
 		return returnMap;
 	}
+	
+	
 
 	// 스트링 Array 에 특정 스트링이 있는지 검사
 	function in_array(str, arry)
@@ -1013,6 +1015,15 @@
 		}
 	}
 	
+	// Map Object에서 특정Member를 제거한다.
+	function removeMember(obj, key) {
+		let newObj = {};
+		$.each(obj, function(orgKey, val) {
+			if(key == orgKey) return true;
+			newObj[orgKey] = val;
+		});
+		return newObj;
+	}
 	
 	//Json Debugging
 	//Json Debugging

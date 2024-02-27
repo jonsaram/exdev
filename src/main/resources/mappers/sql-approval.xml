@@ -205,9 +205,6 @@
 		               ,TO_CHAR( A.CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE1 
 		        FROM  TBL_EXP_APPROVAL A
 		        WHERE 1 = 1
-		        <if test=" sessionVo != null and !sessionVo.equals('') ">
-		            AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
-		        </if>
 		        <if test=" searchUserId != null and searchUserId != '' " >
 		            AND   A.USER_ID    = #{searchUserId}
 		        </if>
@@ -220,6 +217,7 @@
                 <if test=" startDate != null and startDate != '' and endDate != null and endDate != '' " >
                     AND   A.APPROVAL_DATE BETWEEN TO_DATE(#{startDate}, 'YYYY-MM-DD') AND TO_DATE(#{endDate}, 'YYYY-MM-DD')   
                 </if>
+		            AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
 		        ORDER BY APPROVAL_DATE DESC
 		        ) A    
     </select>
@@ -229,32 +227,56 @@
         /* approval.insertApproval */
         INSERT INTO TBL_EXP_APPROVAL (
 		    APPROVAL_ID   
-		   ,SP_CSTM_ID    
 		   ,USER_ID       
 		   ,TITLE         
 		   ,CONTENTS 
-		       
 		   ,STATE         
 		   ,APPROVAL_DATE 
 		   ,CREATE_USER   
 		   ,CREATE_DATE 
-           )
+		   ,SP_CSTM_ID    
+        )
         VALUES(
-            #{approvalId}
-           ,'1234567890123456' /* 세션 spCstmCd sessionVo.spCstmId */
-           ,'trigger11kr'       /* 세션 userId */
-           ,#{title}
-           ,#{contents}
-           
-           ,#{state}
-           ,(TO_DATE(#{approvalDate}, 'yyyy/mm/dd hh24:mi:ss') )
-           ,#{createUser}
-           ,(TO_DATE(#{createDate}, 'yyyy/mm/dd hh24:mi:ss') )
-           )   
+		    #{APPROVAL_ID		}   
+		   ,#{sessionVo.userId 	}
+		   ,#{TITLE         	}
+		   ,#{CONTENTS      	}
+		   ,#{STATE		      	}
+		   ,sysdate
+           ,#{sessionVo.userId 	}
+           ,sysdate
+           ,#{sessionVo.spCstmId}
+        )   
     </insert>
     
+    <insert id="insertApprovalUser" parameterType="map" >
+        /* approval.insertApprovalUser */
+        INSERT INTO TBL_EXP_APPROVAL_USER (
+             APPROVAL_ID     
+            ,ORDER_NUM       
+            ,USER_ID         
+            ,APPROVAL_TYPE   
+            ,APPROVAL_COMMENT
+            ,CREATE_USER     
+            ,CREATE_DATE     
+            ,SP_CSTM_ID      
+        )
+        VALUES(
+             #{APPROVAL_ID			}     
+            ,#{ORDER_NUM        	}
+            ,#{USER_ID          	}
+            ,#{APPROVAL_TYPE    	}
+            ,NULL
+            ,#{sessionVo.userId 	}
+            ,sysdate
+            ,#{sessionVo.spCstmId	}
+        )    
+    </insert>
+
+
     
     <!-- 결재자 입력  이응규 -->
+<!--     
     <insert id="insertApprovalUser" parameterType="map" >
         /* approval.insertApprovalUser */
         INSERT INTO TBL_EXP_APPROVAL_USER (
@@ -281,6 +303,11 @@
             ,(TO_DATE(#{createDate} , 'yyyy/mm/dd hh24:mi:ss') )
            )    
     </insert>
+ -->    
+    
+    
+    
+    
     
     <!-- 결재자 입력  이응규 -->
     <insert id="insertApprovalUser_BAK" parameterType="map" >

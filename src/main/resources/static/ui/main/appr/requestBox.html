@@ -14,11 +14,6 @@
                     if( !result ){ return; }
                     console.log("=== result["+result+"]   =======");
                     
-                    
-                    requestParm["state"]  = "REQUEST";
-                    requestParm["startDate"]  = startDate;
-                    requestParm["endDate"]  = endDate;
-                    
                     let parm = {
                          queryId        : "approval.getApproval"
                         ,requestParm    : requestParm
@@ -68,10 +63,11 @@
                 _excelDownload($hds, $tds, excelParam, title );
                 
             }
-            ,apprDtlPopup : function(approvalId) {    
-                console.log("======= apprDtlPopup approvalId =======>"+approvalId);
-                let requestParm = {}
-                requestParm["approvalId"] = approvalId;
+            ,apprDtlPopup : function(APPROVAL_ID) {    
+                console.log("======= apprDtlPopup approvalId =======>"+APPROVAL_ID);
+                let requestParm = {
+                	APPROVAL_ID : APPROVAL_ID
+                }
                 C_POP.open('popup_apprDtlPopup', requestParm, function() {
                     //console.log("======= 부모창 retData =======");
                 });
@@ -109,7 +105,6 @@
     }
     // Page Load가 완료된후 실행 된다.
     C_PM.onLoadPage("<@pageId>", function() {
-        debugger;
         //조회 버튼 클릭      
         $('#<@pageId>_apprReqPopupBtn').on('click', function (e) {
             <@pageId>.apprReqPopup();
