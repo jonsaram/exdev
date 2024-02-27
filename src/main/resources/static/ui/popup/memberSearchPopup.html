@@ -7,6 +7,7 @@
  	,targetId : ''	
     ,searchId : ''	
 	,exceptMembers : []
+ 	,searchedMember : []
     ,close : function(returnData) {
  
 		if(isEmpty(returnData)) returnData = {};
@@ -23,6 +24,8 @@
 		}
         C_COM.requestQuery(parm, function(resultData) {
         
+        	<@popupId>.searchedMember = resultData.data;
+        	
         	let rparm = {
            			targetId   : <@popupId>.targetId
 					,list       : resultData.data
@@ -41,33 +44,11 @@
 	}		
 	,setHandler : () => {
 
- 			$("tr[name^='<@pageId>_tr_']").off().on('dblclick',function() {
+ 			$("tr[name^='<@popupId>_tr_']").off().on('dblclick',function() {
 
-					let buyerId , buyerNm, address, userId, userNm = '';
-					let grade, branchId, gradeNm,salesTypeCode, salesTypeCodeNm  = ''; 
-	 	
-					if( <@popupId>.rcvData.gubun == "BUYER"){
-	 		
-							buyerId	= $(this).find("#BUYER_ID"	).text();
-					 		buyerNm	= $(this).find("#BUYER_NM"	).text();
-					 		address	= $(this).find("#ADDR"		).text();
-	 						<@popupId>.close({'BUYER_ID' : buyerId, 'BUYER_NM' : buyerNm
-			 						 ,'ADDR' : address });
-	 		
-					}else{
-							userId	= $(this).find("#USER_ID"	).text();
-							userNm	= $(this).find("#USER_NM"	).text();
-							address	= $(this).find("#ADDR"		).text();
-							gradeNm	= $(this).find("#GRADE_NM"	).text();
-							grade	= $(this).find("#GRADE"		).text();
-							branchId= $(this).find("#BRANCH_ID"	).text();
-							salesTypeCode	= $(this).find("#SALES_TYPE_CODE_ID").text();
-							salesTypeCodeNm = $(this).find("#SALES_TYPE_CODE_NM").text();
-	 						<@popupId>.close({'USER_ID'  : userId , 'USER_NM'  : userNm
-			 						 ,'ADDR' : address , 'GRADE' :grade, 'GRADE_NM' : gradeNm, 'BRANCH_ID' : branchId
-				 					 ,'SALES_TYPE_CODE_ID' : salesTypeCode, 'SALES_TYPE_CODE_NM' : salesTypeCodeNm});
-					}
-	 	
+ 					const idx	= $(this).attr('name').replace("<@popupId>_tr_","");
+ 					const user	= <@popupId>.searchedMember[idx];
+					<@popupId>.close(user);
  			});
  			 
 	}
@@ -98,14 +79,14 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			$("#<@popupId>_customer_list").show();
 			$("#<@popupId>_user_list").hide();
 			<@popupId>.queryId = "contract.getBuyerList";
-			<@popupId>.targetId= "<@pageId>_cstmList"
+			<@popupId>.targetId= "<@popupId>_cstmList"
 			
 		}else {
 			
 			$("#<@popupId>_user_list").show();
 			$("#<@popupId>_customer_list").hide();
 			<@popupId>.queryId = "contract.getUserList"
-			<@popupId>.targetId= "<@pageId>_userList"
+			<@popupId>.targetId= "<@popupId>_userList"
 			
 		}
 
@@ -144,17 +125,17 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<col style="width:40%;"/>
 						</colgroup>
 						<thead>
-							<tr id="<@pageId>_headingColName">
+							<tr id="<@popupId>_headingColName">
 								<th scope="col">고객번호</th>
 								<th scope="col">고객명</th>
 								<th scope="col">본점주소</th>
 							</tr>
 						</thead>
-						<tbody  id="<@pageId>_cstmList">
+						<tbody  id="<@popupId>_cstmList">
 						</tbody>
-	<script type="text/x-jsrender" id="<@pageId>_cstmList_template">						
+	<script type="text/x-jsrender" id="<@popupId>_cstmList_template">						
 						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}" value='{{{:BUYER_ID}}'>
+							<tr name="<@popupId>_tr_{{:#index}}" value='{{{:BUYER_ID}}'>
 			 					<td id='BUYER_ID'		value='{{:BUYER_ID}}'		>{{:BUYER_ID}}</td>
 			 					<td id='BUYER_NM'		value='{{:BUYER_NM}}'		>{{:BUYER_NM}}</td>
 			 					<td id='ADDR'			value='{{:ADDR}}' style="text-align:left">{{:ADDR}}</td>
@@ -162,7 +143,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							</tr>
 						{{/for}}
 	</script>
-	<script type="text/x-jsrender" id="<@pageId>_cstmList_noData_template">	
+	<script type="text/x-jsrender" id="<@popupId>_cstmList_noData_template">	
 				<tr>	
 					<td colspan=3>자료가 없습니다.</td>	
 				</tr>
@@ -183,18 +164,18 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<col style="width:25%;"/>
 						</colgroup>
 						<thead>
-							<tr id="<@pageId>_headingColName">
+							<tr id="<@popupId>_headingColName">
 								<th scope="col">사원ID</th>
 								<th scope="col">사원이름</th>
 								<th scope="col">등급</th>
 								<th scope="col">영업구분</th>
 							</tr>
 						</thead>
-						<tbody  id="<@pageId>_userList">
+						<tbody  id="<@popupId>_userList">
 						</tbody>
-	<script type="text/x-jsrender" id="<@pageId>_userList_template">						
+	<script type="text/x-jsrender" id="<@popupId>_userList_template">						
 						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}" value='{{{:USER_ID}}'>
+							<tr name="<@popupId>_tr_{{:#index}}" value='{{{:USER_ID}}'>
 			 					<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
 			 					<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
 			 					<td id='GRADE_NM'		value='{{:GRADE_NM}}'		>{{:GRADE_NM}}</td>
@@ -205,7 +186,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							</tr>
 						{{/for}}
 	</script>
-	<script type="text/x-jsrender" id="<@pageId>_userList_noData_template">	
+	<script type="text/x-jsrender" id="<@popupId>_userList_noData_template">	
 				<tr>	
 					<td colspan=3>자료가 없습니다.</td>	
 				</tr>

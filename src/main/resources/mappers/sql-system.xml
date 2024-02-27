@@ -436,9 +436,14 @@
 	        ,A.ROLE_ID  
 	        ,R.ROLE_NM 
 	        ,R.ROLE_DESC
-	        ,T.GRADE
 	        ,T.USE_YN
 	        ,T.DEL_YN
+			,T.SURETY_INSURANCE
+			,T.GENDER
+			,T.SALES_TYPE
+			,GET_CODE_NM('SALES_TYPE', SALES_TYPE)		AS SALES_TYPE_NM
+	        ,T.RECOMMENDER_ID
+	        ,GET_CODE_NM('USER_ID', RECOMMENDER_ID)		AS RECOMMENDER_NM 
 		FROM TBL_EXP_USER T
         ,TBL_EXP_AUTH A
         ,TBL_EXP_ROLE R
@@ -447,6 +452,9 @@
 		AND T.SP_CSTM_ID = R.SP_CSTM_ID
         AND T.USER_ID = A.USER_ID
         AND R.ROLE_ID = A.ROLE_ID 
+		<if test=" USER_ID != null and !USER_ID.equals('') ">
+		AND T.USER_ID = #{USER_ID}
+		</if>
 		<if test=" STATE != null and !STATE.equals('') ">
 		AND T.STATE = #{STATE}
 		</if>

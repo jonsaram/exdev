@@ -5,6 +5,8 @@ var <@popupId> = {
  	 ,mode : ''
  	 ,addCoworkRtnData : []
  	 ,addSalseManRtnData : []
+ 	 ,addSuggesterRtnData : []
+ 	 ,RECOMMENDER : {}
 	 ,close : function(returnData) {
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
@@ -87,7 +89,7 @@ var <@popupId> = {
 	}
 	,savedContractMemberSearch : () => {
 		
-		const CONTRACT_ID = $("#<@popupId>_items #CONTRACT_ID").val()
+		const CONTRACT_ID = <@popupId>.recvData.param.filter( item => item.key== "CONTRACT_ID")[0].val
 		var parm = {
 				 queryId 		: "contract.getContractMemberList"
 				,requestParm	: {CONTRACT_ID : CONTRACT_ID}
@@ -98,7 +100,8 @@ var <@popupId> = {
 			const USER 		= resultData.data.filter( member => member.RELATION_TYPE == 'EXECUTE');
 			<@popupId>.addCoworkRtnData	= resultData.data.filter( member => member.RELATION_TYPE == 'COWORK');
 			<@popupId>.addSalseManRtnData= resultData.data.filter( member => member.RELATION_TYPE == 'SALES');
-			const OVERRIDING= resultData.data.filter( member => member.RELATION_TYPE == 'OVERRIDING');
+			//const OVERRIDING= resultData.data.filter( member => member.RELATION_TYPE == 'OVERRIDING');
+			<@popupId>.addSuggesterRtnData= resultData.data.filter( member => member.RELATION_TYPE == 'SUGGESTER');
 			
 			var rparm1 = {
 					 targetId 		: "<@popupId>_coworkList"
@@ -112,15 +115,14 @@ var <@popupId> = {
 			}
 			C_COM.renderHtml("<@popupId>", rparm2);
 			
-			var rparm3 = {
+/* 			var rparm3 = {
 					 targetId 		: "<@popupId>_overridingList"
 					,list			: OVERRIDING
 			}
-			C_COM.renderHtml("<@popupId>", rparm3);
-			
+			C_COM.renderHtml("<@popupId>", rparm3); */
 		});
 	}
-	,selectHierarchyList : (branchId) => {
+/* 	,selectHierarchyList : (branchId) => {
 		
 		const requestParm = {};
 		
@@ -139,6 +141,31 @@ var <@popupId> = {
 
 		});
 		
+	} */
+	,selectSuggester : (RECOMMENDER_ID) => {
+		
+		const requestParm = {};
+		
+		var parm = {
+				 queryId 		: "system.getUserList"
+				,requestParm	: {USER_ID : RECOMMENDER_ID}
+		}
+
+		C_COM.requestQuery(parm, function(resultData) {
+
+			if( resultData.data ){
+				
+				<@popupId>.RECOMMENDER = resultData.data[0];
+				const recommender =<@popupId>.RECOMMENDER; 
+				$("#<@popupId>_suggester td#POSITION").attr("POSITION", recommender.POSITION).html(recommender.POSITION)
+				$("#<@popupId>_suggester td#USER_ID").attr("USER_ID", recommender.USER_ID).html(recommender.USER_ID)
+				$("#<@popupId>_suggester td#USER_NM").attr("USER_NM", recommender.USER_NM).html(recommender.USER_NM)
+				$("#<@popupId>_suggester td#GRADE_NM").attr("GRADE_NM", recommender.GRADE_NM).html(recommender.GRADE_NM)
+				
+			}
+
+		});
+		
 	}
 	,setTitleHeight : () => {
 		
@@ -149,6 +176,7 @@ var <@popupId> = {
 	,memberSearchPopup : function(gubun) {
       	
 		let param = {};
+		let RECOMMENDER_ID = '';
 		C_POP.open('popup_memberSearchPopup', {param:param, gubun:gubun}, function(retData) {
               
 			Object.keys(retData).forEach( item =>{
@@ -156,14 +184,16 @@ var <@popupId> = {
         		const value = retData[item];
         			
 				$("#<@popupId>_items #"+item).val(value);
+				
+				if( item =='RECOMMENDER_ID')RECOMMENDER_ID = value;
 					
 			});
           	
-			<@popupId>.memberSet();
+			<@popupId>.memberSet(RECOMMENDER_ID);
 			
 		});
 	}
-	,memberSet : () => {
+	,memberSet : (RECOMMENDER_ID) => {
 		
 		const buyerId = $("#<@popupId>_items #BUYER_ID").val();
 		const buyerNm = $("#<@popupId>_items #BUYER_NM").val();
@@ -173,8 +203,9 @@ var <@popupId> = {
 		if( userId ){
 			$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
 			$("#<@popupId>_items #CPY_USER_NM").text(userNm);
-			const branchId = $("#<@popupId>_items #BRANCH_ID").val();
-			if( branchId )<@popupId>.selectHierarchyList(branchId);
+			//const branchId = $("#<@popupId>_items #BRANCH_ID").val();
+			//if( branchId )<@popupId>.selectHierarchyList(branchId);
+			if( RECOMMENDER_ID )<@popupId>.selectSuggester(RECOMMENDER_ID);
 		}
 
 	}
@@ -290,7 +321,7 @@ var <@popupId> = {
             contractMember.push(obj);
         });
 
-        $('#<@popupId>_overridingList tr').each(function() {
+/*         $('#<@popupId>_overridingList tr').each(function() {
 
             var $cells = $(this).find('td');
 
@@ -304,9 +335,21 @@ var <@popupId> = {
                 };
 
             contractMember.push(obj);
-        });
+        }); */
 
-        return contractMember;
+
+		var obj = {
+					'CONTRACT_ID'		:	CONTRACT_ID,
+		            'USER_ID'			: 	$('#<@popupId>_suggester tr #USER_ID').attr("value"),
+		            'RELATION_TYPE'		:	'SUGGESTER',
+		            'BUSINESS_HIERARCHY':	'',
+		            'USE_YN'			:	'Y',
+		            'DEL_YN'			:	'N',
+		};
+
+		contractMember.push(obj);
+        
+        return contractMember.filter( member => member.USER_ID );
     }
 	,deleteMemeberRow : ( obj ) => {
 		
@@ -347,7 +390,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 }
 </style>
 <div class="modal_wrap">
-	<div class="modal" style="width:640px;height:620px;">
+	<div class="modal" style="width:680px;height:720px;">
 		<div class="modal_header">
 			<strong class="tit">계약 등록</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
@@ -366,7 +409,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label>고객선택</label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%">
-											<input type="search" id="BUYER" placeholder="고객명(고객번호)"><a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('customer');" class="search_btn"><i class="icon_search"></i></a>
+											<input type="search" id="BUYER" placeholder="고객명(고객번호)"><a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('BUYER');" class="search_btn"><i class="icon_search"></i></a>
 										</div>
 									</div>
 								</li>
@@ -374,7 +417,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label>계약담당자</label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%">
-											<input type="search" id="USER" placeholder="사원이름(사원ID)"><a  href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('user');" class="search_btn"><i class="icon_search"></i></a>
+											<input type="search" id="USER" placeholder="사원이름(사원ID)"><a  href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
 										</div>
 									</div>
 								</li>
@@ -396,11 +439,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								</li>
 								
 								<li>
-									<label>자문료</label>
-									<div class="info"><input type="text" style="width:100%" disabled></div>
-								</li>
-																
-								<li>
 									<label>만료일</label>
 									<div class="info">
 										<div class="calendar_wrap">
@@ -408,6 +446,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 										</div>
 									</div>
 								</li>
+								
+								<li>
+									<label></label>
+									<div class="info"><input type="text" style="width:100%" disabled></div>
+								</li>
+																
 								<li class="w100">
 									<label>계약구분</label>
 									<div class="info">
@@ -547,11 +591,10 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 		</table>
 </div>
 
-							<!-- Overriding 관련 상급자   -->
+							<!-- Overriding 관련 상급자 
 							<div class="search_area mt25">
 								<span class="tit02">Overriding 관련 상급자 </span>
 							</div>
-							<!-- 테이블 -->
 							<div class="tbl01 col">
 								<table>
 									<caption>Overriding관련 상급자 리스트 </caption>
@@ -591,7 +634,41 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				</tr>
 </script>
 		</table>
+  -->		
+  
+							<div class="search_area mt25">
+								<span class="tit02">추천인</span>
 							</div>
+							<div class="tbl01 col">
+								<table>
+									<caption>추천인 리스트 </caption>
+									<colgroup>
+										<col style="width:25%;"/>
+										<col style="width:25%;"/>
+										<col style="width:25%;"/>
+										<col style="width:25%;"/>
+										<!-- <col style="width:21%;"/> -->
+									</colgroup>
+									<thead>
+										<tr>
+											<th scope="col">직책</th>
+											<th scope="col">사원ID</th>
+											<th scope="col">사원 이름</th>
+											<th scope="col">등급</th>
+											<!-- <th scope="col"><i class="icon_trash"></i></th> -->
+										</tr>
+									</thead>
+									<tbody  id="<@popupId>_suggester">
+										<tr>
+						 					<td id='POSITION'></td>
+						 					<td id='USER_ID' ></td>
+						 					<td id='USER_NM' ></td>
+						 					<td id='GRADE_NM'></td>
+						 					<!-- <td><button onClick="this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button></td> -->
+										</tr>
+									</tbody>
+								</table>
+  							</div>
 						</div>
 					</div>
 				</div>

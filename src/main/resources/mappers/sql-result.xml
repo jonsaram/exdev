@@ -104,17 +104,34 @@
 		AND C.DEL_YN 	= 'N'
 		AND C.USER_ID	= U.USER_ID
 		AND C.BUYER_ID	= B.BUYER_ID
+		 
+		<if test=" USER_ID != null and !USER_ID.equals('') and USER != null and !USER.equals('')">
+		AND (	C.USER_ID  LIKE '%' || #{USER_ID} || '%'
+		  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
+			OR  C.USER_ID  LIKE '%' || #{USER} || '%'
+		  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
+		  	)
+		</if>
 		<if test=" USER_ID != null and !USER_ID.equals('') ">
-		AND ( C.USER_ID  LIKE '%' || #{USER_ID} || '%'
-		  OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'   )
+		AND (  C.USER_ID  LIKE '%' || #{USER_ID} || '%'
+		  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
+		  	)
+		</if>
+		<if test=" USER != null and !USER.equals('') ">
+		AND (  C.USER_ID  LIKE '%' || #{USER} || '%'
+		  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
+		  	)
+		</if>
+		<if test=" BUYER_ID != null and !BUYER_ID.equals('') and BUYER != null and !BUYER.equals('') ">
+		AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
+		   OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     
+		   OR C.BUYER_ID LIKE '%' || #{BUYER} || '%'
+		   OR B.BUYER_NM LIKE '%' || #{BUYER} || '%'
+		   )
 		</if>
 		<if test=" BUYER_ID != null and !BUYER_ID.equals('') ">
 		AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
 		   OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     )
-		</if>
-		<if test=" USER != null and !USER.equals('') ">
-		AND ( C.USER_ID  LIKE '%' || #{USER} || '%'
-		  OR  U.USER_NM  LIKE '%' || #{USER} || '%'   )
 		</if>
 		<if test=" BUYER != null and !BUYER.equals('') ">
 		AND ( C.BUYER_ID LIKE '%' || #{BUYER} || '%'
@@ -240,21 +257,16 @@
                       WHEN GRADE = 'S_MASTER'	THEN 20
                       WHEN GRADE = 'MASTER'		THEN 21
                       WHEN GRADE = 'FA' 		THEN 22
-                      WHEN GRADE = 'RECOMMENDER' THEN 23
+                      WHEN GRADE = 'SUGGESTER' 	THEN 23
                   END
               WHEN RELATION_TYPE = 'SALES' 		THEN
                   CASE 
                       WHEN GRADE = 'S_MASTER' 	THEN 30
                       WHEN GRADE = 'MASTER' 	THEN 31
                       WHEN GRADE = 'FA' 		THEN 32
-                      WHEN GRADE = 'RECOMMENDER' THEN 33
+                      WHEN GRADE = 'SUGGESTER' 	THEN 33
                   END
-              WHEN RELATION_TYPE = 'OVERRIDING' THEN 
-                  CASE 
-                      WHEN BUSINESS_HIERARCHY = 'MAIN_HEADER'	THEN 41
-                      WHEN BUSINESS_HIERARCHY = 'LOCAL_HEADER' 	THEN 42
-                      WHEN BUSINESS_HIERARCHY = 'DEPT_HEADER' 	THEN 43
-                  END
+              WHEN RELATION_TYPE = 'OVERRIDING' THEN 41
           END
 	</sql>
 	
@@ -334,7 +346,7 @@
 		AND P.DEL_YN(+)		= 'N'
 		AND CM.USE_YN		= 'Y'
 		AND CM.DEL_YN		= 'N'
-			
+		ORDER BY A.PAYMENT_ID	
 	</select>	
 	
 	<select id="getPayId" resultType="java.util.HashMap" flushCache="true"  useCache="false">
