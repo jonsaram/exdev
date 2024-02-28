@@ -324,7 +324,7 @@
 		         #{CONSULTING_CLASS} 					AS CONSULTING_CLASS,
 		         #{USE_YN} 								AS USE_YN,
 		         #{DEL_YN} 								AS DEL_YN, 
-		         'trigger'								AS UPDATE_USER
+		         #{sessionVo.userId}					AS UPDATE_USER
 		  FROM dual
 		) S
 		ON (T.CONTRACT_ID	= S.CONTRACT_ID 
@@ -421,7 +421,7 @@
 		         #{BUSINESS_HIERARCHY} AS BUSINESS_HIERARCHY,
 		         #{USE_YN} 			AS USE_YN,
 		         #{DEL_YN} 			AS DEL_YN,
-		         'trigger'		AS UPDATE_USER
+		         #{sessionVo.userId}	AS UPDATE_USER
 		  FROM dual
 		) S
 		ON (T.CONTRACT_ID	= S.CONTRACT_ID 

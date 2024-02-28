@@ -30,11 +30,11 @@
 		*/
 		MERGE INTO TBL_EXP_SP_CSTM T
 		USING (
-		  SELECT #{SP_CSTM_NM} AS SP_CSTM_NM,
+		  SELECT #{sessionVo.spCstmId} AS SP_CSTM_NM,
 		         #{SP_CSTM_DESC} AS SP_CSTM_DESC,
 		         #{USE_YN} AS USE_YN,
 		         #{DEL_YN} AS DEL_YN,
-		         'system' AS UPDATE_USER,
+		         #{sessionVo.userId} AS UPDATE_USER,
 		         SYSDATE AS UPDATE_DATE
 		  FROM dual
 		) S
@@ -57,7 +57,7 @@
 			SP CUSTOMER 삭제
 		*/
 		DELETE FROM TBL_EXP_SP_CSTM 
-		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
 	</delete>
 	
 	<!--
@@ -132,7 +132,7 @@
 		*/
 		MERGE INTO TBL_EXP_MENU T
 		USING (
-		  SELECT #{SP_CSTM_ID} AS SP_CSTM_ID,
+		  SELECT #{sessionVo.spCstmId} AS SP_CSTM_ID,
 		         #{MENU_ID} AS MENU_ID,
 		         #{MENU_NM} AS MENU_NM,
 		         #{PARENT_MENU_ID} AS PARENT_MENU_ID,
@@ -143,7 +143,7 @@
 		         NVL(#{USE_YN},'Y') AS USE_YN,
 		         NVL(#{DEL_YN},'N') AS DEL_YN,
 		         NVL(TO_NUMBER(#{SORT_ORDER}), 100) AS SORT_ORDER,
-		         'system' AS UPDATE_USER,
+		         #{sessionVo.userId} AS UPDATE_USER,
 		         SYSDATE AS UPDATE_DATE
 		  FROM dual
 		) S
@@ -176,7 +176,7 @@
 		SET DEL_YN = 'Y',
 		UPDATE_USER = 'system',
 		UPDATE_DATE = SYSDATE 
-		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		WHERE SP_CSTM_ID = #{sessionVo.spCstmId} 
 		AND MENU_ID = #{MENU_ID} 
 	</delete>
 
@@ -295,13 +295,13 @@
 		*/
 		MERGE INTO TBL_EXP_GRPCODE T
 		USING (
-		  SELECT #{GRP_CODE_ID} AS GRP_CODE_ID,
+		  SELECT #{sessionVo.spCstmId} AS GRP_CODE_ID,
 				 #{GRP_CODE_NM} AS GRP_CODE_NM,
 				 #{CODE_DESC} 	AS CODE_DESC,
 				 #{USE_YN} 		AS USE_YN,
 				 #{DEL_YN} 		AS DEL_YN,
 				 #{SORT_ORDER} 	AS SORT_ORDER,
-				 'system'		AS UPDATE_USER,
+				 #{sessionVo.userId}	AS UPDATE_USER,
 				 SYSDATE 		AS UPDATE_DATE 
 		  FROM dual
 		) S
@@ -326,14 +326,14 @@
 		*/
 		MERGE INTO TBL_EXP_CODE T
 		USING (
-		  SELECT #{GRP_CODE_ID}	AS GRP_CODE_ID, 
+		  SELECT #{sessionVo.spCstmId}	AS GRP_CODE_ID, 
 				 #{CODE_ID} 	AS CODE_ID, 
 				 #{CODE_NM} 	AS CODE_NM, 
 				 #{CODE_DESC}	AS CODE_DESC,   
 				 #{USE_YN}		AS USE_YN,      
 				 #{DEL_YN}		AS DEL_YN,      
 				 #{SORT_ORDER} 	AS SORT_ORDER,  
-				 'system'		AS UPDATE_USER, 
+				 #{sessionVo.userId}		AS UPDATE_USER, 
 				 SYSDATE		AS UPDATE_DATE  
 		  FROM dual
 		) S
@@ -402,14 +402,14 @@
 		*/
 		MERGE INTO TBL_EXP_ROLE T
 		USING (
-		  SELECT #{SP_CSTM_ID} AS SP_CSTM_ID,
+		  SELECT #{sessionVo.spCstmId} AS SP_CSTM_ID,
 		         #{ROLE_ID} AS ROLE_ID,
 		         #{ROLE_NM} AS ROLE_NM,
 		         #{ROLE_DESC} AS ROLE_DESC,
 		         #{USE_YN} AS USE_YN,
 		         #{DEL_YN} AS DEL_YN,
 		         #{SORT_ORDER} AS SORT_ORDER,
-		         'system' AS UPDATE_USER,
+		         #{sessionVo.userId} AS UPDATE_USER,
 		         SYSDATE AS UPDATE_DATE
 		  FROM dual
 		) S
@@ -435,7 +435,7 @@
 			Role 삭제
 		*/
 		DELETE FROM TBL_EXP_ROLE 
-		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND	  ROLE_ID	 = #{ROLE_ID}
 	</delete>
 	
@@ -491,7 +491,7 @@
 		*/
 		MERGE INTO TBL_EXP_USER T
 		USING (
-		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID,
+		  SELECT #{sessionVo.spCstmId} 	AS SP_CSTM_ID,
 		         #{USER_ID} 	AS USER_ID,
 		         #{USER_NM} 	AS USER_NM,
 		         #{USER_DESC} 	AS USER_DESC,
@@ -500,7 +500,7 @@
 		         'INUSE' 		AS STATE,
 		         #{USE_YN}	 	AS USE_YN,
 		         #{DEL_YN} 		AS DEL_YN,
-		         'system' 		AS UPDATE_USER,
+		         #{sessionVo.userId}	AS UPDATE_USER,
 		         SYSDATE 		AS UPDATE_DATE
 		  FROM dual
 		) S
@@ -528,7 +528,7 @@
 		*/
 		UPDATE TBL_EXP_USER
 		SET STATE = 'DELETED'
-		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		WHERE SP_CSTM_ID = #{sessionVo.spCstmId} 
 		AND	  USER_ID	 = #{USER_ID}
 	</delete>
 	
@@ -553,7 +553,7 @@
 		*/
 		MERGE INTO TBL_EXP_AUTH T
 		USING (
-		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID
+		  SELECT #{sessionVo.spCstmId}	AS SP_CSTM_ID
 				,#{USER_ID} 	AS USER_ID
 				,#{ROLE_ID} 	AS ROLE_ID
 		  FROM dual
@@ -574,8 +574,8 @@
 			권한매핑 Auth 삭제
 		*/
 		DELETE FROM TBL_EXP_AUTH 
-		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
-		AND	  USER_ID	 = #{USER_ID}
+		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+		AND	  USER_ID	 = #{sessionVo.userId}
 	</delete>
 	
 	<!--
@@ -614,7 +614,7 @@
 		*/
 		MERGE INTO TBL_EXP_ROLEMENU T
 		USING (
-		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID
+		  SELECT #{sessionVo.spCstmId} 	AS SP_CSTM_ID
 				,#{ROLE_ID} 	AS ROLE_ID
 				,#{MENU_ID} 	AS MENU_ID
 				,#{AUTH_TYPE}	AS AUTH_TYPE
@@ -637,7 +637,7 @@
 			권한매핑 Auth 삭제
 		*/
 		DELETE FROM TBL_EXP_ROLEMENU 
-		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND	  ROLE_ID	 = #{ROLE_ID}
 		AND	  MENU_ID	 = #{MENU_ID}
 	</delete>

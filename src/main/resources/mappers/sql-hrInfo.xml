@@ -81,7 +81,7 @@
 		*/
 		MERGE INTO TBL_EXP_USER T
 		USING (
-		  SELECT #{SP_CSTM_ID} 	AS SP_CSTM_ID,
+		  SELECT #{sessionVo.spCstmId}	AS SP_CSTM_ID,
 		         #{USER_ID} 	AS USER_ID,
 		         #{USER_NM} 	AS USER_NM,
 		         #{USER_DESC} 	AS USER_DESC,
@@ -101,7 +101,7 @@
 		         'N' 			AS DEL_YN,
 		         '' 			AS SALES_TYPE,
 		         '' 			AS SURETY_INSURANCE,
-		         'system' 		AS UPDATE_USER,
+		        #{sessionVo.userId}	AS UPDATE_USER,
 		         SYSDATE 		AS UPDATE_DATE
 		  FROM dual
 		) S
@@ -145,7 +145,7 @@
 		*/
 		UPDATE TBL_EXP_USER
 		SET STATE = 'DELETED' 
-		WHERE SP_CSTM_ID = #{SP_CSTM_ID} 
+		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND	  USER_ID	 = #{USER_ID}
 	</delete>
 	
@@ -192,7 +192,7 @@
 		MERGE INTO TBL_EXP_SURETY_INSURANCE T
 		USING (
 		
-		  SELECT #{SP_CSTM_ID} 										AS SP_CSTM_ID,
+		  SELECT #{sessionVo.spCstmId}								AS SP_CSTM_ID,
 		         #{USER_ID} 										AS USER_ID,
 		         TO_NUMBER( REPLACE(#{AMOUNT},',','') ) 			AS AMOUNT,
 		         TO_DATE( #{INSURANCE_REG_DATE} , 'YYYY-MM-DD' )	AS REG_DATE,
@@ -229,7 +229,7 @@
 		,TO_CHAR(END_PERIOD_DATE, 'YYYY-MM-DD') AS END_PERIOD_DATE
 		FROM TBL_EXP_EDUCATION_HIST
 		WHERE 1=1
-		AND SP_CSTM_ID = #{SP_CSTM_ID}
+		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND USER_ID = #{USER_ID}
 	</select>
 	
@@ -249,7 +249,7 @@
 		,TO_CHAR(END_PERIOD_DATE, 'YYYY-MM-DD') AS END_PERIOD_DATE
 		FROM TBL_EXP_CAREER_HIST
 		WHERE 1=1
-		AND SP_CSTM_ID = #{SP_CSTM_ID}
+		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND USER_ID = #{USER_ID}
 	</select>
 	
@@ -265,7 +265,7 @@
 		,POSITION
 		FROM TBL_EXP_POSITION_HIST
 		WHERE 1=1
-		AND SP_CSTM_ID = #{SP_CSTM_ID}
+		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND USER_ID = #{USER_ID}
 	</select>
 	
@@ -281,7 +281,7 @@
 		,GET_CODE_NM('USER_GRADE', GRADE)		AS GRADE_NM
 		FROM TBL_EXP_GRADE_HIST
 		WHERE 1=1
-		AND SP_CSTM_ID = #{SP_CSTM_ID}
+		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND USER_ID = #{USER_ID}
 	</select>
 	
