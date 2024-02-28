@@ -29,8 +29,8 @@ public class ExdevSessionController {
 		String email	= (String)map.get("email"		);
 		
 		sessionVO.setSpCstmId	(spCstmId	);
-		sessionVO.setUserId		(userNm		);
-		sessionVO.setUserNm		(userId		);
+		sessionVO.setUserId		(userId		);
+		sessionVO.setUserNm		(userNm		);
 		sessionVO.setGrade		(grade		);
 		sessionVO.setEmail		(email		);
 		
