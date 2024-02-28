@@ -9,6 +9,13 @@ var <@pageId> = {
 		 ,pageInit : () =>{
 			 
 				<@pageId>.showChildInsertBtn(false);
+				
+				const singleDeletedYnList = { 
+
+		 				 data : C_COM.getCodeList("DELETED_YN")
+					 	,targetId : "<@pageId>_selectDelYn" 
+				}
+				C_UICOM.makeSelectBox(singleDeletedYnList, "single");		
 			 
 		 }
 		,searchList : (mode = 'ALL',obj) => {
@@ -20,6 +27,13 @@ var <@pageId> = {
 				if(obj.CODE_ID)
 					requestParm["CODE_ID"] 	= obj.CODE_ID;
 			}
+			
+			const selectDelYn 	= C_UICOM.getData("<@pageId>_selectDelYn");
+			const grpCode 		= $("#<@pageId>_prmGRP_CODE").val();
+			const code			= $("#<@pageId>_prmCODE").val();
+			requestParm["DEL_YN"] = selectDelYn;
+			requestParm["GRP_CODE"] = grpCode;
+			requestParm["CODE"] = code;
 			
 			const grpCodeQuery 	= {queryId 		: "system.getGrpCodeList"	,requestParm	: requestParm}
 			const codeQuery 	= {queryId 		: "system.getCodeList"		,requestParm	: requestParm}
@@ -138,7 +152,7 @@ var <@pageId> = {
 				
 			})
 
-			C_POP.open('popup_codeUpdatePopup'
+			C_POP.open('popup_system_codeUpdatePopup'
 					, {	  sectionId:sectionId.replace("<@pageId>_", "")
 						, selectedGrpCd: <@pageId>.selectedGrpCd
 						, param:param
@@ -284,6 +298,15 @@ var <@pageId> = {
 		        }
 		    })
 		    
+		    $("#<@pageId>_prmGRP_CODE , #<@pageId>_prmCODE").keypress(function(event) {
+		    
+		        if (event.which === 13) {
+		            var inputValue = $(this).val();
+		            <@pageId>.searchList();
+		            event.preventDefault();
+		        }
+		    });
+		    
 		    $("#<@pageId>_search").off().on("click", () =>{
 		    	<@pageId>.searchList();
 		    })
@@ -425,12 +448,20 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 		<!-- search area -->
 		<div class="search_area mt0">
 			<!-- 멀티 선택 -->
-			<div class="fl">
+			<div class="fl" style="width:900px;">
 				<button type="button" class="btn fl" name="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 				<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
-
-				<div class="search_inputWrap">
+				<div  class="select_box fl" id="<@pageId>_selectDelYn" style="width:140px;margin-left:10px;"></div>
+				
+				<div class="search_inputWrap" style='margin-left:10px;'>
+				
+				GRP_CODE : <input type="search" id="<@pageId>_prmGRP_CODE"  style='width:200px;'>
+				CODE	 : <input type="search" id="<@pageId>_prmCODE" 		style='width:200px;'>
+				
 				</div>
+
+				 <div  class="select_box fl" id="<@pageId>_selectMenuDept" style="width:130px;margin-left:10px;"></div>
+
 			</div>
 
 			<div class="search_right">

@@ -285,7 +285,8 @@ var <@popupId> = {
 		
 		$("#<@popupId>_addCost").on('click', () => {
 			
-			if( $("[name='<@popupId>_tr_-1']").length > 0)$("[name='<@popupId>_tr_-1']").remove();
+			const $tr = $("[name='<@popupId>_tr_-1']");
+			if( $tr.length > 0)$tr.remove();
 			
 			let cnt 		= $("#<@popupId>_costList tr").length;
 			if ( !cnt)cnt 	= 0;

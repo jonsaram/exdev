@@ -114,13 +114,13 @@ var <@pageId> = {
 				});		
 				
 		}
-		,modify : (parm) => {
-   			debugger;
-   			console.log($(`textarea[name="<@pageId>_${parm}_rReply"]`).val());
-   			return;
-   			//const loc =$(this).parents(".item-box").attr("id"); 
-   			//const queryId = loc.indexOf("grp") > -1 ? "system.updateGrpCode" :  "system.updateCode" ;
-   			//<@pageId>.updateCode(loc, queryId);
+		,modify : (board_add_id, board_id) => {
+			const rparm = {};
+			rparm['BOARD_ADD_ID'] = board_add_id;
+			rparm['BOARD_ID'] = board_id;
+			rparm['ADD_CONTENT'] = $(`textarea[name="<@pageId>_${board_add_id}_rReply"]`).val();
+ 			
+   			<@pageId>.updateCode(rparm, "board.updateBoardAdd");
 		}
 		,setHandler : (parm) => {
 			//chat room row click
@@ -333,8 +333,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 													<strong id="<@pageId>_UPDATE_USER">{{:UPDATE_USER}}</strong>
 													<span id="<@pageId>_UPDATE_DATE">{{:UPDATE_DATE}}</span>
 													<textarea rows="2" style="width:calc(100% - 260px)" name="<@pageId>_{{:BOARD_ADD_ID}}_rReply">{{:ADD_CONTENT}}</textarea>
-														<button class="btn ml5" onClick="<@pageId>.modify('{{:BOARD_ADD_ID}}');">수정</button>
-														<button class="btn ml5" onClick="<@pageId>.delete('{{:BOARD_ADD_ID}}');">삭제</button>
+														<button class="btn ml5" onClick="<@pageId>.modify('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}');">수정</button>
+														<button class="btn ml5" onClick="<@pageId>.delete('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}');">삭제</button>
 												</p></div>
 												{{/for}}
 											</script>

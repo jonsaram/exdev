@@ -136,9 +136,10 @@
 		*/
 		UPDATE TBL_EXP_BOARD_ADD
 		SET	ADD_CONTENT = #{ADD_CONTENT},
-			UPDATE_USER = #{USER_ID},
+			UPDATE_USER = #{sessionVo.userNm},
 			UPDATE_DATE = SYSDATE
 		WHERE BOARD_ADD_ID = #{BOARD_ADD_ID}
+		  AND BOARD_ID = #{BOARD_ID}
 	</update>
 	
 	<delete id="deleteBoardAdd" parameterType="java.util.HashMap"  flushCache="true" >

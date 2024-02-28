@@ -177,7 +177,7 @@ var <@popupId> = {
       	
 		let param = {};
 		let RECOMMENDER_ID = '';
-		C_POP.open('popup_memberSearchPopup', {param:param, gubun:gubun}, function(retData) {
+		C_POP.open('popup_system_memberSearchPopup', {param:param, gubun:gubun}, function(retData) {
               
 			Object.keys(retData).forEach( item =>{
 					
@@ -226,7 +226,7 @@ var <@popupId> = {
 			const contractMember= 	<@popupId>.getContractMember(CONTRACT_ID, USER_ID);
 
 			let param = {"ALL_MEMBERS": contractMember};
-			C_POP.open('popup_memberSearchPopup', {param:param, gubun:'COWORK'}, function(retData) {
+			C_POP.open('popup_system_memberSearchPopup', {param:param, gubun:'COWORK'}, function(retData) {
 
 				if( isEmpty(retData) == false ){
 					<@popupId>.addCoworkRtnData.push( retData );
@@ -248,7 +248,7 @@ var <@popupId> = {
 			const contractMember= 	<@popupId>.getContractMember(CONTRACT_ID, USER_ID);
 			
 			let param = {"ALL_MEMBERS": contractMember};
-			C_POP.open('popup_memberSearchPopup', {param:param, gubun:'SALES_MAN'}, function(retData) {
+			C_POP.open('popup_system_memberSearchPopup', {param:param, gubun:'SALES_MAN'}, function(retData) {
 				
 				if( isEmpty(retData) == false ){				
 					<@popupId>.addSalseManRtnData.push( retData );

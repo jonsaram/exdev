@@ -215,7 +215,14 @@
 		<if test=" S_DEL_YN != null and !S_DEL_YN.equals('') ">
 		AND T.DEL_YN = #{S_DEL_YN}
 		</if>
-		
+		<if test=" DEL_YN != null and !DEL_YN.equals('') and !DEL_YN.equals('ALL') ">
+		AND T.DEL_YN = #{DEL_YN}
+		</if>
+		<if test=" GRP_CODE != null and !GRP_CODE.equals('') ">
+		AND ( T.GRP_CODE_ID like '%' || #{GRP_CODE} || '%'
+		   OR T.GRP_CODE_NM like '%' || #{GRP_CODE} || '%'
+		)
+		</if>
 		
 		ORDER BY SORT_ORDER
 	</select>
@@ -224,6 +231,8 @@
 		/*	system.getCodeList
 			코드 리스트 조회 
 		*/
+		SELECT *
+		FROM (
 		SELECT 
 		T.GRP_CODE_ID
 		,( SELECT GRP_CODE_NM 
@@ -234,11 +243,11 @@
 		,T.CODE_DESC
 		,T.USE_YN
 		,T.DEL_YN
-		,T.SORT_ORDER
+		,T.SORT_ORDER T_SORT_ORDER
 		,T.UPDATE_USER
 		,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE
 		 ,(  MAX(T.SORT_ORDER) over( PARTITION BY NVL(T.GRP_CODE_ID, T.CODE_ID ) ) )+10 AS NEXT_SORT_ORDER
-		 ,P.SORT_ORDER
+		 ,P.SORT_ORDER P_SORT_ORDER
          ,T.ATTR1
          ,T.ATTR2
 		FROM TBL_EXP_CODE T,
@@ -262,7 +271,22 @@
 		<if test=" S_DEL_YN != null and !S_DEL_YN.equals('') ">
 		AND T.DEL_YN = #{S_DEL_YN}
 		</if>
-		ORDER BY P.SORT_ORDER , T.SORT_ORDER	
+		<if test=" DEL_YN != null and !DEL_YN.equals('')  and !DEL_YN.equals('ALL') ">
+		AND T.DEL_YN = #{DEL_YN}
+		</if>
+		) T
+		WHERE 1=1
+		<if test=" GRP_CODE != null and !GRP_CODE.equals('') ">
+		AND ( T.GRP_CODE_ID like '%' || #{GRP_CODE} || '%'
+		   OR T.GRP_CODE_NM like '%' || #{GRP_CODE} || '%'
+		)
+		</if>
+		<if test=" CODE != null and !CODE.equals('') ">
+		AND ( T.CODE_ID like '%' || #{CODE} || '%'
+		   OR T.CODE_NM like '%' || #{CODE} || '%'
+		) 
+		</if>
+		ORDER BY P_SORT_ORDER , T_SORT_ORDER	
 	</select>
 
 	<update id="updateGrpCode" parameterType="java.util.HashMap"  flushCache="true" >

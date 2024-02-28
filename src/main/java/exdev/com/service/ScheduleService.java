@@ -170,7 +170,7 @@ public class ScheduleService extends ExdevBaseService{
         
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
-        
+
         ArrayList<String> scheduleIdArry = new ArrayList<>();
         scheduleIdArry = (ArrayList<String>)map.get("scheduleIdArry");
         
@@ -279,8 +279,8 @@ public class ScheduleService extends ExdevBaseService{
             Map<String, String> saveMap = new HashMap<String, String>();
             
             saveMap.put("scheduleId", (String)map.get("scheduleId"));
-            saveMap.put("userId", (String)userMap.get("user_id"));
-            
+            saveMap.put("userId", (String)userMap.get("USER_ID"));
+            saveMap.put("spCstmId", (String)userMap.get("SP_CSTM_ID"));
             result += commonDao.insert("schedule.insertScheduleShare", saveMap);
             
         }
