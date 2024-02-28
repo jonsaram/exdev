@@ -3,6 +3,7 @@
     var <@popupId> = {
          userArr : []
         ,scheduleId : ''
+        ,appMember      : {}
         ,userIndex : 0
         ,mode : ''
         ,close : function() {
@@ -10,47 +11,53 @@
             var obj = new Object();
             C_POP.close(obj);
          }
-	    ,searchSchedule : function(scheduleId) {
-	    	console.log("== searchSchedule 2=>"+scheduleId);
-	    	
-	    	let requestParm = {};
+        ,getAppMemberToList : function() {
+            let resultList = []
+            $.each(<@popupId>.appMember, function(key, obj) {
+                resultList.push(obj);
+            });
+            return resultList;
+         }
+        ,loadAppMember : function() {
+            let mlst = <@popupId>.getAppMemberToList();
+            
+            // 참석자 표시
+            let rparm = {
+                 targetId : "scheduleMember"
+                ,list     : mlst
+            }
+            C_COM.renderHtml("<@popupId>", rparm);
+         }
+        ,searchSchedule : function(scheduleId) {
+            console.log("== searchSchedule 2=>"+scheduleId);
+            
+            let requestParm = {};
             requestParm["scheduleId"]  = scheduleId;
             let parm = {
                  queryId        : "schedule.getScheduleList"
                 ,requestParm    : requestParm
             }
             C_COM.requestQuery(parm, function(resultData) {
-            	
+                
                 <@popupId>.setSchedule(resultData.data[0]);
             });
             
-            /* 결재자 조회*/
-            /*
+            /* 참석자 조회*/
             let parmDtl = {
-                 queryId        : "approval.getApprovalUser"
+                 queryId        : "schedule.getScheduleShareList"
                 ,requestParm    : requestParm
             }
             C_COM.requestQuery(parmDtl, function(resultData) {
-
-                let rparmDtl = {
-                         targetId   : "tableId"
-                        ,list       : resultData.data
-                    }
-                C_COM.renderHtml("<@popupId>", rparmDtl);
-                
+            	for(var i =0; i <resultData.data.length; i++){
+            		<@popupId>.addMember(resultData.data[i]);
+            	}
             });
-            */
-	     }
-	    ,setSchedule : function( data ) {
-	    	console.log("== requestQuery SCHEDULE_ID=>"+data.SCHEDULE_ID);
-            console.log("== requestQuery TITLE=>"+data.TITLE);
-            console.log("== requestQuery WORK_TYPE=>"+data.WORK_TYPE);
+         }
+        ,setSchedule : function( data ) {
             
             $('#<@popupId>_title').val(data.TITLE);
             $('#<@popupId>_position').val(data.POSITION);
             $('#<@popupId>_description').val(data.DESCRIPTION);
-            
-            /////////////////////////////////////////////////////////////////////////////////////////////
             
             // 셀렉트 박스 세팅
             C_UICOM.setSingleBox("selectBoxWorkType", data.WORK_TYPE);
@@ -61,66 +68,41 @@
             C_UICOM.setSingleBox("selectBoxEndTime", data.END_TIME_HOUR);
             C_UICOM.setSingleBox("selectBoxEndMinute", data.END_TIME_MINUTE);
             
-            // 참석자
-            var peopleArr = new Array();
-            var obj = new Object();
-            
-            obj.index = "user_id";
-            obj.spCstmId = "spCstmId";
-            obj.user_id = "user_id";
-            obj.user_nm = "user_nm";
-            obj.user_desc = "user_desc";
-            obj.e_mail = "e_mail";
-            
-            console.log("obj.spCstmId =>"+obj.spCstmId);
-            console.log("obj.user_id =>"+obj.user_id);
-            console.log("obj.user_nm =>"+obj.user_nm);
-            console.log("obj.user_desc =>"+obj.user_desc);
-            console.log("obj.e_mail =>"+obj.e_mail);
-            
-            peopleArr.push(obj);
-            
-            console.log(peopleArr);
-            
-            //<@popupId>.addMember(retData);
-	    }
-	    
-	    ,memberSearchPopup : function() {
-	
-	        C_POP.open('popup_userSearchPopup', {}, function(retData) {
-	            <@popupId>.addMember(retData);
-	        });
-	     }
-        ,addMember : function(retData) {
-            
-            for (let obj of retData) {
-                
-                <@popupId>.userArr.push(obj.user_id);
-                
-                let user = obj.user_nm+"/"+obj.user_desc+"/"+obj.user_id+"/"+obj.e_mail;
-                
-                let htmlData = '';
-                htmlData += '<li id="approvalUser'+ <@popupId>.userIndex +'" >';
-                htmlData += '<input type="hidden" id="userId'+ <@popupId>.userIndex +'"   name="userId"   value="'+ obj.user_id +'">';
-                htmlData += '<input type="hidden" id="apprType'+ <@popupId>.userIndex +'" name="apprType" value="APPR">';
-                htmlData += '    <span class="txt">' + user + '</span>';
-                htmlData += '    <button class="pay_close" onclick="<@popupId>.deleteUser(' + <@popupId>.userIndex + ');">삭제</button>';
-                htmlData += '</li>';
-                
-                $('#<@popupId> .<@popupId>approver_list').append(htmlData);
-                <@popupId>.userIndex++;
-            }
+        }
+        
+        ,memberSearchPopup : function() {
+    
+            C_POP.open('popup_userSearchPopup', {}, function(retData) {
+            	console.log("memberSearchPopup =>"+retData);
+                <@popupId>.addMember(retData);
+            });
          }
+        ,addMember : function(retData) {
+        	console.log("addMember =>"+retData);
+
+            if(isValid(<@popupId>.appMember[retData.USER_ID])) {
+                alert('이미 등록되어 있는 사원입니다.');
+                return;
+            }
+            <@popupId>.appMember[retData.USER_ID] = retData;
+            
+            <@popupId>.loadAppMember();
+         }
+        ,delMember : function(userId) {/* 결재자 삭제 */
+            <@popupId>.appMember = removeMember(<@popupId>.appMember, userId);
+            <@popupId>.loadAppMember();
+         }
+        
         ,deleteUser : function(num) {/* 결재자 삭제 */
             $("#<@popupId> #approvalUser" + num).remove();
             <@popupId>.userArr[num].is_delete = true;
          }
         
         ,delete : function() {
-        	
-        	console.log("deleteSchedule");
-        	
-        	let requestParm = {};            
+            
+            console.log("deleteSchedule");
+            
+            let requestParm = {};            
             requestParm["scheduleId"]  = <@popupId>.scheduleId;
             
             // 데이타 삭제
@@ -132,7 +114,11 @@
                 
                 console.log("resultData.data.state =>"+resultData.data.state);
                 if("S" == resultData.data.state){
-                	dalert("일정이 삭제에 성공하였습니다.");
+                    dalert("일정이 삭제에 성공하였습니다.");
+                    var obj = new Object();
+                    obj.refresh = 'Y';
+                     
+                    C_POP.close(obj);
                 }else{
                     dalert("일정이 삭제에 실패하였습니다.");
                 }
@@ -173,19 +159,6 @@
             requestParm["endTimeM"]  = <@popupId>.endTimeM;
             requestParm["secretYn"]  = <@popupId>.secretYn;
             
-            console.log(" == scheduleId ==>"+requestParm["scheduleId"]);
-            console.log(" == title ==>"+requestParm["title"]);
-            console.log(" == date ==>"+requestParm["date"]);
-            console.log(" == position ==>"+requestParm["position"]);
-            console.log(" == description ==>"+requestParm["description"]);
-            console.log(" == loopType ==>"+requestParm["loopType"]);
-            console.log(" == workType ==>"+requestParm["workType"]);
-            console.log(" == startTimeH ==>"+requestParm["startTimeH"]);
-            console.log(" == startTimeM ==>"+requestParm["startTimeM"]);
-            console.log(" == endTimeH ==>"+requestParm["endTimeH"]);
-            console.log(" == endTimeM ==>"+requestParm["endTimeM"]);
-            console.log(" == secretYn ==>"+requestParm["secretYn"]);
-            
             /////////////////////////////////////////////////////////////////////
             var scheduleIdArry = new Array();
             
@@ -196,18 +169,10 @@
             requestParm["scheduleIdArry"]  = scheduleIdArry;
             /////////////////////////////////////////////////////////////////////
             
-            var userArry = new Array();
             
-            for(i=0; i< <@popupId>.userIndex; i++){
-                var userId = $('#userId'+i).val();
-
-                if(typeof userId != "undefined" && userId != null && userId != ""){
-                    var item = new Object();
-                    item.user_id  = userId;
-                    userArry.push(item);
-                }
-            }
-            requestParm["users"]  = JSON.stringify(userArry);
+            // 참석자 추가
+            let mlst = <@popupId>.getAppMemberToList();
+            requestParm["users"]  = JSON.stringify(mlst);
                     
             // 데이타 저장
             var parm = {
@@ -220,24 +185,8 @@
                 if("S" == resultData.data.state){
 
                     var obj = new Object();
-                    obj.title = title;
-                    obj.start = date+"T"+startTimeH+":"+startTimeM+":"+"00";
-                    obj.end   = date+"T"+endTimeH+":"+endTimeM+":"+"00";
-                    obj.textColor = "#fff";
-                    
-                    if( workType == 'SEMINAR'){//세미나
-                        obj.color = "#d770c0";  
-                    }else if( workType == 'SEND_EMAIL'){//이메일 전송
-                        obj.color = "#72bfd2"; 
-                    } else if( workType == 'OTHER_WORK'){//그 외 업무
-                        obj.color = "#8dcc76"; 
-                    } else if( workType == 'TEL_CONSUL'){//전화상담
-                        obj.color = "#e5b266"; 
-                    } else if( workType == 'MEETING'){//미팅
-                        obj.color = "#EE7C7C"; 
-                    } else if( workType == 'SCHEDULE'){//회사 내부 일정
-                        obj.color = "#7E7CEE"; 
-                    } else{} 
+                    obj.refresh = 'Y';
+                     
                     C_POP.close(obj);
                 }else{
                     dalert("일정이 추가에 실패하였습니다.");
@@ -247,10 +196,11 @@
             
         }
         ,save : function( ) {
-        	
-        	let title = $('#<@popupId>_title').val();
-        	let date  = $('#<@popupId>_date').val();
-        	
+
+        	console.log("== 1 ==>");
+            let title = $('#<@popupId>_title').val();
+            let date  = $('#<@popupId>_date').val();
+            
             if (title.length < 1) {
                 alert("제목을 입력해 주세요.");
                 $("#<@popupId>_title").focus();
@@ -262,6 +212,8 @@
                 $("#<@popupId>_date").focus();
                 return false;
             }
+
+            console.log("== 2 ==>");
             
             let requestParm = {};            
             requestParm["scheduleId"]  = <@popupId>.scheduleId;
@@ -276,60 +228,30 @@
             requestParm["endTimeH"]  = <@popupId>.endTimeH;
             requestParm["endTimeM"]  = <@popupId>.endTimeM;
             requestParm["secretYn"]  = <@popupId>.secretYn;
-            requestParm["userId"]  = "trigger11kr";
-            
-            /////////////////////////////////////////////////////////////////////
+
+            // 임의의 테이블 Key 생성
             var scheduleIdArry = new Array();
-            
             for(i=0; i< 30; i++){
-            	scheduleIdArry.push(C_COM.makeUniqueId());
+                scheduleIdArry.push(C_COM.makeUniqueId());
             }
-
             requestParm["scheduleIdArry"]  = scheduleIdArry;
-            /////////////////////////////////////////////////////////////////////
             
-            var userArry = new Array();
+            // 참석자 추가
+            let mlst = <@popupId>.getAppMemberToList();
+            requestParm["users"]  = JSON.stringify(mlst);  
             
-            for(i=0; i< <@popupId>.userIndex; i++){
-                var userId = $('#userId'+i).val();
-
-                if(typeof userId != "undefined" && userId != null && userId != ""){
-                    var item = new Object();
-                    item.user_id  = userId;
-                    userArry.push(item);
-                }
-            }
-            requestParm["users"]  = JSON.stringify(userArry);
-                    
             // 데이타 저장
+            var obj = new Object();
+            obj.refresh = 'Y';
+            
             var parm = {
                  serviceId              : "ScheduleService.saveSchedule"
                 ,requestParm            : requestParm
             }
             C_COM.requestService(parm, function(resultData) {
-            	
+                
                 console.log("resultData.data.state =>"+resultData.data.state);
-            	if("S" == resultData.data.state){
-
-            		var obj = new Object();
-                    obj.title = title;
-                    obj.start = date+"T"+startTimeH+":"+startTimeM+":"+"00";
-                    obj.end   = date+"T"+endTimeH+":"+endTimeM+":"+"00";
-                    obj.textColor = "#fff";
-                    
-                    if( workType == 'SEMINAR'){//세미나
-                        obj.color = "#d770c0";  
-                    }else if( workType == 'SEND_EMAIL'){//이메일 전송
-                        obj.color = "#72bfd2"; 
-                    } else if( workType == 'OTHER_WORK'){//그 외 업무
-                        obj.color = "#8dcc76"; 
-                    } else if( workType == 'TEL_CONSUL'){//전화상담
-                        obj.color = "#e5b266"; 
-                    } else if( workType == 'MEETING'){//미팅
-                        obj.color = "#EE7C7C"; 
-                    } else if( workType == 'SCHEDULE'){//회사 내부 일정
-                        obj.color = "#7E7CEE"; 
-                    } else{} 
+                if("S" == resultData.data.state){
                     C_POP.close(obj);
                 }else{
                     dalert("일정이 추가에 실패하였습니다.");
@@ -337,35 +259,26 @@
                 
             });
             
+            
          }
     }//var <@popupId>
     
     // Popup Load가 완료된후 실행 된다.
     C_POP.onLoadPopup("<@popupId>", function(data) {
 
-    	 
-    	
-    	var scheduleId = data["scheduleId"];
-    	
-    	console.log("=== scheduleId ===>"+scheduleId);
-    	
-    	if(typeof scheduleId != "undefined" && scheduleId != null && scheduleId != ""){
-    		
-    		console.log("=== 1111 ===>");
-    		<@popupId>.scheduleId = scheduleId;
+        var scheduleId = data["scheduleId"];
+        
+        if(typeof scheduleId != "undefined" && scheduleId != null && scheduleId != ""){
+            
+            <@popupId>.scheduleId = scheduleId;
             <@popupId>.searchSchedule(<@popupId>.scheduleId);
             <@popupId>.mode = 'UPDATE';
-    	}else{
+        }else{
 
-            console.log("=== 2221 ===>");
-    		<@popupId>.scheduleId = C_COM.makeUniqueId();// PK 생성
-    		console.log("=== 2222 ===>");
-    		<@popupId>.mode = 'INSERT';
-    		console.log("=== 2223 ===>");
-    		
-    	}
-    	console.log("=== 1 ===>");
-    	
+            <@popupId>.scheduleId = C_COM.makeUniqueId();// PK 생성
+            <@popupId>.mode = 'INSERT';
+        }
+        
         //************** 업무유형 **************
         var workTypeList = C_COM.getCodeList("SCHEDULE_WORK_TYPE");
         
@@ -380,7 +293,7 @@
         
         //초기값 세팅
         C_UICOM.setSingleBox("selectBoxWorkType", "OTHER_WORK");
-        
+        <@popupId>.workType = "OTHER_WORK";
         
         C_UICOM.addChangeListner("selectBoxWorkType", function(dataObj) {
             <@popupId>.workType = dataObj;
@@ -401,12 +314,13 @@
         
         //초기값 세팅
         C_UICOM.setSingleBox("selectBoxLoopType", "NOT_REPEAT");
+        <@popupId>.loopType = "NOT_REPEAT";
       
         C_UICOM.addChangeListner("selectBoxLoopType", function(dataObj) {
-        	<@popupId>.loopType = dataObj;
+            <@popupId>.loopType = dataObj;
         });
         //============== 반복유형 ==============
-        	
+            
         //************** 공개여부 **************
         var secretYnList = C_COM.getCodeList("SCHEDULE_SECRET_YN");
         
@@ -421,6 +335,7 @@
 
         //초기값 세팅
         C_UICOM.setSingleBox("scheduleSecretYn", "N");
+        <@popupId>.secretYn = "N";
         
         C_UICOM.addChangeListner("scheduleSecretYn", function(dataObj) {
             //dalert(dataObj);
@@ -428,7 +343,7 @@
             
         });
         //============== 공개여부 ==============
-        	
+            
         //************** 시작시간 **************
         var startTimeList = C_COM.getCodeList("TIME_HOUR_24");
         
@@ -444,9 +359,10 @@
 
         //초기값 세팅
         C_UICOM.setSingleBox("selectBoxStartTime", "00");
+        <@popupId>.startTimeH = "00";
         
         C_UICOM.addChangeListner("selectBoxStartTime", function(dataObj) {
-        	<@popupId>.startTimeH = dataObj;
+            <@popupId>.startTimeH = dataObj;
         });
 
         //============== 시작시간 ==============
@@ -463,16 +379,17 @@
         
         // 코드 Attr 읽어오기     
         var startMinutCodeAttrList = C_COM.getCodeAttr("TIME_MINUTE_30", "00");
+        <@popupId>.startTimeM = "00";
 
         //초기값 세팅
         C_UICOM.setSingleBox("selectBoxStartMinute", "00");
         
         C_UICOM.addChangeListner("selectBoxStartMinute", function(dataObj) {
-        	<@popupId>.startTimeM = dataObj;
+            <@popupId>.startTimeM = dataObj;
         });
 
         //============== 시작시간 ==============
-        	
+            
         //************** 종료시간 **************
         var endTimeList = C_COM.getCodeList("TIME_HOUR_24");
         
@@ -488,13 +405,14 @@
 
         //초기값 세팅
         C_UICOM.setSingleBox("selectBoxEndTime", "00");
+        <@popupId>.endTimeH = "00";
         
         C_UICOM.addChangeListner("selectBoxEndTime", function(dataObj) {
             <@popupId>.endTimeH = dataObj;
         });
 
         //============== 종료시간 ==============
-        	
+            
         //************** 종료분 **************
         var endMinuteList = C_COM.getCodeList("TIME_MINUTE_30");
         
@@ -510,15 +428,16 @@
 
         //초기값 세팅
         C_UICOM.setSingleBox("selectBoxEndMinute", "00");
+        <@popupId>.endTimeM = "00";
         
         C_UICOM.addChangeListner("selectBoxEndMinute", function(dataObj) {
             <@popupId>.endTimeM = dataObj;
         });
 
         //============== 종료분 ==============
-        	
+            
         console.log("=== 2 ===>");
-        	
+            
         // 오늘날짜 세팅
         let date = new Date();
         
@@ -536,7 +455,7 @@
             
             
         } else if ( <@popupId>.mode == 'INSERT') {
-        	$('#<@popupId>_btnDelete').hide();
+            $('#<@popupId>_btnDelete').hide();
             $('#<@popupId>_btnUpdate').hide();
             $('#<@popupId>_btnSave').show();
             
@@ -603,11 +522,15 @@
                     <dt>참석자<br>리스트</dt>
                     <dd class="mb0" style="height:120px;overflow-y:auto;">
                         <div class="approver_list_wrap">
-                            <ul class="<@popupId>approver_list">
-	                            <li>
-	                                <span class="txt">이응규 / 경영 지원 그룹 / 대리 / kbntt73@gmail.com</span>
-	                            </li>
+                            <ul class="approver_list" id="scheduleMember">
                             </ul>
+                            <script type="text/x-jsrender" id="scheduleMember_template">
+                                {{for list}}    
+                                <li>
+                                    <span class="txt">{{:USER_NM}} / {{:GRADE}} / {{:E_MAIL}}</span>
+                                </li>
+                                {{/for}}
+                            </script>
                         </div>
                     </dd>
                     
