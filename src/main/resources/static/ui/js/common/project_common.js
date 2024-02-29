@@ -489,7 +489,7 @@ var C_COM = {
         $(templateWebId + ' .tab_wrap li').click(function() {
             if (!$(this).hasClass('active')) {
                 $(this).addClass('active').siblings('li').removeClass('active');
-                $($(this).children().attr('href')).show("100").siblings('div.display').hide("100");
+                $($(this).children().attr('id')).show("100").siblings('div.display').hide("100");
             }
         });
 	
@@ -604,6 +604,11 @@ var C_PM = {
 			if(isValid(token[2])) {
 				eval("parm = $.extend(parm, " + token[2] + ");");
 			}
+		}
+		
+		if(isEmpty(html)) {
+			C_POP.alert('Import 하려는 Page ID가 존재 하지 않습니다.\n\nPage ID를 확인하시기 바랍니다.');
+			return;
 		}
 
 		C_PM.pageParmInfo[pageId] = parm;
@@ -787,6 +792,11 @@ var C_POP = {
 		var urlBody	= popupId.replaceAll("_", "/");
 		var url 	= "ui/" + urlBody + ".html";
 		var html 	= C_COM.getHtmlFile(url);
+		
+		if(isEmpty(html)) {
+			C_POP.alert('Popup ID가 존재 하지 않습니다.\n\nPopup ID를 확인하시기 바랍니다.');
+			return;
+		}
 		
 		// 가상의 Document에 가져온 html 을 Setting한다.
 		var docDiv = $("<div></div>");
@@ -1581,6 +1591,11 @@ var C_COMP = {
 		var urlBody	= compId.replaceAll("_", "/");
 		var url 	= "ui/" + urlBody + ".html";
 		var html 	= C_COM.getHtmlFile(url);
+		
+		if(isEmpty(html)) {
+			C_POP.alert('Component ID가 존재 하지 않습니다.\n\nComponent ID를 확인하시기 바랍니다.');
+			return;
+		}
 
 		compId = templateId + compId;
 
