@@ -166,7 +166,10 @@ public class ScheduleService extends ExdevBaseService{
         
         String date = (String)map.get("date");
         String loopType = (String)map.get("loopType");
+        String limitDate = (String)map.get("limitDate");
+        System.out.println("=== limitDate ===>"+limitDate);
         String json = (String)map.get("users");
+        
         
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
@@ -195,12 +198,14 @@ public class ScheduleService extends ExdevBaseService{
         
         System.out.println("addCnt["+addCnt+"]  NOT_REPEAT["+NOT_REPEAT+"] DAY["+DAY+"] WEEK["+WEEK+"] =");
         
+        result += commonDao.insert("schedule.insertScheduleMsater", map);
         
         if( ExdevBaseService.SCHEDULE_LOOP_TYPE.NOT_REPEAT.name().equals(loopType) ) {
             // 당일 입력
             
             map.put("scheduleId", scheduleIds[0]);
             map.put("date", date);
+            
             result += commonDao.insert("schedule.insertSchedule", map);
             result += saveScheduleShare(map, apprUserList );
         }else if( ExdevBaseService.SCHEDULE_LOOP_TYPE.DAY.name().equals(loopType) ){

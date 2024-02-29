@@ -6,6 +6,53 @@
 
 	<cache />
 	
+	<!-- 일정공유 마스터 입력  이응규 -->
+    <insert id="insertScheduleMsater" parameterType="map" >
+        /* schedule.insertScheduleMsater */
+        INSERT INTO TBL_EXP_SCHEDULE_MASTER (
+              SCHEDULE_GRP_ID     
+             ,LOOP_TYPE           
+             ,SCHEDULE_START_DATE 
+             ,SCHEDULE_END_DATE
+        )
+        VALUES(
+              #{scheduleGrpId}
+             ,#{loopType}
+             ,#{scheduleStartDate}
+             ,#{scheduleEndDate}
+        ) 
+    </insert>
+    
+    <update id="updateScheduleMsater" parameterType="java.util.HashMap"  flushCache="true" >
+        /*  schedule.updateScheduleMsater */
+        UPDATE TBL_EXP_SCHEDULE_MASTER
+        SET    LOOP_TYPE           = #{loopType}
+              ,SCHEDULE_START_DATE = #{scheduleStartDate} 
+              ,SCHEDULE_END_DATE   = #{scheduleEndDate}
+        WHERE 1 = 1
+        AND    SCHEDULE_GRP_ID = #{scheduleGrpId}
+    </update>
+    
+    <delete id="deleteScheduleMsater" parameterType="java.util.HashMap"  flushCache="true" >
+        /*  schedule.deleteScheduleMsater */
+        DELETE FROM TBL_EXP_SCHEDULE_MASTER 
+        WHERE SCHEDULE_GRP_ID = #{scheduleGrpId} 
+    </delete>
+    
+    <select id="getScheduleMasterList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getScheduleMasterList */
+        SELECT SCHEDULE_GRP_ID     
+              ,LOOP_TYPE           
+              ,SCHEDULE_START_DATE 
+              ,SCHEDULE_END_DATE
+        FROM   TBL_EXP_SCHEDULE_MASTER A
+        WHERE   1 = 1
+        <if test=" scheduleGrpId != null and scheduleGrpId != '' " >
+            AND    SCHEDULE_GRP_ID =  #{scheduleGrpId}
+        </if>
+    </select>
+    
+    
     <update id="updateSchedule" parameterType="java.util.HashMap"  flushCache="true" >
         /*  schedule.updateSchedule */
         UPDATE TBL_EXP_SCHEDULE
@@ -44,11 +91,11 @@
     <insert id="insertSchedule" parameterType="map" >
         /* schedule.insertSchedule */
         INSERT INTO TBL_EXP_SCHEDULE (
-              SCHEDULE_ID       
+              SCHEDULE_ID 
+             ,SCHEDULE_GRP_ID     
              ,TITLE             
              ,WORK_TYPE         
              ,SCHEDULE_DATE     
-             ,LOOP_TYPE         
              ,TIME_TYPE         
              ,START_TIME_HOUR   
              ,START_TIME_MINUTE 
@@ -62,10 +109,10 @@
         )
         VALUES(
               #{scheduleId}
+             ,#{scheduleGrpId}
              ,#{title}
              ,#{workType}         
              ,(TO_DATE(#{date}, 'yyyy-mm-dd') )
-             ,#{loopType}
              ,'TIME_TYPE'
              ,#{startTimeH}
              ,#{startTimeM}
@@ -103,8 +150,7 @@
               ,B.ATTR1  AS WORK_COLOR     
               ,B.ATTR2  AS TEXT_COLOR      
               ,A.SCHEDULE_DATE   
-              ,TO_CHAR(A.SCHEDULE_DATE,'YYYY-MM-DD') AS SCHEDULE_DATE1     
-              ,A.LOOP_TYPE         
+              ,TO_CHAR(A.SCHEDULE_DATE,'YYYY-MM-DD') AS SCHEDULE_DATE1 
               ,A.TIME_TYPE         
               ,A.START_TIME_HOUR   
               ,A.START_TIME_MINUTE 
@@ -114,6 +160,9 @@
               ,A.SECRET_YN         
               ,A.DESCRIPTION       
               ,A.USER_ID 
+              ,C.LOOP_TYPE
+              ,TO_CHAR(C.SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
+              ,TO_CHAR(C.SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE
         FROM   TBL_EXP_SCHEDULE A
                JOIN (
                     SELECT A.GRP_CODE_ID
@@ -131,6 +180,9 @@
                ) B
                    ON  1 = 1
                    AND A.WORK_TYPE = B.CODE_ID
+               JOIN TBL_EXP_SCHEDULE_MASTER C
+                   ON  1 = 1
+                   AND A.SCHEDULE_GRP_ID = C.SCHEDULE_GRP_ID
         WHERE 1 = 1
         AND   A.USER_ID = #{sessionVo.userId}
         AND   A.SP_CSTM_ID = #{sessionVo.spCstmId}
