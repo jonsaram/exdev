@@ -136,90 +136,70 @@
         <!--  결재자 조회 이응규 -->
     <select id="getApprovalUser" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* approval.getApprovalUser */
-        SELECT B.APPROVAL_ID
-              ,B.SP_CSTM_ID
-              ,B.USER_ID
-              ,(SELECT USER_NM FROM   TBL_EXP_USER WHERE  USER_ID = B.USER_ID AND SP_CSTM_ID = B.SP_CSTM_ID) AS APPROVAL_USER_NM
-              ,B.STATE
-              ,B.APPROVAL_COMMENT
-              ,B.UPDATE_USER
-              ,B.UPDATE_DATE
-              ,B.CREATE_USER
-              ,B.CREATE_DATE
-              ,TO_CHAR( B.CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE1 
-        FROM   TBL_EXP_APPROVAL A
-               JOIN TBL_EXP_APPROVAL_USER B
-                 ON  1 = 1
-                 AND A.APPROVAL_ID= B.APPROVAL_ID
-        WHERE  1 = 1
-        <if test=" sessionVo != null and !sessionVo.equals('') ">
-            AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
-        </if>   
-        <if test=" requestUser != null and requestUser != '' " >
-          AND    A.USER_ID = #{requestUser}
-        </if><if test=" approvalId != null and approvalId != '' " >
-          AND    A.APPROVAL_ID = #{approvalId}
-        </if>
-        
-        ORDER BY B.CREATE_DATE DESC
+		SELECT 
+			 B.APPROVAL_ID
+			,B.SP_CSTM_ID
+			,B.USER_ID
+			,(SELECT USER_NM 						FROM TBL_EXP_USER WHERE  USER_ID = B.USER_ID AND SP_CSTM_ID = B.SP_CSTM_ID) AS APPROVAL_USER_NM
+            ,(SELECT GET_CODE_NM('GRADE', GRADE)    FROM TBL_EXP_USER WHERE  USER_ID = B.USER_ID AND SP_CSTM_ID = B.SP_CSTM_ID) AS GRADE
+			,B.STATE
+			,GET_CODE_NM('APPROVAL_USER_PROC', B.STATE) AS STATE_STR
+	        ,B.APPROVAL_TYPE
+	        ,GET_CODE_NM('APPROVAL_TYPE',B.APPROVAL_TYPE) 		 					AS APPROVAL_TYPE_NM
+			,B.APPROVAL_COMMENT
+			,CASE 
+                WHEN B.APPROVAL_TYPE = 'RQST' THEN 	TO_CHAR( B.CREATE_DATE 		, 'YYYY-MM-DD HH24:MI:SS')
+                ELSE 								TO_CHAR( B.COMPLETE_DATE 	, 'YYYY-MM-DD HH24:MI:SS')
+             END COMPLETE_DATE
+			,TO_CHAR( B.CREATE_DATE		, 'YYYY-MM-DD HH24:MI:SS')					AS CREATE_DATE 
+            ,B.APPROVAL_COMMENT
+		FROM
+			 TBL_EXP_APPROVAL 		A 
+			,TBL_EXP_APPROVAL_USER 	B
+		WHERE 1=1
+			AND A.APPROVAL_ID	= B.APPROVAL_ID 
+		<if test=" requestUser != null and requestUser != '' " >
+			AND A.USER_ID 		= #{requestUser}
+		</if><if test=" APPROVAL_ID != null and APPROVAL_ID != '' " >
+			AND A.APPROVAL_ID 	= #{APPROVAL_ID}
+		</if>
+			AND A.SP_CSTM_ID 	= #{sessionVo.spCstmId}
+		ORDER BY B.CREATE_DATE DESC
     </select>
     
     <!--  결재 조회 이응규 -->
     <select id="getApproval" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* approval.getApproval */
-		 SELECT ROWNUM
-		       ,A.APPROVAL_ID   
-		       ,A.SP_CSTM_ID    
-		       ,A.USER_ID   
-		       ,A.USER_NM
-		       ,A.TITLE         
-		       ,A.CONTENTS      
-		       ,A.STATE       
-		       ,A.STATE_NM  
-		       ,A.APPROVAL_DATE 
-		       ,A.APPROVAL_DATE1
-		       ,A.COMPLETE_DATE 
-		       ,A.COMPLETE_DATE1
-		       ,A.UPDATE_USER   
-		       ,A.UPDATE_DATE  
-		       ,A.UPDATE_DATE1 
-		       ,A.CREATE_USER   
-		       ,A.CREATE_DATE1 
-		 FROM   (
-		        SELECT  A.APPROVAL_ID   
-		               ,A.SP_CSTM_ID    
-		               ,A.USER_ID   
-		               ,(SELECT USER_NM FROM   TBL_EXP_USER WHERE  USER_ID = A.USER_ID AND SP_CSTM_ID = A.SP_CSTM_ID) AS USER_NM
-		               ,A.TITLE         
-		               ,A.CONTENTS      
-		               ,A.STATE  
-		               ,GET_CODE_NM('APPR_PROC_STATE',A.STATE) AS STATE_NM       
-		               ,A.APPROVAL_DATE 
-		               ,TO_CHAR( A.APPROVAL_DATE , 'YYYY-MM-DD HH24:MI:SS' ) APPROVAL_DATE1
-		               ,A.COMPLETE_DATE 
-		               ,TO_CHAR( A.COMPLETE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) COMPLETE_DATE1
-		               ,A.UPDATE_USER   
-		               ,A.UPDATE_DATE  
-		               ,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE1 
-		               ,A.CREATE_USER   
-		               ,TO_CHAR( A.CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) CREATE_DATE1 
-		        FROM  TBL_EXP_APPROVAL A
-		        WHERE 1 = 1
-		        <if test=" searchUserId != null and searchUserId != '' " >
-		            AND   A.USER_ID    = #{searchUserId}
-		        </if>
-		        <if test=" approvalId != null and approvalId != '' " >
-		            AND   A.APPROVAL_ID = #{approvalId}
-		        </if>
-		        <if test=" state != null and state != '' " >
-		            AND   A.STATE = #{state}
-		        </if>
-                <if test=" startDate != null and startDate != '' and endDate != null and endDate != '' " >
-                    AND   A.APPROVAL_DATE BETWEEN TO_DATE(#{startDate}, 'YYYY-MM-DD') AND TO_DATE(#{endDate}, 'YYYY-MM-DD')   
-                </if>
-		            AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
-		        ORDER BY APPROVAL_DATE DESC
-		        ) A    
+	    SELECT  
+	    	 A.APPROVAL_ID											AS APPROVAL_ID   
+			,A.USER_ID   											AS USER_ID
+			,(
+				SELECT USER_NM FROM TBL_EXP_USER 
+				WHERE   USER_ID = A.USER_ID 
+					AND SP_CSTM_ID = A.SP_CSTM_ID 
+			 ) 														AS USER_NM
+			,A.TITLE												AS TITLE	         
+			,A.CONTENTS                                             AS CONTENTS
+			,A.STATE                                                AS STATE   
+			,GET_CODE_NM('APPROVAL_USER_PROC',A.STATE) 				AS STATE_NM       
+			,TO_CHAR( A.APPROVAL_DATE , 'YYYY-MM-DD HH24:MI:SS' ) 	AS APPROVAL_DATE
+			,TO_CHAR( A.COMPLETE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) 	AS COMPLETE_DATE
+		FROM  TBL_EXP_APPROVAL A
+		WHERE 1 = 1
+		<if test=" searchUserId != null and searchUserId != '' " >
+		    AND   A.USER_ID    = #{searchUserId}
+		</if>
+		<if test=" approvalId != null and approvalId != '' " >
+		    AND   A.APPROVAL_ID = #{approvalId}
+		</if>
+		<if test=" state != null and state != '' " >
+		    AND   A.STATE = #{state}
+		</if>
+		<if test=" startDate != null and startDate != '' and endDate != null and endDate != '' " >
+		    AND   A.APPROVAL_DATE BETWEEN TO_DATE(#{startDate}, 'YYYY-MM-DD') AND TO_DATE(#{endDate}, 'YYYY-MM-DD')   
+		</if>
+		    AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
+		ORDER BY APPROVAL_DATE DESC
     </select>
 
     <!-- 결재 입력  이응규 -->
@@ -304,36 +284,5 @@
            )    
     </insert>
  -->    
-    
-    
-    
-    
-    
-    <!-- 결재자 입력  이응규 -->
-    <insert id="insertApprovalUser_BAK" parameterType="map" >
-        /* approval.insertApprovalUser */
-        INSERT INTO TBL_EXP_APPROVAL_USER (
-             UUID
-            ,APPROVAL_UUID
-            ,APPROVAL_USER_ID
-            ,APPROVAL_TYPE
-            ,STATE
-            
-            ,APPROVAL_COMMENT
-            ,CREATE_USER
-            ,CREATE_DATE
-           )
-        VALUES(
-            
-             #{uuid}
-            ,#{approvalUuid}
-            ,#{approvalUserId}
-            ,#{apprType}
-            ,#{state}
-            
-            ,#{approvalComment}
-           ,#{createUser}
-           ,(TO_DATE(#{createDate} , 'yyyy/mm/dd hh24:mi:ss') )
-           )    
-    </insert>
+
 </mapper>

@@ -176,7 +176,11 @@
 		
 		<@compId>.init();
 		
-		if(parm.title == "NA") $("#<@compId> #title").hide();
+		if(parm.title == "NA") {
+			$("#<@compId> #title").hide();
+		} else if(isValid(parm.title)){
+			$("#<@compId> #title").html(parm.title);
+		}
 	});
 </script>
 <div>

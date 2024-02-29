@@ -1,256 +1,178 @@
 <meta charset="utf-8">
 <script type="text/javascript">
-    var <@popupId> = {
+	var <@popupId> = {
          requestParm : {}
-        ,searchApprovalDtl : function(requestParm){
-            
-            let parm = {
-                 queryId        : "approval.getApproval"
-                ,requestParm    : requestParm
-            }
-            C_COM.requestQuery(parm, function(resultData) {
+	    ,searchApprovalDtl : function(requestParm){
+	        
+	        let parm = {
+	             queryId        : "approval.getApproval"
+	            ,requestParm    : requestParm
+	        }
+	        C_COM.requestQuery(parm, function(resultData) {
+				
+	            $('#<@popupId> #USER_NM'		).html(resultData.data[0].USER_NM);
+	            $('#<@popupId> #APPROVAL_DATE'	).html(resultData.data[0].APPROVAL_DATE);
+	            $('#<@popupId> #APPROVAL_TITLE'	).html(resultData.data[0].TITLE);
+	            $('#<@popupId> #CONTENTS'		).html(resultData.data[0].CONTENTS + "<br/>");
+	            
+	        });
 
-                $('#USER_NM').text(resultData.data[0].USER_NM);
-                $('#APPROVAL_DATE').text(resultData.data[0].APPROVAL_DATE1);
-                $('#APPROVAL_TITLE').text(resultData.data[0].TITLE);
-                $('#CONTENTS').text(resultData.data[0].CONTENTS);
-                <@popupId>.callCompFn(resultData.data[0].CONTENTS);
-                
-            });
-            
-            /* 결재자 조회*/
-            let parmDtl = {
-                 queryId        : "approval.getApprovalUser"
-                ,requestParm    : requestParm
-            }
-            C_COM.requestQuery(parmDtl, function(resultData) {
-
-                let rparmDtl = {
-                         targetId   : "tableId"
-                        ,list       : resultData.data
-                    }
-                C_COM.renderHtml("<@popupId>", rparmDtl);
-                
-            });
-            
-         }
-        ,searchFile : function(requestParm){
-            
-            let searchParm = {};
-            searchParm["grpUuid"] = requestParm["uuid"];
-            
-            let parm = {
-                 queryId        : "Sample.getFile"
-                ,requestParm    : searchParm
-            }
-            C_COM.requestQuery(parm, function(resultData) {
-            	
-                <@popupId>.fileList = resultData.data;
-                let rparm = {
-                         targetId   : "fileTableId"
-                        ,list       : resultData.data
-                    }
-                C_COM.renderHtml("<@popupId>", rparm);
-                
-            });
-            
-         }
-        ,fileDownload : function( uuid, orgFileName ){
-            
-            let requestParm = {}
-
-            requestParm["uuid"] = uuid;
-            requestParm["orgFileName"] = orgFileName;
-            
-
-            var xhr = new XMLHttpRequest();
-            var urlParams = new URLSearchParams( requestParm ).toString();
-            xhr.open('GET', '/fileDownload.do?'+urlParams, true);
-            xhr.responseType = 'blob';
-
-            xhr.onload = function() {
-                
-                if (xhr.status === 200) {
-
-                    var blob = new Blob([xhr.response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                    var url = window.URL.createObjectURL(blob);
-                    
-                    var a = document.createElement('a');
-                    a.href = url;
-                    a.download = orgFileName;
-                    
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    
-                } else {
-                    
-                    console.error('Failed to download excel file');
-                    
+	        /* 결재자 조회*/
+	        let parmDtl = {
+	             queryId        : "approval.getApprovalUser"
+	            ,requestParm    : requestParm
+	        }
+	        
+	        dalert(parmDtl);
+	        
+	        C_COM.requestQuery(parmDtl, function(resultData) {
+	        	
+	        	
+	        	let statefstNullCheck = "N";
+	        	$.each(resultData.data, function(idx) {
+	        		if(this.APPROVAL_TYPE == "RQST") {
+	        			resultData.data[idx].apprTypeStr = `<span class="stateBtn drafter wauto">${this.APPROVAL_TYPE_NM}</span>`;
+	        			
+	        		} else {
+	        			resultData.data[idx].apprTypeStr = `<span class="stateBtn toggle active">${this.APPROVAL_TYPE_NM}</span>`;
+	        		}
+	        		
+	        		if(this.APPROVAL_TYPE == "RQST") {
+	        			resultData.data[idx].stateStr = `<span class="state pay_complete">상신</span>`;
+	        		} else if(isEmpty(this.STATE) && statefstNullCheck == "N" && this.APPROVAL_TYPE != "NOTICE") {
+	        			resultData.data[idx].stateStr = `<span class="state paying">진행중</span>`;
+	        			statefstNullCheck = "Y";
+	        		} else if(isValid(this.STATE)) {
+	        			resultData.data[idx].stateStr = `<span class="state pay_complete">${this.STATE_STR}</span>`;
+	        		}
+	        	});
+	        	
+	            let rparmDtl = {
+                     targetId   : "tableId"
+                    ,list       : resultData.data
                 }
-            };
-            
-            xhr.send();
-        }
-        ,selectUser : function() {
-            
-         }
-        ,callCompFn : function(data) {/* CKEditor 함수호출*/
-        	<@popupId>.textEditorComp.setContent(data);
-         }
-        ,close : function() {
-            console.log("======= 자식창 C_POP.close =======");
-            C_POP.close();
-         }
-    }//var <@popupId>
-    
-    // Popup Load가 완료된후 실행 된다.
-    C_POP.onLoadPopup("<@popupId>", function(data) {
-    	
-        C_COMP.import("textEditorComp", "component_compTextEditor", {mode:"R"}, function(data) {
-            
-            <@popupId>.editorData = data.editorData;
-            
-        });
-        
+	            C_COM.renderHtml("<@popupId>", rparmDtl);
+	        });
+	     }
+		,close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
         <@popupId>.searchApprovalDtl(data);
-        <@popupId>.searchFile(data);
+		var parm = {
+			 GRP_FILE_ID 	: data.APPROVAL_ID
+			,OWNER_CD 		: "APPR"
+			,mode			: "R"
+			,title			: "NA"
+		}
+		C_COMP.import("importMultiFilemng", "component_compMultiFilemng", parm , function() {
+		});
         
-        //삭제 버튼 클릭      
-        $('#<@popupId>_selectUser').on('click', function (e) {
-            <@popupId>.selectUser1();
-        })
         
-    });
-    
-    
+	});
 </script>
+<!-- 결재 상세 팝업 -->
+<div class="modal_wrap" id="modal-ex03">
+	<div class="modal" style="width:900px;height:750px;">
+		<div class="modal_header">
+			<strong class="tit">결재 상세</strong>
+			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<h3>결재 상신 내용</h3>
+			<div class="tbl01 row">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:100px;" />
+						<col />
+						<col style="width:100px;" />
+						<col />
+					</colgroup>
+					<tbody>
+                        <tr>
+                            <th scope="row">상신자</th>
+                            <td id="USER_NM"></td>
+                            <th scope="row">상신일</th>
+                            <td id="APPROVAL_DATE"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">제목</th>
+                            <td id="APPROVAL_TITLE" colspan="3"></td>
+                        </tr>
+						<tr>
+							<th scope="row">상신내용</th>
+							<td colspan="3" >
+								<div style="max-height:80px;overflow:auto;" id="CONTENTS">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">첨부파일</th>
+							<td colspan="3" id="importMultiFilemng">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<h3 class="mt25">결재 진행 내용</h3>
+			<div class="tbl01 col">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:60px;" />
+						<col style="width:80px;" span="2"/>
+						<col style="width:120px;" span="2" />
+						<col style="width:80px" />
+						<col style="width:*" />
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">순번</th>
+							<th scope="col">구분</th>
+							<th scope="col">이름</th>
+							<th scope="col">등록/처리일시</th>
+							<th scope="col">등급</th>
+							<th scope="col">상태</th>
+							<th scope="col">담당자 의견</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div class="tbl01 col" style="max-height:169px;overflow-y:auto;">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:60px;" />
+						<col style="width:80px;" span="2"/>
+						<col style="width:120px;" span="2" />
+						<col style="width:80px" />
+						<col style="width:*" />
+					</colgroup>
+					<tbody id="tableId">
+					</tbody>
+                    <script type="text/x-jsrender" id="tableId_template">    
+                    {{for list}}
+						<tr>
+							<td>{{:#index}}</td>
+							<td>{{:apprTypeStr}}</td>
+							<td>{{:APPROVAL_USER_NM}}</td>
+							<td>{{:COMPLETE_DATE}}</td>
+							<td>{{:GRADE}}</td>
+							<td>{{:stateStr}}</td>
+							<td class="tl">{{:APPROVAL_COMMENT}}</td>
+						</tr>
+                    {{/for}}
+                    </script>
 
-    <!-- 결재 상세 팝업 -->
-    <div class="modal_wrap" id="modal-ex03">
-        <div class="modal" style="width:900px;height:1000px;">
-            <div class="modal_header">
-                <strong class="tit">결재 상세</strong>
-                <button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
-            </div>
-            <div class="modal_body">
-                <h3>결재 상신 내용</h3>
-                <div class="tbl01 row">
-                    <table>
-                        <caption>표 캡션</caption>
-                        <colgroup>
-                            <col style="width:100px;" />
-                            <col />
-                            <col style="width:100px;" />
-                            <col />
-                        </colgroup>
-                        <tbody>
-                            <tr>
-                                <th scope="row">상신자</th>
-                                <td id="USER_NM"></td>
-                                <th scope="row">상신일</th>
-                                <td id="APPROVAL_DATE"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">제목</th>
-                                <td  id="APPROVAL_TITLE" colspan="3"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">상신내용</th>
-                                <td colspan="3" >
-                                    <div id="textEditorComp" style="width:100%;height:100%">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">첨부파일</th>
-                                <td colspan="3" id="fileTableId">
-                                </td>
-                                <script type="text/x-jsrender" id="fileTableId_template">    
-                                   {{for list}}
-                                       <li>
-                                           <span class="txt">
-                                              <a href="javascript:void(0);" onclick="<@popupId>.fileDownload('{{:UUID}}','{{:ORG_FILE_NAME}}');">
-                                                  {{:ORG_FILE_NAME}}
-                                              </a>
-                                           </span>
-                                       </li>
-                                   {{/for}}
-                                </script>
-                                <script type="text/x-jsrender" id="fileTableId_noData_template">    
-                                       <li>   
-                                            자료가 없습니다.
-                                       </li>
-                                </script>
-                            </tr>
-                            
-                        </tbody>
-                    </table>
-                </div>
-                <h3 class="mt25">결재 진행 내용</h3>
-                <div class="tbl01 col">
-                    <table>
-                        <caption>표 캡션</caption>
-                        <colgroup>
-                            <col style="width:60px;" />
-                            <col style="width:80px;" span="2"/>
-                            <col style="width:120px;" span="2" />
-                            <col style="width:80px" />
-                            <col style="width:*" />
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th scope="col">순번</th>
-                                <th scope="col">구분</th>
-                                <th scope="col">이름</th>
-                                <th scope="col">등록/처리일시</th>
-                                <th scope="col">부서명</th>
-                                <th scope="col">상태</th>
-                                <th scope="col">담당자 의견</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-                <div class="tbl01 col" style="max-height:169px;overflow-y:auto;">
-                    <table>
-                        <caption>표 캡션</caption>
-                        <colgroup>
-                            <col style="width:60px;" />
-                            <col style="width:80px;" span="2"/>
-                            <col style="width:120px;" span="2" />
-                            <col style="width:80px" />
-                            <col style="width:*" />
-                        </colgroup>
-                        <tbody id="tableId">
-                        </tbody>
-                        <script type="text/x-jsrender" id="tableId_template">    
-                            {{for list}}
-                                <tr>s
-                                    <td id='index'           value='{{:#index}}'         >{{:#index}}    </td>
-                                    <td><span class="stateBtn drafter wauto">기안</span></td>
-                                    <td id='APPROVAL_USER_NM'  value='{{:APPROVAL_USER_NM}}'  >{{:APPROVAL_USER_NM}}</td>
-                                    <td id='CREATE_DATE1'  value='{{:CREATE_DATE1}}'  >{{:CREATE_DATE1}}</td>
-                                    <td>경영 기획부</td>
-                                    <td id='STATE'  value='{{:STATE}}'  ><span class="state pay_complete">{{:STATE}}</span></td>
-                                    <td class="tl" id='APPROVAL_COMMENT'  value='{{:APPROVAL_COMMENT}}'  >{{:APPROVAL_COMMENT}}</td>
-                                </tr>
-                            {{/for}}
-                        </script>
-                        <script type="text/x-jsrender" id="tableId_noData_template">    
-                            <tr>    
-                                <td colspan=7>자료가 없습니다.</td>    
-                            </tr>
-                        </script>
-                    </table>
-                </div>
-            </div>
-            <div class="modal_footer">
-                
-                <button type="button" class="btn close"  onclick="<@popupId>.close()">닫기</button>
-                <!-- 
-                <button type="button" class="btn select" onclick="<@popupId>.callCompFn('REQUEST')">CKEditor함수호출</button> 
-                -->
-            </div>
-        </div>
-    </div>
-
+				</table>
+			</div>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+		</div>
+	</div>
+</div>
