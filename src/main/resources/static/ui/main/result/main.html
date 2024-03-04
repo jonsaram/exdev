@@ -1,59 +1,112 @@
 <meta charset="utf-8">
 
 <script type="text/javascript">
-	var <@pageId> = {
-		monthCategories : ()=>{
-				let month =[]; $.each( Array(12) , (index)=> month.push( (index+1)+"월") )
-				return month;
-		}	
-		,initPage : () =>{
+var <@pageId> = {
+		
+		mainCategoryItem: ''
+		,categoryChart	: ()=> <@pageId>.mainCategoryChart()
+		,treemapChart : (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
+		,mainCategoryChart :  () => {
+		
+			var parm = {
+					 queryId 		: "rstMgn.getConsultingTypeList"
+					,requestParm	: {SUB_CATEGORY:""}
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+
+				const treemapData = resultData.data.map( (row,idx) => {
+
+					if( idx == 0 )<@pageId>.mainCategoryItem = row.CONSULTING_TYPE;
+					return {
+						type: row.CONSULTING_TYPE,
+			            name: row.CONSULTING_TYPE_NM,
+			            value: row.COLOR_VALUE,
+			            colorValue: row.COLOR_VALUE
+					}
+					
+				})
+
+				<@pageId>.treemapChart('mainCategoryTreemap',{	minColor: '#75C2D5',
+													        	maxColor: '#3BA8C3'},
+													        	treemapData,function(options){
+													        		debugger;
+													        		console.log( options );
+													        		<@pageId>.mainCategoryItem = options.type;
+													        		<@pageId>.subCategoryTreemap();
+													        	});
+				<@pageId>.subCategoryTreemap();
+			});
 			
-			<@pageId>.getData();
-			<@pageId>.chartInit();
+		}		
+		,subCategoryTreemap :  () => {
+
+			const requestParm = {
+					SUB_CATEGORY:<@pageId>.mainCategoryItem
+			};
+			
+			var parm = {
+					 queryId 		: "rstMgn.getConsultingTypeList"
+					,requestParm	: requestParm
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+
+				const treemapData = resultData.data.map( row => {
+					
+					return {
+			            name: row.CONSULTING_NM,
+			            value: row.COLOR_VALUE,
+			            colorValue: row.COLOR_VALUE
+					}
+					
+				})
+
+				<@pageId>.treemapChart('subCategoryTreemap',{	minColor: '#8A8BB9',
+													        	maxColor: '#27187F'},treemapData);
+				
+
+				$(".highcharts-credits").remove();
+				$(".highcharts-legend.highcharts-no-tooltip").remove();
+			});	
+	
 		}
-		,getData : () => {
+		,contractList :  () => {
+
+			const requestParm = {
+					FROM_CONTRACT_DATE:''
+					,TO_CONTRACT_DATE:''
+			};
 			
+			var parm = {
+					 queryId 		: "rstMgn.getContractList"
+					,requestParm	: requestParm
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				var rparm = {
+						 targetId 		: "<@pageId>_contractList"
+						,list			: resultData.data
+				}
 			
-		}
-		,chartInit : () => {
-			   // 차트 데이터 설정
+				C_COM.renderHtml("<@pageId>", rparm);
+			
+			});	
+	
+		}		
+}
+// Page Load가 완료된후 실행 된다.
+C_PM.onLoadPage("<@pageId>", function() {
 
-			const series = [
-				{
-	                name: '2023년',
-	                type: 'column',
-	                yAxis: 0,
-	                data: [10, 20, 30, 40, 50, 50, 50, 50, 50, 50, 50, 50],
-	                tooltip: {
-	                    valueSuffix: '억'
-	                }
+	<@pageId>.categoryChart();
+	<@pageId>.contractList();
+	
+});
+// History back으로 이동해왔을 경우 이루틴이 실행된다.
+C_HM.onReturn("<@pageId>", function(pageId, data) {
 
-	            }, {
-	                name: '2022년',
-	                type: 'line',
-	                data: [155, 170, 185, 170, 160, 175, 165, 190, 160, 170, 160, 150],
-	                tooltip: {
-	                    valueSuffix: '억'
-	                }
-	            }];
-			   
-		   const chart1 =  createChart( '<@pageId>_chart1' , <@pageId>.monthCategories, series );
-		   const chart2 =  createChart( '<@pageId>_chart2' , <@pageId>.monthCategories, series );
-		   const chart3 =  createChart( '<@pageId>_chart3' , <@pageId>.monthCategories, series );
-		    
-
- 		}
-
-	}
-	// Page Load가 완료된후 실행 된다.
-	C_PM.onLoadPage("<@pageId>", function() {
-		debugger;
-		<@pageId>.initPage();
-	});
-	// History back으로 이동해왔을 경우 이루틴이 실행된다.
-	C_HM.onReturn("<@pageId>", function(pageId, data) {
-
-	});
+});
 </script>
 <div class="cont_wrap">
 			<div class="cont_top">
@@ -62,53 +115,27 @@
 				<div class="select_box fr" style="width:132px">
 					<button type="button" class="btn radio"><span>전체</span></button>
                     <ul class="select_lst">
-                        <li>
-                            <input name="product" id="product01" type="radio" value="">
-                            <label for="product01">전체<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="product" id="product02" type="radio" value="">
-                            <label for="product02">스타<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="product" id="product03" type="radio" value="">
-                            <label for="product03">감탄<i class="icon_check"></i></label>
-                        </li>
                     </ul>
                 </div>
 			</div>
 			<div class="sec_scroll">
 				<section class="sec_wrap">
-					<!-- 분류별 실적 -->
-					<div class="cont_box left">
-						<h3>분류별 실적</h3>
-						<div class="box_division_wrap">
-							<div class="box_division blue">
-								<div class="row_60"><span>월자문 컨설팅<br><em>60%</em></span></div>
-								<div class="row_40"><span>일반 컨설팅<br><em>40%</em></span></div>
-							</div>
-							<div class="box_division purple">
-								<div class="row_50"><span>법인전환<br><em>50%</em></span></div>
-								<div class="row_50">
-									<div class="col_50"><span>CEO 플랜<br><em>25%</em></span></div>
-									<div class="col_50">
-										<div class="row_25"><span>연구소  및 특허<br><em>12.5%</em></span></div>
-										<div class="row_25">
-											<div class="col_50"><span>정책자금<br><em>12.5%</em></span></div>
-											<div class="col_50">
-												<div class="row_15 back60"><span class="font10 lh12">대출컨설팅<br><em class="font14">6.25%</em></span></div>
-												<div class="row_15 back50"><span class="font10 lh12">기타<br><em class="font14">6.25%</em></span></div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+				<!-- 분류별 실적 -->
+				<div class="cont_box left" style='width:29%;overflow:hidden'>
+					<h3>분류별 실적</h3>
+					<div class="box_division_wrap" style='margin-top:0px;'>
+						<div style='width:50%;'>
+							<div id="mainCategoryTreemap"  style='height:350px;' ></div>
 						</div>
-						<div class="box_text">
-							<div class="box_division">&lt; 대분류 &gt;</div>
-							<div class="box_division">&lt; 소분류 &gt;</div>
-						</div>
+						<div style='width:50%;'>
+				 			<div id="subCategoryTreemap"  style='height:350px;' ></div>
+						</div>		
 					</div>
+					<div class="box_text">
+						<div class="box_division" style='z-index:10'>&lt; 대분류 &gt;</div>
+						<div class="box_division" style='z-index:10'>&lt; 소분류 &gt;</div>
+					</div>
+				</div>
 
 					<!-- 전체 계약 리스트 -->
 					<div class="cont_box right">
@@ -124,18 +151,6 @@
 								<div class="select_box fl" style="width:132px">
 									<button type="button" class="btn radio"><span>50개 보기</span></button>
 				                    <ul class="select_lst">
-				                        <li>
-				                            <input name="number" id="num01" type="radio" value="">
-				                            <label for="num01">50개 보기<i class="icon_check"></i></label>
-				                        </li>
-				                        <li>
-				                            <input name="number" id="num02" type="radio" value="">
-				                            <label for="num02">30개 보기<i class="icon_check"></i></label>
-				                        </li>
-				                        <li>
-				                            <input name="number" id="num03" type="radio" value="">
-				                            <label for="num03">10개 보기<i class="icon_check"></i></label>
-				                        </li>
 				                    </ul>
 				                </div>
 				            </div>
@@ -174,50 +189,31 @@
 										<th scope="col">입금액</th>
 									</tr>
 								</thead>
-								<tbody>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
+								<tbody id="<@pageId>_contractList">
 								</tbody>
+<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
+						{{for list}}
+							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
+								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
+			 					<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
+			 					<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
+			 					<td id=''		value=''		>직할</td>
+			 					<td id=''		value=''		>본사</td>
+			 					<td id=''		value=''		>월납</td>
+			 					<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
+								<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
+								<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
+								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
+ 								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
+ 								<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'				>{{:TOT_INCOME}}</td>
+							</tr>
+						{{/for}}
+</script>
+<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
+				<tr>	
+					<td colspan=13>자료가 없습니다.</td>	
+				</tr>
+</script>								
 							</table>
 						</div>
 						<!-- paging -->

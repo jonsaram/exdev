@@ -1,305 +1,124 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-		chartInit : function() {
-			Highcharts.setOptions({
-				colors: ['#3C3E8A', '#DADADA']
-			});
-			$('#<@pageId> .chart').highcharts({
-			    chart: {
-			        zoomType: 'xy',
-		            margin: [50, 0, 35, 45],
-			    },
-			    credits: {enabled: false},// 하이차트 워터마크 삭제
-			    title: {
-			        text: '',
-			        align: 'left'
-			    },
-			    subtitle: {
-			        text: '',
-			        align: 'left'
-			    },
-			    xAxis: [{
-			    	labels: {
-			            style: {
-			                color: '#8A8C92',
-			                fontFamily: 'Noto Sans KR',
-			                fontSize: '11px'
-			            }
-			        },
-			        lineColor: '#DADADA',
-			        categories: ['1월', '2월', '3월', '4월', '5월', '6월',
-			            '7월', '8월', '9월', '10월', '11월', '12월'],
-			        crosshair: true
-			    }],
-			    yAxis: [{
-			        labels: {
-			            format: '{value}억',
-			            style: {
-			                color: '#8A8C92',
-			                fontFamily: 'Noto Sans KR',
-			                fontSize: '11px'
-			            }
-			        },
-			        title: {
-			            text: ''
-			        }
-			    }, { // Secondary yAxis
-			        title: {
-			            text: '',
-			            style: {
-			            }
-			        },
-			        labels: {
-			            format: ' '
-			        },
-			        opposite: true
-			    }],
-			    tooltip: {
-			        shared: true
-			    },
-			    legend: {
-			        align: 'right',
-			        x:0,
-			        verticalAlign: 'top',
-			        y: 0,
-			        itemStyle: {
-						color: '#8A8C92',
-						fontFamily: 'Noto Sans KR',
-						fontSize: '11px'
-					},
-					symbolRadius:0,//범례 심볼 radius 지정
-		          	symbolWidth:10,
-		          	symbolHeight:10,
-		          	x: 0,//가로 위치 지정.
-		            y: -2,//세로 위치 지정.
-			    },
-			    plotOptions: {//라인에 원표시 삭제
-			        line:{
-		        		marker: {
-		                	enabled: false
-		            	}
-			        }
-			    },
-			    series: [{
-			        name: '2023년',
-			        type: 'column',
-			        yAxis: 0,
-			        data: [70, 140, 190, 180, 195, 240, 160, 140, 0,
-			            0, 0, 0],
-			        tooltip: {
-			            valueSuffix: '억'
-			        }
+			treemapChart : (target, colorAxis, treemapData) => {
 
-			    }, {
-			        name: '2022년',
-			        type: 'line',
-			        data: [155, 170, 185, 170, 160, 175, 165, 190, 160, 170, 160, 150],
-			        tooltip: {
-			            valueSuffix: '억'
-			        }
-			    }]
-			});
+				Highcharts.chart(target, {
+					    colorAxis: colorAxis,
+				    series: [{
+				        type: 'treemap',
+				        layoutAlgorithm: 'squarified',   
+				        alternateStartingDirection: true, 
+				        levels: [{
+				            level: 1,
+				            layoutStartingDirection: 'vertical', // 세로로 정렬하도록 설정
+				            layoutAlgorithm: 'squarified',
+				            dataLabels: {
+				                enabled: true,
+				                align: 'center',
+				                verticalAlign: 'middle',
+				                style: {
+				                    fontSize: '15px',
+				                    fontWeight: 'lighter',
+				                    color:'white',
+				                    textOutline: 'none'
 
-			$('#<@pageId> .chart2').highcharts({
-			    chart: {
-			        zoomType: 'xy',
-		            margin: [50, 0, 40, 45],
-			    },
-			    credits: {enabled: false},// 하이차트 워터마크 삭제
-			    title: {
-			        text: '',
-			        align: 'left'
-			    },
-			    subtitle: {
-			        text: '',
-			        align: 'left'
-			    },
-			    xAxis: [{
-			    	labels: {
-			            style: {
-			                color: '#8A8C92',
-			                fontFamily: 'Noto Sans KR',
-			                fontSize: '11px'
-			            }
-			        },
-			        lineColor: '#DADADA',
-			        categories: ['1월', '2월', '3월', '4월', '5월', '6월',
-			            '7월', '8월', '9월', '10월', '11월', '12월'],
-			        crosshair: true
-			    }],
-			    yAxis: [{
-			        labels: {
-			            format: '{value}억',
-			            style: {
-			                color: '#8A8C92',
-			                fontFamily: 'Noto Sans KR',
-			                fontSize: '11px'
-			            }
-			        },
-			        title: {
-			            text: ''
-			        }
-			    }, { // Secondary yAxis
-			        title: {
-			            text: '',
-			            style: {
-			            }
-			        },
-			        labels: {
-			            format: ' '
-			        },
-			        opposite: true
-			    }],
-			    tooltip: {
-			        shared: true
-			    },
-			    legend: {
-			        align: 'right',
-			        x:0,
-			        verticalAlign: 'top',
-			        y: 0,
-			        itemStyle: {
-						color: '#8A8C92',
-						fontFamily: 'Noto Sans KR',
-						fontSize: '11px'
-					},
-					symbolRadius:0,//범례 심볼 radius 지정
-		          	symbolWidth:10,
-		          	symbolHeight:10,
-		          	x: 0,//가로 위치 지정.
-		            y: -2,//세로 위치 지정.
-			    },
-			    plotOptions: {//라인에 원표시 삭제
-			        line:{
-		        		marker: {
-		                	enabled: false
-		            	}
-			        }
-			    },
-			    series: [{
-			        name: '2023년',
-			        type: 'column',
-			        yAxis: 0,
-			        data: [70, 140, 160, 180, 190, 240, 160, 140, 0,
-			            0, 0, 0],
-			        tooltip: {
-			            valueSuffix: '억'
-			        }
+				                },
+				                formatter: function () {
+				                    return '<div style="text-align: center;">' + this.point.name +'</div><br><g>' + this.point.value + '%</div>';
+				                }
 
-			    }, {
-			        name: '2022년',
-			        type: 'line',
-			        data: [155, 160, 180, 170, 140, 180, 160, 180, 160, 155, 180, 150],
-			        tooltip: {
-			            valueSuffix: '억'
-			        }
-			    }]
-			});
+				            }
+				        }],
+				        data: treemapData
+				    }],
+				    title: {
+				        text: ''
+				    },
+				    tooltip: {
+				        pointFormat: '<b>{point.name}</b>:<br> {point.value}%<br>'
+				    }
+				})
+				
 
-
-			$('#<@pageId> .chart3').highcharts({
-			    chart: {
-			        zoomType: 'xy',
-		            margin: [50, 0, 55, 45],
-			    },
-			    credits: {enabled: false},// 하이차트 워터마크 삭제
-			    title: {
-			        text: '',
-			        align: 'left'
-			    },
-			    subtitle: {
-			        text: '',
-			        align: 'left'
-			    },
-			    xAxis: [{
-			    	labels: {
-			            style: {
-			                color: '#8A8C92',
-			                fontFamily: 'Noto Sans KR',
-			                letterSpacing:'-0.19em',
-			                fontSize: '10.5px'
-			            }
-			        },
-			        lineColor: '#DADADA',
-			        categories: ['월자문', '일반', '법인전환', 'CEO플랜', '연구소및특허', '정책자금',
-			            '대출', '기타'],
-			        crosshair: true
-			    }],
-			    yAxis: [{
-			        labels: {
-			            format: '{value}억',
-			            style: {
-			                color: '#8A8C92',
-			                fontFamily: 'Noto Sans KR',
-			                fontSize: '11px'
-			            }
-			        },
-			        title: {
-			            text: ''
-			        }
-			    }, { // Secondary yAxis
-			        title: {
-			            text: '',
-			            style: {
-			            }
-			        },
-			        labels: {
-			            format: ' '
-			        },
-			        opposite: true
-			    }],
-			    tooltip: {
-			        shared: true
-			    },
-			    legend: {
-			        align: 'right',
-			        x:0,
-			        verticalAlign: 'top',
-			        y: 0,
-			        itemStyle: {
-						color: '#8A8C92',
-						fontFamily: 'Noto Sans KR',
-						fontSize: '11px'
-					},
-					symbolRadius:0,//범례 심볼 radius 지정
-		          	symbolWidth:10,
-		          	symbolHeight:10,
-		          	x: 0,//가로 위치 지정.
-		            y: -2,//세로 위치 지정.
-			    },
-			    plotOptions: {//라인에 원표시 삭제
-			    	line:{
-		        		marker: {
-		                	enabled: false
-		            	}
-			        }
-
-			    },
-			    series: [{
-			        name: '2023년',
-			        type: 'column',
-			        yAxis: 0,
-			        data: [170, 110, 58, 50, 40, 30, 20, 10],
-			        tooltip: {
-			            valueSuffix: '억'
-			        }
-
-			    }, {
-			        name: '2022년',
-			        type: 'line',
-			        data: [240, 140, 130, 140, 70, 75, 50, 25],
-			        tooltip: {
-			            valueSuffix: '억'
-			        }
-			    }]
-			});
-			
-		}
+			}	
+			,testChart_treemap : function () {
+				
+				const treemapData = [{
+			            name: '월자문 컨설팅',
+			            value: 60,
+			            colorValue: 60
+			        }, {
+			            name: '일반 컨설팅',
+			            value: 40,
+			            colorValue: 40
+			        }, {
+			            name: '',
+			            value: 0,
+			            colorValue: 0
+			        }, {
+			            name: '',
+			            value: 0,
+			            colorValue: 0
+			        }, {
+			            name: '',
+			            value: 0,
+			            colorValue: 0
+			        }, {
+			            name: '',
+			            value: 0,
+			            colorValue: 0
+			        }]  ;
+				
+				<@pageId>.treemapChart('testChart_treemap',{
+			        minColor: '#75C2D5',
+			        maxColor: '#3BA8C3' 
+			        
+			    },treemapData);
+					
+			}		
+			,testChart_treemap2 : function () {
+				
+				const treemapData = [{
+		            name: '법인전환',
+		            value: 50,
+		            colorValue: 50,
+		        }, {
+		            name: 'CEO 플랜',
+		            value: 25,
+		            colorValue: 25,
+		        }, {
+		            name: '연구소 및 특허',
+		            value: 12.5,
+		            colorValue: 12.5
+		        }, {
+		            name: '정책자금',
+		            value: 12.5,
+		            colorValue: 12.5
+		        }, {
+		            name: '대출컨설팅',
+		            value: 6.25,
+		            colorValue:  6.25
+		        }, {
+		            name: '기타',
+		            value: 6.25,
+		            colorValue:  6.25
+		        }]
+				
+				<@pageId>.treemapChart('testChart_treemap2',{
+			        minColor: '#8A8BB9',
+			        maxColor: '#27187F' 
+			        
+			    },treemapData);
+				
+			}
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
-		<@pageId>.chartInit();
+		<@pageId>.testChart_treemap();
+ 		<@pageId>.testChart_treemap2();
+ 		$(".highcharts-credits").remove();
+ 		$(".highcharts-legend.highcharts-no-tooltip").remove();
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -308,58 +127,32 @@
 </script>
 <div class="cont_wrap">
 			<div class="cont_top">
-				<h2><i class="icon_bullet"></i>Main</h2>
+				<h2><i class="icon_bullet"></i>Main11</h2>
 
 				<div class="select_box fr" style="width:132px">
 					<button type="button" class="btn radio"><span>전체</span></button>
                     <ul class="select_lst">
-                        <li>
-                            <input name="product" id="product01" type="radio" value="">
-                            <label for="product01">전체<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="product" id="product02" type="radio" value="">
-                            <label for="product02">스타<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="product" id="product03" type="radio" value="">
-                            <label for="product03">감탄<i class="icon_check"></i></label>
-                        </li>
                     </ul>
                 </div>
 			</div>
 			<section class="sec_wrap">
-				<!-- 분류별 실적 -->
-				<div class="cont_box left">
-					<h3>분류별 실적</h3>
-					<div class="box_division_wrap">
-						<div class="box_division blue">
-							<div class="row_60"><span>월자문 컨설팅<br><em>60%</em></span></div>
-							<div class="row_40"><span>일반 컨설팅<br><em>40%</em></span></div>
-						</div>
-						<div class="box_division purple">
-							<div class="row_50"><span>법인전환<br><em>50%</em></span></div>
-							<div class="row_50">
-								<div class="col_50"><span>CEO 플랜<br><em>25%</em></span></div>
-								<div class="col_50">
-									<div class="row_25"><span>연구소  및 특허<br><em>12.5%</em></span></div>
-									<div class="row_25">
-										<div class="col_50"><span>정책자금<br><em>12.5%</em></span></div>
-										<div class="col_50">
-											<div class="row_15 back60"><span class="font10 lh12">대출컨설팅<br><em class="font14">6.25%</em></span></div>
-											<div class="row_15 back50"><span class="font10 lh12">기타<br><em class="font14">6.25%</em></span></div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+			<!-- 분류별 실적 -->
+			<div class="cont_box left" style='width:29%;overflow:hidden'>
+				<h3>x분류별 실적</h3>
+				<div class="box_division_wrap" style='margin-top:0px;'>
+					<div style='width:50%;'>
+						<div id="testChart_treemap"  style='height:350px;' ></div>
 					</div>
-					<div class="box_text">
-						<div class="box_division">&lt; 대분류 &gt;</div>
-						<div class="box_division">&lt; 소분류 &gt;</div>
-					</div>
+					<div style='width:50%;'>
+			 			<div id="testChart_treemap2"  style='height:350px;' ></div>
+					</div>		
 				</div>
-
+				<div class="box_text">
+					<div class="box_division" style='z-index:10'>&lt; x대분류 &gt;</div>
+					<div class="box_division" style='z-index:10'>&lt; x소분류 &gt;</div>
+				</div>
+			</div>
+			
 				<!-- 전체 계약 리스트 -->
 				<div class="cont_box right">
 					<h3>전체 계약 리스트</h3>

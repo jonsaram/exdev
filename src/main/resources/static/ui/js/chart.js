@@ -85,3 +85,52 @@
  
     }
  
+function _treemapChart(target, colorAxis, treemapData, func){
+
+	Highcharts.chart(target, {
+		    colorAxis: colorAxis,
+	    series: [{
+	        type: 'treemap'
+			,events: {
+			            click: function (event) {
+
+							if( func )
+								func(event.point.options);
+			            }
+			}
+	        ,layoutAlgorithm: 'squarified',   
+	        alternateStartingDirection: true, 
+	        levels: [{
+	            level: 1,
+	            layoutStartingDirection: 'vertical',
+	            layoutAlgorithm: 'squarified',
+	            dataLabels: {
+	                enabled: true,
+	                align: 'center',
+	                verticalAlign: 'middle',
+	                style: {
+	                    fontSize: '15px',
+	                    fontWeight: 'lighter',
+	                    color:'white',
+	                    textOutline: 'none'
+
+	                },
+	                formatter: function () {
+	                    return '<div style="text-align: center;">' + this.point.name +'</div><br><g>' + this.point.value + '%</div>';
+	                }
+
+	            }
+	        }],
+	        data: treemapData
+	    }],
+	    title: {
+	        text: ''
+	    },
+	    tooltip: {
+	        pointFormat: '<b>{point.name}</b>:<br> {point.value}%<br>'
+	    },
+	    credits: { enabled: false },
+	    
+	})
+
+}

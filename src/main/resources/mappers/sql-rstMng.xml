@@ -12,31 +12,87 @@
 	 
 	<select id="getConsultingTypeList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getConsultingTypeList
-			Main 분류별 실적 관리
+			Main/Sub 분류별 실적 관리
 		*/
 
 		SELECT  CONSULTING_TYPE
+		, GET_CODE_NM( 'CONSULTING_TYPE', CONSULTING_TYPE) CONSULTING_TYPE_NM
 		<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
 		,CONSULTING_NM
 		</if>
-		, CNT
+		, CNT			AS VALUE
 		, SUM(CNT) OVER() ALL_CNT
-		, ROUND( ( CNT / SUM(CNT) OVER() ) * 100 , 2 ) || '%' AS PERCENT
+		, ROUND( ( CNT / SUM(CNT) OVER() ) * 100 , 2 )  AS COLOR_VALUE
 		FROM(
+		
 			SELECT CS.CONSULTING_TYPE 
+			<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
 			, CS.CONSULTING_NM
+			</if>
 			, COUNT(*) CNT  
 			FROM TBL_EXP_CONTRACT C
 			,TBL_EXP_CONSULTING CS
 			WHERE C.CONSULTING_ID  = CS.CONSULTING_ID
 			<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
-			AND CS.CONSULTING_TYPE = 'MONTHLY'
+			AND CS.CONSULTING_TYPE = #{SUB_CATEGORY}
 			</if>
 			GROUP BY CS.CONSULTING_TYPE
 			<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
 			, CS.CONSULTING_NM
 			</if>
+			
 		)
+		ORDER BY COLOR_VALUE DESC
 	</select>	
 
+	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getContractList
+			전체 계약 리스트
+		*/
+		SELECT C.CONTRACT_ID
+		, C.USER_ID
+		, GET_USER_NM(C.USER_ID) USER_NM
+		, C.BUYER_ID
+		, C.CONTACT_DATE
+		, TO_CHAR( C.CONTRACT_DATE , 'YYYY' ) AS CONTRACT_YEAR
+		, TO_CHAR( C.CONTRACT_DATE , 'MM' ) AS CONTRACT_MONTH
+		, C.CONTRACT_TYPE
+		, GET_CODE_NM('CONTRACT_TYPE', C.CONTRACT_TYPE ) CONTRACT_TYPE_NM
+		, C.EXPIRE_DATE
+		, C.TOTAL_COST
+		, C.CONSULTING_ID
+		, GET_CODE_NM('CONSULTING_ID', C.CONSULTING_ID ) CONSULTING_NM
+		, C.PROCESS_STATE
+		, C.LAST_SOLUTION
+		, C.TAX_MNG
+		, C.LABOR_MNG
+		, C.CONSULTING_CLASS
+		, C.USE_YN
+		, C.DEL_YN
+		, C.UPDATE_USER
+		, C.UPDATE_DATE
+		, B.BUYER_ID 
+		, B.BUYER_NM
+		, B.COMPANY_REGNUM 
+		, CS.CONSULTING_NM 
+		, CS.CONSULTING_TYPE 
+		, (SELECT SUM ( RE.INCOME  ) 
+			FROM TBL_EXP_RESULT RE 
+			WHERE  C.CONTRACT_ID = RE.CONTRACT_ID AND RE.USE_YN ='Y' AND RE.DEL_YN = 'N' 
+		) AS TOT_INCOME
+		FROM TBL_EXP_CONTRACT C
+		,TBL_EXP_BUYER B
+		,TBL_EXP_CONSULTING CS
+		WHERE 1=1
+		AND C.BUYER_ID  = B.BUYER_ID 
+		AND C.USE_YN = 'Y' AND C.DEL_YN ='N'
+		AND C.CONSULTING_ID  = CS.CONSULTING_ID  
+		AND B.USE_YN = 'Y' AND B.DEL_YN ='N'
+		<if test=" FROM_CONTRACT_DATE != null and !FROM_CONTRACT_DATE.equals('')">
+		AND C.CONTRACT_DATE <![CDATA[>=]]> #{FROM_CONTRACT_DATE}
+		</if>		
+		<if test=" TO_CONTRACT_DATE != null and !TO_CONTRACT_DATE.equals('')">
+		AND C.CONTRACT_DATE <![CDATA[<=]]> #{TO_CONTRACT_DATE}
+		</if>		
+	</select>	
 </mapper>

@@ -87,7 +87,7 @@ var <@pageId> = {
 							console.log("Item 저장 성공");
 						
 						}else{
-							alert(resultData.msg)
+							C_POP.alert(resultData.msg)
 						}
 				});				
 				
@@ -197,7 +197,7 @@ var <@pageId> = {
 			    $("[id^='<@pageId>_delete_']").click(function(){
 
 			    	const hasChild = $(this).parent().siblings("#HAS_CHILD").attr("value") == "Y" ? true : false;
-			    	if( hasChild ){ alert("하위 메뉴를 먼저 삭제하신 후 삭제할 수 있습니다. "); return; }
+			    	if( hasChild ){ C_POP.alert("하위 메뉴를 먼저 삭제하신 후 삭제할 수 있습니다. "); return; }
 			    	const key = $(this).attr("key");
 					<@pageId>.deleteOne(key);
 			    })

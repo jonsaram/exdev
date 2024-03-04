@@ -43,16 +43,16 @@
 		 }
 		 ,validation : () =>{
 			 
-			 if( $("#<@popupId>_items #USER_NM").val() 		== "" ) {alert("이름을 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #PHONE_NUM").val() 	== "" ) {alert("핸드폰번호를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #JUMIN").val() 		== "" ) {alert("주민등록번호를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #REG_DATE").val() 	== "" ) {alert("입사일을 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #E_MAIL").val() 		== "" ) {alert("이메일을 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #POST_NUM").val() 	== "" ) {alert("주소를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #ADDR1").val() 		== "" ) {alert("주소를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #ADDR2").val() 		== "" ) {alert("상세주소를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #USER_NM").val() 		== "" ) {C_POP.alert("이름을 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #PHONE_NUM").val() 	== "" ) {C_POP.alert("핸드폰번호를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #JUMIN").val() 		== "" ) {C_POP.alert("주민등록번호를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #REG_DATE").val() 	== "" ) {C_POP.alert("입사일을 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #E_MAIL").val() 		== "" ) {C_POP.alert("이메일을 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #POST_NUM").val() 	== "" ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #ADDR1").val() 		== "" ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #ADDR2").val() 		== "" ) {C_POP.alert("상세주소를 입력하여 주십시오."); return false;}
 			 const phonePattern = /^01(?:0|1|[6-9])(?:\d{3}|\d{4})\d{4}$/;
-			 if( !phonePattern.test($("#<@popupId>_items #PHONE_NUM").val())){alert("올바른 핸드폰번호를 입력하여 주십시오."); return false;}
+			 if( !phonePattern.test($("#<@popupId>_items #PHONE_NUM").val())){C_POP.alert("올바른 핸드폰번호를 입력하여 주십시오."); return false;}
 			 return true;
 			 
 		 }
@@ -193,7 +193,7 @@
 			    let regNumber = $(e.target).val().replace(/-/g, '');
 
 			    if (regNumber.length !== 13) {
-			    	alert(alertmsg);
+			    	C_POP.alert(alertmsg);
 			    	$(this).focus();
 			        return;
 			    }
@@ -203,7 +203,7 @@
 			    const day = parseInt(regNumber.substring(4, 6), 10);
 
 			    if (month < 1 || month > 12 || day < 1 || day > 31) {
-			    	alert(alertmsg);
+			    	C_POP.alert(alertmsg);
 			        return;
 			    }
 
@@ -214,7 +214,7 @@
 			    }
 			    checksum = (11 - (checksum % 11)) % 10;
 			    if (parseInt(regNumber.charAt(12), 10) !== checksum) {
-			    	alert(alertmsg);
+			    	C_POP.alert(alertmsg);
 			        return;
 			    }
 
@@ -231,7 +231,7 @@
 			    let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 			    
 			    if (!emailPattern.test(eMailAddress)) {
-			        alert("올바른 이메일 주소를 입력하세요.");
+			    	C_POP.alert("올바른 이메일 주소를 입력하세요.");
 			        return;
 			    }
 			});
@@ -321,7 +321,7 @@
 							callback ? callback() : null;
 							
 						}else{
-							alert(resultData.msg)
+							C_POP.alert(resultData.msg)
 						}
 				});
 			
