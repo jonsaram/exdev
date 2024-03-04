@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="rstMgn">
+
+	<cache />
+
+	<!--
+	성과 관리 
+	 -->	
+	 
+	<select id="getConsultingTypeList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getConsultingTypeList
+			Main 분류별 실적 관리
+		*/
+
+		SELECT  CONSULTING_TYPE
+		<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
+		,CONSULTING_NM
+		</if>
+		, CNT
+		, SUM(CNT) OVER() ALL_CNT
+		, ROUND( ( CNT / SUM(CNT) OVER() ) * 100 , 2 ) || '%' AS PERCENT
+		FROM(
+			SELECT CS.CONSULTING_TYPE 
+			, CS.CONSULTING_NM
+			, COUNT(*) CNT  
+			FROM TBL_EXP_CONTRACT C
+			,TBL_EXP_CONSULTING CS
+			WHERE C.CONSULTING_ID  = CS.CONSULTING_ID
+			<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
+			AND CS.CONSULTING_TYPE = 'MONTHLY'
+			</if>
+			GROUP BY CS.CONSULTING_TYPE
+			<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
+			, CS.CONSULTING_NM
+			</if>
+		)
+	</select>	
+
+</mapper>
