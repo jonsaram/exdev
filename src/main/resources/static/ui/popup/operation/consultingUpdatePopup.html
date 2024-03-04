@@ -1,0 +1,154 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+var <@popupId> = {
+		 recvData : []	
+	 	 ,mode : ''
+	 	 ,selectedItem : {}
+		 ,CONSULTING_ID : ''
+		 ,close : function(returnData) {
+			 
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+		 ,apply : (gubun) =>{
+			 
+			if( <@popupId>.validation() == false){
+			 return;
+			}
+			
+			let returnData = {};
+			 
+			returnData = {
+				MODE			:	gubun
+				,CONSULTING_ID 	:	<@popupId>.CONSULTING_ID 
+				,CONSULTING_NM 	:	$("#<@popupId>_CONSULTING_NM").val()
+				,CONSULTING_TYPE:	C_UICOM.getData("<@popupId>_selectBoxId")
+				,CONSULTING_DESC:	$("#<@popupId>_CONSULTING_DESC").val()
+			 }
+			 
+			 <@popupId>.close(returnData);
+			 
+		 }
+		 ,validation : () =>{
+			 
+			 return true;
+			 
+		 }
+		,pageInit : () => {
+
+			<@popupId>.setTitleHeight();
+
+			var singleboxList = { 
+					 defaultItem 	: ["", "선택"]
+					,data 			: C_COM.getCodeList("CONSULTING_TYPE")
+				 	,targetId 		: "<@popupId>_selectBoxId" 
+			}
+			C_UICOM.makeSelectBox(singleboxList, "single");
+			
+			if( <@popupId>.mode == "U"){
+				
+				$("#<@popupId>_regBtn").text("수정").show();
+				$("#<@popupId>_delBtn").show();
+				<@popupId>.CONSULTING_ID = <@popupId>.recvData.selectedItem.CONSULTING_ID;
+
+				
+				<@popupId>.searchList();
+
+			}else{
+				
+				$("#<@popupId>_regBtn").show();
+				$("#<@popupId>_delBtn").hide();
+				<@popupId>.CONSULTING_ID = C_COM.makeUniqueId();
+				
+			}
+			
+		}
+		,setTitleHeight : () => {
+
+			let title = <@popupId>.mode == "I" ? "컨설팅 상품 등록" : "컨설팅 상품 수정";
+	  	 	$(".tit").html( title );
+			
+		}
+		,setHandler : () => {
+			
+			C_UICOM.addChangeListner("<@popupId>_selectBoxId", function(dataObj) {
+				
+			});
+	
+		}        
+		,searchList : function(){
+
+			let requestParm = {
+					CONSULTING_ID : <@popupId>.CONSULTING_ID
+			}
+	debugger;		
+	        let parm = {
+                 queryId        : "operation.getConsultingItem"
+                ,requestParm    : requestParm
+            }
+            C_COM.requestQuery(parm, function(resultData) {
+               
+            	if( resultData.data){
+					const item = resultData.data[0];	
+					C_UICOM.setSingleBox("<@popupId>_selectBoxId",item.CONSULTING_TYPE);
+					$("#<@popupId>_CONSULTING_NM").val(item.CONSULTING_NM);
+					$("#<@popupId>_CONSULTING_DESC").val(item.CONSULTING_DESC);
+            	}
+
+            });
+        }
+}
+// Popup Load가 완료된후 실행 된다.
+C_POP.onLoadPopup("<@popupId>", function(data) {
+	<@popupId>.recvData	= data;
+	<@popupId>.mode = <@popupId>.recvData.mode;
+	<@popupId>.selectedItem = <@popupId>.recvData.selectedItem;
+	
+debugger;
+	<@popupId>.pageInit();
+	<@popupId>.setHandler();
+	
+});
+</script>
+
+<style>
+.number {
+	text-align: right;
+}
+</style>
+	<div class="modal_wrap" id="modal-ex">
+		<div class="modal" style="width:600px;height:450px;">
+			<div class="modal_header">
+				<strong class="tit">컨설팅 상품 등록/컨설팅 상품 수정</strong>
+				<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+				
+			</div>
+			<div class="modal_body">
+				<ul class="info_wrap col2 mt15">
+					<li>
+						<label>컨설팅 Type</label>
+						<div class="info">
+							<!-- 실글 선택 -->
+							<div class="select_box" id="<@popupId>_selectBoxId" style="width:100%">
+			                </div>
+						</div>
+					</li>
+					<li>
+						<label>컨설팅 상품명</label>
+						<div class="info"><input type="text" style="width:100%" id="<@popupId>_CONSULTING_NM"></div>
+					</li>
+					<li class="w100 ml0">
+						<label>컨설팅 내용</label>
+						<div class="info">
+							<textarea class="w100" rows="12" id="<@popupId>_CONSULTING_DESC"></textarea>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="modal_footer">
+				<button type="button" class="btn select" id="<@popupId>_regBtn" onclick="<@popupId>.apply('I')" >등록</button>
+				<button type="button" class="btn select" id="<@popupId>_delBtn" onclick="<@popupId>.apply('D')" >삭제</button>
+				<button type="button" class="btn close"  onclick="<@popupId>.close()" >취소</button>
+			</div>
+		</div>
+	</div>

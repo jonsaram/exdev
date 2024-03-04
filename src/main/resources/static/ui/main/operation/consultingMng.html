@@ -1,0 +1,179 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+var <@pageId> = {
+	selectedItem : {}
+	,searchedList : {}
+	,pageInit : () => {
+		
+	}
+	,searchList : () => {
+		
+		const requestParm = { CONSULTING_ID:<@pageId>.selectedItem.CONSULTING_ID };
+		
+		var parm = {
+				 queryId 		: "operation.getConsultingItem"
+				,requestParm	: requestParm
+		}
+
+		C_COM.requestQuery(parm, function(resultData) {
+						
+			const list = resultData.data;
+			const consultingType =  _.uniqBy(list, "CONSULTING_TYPE");
+			
+			consultingType.forEach( item =>{
+			
+				const byTypeList = list.filter( item2 => item2.CONSULTING_TYPE == item.CONSULTING_TYPE );
+				var rparm = {
+						 targetId 		: "<@pageId>_consulting_"+item.CONSULTING_TYPE
+						,list			: byTypeList
+				}
+			
+				<@pageId>.searchedList[item.CONSULTING_TYPE] = byTypeList;
+				C_COM.renderHtml("<@pageId>", rparm);
+
+			})
+
+			<@pageId>.setHandler();
+		});
+	}
+	,updateItem : (param) => {
+		const requestParm 	= param ? param : {} ;
+		
+		var parm ={
+					queryId 		: param.MODE == "I" ? "operation.updateConsultingItem" :  param.MODE == "D" ? "operation.deleteConsultingItem" :""
+					,requestParm	: requestParm
+		}
+
+
+		C_COM.requestQuery(parm, function(resultData) {
+
+			if( resultData.state == "S"){
+				<@pageId>.selectedItem =  {};
+				<@pageId>.searchList();
+				
+			}else{
+				alert(resultData.msg)
+			}
+		});				
+	} 
+	,deleteItem : (delKey) => {
+		
+		var parm = {
+				 queryId 		: "operation.deleteConsultingItem"
+				,requestParm	: delKey
+		}
+		C_COM.requestQuery(parm, function(resultData) {
+			
+				
+		});				
+	}
+	, deleteOne : (key) =>{
+		
+		const CONTRACT_ID	= key;
+		<@pageId>.deleteItem({CONTRACT_ID:CONTRACT_ID})
+		
+	}	
+	,setHandler : () => {
+		
+		$("[name^='<@pageId>_li_']").on('click', (e)=>{
+		    e.stopPropagation(); 
+		    e.preventDefault(); 
+
+		    const id	= $(e.target).parent().attr("name").replace("<@pageId>_li_", "");
+		    const type	= $(e.target).parent().parent().attr("id").replace("<@pageId>_consulting_", "");
+			<@pageId>.selectedItem = <@pageId>.searchedList[type][id];
+
+			<@pageId>.openPopup();
+			
+		} )
+		
+	}
+	,addProduct : () => {
+		
+		<@pageId>.openPopup();
+		
+	}
+	,openPopup : () => {
+		
+		const param = {};
+
+ 		C_POP.open('popup_operation_consultingUpdatePopup', {	  mode:Object.keys(<@pageId>.selectedItem).length > 0 ? "U" : "I"
+ 												, param:param 
+ 												, selectedItem :<@pageId>.selectedItem }
+			, function(retData) {
+
+				if(isValid(retData)){
+						<@pageId>.updateItem( retData ) ; 
+				}
+		});
+	}	
+}
+	// Page Load가 완료된후 실행 된다.
+	C_PM.onLoadPage("<@pageId>", function() {
+		
+		<@pageId>.pageInit();
+		<@pageId>.setHandler();
+		<@pageId>.searchList();
+
+		
+	});
+	// History back으로 이동해왔을 경우 이루틴이 실행된다.
+	C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+	});
+</script>
+<div class="cont_wrap">
+			<div class="cont_top">
+				<h2><i class="icon_bullet"></i>컨설팅 상품 관리</h2>
+			</div>
+
+			<section class="sec_wrap list" style="height:calc(100% - 43px);">
+				<!-- tap area -->
+				<div class="tab_wrap">
+					<ul>
+						<li class="active">
+							<a id="#<@pageId>_tab1">월자문 컨설팅</a></li>
+						<li><a id="#<@pageId>_tab2">일회성 컨설팅</a></li>
+						<li><a id="#<@pageId>_tab3">코웍 외주자문 컨설팅</a></li>
+					</ul>
+					<a href="javascript:<@pageId>.addProduct()" class="btn select small add">추가</a>
+					<div class="tab_content">
+						<div id="<@pageId>_tab1" class="display">
+							<ul class="listBtn" id="<@pageId>_consulting_MONTHLY">
+							</ul>
+							<script type="text/x-jsrender" id="<@pageId>_consulting_MONTHLY_template">	
+							{{for list}}
+							<li name="<@pageId>_li_{{:#index}}">   
+								<a href="#" class="btn active" id="{{:CONSULTING_ID}}">{{:CONSULTING_NM}}</a>
+							</li>
+							{{/for}}
+							</script>
+						</div>
+						<div id="<@pageId>_tab2" class="display">
+							<ul class="listBtn" id="<@pageId>_consulting_ONCE">
+							</ul>
+							<script type="text/x-jsrender" id="<@pageId>_consulting_ONCE_template">	
+							{{for list}}
+							<li name="<@pageId>_li_{{:#index}}">   
+								<a href="#" class="btn active" id="{{:CONSULTING_ID}}">{{:CONSULTING_NM}}</a>
+							</li>
+							{{/for}}
+							</script>
+						</div>
+						<div id="<@pageId>_tab3" class="display">
+							<ul class="listBtn" id="<@pageId>_consulting_COWORK">
+							</ul>
+							<script type="text/x-jsrender" id="<@pageId>_consulting_COWORK_template">	
+							{{for list}}
+							<li name="<@pageId>_li_{{:#index}}">   
+								<a href="#" class="btn active" id="{{:CONSULTING_ID}}">{{:CONSULTING_NM}}</a>
+							</li>
+							{{/for}}
+							</script>
+						</div>
+					</div>
+				</div>
+			</section>
+			
+		</div>
+</div>

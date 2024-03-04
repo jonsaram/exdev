@@ -1,14 +1,131 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-		 sampleVal : "예제 페이지입니다."
-		,sampleFunction : function() {
+			treemapChart : (target, colorAxis, treemapData) => {
+
+				Highcharts.chart(target, {
+					    colorAxis: colorAxis,
+				    series: [{
+				        type: 'treemap',
+				        layoutAlgorithm: 'squarified',   
+				        alternateStartingDirection: true, 
+				        levels: [{
+				            level: 1,
+				            layoutStartingDirection: 'vertical', // 세로로 정렬하도록 설정
+				            layoutAlgorithm: 'squarified',
+				            dataLabels: {
+				                enabled: true,
+				                align: 'center',
+				                verticalAlign: 'middle',
+				                style: {
+				                    fontSize: '15px',
+				                    fontWeight: 'lighter',
+				                    color:'white',
+				                    textOutline: 'none'
+
+				                },
+				                formatter: function () {
+				                    return '<div style="text-align: center;">' + this.point.name +'</div><br><g>' + this.point.value + '%</div>';
+				                }
+
+				            }
+				        }],
+				        data: treemapData
+				    }],
+				    title: {
+				        text: ''
+				    },
+				    tooltip: {
+				        pointFormat: '<b>{point.name}</b>:<br> {point.value}%<br>'
+				    }
+				})
 				
-		 }	
+
+			}	
+			,testChart_treemap : function () {
+				
+				const treemapData = [{
+			            name: '월자문 컨설팅',
+			            value: 60,
+			            colorValue: 60
+			        }, {
+			            name: '일반 컨설팅',
+			            value: 40,
+			            colorValue: 40
+			        }, {
+			            name: '',
+			            value: 0,
+			            colorValue: 0
+			        }, {
+			            name: '',
+			            value: 0,
+			            colorValue: 0
+			        }, {
+			            name: '',
+			            value: 0,
+			            colorValue: 0
+			        }, {
+			            name: '',
+			            value: 0,
+			            colorValue: 0
+			        }]  ;
+				
+				<@pageId>.treemapChart('testChart_treemap',{
+			        minColor: '#75C2D5',
+			        maxColor: '#3BA8C3' 
+			        
+			    },treemapData);
+					
+			}		
+			,testChart_treemap2 : function () {
+				
+				const treemapData = [{
+		            name: '법인전환',
+		            value: 50,
+		            colorValue: 50,
+		        }, {
+		            name: 'CEO 플랜',
+		            value: 25,
+		            colorValue: 25,
+		        }, {
+		            name: '연구소 및 특허',
+		            value: 12.5,
+		            colorValue: 12.5
+		        }, {
+		            name: '정책자금',
+		            value: 12.5,
+		            colorValue: 12.5
+		        }, {
+		            name: '대출컨설팅',
+		            value: 6.25,
+		            colorValue:  6.25
+		        }, {
+		            name: '기타',
+		            value: 6.25,
+		            colorValue:  6.25
+		        }]
+				
+				<@pageId>.treemapChart('testChart_treemap2',{
+			        minColor: '#8A8BB9',
+			        maxColor: '#27187F' 
+			        
+			    },treemapData);
+				
+			}
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
-		<@pageId>.sampleFunction();
+		<@pageId>.testChart_treemap();
+ 		<@pageId>.testChart_treemap2();
+ 		$(".highcharts-credits").remove();
+ 		$(".highcharts-legend.highcharts-no-tooltip").remove();
+		setTimeout( () =>{
+			
+			
+	        /*$('#container svg rect.highcharts-plot-background').attr('rx', '10').attr('ry', '10');*/
+	        $('rect.highcharts-plot-background').attr('rx', '10').attr('ry', '10');
+	        
+		},5000)
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -22,51 +139,24 @@
 
 				<div class="select_box fr" style="width:132px">
 					<button type="button" class="btn radio"><span>전체</span></button>
-<!--                     <ul class="select_lst">
-                        <li>
-                            <input name="product" id="product01" type="radio" value="">
-                            <label for="product01">전체<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="product" id="product02" type="radio" value="">
-                            <label for="product02">스타<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="product" id="product03" type="radio" value="">
-                            <label for="product03">감탄<i class="icon_check"></i></label>
-                        </li>
-                    </ul> -->
                 </div>
 			</div>
 			<div class="sec_scroll">
 				<section class="sec_wrap">
 					<!-- 분류별 실적 -->
-					<div class="cont_box left">
+					<div class="cont_box left" style='width:29%;overflow:hidden'>
 						<h3>분류별 실적</h3>
-						<div class="box_division_wrap">
-							<div class="box_division blue">
-								<div class="row_100"><span>일반 컨설팅<br><em>100%</em></span></div>
+						<div class="box_division_wrap" style='margin-top:0px;'>
+							<div style='width:50%;'>
+								<div id="testChart_treemap"  style='height:350px;' ></div>
 							</div>
-							<div class="box_division purple">
-								<div class="row_50"><span>법인전환<br><em>50%</em></span></div>
-								<div class="row_50">
-									<div class="col_50"><span>CEO 플랜<br><em>25%</em></span></div>
-									<div class="col_50">
-										<div class="row_25"><span>연구소  및 특허<br><em>12.5%</em></span></div>
-										<div class="row_25">
-											<div class="col_50"><span>정책자금<br><em>12.5%</em></span></div>
-											<div class="col_50">
-												<div class="row_15 back60"><span class="font10 lh12">대출컨설팅<br><em class="font14">6.25%</em></span></div>
-												<div class="row_15 back50"><span class="font10 lh12">기타<br><em class="font14">6.25%</em></span></div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+							<div style='width:50%;'>
+					 			<div id="testChart_treemap2"  style='height:350px;' ></div>
+							</div>		
 						</div>
 						<div class="box_text">
-							<div class="box_division">&lt; 대분류 &gt;</div>
-							<div class="box_division">&lt; 소분류 &gt;</div>
+							<div class="box_division" style='z-index:10'>&lt; 대분류 &gt;</div>
+							<div class="box_division" style='z-index:10'>&lt; 소분류 &gt;</div>
 						</div>
 					</div>
 
