@@ -23,8 +23,9 @@
         ) 
     </insert>
     
-    <update id="updateScheduleMsater" parameterType="java.util.HashMap"  flushCache="true" >
-        /*  schedule.updateScheduleMsater */
+    <!-- 일정공유 마스터 수정  이응규 -->
+    <update id="updateScheduleMaster" parameterType="java.util.HashMap"  flushCache="true" >
+        /*  schedule.updateScheduleMaster */
         UPDATE TBL_EXP_SCHEDULE_MASTER
         SET    LOOP_TYPE           = #{loopType}
               ,SCHEDULE_START_DATE = #{scheduleStartDate} 
@@ -58,6 +59,7 @@
         UPDATE TBL_EXP_SCHEDULE
         SET    TITLE              = #{title}
               ,WORK_TYPE          = #{workType} 
+              ,ALL_APPLY_YN       = #{allApplyYn}
               ,TIME_TYPE          = 'TIME_TYPE'
               ,START_TIME_HOUR    = #{startTimeH}
               ,START_TIME_MINUTE  = #{startTimeM}
@@ -75,16 +77,28 @@
     <delete id="deleteSchedule" parameterType="java.util.HashMap"  flushCache="true" >
         /*  schedule.deleteSchedule */
         DELETE FROM TBL_EXP_SCHEDULE 
-        WHERE SCHEDULE_ID = #{scheduleId} 
+        WHERE 1 = 1
+        <if test=" scheduleGrpId != null and scheduleGrpId != '' ">
+            AND    SCHEDULE_GRP_ID =  #{scheduleGrpId}
+        </if>
+        <if test=" scheduleId != null and scheduleId != '' " >
+            AND   SCHEDULE_ID = #{scheduleId} 
+        </if>
     </delete>
     
     <delete id="deleteScheduleShare" parameterType="java.util.HashMap"  flushCache="true" >
         /*  schedule.deleteScheduleShare */
         DELETE FROM TBL_EXP_SCHEDULE_SHARE 
         WHERE  1 = 1
-        AND    SCHEDULE_ID = #{scheduleId}
-        AND    USER_ID     = #{sessionVo.userId}
-        AND    SP_CSTM_ID  = #{sessionVo.spCstmId}
+        <if test=" scheduleId != null and scheduleId != '' ">
+            AND    SCHEDULE_ID = #{scheduleId}
+        </if>
+        <if test=" userId != null and userId != '' ">
+            AND    USER_ID     = #{userId}
+        </if>
+        <if test=" spCstmId != null and spCstmId != '' " >
+            AND    SP_CSTM_ID  = #{spCstmId}
+        </if>
     </delete>
     
     <!-- 일정 입력  이응규 -->
@@ -94,7 +108,8 @@
               SCHEDULE_ID 
              ,SCHEDULE_GRP_ID     
              ,TITLE             
-             ,WORK_TYPE         
+             ,WORK_TYPE  
+             ,ALL_APPLY_YN       
              ,SCHEDULE_DATE     
              ,TIME_TYPE         
              ,START_TIME_HOUR   
@@ -111,7 +126,8 @@
               #{scheduleId}
              ,#{scheduleGrpId}
              ,#{title}
-             ,#{workType}         
+             ,#{workType} 
+             ,#{allApplyYn}          
              ,(TO_DATE(#{date}, 'yyyy-mm-dd') )
              ,'TIME_TYPE'
              ,#{startTimeH}
@@ -146,7 +162,8 @@
         /* schedule.getScheduleList */
         SELECT A.SCHEDULE_ID       
               ,A.TITLE             
-              ,A.WORK_TYPE           
+              ,A.WORK_TYPE             
+              ,A.ALL_APPLY_YN      
               ,B.ATTR1  AS WORK_COLOR     
               ,B.ATTR2  AS TEXT_COLOR      
               ,A.SCHEDULE_DATE   
@@ -161,6 +178,7 @@
               ,A.DESCRIPTION       
               ,A.USER_ID 
               ,C.LOOP_TYPE
+              ,C.SCHEDULE_GRP_ID
               ,TO_CHAR(C.SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
               ,TO_CHAR(C.SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE
         FROM   TBL_EXP_SCHEDULE A
@@ -190,6 +208,35 @@
             AND    SCHEDULE_ID = #{scheduleId}
         </if>
     </select>
+    
+    <select id="getScheduleList1" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getScheduleList1 */
+        SELECT A.SCHEDULE_ID     
+              ,A.SCHEDULE_GRP_ID 
+              ,A.TITLE           
+              ,A.WORK_TYPE       
+              ,A.ALL_APPLY_YN    
+              ,A.SCHEDULE_DATE   
+              ,A.TIME_TYPE       
+              ,A.START_TIME_HOUR 
+              ,A.START_TIME_MINUTE
+              ,A.END_TIME_HOUR    
+              ,A.END_TIME_MINUTE  
+              ,A.POSITION         
+              ,A.SECRET_YN        
+              ,A.DESCRIPTION      
+              ,A.USER_ID          
+              ,A.SP_CSTM_ID
+        FROM   TBL_EXP_SCHEDULE A
+        WHERE  1 = 1
+        <if test=" scheduleGrpId != null and scheduleGrpId != '' " >
+            AND    A.SCHEDULE_GRP_ID = #{scheduleGrpId}
+        </if>
+        <if test=" scheduleId != null and scheduleId != '' " >
+            AND    A.SCHEDULE_ID = #{scheduleId}
+        </if>
+    </select>
+    
     <select id="getScheduleShareList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.getScheduleShareList */
         SELECT  A.SP_CSTM_ID

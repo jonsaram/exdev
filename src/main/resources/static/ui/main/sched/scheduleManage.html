@@ -5,6 +5,8 @@
     	events : []
        ,parmObj : {}
        ,calendar : ''
+       ,toDayScheduleCnt : 0
+       ,toDay : ''
    	   ,addSchedulePopup : function() {    
 	        let requestParm = {}
 	        C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
@@ -22,7 +24,7 @@
             calendar = new FullCalendar.Calendar(calendarEl, {
                 height: '100%',
                 expandRows: true,
-                //locale: 'ko', // 한국어 설정
+                locale: 'ko', // 한국어 설정
                 // slotMinTime: '08:00',
                 // slotMaxTime: '20:00',
                 headerToolbar: {
@@ -79,9 +81,13 @@
                console.log("schedule.getScheduleList");
                //console.log( resultData.data);
                 
+                
                for (var i=0; i<resultData.data.length; i++){
-                  // console.log(resultData.data[i].TITLE);
-                    
+                   // 오늘의 일정 count
+                   console.log("toDay ==>"+<@pageId>.toDay);
+                   if( <@pageId>.toDay == resultData.data[i].SCHEDULE_DATE1){
+                	   <@pageId>.toDayScheduleCnt++; 
+                   }
                    var obj = new Object();
                    obj.id    = resultData.data[i].SCHEDULE_ID;
                    obj.title = resultData.data[i].TITLE;
@@ -92,7 +98,13 @@
                    calendar.addEvent(obj);
                     
                 }
+               console.log(" toDayScheduleCnt ==>"+<@pageId>.toDayScheduleCnt);
+                let count = <@pageId>.toDayScheduleCnt+'개';
+                $('#todaySchedulecnt span').text(count);
             }); 
+       }
+       ,setCalendar : function(dateString) {
+           calendar.gotoDate( new Date(dateString) )
        }
 
     }
@@ -102,6 +114,20 @@
         
         <@pageId>.init("A");
         <@pageId>.getAllschedule();
+        let date = new Date();
+        
+        <@pageId>.toDay = date.getFullYear() +
+                          '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
+                          '-' + ( (date.getDate()) <= 9 ? "0" + (date.getDate()) : (date.getDate()) );
+        
+        console.log("toDay ==>"+<@pageId>.toDay);
+        
+        $("#<@pageId>_datepicker").datepicker({
+            onSelect: function(dateString) {
+                <@pageId>.setCalendar(dateString);
+            }
+        });
+        
         
     });
     // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -123,12 +149,12 @@
                             <div class="today_schedule">
                                 <i class="icon_calendar_mark"></i>
                                 <div class="tit_schedule">오늘의 일정</div>
-                                <span class="num">2개</span>
+                                <div id="todaySchedulecnt"><span class="num">개</span></div>
                             </div>
                         </div>
                         <!-- 왼쪽 박스 영역 -->
                         <div class="schedule_wrap">
-                            <div class="datepicker"></div>
+                            <div id="<@pageId>_datepicker"></div>
                             <div class="stit_schedule">하위 팀원 업무 스케줄 확인</div>
                             <div class="check_subTeam_wrap"></div>
                             <div class="stit_schedule">업무 유형</div>

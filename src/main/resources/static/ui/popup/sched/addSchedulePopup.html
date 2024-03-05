@@ -7,10 +7,13 @@
         ,userIndex : 0
         ,mode : ''
         ,limitDate : ''
+        ,orgDateStart : ''
         ,orgStartTimeHour : ''
         ,orgStartTimeMinute : ''
         ,orgEndTimeHour : ''
         ,orgEndTimeMinute : ''
+        ,scheduleGrpId    : ''
+        ,allApplyYn    : 'N'
         ,close : function() {
             console.log("=== close ===");
             var obj = new Object();
@@ -60,24 +63,36 @@
          }
         ,setSchedule : function( data ) {
             
+        	console.log("== setSchedule 1 ==>"+data);
+        	
             $('#<@popupId>_title').val(data.TITLE);
             $('#<@popupId>_position').val(data.POSITION);
             $('#<@popupId>_description').val(data.DESCRIPTION);
+            $('#<@popupId>_orgDateStart').val(data.SCHEDULE_DATE1);
+            $('#<@popupId>_dateStart').val(data.SCHEDULE_START_DATE);
+            $('#<@popupId>_dateEnd').val(data.SCHEDULE_END_DATE);
             
             // 셀렉트 박스 세팅
-            C_UICOM.setSingleBox("<@popupId>_selectBoxWorkType", data.WORK_TYPE);
             C_UICOM.setSingleBox("<@popupId>_selectBoxLoopType", data.LOOP_TYPE);
-            C_UICOM.setSingleBox("<@popupId>_scheduleSecretYn", data.WORK_TYPE);
+            C_UICOM.setSingleBox("<@popupId>_selectBoxWorkType", data.WORK_TYPE);
+            C_UICOM.setSingleBox("<@popupId>_scheduleSecretYn", data.SECRET_YN);
+            
+            console.log("== setSchedule data.SCHEDULE_GRP_ID ==>"+data.SCHEDULE_GRP_ID);
+            
+            <@popupId>.allApplyYn         = data.ALL_APPLY_YN;
+            <@popupId>.loopType           = data.LOOP_TYPE;
+            <@popupId>.scheduleGrpId      = data.SCHEDULE_GRP_ID;
+            <@popupId>.orgStartTimeHour   = data.START_TIME_HOUR;
+            <@popupId>.orgStartTimeMinute = data.START_TIME_MINUTE;
+            <@popupId>.orgEndTimeHour     = data.END_TIME_HOUR;
+            <@popupId>.orgEndTimeMinute   = data.END_TIME_MINUTE;
             
             <@popupId>.setSelectBoxTime(data.START_TIME_HOUR, data.START_TIME_MINUTE, data.END_TIME_HOUR, data.END_TIME_MINUTE);
             
+            <@popupId>.setApplyAllCheckDate( data.ALL_APPLY_YN );
+                        
         }
         ,setSelectBoxTime : function( startTimeHour, startTimeMinute, endTimeHour, endTimeMinute ) {
-            
-            <@popupId>.orgStartTimeHour   =
-            <@popupId>.orgStartTimeMinute =
-            <@popupId>.orgEndTimeHour     =
-            <@popupId>.orgEndTimeMinute   =
                 
         	console.log("== setSelectBoxTime startTimeHour===>"+startTimeHour);
             console.log("== setSelectBoxTime startTimeMinute===>"+startTimeMinute);
@@ -89,7 +104,39 @@
             C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", endTimeHour);
             C_UICOM.setSingleBox("<@popupId>_selectBoxEndMinute", endTimeMinute);
         }
-        
+        ,setApplyAllCheckDate : function( check  ) {//전체 적용 체크함에 따라 시작일 종료일 세팅
+            
+            console.log("== setApplyAllCheckDate ===>"+check);
+            console.log("== mode ===>"+<@popupId>.mode);
+            
+            if( "UPDATE" == <@popupId>.mode ){  
+            	 console.log("== UPDATE ===>");
+                $('#<@popupId>_showApplyAll').show();
+                
+            	if( "Y" == check){
+                    console.log("== check Y ===>");
+                    
+                    $("input:checkbox[id='<@popupId>_applyAll']").prop("checked", true);
+                    $('#<@popupId>_showDateStartUP').hide();    
+                    $('#<@popupId>_showDateStart').show();  
+                    $('#<@popupId>_showDateEnd').show();      
+                    $('#<@popupId>_showLoopType').show();     
+                }else{
+
+                    console.log("== check N ===>");
+                    $('#<@popupId>_showDateStartUP').show();   
+                    $('#<@popupId>_showDateStart').hide();  
+                    $('#<@popupId>_showDateEnd').hide();      
+                    $('#<@popupId>_showLoopType').hide();  
+                }	
+            }else if( "INSERT" == <@popupId>.mode ){
+            	$('#<@popupId>_showApplyAll').hide();    
+                $('#<@popupId>_showDateStartUP').hide();    
+                $('#<@popupId>_showDateStart').show();  
+                $('#<@popupId>_showDateEnd').show();      
+                $('#<@popupId>_showLoopType').show();
+            }else{}
+        }
         ,memberSearchPopup : function() {
     
             C_POP.open('popup_userSearchPopup', {}, function(retData) {
@@ -98,7 +145,6 @@
             });
          }
         ,addMember : function(retData) {
-        	console.log("addMember =>"+retData);
 
             if(isValid(<@popupId>.appMember[retData.USER_ID])) {
                 alert('이미 등록되어 있는 사원입니다.');
@@ -108,12 +154,12 @@
             
             <@popupId>.loadAppMember();
          }
-        ,delMember : function(userId) {/* 결재자 삭제 */
+        ,delMember : function(userId) {/* 참석자 삭제 */
             <@popupId>.appMember = removeMember(<@popupId>.appMember, userId);
             <@popupId>.loadAppMember();
          }
         
-        ,deleteUser : function(num) {/* 결재자 삭제 */
+        ,deleteUser : function(num) {/* 참석자 삭제 */
             $("#<@popupId> #approvalUser" + num).remove();
             <@popupId>.userArr[num].is_delete = true;
          }
@@ -123,7 +169,14 @@
             console.log("deleteSchedule");
             
             let requestParm = {};            
-            requestParm["scheduleId"]  = <@popupId>.scheduleId;
+            requestParm["scheduleGrpId"]      = <@popupId>.scheduleGrpId;
+            requestParm["scheduleId"]         = <@popupId>.scheduleId;
+            requestParm["allApplyYn"]         = <@popupId>.allApplyYn;
+            
+            console.log("=== scheduleGrpId ===>"+<@popupId>.scheduleGrpId);
+            console.log("=== scheduleId ===>"+<@popupId>.scheduleId);
+            console.log("=== allApplyYn ===>"+<@popupId>.allApplyYn);
+            
             
             // 데이타 삭제
             var parm = {
@@ -150,35 +203,38 @@
             
             console.log("update");
 
-            let title = $('#<@popupId>_title').val();
-            let date  = $('#<@popupId>_dateStart').val();
-            
-            if (title.length < 1) {
+            if ($('#<@popupId>_title').val().length < 1) {
                 alert("제목을 입력해 주세요.");
                 $("#<@popupId>_title").focus();
                 return false;
             }
             
-            if (date.length < 1) {
+            if ($('#<@popupId>_dateStart').val().length < 1) {
                 alert("일정을 입력해 주세요.");
                 $("#<@popupId>_dateStart").focus();
                 return false;
             }
             
             let requestParm = {};            
-            requestParm["scheduleId"]  = <@popupId>.scheduleId;
-            requestParm["title"]  = title;
-            requestParm["date"]  = date;
-            requestParm["position"]  = $('#<@popupId>_position').val();
-            requestParm["description"]  = $('#<@popupId>_description').val();
-            requestParm["loopType"]  = <@popupId>.loopType;
-            requestParm["workType"]  = <@popupId>.workType;
-            requestParm["startTimeH"]  = <@popupId>.startTimeH;
-            requestParm["startTimeM"]  = <@popupId>.startTimeM;
-            requestParm["endTimeH"]  = <@popupId>.endTimeH;
-            requestParm["endTimeM"]  = <@popupId>.endTimeM;
-            requestParm["secretYn"]  = <@popupId>.secretYn;
+            requestParm["scheduleGrpId"]      = <@popupId>.scheduleGrpId;
+            requestParm["scheduleId"]         = <@popupId>.scheduleId;
+            requestParm["title"]              = $('#<@popupId>_title').val();
+            requestParm["orgDateStart"]       = $('#<@popupId>_orgDateStart').val();
+            requestParm["scheduleStartDate"]  = $('#<@popupId>_dateStart').val();
+            requestParm["scheduleEndDate"]    = $('#<@popupId>_dateEnd').val();
+            requestParm["position"]           = $('#<@popupId>_position').val();
+            requestParm["description"]        = $('#<@popupId>_description').val();
+            requestParm["loopType"]           = <@popupId>.loopType;
+            requestParm["workType"]           = <@popupId>.workType;
+            requestParm["startTimeH"]         = <@popupId>.startTimeH;
+            requestParm["startTimeM"]         = <@popupId>.startTimeM;
+            requestParm["endTimeH"]           = <@popupId>.endTimeH;
+            requestParm["endTimeM"]           = <@popupId>.endTimeM;
+            requestParm["secretYn"]           = <@popupId>.secretYn;
+            requestParm["allApplyYn"]         = <@popupId>.allApplyYn;
             
+            console.log("=== allApplyYn ===>"+<@popupId>.allApplyYn);
+            console.log("=== scheduleGrpId ===>"+<@popupId>.scheduleGrpId);
             /////////////////////////////////////////////////////////////////////
             var scheduleIdArry = new Array();
             
@@ -250,6 +306,7 @@
             requestParm["scheduleEndDate"]    = $('#<@popupId>_dateEnd').val();
             requestParm["position"]           = $('#<@popupId>_position').val();
             requestParm["description"]        = $('#<@popupId>_description').val();
+            requestParm["allApplyYn"]         = <@popupId>.allApplyYn;
             requestParm["loopType"]           = <@popupId>.loopType;
             requestParm["workType"]           = <@popupId>.workType;
             requestParm["startTimeH"]         = <@popupId>.startTimeH;
@@ -331,6 +388,7 @@
             let endDate = new Date($('#<@popupId>_dateEnd').val());
             let checkDate = new Date(result);
 
+            console.log("dateStart["+dateStart+"]  endDate["+endDate+"]  checkDate["+checkDate+"]  ");
             
             return endDate > checkDate;
         	
@@ -428,13 +486,11 @@
         C_UICOM.setSingleBox("<@popupId>_selectBoxLoopType", "NOT_REPEAT");
         <@popupId>.loopType = "NOT_REPEAT";
         
-        $('#<@popupId>_dateEnd').hide();
-        
         C_UICOM.addChangeListner("<@popupId>_selectBoxLoopType", function(dataObj) {
         	
             <@popupId>.loopType = dataObj;
             if ( <@popupId>.loopType == 'NOT_REPEAT') {
-                $('#<@popupId>_dateEnd').hide();
+            	
             }else{
                 
                 let setDate = <@popupId>.getLimitDate( <@popupId>.loopType, $('#<@popupId>_dateStart').val() );
@@ -442,7 +498,6 @@
                 
                 <@popupId>.limitDate = setDate;
                 $('#<@popupId>_dateEnd').val(setDate);
-                $('#<@popupId>_dateEnd').show();
             }
             
         });
@@ -587,16 +642,36 @@
             $('#<@popupId>_btnDelete').hide();
             $('#<@popupId>_btnUpdate').hide();
             $('#<@popupId>_btnSave').show();
+            <@popupId>.setApplyAllCheckDate( "N" );
             
         } else{}
 
         $("#<@popupId>_allDay").change(function(){
             if($("#<@popupId>_allDay").is(":checked")){
-                alert("체크박스 체크했음!");
-            }else{
-                alert("체크박스 체크 해제!");
+                <@popupId>.setSelectBoxTime( "00", "00", "23", "30" );
+            }else{  
+            	if ( <@popupId>.mode == 'UPDATE'){
+            		<@popupId>.setSelectBoxTime( <@popupId>.orgStartTimeHour, <@popupId>.orgStartTimeMinute, <@popupId>.orgEndTimeHour, <@popupId>.orgEndTimeMinute );
+            	}else{
+            		<@popupId>.setSelectBoxTime( "00", "00", "00", "00" );	
+            	}
+                
             }
         });
+
+        
+        
+        $("#<@popupId>_applyAll").change(function(){
+            if($("#<@popupId>_applyAll").is(":checked")){
+            	<@popupId>.allApplyYn = "Y";
+            	<@popupId>.setApplyAllCheckDate( <@popupId>.allApplyYn );
+            }else{
+                <@popupId>.allApplyYn = "N";
+                <@popupId>.setApplyAllCheckDate( <@popupId>.allApplyYn );
+            }
+        });
+        
+        
         
     });
     
@@ -623,17 +698,21 @@
                     <dt>일정</dt>
                     <dd>
                         <div class="clearFix">
-                            <div class="calendar_wrap fl">
+                            <div class="fl" id="<@popupId>_showDateStartUP" >
+                                <input type="text" id="<@popupId>_orgDateStart" style="width:150px" readonly> 
+                            </div>
+                            <div class="calendar_wrap fl" id="<@popupId>_showDateStart" >
                                 <input type="text" class="datepicker" id="<@popupId>_dateStart" style="width:150px">
                             </div>
-                            <div class="calendar_wrap fl">
+                            <div class="calendar_wrap fl" id="<@popupId>_showDateEnd" >
                                 <input type="text" class="datepicker" id="<@popupId>_dateEnd" style="width:150px">
                             </div>
-                            <div class="select_box fl" style="width:150px">
+                            <div class="select_box fl" style="width:150px" id="<@popupId>_showLoopType" >
                                 <div id="<@popupId>_selectBoxLoopType" style="width:100%"></div>
                             </div>
-                            <div class="fl">
-                                <input type="checkbox" name="" id="<@popupId>_applyAll" class="pl10 lh33"><label for="day" class="ml5 lh33">전체적용</label>
+                            <div class="fl" id="<@popupId>_showApplyAll">
+                                <input type="checkbox" name="" id="<@popupId>_applyAll" class="pl10 lh33" >
+                                <label id="<@popupId>_applyAllLabel" for="day" class="ml5 lh33">전체적용</label>
                             </div>
                         </div>
                         <div class="clearFix mt10">
