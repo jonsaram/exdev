@@ -1597,7 +1597,7 @@ var C_COMP = {
 			return;
 		}
 
-		compId = templateId + compId;
+		compId = templateId + targetId;
 
 		parm.compId = compId;
 		

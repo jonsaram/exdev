@@ -3,10 +3,8 @@
 	var <@pageId> = {
         searchApproval : function() {
             let parm = {
-                 queryId        : "approval.getApproval"
-                ,requestParm    : {
-                	searchUserId : G_VAL.session.USER_ID
-                }
+                 queryId        : "approval.getApprovalList"
+                ,requestParm    : {}
             }
             C_COM.requestQuery(parm, function(resultData) {
                 <@pageId>.approvalList = resultData.data;
@@ -20,9 +18,6 @@
                 	}
                 	<@pageId>.approvalList[idx].stateStr = stateStr;
                 });
-                
-                
-                
                 let rparm = {
                      targetId   : "tableId"
                     ,list       : <@pageId>.approvalList
@@ -31,11 +26,19 @@
             });            
     	 }
 	    ,apprDtlPopup : function(APPROVAL_ID) {    
-	    	alert();
 	        C_POP.open('popup_appr_apprDtlPopup', {APPROVAL_ID : APPROVAL_ID}, function() {
 	            //console.log("======= 부모창 retData =======");
 	        });
 	     }
+        ,apprReqPopup : function() {    
+            console.log("======= apprReqPopup =======>");
+            C_POP.open('popup_appr_apprReqPopup', {}, function() {
+                console.log("======= 부모창 retData =======");
+                <@pageId>.searchApproval();
+            });
+            
+         }
+	    
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -51,6 +54,15 @@
         C_UICOM.makeSelectBox(singleboxList, "single");
         
         <@pageId>.searchApproval();
+        
+        
+		// List Range Select Box 설정
+        var singleboxList = { 
+			 data 			: C_COM.getCodeList("SEARCH_LIST_CNT")
+		 	,targetId 		: "listRange" 
+		}
+		C_UICOM.makeSelectBox(singleboxList, "single");
+        
 		
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -68,13 +80,18 @@
 				<h3>상신함 목록</h3>
 				<!-- search area -->
 				<div class="search_area">
-					<span class="tit01">조회기간</span>
-                    <div class="calendar_wrap">
-                        <input type="text" class="datepicker" id="<@pageId>_start_date" style="width:132px">
-                    </div>~
-                    <div class="calendar_wrap">
-                        <input type="text" class="datepicker" id="<@pageId>_end_date" style="width:132px">
-                    </div>
+					<span class="tit01 fl lh33">조회기간</span>
+					<div class="calendar_wrap fl">
+						<input type="text" class="datepicker" style="width:132px"> ~
+					</div>
+					<div class="calendar_wrap fl">
+						<input type="text" class="datepicker" style="width:132px">
+					</div>
+					<div class="search_inputWrap fl">
+						<input type="search" name="">
+					</div>
+					<button class="btn select fl">검색</button>
+					<button class="btn select fl" onclick="<@pageId>.apprReqPopup()">결재상신</button>
 					<div class="search_right">
 						<button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>
                         <div id="searchListCnt" style="width:132px"></div>
@@ -90,6 +107,7 @@
 							<col style="width:130px;"/>
 							<col style="width:*"/>
 							<col style="width:100px;"/>
+							<col style="width:200px;"/>
 						</colgroup>
 						<thead>
 							<tr>
@@ -97,6 +115,7 @@
 								<th scope="col">상신일</th>
 								<th scope="col">제목</th>
 								<th scope="col">상태</th>
+								<th scope="col">결재완료일</th>
 							</tr>
 						</thead>
 						<tbody id="tableId">
@@ -108,12 +127,13 @@
 								<td>{{:APPROVAL_DATE}}</td>
 								<td class="tl"><a href="javascript:<@pageId>.apprDtlPopup('{{:APPROVAL_ID}}');">{{:TITLE}}</a></td>
 								<td>{{:stateStr}}</td>
+								<td>{{:COMPLETE_DATE}}</td>
 							</tr>
                             {{/for}}
                         </script>
                         <script type="text/x-jsrender" id="tableId_noData_template">    
                            <tr>    
-                               <td colspan=4>자료가 없습니다.</td>    
+                               <td colspan=5>자료가 없습니다.</td>    
                            </tr>
                         </script>
 					</table>

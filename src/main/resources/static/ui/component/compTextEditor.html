@@ -21,17 +21,17 @@
         ,setMode : function(data) {
             if( data.mode == "R" ){
                 //에디터 비활성화
-                <@compId>.textEditor.enableReadOnlyMode( '#<@compId> #textEditor' );
+                <@compId>.textEditor.enableReadOnlyMode( '#<@compId>_textEditor' );
             }else{
                 //에디터 활성화
-                <@compId>.textEditor.disableReadOnlyMode( '#<@compId> #textEditor' );
+                <@compId>.textEditor.disableReadOnlyMode( '#<@compId>_textEditor' );
             }
         }
     }
     // Component Load가 완료된후 실행 된다.
     C_COMP.onLoadComp("<@compId>", function(data) {
-
-        ClassicEditor.create( document.querySelector( '#<@compId> #textEditor' ), {
+		dalert('<@compId>');
+        ClassicEditor.create( document.querySelector( '#<@compId>_textEditor' ), {
              extraPlugins: [<@compId>.MyCustomUploadAdapterPlugin]
             ,language: "ko"
         }).then( newEditor => {
@@ -39,10 +39,10 @@
             <@compId>.textEditor = newEditor;
             if( data.mode == "R" ){
                 //에디터 비활성화
-                <@compId>.textEditor.enableReadOnlyMode( '#<@compId> #textEditor' );
+                <@compId>.textEditor.enableReadOnlyMode( '#<@compId>_textEditor' );
             }else{
                 //에디터 활성화
-                <@compId>.textEditor.disableReadOnlyMode( '#<@compId> #textEditor' );
+                <@compId>.textEditor.disableReadOnlyMode( '#<@compId>_textEditor' );
             }
             
         }).catch( error => {
@@ -52,7 +52,7 @@
    }); 
 </script>
 <div>
-    <div id="textEditor"><@content></div>
+    <div id="<@compId>_textEditor"><@content></div>
      <!-- 
     <input type=button value=callback onclick="<@compId>.returnFn()"> <br/><br/>
      -->
