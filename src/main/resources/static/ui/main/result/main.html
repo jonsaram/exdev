@@ -27,10 +27,9 @@ var <@pageId> = {
 					
 				})
 
-				<@pageId>.treemapChart('mainCategoryTreemap',{	minColor: '#75C2D5',
+				<@pageId>.treemapChart('<@pageId>_mainCategoryTreemap',{	minColor: '#75C2D5',
 													        	maxColor: '#3BA8C3'},
 													        	treemapData,function(options){
-													        		debugger;
 													        		console.log( options );
 													        		<@pageId>.mainCategoryItem = options.type;
 													        		<@pageId>.subCategoryTreemap();
@@ -62,7 +61,7 @@ var <@pageId> = {
 					
 				})
 
-				<@pageId>.treemapChart('subCategoryTreemap',{	minColor: '#8A8BB9',
+				<@pageId>.treemapChart('<@pageId>_subCategoryTreemap',{	minColor: '#8A8BB9',
 													        	maxColor: '#27187F'},treemapData);
 				
 
@@ -125,10 +124,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<h3>분류별 실적</h3>
 					<div class="box_division_wrap" style='margin-top:0px;'>
 						<div style='width:50%;'>
-							<div id="mainCategoryTreemap"  style='height:350px;' ></div>
+							<div id="<@pageId>_mainCategoryTreemap"  style='height:350px;' ></div>
 						</div>
 						<div style='width:50%;'>
-				 			<div id="subCategoryTreemap"  style='height:350px;' ></div>
+				 			<div id="<@pageId>_subCategoryTreemap"  style='height:350px;' ></div>
 						</div>		
 					</div>
 					<div class="box_text">
@@ -211,7 +210,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 </script>
 <script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
 				<tr>	
-					<td colspan=13>자료가 없습니다.</td>	
+					<td colspan=12>자료가 없습니다.</td>	
 				</tr>
 </script>								
 							</table>
