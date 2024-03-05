@@ -197,7 +197,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			 					<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
 			 					<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</td>
 			 					<td id='SALES_TYPE_NM'		value='{{:SALES_TYPE_NM}}'		>{{:SALES_TYPE_NM}}</td>
-			 					<td id=''		value=''		>본사</td>
+			 					<td id='GET_PATH_NM'		value='{{:GET_PATH_NM}}'		>{{:GET_PATH_NM}}</td>
 			 					<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
 			 					<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
 								<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
@@ -233,29 +233,29 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<section class="sec_wrap">
 					<div class="cont_box col3">
 						<h3>전체 월자문 순매출 &lt; 본사 &gt;</h3>
-						<div class="price">13,844,381,010원</div>
+						<div class="price" id="<@pageId>_monthly_OrgSellingPrice">13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart" id="<@pageId>_chart1" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart" id="<@pageId>_monthlyOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 					<div class="cont_box col3">
 						<h3>전체 1회성 컨설팅 순매출 &lt; 본사 &gt;</h3>
-						<div class="price">11,654,165,841원</div>
+						<div class="price" id="<@pageId>_once_OrgSellingPrice"> 11,654,165,841원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart2" id="<@pageId>_chart2" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart2" id="<@pageId>_onceOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 					<div class="cont_box col3">
 						<h3>전체 컨설팅 상세별 순매출 &lt; 본사 &gt;</h3>
-						<div class="price">11,654,165,841원</div>
+						<div class="price" id="<@pageId>_product_OrgSellingPrice">11,654,165,841원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart3" id="<@pageId>_chart3" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart3" id="<@pageId>_productOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 				</section>
@@ -263,20 +263,20 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<section class="sec_wrap">
 					<div class="cont_box col2">
 						<h3>전체 월자문 수수료 지급 &lt; FA &gt;</h3>
-						<div class="price">13,844,381,010원</div>
+						<div class="price" id="<@pageId>_monthlyPayment_Price">13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart4" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart4" id="<@pageId>_monthlyPayment_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 					<div class="cont_box col2">
 						<h3>전체 1회성 컨설팅 수수료 지급 &lt; FA &gt;</h3>
-						<div class="price">11,435,843,123원</div>
+						<div class="price" id="<@pageId>_oncePayment_Price">11,435,843,123원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart5" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart5"  id="<@pageId>_oncePayment_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 				</section>
@@ -284,20 +284,20 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<section class="sec_wrap">
 					<div class="cont_box col2">
 						<h3>전체 순매출 성장률</h3>
-						<div class="price">265,465,879,132원</div>
+						<div class="price" id="<@pageId>_org_selling_price_growthRate">265,465,879,132원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart6" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart6" id="<@pageId>_OSP_growthRate_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 					<div class="cont_box col2">
 						<h3>전체 지사별 순매출</h3>
-						<div class="price">132,645,921,735원</div>
+						<div class="price" id="<@pageId>_org_selling_price_local">132,645,921,735원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart7" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart7"  id="<@pageId>_OSP_local_chart"style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 				</section>
@@ -305,20 +305,20 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<section class="sec_wrap">
 					<div class="cont_box col2">
 						<h3>전체 월자문 계약건수</h3>
-						<div class="price">13,844,381,010원</div>
+						<div class="price" id="<@pageId>_monthly_contract_cnt">13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart8" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart8" id="<@pageId>_monthlyContractCnt_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 					<div class="cont_box col2">
 						<h3>전체 FA 매출순위</h3>
-						<div class="price">13,844,381,010원</div>
+						<div class="price" id="<@pageId>_fa_selling_rank">13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart9" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart9" id="<@pageId>_faSellingRank_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 				</section>
@@ -386,120 +386,32 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<th scope="col">입금액</th>
 									</tr>
 								</thead>
-								<tbody>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
+								<tbody id="<@pageId>_monthlyContractList">
 								</tbody>
+<script type="text/x-jsrender" id="<@pageId>_monthlyContractList_template">						
+						{{for list}}
+							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{{:BUYER_ID}}'>
+								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:BUYER_ID}}'></td>
+			 					<td id='CONTRACT_YEAR'	value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
+			 					<td id='CONTRACT_MONTH'	value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
+			 					<td id='SALES_TYPE_NM'		value='{{:SALES_TYPE_NM}}'		>{{:SALES_TYPE_NM}}</td>
+			 					<td id='GET_PATH_NM'		value='{{:GET_PATH_NM}}'		>{{:GET_PATH_NM}}</td>
+			 					<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
+			 					<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
+								<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
+								<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
+								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
+ 								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
+ 								<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'				>{{:TOT_INCOME}}</td>
+							</tr>
+					{{/for}}
+</script>
+<script type="text/x-jsrender" id="<@pageId>_monthlyContractList_noData_template">	
+				<tr>	
+					<td colspan=12>자료가 없습니다.</td>	
+				</tr>
+</script>
+
 							</table>
 						</div>
 						<!-- paging -->
@@ -580,120 +492,31 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<th scope="col">입금액</th>
 									</tr>
 								</thead>
-								<tbody>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
-									<tr>
-										<td><input type="checkbox"></td>
-										<td>2023</td>
-										<td>08월</td>
-										<td>직할</td>
-										<td>본사</td>
-										<td>월납</td>
-										<td>이주현</td>
-										<td>235-87-01926</td>
-										<td>(주)엠티에스<br>코퍼레이션</td>
-										<td>프랜차이즈 판로개척<br>인턴쉽지원금</td>
-										<td>10,000,000</td>
-										<td>10,000,000</td>
-									</tr>
+								<tbody id="<@pageId>_onceContractList">
 								</tbody>
+<script type="text/x-jsrender" id="<@pageId>_monthlyContractList_template">						
+						{{for list}}
+							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
+								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
+			 					<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
+			 					<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
+			 					<td id='SALES_TYPE_NM'		value='{{:SALES_TYPE_NM}}'		>{{:SALES_TYPE_NM}}</td>
+			 					<td id='GET_PATH_NM'		value='{{:GET_PATH_NM}}'		>{{:GET_PATH_NM}}</td>
+			 					<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
+			 					<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
+								<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
+								<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
+								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
+ 								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
+ 								<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'			>{{:TOT_INCOME}}</td>
+							</tr>
+					{{/for}}
+</script>
+<script type="text/x-jsrender" id="<@pageId>_monthlyContractList_noData_template">	
+				<tr>	
+					<td colspan=12>자료가 없습니다.</td>	
+				</tr>
+</script>
 							</table>
 						</div>
 						<!-- paging -->
