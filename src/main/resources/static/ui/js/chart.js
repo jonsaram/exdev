@@ -3,7 +3,7 @@
         colors: ['#27187F', '#F29423']
     });
 
-    function createChart(container, categories, series  ) {
+    function _createChart(container, categories, series  ) {
 	
        const chart =  $("#"+container).highcharts({
             chart: {

@@ -6,6 +6,36 @@ var <@pageId> = {
 		mainCategoryItem: ''
 		,categoryChart	: ()=> <@pageId>.mainCategoryChart()
 		,treemapChart : (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
+		,pageInit : () =>{
+			
+			const containerList 	= ["<@pageId>_monthlyOSP_chart"];
+			const categoriesList 	= [['1월', '2월', '3월', '4월', '5월', '6월','7월', '8월', '9월', '10월', '11월', '12월']];
+			const seriesList		= [[{
+			        name: '2023년',
+			        type: 'column',
+			        yAxis: 1,
+			        data: [70, 140, 190, 180, 195, 240, 160, 140, 0,
+			            0, 0, 0],
+			        tooltip: {
+			            valueSuffix: '억'
+		        	}
+				}
+				,{
+			        name: '2022년',
+			        type: 'line',
+			        data:  [155, 170, 185, 170, 160, 175, 165, 190, 160, 170, 160, 150],
+			        tooltip: {
+			            valueSuffix:'억'
+		    		}
+				}]]
+			
+			
+			containerList.forEach( (chart,idx) =>{
+				
+				<@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] );
+				
+			})
+		}
 		,mainCategoryChart :  () => {
 		
 			var parm = {
@@ -93,13 +123,18 @@ var <@pageId> = {
 			
 			});	
 	
-		}		
+		}	
+		
+		,createChart : (container, categories, series)=>_createChart(container, categories, series)
 }
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
 
+	<@pageId>.pageInit();
 	<@pageId>.categoryChart();
 	<@pageId>.contractList();
+	
+
 	
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -231,9 +266,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</section>
 
 				<section class="sec_wrap">
-					<div class="cont_box col3">
+					<div class="cont_box col3" id="<@pageId>_monthly_OrgSellingPrice">
 						<h3>전체 월자문 순매출 &lt; 본사 &gt;</h3>
-						<div class="price" id="<@pageId>_monthly_OrgSellingPrice">13,844,381,010원</div>
+						<div class="price" >13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">

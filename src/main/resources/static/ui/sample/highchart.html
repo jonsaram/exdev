@@ -112,12 +112,149 @@
 		    },treemapData);
 			
 		}
+		
+		,testChart_lineAndColumn : function () {
+			
+			Highcharts.setOptions({
+				colors: ['#3C3E8A', '#DADADA']
+			});
+			const tmData = treemapData();
+
+			Highcharts.chart('testChart_lineAndColumn', {
+			    chart: {
+			        zoomType: 'xy',
+		            margin: [50, 0, 35, 45],
+			    },
+			    title: {
+			        text: '',
+			        align: 'left'
+			    },
+
+			    subtitle: {
+/* 				        text: 'Source: ' +
+			            '<a href="https://www.yr.no/nb/historikk/graf/5-97251/Norge/Troms%20og%20Finnmark/Karasjok/Karasjok?q=2021"' +
+			            'target="_blank">YR</a>',
+*/				        text: '',
+						align: 'left'
+			    },
+			    xAxis: [{
+			    	labels: {
+			            style: {
+			                color: '#8A8C92',
+			                fontFamily: 'Noto Sans KR',
+			                fontSize: '11px'
+			            }
+			        },
+			        lineColor: '#DADADA',				    	
+			        categories: ['1월', '2월', '3월', '4월', '5월', '6월',
+			            '7월', '8월', '9월', '10월', '11월', '12월'],
+			        crosshair: true
+
+			    }],
+			    yAxis: [{ // Primary yAxis
+			        labels: {
+			            format: '{value}억',
+			            style: {
+			                color: '#8A8C92',
+			                fontFamily: 'Noto Sans KR',
+			                fontSize: '11px'
+			            }
+			        },
+			        title: {
+			            text: '',
+			            //style: {
+			            //    color: Highcharts.getOptions().colors[1]
+			            //}
+			        }
+			    }, { // Secondary yAxis
+			        title: {
+			            text: '',
+			            style: {
+			                    }
+			        },
+			        labels: {
+			        	 //format: '{value} mm',
+			        	 format: '',
+				            style: {
+			                //color: Highcharts.getOptions().colors[0]
+			                }
+			        },
+			        opposite: true
+			    }],
+			    tooltip: {
+			        shared: true
+			    },
+			    legend: {
+			        align: 'right',
+			        x: 0,
+			        verticalAlign: 'top',
+			        y: 0,
+			        //floating: true,
+			        //backgroundColor:
+			         //   Highcharts.defaultOptions.legend.backgroundColor || // theme
+			           // 'rgba(255,255,255,0.25)'
+			        itemStyle: {
+						color: '#8A8C92',
+						fontFamily: 'Noto Sans KR',
+						fontSize: '11px'
+					},
+					symbolRadius:0,//범례 심볼 radius 지정
+		          	symbolWidth:10,
+		          	symbolHeight:10,
+		          	x: 0,//가로 위치 지정.
+		            y: -2,//세로 위치 지정.
+			           
+			    },
+			    plotOptions: {//라인에 원표시 삭제
+			        line:{
+		        		marker: {
+		                	enabled: false
+		            	}
+			        }
+			    },
+			    series: tmData
+			});
+			
+			function treemapData () {
+				return [{
+					        name: '2023년',
+					        type: 'column',
+					        yAxis: 1,
+					        data: [70, 140, 190, 180, 195, 240, 160, 140, 0,
+					            0, 0, 0],
+					        tooltip: {
+					            valueSuffix: '억'
+				        	}
+			    		}
+						,{
+					        name: '2022년',
+					        type: 'line',
+					        data:  [155, 170, 185, 170, 160, 175, 165, 190, 160, 170, 160, 150],
+					        tooltip: {
+					            valueSuffix:'억'
+			        		}
+			    		}] ;
+			}
+		}		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
 		<@pageId>.testChart_treemap();
  		<@pageId>.testChart_treemap2();
  		$(".highcharts-credits").remove();
+ 		
+
+		<@pageId>.testChart_lineAndColumn();
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -178,3 +315,22 @@
 			<div class="box_division">&lt; 소분류 &gt;</div>
 		</div>
 	</div>
+	
+	<section class="sec_wrap">
+		<div class="cont_box col3">
+			<h3>전체 월자문 순매출 &lt; 본사 &gt;</h3>
+			<div class="price">13,844,381,010원</div>
+			<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
+	
+			<figure class="highcharts-figure">
+		    	<div  id="testChart_lineAndColumn" class="chart" style="width:100%; height:280px; margin:0 auto"></div> 
+			</figure>
+		</div>
+	</section>
+
+	
+	<div id="execChart" style="min-width: 310px; height: 353px; margin: 5px auto 20px;"></div><br/>		
+	<div id="container1" style="min-width: 310px; height: 353px; margin: 5px auto 20px;"></div><br/>		
+	<div id="container2" style="min-width: 310px; height: 353px; margin: 5px auto 20px;"></div><br/>		
+	<div id="container4" style="min-width: 310px; height: 353px; margin: 5px auto 20px;"></div><br/>		
+	
