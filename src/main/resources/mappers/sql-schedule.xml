@@ -5,7 +5,42 @@
 <mapper namespace="schedule">
 
 	<cache />
-	
+	   <!-- 중복 일정체크  이응규 -->
+    <select id="scheduleDuplicationCheck" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.scheduleDuplicationCheck */
+        WITH SCHEDULE AS (
+            SELECT SCHEDULE_ID
+                  ,TO_CHAR(SCHEDULE_DATE ,'YYYY-MM-DD') AS SCHEDULE_DATE
+                  ,TO_DATE(TO_CHAR(SCHEDULE_DATE ,'YYYY-MM-DD')||START_TIME_HOUR||':'||START_TIME_MINUTE||':00', 'YYYY-MM-DD HH24:MI:SS') AS START_DATE
+                  ,TO_DATE(TO_CHAR(SCHEDULE_DATE ,'YYYY-MM-DD')||END_TIME_HOUR||':'||END_TIME_MINUTE||':00', 'YYYY-MM-DD HH24:MI:SS') AS END_DATE
+            FROM   TBL_EXP_SCHEDULE
+            WHERE  1 = 1
+            AND    USER_ID    = #{sessionVo.userId}
+            AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+            ORDER BY SCHEDULE_DATE
+        )
+        SELECT SCHEDULE.SCHEDULE_ID
+              ,SCHEDULE.SCHEDULE_DATE
+              ,SCHEDULE.START_DATE
+              ,SCHEDULE.END_DATE
+        FROM  (
+                SELECT TO_DATE(#{startDate}, 'YYYY-MM-DD HH24:MI:SS') AS START_DATE
+                      ,TO_DATE(#{endDate},   'YYYY-MM-DD HH24:MI:SS') AS END_DATE
+                FROM   DUAL
+              ) CHECK_DATA
+             ,SCHEDULE
+        WHERE 1 = 1
+        AND    (
+                   CHECK_DATA.START_DATE  BETWEEN SCHEDULE.START_DATE  AND  SCHEDULE.END_DATE 
+                OR CHECK_DATA.END_DATE    BETWEEN SCHEDULE.START_DATE  AND  SCHEDULE.END_DATE
+               )
+        OR     (
+                   SCHEDULE.START_DATE  BETWEEN CHECK_DATA.START_DATE  AND  CHECK_DATA.END_DATE 
+                OR SCHEDULE.END_DATE    BETWEEN CHECK_DATA.START_DATE  AND  CHECK_DATA.END_DATE
+               )        
+        ORDER BY SCHEDULE.START_DATE
+    </select>
+    
 	<!-- 일정공유 마스터 입력  이응규 -->
     <insert id="insertScheduleMsater" parameterType="map" >
         /* schedule.insertScheduleMsater */
@@ -206,6 +241,8 @@
         AND   A.SP_CSTM_ID = #{sessionVo.spCstmId}
         <if test=" scheduleId != null and scheduleId != '' " >
             AND    SCHEDULE_ID = #{scheduleId}
+        </if><if test=" title != null and title != '' " >
+            AND    TRIM(TITLE) LIKE '%' || TRIM(#{title})||'%'
         </if>
     </select>
     

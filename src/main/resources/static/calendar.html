@@ -3,6 +3,104 @@
   <head>
     <meta charset='utf-8' />
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+<style>
+  body {
+    margin: 40px 10px;
+    padding: 0;
+    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+    font-size: 11px;
+    height:100%;
+  }
+  
+  @media screen and (max-width:500px){
+      body {
+        margin: 40px 10px;
+        padding: 0;
+        font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+        font-size: 11px;
+        height:100%;
+      }
+      .fc-toolbar-title{
+        font-size: 10px !important;
+      }
+  }
+  @media screen and (min-width:501px){
+      body {
+        margin: 40px 10px;
+        padding: 0;
+        font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+        font-size: 14px;
+        height:100%;
+      }
+  }
+
+  #calendar {
+    max-width: 1400px;
+    min-height: 500px;
+    margin: 0 auto;
+  }
+  
+  /*요일*/
+  .fc-col-header-cell-cushion {
+    color: #000;
+  }
+  .fc-col-header-cell-cushion:hover {
+    text-decoration: none;
+    color:#000;
+  }
+  /*일자*/
+  .fc-daygrid-day-number{
+    color: #000;
+    font-size:2em;
+  }
+  
+  /*종일제목*/
+  .fc-event-title.fc-sticky{
+    
+    font-size:2em;
+  }
+  /*more버튼*/ 
+  .fc-daygrid-more-link.fc-more-link{
+    color: #000;
+  }
+  /*일정시간*/
+  .fc-daygrid-event > .fc-event-time{
+    color:#000;
+  }
+  /*시간제목*/
+  .fc-daygrid-dot-event > .fc-event-title{
+    color:#000 !important;
+    font-size:2em;
+  }
+  /*가로 줄 - 월달력 종일 or 복수일자*/
+  .fc-h-event{
+    
+  }
+  /*세로 줄 - 주달력, 일달력*/
+  .fc-v-event{
+    
+  }
+  /*title 옆에 점*/
+  .fc-daygrid-event-dot{
+    
+  }
+  /*month/week/day*/
+  .fc-button-active{
+    border-color: #ffc107       !important;
+    background-color: #ffc107   !important;
+    color: #000                 !important;
+    font-weight: bold           !important;
+  }
+  /*노란버튼*/
+  .btn-warning{
+    font-weight: bold;
+  }
+  /*모달 푸터*/
+  .modal-footer{
+    display:inline-block;
+  }
+  
+</style>
     <script>
 
       document.addEventListener('DOMContentLoaded', function() {
@@ -28,7 +126,19 @@
               //delete event from calender
              console.log('info.event.title =>'+info.event.title);
              console.log('info.event.id =>'+info.event.id);
-             info.event.remove();
+             console.log('info.event info ' + info);
+             console.log('info.event on ' + info.dateStr);
+             console.log('info.event test =>' + info.event.test);
+             console.log('info.event test =>' + info.event.test);
+             console.log('info.event className =>' + info.event.className);
+             console.log('info.event extendedProps =>' + info.event.extendedProps);
+             console.log('info.event extendedProps.department =>' + info.event.extendedProps.department);
+             console.log('info.event extendedProps.department1 =>' + info.event.extendedProps.department1);
+             console.log('info.event extendedProps.department2 =>' + info.event.extendedProps.department2);
+             console.log('info.event resourceEditable =>' + info.event.resourceEditable);
+             
+             
+             //info.event.remove();
   
           },
        	  locale: 'ko', // 한국어 설정
@@ -38,73 +148,83 @@
         	      {
         		    // Just an event
         		    title: 'Long Event',
-        		    start: '2024-02-07',
-        		    end: '2024-02-10',
-        		    className: 'scheduler_basic_event'
+        		    start: '2024-03-07',
+        		    end: '2024-03-10',
+        		    className: 'scheduler_basic_event',
+        		    resourceEditable: true 
         		  },
         		  {
         		    // Custom repeating event
         		    id: 999,
         		    title: 'Repeating Event',
-        		    start: '2024-02-09T16:00:00',
-        		    className: 'scheduler_basic_event'
+        		    start: '2024-03-09T16:00:00',
+        		    className: 'scheduler_basic_event',
+                    resourceEditable: true 
         		  },
         		  {
         		    // Custom repeating event
         		    id: 999,
         		    title: 'Repeating Event',
-        		    start: '2024-02-16T16:00:00',
-        		    className: 'scheduler_basic_event'
+        		    start: '2024-03-16T16:00:00',
+        		    className: 'scheduler_basic_event',
+                    extendedProps: {
+                        department: 'BioChemistry'
+                    } 
         		  },
         		  {
         		    // Just an event
         		    title: 'Lunch',
-        		    start: '2024-02-12T12:00:00',
+        		    start: '2024-03-12T12:00:00',
         		    className: 'scheduler_basic_event',
+                    resourceEditable: true 
         		  },
         		  {
         		    // Just an event
         		    title: 'Happy Hour',
-        		    start: '2024-02-12T17:30:00',
-        		    className: 'scheduler_basic_event'
+        		    start: '2024-03-12T17:30:00',
+        		    className: 'scheduler_basic_event',
+                    resourceEditable: true 
         		  },
         		  {   
         		    // Monthly event
         		    id: 111,
         		    title: 'Meeting1',
-        		    start: '2024-02-26T00:00:00',
+        		    start: '2024-03-26T00:00:00',
         		    className: 'scheduler_basic_event',
+                    resourceEditable: true, 
         		    repeat: 1
         		  },
         		  {
         		    // Annual avent
         		    id: 222,
         		    title: 'Birthday Party',
-        		    start: '2024-02-04T07:00:00',
+        		    start: '2024-03-04T07:00:00',
         		    description: 'This is a cool event',
         		    className: 'scheduler_basic_event',
+                    resourceEditable: true, 
         		    repeat: 2
         		  },
         		  {
         		    // Weekday event
         		    title: 'Click for Google',
         		    url: 'http://google.com/',
-        		    start: '2024-02-28',
+        		    start: '2024-03-28',
         		    className: 'scheduler_basic_event',
+                    resourceEditable: true, 
         		    dow: [1,5]
         		  },
         	    {
         	      title  : 'event1',
-        	      start  : '2024-02-01'
+        	      start  : '2024-03-01'
         	    },
         	    {
         	      title  : 'event2',
-        	      start  : '2024-02-05',
-        	      end    : '2024-02-07'
+        	      start  : '2024-03-05',
+        	      end    : '2024-03-07'
         	    },
         	    {
         	      title  : 'event3',
-        	      start  : '2024-02-09T12:30:00',
+        	      start  : '2024-03-09T12:30:00',
         	      allDay : false // will make the time show
         	    }
         	  ],
@@ -117,7 +237,7 @@
         calendar.on('dateClick', function(info) {
             console.log('clicked on ' + info.dateStr);
             
-            if( info.dateStr == "2024-02-01" ){
+            if( info.dateStr == "2024-03-01" ){
             	var eventSources = calendar.getEventSources();
                 console.log('EventSources => ' + eventSources);
                 var len = eventSources.length;
@@ -126,39 +246,54 @@
                     eventSources[i].remove(); 
                 } 
                 calendar.removeAllEvents();
-            }else if( info.dateStr == "2024-02-02" ){
+            }else if( info.dateStr == "2024-03-02" ){
             	calendar.next();
-            }else if( info.dateStr == "2024-02-03" ){
+            }else if( info.dateStr == "2024-03-03" ){
             	calendar.destroy();
-            }else if( info.dateStr == "2024-02-04" ){
-                console.log('2024-02-04 => ');
+            }else if( info.dateStr == "2024-03-04" ){
+                console.log('2024-03-04 => ');
                 var obj = new Object();
                 obj.title = 'event1';
-                obj.start = '2024-02-09T12:30:00';
-                obj.end   = '2024-02-09T15:30:00';
+                obj.start = '2024-03-09T12:30:00';
+                obj.end   = '2024-03-09T15:30:00';
                 obj.textColor = "#fff";
                 obj.color = "#8dcc76";
+                obj.test = "test";
+                obj.description = "test1";
+                obj.resourceEditable = true; 
+                
+                let departmentVal = {};
+                departmentVal["department"]   = "department";
+                departmentVal["department1"]  = "department1";
+                departmentVal["department2"]  = "department2";
+                obj.extendedProps = departmentVal;
+                
                 calendar.addEvent(obj);
                 
-            }else if( info.dateStr == "2024-02-05" ){
-                console.log('2024-02-05 => '+calendar.initialDate);
+            }else if( info.dateStr == "2024-03-05" ){
+                console.log('2024-03-05 => '+calendar.initialDate);
                 calendar.initialDate;
                 calendar.refetchEvents();
-	        }else if( info.dateStr == "2024-02-06" ){
-	            console.log('2024-02-06 => ');
+	        }else if( info.dateStr == "2024-03-06" ){
+	            console.log('2024-03-06 => ');
 	            //calendar.fullCalendar( 'addEventSource', {id:123, stuff:'stuff'});
-            }else if( info.dateStr == "2024-02-07" ){
+            }else if( info.dateStr == "2024-03-07" ){
             	//calendar.fullCalendar( 'removeEvent', 222);
             }
             
             //calendar.next();
             //calendar.destroy();
         });
-
+        /*  
         calendar.on('eventClick', function(info) {
+            console.log('eventClick info ' + info);
             console.log('eventClick on ' + info.dateStr);
+            console.log('eventClick test =>' + info.test);
+            console.log('eventClick description =>' + info.event.description);
+            console.log('eventClick resourceEditable =>' + info.event.resourceEditable);
             
         });
+        */
         // ... other calendar things here...
         calendar.fullCalendar( 'removeEvent', 123);
         /**/

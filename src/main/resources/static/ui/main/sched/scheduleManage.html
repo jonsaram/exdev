@@ -1,4 +1,24 @@
 <meta charset="utf-8">
+<style>
+  #calendar {
+  }
+  /*시간제목*/
+  .fc-daygrid-dot-event > .fc-event-title{
+    color:#000 !important;
+    font-size:1em;
+  }
+  /*제목*/
+  .fc-event-title.fc-sticky{
+    
+    font-size:1.5em;
+  }
+  /*일정시간*/
+  .fc-daygrid-event > .fc-event-time{
+    color:#000;
+    font-size:3em;
+  }
+  
+</style>
 <script type="text/javascript">
     var <@pageId> = {
     		
@@ -34,6 +54,13 @@
                     right: 'timeGridDay,timeGridWeek,dayGridMonth,prev,next'
                     // right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                 },
+
+                views: {
+                    dayGridMonth: { // name of view
+                        titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' }
+                       // other view-specific options here
+                    }
+                },
                 initialView: 'dayGridMonth',
                 //initialDate: '2024-01-08',  //달력 처음 로드될때 표시되는 날짜
                 navLinks: true, // 요일이랑 날짜 클릭시 일단위,주단위로 보여주는 화면으로 넘어감
@@ -41,7 +68,7 @@
                 selectable: true,
                 nowIndicator: true,
                 dayMaxEvents: true, // "more" 표시 전 최대 이벤트 갯수, true는 셀 높이에 의해 결정
-              
+               
                 eventClick : function(obj) {
                     //delete event from calender
                    let requestParm = {};
@@ -104,7 +131,43 @@
             }); 
        }
        ,setCalendar : function(dateString) {
+    	   console.log(" dateString ==>"+dateString);
            calendar.gotoDate( new Date(dateString) )
+       }
+
+       ,searchSchedule : function(  ) {
+           
+           
+           let title = $('#<@pageId>_searchTitle').val();
+           
+           console.log("searchSchedule =>"+title.length);
+           
+           if ( title.length < 3 ){
+           
+        	   C_POP.alert("3글자 이상을 입력해 주세요.");
+               $("#<@pageId>_searchTitle").focus();
+               return false;
+           }
+           
+           let requestParm = {};
+           requestParm["title"] = title;
+           
+           let parm = {
+                queryId        : "schedule.getScheduleList"
+               ,requestParm    : requestParm
+           }
+            
+           C_COM.requestQuery(parm, function(resultData) {
+               console.log("schedule.searchSchedule1");
+               console.log( resultData.data);
+               
+               let rparm = {
+                        targetId   : "tableId"
+                       ,list       : resultData.data
+                   }
+               C_COM.renderHtml("<@pageId>", rparm);
+               
+            }); 
        }
 
     }
@@ -152,12 +215,28 @@
                                 <div id="todaySchedulecnt"><span class="num">개</span></div>
                             </div>
                         </div>
-                        <!-- 왼쪽 박스 영역 -->
+                        <!-- 왼쪽 박스 영역 선택된 팀원의 스케줄을 같이 보여 준다-->
                         <div class="schedule_wrap">
                             <div id="<@pageId>_datepicker"></div>
                             <div class="stit_schedule">하위 팀원 업무 스케줄 확인</div>
-                            <div class="check_subTeam_wrap"></div>
-                            <div class="stit_schedule">업무 유형</div>
+                            <div class="check_subTeam_wrap">
+                                <div>
+                                    <input name="product" id="product01" type="checkbox" value="">
+                                    <label for="product01">전체<i class="icon_check"></i></label>
+                                </div>
+                                <div>
+                                    <input name="product" id="product01" type="checkbox" value="">
+                                    <label for="product01">위성열<i class="icon_check"></i></label>
+                                </div>
+                                <div>
+                                    <input name="product" id="product01" type="checkbox" value="">
+                                    <label for="product01">이희성<i class="icon_check"></i></label>
+                                </div>
+                                <div>
+                                    <input name="product" id="product01" type="checkbox" value="">
+                                    <label for="product01">유태원<i class="icon_check"></i></label>
+                                </div>
+                            </div>                            <div class="stit_schedule">업무 유형</div>
                             <ul class="status_wrap">
                                 <li><i class="status meeting"></i><span>미팅</span></li>
                                 <li><i class="status tel_consul"></i><span>전화상담</span></li>
@@ -172,12 +251,19 @@
                     <!-- 스케줄 오른쪽 -->
                     <div class="schedule right">
                         <div class="schedule_topArea">
-                            <div class="search_inputWrap" style="width:215px;">
-                                <input type="search" name=""><button class="search_btn" id="searchBtn"><i class="icon_search"></i></button>
-                                <ul class="search_lst" style="display:none;">
-                                    <li>날짜 검색</li>
-                                    <li>제목 검색</li>
+                            <div class="search_inputWrap" style="width:315px;">
+                                <input type="search" id="<@pageId>_searchTitle" name="" onkeyup="if(window.event.keyCode==13){(<@pageId>.searchSchedule())}">
+                                <button class="search_btn" id="<@pageId>_searchBtn" onclick="<@pageId>.searchSchedule();"><i class="icon_search"></i></button>
+                                <ul class="search_lst" id="tableId" style="display:block;">
                                 </ul>
+                                <script type="text/x-jsrender" id="tableId_template">    
+                                    {{for list}}
+                                        <li>
+                                            <a href='javascript: void(0);' name="searchList" onclick="<@pageId>.setCalendar('{{:SCHEDULE_DATE1}}');">{{:SCHEDULE_DATE1}} : {{:TITLE}}
+                                            </a>
+                                        </li>
+                                    {{/for}}
+                                </script>
                             </div>
                             <a href="javascript:void(0);" onclick="<@pageId>.addSchedulePopup();" class="btn select schedule_btn"><i class="icon_add_circle"></i>일정추가하기</a>
                         </div>

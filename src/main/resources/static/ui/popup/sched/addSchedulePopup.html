@@ -14,6 +14,7 @@
         ,orgEndTimeMinute : ''
         ,scheduleGrpId    : ''
         ,allApplyYn    : 'N'
+        ,today : ''
         ,close : function() {
             console.log("=== close ===");
             var obj = new Object();
@@ -147,7 +148,7 @@
         ,addMember : function(retData) {
 
             if(isValid(<@popupId>.appMember[retData.USER_ID])) {
-                alert('이미 등록되어 있는 사원입니다.');
+            	C_POP.alert('이미 등록되어 있는 사원입니다.');
                 return;
             }
             <@popupId>.appMember[retData.USER_ID] = retData;
@@ -193,7 +194,7 @@
                      
                     C_POP.close(obj);
                 }else{
-                    dalert("일정이 삭제에 실패하였습니다.");
+                	C_POP.alert("일정이 삭제에 실패하였습니다.");
                 }
                 
             });
@@ -204,13 +205,13 @@
             console.log("update");
 
             if ($('#<@popupId>_title').val().length < 1) {
-                alert("제목을 입력해 주세요.");
+            	C_POP.alert("제목을 입력해 주세요.");
                 $("#<@popupId>_title").focus();
                 return false;
             }
             
             if ($('#<@popupId>_dateStart').val().length < 1) {
-                alert("일정을 입력해 주세요.");
+            	C_POP.alert("일정을 입력해 주세요.");
                 $("#<@popupId>_dateStart").focus();
                 return false;
             }
@@ -265,7 +266,7 @@
                      
                     C_POP.close(obj);
                 }else{
-                    dalert("일정이 추가에 실패하였습니다.");
+                	C_POP.alert("일정이 추가에 실패하였습니다.");
                 }
                 
             });
@@ -277,24 +278,59 @@
             let title = $('#<@popupId>_title').val();
             
             if (title.length < 1) {
-                dalert("제목을 입력해 주세요.");
+            	C_POP.alert("제목을 입력해 주세요.");
                 $("#<@popupId>_title").focus();
                 return false;
             }
             
             if ($('#<@popupId>_dateStart').val().length < 1) {
-                dalert("일정 시작일을 입력해 주세요.");
+            	C_POP.alert("일정 시작일을 입력해 주세요.");
                 $("#<@popupId>_dateStart").focus();
+                return false;
+            }
+
+            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) > Number($('#<@popupId>_dateEnd').val().replace(/-/gi,"")) ){
+            	C_POP.alert("시작일이 종료일보다 클 수 없습니다.");
+            	$("#<@popupId>_dateStart").focus();
+            	return false;
+            }
+            
+            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) < Number(<@popupId>.today.replace(/-/gi,"")) ){
+            	C_POP.alert("시작일이 현재일보다 작을 수 없습니다.");
+                $("#<@popupId>_dateStart").focus();
+                return false;
+            }
+
+            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) < Number(<@popupId>.today.replace(/-/gi,"")) ){
+                C_POP.alert("시작일이 현재일보다 작을 수 없습니다.");
+                $("#<@popupId>_dateStart").focus();
+                return false;
+            }
+            
+            let startHM = <@popupId>.startTimeH + <@popupId>.startTimeM;
+            let endHM   = <@popupId>.endTimeH + <@popupId>.endTimeM;
+            
+            if( Number(startHM.replace(/-/gi,"")) > Number(endHM.replace(/-/gi,"")) ){
+            	C_POP.alert("시작시간이 종료시간보다 클 수 없습니다.");
                 return false;
             }
             
             if( <@popupId>.loopTypeCheck(<@popupId>.loopType) ){
             	
-            	dalert("종료일이 제한 범위를 넘었습니다.");
+            	C_POP.alert("종료일이 제한 범위를 넘었습니다.");
                 return false;
             }
             
             console.log("== 2 ==>");
+
+            let startYyMMDDHM = $('#<@popupId>_dateStart').val()+" "+<@popupId>.startTimeH+":"+<@popupId>.startTimeM+":00";
+            let endYyMMDDHM   = $('#<@popupId>_dateEnd').val()  +" "+<@popupId>.endTimeH  +":"+<@popupId>.endTimeM+":00";
+            
+            //중복 일정체크
+            if( <@popupId>.duplicationCheck( startYyMMDDHM, endYyMMDDHM ) ){
+            	
+            	return false;
+            } 
             
             let requestParm = {};    
 
@@ -342,13 +378,46 @@
                 if("S" == resultData.data.state){
                     C_POP.close(obj);
                 }else{
-                    dalert("일정이 추가에 실패하였습니다.");
+                	C_POP.alert("일정이 추가에 실패하였습니다.");
                 }
                 
             });
             
             
          }
+
+        ,duplicationCheck : function( startDate, endDate ) {
+
+            let returnVal = false;
+        	console.log("== duplicationCheck ["+startDate+"] ["+endDate+"]==>");
+
+            console.log("== 중복 일정체크 ==>");
+            let requestParm = {};
+            requestParm["startDate"]  = startDate;
+            requestParm["endDate"]    = endDate;
+            
+            let parm = {
+                    queryId        : "schedule.scheduleDuplicationCheck"
+                   ,requestParm    : requestParm
+               }
+            C_COM.requestQuery(parm, function(resultData) {
+            	if( 0 == resultData.data.length){
+            		returnVal = false;
+            	}else{
+            		returnVal = true;
+            		let duplDay = "";
+            		for(var i =0; i < resultData.data.length; i++){
+            			duplDay += resultData.data[i].SCHEDULE_DATE+"\n";
+                        console.log("resultData.data["+i+"].SCHEDULE_DATE ==>"+resultData.data[i].SCHEDULE_DATE);
+                    }	
+            		C_POP.alert("중복된 일정이 있습니다\n"+duplDay);
+            	}
+                            
+            });
+            return returnVal;
+            
+        }
+        
         ,loopTypeCheck : function( loopType ) {
         	
         	let dateStart = $('#<@popupId>_dateStart').val();
@@ -629,6 +698,8 @@
         
         $('#<@popupId>_dateStart').val(today);
         $('#<@popupId>_dateEnd').val(today);
+        <@popupId>.today = today;
+        
         <@popupId>.limitDate = today;
         	
         //버튼 보임 처리
@@ -657,9 +728,7 @@
             	}
                 
             }
-        });
-
-        
+        });        
         
         $("#<@popupId>_applyAll").change(function(){
             if($("#<@popupId>_applyAll").is(":checked")){
@@ -670,9 +739,6 @@
                 <@popupId>.setApplyAllCheckDate( <@popupId>.allApplyYn );
             }
         });
-        
-        
-        
     });
     
     
