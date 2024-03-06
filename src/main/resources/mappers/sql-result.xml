@@ -15,7 +15,7 @@
 			실적 내역 리스트 조회 
 		*/
 		
-		SELECT 
+		SELECT DISTINCT
 		 0 AS RN
 		,C.TOTAL_COST 
 		,TO_CHAR( R.RESULT_DATE, 'YYYY-MM-DD') AS RESULT_DATE
@@ -63,6 +63,9 @@
 		AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
 		AND P.USER_ID 		= CM.USER_ID
 		AND P.USER_ID 		= U.USER_ID 
+		<if test=" USER_ID != null and !USER_ID.equals('') ">
+		AND U.USER_ID 		= #{USER_ID}
+		</if>
 		AND R.USE_YN		= 'Y'
 		AND R.DEL_YN		= 'N'
 		AND P.USE_YN		= 'Y'
@@ -104,39 +107,40 @@
 		AND C.DEL_YN 	= 'N'
 		AND C.USER_ID	= U.USER_ID
 		AND C.BUYER_ID	= B.BUYER_ID
-		 
-		<if test=" USER_ID != null and !USER_ID.equals('') and USER != null and !USER.equals('')">
-		AND (	C.USER_ID  LIKE '%' || #{USER_ID} || '%'
-		  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
-			OR  C.USER_ID  LIKE '%' || #{USER} || '%'
-		  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
-		  	)
-		</if>
-		<if test=" USER_ID != null and !USER_ID.equals('') ">
-		AND (  C.USER_ID  LIKE '%' || #{USER_ID} || '%'
-		  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
-		  	)
-		</if>
-		<if test=" USER != null and !USER.equals('') ">
-		AND (  C.USER_ID  LIKE '%' || #{USER} || '%'
-		  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
-		  	)
-		</if>
-		<if test=" BUYER_ID != null and !BUYER_ID.equals('') and BUYER != null and !BUYER.equals('') ">
-		AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
-		   OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     
-		   OR C.BUYER_ID LIKE '%' || #{BUYER} || '%'
-		   OR B.BUYER_NM LIKE '%' || #{BUYER} || '%'
-		   )
-		</if>
-		<if test=" BUYER_ID != null and !BUYER_ID.equals('') ">
-		AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
-		   OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     )
-		</if>
-		<if test=" BUYER != null and !BUYER.equals('') ">
-		AND ( C.BUYER_ID LIKE '%' || #{BUYER} || '%'
-		   OR B.BUYER_NM LIKE '%' || #{BUYER} || '%'     )
-		</if>
+		<choose>
+	       	<when test=" USER_ID != null and !USER_ID.equals('') and USER != null and !USER.equals('')">  
+				AND (	C.USER_ID  LIKE '%' || #{USER_ID} || '%'
+				  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
+					OR  C.USER_ID  LIKE '%' || #{USER} || '%'
+				  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
+				  	)     
+	      	</when>
+	       	<when test=" USER_ID != null and !USER_ID.equals('') "> 
+				AND (  C.USER_ID  LIKE '%' || #{USER_ID} || '%'
+				  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
+				  	)
+	      	</when>
+	       	<when test=" USER != null and !USER.equals('') "> 
+				AND (  C.USER_ID  LIKE '%' || #{USER} || '%'
+				  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
+				  	)
+	      	</when>
+	       	<when test=" BUYER_ID != null and !BUYER_ID.equals('') and BUYER != null and !BUYER.equals('')">  
+				AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
+				   OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     
+				   OR C.BUYER_ID LIKE '%' || #{BUYER} || '%'
+				   OR B.BUYER_NM LIKE '%' || #{BUYER} || '%'
+				   )
+	      	</when>
+	       	<when test=" BUYER_ID != null and !BUYER_ID.equals('') "> 
+				AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
+		   			OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     
+		   			)
+	      	</when>
+	      	<otherwise>			
+	      	</otherwise>
+		</choose>
+		
 		<if test=" FROM_DATE != null and !FROM_DATE.equals('') ">
 		AND TO_CHAR( C.CONTACT_DATE, 'YYYY-MM-DD' )  <![CDATA[ >= ]]> #{FROM_DATE}
 		</if>
@@ -430,7 +434,7 @@
 		         							AS COST_PRICE,
 		         'Y'	 					AS USE_YN,
 		         'N' 						AS DEL_YN,
-		         #{sessionVo.userId}		AS UPDATE_USER
+		         'admin'					AS UPDATE_USER
 		  FROM dual
 		  
 		) S
@@ -478,11 +482,11 @@
 		         TO_NUMBER(#{PAYMENT_ID})	AS PAYMENT_ID,
 		         #{PAYMENT} 				AS PAYMENT,
 		         #{EXEC_TYPE} 				AS EXEC_TYPE,
-		         #{PAY_ID} 					AS PAY_ID,
+		         TO_CHAR(#{PAY_ID})			AS PAY_ID,
 		         #{RATE} 					AS RATE,
 		         'Y'	 					AS USE_YN,
 		         'N' 						AS DEL_YN,
-		         #{sessionVo.userId}		AS UPDATE_USER
+		         'IyaI'						AS UPDATE_USER
 		  FROM dual
 		  
 		) S

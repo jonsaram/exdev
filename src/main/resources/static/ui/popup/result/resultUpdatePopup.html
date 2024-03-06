@@ -47,26 +47,27 @@ var <@popupId> = {
 	 ,getJson : ( list ) => {
 		 
 		 let jsonArray = [];
-   		 $.each( $(list).children("tr") , (idx, tr) => {
+
+   		 $.each( $(list).children("tr[name^='<@popupId>_tr_']") , (idx, tr) => {
    			 
 			 let trObj = {};
  			 $.each( $(tr).children("td"), (idx2, td) => {
  				 
 				 const id 		=  	$(td).attr("id");
 				 const value 	=	$(td).attr("value") == "" ? $(td).children("input").val() : $(td).attr("value");
-				 trObj[id]		= 	value
+  			 	 if(id)trObj[id]= 	value;
 			 })
 			 
 			 jsonArray .push( trObj);
 			 
-		 }) 
-	 
-   		 return jsonArray;
+		 })
+
+   		 return jsonArray.filter(obj => Object.keys(obj).length !== 0);
 
 	 }
 	,pageInit : (parentData) => {
 
-		<@popupId>.setTitleHeight();
+		<@popupId>.setTitleHeight(parentData);
 
 		<@popupId>.RESULT_ID 		= C_COM.makeUniqueId();
 		<@popupId>.mode				= parentData.mode;
@@ -312,9 +313,9 @@ var <@popupId> = {
 	    });
 	    
 	} 	
-	,setTitleHeight : () => {
+	,setTitleHeight : (parentData) => {
 		
-		let title = <@popupId>.mode == "I" ? "실적 등록" : "실적 정보 수정";
+		let title = parentData.mode == "I" ? "실적 등록" : "실적 정보 수정";
   	 	$("#<@popupId> .tit").html( title );
 		
 	} 

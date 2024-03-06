@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
  var <@popupId> = {
-    close : function(returnData) {
+	 selectedList:[]
+    ,close : function(returnData) {
  
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
@@ -30,8 +31,10 @@
 		}
         C_COM.requestQuery(parm, function(resultData) {
         
+        	<@popupId>.selectedList = resultData.data;
+        	
         	let rparm = {
-           			targetId   : "<@pageId>_contractList"
+           			targetId   : "<@popupId>_contractList"
 					,list       : resultData.data
 			}
             
@@ -79,11 +82,11 @@
 	    	
 	    });
  	    
-	    $("[name^='<@pageId>_tr']").off().on("click",function(e){
+	    $("[name^='<@popupId>_tr_']").off().on("click",function(e){
 
-	    	const value = $(this).attr("value");
-	    	
-	    	<@popupId>.close(value);
+	    	const idx = $(this).attr("name").replace('<@popupId>_tr_',"");
+	    	const rtnData = <@popupId>.selectedList[idx];
+	    	<@popupId>.close(rtnData);
 	    	
 	    });
 	    
@@ -166,12 +169,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<th scope="col">자문계약일</th>
 						</tr>
 					</thead>
-						<tbody  id="<@pageId>_contractList">
+						<tbody  id="<@popupId>_contractList">
 						</tbody>			 					
 						
-<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
+<script type="text/x-jsrender" id="<@popupId>_contractList_template">						
 						{{for list}}
-							<tr class="select"	name="<@pageId>_tr_{{:#index}}" value='{{:CONTRACT_ID}}'>
+							<tr class="select"	name="<@popupId>_tr_{{:#index}}" value='{{:CONTRACT_ID}}'>
 							<td id='BUYER_ID'			value='{{:BUYER_ID}}'			>{{:BUYER_ID}}</td>
 							<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
 							<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
@@ -180,7 +183,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							</tr>
 						{{/for}}
 </script>
-<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
+<script type="text/x-jsrender" id="<@popupId>_contractList_noData_template">	
 				<tr>	
 					<td colspan=5>자료가 없습니다.</td>	
 				</tr>

@@ -39,6 +39,8 @@ var <@pageId> = {
             
 			C_COM.renderHtml("<@pageId>", rparm);
        	
+        	mergeTableTD('<@pageId>_resultList', {startIdx : 1, endIdx : 6, startRowIdx : 1});
+        	
     		if( <@pageId>.selectedList.length > 0 ){
     			
     			<@pageId>.contractItem.REMAINING_SUM = <@pageId>.selectedList[0].REMAINING_SUM; 
@@ -157,10 +159,9 @@ var <@pageId> = {
 		let param = [];	
 
 		C_POP.open('popup_contract_contractSearchPopup', {}, function(retData) {
-			
-			if(isValid(retData)){
 
-				const requestParm = {CONTRACT_ID : retData };
+			if(isValid(retData)){
+				const requestParm = {CONTRACT_ID : retData.CONTRACT_ID , USER_ID : retData.USER_ID };
 				
 				var parm = {
 						 queryId 		: "contract.getContractList"
@@ -261,7 +262,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					</tr>
 					<tr>
 						<th scope="row">담당자</th>
-						<td id="USER_ID"></td>
+						<td id="USER"></td>
 						<th scope="row">총계약금액</th>
 						<td id="TOTAL_COST"></td>
 					</tr>
