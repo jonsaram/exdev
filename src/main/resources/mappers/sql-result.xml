@@ -161,6 +161,7 @@
 		        p_RESULT_ID		VARCHAR2(30);
 		        p_RESULT_DATE	VARCHAR2(30);
 		        p_INCOME		VARCHAR2(30);
+		        
 		    BEGIN
 		    
 		    	p_CONTRACT_ID 	:= #{CONTRACT_ID};
@@ -202,15 +203,16 @@
 		   			
 		   		UPDATE TBL_EXP_RESULT T
 		   		SET
-					T.REMAINING_SUM			= 	( SELECT TOTAL_COST FROM TBL_EXP_CONTRACT 
+					T.REMAINING_SUM			= 	( SELECT  TO_NUMBER( TOTAL_COST )   
+													FROM TBL_EXP_CONTRACT 
 				           							WHERE 	CONTRACT_ID = p_CONTRACT_ID
-				           							AND USE_YN= 'Y' AND DEL_YN = 'N'
-				         						)	- 
-				         						( SELECT SUM(INCOME) FROM TBL_EXP_RESULT 
+				          						)
+				          						-
+												( SELECT  SUM(INCOME)   
+													FROM TBL_EXP_RESULT 
 				           							WHERE 	CONTRACT_ID = p_CONTRACT_ID
-				           							AND 	RESULT_ID 	= p_RESULT_ID
 				           							AND 	USE_YN= 'Y' AND DEL_YN = 'N'
-				          						)	,
+				          						) 	,
 					T.ORG_SELLING_PRICE		= T.INCOME - 						  
 												( SELECT SUM(COST_PRICE) FROM TBL_EXP_COST
 				           							WHERE CONTRACT_ID = p_CONTRACT_ID
@@ -220,6 +222,8 @@
 		   		WHERE  T.CONTRACT_ID	= p_CONTRACT_ID
 				   AND T.RESULT_ID		= p_RESULT_ID	
 				;
+				
+				COMMIT;
 			END
 		}		   			
 	</update>

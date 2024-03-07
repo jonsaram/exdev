@@ -15,9 +15,10 @@ var <@pageId> = {
 			,requestParm    : requestParm
 		}
         C_COM.requestQuery(parm, function(resultData) {
-        
+        debugger;
 			<@pageId>.selectedList = resultData.data;
         	
+			let REMAINING_SUM_LIST = [];
         	let no = 0,resultId='';
         	resultData.data.forEach( (row,idx) => {
 
@@ -29,7 +30,7 @@ var <@pageId> = {
         		}else{
         			row['RN'] = no;
         		}
-        		
+        		REMAINING_SUM_LIST.push( row.REMAINING_SUM);
         	})
         	
         	let rparm = {
@@ -39,11 +40,12 @@ var <@pageId> = {
             
 			C_COM.renderHtml("<@pageId>", rparm);
        	
-        	mergeTableTD('<@pageId>_resultList', {startIdx : 1, endIdx : 6, startRowIdx : 1});
+        	mergeTableTD('<@pageId>_resultList', {startIdx : 1, endIdx : 7, startRowIdx : 1});
         	
     		if( <@pageId>.selectedList.length > 0 ){
+    			debugger;
+    			<@pageId>.contractItem.REMAINING_SUM = Math.min( ...REMAINING_SUM_LIST );
     			
-    			<@pageId>.contractItem.REMAINING_SUM = <@pageId>.selectedList[0].REMAINING_SUM; 
     		}
         	
 			<@pageId>.setHandler();
@@ -59,49 +61,47 @@ var <@pageId> = {
 		
 		paymentInfo.forEach( item => {
 				
-				var parm = {
-							queryId 	: "result.updatePaymentItem"
-						   ,requestParm	: item
-				}
-				C_COM.requestQuery(parm, function(resultData) {
-					
-	                if (resultData.state === 'S') {
-	                }
-				});				
-	    
-		})
-		
-		constInfo.forEach( item => {
-				
-				var parm = {
-							queryId 	: "result.updateCostItem"
-						   ,requestParm	: item
-				}
-				C_COM.requestQuery(parm, function(resultData) {
-					
-	                if (resultData.state === 'S') {
-	                }
-				});				
-	    
-		})
-			
-
-		var parm = {
-						queryId 	: "result.updateResultItem"
-					   ,requestParm	: resultInfo
+			var parm = {
+						queryId 	: "result.updatePaymentItem"
+					   ,requestParm	: item
 			}
 			C_COM.requestQuery(parm, function(resultData) {
-	            if (resultData.state === 'S') {
-	            }
-		});		
+				
+                if (resultData.state === 'S') {
+                	
+            		constInfo.forEach( item => {
+        				
+        				var parm = {
+        							queryId 	: "result.updateCostItem"
+        						   ,requestParm	: item
+        				}
+        				C_COM.requestQuery(parm, function(resultData) {
+        					
+        	                if (resultData.state === 'S') {
+        	                	
+        	            		var parm = {
+        	    						queryId 	: "result.updateResultItem"
+        	    					   ,requestParm	: resultInfo
+		        	    			}
+		        	    			C_COM.requestQuery(parm, function(resultData) {
+		        	    	            if (resultData.state === 'S') {
+		        	    	            }
+		        	    		});	
+        	                }
+        				});				
+        			})
+                }
+			});				
+	    
+		})
 		
 		setTimeout( ()=>{
 			
-            <@pageId>.searchList();
+			<@pageId>.searchList();
             
 		},1000)
 
-	}		
+	}
 	,deleteItem : (delKey) => {
 			
 			var parm = {
