@@ -5,7 +5,43 @@
 <mapper namespace="schedule">
 
 	<cache />
-	   <!-- 중복 일정체크  이응규 -->
+	
+	<!-- 임시로 작성 팀원 관리 DB 적용되면 시스템 모듈에서 조회  이응규 -->
+    <select id="getUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getUserList */
+        SELECT T.SP_CSTM_ID 
+            ,T.USER_ID
+            ,T.USER_NM
+            ,T.USER_DESC
+            ,T.E_MAIL
+            ,T.PHONE_NUM
+            ,T.STATE
+            ,GET_CODE_NM('USER_STATE', T.STATE)     AS STATE_NM
+            ,T.UPDATE_USER
+            ,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+            ,A.ROLE_ID  
+            ,R.ROLE_NM 
+            ,R.ROLE_DESC
+            ,T.USE_YN
+            ,T.DEL_YN
+            ,T.SURETY_INSURANCE
+            ,T.GENDER
+            ,T.SALES_TYPE
+            ,GET_CODE_NM('SALES_TYPE', SALES_TYPE)      AS SALES_TYPE_NM
+            ,T.RECOMMENDER_ID
+            ,GET_CODE_NM('USER_ID', RECOMMENDER_ID)     AS RECOMMENDER_NM 
+        FROM TBL_EXP_USER T
+        ,TBL_EXP_AUTH A
+        ,TBL_EXP_ROLE R
+        WHERE 1 = 1     
+        AND T.SP_CSTM_ID = A.SP_CSTM_ID
+        AND T.SP_CSTM_ID = R.SP_CSTM_ID
+        AND T.USER_ID = A.USER_ID
+        AND R.ROLE_ID = A.ROLE_ID 
+        AND T.USER_ID IN ('windrider','jonsaram','trigger11kr','51115125782')
+    </select>
+    
+	<!-- 중복 일정체크  이응규 -->
     <select id="scheduleDuplicationCheck" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.scheduleDuplicationCheck */
         WITH SCHEDULE AS (
@@ -194,56 +230,121 @@
     </insert>
     
     <select id="getScheduleList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+
         /* schedule.getScheduleList */
-        SELECT A.SCHEDULE_ID       
-              ,A.TITLE             
-              ,A.WORK_TYPE             
-              ,A.ALL_APPLY_YN      
-              ,B.ATTR1  AS WORK_COLOR     
-              ,B.ATTR2  AS TEXT_COLOR      
-              ,A.SCHEDULE_DATE   
-              ,TO_CHAR(A.SCHEDULE_DATE,'YYYY-MM-DD') AS SCHEDULE_DATE1 
-              ,A.TIME_TYPE         
-              ,A.START_TIME_HOUR   
-              ,A.START_TIME_MINUTE 
-              ,A.END_TIME_HOUR     
-              ,A.END_TIME_MINUTE   
-              ,A.POSITION          
-              ,A.SECRET_YN         
-              ,A.DESCRIPTION       
-              ,A.USER_ID 
-              ,C.LOOP_TYPE
-              ,C.SCHEDULE_GRP_ID
-              ,TO_CHAR(C.SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
-              ,TO_CHAR(C.SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE
-        FROM   TBL_EXP_SCHEDULE A
-               JOIN (
-                    SELECT A.GRP_CODE_ID
-                          ,B.CODE_ID
-                          ,B.ATTR1
-                          ,B.ATTR2
-                    FROM   TBL_EXP_GRPCODE A
-                           JOIN TBL_EXP_CODE B
-                               ON  1 = 1
-                               AND B.DEL_YN = 'N'
-                               AND A.GRP_CODE_ID =  B.GRP_CODE_ID
-                    WHERE  1 = 1
-                    AND    A.DEL_YN = 'N'
-                    AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
-               ) B
-                   ON  1 = 1
-                   AND A.WORK_TYPE = B.CODE_ID
-               JOIN TBL_EXP_SCHEDULE_MASTER C
-                   ON  1 = 1
-                   AND A.SCHEDULE_GRP_ID = C.SCHEDULE_GRP_ID
-        WHERE 1 = 1
-        AND   A.USER_ID = #{sessionVo.userId}
-        AND   A.SP_CSTM_ID = #{sessionVo.spCstmId}
-        <if test=" scheduleId != null and scheduleId != '' " >
-            AND    SCHEDULE_ID = #{scheduleId}
-        </if><if test=" title != null and title != '' " >
-            AND    TRIM(TITLE) LIKE '%' || TRIM(#{title})||'%'
-        </if>
+        WITH SCHEDULE AS (
+                SELECT A.SCHEDULE_ID       
+                      ,A.TITLE             
+                      ,A.WORK_TYPE             
+                      ,A.ALL_APPLY_YN      
+                      ,B.ATTR1  AS WORK_COLOR     
+                      ,B.ATTR2  AS TEXT_COLOR      
+                      ,A.SCHEDULE_DATE   
+                      ,TO_CHAR(A.SCHEDULE_DATE,'YYYY-MM-DD') AS SCHEDULE_DATE1 
+                      ,A.TIME_TYPE         
+                      ,A.START_TIME_HOUR   
+                      ,A.START_TIME_MINUTE 
+                      ,A.END_TIME_HOUR     
+                      ,A.END_TIME_MINUTE   
+                      ,A.POSITION          
+                      ,A.SECRET_YN         
+                      ,A.DESCRIPTION       
+                      ,A.USER_ID 
+                      ,A.SP_CSTM_ID
+                      ,C.LOOP_TYPE
+                      ,C.SCHEDULE_GRP_ID
+                      ,TO_CHAR(C.SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
+                      ,TO_CHAR(C.SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE
+                FROM   TBL_EXP_SCHEDULE A
+                       JOIN (
+                            SELECT A.GRP_CODE_ID
+                                  ,B.CODE_ID
+                                  ,B.ATTR1
+                                  ,B.ATTR2
+                            FROM   TBL_EXP_GRPCODE A
+                                   JOIN TBL_EXP_CODE B
+                                       ON  1 = 1
+                                       AND B.DEL_YN = 'N'
+                                       AND A.GRP_CODE_ID =  B.GRP_CODE_ID
+                            WHERE  1 = 1
+                            AND    A.DEL_YN = 'N'
+                            AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
+                       ) B
+                           ON  1 = 1
+                           AND A.WORK_TYPE = B.CODE_ID
+                       JOIN TBL_EXP_SCHEDULE_MASTER C
+                           ON  1 = 1
+                           AND A.SCHEDULE_GRP_ID = C.SCHEDULE_GRP_ID
+                WHERE 1 = 1
+                <if test=" scheduleId != null and scheduleId != '' " >
+                    AND    A.SCHEDULE_ID = #{scheduleId}
+                </if><if test=" title != null and title != '' " >
+                    AND    TRIM(A.TITLE) LIKE '%' || TRIM(#{title})||'%'
+                </if>
+        )
+        SELECT SCHEDULE.SCHEDULE_ID  
+              ,SCHEDULE.SP_CSTM_ID
+              ,SCHEDULE.USER_ID     
+              ,SCHEDULE.TITLE             
+              ,'N'     AS SHARE_YN  
+              ,SCHEDULE.WORK_TYPE             
+              ,SCHEDULE.ALL_APPLY_YN      
+              ,SCHEDULE.WORK_COLOR     
+              ,SCHEDULE.TEXT_COLOR      
+              ,SCHEDULE.SCHEDULE_DATE   
+              ,SCHEDULE.SCHEDULE_DATE1 
+              ,SCHEDULE.TIME_TYPE         
+              ,SCHEDULE.START_TIME_HOUR   
+              ,SCHEDULE.START_TIME_MINUTE 
+              ,SCHEDULE.END_TIME_HOUR     
+              ,SCHEDULE.END_TIME_MINUTE   
+              ,SCHEDULE.POSITION          
+              ,SCHEDULE.SECRET_YN         
+              ,SCHEDULE.DESCRIPTION       
+              ,SCHEDULE.USER_ID 
+              ,SCHEDULE.LOOP_TYPE
+              ,SCHEDULE.SCHEDULE_GRP_ID
+              ,SCHEDULE.SCHEDULE_START_DATE 
+              ,SCHEDULE.SCHEDULE_END_DATE
+        FROM   SCHEDULE
+        WHERE  1 = 1
+        AND   SCHEDULE.USER_ID    = #{sessionVo.userId}
+        AND   SCHEDULE.SP_CSTM_ID = #{sessionVo.spCstmId}
+        UNION 
+        SELECT SCHEDULE.SCHEDULE_ID
+              ,SCHEDULE.SP_CSTM_ID
+              ,SCHEDULE.USER_ID
+              ,'['||GET_USER_NM(SCHEDULE.USER_ID)||']'||SCHEDULE.TITLE    AS TITLE 
+              ,'Y'     AS SHARE_YN
+              ,SCHEDULE.WORK_TYPE             
+              ,SCHEDULE.ALL_APPLY_YN      
+              ,SCHEDULE.WORK_COLOR     
+              ,SCHEDULE.TEXT_COLOR      
+              ,SCHEDULE.SCHEDULE_DATE   
+              ,SCHEDULE.SCHEDULE_DATE1 
+              ,SCHEDULE.TIME_TYPE         
+              ,SCHEDULE.START_TIME_HOUR   
+              ,SCHEDULE.START_TIME_MINUTE 
+              ,SCHEDULE.END_TIME_HOUR     
+              ,SCHEDULE.END_TIME_MINUTE   
+              ,SCHEDULE.POSITION          
+              ,SCHEDULE.SECRET_YN         
+              ,SCHEDULE.DESCRIPTION       
+              ,SCHEDULE.USER_ID 
+              ,SCHEDULE.LOOP_TYPE
+              ,SCHEDULE.SCHEDULE_GRP_ID
+              ,SCHEDULE.SCHEDULE_START_DATE 
+              ,SCHEDULE.SCHEDULE_END_DATE
+        FROM   TBL_EXP_SCHEDULE_SHARE A
+               JOIN SCHEDULE
+                 ON   1 = 1
+                 AND  SCHEDULE.SECRET_YN = 'Y'
+                 AND  A.SCHEDULE_ID = SCHEDULE.SCHEDULE_ID
+                 AND  SCHEDULE.SP_CSTM_ID  = #{sessionVo.spCstmId}
+                 AND  SCHEDULE.USER_ID     != #{sessionVo.userId}
+        WHERE  1 = 1
+        AND    A.SP_CSTM_ID  = #{sessionVo.spCstmId}
+        AND    A.USER_ID     = #{sessionVo.userId}
     </select>
     
     <select id="getScheduleList1" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -251,18 +352,26 @@
         SELECT A.SCHEDULE_ID     
               ,A.SCHEDULE_GRP_ID 
               ,A.TITLE           
-              ,A.WORK_TYPE       
+              ,A.WORK_TYPE   
+              ,GET_CODE_NM('SCHEDULE_WORK_TYPE', A.WORK_TYPE) AS WORK_TYPE_NM
               ,A.ALL_APPLY_YN    
-              ,A.SCHEDULE_DATE   
-              ,A.TIME_TYPE       
-              ,A.START_TIME_HOUR 
+              ,A.SCHEDULE_DATE  
+              ,TO_CHAR(A.SCHEDULE_DATE ,'YYYY-MM-DD') AS SCHEDULE_DATE_YMD
+              ,A.TIME_TYPE
+              ,A.START_TIME_HOUR
+              ,GET_CODE_NM('TIME_HOUR_24', A.START_TIME_HOUR) AS START_TIME_HOUR_NM
               ,A.START_TIME_MINUTE
+              ,GET_CODE_NM('TIME_MINUTE_30', A.START_TIME_MINUTE) AS START_TIME_MINUTE_NM
               ,A.END_TIME_HOUR    
+              ,GET_CODE_NM('TIME_HOUR_24', A.END_TIME_HOUR) AS END_TIME_HOUR_NM
               ,A.END_TIME_MINUTE  
+              ,GET_CODE_NM('TIME_MINUTE_30', A.END_TIME_MINUTE) AS END_TIME_MINUTE_NM
               ,A.POSITION         
               ,A.SECRET_YN        
+              ,GET_CODE_NM('SCHEDULE_SECRET_YN', A.SECRET_YN) AS SECRET_YN_NM
               ,A.DESCRIPTION      
-              ,A.USER_ID          
+              ,A.USER_ID         
+              ,GET_USER_NM(A.USER_ID) AS USER_NM           
               ,A.SP_CSTM_ID
         FROM   TBL_EXP_SCHEDULE A
         WHERE  1 = 1

@@ -73,9 +73,23 @@
                     //delete event from calender
                    let requestParm = {};
                    requestParm["scheduleId"]  = obj.event.id;
-                   C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
-                	   console.log('eventClick  popup_addSchedulePopup =>');
-                   })
+                   let shareYn = obj.event.extendedProps.shareYn;
+                   
+                   console.log("=== shareYn ===>"+shareYn);
+                   
+                   if( shareYn == 'Y' ){
+
+                       C_POP.open('popup_sched_dtlSchedulePopup', requestParm, function(obj) {
+                           console.log('eventClick  popup_sched_dtlSchedulePopup =>');
+                       })
+                   }else if( shareYn == 'N' ){
+                	   console.log("=== shareYn ===>"+shareYn);
+                	   
+                       C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
+                           console.log('eventClick  popup_addSchedulePopup =>');
+                       })   
+                   }
+                   
                 }
             });
             calendar.render();
@@ -122,6 +136,11 @@
                    obj.end   = resultData.data[i].SCHEDULE_DATE1+'T'+resultData.data[i].END_TIME_HOUR+':'+resultData.data[i].END_TIME_MINUTE+':00';
                    obj.textColor = resultData.data[i].TEXT_COLOR;
                    obj.color = resultData.data[i].WORK_COLOR;
+                   
+                   let shareYn = {};
+                   shareYn["shareYn"]   = resultData.data[i].SHARE_YN;
+                   obj.extendedProps = shareYn;
+                   
                    calendar.addEvent(obj);
                     
                 }
@@ -130,6 +149,7 @@
                 $('#todaySchedulecnt span').text(count);
             }); 
        }
+       
        ,setCalendar : function(dateString) {
     	   console.log(" dateString ==>"+dateString);
            calendar.gotoDate( new Date(dateString) )
@@ -169,6 +189,48 @@
                
             }); 
        }
+       ,getTeamUser : function() {
+           console.log(" getTeamUser ==>");
+
+           let requestParm = {};
+            
+           let parm = {
+                queryId        : "schedule.getUserList"
+               ,requestParm    : requestParm
+           }
+            
+           C_COM.requestQuery(parm, function(resultData) {
+               console.log("schedule.getUserList");
+               console.log( resultData.data);
+               let rparm = {
+                        targetId   : "teamUserTableId"
+                       ,list       : resultData.data
+                   }
+               C_COM.renderHtml("<@pageId>", rparm);
+            }); 
+           <@pageId>.setHandler();
+           
+       }
+       ,setHandler : () => {
+    	   console.log("chkHandler ==>");
+           <@pageId>.chkHandler();
+
+       }
+       ,chkHandler : () => {
+    	   console.log("chkHandler ==>");
+           $("[name='<@pageId>_ckAll']").off().on("click",function() {
+               console.log("chkHandler ==>");
+           });
+       
+       }
+       ,handleClick : (cb) =>  {
+           console.log("cbx_chkAll ==>"+ cb.checked);
+           if( cb.checked ){
+        	   $("input[name=<@pageId>_chk]").prop("checked", true);
+           }else{
+        	   $("input[name=<@pageId>_chk]").prop("checked", false);
+           }
+        }
 
     }
     // Page Load가 완료된후 실행 된다.
@@ -177,6 +239,8 @@
         
         <@pageId>.init("A");
         <@pageId>.getAllschedule();
+        <@pageId>.getTeamUser();
+        
         let date = new Date();
         
         <@pageId>.toDay = date.getFullYear() +
@@ -190,6 +254,8 @@
                 <@pageId>.setCalendar(dateString);
             }
         });
+        
+        <@pageId>.setHandler();
         
         
     });
@@ -219,34 +285,47 @@
                         <div class="schedule_wrap">
                             <div id="<@pageId>_datepicker"></div>
                             <div class="stit_schedule">하위 팀원 업무 스케줄 확인</div>
-                            <div class="check_subTeam_wrap">
-                                <div>
-                                    <input name="product" id="product01" type="checkbox" value="">
-                                    <label for="product01">전체<i class="icon_check"></i></label>
-                                </div>
-                                <div>
-                                    <input name="product" id="product01" type="checkbox" value="">
-                                    <label for="product01">위성열<i class="icon_check"></i></label>
-                                </div>
-                                <div>
-                                    <input name="product" id="product01" type="checkbox" value="">
-                                    <label for="product01">이희성<i class="icon_check"></i></label>
-                                </div>
-                                <div>
-                                    <input name="product" id="product01" type="checkbox" value="">
-                                    <label for="product01">유태원<i class="icon_check"></i></label>
-                                </div>
-                            </div>                            <div class="stit_schedule">업무 유형</div>
-                            <ul class="status_wrap">
-                                <li><i class="status meeting"></i><span>미팅</span></li>
-                                <li><i class="status tel_consul"></i><span>전화상담</span></li>
-                                <li><i class="status other_work"></i><span>그 외 업무</span></li>
-                                <li><i class="status send_email"></i><span>이메일 전송</span></li>
-                                <li><i class="status schedule"></i><span>회사 내부 일정</span></li>
-                                <li><i class="status seminar"></i><span>세미나</span></li>
-                            </ul>
+                            <div class="check_subTeam_wrap"  id="teamUserTableId">
+                            </div>
+                            <div>
+                                <script type="text/x-jsrender" id="teamUserTableId_template">
+                                    {{for list}}
+                                        {{if #index == 0 }}
+                                            <div>
+                                                <input name="<@pageId>_ckAll" id="<@pageId>_ckAll" type="checkbox" onclick='<@pageId>.handleClick(this);' value="">
+                                                <label for="product01">전체<i class="icon_check"></i></label>
+                                            </div>
+                                            <div>
+                                                <input name="<@pageId>_chk" id="product01" type="checkbox" value="{{:USER_ID}}">
+                                                <label for="product01">{{:USER_NM}}<i class="icon_check"></i></label>
+                                            </div>
+                                            {{else}}
+                                            <div>
+                                                <input name="<@pageId>_chk" id="product01" type="checkbox" value="{{:USER_ID}}">
+                                                <label for="product01">{{:USER_NM}}<i class="icon_check"></i></label>
+                                            </div>
+                                        {{/if}}
+ 
+                                    {{/for}}
+                                </script>
+			                    <script type="text/x-jsrender" id="teamUserTableId_noData_template">    
+                                
+                                </script>
+	                            
+                            </div>
+                            
+                                
+                            <div class="stit_schedule">업무 유형
+                            </div>
+	                            <ul class="status_wrap">
+	                                <li><i class="status meeting"></i><span>미팅</span></li>
+	                                <li><i class="status tel_consul"></i><span>전화상담</span></li>
+	                                <li><i class="status other_work"></i><span>그 외 업무</span></li>
+	                                <li><i class="status send_email"></i><span>이메일 전송</span></li>
+	                                <li><i class="status schedule"></i><span>회사 내부 일정</span></li>
+	                                <li><i class="status seminar"></i><span>세미나</span></li>
+	                            </ul>
                         </div>
-
                     </div>
                     <!-- 스케줄 오른쪽 -->
                     <div class="schedule right">

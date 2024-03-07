@@ -115,13 +115,13 @@
            },
            views: {
                dayGridMonth: { // name of view
-        	       titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' }
-        	      // other view-specific options here
+                   titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' }
+                  // other view-specific options here
                }
            },
           dateClick: function() {
-        	  console.log('a day has been clicked!');
-       	  },
+              console.log('a day has been clicked!');
+          },
           eventClick : function(info) {
               //delete event from calender
              console.log('info.event.title =>'+info.event.title);
@@ -141,94 +141,136 @@
              //info.event.remove();
   
           },
-       	  locale: 'ko', // 한국어 설정
+          locale: 'ko', // 한국어 설정
           initialView: 'dayGridMonth',
           
           events: [
-        	      {
-        		    // Just an event
-        		    title: 'Long Event',
-        		    start: '2024-03-07',
-        		    end: '2024-03-10',
-        		    className: 'scheduler_basic_event',
-        		    resourceEditable: true 
-        		  },
-        		  {
-        		    // Custom repeating event
-        		    id: 999,
-        		    title: 'Repeating Event',
-        		    start: '2024-03-09T16:00:00',
-        		    className: 'scheduler_basic_event',
+                  {
+                    // Just an event
+                    title: 'Long Event',
+                    start: '2024-03-07',
+                    end: '2024-03-10',
+                    className: 'scheduler_basic_event',
                     resourceEditable: true 
-        		  },
-        		  {
-        		    // Custom repeating event
-        		    id: 999,
-        		    title: 'Repeating Event',
-        		    start: '2024-03-16T16:00:00',
-        		    className: 'scheduler_basic_event',
+                  },
+                  {
+                    // Custom repeating event
+                    id: 999,
+                    title: 'Repeating Event',
+                    start: '2024-03-09T16:00:00',
+                    className: 'scheduler_basic_event',
+                    resourceEditable: true 
+                  },
+                  {
+                    // Custom repeating event
+                    id: 999,
+                    title: 'Repeating Event',
+                    start: '2024-03-16T16:00:00',
+                    className: 'scheduler_basic_event',
                     extendedProps: {
                         department: 'BioChemistry'
                     } 
-        		  },
-        		  {
-        		    // Just an event
-        		    title: 'Lunch',
-        		    start: '2024-03-12T12:00:00',
-        		    className: 'scheduler_basic_event',
+                  },
+                  {
+                    // Just an event
+                    title: 'Lunch',
+                    start: '2024-03-12T11:00:00',
+                    className: 'scheduler_basic_event',
                     resourceEditable: true 
-        		  },
-        		  {
-        		    // Just an event
-        		    title: 'Happy Hour',
-        		    start: '2024-03-12T17:30:00',
-        		    className: 'scheduler_basic_event',
+                  },
+                  {
+                    // Just an event
+                    title: 'Happy Hour',
+                    start: '2024-03-12T12:30:00',
+                    className: 'scheduler_basic_event',
                     resourceEditable: true 
-        		  },
-        		  {   
-        		    // Monthly event
-        		    id: 111,
-        		    title: 'Meeting1',
-        		    start: '2024-03-26T00:00:00',
-        		    className: 'scheduler_basic_event',
+                  },
+                  {
+                    // Just an event
+                    title: 'Happy Hour',
+                    start: '2024-03-12T13:30:00',
+                    className: 'scheduler_basic_event',
+                    resourceEditable: true 
+                  },
+                  {
+                    // Just an event
+                    title: 'Happy Hour',
+                    start: '2024-03-12T14:30:00',
+                    className: 'scheduler_basic_event',
+                    resourceEditable: true 
+                  },
+                  {
+                    // Just an event
+                    title: 'Happy Hour',
+                    start: '2024-03-12T15:30:00',
+                    className: 'scheduler_basic_event',
+                    resourceEditable: true 
+                  },
+                  {
+                    // Just an event
+                    title: 'Happy Hour',
+                    start: '2024-03-12T16:30:00',
+                    className: 'scheduler_basic_event',
+                    resourceEditable: true 
+                  },
+                  {
+                    // Just an event
+                    title: 'Happy Hour',
+                    start: '2024-03-12T17:30:00',
+                    className: 'scheduler_basic_event',
+                    resourceEditable: true 
+                  },
+                  {
+                    // Just an event
+                    title: 'Happy Hour',
+                    start: '2024-03-12T18:30:00',
+                    className: 'scheduler_basic_event',
+                    resourceEditable: true 
+                  },
+                  {   
+                    // Monthly event
+                    id: 111,
+                    title: 'Meeting1',
+                    start: '2024-03-26T00:00:00',
+                    className: 'scheduler_basic_event',
                     resourceEditable: true, 
-        		    repeat: 1
-        		  },
-        		  {
-        		    // Annual avent
-        		    id: 222,
-        		    title: 'Birthday Party',
-        		    start: '2024-03-04T07:00:00',
-        		    description: 'This is a cool event',
-        		    className: 'scheduler_basic_event',
+                    repeat: 1
+                  },
+                  {
+                    // Annual avent
+                    id: 222,
+                    title: 'Birthday Party',
+                    start: '2024-03-04T07:00:00',
+                    description: 'This is a cool event',
+                    className: 'scheduler_basic_event',
                     resourceEditable: true, 
-        		    repeat: 2
-        		  },
-        		  {
-        		    // Weekday event
-        		    title: 'Click for Google',
-        		    url: 'http://google.com/',
-        		    start: '2024-03-28',
-        		    className: 'scheduler_basic_event',
+                    repeat: 2
+                  },
+                  {
+                    // Weekday event
+                    title: 'Click for Google',
+                    url: 'http://google.com/',
+                    start: '2024-03-28',
+                    className: 'scheduler_basic_event',
                     resourceEditable: true, 
-        		    dow: [1,5]
-        		  },
-        	    {
-        	      title  : 'event1',
-        	      start  : '2024-03-01'
-        	    },
-        	    {
-        	      title  : 'event2',
-        	      start  : '2024-03-05',
-        	      end    : '2024-03-07'
-        	    },
-        	    {
-        	      title  : 'event3',
-        	      start  : '2024-03-09T12:30:00',
-        	      allDay : false // will make the time show
-        	    }
-        	  ],
-       	
+                    dow: [1,5]
+                  },
+                {
+                  title  : 'event1',
+                  start  : '2024-03-01'
+                },
+                {
+                  title  : 'event2',
+                  start  : '2024-03-05',
+                  end    : '2024-03-07'
+                },
+                {
+                  title  : 'event3',
+                  start  : '2024-03-09T12:30:00',
+                  allDay : false // will make the time show
+                }
+              ],
+        
           
         });//var calendar
         
@@ -238,18 +280,18 @@
             console.log('clicked on ' + info.dateStr);
             
             if( info.dateStr == "2024-03-01" ){
-            	var eventSources = calendar.getEventSources();
+                var eventSources = calendar.getEventSources();
                 console.log('EventSources => ' + eventSources);
                 var len = eventSources.length;
                 for (var i = 0; i < len; i++) { 
-                	console.log('eventSources['+i+'] => ' + eventSources[i]);
+                    console.log('eventSources['+i+'] => ' + eventSources[i]);
                     eventSources[i].remove(); 
                 } 
                 calendar.removeAllEvents();
             }else if( info.dateStr == "2024-03-02" ){
-            	calendar.next();
+                calendar.next();
             }else if( info.dateStr == "2024-03-03" ){
-            	calendar.destroy();
+                calendar.destroy();
             }else if( info.dateStr == "2024-03-04" ){
                 console.log('2024-03-04 => ');
                 var obj = new Object();
@@ -274,11 +316,11 @@
                 console.log('2024-03-05 => '+calendar.initialDate);
                 calendar.initialDate;
                 calendar.refetchEvents();
-	        }else if( info.dateStr == "2024-03-06" ){
-	            console.log('2024-03-06 => ');
-	            //calendar.fullCalendar( 'addEventSource', {id:123, stuff:'stuff'});
+            }else if( info.dateStr == "2024-03-06" ){
+                console.log('2024-03-06 => ');
+                //calendar.fullCalendar( 'addEventSource', {id:123, stuff:'stuff'});
             }else if( info.dateStr == "2024-03-07" ){
-            	//calendar.fullCalendar( 'removeEvent', 222);
+                //calendar.fullCalendar( 'removeEvent', 222);
             }
             
             //calendar.next();
@@ -305,8 +347,8 @@
       });
 
       function functionToExecute() {
-    	  console.log("functionToExecute");
-    	  test();
+          console.log("functionToExecute");
+          test();
       }
     </script>
   </head>
