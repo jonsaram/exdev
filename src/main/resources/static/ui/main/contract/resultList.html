@@ -15,7 +15,7 @@ var <@pageId> = {
 			,requestParm    : requestParm
 		}
         C_COM.requestQuery(parm, function(resultData) {
-        debugger;
+
 			<@pageId>.selectedList = resultData.data;
         	
 			let REMAINING_SUM_LIST = [];
@@ -43,7 +43,7 @@ var <@pageId> = {
         	mergeTableTD('<@pageId>_resultList', {startIdx : 1, endIdx : 7, startRowIdx : 1});
         	
     		if( <@pageId>.selectedList.length > 0 ){
-    			debugger;
+    			
     			<@pageId>.contractItem.REMAINING_SUM = Math.min( ...REMAINING_SUM_LIST );
     			
     		}
@@ -68,39 +68,45 @@ var <@pageId> = {
 			C_COM.requestQuery(parm, function(resultData) {
 				
                 if (resultData.state === 'S') {
-                	
-            		constInfo.forEach( item => {
-        				
-        				var parm = {
-        							queryId 	: "result.updateCostItem"
-        						   ,requestParm	: item
-        				}
-        				C_COM.requestQuery(parm, function(resultData) {
-        					
-        	                if (resultData.state === 'S') {
-        	                	
-        	            		var parm = {
-        	    						queryId 	: "result.updateResultItem"
-        	    					   ,requestParm	: resultInfo
-		        	    			}
-		        	    			C_COM.requestQuery(parm, function(resultData) {
-		        	    	            if (resultData.state === 'S') {
-		        	    	            }
-		        	    		});	
-        	                }
-        				});				
-        			})
+
+                	if( constInfo.length > 0){
+                		
+	            		constInfo.forEach( item => {
+	        				
+	        				var parm = {
+	        							queryId 	: "result.updateCostItem"
+	        						   ,requestParm	: item
+	        				}
+	        				C_COM.requestQuery(parm, function(resultData) {
+	        					
+	        	                if (resultData.state === 'S') {
+	        	                	
+	        	                	<@pageId>.updateResultItem(resultInfo);	
+	        	                }
+	        				});				
+	        			})
+                	}else{ 
+                		
+                		<@pageId>.updateResultItem(resultInfo);
+                		
+                	}
                 }
 			});				
 	    
 		})
 		
-		setTimeout( ()=>{
-			
-			<@pageId>.searchList();
-            
-		},1000)
+	}
+	,updateResultItem : (resultInfo) =>{
+		var parm = {
+				queryId 	: "result.updateResultItem"
+			   ,requestParm	: resultInfo
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+	            if (resultData.state === 'S') {
 
+	            	<@pageId>.searchList();
+	            }
+		});
 	}
 	,deleteItem : (delKey) => {
 			
@@ -207,8 +213,9 @@ var <@pageId> = {
 		    acc[obj.key] = obj.val;
 		    return acc;
 		}, {}); 
-		
- 		C_POP.open('popup_result_resultUpdatePopup', {	  mode:Object.keys(param).length > 0 ? "U" : "I"
+		const mode = Object.keys(param).length > 0 ? "U" : "I";
+
+ 		C_POP.open('popup_result_resultUpdatePopup', {	  mode:mode
  												, param:param 
  												, contractItem :<@pageId>.contractItem }
 			, function(retData) {

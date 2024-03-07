@@ -141,27 +141,22 @@ var <@popupId> = {
 				<@popupId>.getPayId(data, tempPayment);
 			}else {
  
-			    $("[name='coworkRate']").off().on('input',function(event){
-			    	
-			        const val = $(this).nval();
-					const INCOME = $("#<@popupId>_resultInfo #INCOME").nval();
-					const payment = ( Number(val ) * INCOME ) / 100; 
-					$(event.target).attr("value",val)
-					$(event.target).parent("#RATE").attr("value",val);
-					$(event.target).parent().siblings("#PAYMENT").attr("value",payment).html(payment);
-				});
+			    <@popupId>.paymentList_sum(tempPayment);
 			}
- 	 
-			const rateSum = tempPayment.reduce((acc, obj) => {
-			    acc["RATE_SUM"] = (acc["RATE_SUM"] || 0) + Number(obj.RATE);
-			    acc["PAYMENT_SUM"] = (acc["PAYMENT_SUM"] || 0) + Number(obj.PAYMENT);
-			    return acc;
-			}, { RATE_SUM: 0, PAYMENT_SUM: 0 }); 			
- 	
- 			const sumTemplate = $("#<@popupId>_paymentList_sum_template").render({RATE_SUM : rateSum["RATE_SUM"], PAYMENT_SUM :  rateSum["PAYMENT_SUM"] });
-			$("#<@popupId>_paymentList").append(sumTemplate);
-				
+
 		});
+		
+	}
+	,paymentList_sum : (tempPayment) => {
+		
+		const rateSum = tempPayment.reduce((acc, obj) => {
+		    acc["RATE_SUM"] = (acc["RATE_SUM"] || 0) + Number(obj.RATE);
+		    acc["PAYMENT_SUM"] = (acc["PAYMENT_SUM"] || 0) + Number(obj.PAYMENT);
+		    return acc;
+		}, { RATE_SUM: 0, PAYMENT_SUM: 0 }); 			
+	
+			const sumTemplate = $("#<@popupId>_paymentList_sum_template").render({RATE_SUM : rateSum["RATE_SUM"], PAYMENT_SUM :  rateSum["PAYMENT_SUM"] });
+		$("#<@popupId>_paymentList").append(sumTemplate);	
 		
 	}
 	,getPayId	: (data, tempPayment) => {
@@ -176,21 +171,22 @@ var <@popupId> = {
 		const payInfoList			= []; 					
 		const userIdListCnt 		= userIdList.length ; 
 		userIdList.forEach( (user,idx) => {
-			
-			var parm = {
-					 queryId 	: "result.getPayId"
-					,requestParm: user
-			}
-			C_COM.requestQuery(parm, function(resultData) {
-	
-				payInfoList.push( resultData.data[0]);
-				
-				userIdListCnt <= (idx+1) ? <@popupId>.setRatePayment(data.mode, tempPayment,payInfoList) : '';
-				
-			});
-		})
+
+				var parm = {
+						 queryId 	: "result.getPayId"
+						,requestParm: user
+				}
+				C_COM.requestQuery(parm, function(resultData) {
 		
-	}
+					payInfoList.push( resultData.data[0]);
+				});
+				
+		})
+
+ 		setTimeout(()=>{
+			<@popupId>.setRatePayment(data.mode, tempPayment,payInfoList)
+		},300);
+ 	}
 	,setRatePayment : (mode, tempPayment,payInfoList) => {
 
 		$("[name='coworkRate']").remove();
@@ -211,15 +207,6 @@ var <@popupId> = {
 				mode == "U" ?
 				$(tr+" td[id='RATE']>[name='coworkRate']").html(rateVal) : '';
 				
-			    $("[name='coworkRate']").off().on('input',function(event){
-			    	
-			        const val = $(this).nval();
-					const INCOME = $("#<@popupId>_resultInfo #INCOME").nval();
-					const payment = ( Number(val ) * INCOME ) / 100;
-					$(event.target).attr("value",val)
-					$(event.target).parent("#RATE").attr("value",val);
-					$(event.target).parent().siblings("#PAYMENT").attr("value",payment).html(payment);
-				});
 			}else{
 				
 				$(tr+" td[id='RATE']").attr("value",rate).html(rate);
@@ -228,9 +215,9 @@ var <@popupId> = {
 			
 			$(tr+" td[id='PAY_ID']").attr("value",payId).html(payId);
 			
-			
 		})
 		
+		<@popupId>.paymentList_sum(tempPayment);
 		
 	}
 	,calcPayment : (rate) => {
@@ -311,6 +298,15 @@ var <@popupId> = {
   	    	const key = $(this).attr("key");
 			<@popupId>.deleteOne(key,Number(idx));
 	    });
+	    
+	    $(document).off().on("input", "[name='coworkRate']", function(event){
+	        const val = $(this).nval();
+	        const INCOME = $("#<@popupId>_resultInfo #INCOME").nval();
+	        const payment = (Number(val) * INCOME) / 100;
+	        $(event.target).attr("value", val);
+	        $(event.target).parent("#RATE").attr("value", val);
+	        $(event.target).parent().siblings("#PAYMENT").attr("value", payment).html(payment);
+	    });	    
 	    
 	} 	
 	,setTitleHeight : (parentData) => {

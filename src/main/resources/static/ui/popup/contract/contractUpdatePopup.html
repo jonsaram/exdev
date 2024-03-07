@@ -20,12 +20,14 @@ var <@popupId> = {
 		 let returnData = {};
 		 const $inputs = $("#<@popupId>_items input");
 		 $.each( $inputs, function(){
-			 
-			 let key = $(this).attr("id");
-			 let val = $(this).val();
-			 
-			 if(key)
-			 	returnData[key] = val;
+
+			 if( $(this).attr("id")){
+				 let key = $(this).attr("id").replace("<@popupId>_","");
+				 let val = $(this).val();
+				 
+				 if(key)
+				 	returnData[key] = val;
+			 }
 		 })
 		 returnData["CONTRACT_TYPE"]	= C_UICOM.getData("<@popupId>_selectContractType");
 		 returnData["CONSULTING_CLASS"]	= C_UICOM.getData("<@popupId>_selectConsultingClass");
@@ -38,9 +40,9 @@ var <@popupId> = {
 	 }
 	 ,validation : () =>{
 		 
-		 if( $("#<@popupId>_items #BUYER_NM").val() 		== "" ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
-		 if( $("#<@popupId>_items #TEL").val() 				== "" ) {C_POP.alert("연락처를 입력하여 주십시오."); return false;}
-		 if( $("#<@popupId>_items #ADDR").val() 			== "" ) {C_POP.alert("본점주소를 입력하여 주십시오."); return false;}
+		 if( $("#<@popupId>_items #<@popupId>_BUYER_NM").val() 		== "" ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
+		 if( $("#<@popupId>_items #<@popupId>_TEL").val() 			== "" ) {C_POP.alert("연락처를 입력하여 주십시오."); return false;}
+		 if( $("#<@popupId>_items #<@popupId>_ADDR").val() 			== "" ) {C_POP.alert("본점주소를 입력하여 주십시오."); return false;}
 		 return true;
 		 
 	 }
@@ -59,7 +61,7 @@ var <@popupId> = {
 						
 						if( id ==  "TOTAL_COST" ) val = <@popupId>.numberWithCommas(val);
 						
-						$("#<@popupId>_items #" + id).val(val);
+						$("#<@popupId>_items #<@popupId>_" + id).val(val);
 					    
 					}
 				})
@@ -69,8 +71,8 @@ var <@popupId> = {
 
 		<@popupId>.memberSet();
 		
- 		const CONTRACT_TYPE 	= $("#<@popupId>_items #CONTRACT_TYPE").val();
-		const CONSULTING_CLASS 	= $("#<@popupId>_items #CONSULTING_CLASS").val();
+ 		const CONTRACT_TYPE 	= $("#<@popupId>_items #<@popupId>_CONTRACT_TYPE").val();
+		const CONSULTING_CLASS 	= $("#<@popupId>_items #<@popupId>_CONSULTING_CLASS").val();
 		
 		C_UICOM.makeSelectBox({ 
 			 defaultItem 	: ["--", "선택"]
@@ -100,7 +102,6 @@ var <@popupId> = {
 			const USER 		= resultData.data.filter( member => member.RELATION_TYPE == 'EXECUTE');
 			<@popupId>.addCoworkRtnData	= resultData.data.filter( member => member.RELATION_TYPE == 'COWORK');
 			<@popupId>.addSalseManRtnData= resultData.data.filter( member => member.RELATION_TYPE == 'SALES');
-			//const OVERRIDING= resultData.data.filter( member => member.RELATION_TYPE == 'OVERRIDING');
 			<@popupId>.addSuggesterRtnData= resultData.data.filter( member => member.RELATION_TYPE == 'SUGGESTER');
 			
 			var rparm1 = {
@@ -115,33 +116,8 @@ var <@popupId> = {
 			}
 			C_COM.renderHtml("<@popupId>", rparm2);
 			
-/* 			var rparm3 = {
-					 targetId 		: "<@popupId>_overridingList"
-					,list			: OVERRIDING
-			}
-			C_COM.renderHtml("<@popupId>", rparm3); */
 		});
 	}
-/* 	,selectHierarchyList : (branchId) => {
-		
-		const requestParm = {};
-		
-		var parm = {
-				 queryId 		: "contract.getOverridingList"
-				,requestParm	: {BRANCH_ID : branchId}
-		}
-
-		C_COM.requestQuery(parm, function(resultData) {
-			var rparm = {
-					 targetId 		: "<@popupId>_overridingList"
-					,list			: resultData.data
-			}
-		
-			C_COM.renderHtml("<@popupId>", rparm);
-
-		});
-		
-	} */
 	,selectSuggester : (RECOMMENDER_ID) => {
 		
 		const requestParm = {};
@@ -183,7 +159,7 @@ var <@popupId> = {
 					
         		const value = retData[item];
         			
-				$("#<@popupId>_items #"+item).val(value);
+				$("#<@popupId>_items #<@popupId>_"+item).val(value);
 				
 				if( item =='RECOMMENDER_ID')RECOMMENDER_ID = value;
 					
@@ -195,16 +171,14 @@ var <@popupId> = {
 	}
 	,memberSet : (RECOMMENDER_ID) => {
 		
-		const buyerId = $("#<@popupId>_items #BUYER_ID").val();
-		const buyerNm = $("#<@popupId>_items #BUYER_NM").val();
-		if( buyerId )$("#<@popupId>_items #BUYER").val(buyerNm+ " ("+buyerId+")");
-		const userId = $("#<@popupId>_items #USER_ID").val();
-		const userNm = $("#<@popupId>_items #USER_NM").val();
+		const buyerId = $("#<@popupId>_items #<@popupId>_BUYER_ID").val();
+		const buyerNm = $("#<@popupId>_items #<@popupId>_BUYER_NM").val();
+		if( buyerId )$("#<@popupId>_items #<@popupId>_BUYER").val(buyerNm+ " ("+buyerId+")");
+		const userId = $("#<@popupId>_items #<@popupId>_USER_ID").val();
+		const userNm = $("#<@popupId>_items #<@popupId>_USER_NM").val();
 		if( userId ){
-			$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
-			$("#<@popupId>_items #CPY_USER_NM").text(userNm);
-			//const branchId = $("#<@popupId>_items #BRANCH_ID").val();
-			//if( branchId )<@popupId>.selectHierarchyList(branchId);
+			$("#<@popupId>_items #<@popupId>_USER").val(userNm+ " ("+userId+")");
+			$("#<@popupId>_items #<@popupId>_CPY_USER_NM").text(userNm);
 			if( RECOMMENDER_ID )<@popupId>.selectSuggester(RECOMMENDER_ID);
 		}
 
@@ -219,10 +193,10 @@ var <@popupId> = {
 				event.target.value = inputValue;
 		})
 		
-		$("#<@popupId>_addCowork").on('click', () => {
-
-			const CONTRACT_ID	= 	$("#<@popupId>_items>#CONTRACT_ID").val();
-			const USER_ID		=	$("#<@popupId>_items>#USER_ID").val()
+		$("#<@popupId>_addCowork").on('click', (event) => {
+			event.preventDefault();
+			const CONTRACT_ID	= 	$("#<@popupId>_items>#<@popupId>_CONTRACT_ID").val();
+			const USER_ID		=	$("#<@popupId>_items>#<@popupId>_USER_ID").val()
 			const contractMember= 	<@popupId>.getContractMember(CONTRACT_ID, USER_ID);
 
 			let param = {"ALL_MEMBERS": contractMember};
@@ -241,10 +215,10 @@ var <@popupId> = {
 			
 		})
 		
-		$("#<@popupId>_addSalesMan").on('click', () => {
-			
-			const CONTRACT_ID	= 	$("#<@popupId>_items>#CONTRACT_ID").val();
-			const USER_ID		=	$("#<@popupId>_items>#USER_ID").val()
+		$("#<@popupId>_addSalesMan").on('click', (event) => {
+			event.preventDefault();
+			const CONTRACT_ID	= 	$("#<@popupId>_items>#<@popupId>_CONTRACT_ID").val();
+			const USER_ID		=	$("#<@popupId>_items>#<@popupId>_USER_ID").val()
 			const contractMember= 	<@popupId>.getContractMember(CONTRACT_ID, USER_ID);
 			
 			let param = {"ALL_MEMBERS": contractMember};
@@ -321,23 +295,6 @@ var <@popupId> = {
             contractMember.push(obj);
         });
 
-/*         $('#<@popupId>_overridingList tr').each(function() {
-
-            var $cells = $(this).find('td');
-
-            var obj = {
-                	'CONTRACT_ID'		:	CONTRACT_ID,
-                    'USER_ID'			: 	$cells.eq(1).attr('value'),
-                    'RELATION_TYPE'		:	'OVERRIDING',
-                    'BUSINESS_HIERARCHY':	$cells.eq(4).attr('value'),
-                    'USE_YN'			:	'Y',
-                    'DEL_YN'			:	'N',
-                };
-
-            contractMember.push(obj);
-        }); */
-
-
 		var obj = {
 					'CONTRACT_ID'		:	CONTRACT_ID,
 		            'USER_ID'			: 	$('#<@popupId>_suggester tr #USER_ID').attr("value"),
@@ -409,7 +366,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label>고객선택</label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%">
-											<input type="search" id="BUYER" placeholder="고객명(고객번호)"><a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('BUYER');" class="search_btn"><i class="icon_search"></i></a>
+											<input type="search" id="<@popupId>_BUYER" placeholder="고객명(고객번호)"><a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('BUYER');" class="search_btn"><i class="icon_search"></i></a>
 										</div>
 									</div>
 								</li>
@@ -417,7 +374,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label>계약담당자</label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%">
-											<input type="search" id="USER" placeholder="사원이름(사원ID)"><a  href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
+											<input type="search" id="<@popupId>_USER" placeholder="사원이름(사원ID)"><a  href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
 										</div>
 									</div>
 								</li>
@@ -425,7 +382,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label>상담일</label>
 									<div class="info">
 										<div class="calendar_wrap">
-											<input type="text" class="datepicker" id="CONTACT_DATE" style="width:100%">
+											<input type="text" class="datepicker" id="<@popupId>_CONTACT_DATE" style="width:100%">
 										</div>
 									</div>
 								</li>
@@ -433,7 +390,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label>자문계약일</label>
 									<div class="info">
 										<div class="calendar_wrap">
-											<input type="text" class="datepicker" id="CONTRACT_DATE" style="width:100%">
+											<input type="text" class="datepicker" id="<@popupId>_CONTRACT_DATE" style="width:100%">
 										</div>
 									</div>
 								</li>
@@ -442,7 +399,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label>만료일</label>
 									<div class="info">
 										<div class="calendar_wrap">
-											<input type="text" class="datepicker" id="EXPIRE_DATE"  style="width:100%">
+											<input type="text" class="datepicker" id="<@popupId>_EXPIRE_DATE"  style="width:100%">
 										</div>
 									</div>
 								</li>
@@ -463,7 +420,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<li class="ml0">
 									<label>총계약금액</label>
 									<div class="info">
-										<input type="text"  class="number"   id="TOTAL_COST" style="width:100%">
+										<input type="text"  class="number"   id="<@popupId>_TOTAL_COST" style="width:100%">
 									</div>
 								</li>
 								<li class="w100">
@@ -484,13 +441,13 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<li>
 									<label>세무담당</label>
 									<div class="info">
-										<input type="text" id='TAX_MNG' style="width:100%">
+										<input type="text" id='<@popupId>_TAX_MNG' style="width:100%">
 									</div>
 								</li>
 								<li>
 									<label>노무담당</label>
 									<div class="info">
-										<input type="text" id='LABOR_MNG' style="width:100%">
+										<input type="text" id='<@popupId>_LABOR_MNG' style="width:100%">
 									</div>
 								</li>
 							</ul>
@@ -498,7 +455,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<div id="tab2" class="display" style="overflow:auto;">
 							<dl class="info_wrap pay mt0">
 								<dt class="mb0">담당 컨설턴트 :</dt>
-								<dd class="mb0" id="CPY_USER_NM"></dd>
+								<dd class="mb0" id="<@popupId>_CPY_USER_NM"></dd>
 							</dl>
 							<!-- 코웍 사원 등록  -->
 							<div class="search_area">
@@ -525,27 +482,26 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 											<th scope="col"><i class="icon_trash"></i></th>
 										</tr>
 									</thead>
-				<tbody  id="<@popupId>_coworkList">
-				</tbody>
-<script type="text/x-jsrender" id="<@popupId>_coworkList_template">						
-				{{for list}}
-					<tr name="overriding_cowork">
-			 					<td id='USER_ID'		 value='{{:USER_ID}}'		>{{:USER_ID}}</td>
-			 					<td id='USER_NM'		 value='{{:USER_NM}}'		>{{:USER_NM}}</td>
-			 					<td id='GRADE'			 value='{{:GRADE}}'			>{{:GRADE}}</td>
-			 					<td><button onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove();"><i class="icon_trash"></i></button></td>
-					</tr>
-				{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@popupId>_coworkList_noData_template">	
-				<tr>	
-					<td colspan=4>등록된 사원이 없습니다.</td>	
-				</tr>
-</script>
-		</table>
-		
-</div>
-
+							<tbody  id="<@popupId>_coworkList">
+							</tbody>
+							<script type="text/x-jsrender" id="<@popupId>_coworkList_template">						
+							{{for list}}
+							<tr name="overriding_cowork">
+				 					<td id='USER_ID'		 value='{{:USER_ID}}'		>{{:USER_ID}}</td>
+				 					<td id='USER_NM'		 value='{{:USER_NM}}'		>{{:USER_NM}}</td>
+									<td id='GRADE'			 value='{{:GRADE}}'			>{{:GRADE}}</td>
+									<td><button onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove();"><i class="icon_trash"></i></button></td>
+							</tr>
+							{{/for}}
+							</script>
+							<script type="text/x-jsrender" id="<@popupId>_coworkList_noData_template">	
+								<tr>	
+									<td colspan=4>등록된 사원이 없습니다.</td>	
+								</tr>
+							</script>
+							</table>
+			
+							</div>
 							<!-- 영업담당사원 등록  -->
 							<div class="search_area mt25">
 								<span class="tit02">영업담당사원 등록</span>
@@ -571,71 +527,25 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 											<th scope="col"><i class="icon_trash"></i></th>
 										</tr>
 									</thead>
-				<tbody  id="<@popupId>_salesManList">
-				</tbody>
-<script type="text/x-jsrender" id="<@popupId>_salesManList_template">						
-				{{for list}}
-					<tr name="overriding_sales">
-			 					<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
-			 					<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
-			 					<td id='GRADE'			value='{{:GRADE}}'			>{{:GRADE}}</td>
-			 					<td><button onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button></td>
-					</tr>
-				{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@popupId>_salesManList_noData_template">	
-				<tr>	
-					<td colspan=4>등록된 사원이 없습니다.</td>	
-				</tr>
-</script>
-		</table>
-</div>
-
-							<!-- Overriding 관련 상급자 
-							<div class="search_area mt25">
-								<span class="tit02">Overriding 관련 상급자 </span>
+								<tbody  id="<@popupId>_salesManList">
+								</tbody>
+								<script type="text/x-jsrender" id="<@popupId>_salesManList_template">						
+								{{for list}}
+								<tr name="overriding_sales">
+				 							<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
+				 							<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
+			 								<td id='GRADE'			value='{{:GRADE}}'			>{{:GRADE}}</td>
+			 								<td><button onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button></td>
+								</tr>
+								{{/for}}
+								</script>
+								<script type="text/x-jsrender" id="<@popupId>_salesManList_noData_template">	
+								<tr>	
+									<td colspan=4>등록된 사원이 없습니다.</td>	
+								</tr>
+								</script>
+								</table>
 							</div>
-							<div class="tbl01 col">
-								<table>
-									<caption>Overriding관련 상급자 리스트 </caption>
-									<colgroup>
-										<col style="width:20%;"/>
-										<col style="width:20%;"/>
-										<col style="width:20%;"/>
-										<col style="width:20%;"/>
-										<col style="width:21%;"/>
-									</colgroup>
-									<thead>
-										<tr>
-											<th scope="col">직책</th>
-											<th scope="col">사원ID</th>
-											<th scope="col">사원 이름</th>
-											<th scope="col">등급</th>
-											<th scope="col"><i class="icon_trash"></i></th>
-										</tr>
-									</thead>
-				<tbody  id="<@popupId>_overridingList">
-				</tbody>
-<script type="text/x-jsrender" id="<@popupId>_overridingList_template">						
-				{{for list}}
-					<tr name="overriding_overriding">
-			 					<td id='POSITION'		 	value='{{:POSITION}}'			>{{:POSITION}}</td>
-			 					<td id='USER_ID'		 	value='{{:USER_ID}}'			>{{:USER_ID}}</td>
-			 					<td id='USER_NM'		 	value='{{:USER_NM}}'			>{{:USER_NM}}</td>
-			 					<td id='GRADE_NM'		 	value='{{:GRADE_NM}}'			>{{:GRADE_NM}}</td>
-			 					<td id='BUSINESS_HIERARCHY'	value='{{:BUSINESS_HIERARCHY}}'	style='display:none'>{{:BUSINESS_HIERARCHY}}</td>
-			 					<td><button onClick="this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button></td>
-					</tr>
-				{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@popupId>_overridingList_noData_template">	
-				<tr>	
-					<td colspan=5>등록된 사원이 없습니다.</td>	
-				</tr>
-</script>
-		</table>
-  -->		
-  
 							<div class="search_area mt25">
 								<span class="tit02">추천인</span>
 							</div>
@@ -647,7 +557,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 										<col style="width:25%;"/>
 										<col style="width:25%;"/>
 										<col style="width:25%;"/>
-										<!-- <col style="width:21%;"/> -->
 									</colgroup>
 									<thead>
 										<tr>
@@ -655,7 +564,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 											<th scope="col">사원ID</th>
 											<th scope="col">사원 이름</th>
 											<th scope="col">등급</th>
-											<!-- <th scope="col"><i class="icon_trash"></i></th> -->
 										</tr>
 									</thead>
 									<tbody  id="<@popupId>_suggester">
@@ -664,7 +572,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						 					<td id='USER_ID' ></td>
 						 					<td id='USER_NM' ></td>
 						 					<td id='GRADE_NM'></td>
-						 					<!-- <td><button onClick="this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button></td> -->
 										</tr>
 									</tbody>
 								</table>
@@ -672,20 +579,20 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</div>
 					</div>
 				</div>
-				<input type="hidden" id="CONTRACT_ID">
-				<input type="hidden" id="CONSULTING_ID" value="temp">
-				<input type="hidden" id="PROCESS_STATE" value="PRE_STATE">
-				<input type="hidden" id="LAST_SOLUTION" value="last">
-				<input type="hidden" id="USE_YN" value="Y">
-				<input type="hidden" id="DEL_YN" value="N">
-				<input type="hidden" id="BRANCH_ID">
-				<input type="hidden" id="BUYER_NM">
-				<input type="hidden" id="BUYER_ID">
-				<input type="hidden" id="USER_NM">
-				<input type="hidden" id="USER_ID">
-				<input type="hidden" id="CONTRACT_TYPE_NM">
-				<input type="hidden" id="CONTRACT_TYPE">
-				<input type="hidden" id="CONSULTING_CLASS">				
+				<input type="hidden" id="<@popupId>_CONTRACT_ID">
+				<input type="hidden" id="<@popupId>_CONSULTING_ID" value="temp">
+				<input type="hidden" id="<@popupId>_PROCESS_STATE" value="PRE_STATE">
+				<input type="hidden" id="<@popupId>_LAST_SOLUTION" value="last">
+				<input type="hidden" id="<@popupId>_USE_YN" value="Y">
+				<input type="hidden" id="<@popupId>_DEL_YN" value="N">
+				<input type="hidden" id="<@popupId>_BRANCH_ID">
+				<input type="hidden" id="<@popupId>_BUYER_NM">
+				<input type="hidden" id="<@popupId>_BUYER_ID">
+				<input type="hidden" id="<@popupId>_USER_NM">
+				<input type="hidden" id="<@popupId>_USER_ID">
+				<input type="hidden" id="<@popupId>_CONTRACT_TYPE_NM">
+				<input type="hidden" id="<@popupId>_CONTRACT_TYPE">
+				<input type="hidden" id="<@popupId>_CONSULTING_CLASS">				
 	</div> <!-- //modal_body -->
 
 		<div class="modal_footer">
