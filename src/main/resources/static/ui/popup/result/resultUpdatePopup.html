@@ -69,6 +69,13 @@ var <@popupId> = {
 
 		<@popupId>.setTitleHeight(parentData);
 
+		var singleboxList = { 
+			 defaultItem 	: ["", "선택"]
+			,data 			: C_COM.getCodeList("INCOME_TYPE")
+		 	,targetId 		: "selectIncomeType" 
+		}
+		C_UICOM.makeSelectBox(singleboxList, "single");
+		
 		<@popupId>.RESULT_ID 		= C_COM.makeUniqueId();
 		<@popupId>.mode				= parentData.mode;
 		let resultDate				= dayjs().format("YYYY-MM-DD");
@@ -79,7 +86,7 @@ var <@popupId> = {
 			resultDate				= parentData.param["RESULT_DATE"	] ;
 			
 			<@popupId>.setModiPage(parentData.param);
-			
+			C_UICOM.setSingleBox("selectIncomeType", "INTERMED_PAYMENT");
 			$("#<@popupId>_resultInfo #INCOME").val( _numberWithCommas( parentData.param["INCOME"])	);	
 		}
 		
@@ -371,6 +378,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<label>입금액</label>
 						<div class="info">
 							<input type="text"  id="INCOME" name="INCOME" style="width:100%" number>
+						</div>
+					</li>
+					<li>
+						<label>입금 TYPE</label>
+						<div class="info">
+							<div id="selectIncomeType" style="width:200px"></div>
 						</div>
 					</li>
 				</ul>

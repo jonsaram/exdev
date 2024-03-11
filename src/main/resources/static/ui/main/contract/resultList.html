@@ -134,12 +134,17 @@ var <@pageId> = {
 		
 	    $("#<@pageId>_constractSel").off().on('click',function(){
 	    	
-			<@pageId>.openSelPopup();
+			<@pageId>.openSelectPopup();
 
 	    })
 		
 	    $("#<@pageId>_regResult").off().on('click',function(){
 
+			const remainingSum = <@pageId>.contractItem.REMAINING_SUM;
+			if( remainingSum == 0){
+				C_POP.alert('잔금완납되어 추가 실적을 등록할수 없습니다.');
+				return;
+			}
 			<@pageId>.openRegPopup();
 
 	    })
@@ -160,7 +165,7 @@ var <@pageId> = {
 	    })
 	    
 	}
-	,openSelPopup : () => {
+	,openSelectPopup : () => {
 
 		let param = [];	
 

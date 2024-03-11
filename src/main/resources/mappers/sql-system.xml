@@ -295,7 +295,7 @@
 		*/
 		MERGE INTO TBL_EXP_GRPCODE T
 		USING (
-		  SELECT #{sessionVo.spCstmId} AS GRP_CODE_ID,
+		  SELECT #{GRP_CODE_ID} AS GRP_CODE_ID,
 				 #{GRP_CODE_NM} AS GRP_CODE_NM,
 				 #{CODE_DESC} 	AS CODE_DESC,
 				 #{USE_YN} 		AS USE_YN,
@@ -326,7 +326,7 @@
 		*/
 		MERGE INTO TBL_EXP_CODE T
 		USING (
-		  SELECT #{sessionVo.spCstmId}	AS GRP_CODE_ID, 
+		  SELECT #{GRP_CODE_ID} AS GRP_CODE_ID, 
 				 #{CODE_ID} 	AS CODE_ID, 
 				 #{CODE_NM} 	AS CODE_NM, 
 				 #{CODE_DESC}	AS CODE_DESC,   

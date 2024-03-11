@@ -105,8 +105,8 @@ var <@pageId> = {
 				
 				if( resultData.state == 'S'){
 
-					if( <@pageId>.isGrpCodeSection(sectionId) )<@pageId>.searchList();
-					else <@pageId>.searchList("CD",{GRP_CODE_ID: <@pageId>.selectedGrpCd["GRP_CODE_ID"]});
+					<@pageId>.searchList("CD",{GRP_CODE_ID: <@pageId>.selectedGrpCd["GRP_CODE_ID"]});
+					setTimeout( ()=>{<@pageId>.searchList()},500);
 					
 					console.log("Item 저장 성공");
 				}				
