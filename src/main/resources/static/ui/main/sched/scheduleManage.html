@@ -25,16 +25,14 @@
     	events : []
        ,parmObj : {}
        ,calendar : ''
-       ,toDayScheduleCnt : 0
        ,toDay : ''
    	   ,addSchedulePopup : function() {    
 	        let requestParm = {}
 	        C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
 	        	
 	        	console.log("== popup_sched_addSchedulePopup ==");
-	        	
-	        	<@pageId>.removeAllschedule();
-	        	<@pageId>.getAllschedule();
+	            let parm = {};
+	        	<@pageId>.getAllschedule(parm);
 	            
 	        });
         }   
@@ -105,14 +103,22 @@
         }
        ,removeAllschedule : function() {
            console.log("removeAllschedule");
+           
+           var eventSources = calendar.getEventSources();
+           console.log('EventSources => ' + eventSources);
+           var len = eventSources.length;
+           for (var i = 0; i < len; i++) { 
+               console.log('eventSources['+i+'] => ' + eventSources[i]);
+               eventSources[i].remove(); 
+           } 
+           
     	   calendar.removeAllEvents();
     	   
        }
-       ,getAllschedule : function(  ) {
+       ,getAllschedule : function( requestParm ) {
     	   console.log("getAllschedule");
+    	   <@pageId>.removeAllschedule();
     	   
-    	   let requestParm = {};
-            
            let parm = {
                 queryId        : "schedule.getScheduleList"
                ,requestParm    : requestParm
@@ -120,15 +126,11 @@
             
            C_COM.requestQuery(parm, function(resultData) {
                console.log("schedule.getScheduleList");
-               //console.log( resultData.data);
-                
-                
+               
                for (var i=0; i<resultData.data.length; i++){
                    // 오늘의 일정 count
                    console.log("toDay ==>"+<@pageId>.toDay);
-                   if( <@pageId>.toDay == resultData.data[i].SCHEDULE_DATE1){
-                	   <@pageId>.toDayScheduleCnt++; 
-                   }
+                   
                    var obj = new Object();
                    obj.id    = resultData.data[i].SCHEDULE_ID;
                    obj.title = resultData.data[i].TITLE;
@@ -144,15 +146,36 @@
                    calendar.addEvent(obj);
                     
                 }
-               console.log(" toDayScheduleCnt ==>"+<@pageId>.toDayScheduleCnt);
-                let count = <@pageId>.toDayScheduleCnt+'개';
+            }); 
+       }
+
+       ,getTodaySchedule : function( toDay ) {
+           console.log("getTodaySchedule");
+           
+           console.log("toDay ==>"+toDay);
+           
+           let requestParm = {};
+           requestParm["scheduleDate"]  = toDay;
+           requestParm["spCstmId"]      = "";
+           requestParm["userId"]        = "";
+           
+           let parm = {
+                queryId        : "schedule.getScheduleList1"
+               ,requestParm    : requestParm
+           }
+            
+           C_COM.requestQuery(parm, function(resultData) {
+               
+               console.log(" toDayScheduleCnt ==>"+resultData.data.length);
+                let count = resultData.data.length+'개';
                 $('#todaySchedulecnt span').text(count);
             }); 
        }
        
        ,setCalendar : function(dateString) {
     	   console.log(" dateString ==>"+dateString);
-           calendar.gotoDate( new Date(dateString) )
+    	   calendar.gotoDate( new Date(dateString) );
+    	   $('#<@pageId>_tableId').css('display', 'none');
        }
 
        ,searchSchedule : function(  ) {
@@ -182,12 +205,15 @@
                console.log( resultData.data);
                
                let rparm = {
-                        targetId   : "tableId"
+                        targetId   : "<@pageId>_tableId"
                        ,list       : resultData.data
                    }
                C_COM.renderHtml("<@pageId>", rparm);
                
             }); 
+           
+           $('#<@pageId>_tableId').css('display', 'block');
+           
        }
        ,getTeamUser : function() {
            console.log(" getTeamUser ==>");
@@ -208,29 +234,40 @@
                    }
                C_COM.renderHtml("<@pageId>", rparm);
             }); 
-           <@pageId>.setHandler();
-           
        }
-       ,setHandler : () => {
-    	   console.log("chkHandler ==>");
-           <@pageId>.chkHandler();
-
-       }
-       ,chkHandler : () => {
-    	   console.log("chkHandler ==>");
-           $("[name='<@pageId>_ckAll']").off().on("click",function() {
-               console.log("chkHandler ==>");
-           });
-       
-       }
-       ,handleClick : (cb) =>  {
-           console.log("cbx_chkAll ==>"+ cb.checked);
+      ,handleAllClick : (cb) =>  {
+           console.log("handleAllClick ==>"+ cb.checked);
            if( cb.checked ){
         	   $("input[name=<@pageId>_chk]").prop("checked", true);
            }else{
         	   $("input[name=<@pageId>_chk]").prop("checked", false);
            }
-        }
+           <@pageId>.searchScheduleCheckBox(); 
+       }
+
+      ,handleClick : (cb) =>  {
+           console.log("handleClick ==>"+ cb.checked);
+           <@pageId>.searchScheduleCheckBox();
+       }
+      
+      ,searchScheduleCheckBox : () =>  {
+
+    	  var userIdList = new Array();    	  
+    	  var i =0;
+    	  
+    	  $("input[name=<@pageId>_chk]:checked").each(function(e){
+              var value = $(this).val();
+              console.log("== 2 value["+value+"]  ==");
+              userIdList[i++] = value;
+          })
+          
+          if ( userIdList.length > 0) {
+              let requestParm = {};   
+              requestParm["userIdList"]  = userIdList;
+              requestParm["checkYN"]     = "Y";
+              <@pageId>.getAllschedule( requestParm );
+          }
+      }
 
     }
     // Page Load가 완료된후 실행 된다.
@@ -238,16 +275,14 @@
         C_COM.hideLeftMenu();
         
         <@pageId>.init("A");
-        <@pageId>.getAllschedule();
+        let parm = {};
+        <@pageId>.getAllschedule(parm);
         <@pageId>.getTeamUser();
         
         let date = new Date();
-        
         <@pageId>.toDay = date.getFullYear() +
                           '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
                           '-' + ( (date.getDate()) <= 9 ? "0" + (date.getDate()) : (date.getDate()) );
-        
-        console.log("toDay ==>"+<@pageId>.toDay);
         
         $("#<@pageId>_datepicker").datepicker({
             onSelect: function(dateString) {
@@ -255,9 +290,7 @@
             }
         });
         
-        <@pageId>.setHandler();
-        
-        
+        <@pageId>.getTodaySchedule(<@pageId>.toDay);
     });
     // History back으로 이동해왔을 경우 이루틴이 실행된다.
     C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -292,16 +325,16 @@
                                     {{for list}}
                                         {{if #index == 0 }}
                                             <div>
-                                                <input name="<@pageId>_ckAll" id="<@pageId>_ckAll" type="checkbox" onclick='<@pageId>.handleClick(this);' value="">
+                                                <input name="<@pageId>_ckAll" id="<@pageId>_ckAll" type="checkbox" onclick='<@pageId>.handleAllClick(this);' value="">
                                                 <label for="product01">전체<i class="icon_check"></i></label>
                                             </div>
                                             <div>
-                                                <input name="<@pageId>_chk" id="product01" type="checkbox" value="{{:USER_ID}}">
+                                                <input name="<@pageId>_chk" id="<@pageId>_chk{{#index}}" type="checkbox" value="{{:USER_ID}}" onclick='<@pageId>.handleClick(this);' >
                                                 <label for="product01">{{:USER_NM}}<i class="icon_check"></i></label>
                                             </div>
                                             {{else}}
                                             <div>
-                                                <input name="<@pageId>_chk" id="product01" type="checkbox" value="{{:USER_ID}}">
+                                                <input name="<@pageId>_chk" id="<@pageId>_chk{{#index}}" type="checkbox" value="{{:USER_ID}}" onclick='<@pageId>.handleClick(this);' >
                                                 <label for="product01">{{:USER_NM}}<i class="icon_check"></i></label>
                                             </div>
                                         {{/if}}
@@ -333,12 +366,12 @@
                             <div class="search_inputWrap" style="width:315px;">
                                 <input type="search" id="<@pageId>_searchTitle" name="" onkeyup="if(window.event.keyCode==13){(<@pageId>.searchSchedule())}">
                                 <button class="search_btn" id="<@pageId>_searchBtn" onclick="<@pageId>.searchSchedule();"><i class="icon_search"></i></button>
-                                <ul class="search_lst" id="tableId" style="display:block;">
+                                <ul class="search_lst1" id="<@pageId>_tableId"  style="display:none;">
                                 </ul>
-                                <script type="text/x-jsrender" id="tableId_template">    
+                                <script type="text/x-jsrender" id="<@pageId>_tableId_template">    
                                     {{for list}}
                                         <li>
-                                            <a href='javascript: void(0);' name="searchList" onclick="<@pageId>.setCalendar('{{:SCHEDULE_DATE1}}');">{{:SCHEDULE_DATE1}} : {{:TITLE}}
+                                            <a href='javascript: void(0);' name="searchList2" onclick="<@pageId>.setCalendar('{{:SCHEDULE_DATE1}}');">{{:SCHEDULE_DATE1}} : {{:TITLE}}
                                             </a>
                                         </li>
                                     {{/for}}

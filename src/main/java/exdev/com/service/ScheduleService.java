@@ -1,8 +1,6 @@
 package exdev.com.service;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.common.service.ExdevBaseService;
 import exdev.com.util.DateUtil;
@@ -30,9 +27,6 @@ public class ScheduleService extends ExdevBaseService{
 	@Autowired
 	private ExdevCommonDao commonDao;
     
-	
-	
-
     /** 
      * 내용        : 일정관리 수정(addSchedulePopup.html)
      *               일정관리(TBL_EXP_SCHEDULE)
@@ -379,3 +373,31 @@ public class ScheduleService extends ExdevBaseService{
     }
 	
 }
+/*
+ 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Object getUserList1(Map map) throws Exception {
+        
+        ArrayList<String> userIdList = new ArrayList<>();
+        userIdList = (ArrayList<String>)map.get("userIdList");
+        
+        String[] userIds = new String[userIdList.size()];
+        
+        for (int i=0; i<userIdList.size(); i++) {
+            userIds[i] = userIdList.get(i);
+            System.out.println("====== userId====>"+userIds[i]);
+        }
+        
+        Map<String, Object> searchMap = new HashMap<String, Object>();
+        
+        
+        searchMap.put("userIdList", userIds);
+        
+        List<Map> list = commonDao.getList("schedule.getUserList1", searchMap);
+       
+        map.put("list", list);
+        System.out.println("ScheduleService.getUserList1 11");
+        return map;
+    }
+ 
+ */
