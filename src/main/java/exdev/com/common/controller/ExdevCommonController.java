@@ -169,6 +169,29 @@ public class ExdevCommonController {
 	}
 
 	@SuppressWarnings({ "unused", "rawtypes" })
+	@RequestMapping("/commonExcelUpload.do")
+	public @ResponseBody Map commonExcelUpload(@RequestParam("file") MultipartFile file,HttpSession session) throws Exception {
+		
+		Map resultMap = new HashMap();
+		resultMap.put("msg",null);
+				
+	  try {
+		  	resultMap = excelService.commonExcelUpload(file, session);
+            return resultMap;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("msg","");
+            resultMap.put("state","");
+
+            return resultMap;
+        }
+	}
+
+	
+	
+	
+	@SuppressWarnings({ "unused", "rawtypes" })
 	@RequestMapping("/excelDownload.do")
 	public void excelDownload(@RequestParam(value = "queryId", required = true) String queryId,
             @RequestParam(value = "requestParm"	, required = true) String requestParm,

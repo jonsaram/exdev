@@ -32,5 +32,137 @@
 		    AND	A.USE_YN = 'Y'
 		    AND B.USE_YN = 'Y'
 		ORDER BY A.SORT_ORDER, B.SORT_ORDER    
-   	</select>	
+   	</select>
+   	
+	<select id="getExcelUploadColumnList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	common.getExcelUploadColumnList
+			엑셀 업로드 Table Column 조회 
+		*/
+		SELECT
+		     TABLE_NAME
+		    ,COLUMN_LIST
+		FROM
+		     TBL_EXP_EXUPTBL
+		WHERE
+			TABLE_NAME = #{TABLE_NAME}
+   	</select>
+   	
+   	
+   	
+	<select id="excelUploadToTable" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	common.excelUploadToTable
+			공통 Table Upload
+		*/
+		INSERT INTO ${tableName} (
+	    <foreach item="setInfo" collection="setInfoList" separator=",">
+   			 ${setInfo.header}
+   		</foreach>
+   			,UPDATE_DATE
+   			,UPDATE_USER
+    		,SP_CSTM_ID
+		) VALUES (
+	    <foreach item="setInfo" collection="setInfoList" separator=",">
+   			 #{setInfo.data}
+   		</foreach>
+   			,sysdate
+   			,#{sessionVo.userId}
+			,#{sessionVo.spCstmId}
+		)
+   	</select>
+
+	<select id="excelOverwriteToTable" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	common.excelOverwriteToTable
+			공통 Table Merge
+		*/
+		MERGE INTO ${tableName} T
+		USING (
+			SELECT
+		    <foreach item="setInfo" collection="setInfoList" separator=",">
+	   			 #{setInfo.data} AS ${setInfo.header}
+	   		</foreach>
+			FROM DUAL
+		) S
+		ON (
+	    <foreach item="pkey" collection="prmKeyAttr" separator=" AND ">
+   			 T.${pkey} = S.${pkey}
+   		</foreach>
+		)
+		WHEN MATCHED THEN
+			UPDATE SET
+		    <foreach item="setInfo" collection="setUpdateList" separator=",">
+	   			  T.${setInfo.header} = #{setInfo.data}
+	   		</foreach>
+	   			 ,T.UPDATE_USER		 = #{sessionVo.userId}
+	   			 ,T.UPDATE_DATE		 = sysdate 
+		WHEN NOT MATCHED THEN 
+			INSERT (
+		    <foreach item="setInfo" collection="setInfoList" separator=",">
+	   			 ${setInfo.header}
+	   		</foreach>
+	   			,UPDATE_DATE
+	   			,UPDATE_USER
+	    		,SP_CSTM_ID
+			) VALUES (
+		    <foreach item="setInfo" collection="setInfoList" separator=",">
+	   			 #{setInfo.data}
+	   		</foreach>
+	   			,sysdate
+	   			,#{sessionVo.userId}
+				,#{sessionVo.spCstmId}
+			)
+   	</select>
+
+
+   	
+	<select id="existTableName" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	common.existTableName
+			백업 Table 존재 확인
+		*/
+		SELECT TABLE_NAME
+		FROM ALL_TABLES
+		WHERE TABLE_NAME = #{BK_TABLE_NAME}
+   	</select>
+   		
+	<update id="createBackupTable" flushCache="true">
+		/*	common.createBackupTable
+			백업 Table 생성
+		*/
+		CREATE TABLE ${BK_TABLE_NAME} AS  
+		SELECT 
+			  A.* 
+			 ,'${BACKUP_DATE}' AS BACKUP_DATE
+		FROM ${TABLE_NAME} A	
+   	</update>
+	<update id="insertBackupTable" flushCache="true">
+		/*	common.insertBackupTable
+			백업 Table 에 Insert
+		*/
+		INSERT INTO ${BK_TABLE_NAME}  
+		SELECT 
+			  A.* 
+			 ,#{BACKUP_DATE} 	AS BACKUP_DATE
+		FROM ${TABLE_NAME} A	
+   	</update>
+	<update id="insertBackupLog" flushCache="true">
+		/*	common.insertBackupTable
+			 엑셀 업로드시 Log 남김
+		*/
+		INSERT INTO TBL_EXP_EXCEL_BACKUP_LOG(
+		     BK_TABLE_NAME
+		    ,BK_TYPE			
+		    ,BACKUP_DATE		
+		    ,UPDATE_USER  
+		    ,UPDATE_DATE  
+		) VALUES (
+			 #{BK_TABLE_NAME}  
+			,#{BK_TYPE}
+			,#{BACKUP_DATE}
+			,#{sessionVo.userId}
+			,sysdate
+		)
+   	</update>
+	<update id="deleteTable" flushCache="true">
+		DELETE FROM ${TABLE_NAME}  
+   	</update>
+   		
 </mapper>

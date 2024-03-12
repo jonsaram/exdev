@@ -8,10 +8,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFFont;
+import javax.servlet.http.HttpSession;
+
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +29,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.google.gson.Gson;
 
+import exdev.com.ExdevCommonAPI;
 import exdev.com.common.ExdevConstants;
+import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.common.service.ExdevBaseService;
 import exdev.com.common.service.ExdevCommonService;
 import exdev.com.common.vo.SessionVO;
-
-import javax.servlet.http.HttpSession;
 
 @Service("ExcelService")
 public class ExcelService  extends ExdevBaseService{
@@ -34,6 +42,9 @@ public class ExcelService  extends ExdevBaseService{
 	
 	@Autowired
 	private ExdevCommonService commonService;
+
+	@Autowired
+	private ExdevCommonDao commonDao;
 	
 	
 	public @ResponseBody Map<String, Object> upload(@RequestParam("file") MultipartFile file, HttpSession session) throws Exception {
@@ -87,6 +98,206 @@ public class ExcelService  extends ExdevBaseService{
             return resultMap;
         }
 	}
+	/**
+	 * 위성열 
+	 * 20240308
+	 * @param file
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public @ResponseBody Map<String, Object> commonExcelUpload(@RequestParam("file") MultipartFile file, HttpSession session) throws Exception {
+
+		SessionVO sessionVo = (SessionVO) session.getAttribute(ExdevConstants.SESSION_ID);
+	    Map<String, Object> resultMap = new HashMap<>();
+	    resultMap.put("sessionVo", sessionVo);
+	    resultMap.put("filename", file.getOriginalFilename());
+
+        int idx = 0;
+
+        try {
+	        Workbook workbook = WorkbookFactory.create(file.getInputStream());
+	        Sheet sheet = workbook.getSheetAt(0);
+	        
+	        List<Map<String, Object>> 	excelDataMapList 	= new ArrayList<>();
+	        List<String> 				headerList 			= new ArrayList<>();
+	        HashMap 					optionMap			= new HashMap();
+	        String 						tableName 			= "";
+	        String 						prmKeyNumStr		= "";
+	        String 						prmKeyNumAttr	[]	= null;
+	        String 						prmKeyAttr		[]	= null;
+	        String 						clearCheck 			= "";
+	        String 						dupleProcess		= "";
+	        
+	        for (Row row : sheet) {
+	        	
+	        	// 첫행,두번째행은 설명으로 Skip 
+	        	if(idx <= 1) {
+
+	        	// 세번째행은 Table Name 읽어서 CODE에서 Column 정보 가져옴 및 기타 옵션 가져옴
+	        	} else if(idx == 2) {
+	                Cell cell1 = row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+	                Cell cell2 = row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+	                Cell cell3 = row.getCell(2, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+	                Cell cell4 = row.getCell(3, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+	                
+	        		tableName 	 = cell1.toString();
+	        		prmKeyNumStr = cell2.toString();
+	        		if(ExdevCommonAPI.isValid(prmKeyNumStr)) {
+	        			prmKeyNumAttr 	= prmKeyNumStr.split("/");
+	        			prmKeyAttr		= new String[prmKeyNumAttr.length];
+	            		for (int i=0;i<prmKeyNumAttr.length;i++) {
+	            			prmKeyNumAttr[i] = prmKeyNumAttr[i].replaceAll(".0", ""); 
+						}
+	        		}
+	        		clearCheck 	 = cell3.toString();
+	        		dupleProcess = cell4.toString();
+	        		
+	        		optionMap.put("TABLE_NAME"		, tableName);
+	        		optionMap.put("BK_TABLE_NAME"	, tableName + "_EXBACKUP");
+	        		optionMap.put("CLEAR_CHECK"		, clearCheck);
+	        		optionMap.put("DUPLE_PROCESS"	, dupleProcess);
+	        		optionMap.put("BACKUP_DATE"		, ExdevCommonAPI.getToday("yyyyMMddHHmmss"));
+	        		optionMap.put("sessionVo", sessionVo);
+	        		
+	        		// Table에 해당하는 Column읽어온다.
+	            	Map lm = (Map)commonDao.getObject("common.getExcelUploadColumnList", optionMap);
+	            	
+	            	if( lm == null) {
+	        			// 코드관리에서 Table Column정의가 없는 경우 오류 처리
+	        			throw new Exception("Table의 헤더가 Code관리에서 정의 되어야 합니다.");
+	            	} else {
+	            		String columnList = (String)lm.get("COLUMN_LIST");
+	            		String columnArray [] = columnList.split("/");
+	            		int cidx = 1;
+	            		for (String column : columnArray) {
+		            		headerList.add(column);
+		            		for (String num : prmKeyNumAttr) {
+								if((cidx + "").equals(num)) {
+									//엑셀에서 지정한 Primary Key를 구한다.
+									prmKeyAttr[cidx - 1] = column;
+									break;
+								}
+							}
+		            		cidx++;
+						}
+	            	}
+	            // 네번째 행은 Header 처리 및 옵션 처리
+	        	} else if (idx == 3) {
+	        		int cellcnt = row.getLastCellNum();
+	        		int headerCnt = headerList.size();
+	        		if(cellcnt != headerCnt) {
+	        			// 컬럼 개수가 일치하지 않아 오류처리
+	        			throw new Exception("Column개수가 일치하지 않습니다.");
+	        		}
+	        		
+	        		// 기존 Data 지우고 새로 upload인경우 처리
+	        		if("Y".equals(clearCheck)) {
+	        			// 기존 Data Backukp 후 Clear함
+		            	List tabCntList = (List)commonDao.getList("common.existTableName", optionMap);
+	        			Integer tabCnt = tabCntList.size();
+	        			if(tabCnt == 1) {
+	        				// Backup Table이 이미 존재하는 경우
+	        				commonDao.update("common.insertBackupTable"	, optionMap);
+	        				optionMap.put("BK_TYPE", "INSERT");
+	        				commonDao.update("common.insertBackupLog"	, optionMap);
+	        			} else {
+	        				// Backup Table이 없는 경우
+	        				commonDao.update("common.createBackupTable"	, optionMap);
+	        				optionMap.put("BK_TYPE", "CREATE");
+	        				commonDao.update("common.insertBackupLog"	, optionMap);
+	        			}
+	        			// 백업이 완료되었으므로 기존 Data를 지운다.
+        				commonDao.update("common.deleteTable"			, optionMap);
+	        		}
+		        // 다섯번째 행부터 Data
+	            } else if (idx > 3) {
+
+		            Map<String, Object> cellMap = new LinkedHashMap<>();
+
+		            for (int i = 0; i < row.getLastCellNum(); i++) {
+		                Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+		                
+		                String cellValue = cell.toString();
+		                
+		                switch (cell.getCellType()) {
+		                	case NUMERIC:
+		                		Double 	dcellValue 	= Double.parseDouble(cellValue);
+		                		Long 	lcellValue 	= Math.round(dcellValue);
+		                		
+		                		String compStr = (dcellValue + "").replaceAll(".0", "");
+		                		if(compStr.equals(lcellValue.toString())) {
+		                			cellValue = compStr;
+		                		}
+		                		break;
+		                	default:
+		                }		                
+	                    cellMap.put(headerList.get(i), cellValue);
+		            }
+		            
+	                excelDataMapList.add(cellMap);
+	            }
+	        	idx++;
+	        }
+            workbook.close();
+            
+            for (Map<String, Object> map : excelDataMapList) {
+            	List<Map> setInfoList 	= new ArrayList<Map>();
+            	List<Map> setUpdateList = new ArrayList<Map>();
+            	for (String column : headerList) {
+            		HashMap infoMap = new HashMap(); 
+            		infoMap.put("header", column);
+            		infoMap.put("data"	, (String)map.get(column));
+            		setInfoList.add(infoMap);
+            		
+            		boolean keyCheck = false;
+            		for (String key : prmKeyAttr) {
+						if(key.equals(column)) keyCheck = true;
+					}
+            		if(!keyCheck) {
+            			setUpdateList.add(infoMap);
+            		}
+				}
+            	HashMap imap = new HashMap();
+            	imap.put("tableName"	, tableName	);
+            	imap.put("setInfoList"	, setInfoList);
+            	imap.put("prmKeyAttr"	, prmKeyAttr);
+            	imap.put("setUpdateList", setUpdateList);
+            	imap.put("sessionVo"	, sessionVo	);
+            	
+            	if("OVERWRITE".equals(dupleProcess)) {
+            		// 덮어쓰기
+                	commonDao.update("common.excelOverwriteToTable", imap);
+            	} else {
+            		// Primary Key 중복인 경우 Error리턴
+            		commonDao.update("common.excelUploadToTable", imap);
+            	}
+            	
+            	
+			}
+            Gson gson = new Gson();
+            String json = gson.toJson(excelDataMapList);
+            resultMap.put("msg","");
+    		resultMap.put("data",json);
+            resultMap.put("state","S");
+    		
+            return resultMap;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("msg"		,e.getMessage());
+            resultMap.put("stopIdx"	,(idx - 1));
+            resultMap.put("state","E");
+
+            return resultMap;
+        }
+	}
+	
+	
+	
+	
+	
 	
     public Workbook download(Map<String, Object> requestBodyMap, HttpSession session) throws Exception {
     	
@@ -138,7 +349,7 @@ public class ExcelService  extends ExdevBaseService{
         // Add table name
         Row tableNameRow = sheet.createRow(1);
         Cell tableNameCell = tableNameRow.createCell(0);
-        tableNameCell.setCellValue("Menu : "+menu);
+        tableNameCell.setCellValue(menu);
         Font tableNameFont = workbook.createFont();
         tableNameFont.setBold(true);
         CellStyle tableNameCellStyle = workbook.createCellStyle();
@@ -149,13 +360,13 @@ public class ExcelService  extends ExdevBaseService{
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDateTime = now.format(formatter);
-        Row dateRow = sheet.createRow(2);
-        Cell dateCell = dateRow.createCell(0);
+        //Row dateRow = sheet.createRow(1);
+        Cell dateCell = tableNameRow.createCell(1);
         dateCell.setCellValue("Date : " + formattedDateTime);
 
         String[] columnNames = ((String) requestBodyMap.get("columnNames")).split(",");
         // Create header row
-        Row headerRow = sheet.createRow(3);
+        Row headerRow = sheet.createRow(2);
         for (int i = 0; i < columnNames.length; i++) {
             Cell headerCell = headerRow.createCell(i);
             headerCell.setCellValue(columnNames[i]);
@@ -163,7 +374,7 @@ public class ExcelService  extends ExdevBaseService{
         }
 
         // Fill data rows
-        int rowCount = 4;
+        int rowCount = 3;
         for (Map<String, Object> rowData : dataList) {
             Row dataRow = sheet.createRow(rowCount++);
             for (int i = 0; i < columnNames.length; i++) {

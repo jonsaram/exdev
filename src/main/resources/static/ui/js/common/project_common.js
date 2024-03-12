@@ -550,8 +550,47 @@ var C_COM = {
         }else{
             $(templateWebId + " .tbl_head colgroup col:last-child").width();
         }
-	}
+	 }
 	
+	,excelUploadCallbackFn : undefined
+	// Excel Upload To Table
+	,selectExcelUploadToTable : function(excelUploadCallbackFn) {
+		
+		C_COM.excelUploadCallbackFn = excelUploadCallbackFn;
+		
+		$("#_common_excelFileInput").remove();
+		
+		$("body").append(`<input id="_common_excelFileInput" type="file" onchange="C_COM.excelFileUpload();" style="display:none"/>`);
+		
+		$("#_common_excelFileInput").trigger("click");
+	 }
+	,excelFileUpload : function() {
+		const fileInput = $('#_common_excelFileInput')[0];
+	    const file = fileInput.files[0];
+
+	    const formData = new FormData();
+	    formData.append('file', file);
+
+	    $.ajax({
+	        url: '/commonExcelUpload.do',
+	        type: 'POST',
+	        data: formData,
+	        contentType: false,
+	        processData: false,
+	        success: function(response) {
+				if(typeof C_COM.excelUploadCallbackFn == "function" ) C_COM.excelUploadCallbackFn(response);
+				else {
+					alert('Excel Upload에 성공 하였습니다.');	
+				}
+			}
+	        ,error: function(error) {
+				if(typeof C_COM.excelUploadCallbackFn == "function" ) C_COM.excelUploadCallbackFn(error);
+				else {
+					alert('Excel Upload에 실패 하였습니다.');	
+				}
+	        }
+	    });
+	 }
 }
 
 /**

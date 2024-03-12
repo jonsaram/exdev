@@ -31,6 +31,8 @@
          }
         ,addMember : function(retData) {
         	
+        	if(isEmpty(retData)) return;
+        	
         	if(isValid(<@popupId>.appMember[retData.USER_ID])) {
         		alert('이미 등록되어 있는 사원입니다.');
         		return;
