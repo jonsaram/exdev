@@ -54,8 +54,8 @@
 		WHERE C.CONTRACT_ID	= R.CONTRACT_ID 
 		AND C.CONTRACT_ID	= CO.CONTRACT_ID(+) 
 		AND R.RESULT_ID		= CO.RESULT_ID(+)
-		AND R.CONTRACT_ID	= P.CONTRACT_ID 
-		AND R.RESULT_ID		= P.RESULT_ID 
+		AND R.CONTRACT_ID	= P.CONTRACT_ID(+) 
+		AND R.RESULT_ID		= P.RESULT_ID(+) 
 		AND R.CONTRACT_ID 	= #{CONTRACT_ID}
 		<if test=" RESULT_ID != null and !RESULT_ID.equals('') ">
 		AND R.RESULT_ID 	= #{RESULT_ID}
@@ -142,10 +142,10 @@
 		</choose>
 		
 		<if test=" FROM_DATE != null and !FROM_DATE.equals('') ">
-		AND TO_CHAR( C.CONTACT_DATE, 'YYYY-MM-DD' )  <![CDATA[ >= ]]> #{FROM_DATE}
+		AND TO_CHAR( C.CONTRACT_DATE, 'YYYY-MM-DD' )  <![CDATA[ >= ]]> #{FROM_DATE}
 		</if>
 		<if test=" TO_DATE != null and !TO_DATE.equals('') ">
-		 AND TO_CHAR( C.CONTACT_DATE, 'YYYY-MM-DD')  <![CDATA[ <= ]]> #{TO_DATE}
+		 AND TO_CHAR( C.CONTRACT_DATE, 'YYYY-MM-DD')  <![CDATA[ <= ]]> #{TO_DATE}
 		</if>
 		ORDER BY C.CONTRACT_DATE DESC , C.CONTACT_DATE DESC
 	
