@@ -409,9 +409,6 @@ var C_COM = {
 	,hideLeftMenu : function() {
 		$("#lnb_MenuList").hide();
 	 }
-	,fileDownload : function(fileId) {
-		location.href="/filedownload.do?FILE_ID=" + fileId;	
-	 }
 	//Template 사용하는 모든페이지에 대해 초기화
 	,preInitTemplate : function(templateId) {
 		var templateWebId = "#" + templateId + " ";
@@ -590,6 +587,29 @@ var C_COM = {
 				}
 	        }
 	    });
+	 }
+	,getFileId : function(GRP_FILE_ID, OWNER_ID, callback) {
+		if			(isEmpty(GRP_FILE_ID)) {
+			alert('File Group ID가 유효하지 않습니다.');
+			reutrn;
+		} else if	(isEmpty(OWNER_ID)) {
+			alert('File Owner ID가 유효하지 않습니다.');
+			reutrn;
+		} else if	(isEmpty(callback)) {
+			alert('Callback Function이 필요합니다.');
+			reutrn;
+		}		
+		
+		var parm = {
+			 queryId 		: "Filemng.getFileList"
+			,requestParm	: {GRP_FILE_ID : GRP_FILE_ID, OWNER_ID : OWNER_ID}
+		}
+		C_COM.requestQuery(parm, function(resultData) {
+			callback(resultData.data);
+		});
+	 }
+	,fileDownload : function(fileId) {
+		location.href="/filedownload.do?FILE_ID=" + fileId;	
 	 }
 }
 

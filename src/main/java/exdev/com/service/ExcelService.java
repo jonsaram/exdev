@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -108,6 +111,17 @@ public class ExcelService  extends ExdevBaseService{
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public @ResponseBody Map<String, Object> commonExcelUpload(@RequestParam("file") MultipartFile file, HttpSession session) throws Exception {
+		
+        Workbook workbook = WorkbookFactory.create(file.getInputStream());
+        int cnt = workbook.getNumberOfSheets();
+        Map resultMap = null;
+        for (int ii = 0; ii < cnt; ii++) {
+    		resultMap = commonExcelUploadExec(file, session, ii);
+    		resultMap.put("sheetNum", ii);
+		}
+		return resultMap;
+	}
+	public @ResponseBody Map<String, Object> commonExcelUploadExec(@RequestParam("file") MultipartFile file, HttpSession session, int sheetNum) throws Exception {
 
 		SessionVO sessionVo = (SessionVO) session.getAttribute(ExdevConstants.SESSION_ID);
 	    Map<String, Object> resultMap = new HashMap<>();
@@ -118,8 +132,8 @@ public class ExcelService  extends ExdevBaseService{
 
         try {
 	        Workbook workbook = WorkbookFactory.create(file.getInputStream());
-	        Sheet sheet = workbook.getSheetAt(0);
-	        
+	        Sheet sheet = workbook.getSheetAt(sheetNum);
+
 	        List<Map<String, Object>> 	excelDataMapList 	= new ArrayList<>();
 	        List<String> 				headerList 			= new ArrayList<>();
 	        HashMap 					optionMap			= new HashMap();
@@ -143,6 +157,12 @@ public class ExcelService  extends ExdevBaseService{
 	                Cell cell4 = row.getCell(3, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 	                
 	        		tableName 	 = cell1.toString();
+	        		if(!ExdevCommonAPI.isValid(tableName)) {
+	        			// 코드관리에서 Table Column정의가 없는 경우 오류 처리
+	        			throw new Exception(sheetNum + "번째 Sheet의 Format이 형식에 맞지 않습니다.");
+	        			
+	        		}
+	        		
 	        		prmKeyNumStr = cell2.toString();
 	        		if(ExdevCommonAPI.isValid(prmKeyNumStr)) {
 	        			prmKeyNumAttr 	= prmKeyNumStr.split("/");
@@ -166,7 +186,7 @@ public class ExcelService  extends ExdevBaseService{
 	            	
 	            	if( lm == null) {
 	        			// 코드관리에서 Table Column정의가 없는 경우 오류 처리
-	        			throw new Exception("Table의 헤더가 Code관리에서 정의 되어야 합니다.");
+	        			throw new Exception("Table의 헤더가 Excel Upload Column 관리 Table에 등록되어 있지 않습니다.");
 	            	} else {
 	            		String columnList = (String)lm.get("COLUMN_LIST");
 	            		String columnArray [] = columnList.split("/");
@@ -242,6 +262,14 @@ public class ExcelService  extends ExdevBaseService{
 	        }
             workbook.close();
             
+            // 중복 Check
+            String dupleNum = checkExcelDataValid(excelDataMapList, prmKeyAttr);
+            if(dupleNum != null) {
+            	resultMap.put("dupleNum", dupleNum);
+    			resultMap.put("errorType", "excel_duple");
+            	throw new Exception("Excel Data에 중복 Data가 있습니다.");
+            }
+            
             for (Map<String, Object> map : excelDataMapList) {
             	List<Map> setInfoList 	= new ArrayList<Map>();
             	List<Map> setUpdateList = new ArrayList<Map>();
@@ -285,7 +313,7 @@ public class ExcelService  extends ExdevBaseService{
             return resultMap;
             
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             resultMap.put("msg"		,e.getMessage());
             resultMap.put("stopIdx"	,(idx - 1));
             resultMap.put("state","E");
@@ -294,7 +322,27 @@ public class ExcelService  extends ExdevBaseService{
         }
 	}
 	
-	
+	private String checkExcelDataValid(List<Map<String, Object>> excelDataMapList, String [] prmKeyAttr) {
+		HashMap<String, String> keyList = new HashMap<String, String>();
+		String rdata = null;
+		int idx = 5;
+        for (Map<String, Object> map : excelDataMapList) {
+        	
+        	String pk = "";
+    		for (String key : prmKeyAttr) {
+    			String addKey = (String)map.get(key);
+    			pk += addKey;
+			}
+    		String dupleNum = keyList.get(pk);
+    		if(dupleNum != null) {
+    			rdata = dupleNum + "/" + idx;
+    			break;
+    		}
+    		keyList.put(pk, idx + "");
+    		idx++;
+        }
+		return rdata;
+	}
 	
 	
 	
