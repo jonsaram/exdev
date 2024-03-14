@@ -3,31 +3,53 @@
 <script type="text/javascript">
 var <@pageId> = {
 		
-		mainCategoryItem: ''
+		 mainCategoryItem: ''
 		,categoryChart	: ()=> <@pageId>.mainCategoryChart()
 		,treemapChart : (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
 		,pageInit : () =>{
 			
-			const containerList 	= ["<@pageId>_monthlyOSP_chart"];
-			const categoriesList 	= [['1월', '2월', '3월', '4월', '5월', '6월','7월', '8월', '9월', '10월', '11월', '12월']];
-			const seriesList		= [[{
-			        name: '2023년',
-			        type: 'column',
-			        yAxis: 1,
-			        data: [70, 140, 190, 180, 195, 240, 160, 140, 0,
-			            0, 0, 0],
-			        tooltip: {
-			            valueSuffix: '억'
-		        	}
-				}
-				,{
-			        name: '2022년',
-			        type: 'line',
-			        data:  [155, 170, 185, 170, 160, 175, 165, 190, 160, 170, 160, 150],
-			        tooltip: {
-			            valueSuffix:'억'
-		    		}
-				}]]
+			var parm = {
+				queryGroup : [{queryId	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONTRACT_TYPE : "MONTHLY"}}
+							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONTRACT_TYPE : "ONLY_ONE"}}
+							 ,{queryId 	: "rstMgn.getOrgSellingPriceByDetailList",requestParm	: {}}
+							 ]
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+
+				<@pageId>.setChart(resultData )
+			});
+			
+		}
+		,setChart : (resultData) =>{
+
+			const monthArray 						=  ['1월', '2월', '3월', '4월', '5월', '6월','7월', '8월', '9월', '10월', '11월', '12월'];
+			const getOrgSellingPriceListMONTHLY		=  resultData.data["rstMgn.getOrgSellingPriceList"	].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			const getOrgSellingPriceListOnly_ONE	=  resultData.data["rstMgn.getOrgSellingPriceList_1"].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			const getOrgSellingPriceByDetailList	=  resultData.data["rstMgn.getOrgSellingPriceByDetailList"].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+		    const CONSULTING_NMS 					=  Array.from(new Set(resultData.data["rstMgn.getOrgSellingPriceByDetailList"].map( item=> item.CONSULTING_NM )));
+
+		    const CONSULTING_SellingPrice			=  resultData.data["rstMgn.getOrgSellingPriceByDetailList"].map( (item,idx) =>  { return  item.ORG_SELLING_PRICE });
+			const containerList 	= [	"<@pageId>_monthlyOSP_chart"
+									   ,"<@pageId>_onceOSP_chart"
+									  ,"<@pageId>_productOSP_chart"
+									  ];
+			const categoriesList 	= [  monthArray
+										,monthArray
+ 										,CONSULTING_NMS
+									   ];
+			const seriesList		= [
+				
+										[{  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'} }
+										,{  name: '2022년',type: 'line',data:   getOrgSellingPriceListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
+										],
+										[{  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'}}
+										,{  name: '2022년',type: 'line',data:  getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
+										],
+										[{  name: '2023년',type: 'column',yAxis: 1,data: CONSULTING_SellingPrice.slice(CONSULTING_NMS.length),tooltip: {valueSuffix: '억'}}
+										,{  name: '2022년',type: 'line',data:  CONSULTING_SellingPrice.slice(0,CONSULTING_NMS.length),tooltip: {valueSuffix:'억'}}
+										]
+				
+									 ]
 			
 			
 			containerList.forEach( (chart,idx) =>{

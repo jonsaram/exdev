@@ -152,6 +152,8 @@
 				AND CN.USE_YN = 'Y' AND CN.DEL_YN = 'N'
 				AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
 				AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
+				AND TO_CHAR(RST.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
+				AND TO_CHAR(RST.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
 				GROUP BY CN.CONTRACT_ID, CN.TOTAL_COST, RST.RESULT_ID, TO_CHAR(RST.RESULT_DATE, 'YYYYMM')
 			) Data 
 			WHERE  M.month = Data.EACH_MONTH
@@ -193,8 +195,8 @@
 		AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
 		AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
 		AND CT.CONSULTING_ID  = CN.CONSULTING_ID 
-		GROUP BY  CT.CONSULTING_ID, CT.CONSULTING_NM , TO_CHAR(RST.RESULT_DATE, 'YYYY')	   
-		ORDER BY CONSULTING_NM,EACH_YEAR 
+		GROUP BY  CT.CONSULTING_ID, CT.CONSULTING_NM , TO_CHAR(RST.RESULT_DATE, 'YYYY')	 
+		ORDER BY EACH_YEAR,CONSULTING_NM
 		
 	</select>	
 	
@@ -319,8 +321,8 @@
 		ORDER BY THIS_MONTH 	
 	</select>
 	
-	<select id="getSellingGrowthRate" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	rstMgn.getSellingGrowthRate
+	<select id="getSellingBranch" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getSellingBranch
 			전체  지사별 순매출  
 		*/
 		WITH MONTHS_24 AS (
