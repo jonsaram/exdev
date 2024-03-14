@@ -1,0 +1,65 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@pageId> = {
+			pageInit : () => {
+		        
+		    }
+		    ,setHandler : () => {
+		        $("[name^='<@pageId>_li_']").on('click', (e)=>{
+		        	  console.log("setHandler");    
+		        } )
+		    }
+	}
+
+    // Page Load가 완료된후 실행 된다.
+    C_PM.onLoadPage("<@pageId>", function() {
+        
+        <@pageId>.pageInit();
+        <@pageId>.setHandler();
+    });
+    // History back으로 이동해왔을 경우 이루틴이 실행된다.
+    C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+    });
+</script>
+
+ <div class="cont_wrap">
+     <div class="cont_top">
+         <h2><i class="icon_bullet"></i>기업 퍼포먼스</h2>
+     </div>
+
+     <section class="sec_wrap list" style="height:calc(100% - 43px);">
+         <!-- tap area -->
+         <div class="tab_wrap">
+             <ul>
+                 <li class="active"><a id="#<@pageId>_tab1">매출현황</a></li>
+                 <li><a id="#<@pageId>_tab2">일별 매출 당성률</a></li>
+                 <li><a id="#<@pageId>_tab3">주차별 매출 데이터 분석</a></li>
+                 <li><a id="#<@pageId>_tab4">매장별 매출 분석</a></li>
+                 <li><a id="#<@pageId>_tab5">가맹점 리스트및 현황</a></li>
+                 <li><a id="#<@pageId>_tab6">재무제표</a></li>
+             </ul>
+             <div class="tab_content">
+                 <div id="<@pageId>_tab1" class="display">
+                     매출현황
+                 </div>
+                 <div id="<@pageId>_tab2" class="display">
+                     일별 매출 당성률
+                 </div>
+                 <div id="<@pageId>_tab3" class="display">
+                     주차별 매출 데이터 분석
+                 </div>
+                 <div id="<@pageId>_tab4" class="display">
+                     매장별 매출 분석
+                 </div>
+                 <div id="<@pageId>_tab5" class="display">
+                     가맹점 리스트및 현황
+                 </div>
+                 <div id="<@pageId>_tab6" class="display">
+                     재무제표
+                 </div>
+             </div>    
+         </div>
+     </section>
+
+ </div>

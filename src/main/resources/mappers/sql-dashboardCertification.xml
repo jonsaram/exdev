@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dashboardCertification">
+
+	<cache />
+	<!--  -->
+    <select id="getCrtInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        SELECT BUYER_ID    
+              ,GRP_CODE_ID 
+              ,CODE_ID     
+              ,GET_CODE_NM( #{comCodeId} ,CODE_ID) AS CODE_ID_NM
+              ,INFO_DATA
+              ,GET_CODE_NM( #{comCode} ,INFO_DATA) AS INFO_DATA_NM
+        FROM   TBL_EXP_BUYER_CRT_INFO
+        WHERE  1 = 1
+        <if test=" buyerId != null and buyerId != '' " >
+            AND    BUYER_ID = #{buyerId}
+        </if>
+        <if test=" grpCodeId != null and grpCodeId != '' " >
+            AND    GRP_CODE_ID = #{grpCodeId}
+        </if>
+    </select>
+
+    
+</mapper>

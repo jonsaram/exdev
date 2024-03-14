@@ -1,21 +1,7 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-		init : function() {
-			
-			var parm = {
-				 queryId 		: "Filemng.getGrpFileList"
-				,requestParm	: {GRP_FILE_ID : "ABCDE"}
-			}
-			C_COM.requestQuery(parm, function(resultData) {
-				debugger;
-				let fileInfo = resultData.data[0];
-				if(isValid(fileInfo)) {
-					var fileId = fileInfo.FILE_ID;
-					$("#viewFile").attr("src", "/filedownload.do?FILE_ID=" + fileId);
-				}
-			});
-		}
+
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function(parm) {
@@ -30,10 +16,6 @@
 			
 			
 		});
-		
-		
-		<@pageId>.init();
-		
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {

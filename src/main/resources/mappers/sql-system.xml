@@ -641,5 +641,19 @@
 		AND	  ROLE_ID	 = #{ROLE_ID}
 		AND	  MENU_ID	 = #{MENU_ID}
 	</delete>
+
+
+
+	<select id="getExcelUploadTableList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getExcelUploadTableList
+			엑셀 업로드 대상 Table List 
+		*/
+		SELECT
+			 TABLE_NAME
+			,COLUMN_LIST
+		FROM TBL_EXP_EXUPTBL
+	</select>
+
+
 	
 </mapper>

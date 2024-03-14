@@ -1,20 +1,213 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-		 sampleVal : "예제 페이지입니다."
-		,sampleFunction : function() {
-				
-		 }	
+
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
-		<@pageId>.sampleFunction();
+		$("#<@pageId> .upDownToggle").unbind("click");
+	    $("#<@pageId> .upDownToggle").bind("click", function(){
+	        $(this).children().toggleClass('down');
+	        $(this).parent().parent().next().toggleClass('upDown');
+	    });
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
 
 	});
 </script>
-<div class="cont_wrap">
-	자문진행현황
+<div class="cont_wrap backWhite">
+	<div class="cont_top">
+		<h2><i class="icon_bullet"></i>자문 진행 현황</h2>
+	</div>
+	<!-- search area -->
+	<ul class="info_wrap search m05" style="width:calc(100% - 10px);">
+		<li>
+			<label>조회기간</label>
+			<div class="info">
+				<div class="calendar_wrap fl">
+					<input type="text" id="from" name="from" class="datepicker" style="width:114px">
+					<label for="to">~</label>
+					<input type="text" id="to" name="to" class="datepicker" style="width:114px">
+				</div>
+				<div class="select_box fl" style="width:132px">
+					<button type="button" class="btn radio"><span>고객명</span></button>
+                    <ul class="select_lst">
+                        <li>
+                            <input name="customer" id="customer01" type="radio" value="">
+                            <label for="customer01">고객명1<i class="icon_check"></i></label>
+                        </li>
+                        <li>
+                            <input name="customer" id="customer02" type="radio" value="">
+                            <label for="customer02">고객명2<i class="icon_check"></i></label>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select_box fl" style="width:132px">
+					<button type="button" class="btn radio"><span>고객명</span></button>
+                    <ul class="select_lst">
+                        <li>
+                            <input name="customer" id="customer01" type="radio" value="">
+                            <label for="customer01">고객명1<i class="icon_check"></i></label>
+                        </li>
+                        <li>
+                            <input name="customer" id="customer02" type="radio" value="">
+                            <label for="customer02">고객명2<i class="icon_check"></i></label>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select_box fl" style="width:132px">
+					<button type="button" class="btn radio"><span>컨설팅상품</span></button>
+                    <ul class="select_lst">
+                        <li>
+                            <input name="consult" id="consult01" type="radio" value="">
+                            <label for="consult01">컨설팅상품1<i class="icon_check"></i></label>
+                        </li>
+                        <li>
+                            <input name="consult" id="consult02" type="radio" value="">
+                            <label for="consult02">컨설팅상품2<i class="icon_check"></i></label>
+                        </li>
+                    </ul>
+                </div>
+                <span class="tit01 fl lh33 tr" style="min-width:40px;">내용</span>
+                <input type="text" name="" class="fl">
+                <button class="btn select fl">검색</button>
+			</div>
+		</li>
+	</ul>
+	<div class="cont_top mt20 mb0 pr10 clearFix">
+		<h3 class="fl font16">프로젝트 결재 상신 리스트</h3>
+		<div class="fr">결재 진행 중 <strong class="pointColr">2</strong> 건</div>
+	</div>
+	<div class="sec_scroll" style="height:calc(100% - 96px);">
+		<section class="sec_wrap">
+			<div class="cont_box project_list">
+				<ol>
+					<li><a href="">1. 스타 에셋 / 월자문 컨설팅 1</a></li>
+					<li><a href="">2. 오리지날 스튜디오 / 재무회계 컨설팅 2호</a></li>
+				</ol>
+			</div>
+		</section>
+		<section class="sec_wrap">
+			<div class="cont_box col3 project_list">
+				<h3 class="tc">제안 진행 중</h3>
+
+				<!-- 엑스플랜 / 월자문 컨설팅 2 -->
+				<div class="cont_top mt15 clearFix">
+					<h4 class="fl">엑스플랜 / 월자문 컨설팅 2</h4>
+					<div class="fr inlineBlock_wrap">
+						<button class="btn small upDownToggle"><i class="up"></i></button>
+					</div>
+				</div>
+				<div class="cont_box">
+					<!-- 진행 사항 -->
+					<div>
+						<div class="cont_top clearFix">
+							<h4 class="fl lh24">- 진행 사항</h4>
+							<div class="fr inlineBlock_wrap">
+								<a href="" class="btn small">등록</a>
+							</div>
+						</div>
+						<div class="approver_list_wrap person mb15">
+							<ul class="approver_list">
+								<li><span class="txt"><span>02-05 11:15 </span><span>: 1차 고객 면담 완료</span></span><button class="pay_close">닫기</button></li>
+								<li><span class="txt"><span>02-04 14:23 </span><span>: 전화 상담 진행</span></span><button class="pay_close">닫기</button></li>
+							</ul>
+						</div>
+					</div>
+
+					<!-- Schedule -->
+					<div>
+						<div class="cont_top clearFix">
+							<h4 class="fl lh24">- Schedule</h4>
+							<div class="fr inlineBlock_wrap">
+								<a href="" class="btn small">등록</a>
+							</div>
+						</div>
+						<div class="approver_list_wrap person mb15">
+							<ul class="approver_list">
+								<li><span class="txt"><span>02-07 11:00 </span><span>: 2차 고객 면담</span></span><button class="pay_close">닫기</button></li>
+								<li><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span><button class="pay_close">닫기</button></li>
+							</ul>
+						</div>
+					</div>
+					<!-- TO-DO List -->
+					<div>
+						<div class="cont_top clearFix">
+							<h4 class="fl lh24">- TO-DO List</h4>
+							<div class="fr inlineBlock_wrap">
+								<a href="" class="btn small">등록</a>
+							</div>
+						</div>
+						<div class="approver_list_wrap person mb15">
+							<ul class="approver_list">
+								<li>
+									<input type="checkbox" name="customer" class="check_undo" id="custom01">
+									<label for="custom01"><span class="txt"><span>02-07 11:00 </span><span>: 2차 고객 면담</span></span></label>
+									<button class="pay_close">닫기</button>
+								</li>
+								<li>
+									<input type="checkbox" name="customer" class="check_undo" id="custom02">
+									<label for="custom02"><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span></label>
+									<button class="pay_close">닫기</button>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- 유니테크 / 일회성 컨설팅 1 -->
+				<div class="cont_top mt15 clearFix">
+					<h4 class="fl">유니테크 / 일회성 컨설팅 1</h4>
+					<div class="fr inlineBlock_wrap">
+						<button class="btn small upDownToggle"><i class="up"></i></button>
+					</div>
+				</div>
+				<div class="cont_box">
+					<!-- TO-DO List -->
+					<div>
+						<div class="cont_top clearFix">
+							<h4 class="fl lh24">- TO-DO List</h4>
+							<div class="fr inlineBlock_wrap">
+								<a href="" class="btn small">등록</a>
+							</div>
+						</div>
+						<div class="approver_list_wrap person mb15">
+							<ul class="approver_list">
+								<li>
+									<input type="checkbox" name="customer" class="check_undo" id="custom01">
+									<label for="custom01"><span class="txt"><span>02-07 11:00 </span><span>: 2차 고객 면담</span></span></label>
+									<button class="pay_close">닫기</button>
+								</li>
+								<li>
+									<input type="checkbox" name="customer" class="check_undo" id="custom02">
+									<label for="custom02"><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span></label>
+									<button class="pay_close">닫기</button>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<div class="cont_box col3 project_list">
+				<h3 class="tc">체결 완료 및 실행</h3>
+				<div class="cont_top mt15 clearFix">
+					<h4 class="fl">엑스플랜 / 월자문 컨설팅 2</h4>
+					<div class="fr inlineBlock_wrap">
+						<button class="btn small upDownToggle"><i class="up"></i></button>
+					</div>
+				</div>
+				<div class="cont_box">
+				</div>
+			</div>
+			<div class="cont_box col3 project_list">
+				<h3 class="tc">실행 완료</h3>
+				<div class="cont_top mt15 clearFix">
+				</div>
+				<div class="cont_box">
+					<div class="tc">등록된 카드가 없습니다.</div>
+				</div>
+			</div>
+		</section>
+	</div>
 </div>
