@@ -4,8 +4,11 @@
 var <@pageId> = {
 		
 		 mainCategoryItem: ''
-		,categoryChart	: ()=> <@pageId>.mainCategoryChart()
-		,treemapChart : (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
+		,categoryChart		: ()=> <@pageId>.mainCategoryChart()
+		,treemapChart 		: (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
+		,comparisonChart 	: (target, param)=>_comparisonChart(target, param)
+		,lineAndColumnChart : (target, param)=>_lineAndColumn_chart(target, param)
+		,createChart 		: (container, categories, series)=>_createChart(container, categories, series)
 		,pageInit : () =>{
 			
 			var parm = {
@@ -19,45 +22,105 @@ var <@pageId> = {
 				<@pageId>.setChart(resultData )
 			});
 			
+ 			var parm2 = {
+					queryGroup : [{queryId	: "rstMgn.getSellingGrowthRateList"	,requestParm	: {CONTRACT_TYPE : "MONTHLY"}}
+								 ,{queryId 	: "rstMgn.getSellingBranchList"		,requestParm	: {CONTRACT_TYPE : "ONLY_ONE"}}
+							//	 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: {}}
+								 ]
+			}
+ 			C_COM.requestQuery(parm2, function(resultData) {
+
+				<@pageId>.setChart2(resultData )
+			});		
+			
 		}
 		,setChart : (resultData) =>{
 
-			const monthArray 						=  ['1월', '2월', '3월', '4월', '5월', '6월','7월', '8월', '9월', '10월', '11월', '12월'];
 			const getOrgSellingPriceListMONTHLY		=  resultData.data["rstMgn.getOrgSellingPriceList"	].map( (item,idx) =>   item.ORG_SELLING_PRICE );
 			const getOrgSellingPriceListOnly_ONE	=  resultData.data["rstMgn.getOrgSellingPriceList_1"].map( (item,idx) =>   item.ORG_SELLING_PRICE );
 			const getOrgSellingPriceByDetailList	=  resultData.data["rstMgn.getOrgSellingPriceByDetailList"].map( (item,idx) =>   item.ORG_SELLING_PRICE );
-		    const CONSULTING_NMS 					=  Array.from(new Set(resultData.data["rstMgn.getOrgSellingPriceByDetailList"].map( item=> item.CONSULTING_NM )));
-
-		    const CONSULTING_SellingPrice			=  resultData.data["rstMgn.getOrgSellingPriceByDetailList"].map( (item,idx) =>  { return  item.ORG_SELLING_PRICE });
-			const containerList 	= [	"<@pageId>_monthlyOSP_chart"
-									   ,"<@pageId>_onceOSP_chart"
-									  ,"<@pageId>_productOSP_chart"
-									  ];
-			const categoriesList 	= [  monthArray
-										,monthArray
- 										,CONSULTING_NMS
-									   ];
+		    
+			const containerList 	= [	"<@pageId>_monthlyOSP_chart","<@pageId>_onceOSP_chart"];
+			const categoriesList 	= [  _monthArray,_monthArray];
 			const seriesList		= [
-				
-										[{  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'} }
+										[
+										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'}}
 										,{  name: '2022년',type: 'line',data:   getOrgSellingPriceListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
-										[{  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'}}
+										[
+										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'}}
 										,{  name: '2022년',type: 'line',data:  getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
-										[{  name: '2023년',type: 'column',yAxis: 1,data: CONSULTING_SellingPrice.slice(CONSULTING_NMS.length),tooltip: {valueSuffix: '억'}}
-										,{  name: '2022년',type: 'line',data:  CONSULTING_SellingPrice.slice(0,CONSULTING_NMS.length),tooltip: {valueSuffix:'억'}}
-										]
-				
-									 ]
+									 ];
+
+			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] ) );
+
+		    const CONSULTING_NMS				=  resultData.data["rstMgn.getOrgSellingPriceByDetailList"]
+												.map( item => {  return { [item.CONSULTING_NM]: item.ORG_SELLING_PRICE };} )
+												.map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
+
+			const CONSULTING_NMS_DATA = [];
+			const CONSULTING_NMS_PREV_DATA = [];
+			const halfLength = CONSULTING_NMS.length/2;
+			for (let i = 0; i < halfLength; i++) {
+				CONSULTING_NMS_DATA[i] = CONSULTING_NMS[i];
+				CONSULTING_NMS_PREV_DATA[i] = CONSULTING_NMS[halfLength+i];
+			} 	
 			
+			let xAsisData = {};
+
+			CONSULTING_NMS.forEach( ( CONSULTING_NM, idx2 )=> {
+				
+				const index = idx2 % _colorRange.length;
+				xAsisData[CONSULTING_NM[0]] = { name: CONSULTING_NM[0] , color : _colorRange[index] }   
+				
+			});
+			const maxMonths = _.maxBy(_.uniqBy(resultData.data["rstMgn.getOrgSellingPriceByDetailList"],"MONTHS"). map( item=> {return { 'MONTH' : item.MONTHS }} ),"MONTH").MONTH;
+			const minMonths = _.minBy(_.uniqBy(resultData.data["rstMgn.getOrgSellingPriceByDetailList"],"MONTHS"). map( item=> {return { 'MONTH' : item.MONTHS }} ),"MONTH").MONTH;
+			const param = { thisMonth	: maxMonths+'월'
+							,lastMonth	: minMonths+'월'
+							,data 		: {months: CONSULTING_NMS_DATA}
+							,dataPrev 	: {months: CONSULTING_NMS_PREV_DATA}
+							,xAxisData 	: xAsisData 
+						  }
+
+			<@pageId>.comparisonChart("<@pageId>_productOSP_chart" , param );
 			
-			containerList.forEach( (chart,idx) =>{
+			setTimeout(()=>{
+				$(".highcharts-credits").remove();
+				$(".highcharts-legend.highcharts-no-tooltip").remove();
 				
-				<@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] );
-				
-			})
+			},500)
 		}
+		,setChart2 : (resultData) =>{
+
+  			const getOrgSellingPriceListMONTHLY		=  resultData.data["rstMgn.getSellingGrowthRateList"	].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			const getOrgSellingPriceListOnly_ONE	=  resultData.data["rstMgn.getSellingBranchList"		].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			//const getOrgSellingPriceByDetailList	=  resultData.data["rstMgn.getSellingDetailList"		].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+
+			const containerList 	= [	"<@pageId>_OSPGR_chart","<@pageId>_OPB_chart","<@pageId>_OSPD_chart"];
+			const categoriesList 	= [  _monthArray,_monthArray,_monthArray];
+			const seriesList		= [
+										[
+										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'}}
+										,{  name: '2022년',type: 'line',data:   getOrgSellingPriceListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
+										],
+										[
+										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'}}
+										,{  name: '2022년',type: 'line',data:  getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
+										],
+									 ];
+
+			containerList.forEach( (chart,idx) => {<@pageId>.lineAndColumnChart( containerList[idx] , categoriesList[idx] );} );
+
+		   
+			
+			setTimeout(()=>{
+				$(".highcharts-credits").remove();
+				$(".highcharts-legend.highcharts-no-tooltip").remove();
+				
+			},500) 
+		}		
 		,mainCategoryChart :  () => {
 		
 			var parm = {
@@ -116,9 +179,9 @@ var <@pageId> = {
 				<@pageId>.treemapChart('<@pageId>_subCategoryTreemap',{	minColor: '#8A8BB9',
 													        	maxColor: '#27187F'},treemapData);
 				
-
+/* 
 				$(".highcharts-credits").remove();
-				$(".highcharts-legend.highcharts-no-tooltip").remove();
+				$(".highcharts-legend.highcharts-no-tooltip").remove(); */
 			});	
 	
 		}
@@ -136,18 +199,18 @@ var <@pageId> = {
 
 			C_COM.requestQuery(parm, function(resultData) {
 				
-				var rparm = {
+/* 				var rparm = {
 						 targetId 		: "<@pageId>_contractList"
 						,list			: resultData.data
 				}
 			
-				C_COM.renderHtml("<@pageId>", rparm);
+				C_COM.renderHtml("<@pageId>", rparm); */
 			
 			});	
 	
 		}	
 		
-		,createChart : (container, categories, series)=>_createChart(container, categories, series)
+		
 }
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
@@ -289,7 +352,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 
 				<section class="sec_wrap">
 					<div class="cont_box col3" id="<@pageId>_monthly_OrgSellingPrice">
-						<h3>전체 월자문 순매출 &lt; 본사 &gt;</h3>
+						<h3>월자문 순매출</h3>
 						<div class="price" >13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
@@ -298,7 +361,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</figure>
 					</div>
 					<div class="cont_box col3"  id="<@pageId>_once_OrgSellingPrice">
-						<h3>전체 1회성 컨설팅 순매출 &lt; 본사 &gt;</h3>
+						<h3>1회성 순매출</h3>
 						<div class="price"> 11,654,165,841원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
@@ -307,61 +370,80 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</figure>
 					</div>
 					<div class="cont_box col3" id="<@pageId>_product_OrgSellingPrice">
-						<h3>전체 컨설팅 상세별 순매출 &lt; 본사 &gt;</h3>
+						<h3>외주자문 순매출</h3>
 						<div class="price" >11,654,165,841원</div>
-						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
+						<span class="prepare"></span><span class="percent"></span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart3" id="<@pageId>_productOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart3" id="<@pageId>_productOSP_chart" style="width:100%; height:280px; margin-top:55px;"></div>
 						</figure>
 					</div>
 				</section>
 
 				<section class="sec_wrap">
-					<div class="cont_box col2" id="<@pageId>_monthlyPayment_Price">
-						<h3>전체 월자문 수수료 지급 &lt; FA &gt;</h3>
+					<div class="cont_box col3" id="<@pageId>_OrgSellingPriceGrowthRate">
+						<h3>순매출 성장률</h3>
 						<div class="price" >13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart4" id="<@pageId>_monthlyPayment_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart" id="<@pageId>_OSPGR_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col2" id="<@pageId>_oncePayment_Price">
-						<h3>전체 1회성 컨설팅 수수료 지급 &lt; FA &gt;</h3>
-						<div class="price">11,435,843,123원</div>
+					<div class="cont_box col3"  id="<@pageId>_OrgSellingPriceByBranch">
+						<h3>지사별 순매출</h3>
+						<div class="price"> 11,654,165,841원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart5"  id="<@pageId>_oncePayment_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart2" id="<@pageId>_OPB_chart" style="width:100%; height:280px; margin:0 auto"></div>
+						</figure>
+					</div>
+					<div class="cont_box col3" id="<@pageId>_OrgSellingPriceByDetail">
+						<h3>상세별 순매출</h3>
+						<div class="price" >11,654,165,841원</div>
+						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
+
+						<figure class="highcharts-figure">
+					    	<div class="chart3" id="<@pageId>_OSPD_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 				</section>
+
 
 				<section class="sec_wrap">
-					<div class="cont_box col2"  id="<@pageId>_org_selling_price_growthRate">
-						<h3>전체 순매출 성장률</h3>
-						<div class="price">265,465,879,132원</div>
+					<div class="cont_box col3" id="<@pageId>_FA_Monthly_PAY">
+						<h3>FA 월자문 수수료</h3>
+						<div class="price" >13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart6" id="<@pageId>_OSP_growthRate_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart" id="<@pageId>_FA_Monthly_PAY_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col2"  id="<@pageId>_org_selling_price_local">
-						<h3>전체 지사별 순매출</h3>
-						<div class="price">132,645,921,735원</div>
+					<div class="cont_box col3"  id="<@pageId>_FA_Once_PAY">
+						<h3>FA 1회성 수수료</h3>
+						<div class="price"> 11,654,165,841원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart7"  id="<@pageId>_OSP_local_chart"style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart2" id="<@pageId>_FA_Once_PAY_chart" style="width:100%; height:280px; margin:0 auto"></div>
+						</figure>
+					</div>
+					<div class="cont_box col3" id="<@pageId>_FA_Partner_PAY">
+						<h3>FA 외주자문 수수료</h3>
+						<div class="price" >11,654,165,841원</div>
+						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
+
+						<figure class="highcharts-figure">
+					    	<div class="chart3" id="<@pageId>_FA_Partner_PAY_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 				</section>
-
+ 
 				<section class="sec_wrap">
 					<div class="cont_box col2" id="<@pageId>_monthly_contract_cnt">
-						<h3>전체 월자문 계약건수</h3>
+						<h3>월자문 계약건수</h3>
 						<div class="price">13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
@@ -370,224 +452,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</figure>
 					</div>
 					<div class="cont_box col2"  id="<@pageId>_fa_selling_rank">
-						<h3>전체 FA 매출순위</h3>
+						<h3>FA 매출순위</h3>
 						<div class="price">13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
 					    	<div class="chart9" id="<@pageId>_faSellingRank_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
-					</div>
-				</section>
-
-				<section class="sec_wrap">
-					<div class="cont_box">
-						<h3>전체 월자문 계약 현황</h3>
-						<!-- search area -->
-						<div class="search_area">
-							<span class="tit01">조회기간</span>
-							<div class="calendar_wrap">
-								<input type="text" class="datepicker" style="width:132px">
-							</div>
-							<div class="search_right">
-								<div class="select_box fl" style="width:132px">
-									<button type="button" class="btn radio"><span>50개 보기</span></button>
-				                    <ul class="select_lst">
-				                        <li>
-				                            <input name="number" id="num01_01" type="radio" value="">
-				                            <label for="num01_01">50개 보기<i class="icon_check"></i></label>
-				                        </li>
-				                        <li>
-				                            <input name="number" id="num01_02" type="radio" value="">
-				                            <label for="num01_02">30개 보기<i class="icon_check"></i></label>
-				                        </li>
-				                        <li>
-				                            <input name="number" id="num01_03" type="radio" value="">
-				                            <label for="num01_03">10개 보기<i class="icon_check"></i></label>
-				                        </li>
-				                    </ul>
-				                </div>
-				            </div>
-						</div>
-						<!-- 테이블 -->
-						<div class="tbl01 col">
-							<table>
-								<caption>표 캡션</caption>
-								<colgroup>
-									<col style="width:40px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:60px;"/>
-									<col style="width:11%;"/>
-									<col style="width:11%;"/>
-									<col style="width:15%;"/>
-									<col style="width:9%;"/>
-									<col style="width:9%;"/>
-								</colgroup>
-								<thead>
-									<tr>
-										<th scope="col"><input type="checkbox"></th>
-										<th scope="col">년</th>
-										<th scope="col">월</th>
-										<th scope="col">팀</th>
-										<th scope="col">유입<br>경로</th>
-										<th scope="col">구분</th>
-										<th scope="col">담당자</th>
-										<th scope="col">사업자 등록번호</th>
-										<th scope="col">거래처</th>
-										<th scope="col">컨설팅명</th>
-										<th scope="col">총 계액금액</th>
-										<th scope="col">입금액</th>
-									</tr>
-								</thead>
-								<tbody id="<@pageId>_monthlyContractList">
-								</tbody>
-<script type="text/x-jsrender" id="<@pageId>_monthlyContractList_template">						
-						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{{:BUYER_ID}}'>
-								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:BUYER_ID}}'></td>
-			 					<td id='CONTRACT_YEAR'	value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
-			 					<td id='CONTRACT_MONTH'	value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
-			 					<td id='SALES_TYPE_NM'		value='{{:SALES_TYPE_NM}}'		>{{:SALES_TYPE_NM}}</td>
-			 					<td id='GET_PATH_NM'		value='{{:GET_PATH_NM}}'		>{{:GET_PATH_NM}}</td>
-			 					<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
-			 					<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
-								<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
-								<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
-								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
- 								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
- 								<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'				>{{:TOT_INCOME}}</td>
-							</tr>
-					{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@pageId>_monthlyContractList_noData_template">	
-				<tr>	
-					<td colspan=12>자료가 없습니다.</td>	
-				</tr>
-</script>
-
-							</table>
-						</div>
-						<!-- paging -->
-						<div class="paging">
-							<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-							<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-							<strong title="현재 페이지">1</strong>
-							<a href="#none">2</a>
-							<a href="#none">3</a>
-							<a href="#none">4</a>
-							<a href="#none">5</a>
-							<a href="#none" class="btn_pg_next">다음 페이지</a>
-							<a href="#none" class="btn_pg_last">마지막 페이지</a>
-						</div>
-					</div>
-				</section>
-
-				<section class="sec_wrap">
-					<div class="cont_box">
-						<h3>전체 1회성 컨설팅 매출 현황</h3>
-						<!-- search area -->
-						<div class="search_area">
-							<span class="tit01">조회기간</span>
-							<div class="calendar_wrap">
-								<input type="text" class="datepicker" style="width:132px">
-							</div>
-							<div class="search_right">
-								<div class="select_box fl" style="width:132px">
-									<button type="button" class="btn radio"><span>50개 보기</span></button>
-				                    <ul class="select_lst">
-				                        <li>
-				                            <input name="number" id="num02_01" type="radio" value="">
-				                            <label for="num02_01">50개 보기<i class="icon_check"></i></label>
-				                        </li>
-				                        <li>
-				                            <input name="number" id="num02_02" type="radio" value="">
-				                            <label for="num02_02">30개 보기<i class="icon_check"></i></label>
-				                        </li>
-				                        <li>
-				                            <input name="number" id="num02_03" type="radio" value="">
-				                            <label for="num02_03">10개 보기<i class="icon_check"></i></label>
-				                        </li>
-				                    </ul>
-				                </div>
-				            </div>
-						</div>
-						<!-- 테이블 -->
-						<div class="tbl01 col">
-							<table>
-								<caption>표 캡션</caption>
-								<colgroup>
-									<col style="width:40px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:60px;"/>
-									<col style="width:11%;"/>
-									<col style="width:11%;"/>
-									<col style="width:15%;"/>
-									<col style="width:9%;"/>
-									<col style="width:9%;"/>
-								</colgroup>
-								<thead>
-									<tr>
-										<th scope="col"><input type="checkbox"></th>
-										<th scope="col">년</th>
-										<th scope="col">월</th>
-										<th scope="col">팀</th>
-										<th scope="col">유입<br>경로</th>
-										<th scope="col">구분</th>
-										<th scope="col">담당자</th>
-										<th scope="col">사업자 등록번호</th>
-										<th scope="col">거래처</th>
-										<th scope="col">컨설팅명</th>
-										<th scope="col">총 계액금액</th>
-										<th scope="col">입금액</th>
-									</tr>
-								</thead>
-								<tbody id="<@pageId>_onceContractList">
-								</tbody>
-<script type="text/x-jsrender" id="<@pageId>_monthlyContractList_template">						
-						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
-								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
-			 					<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
-			 					<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
-			 					<td id='SALES_TYPE_NM'		value='{{:SALES_TYPE_NM}}'		>{{:SALES_TYPE_NM}}</td>
-			 					<td id='GET_PATH_NM'		value='{{:GET_PATH_NM}}'		>{{:GET_PATH_NM}}</td>
-			 					<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
-			 					<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
-								<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
-								<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
-								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
- 								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
- 								<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'			>{{:TOT_INCOME}}</td>
-							</tr>
-					{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@pageId>_monthlyContractList_noData_template">	
-				<tr>	
-					<td colspan=12>자료가 없습니다.</td>	
-				</tr>
-</script>
-							</table>
-						</div>
-						<!-- paging -->
-						<div class="paging">
-							<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-							<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-							<strong title="현재 페이지">1</strong>
-							<a href="#none">2</a>
-							<a href="#none">3</a>
-							<a href="#none">4</a>
-							<a href="#none">5</a>
-							<a href="#none" class="btn_pg_next">다음 페이지</a>
-							<a href="#none" class="btn_pg_last">마지막 페이지</a>
-						</div>
 					</div>
 				</section>
 			</div>

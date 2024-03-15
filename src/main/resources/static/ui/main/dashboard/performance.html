@@ -16,11 +16,483 @@
         
         <@pageId>.pageInit();
         <@pageId>.setHandler();
+        
+
+
+        /* highchart    highchart    highchart    highchart    highchart    highchart    */
+        Highcharts.setOptions({
+            colors: ['#27187F', '#F29423']
+        });
+        $('.chart11').highcharts({
+            chart: {
+                zoomType: 'xy',
+                margin: [50, 0, 40, 45],
+            },
+            credits: {enabled: false},// 하이차트 워터마크 삭제
+            title: {
+                text: '',
+                align: 'left'
+            },
+            subtitle: {
+                text: '',
+                align: 'left'
+            },
+            xAxis: [{
+                labels: {
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                lineColor: '#DADADA', /* x축 라인색 */
+                categories: ['마곡', '동성로', '이천', '가락', '동해천곡', '포항두호','부천송내'],
+                crosshair: true
+            }],
+            yAxis: [{
+                labels: {
+                    format: '{value}백만',
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                title: {
+                    text: ''
+                }
+            }, { // Secondary yAxis
+                title: {
+                    text: '',
+                    style: {
+                    }
+                },
+                labels: {
+                    format: ' '
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            legend: {
+                align: 'right',
+                x:0,
+                verticalAlign: 'top',
+                y: 0,
+                itemStyle: {
+                    color: '#8A8C92',
+                    fontFamily: 'Noto Sans KR',
+                    fontSize: '11px'
+                },
+                symbolRadius:0,//범례 심볼 radius 지정
+                symbolWidth:10,
+                symbolHeight:10,
+                x: 0,//가로 위치 지정.
+                y: -2,//세로 위치 지정.
+            },
+            plotOptions: {//라인에 원표시 삭제
+                line:{
+                    marker: {
+                        enabled: false
+                    }
+                }
+            },
+            series: [{
+                name: '매출액',
+                type: 'column',
+                yAxis: 0,
+
+                data: [245, 240, 202, 200, 196, 180, 150],
+                tooltip: {
+                    valueSuffix: '백만'
+                }
+
+            }]
+        });
+
+        $('.chart12').highcharts({
+            chart: {
+                zoomType: 'xy',
+                margin: [50, 0, 40, 45],
+            },
+            credits: {enabled: false},// 하이차트 워터마크 삭제
+            title: {
+                text: '',
+                align: 'left'
+            },
+            subtitle: {
+                text: '',
+                align: 'left'
+            },
+            xAxis: [{
+                labels: {
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                lineColor: '#DADADA', /* x축 라인색 */
+                categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                crosshair: true
+            }],
+            yAxis: [{
+                labels: {
+                    format: '{value}백만',
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                title: {
+                    text: ''
+                }
+            }, { // Secondary yAxis
+                title: {
+                    text: '',
+                    style: {
+                    }
+                },
+                labels: {
+                    format: ' '
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            legend: {
+                align: 'right',
+                x:0,
+                verticalAlign: 'top',
+                y: 0,
+                itemStyle: {
+                    color: '#8A8C92',
+                    fontFamily: 'Noto Sans KR',
+                    fontSize: '11px'
+                },
+                symbolRadius:0,//범례 심볼 radius 지정
+                symbolWidth:10,
+                symbolHeight:10,
+                x: 0,//가로 위치 지정.
+                y: -2,//세로 위치 지정.
+            },
+            plotOptions: {//라인에 원표시 삭제
+                line:{
+                    marker: {
+                        enabled: false
+                    }
+                }
+            },
+            series: [{
+                name: 'V.영업이익',
+                type: 'column',
+                yAxis: 0,                
+                data: [72, 60, 41, 39, 33, 25, 21],
+                tooltip: {
+                    valueSuffix: '백만'
+                }
+
+            }]
+        });
+
+
+        $('.chart13').highcharts({
+            chart: {
+                zoomType: 'xy',
+                margin: [50, 0, 55, 45],
+            },
+            credits: {enabled: false},// 하이차트 워터마크 삭제
+            title: {
+                text: '',
+                align: 'left'
+            },
+            subtitle: {
+                text: '',
+                align: 'left'
+            },
+            xAxis: [{
+                labels: {
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        letterSpacing:'-0.19em',
+                        fontSize: '10.5px'
+                    }
+                },
+                lineColor: '#DADADA', /* x축 라인색 */
+                categories: ['월자문', '일반', '법인전환', 'CEO플랜', '연구소및특허', '정책자금',
+                    '대출', '기타'],
+                crosshair: true
+            }],
+            yAxis: [{
+                labels: {
+                    format: '{value}억',
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                title: {
+                    text: ''
+                }
+            }, { // Secondary yAxis
+                title: {
+                    text: '',
+                    style: {
+                    }
+                },
+                labels: {
+                    format: ' '
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            legend: {
+                align: 'right',
+                x:0,
+                verticalAlign: 'top',
+                y: 0,
+                itemStyle: {
+                    color: '#8A8C92',
+                    fontFamily: 'Noto Sans KR',
+                    fontSize: '11px'
+                },
+                symbolRadius:0,//범례 심볼 radius 지정
+                symbolWidth:10,
+                symbolHeight:10,
+                x: 0,//가로 위치 지정.
+                y: -2,//세로 위치 지정.
+            },
+            plotOptions: {//라인에 원표시 삭제
+                line:{
+                    marker: {
+                        enabled: false
+                    }
+                }
+
+            },
+            series: [{
+                name: '2023년',
+                type: 'column',
+                yAxis: 0,
+                data: [170, 110, 58, 50, 40, 30, 20, 10],
+                tooltip: {
+                    valueSuffix: '억'
+                }
+
+            }, {
+                name: '2022년',
+                type: 'line',
+                data: [240, 140, 130, 140, 70, 75, 50, 25],
+                tooltip: {
+                    valueSuffix: '억'
+                }
+            }]
+        });
+
+        $('.chart21').highcharts({
+            chart: {
+                zoomType: 'xy',
+                margin: [50, 0, 40, 45],
+            },
+            credits: {enabled: false},// 하이차트 워터마크 삭제
+            title: {
+                text: '',
+                align: 'left'
+            },
+            subtitle: {
+                text: '',
+                align: 'left'
+            },
+            xAxis: [{
+                labels: {
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                lineColor: '#DADADA', /* x축 라인색 */
+                categories: ['1월', '2월', '3월', '4월', '5월', '6월',
+                    '7월', '8월', '9월', '10월', '11월', '12월'],
+                crosshair: true
+            }],
+            yAxis: [{
+                labels: {
+                    format: '{value}억',
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                title: {
+                    text: ''
+                }
+            }, { // Secondary yAxis
+                title: {
+                    text: '',
+                    style: {
+                    }
+                },
+                labels: {
+                    format: ' '
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            legend: {
+                align: 'right',
+                x:0,
+                verticalAlign: 'top',
+                y: 0,
+                itemStyle: {
+                    color: '#8A8C92',
+                    fontFamily: 'Noto Sans KR',
+                    fontSize: '11px'
+                },
+                symbolRadius:0,//범례 심볼 radius 지정
+                symbolWidth:10,
+                symbolHeight:10,
+                x: 0,//가로 위치 지정.
+                y: -2,//세로 위치 지정.
+            },
+            plotOptions: {//라인에 원표시 삭제
+                line:{
+                    marker: {
+                        enabled: false
+                    }
+                }
+            },
+            series: [{
+                name: '2023년',
+                type: 'column',
+                yAxis: 0,
+                data: [70, 140, 190, 180, 195, 240, 160, 140, 0,
+                    0, 0, 0],
+                tooltip: {
+                    valueSuffix: '억'
+                }
+
+            }, {
+                name: '2022년',
+                type: 'line',
+                data: [155, 170, 185, 170, 160, 175, 165, 190, 160, 170, 160, 150],
+                tooltip: {
+                    valueSuffix: '억'
+                }
+            }]
+        });
+
+        $('.chart22').highcharts({
+            chart: {
+                zoomType: 'xy',
+                margin: [50, 0, 40, 45],
+            },
+            credits: {enabled: false},// 하이차트 워터마크 삭제
+            title: {
+                text: '',
+                align: 'left'
+            },
+            subtitle: {
+                text: '',
+                align: 'left'
+            },
+            xAxis: [{
+                labels: {
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                lineColor: '#DADADA', /* x축 라인색 */
+                categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                crosshair: true
+            }],
+            yAxis: [{
+                labels: {
+                    format: '{value}억',
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                title: {
+                    text: ''
+                }
+            }, { // Secondary yAxis
+                title: {
+                    text: '',
+                    style: {
+                    }
+                },
+                labels: {
+                    format: ' '
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            legend: {
+                align: 'right',
+                x:0,
+                verticalAlign: 'top',
+                y: 0,
+                itemStyle: {
+                    color: '#8A8C92',
+                    fontFamily: 'Noto Sans KR',
+                    fontSize: '11px'
+                },
+                symbolRadius:0,//범례 심볼 radius 지정
+                symbolWidth:10,
+                symbolHeight:10,
+                x: 0,//가로 위치 지정.
+                y: -2,//세로 위치 지정.
+            },
+            plotOptions: {//라인에 원표시 삭제
+                line:{
+                    marker: {
+                        enabled: false
+                    }
+                }
+            },
+            series: [{
+                name: '2023년',
+                type: 'column',
+                yAxis: 0,
+                data: [70, 140, 160, 180, 190, 240, 160, 140, 0,
+                    0, 0, 0],
+                tooltip: {
+                    valueSuffix: '억'
+                }
+
+            }, {
+                name: '2022년',
+                type: 'line',
+                data: [155, 160, 180, 170, 140, 180, 160, 180, 160, 155, 180, 150],
+                tooltip: {
+                    valueSuffix: '억'
+                }
+            }]
+        });
+        /* highchart    highchart    highchart    highchart    highchart    highchart    */
     });
     // History back으로 이동해왔을 경우 이루틴이 실행된다.
     C_HM.onReturn("<@pageId>", function(pageId, data) {
 
     });
+
 </script>
 
  <div class="cont_wrap">
@@ -41,7 +513,224 @@
              </ul>
              <div class="tab_content">
                  <div id="<@pageId>_tab1" class="display">
-                     매출현황
+                    <!-- 매출현황 -->
+				    <div class="container">
+				        <div class="cont_wrap lnb_none">
+				            <div class="cont_top">
+				                <h2><i class="icon_bullet"></i>매출현황</h2>
+				            </div>
+				            <div class="sec_scroll">
+				                <section class="sec_wrap">
+				                    <div class="cont_box col3">
+				                        <h3>매출액 순위</h3>
+				                        <div class="price">&nbsp;</div>
+				                        <figure class="highcharts-figure">
+				                            <div class="chart11" style="width:100%; height:280px; margin:0 auto"></div>
+				                        </figure>
+	                                    <!-- 전체 계약 리스트 -->
+	                                    <div >
+	                                        <h3>지점명</h3>
+	                                        <!-- 테이블 -->
+	                                        <div class="tbl01 col">
+	                                            <table>
+	                                                <caption>표 캡션</caption>
+	                                                <colgroup>
+                                                        <col style="width:40px;"/>
+                                                        <col style="width:150px;"/>
+                                                        <col style="width:100px;"/>
+	                                                </colgroup>
+	                                                <thead>
+	                                                    <tr>
+	                                                        <th scope="col">No</th>
+	                                                        <th scope="col">지점명</th>
+	                                                        <th scope="col">계</th>
+	                                                    </tr>
+	                                                </thead>
+	                                                <tbody>
+	                                                    <tr>
+	                                                        <td>1</td>
+	                                                        <td>마곡</td>
+	                                                        <td>245,635,432</td>
+	                                                    </tr>
+	                                                    <tr>
+                                                            <td>2</td>
+                                                            <td>동성로</td>
+                                                            <td>240,721,961</td>
+	                                                    </tr>
+	                                                    <tr>
+                                                            <td>3</td>
+                                                            <td>이천</td>
+                                                            <td>202,051,144</td>
+	                                                    </tr>
+                                                        <tr>
+                                                            <td>4</td>
+                                                            <td>가락</td>
+                                                            <td>200,053,576</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>5</td>
+                                                            <td>동해천곡</td>
+                                                            <td>196,237,351</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td></td>
+                                                            <td>총합계</td>
+                                                            <td>3,217,247,597</td>
+                                                        </tr>
+	                                                </tbody>
+	                                            </table>
+	                                        </div>
+	                                    </div>
+				                    </div>
+				                    <div class="cont_box col3">
+				                        <h3>영업이익별 순위</h3>
+                                        <div class="price">&nbsp;</div>
+				
+				                        <figure class="highcharts-figure">
+				                            <div class="chart12" style="width:100%; height:280px; margin:0 auto"></div>
+				                        </figure>
+                                        <!-- 지점 리스트 -->
+                                        <div >
+                                            <h3>지점명</h3>
+                                            <!-- 테이블 -->
+                                            <div class="tbl01 col">
+                                                <table>
+                                                    <caption>표 캡션</caption>
+                                                    <colgroup>
+                                                        <col style="width:40px;"/>
+                                                        <col style="width:150px;"/>
+                                                        <col style="width:100px;"/>
+                                                    </colgroup>
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">No</th>
+                                                            <th scope="col">지점명</th>
+                                                            <th scope="col">계</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>1</td>
+                                                            <td>동성로</td>
+                                                            <td>72,016,989</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>2</td>
+                                                            <td>이천</td>
+                                                            <td>60,808,358</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>3</td>
+                                                            <td>마곡</td>
+                                                            <td>41,812,660</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>4</td>
+                                                            <td>동해천곡</td>
+                                                            <td>39,259,255</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>5</td>
+                                                            <td>전주우아</td>
+                                                            <td>33,770,854</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td></td>
+                                                            <td>총합계</td>
+                                                            <td>428,130,210</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+				                    </div>
+				                    <div class="cont_box col3">
+				                        <h3>권역별 순위</h3>
+                                        <div class="price">&nbsp;</div>
+				
+				                        <figure class="highcharts-figure">
+				                            <div class="chart13" style="width:100%; height:280px; margin:0 auto"></div>
+				                        </figure>
+                                        <!-- 권역 리스트 -->
+                                        <div >
+                                            <h3>권역</h3>
+                                            <!-- 테이블 -->
+                                            <div class="tbl01 col">
+                                                <table>
+                                                    <caption>표 캡션</caption>
+                                                    <colgroup>
+                                                        <col style="width:40px;"/>
+                                                        <col style="width:150px;"/>
+                                                        <col style="width:100px;"/>
+                                                    </colgroup>
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">No</th>
+                                                            <th scope="col">권역</th>
+                                                            <th scope="col">계</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>1</td>
+                                                            <td>경기</td>
+                                                            <td>123,456,789</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>2</td>
+                                                            <td>서울</td>
+                                                            <td>123,456,789</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>3</td>
+                                                            <td>대구</td>
+                                                            <td>123,456,789</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>4</td>
+                                                            <td>부산</td>
+                                                            <td>398,219,586</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>5</td>
+                                                            <td>강원</td>
+                                                            <td>325,328,868</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td></td>
+                                                            <td>총합계</td>
+                                                            <td>3,217,247,597</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+				                    </div>
+				                </section>
+				                
+				                <section class="sec_wrap">
+				                    <div class="cont_box col2">
+				                        <h3>전체 월자문 수수료 지급 &lt; FA &gt;</h3>
+				                        <div class="price">13,844,381,010원</div>
+				                        <span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
+				
+				                        <figure class="highcharts-figure">
+				                            <div class="chart21" style="width:100%; height:280px; margin:0 auto"></div>
+				                        </figure>
+				                    </div>
+				                    <div class="cont_box col2">
+				                        <h3>전체 1회성 컨설팅 수수료 지급 &lt; FA &gt;</h3>
+				                        <div class="price">11,435,843,123원</div>
+				                        <span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
+				
+				                        <figure class="highcharts-figure">
+				                            <div class="chart22" style="width:100%; height:280px; margin:0 auto"></div>
+				                        </figure>
+				                    </div>
+				                </section>
+				            </div>
+				        </div>
+				    </div>
                  </div>
                  <div id="<@pageId>_tab2" class="display">
                      일별 매출 당성률
