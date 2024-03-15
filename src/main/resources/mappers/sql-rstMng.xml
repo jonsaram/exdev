@@ -253,9 +253,9 @@
 		
 	</select>	
 	
-	<select id="getSellingGrowthRate" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	rstMgn.getSellingGrowthRate
-			전체  순매출 성장률 (월자문/1회성컨설팅) 
+	<select id="getSellingGrowthRateList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getSellingGrowthRateList
+			순매출 성장률 (월자문/1회성컨설팅) 
 		*/
 	
 		WITH MONTHS_24 AS (
@@ -323,9 +323,9 @@
 		ORDER BY THIS_MONTH 	
 	</select>
 	
-	<select id="getSellingBranch" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	rstMgn.getSellingBranch
-			전체  지사별 순매출  
+	<select id="getSellingBranchList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getSellingBranchList
+			지사별 순매출  
 		*/
 		WITH MONTHS_24 AS (
 			SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -12 + LEVEL - 1), 'YYYYMM') AS month
@@ -374,9 +374,74 @@
 	
 	</select>
 	
-		<select id="getContractCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+	<select id="getSellingDetailList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getSellingDetailList
+			상세별 순매출  
+		*/
+		WITH MONTHS_24 AS (
+			SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -12 + LEVEL - 1), 'YYYYMM') AS month
+			FROM DUAL
+			CONNECT BY LEVEL <![CDATA[ <= ]]> 24
+		)
+		,EACH_PAYMENT AS (
+		
+			SELECT  M.month,  DATA.BRANCH_ID, DATA.TOTAL_INCOME
+			FROM MONTHS_24 M
+			,(
+				SELECT RESULT_MONTH ,BRANCH_ID ,SUM( PAYMENT) TOTAL_INCOME
+				FROM(
+						SELECT DISTINCT
+						TO_CHAR( R.RESULT_DATE, 'YYYYMM') AS RESULT_MONTH
+						,R.INCOME
+						,P.PAYMENT
+						,U.BRANCH_ID
+						FROM TBL_EXP_RESULT R
+						,TBL_EXP_CONTRACT C
+						,TBL_EXP_PAYMENT P
+						,TBL_EXP_CONTRACT_MEMBER CM
+						,TBL_EXP_USER U
+						WHERE C.CONTRACT_ID	= R.CONTRACT_ID 
+						AND R.CONTRACT_ID	= P.CONTRACT_ID 
+						AND R.RESULT_ID		= P.RESULT_ID 
+						AND C.CONTRACT_TYPE = #{CONTRACT_TYPE}
+						AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
+						AND P.USER_ID 		= CM.USER_ID
+						AND P.USER_ID 		= U.USER_ID 
+						AND R.USE_YN		= 'Y'
+						AND R.DEL_YN		= 'N'
+						AND P.USE_YN		= 'Y'
+						AND P.DEL_YN		= 'N'
+						AND CM.USE_YN		= 'Y'
+						AND CM.DEL_YN		= 'N'
+						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
+						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
+				)	
+				GROUP BY  RESULT_MONTH ,BRANCH_ID 
+			) DATA
+			WHERE M.MONTH = DATA.RESULT_MONTH(+)
+		)
+		SELECT * FROM EACH_PAYMENT
+		ORDER BY MONTH		
+	
+	</select>
+	
+	<select id="getFaPayList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getFaPayList
+			FA 월자문 수수료 ( 월자문 / 일회성 ) 
+		*/
+		SELECT '' PAY FROM DUAL
+	</select>
+	
+	<select id="getFaPartnerPayList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getFaPartnerPayList
+			FA 외주자문 수수료
+		*/
+		SELECT '' PAY FROM DUAL
+	</select>
+	
+	<select id="getContractCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getContractCnt
-			전체  계약건수 ( 월자문 / 일회성 ) 
+			전체  계약건수 ( 월자문  ) 
 		*/
 			
 		WITH MONTHS_24 AS (

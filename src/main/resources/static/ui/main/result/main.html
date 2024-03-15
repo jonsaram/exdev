@@ -97,7 +97,7 @@ var <@pageId> = {
   			const getOrgSellingPriceListMONTHLY		=  resultData.data["rstMgn.getSellingGrowthRateList"	].map( (item,idx) =>   item.ORG_SELLING_PRICE );
 			const getOrgSellingPriceListOnly_ONE	=  resultData.data["rstMgn.getSellingBranchList"		].map( (item,idx) =>   item.ORG_SELLING_PRICE );
 			//const getOrgSellingPriceByDetailList	=  resultData.data["rstMgn.getSellingDetailList"		].map( (item,idx) =>   item.ORG_SELLING_PRICE );
-		    debugger;
+
 			const containerList 	= [	"<@pageId>_OSPGR_chart","<@pageId>_OPB_chart","<@pageId>_OSPD_chart"];
 			const categoriesList 	= [  _monthArray,_monthArray,_monthArray];
 			const seriesList		= [
@@ -110,7 +110,7 @@ var <@pageId> = {
 										,{  name: '2022년',type: 'line',data:  getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
 									 ];
-debugger;
+
 			containerList.forEach( (chart,idx) => {<@pageId>.lineAndColumnChart( containerList[idx] , categoriesList[idx] );} );
 
 		   
