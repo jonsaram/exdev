@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+
+<mapper namespace="financialanalysis">
+
+	<cache />
+	
+	<!--
+	BUYER DETAIL
+	 -->
+	<select id="getBuyerDetail" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		 SELECT   BUYER_ID
+				, COMPANY_NM
+				, ESTABLISHMENT_DATE
+				, OWNER_NM
+				, OWNER_BIRTHDAY
+				, COMPANY_TYPE
+				, SETTLEMENT_MONTH
+				, EMPLOYEE_CNT
+				, BUSINESS_TYPE
+				, ADDRESS
+				, COMPANY_CERT_STATUS
+				, INDUSTRY_ESTATE_STATUS
+				, UPDATE_USER
+				, UPDATE_DATE
+		   FROM TBL_EXP_BUYER_DETAIL
+		  WHERE BUYER_ID = #{BUYER_ID}
+	</select>
+	<!--
+	재무분석 총현황
+	 -->
+	<select id="getBasis01" resultType="java.util.HashMap" flushCache="true"  useCache="false">		
+		SELECT    BUYER_ID
+				, CAPITAL
+				, STOCK
+				, ORDINARY
+				, PREFERRED_STOCK
+				, SANGWHAN_CONV_PRE_STOCK
+				, ONE_STOCK_PRICE
+				, UPDATE_USER
+				, UPDATE_DATE
+		   FROM TBL_EXP_FIN_ANAL_BASIS01
+  		  WHERE BUYER_ID = #{BUYER_ID}
+	</select>
+	<!--
+	사업목표 총현황
+	 -->
+	<select id="getBasis02" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		   SELECT BUYER_ID
+				, SEQ
+				, BUSINESS_PURPOSE
+				, UPDATE_USER
+				, UPDATE_DATE
+		   FROM TBL_EXP_FIN_ANAL_BASIS02
+  		  WHERE BUYER_ID = #{BUYER_ID}
+  		  ORDER BY SEQ
+	</select>
+	<!--
+	임원현황
+	 -->
+	<select id="getFinAnalExecutive" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		   SELECT BUYER_ID
+				, SEQ
+				, JIKWI
+				, NAME
+				, AGE
+				, RELATIONSHIP
+				, INAUGURATION_DATE
+				, REAPPOINTMENT_DATE
+				, LAST_REGISTERED_DATE
+				, NEXT_REAPPOINTMENT_DATE
+				, BASE_DATE
+				, UPDATE_USER
+				, UPDATE_DATE
+		   FROM TBL_EXP_FIN_ANAL_EXECUTIVE
+  		  WHERE BUYER_ID = #{BUYER_ID}
+  		  ORDER BY SEQ
+	</select>
+	<!--
+	재무비율분석
+	 -->
+	<select id="getFinAnalRate" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		   SELECT BUYER_ID
+				, INDICATORS
+				, SEQ
+				, ITEM_NAME
+				, COMPANY_RATE
+				, SECTORS_AVG_RATE
+				, EVALUATION_MAX
+				, EVALUATION_MIN
+				, UPDATE_USER
+				, UPDATE_DATE
+		   FROM TBL_EXP_FIN_ANAL_RATE
+  		  WHERE BUYER_ID = #{BUYER_ID}
+  		  ORDER BY SEQ
+	</select>
+	<!--
+	경영진단 결과 개요
+	 -->
+	<select id="getFinAnalResult" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		   SELECT BUYER_ID
+				, YEAR
+				, SEQ
+				, ITEM_NM
+				, CONSULT_MSG
+				, CHECK_YN
+				, UPDATE_USER
+				, UPDATE_DATE
+		   FROM TBL_EXP_FIN_ANAL_RESULT
+  		  WHERE BUYER_ID = #{BUYER_ID}
+  		    AND (YEAR <![CDATA[<]]> TO_CHAR(SYSDATE,'YYYY') 
+  		    AND  YEAR <![CDATA[>=]]> TO_CHAR(SYSDATE + (365*3),'YYYY'))
+  		  ORDER BY YEAR, SEQ
+	</select>
+	<!--
+	재무상태표,손익계산서, 주요경비율, 인건비 분석
+	 -->
+	<select id="getFinAnalStatusDtl" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		   SELECT M.GUBUN
+		        , M.ITEM_GUBUN
+		        , D.SEQ
+				, D.DEPTH AS DEPTH
+				, D.ITEM_NAME AS ITEM_NAME
+				, SUM(DECODE(M.YEAR, Y.YEAR1, D.AMOUNT, NULL)) AS YEAR1
+				, SUM(DECODE(M.YEAR, Y.YEAR2, D.AMOUNT, NULL)) AS YEAR2
+				, SUM(DECODE(M.YEAR, Y.YEAR3, D.AMOUNT, NULL)) AS YEAR3
+		   FROM TBL_EXP_FIN_ANAL_STATUS_DTL D,
+		        TBL_EXP_FIN_ANAL_STATUS_MST M,
+		        (
+				   SELECT TO_CHAR(ADD_MONTHS(SYSDATE, -12*3),'YYYY') AS YEAR1,
+				          TO_CHAR(ADD_MONTHS(SYSDATE, -12*2),'YYYY') AS YEAR2,
+				          TO_CHAR(ADD_MONTHS(SYSDATE, -12*1),'YYYY') AS YEAR3
+				   FROM dual
+		        ) Y
+		  WHERE M.FIN_ANAL_STATUS_ID = D.FIN_ANAL_STATUS_ID
+		    AND M.BUYER_ID = #{BUYER_ID}
+		    AND M.YEAR IN (Y.YEAR1,Y.YEAR2,Y.YEAR3)
+          GROUP BY M.GUBUN, M.ITEM_GUBUN, D.SEQ, D.DEPTH, D.ITEM_NAME
+  		  ORDER BY M.GUBUN, M.ITEM_GUBUN, SEQ
+	</select>
+	<!--
+	기준년도
+	 -->
+	<select id="getFinAnalYear" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		   SELECT TO_CHAR(ADD_MONTHS(SYSDATE, -12*3),'YYYY') AS YEAR1,
+		          TO_CHAR(ADD_MONTHS(SYSDATE, -12*2),'YYYY') AS YEAR2,
+		          TO_CHAR(ADD_MONTHS(SYSDATE, -12*1),'YYYY') AS YEAR3
+		   FROM DUAL
+	</select>
+	<!--
+	재무상태표,손익계산서, 주요경비율, 인건비 분석
+	 -->
+	<select id="getFinAnalStatusMst" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		   SELECT FIN_ANAL_STATUS_ID
+				, BUYER_ID
+				, YEAR
+				, GUBUN
+				, ITEM_GUBUN
+				, UPDATE_USER
+				, UPDATE_DATE
+		   FROM TBL_EXP_FIN_ANAL_STATUS_MST
+          WHERE BUYER_ID = #{BUYER_ID}
+  		    AND GUBUN = #{GUBUN}
+  		    AND ITEM_GUBUN = #{ITEM_GUBUN}
+	</select>
+	<!--
+	주요주주현황
+	 -->
+	<select id="getFinAnalStockholder" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		   SELECT BUYER_ID
+				, SEQ
+				, STOCKHOLDER_NM
+				, STOCK_CNT
+				, SHARE_RATIO
+				, STOCK_KIND
+				, OWNER_RELATIONSHIP
+				, COMPANY_RELATIONSHIP
+				, BORROWED_NM_YN
+				, BASE_DATE
+				, UPDATE_USER
+				, UPDATE_DATE
+		   FROM TBL_EXP_FIN_ANAL_STOCKHOLDER
+          WHERE BUYER_ID = #{BUYER_ID}
+          ORDER BY SEQ
+	</select>
+</mapper>
