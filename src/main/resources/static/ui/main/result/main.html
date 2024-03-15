@@ -4,9 +4,11 @@
 var <@pageId> = {
 		
 		 mainCategoryItem: ''
-		,categoryChart	: ()=> <@pageId>.mainCategoryChart()
-		,treemapChart : (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
-		,comparisonChart : (target, param)=>_comparisonChart(target, param)
+		,categoryChart		: ()=> <@pageId>.mainCategoryChart()
+		,treemapChart 		: (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
+		,comparisonChart 	: (target, param)=>_comparisonChart(target, param)
+		,lineAndColumnChart : (target, param)=>_lineAndColumn_chart(target, param)
+		,createChart 		: (container, categories, series)=>_createChart(container, categories, series)
 		,pageInit : () =>{
 			
 			var parm = {
@@ -20,78 +22,69 @@ var <@pageId> = {
 				<@pageId>.setChart(resultData )
 			});
 			
+ 			var parm2 = {
+					queryGroup : [{queryId	: "rstMgn.getSellingGrowthRateList"	,requestParm	: {CONTRACT_TYPE : "MONTHLY"}}
+								 ,{queryId 	: "rstMgn.getSellingBranchList"		,requestParm	: {CONTRACT_TYPE : "ONLY_ONE"}}
+							//	 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: {}}
+								 ]
+			}
+ 			C_COM.requestQuery(parm2, function(resultData) {
+
+				<@pageId>.setChart2(resultData )
+			});		
+			
 		}
 		,setChart : (resultData) =>{
 
-			const monthArray 						=  ['1월', '2월', '3월', '4월', '5월', '6월','7월', '8월', '9월', '10월', '11월', '12월'];
 			const getOrgSellingPriceListMONTHLY		=  resultData.data["rstMgn.getOrgSellingPriceList"	].map( (item,idx) =>   item.ORG_SELLING_PRICE );
 			const getOrgSellingPriceListOnly_ONE	=  resultData.data["rstMgn.getOrgSellingPriceList_1"].map( (item,idx) =>   item.ORG_SELLING_PRICE );
 			const getOrgSellingPriceByDetailList	=  resultData.data["rstMgn.getOrgSellingPriceByDetailList"].map( (item,idx) =>   item.ORG_SELLING_PRICE );
-			
-		    const CONSULTING_SellingPrice			=  resultData.data["rstMgn.getOrgSellingPriceByDetailList"].map( (item,idx) =>  { return  item.ORG_SELLING_PRICE });
-		    const CONSULTING_NMS 					=  Array.from(new Set(resultData.data["rstMgn.getOrgSellingPriceByDetailList"].map( item=> item.CONSULTING_NM )));
-		    const CONSULTING_SELLINGPRICE 					=  resultData.data["rstMgn.getOrgSellingPriceByDetailList"].map( item => {  return { [item.CONSULTING_NM]: item.ORG_SELLING_PRICE };} )
-		    																								   .map(obj => {
-																															    let key = Object.keys(obj)[0];
-																															    let value = obj[key];
-																															    return [key, value];
-																															});
-			const containerList 	= [	"<@pageId>_monthlyOSP_chart"
-									   ,"<@pageId>_onceOSP_chart"
-									  ,"<@pageId>_productOSP_chart"
-									  ];
-			const categoriesList 	= [  monthArray
-										,monthArray
- 										,CONSULTING_NMS
-									   ];
+		    
+			const containerList 	= [	"<@pageId>_monthlyOSP_chart","<@pageId>_onceOSP_chart"];
+			const categoriesList 	= [  _monthArray,_monthArray];
 			const seriesList		= [
-				
-										[{  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'} }
+										[
+										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'}}
 										,{  name: '2022년',type: 'line',data:   getOrgSellingPriceListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
-										[{  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'}}
+										[
+										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'}}
 										,{  name: '2022년',type: 'line',data:  getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
- 										[{  name: '2023년',type: 'column',yAxis: 1,data: CONSULTING_SellingPrice.slice(CONSULTING_NMS.length),tooltip: {valueSuffix: '억'}}
-										,{  name: '2022년',type: 'line',data:  CONSULTING_SellingPrice.slice(0,CONSULTING_NMS.length),tooltip: {valueSuffix:'억'}}
-										]
-				
-									 ]
+									 ];
 
-  			const CONSULTING_NMS_DATA = [];
+			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] ) );
+
+		    const CONSULTING_NMS				=  resultData.data["rstMgn.getOrgSellingPriceByDetailList"]
+												.map( item => {  return { [item.CONSULTING_NM]: item.ORG_SELLING_PRICE };} )
+												.map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
+
+			const CONSULTING_NMS_DATA = [];
 			const CONSULTING_NMS_PREV_DATA = [];
-
-			for (let i = 0; i < CONSULTING_SELLINGPRICE.length/2; i++) {
-				CONSULTING_NMS_DATA[i] = CONSULTING_SELLINGPRICE[i];
-				CONSULTING_NMS_PREV_DATA[i] = CONSULTING_SELLINGPRICE[i+7];
-			}	 	
+			const halfLength = CONSULTING_NMS.length/2;
+			for (let i = 0; i < halfLength; i++) {
+				CONSULTING_NMS_DATA[i] = CONSULTING_NMS[i];
+				CONSULTING_NMS_PREV_DATA[i] = CONSULTING_NMS[halfLength+i];
+			} 	
 			
-			containerList.forEach( (chart,idx) =>{
-				if( idx == 2){
+			let xAsisData = {};
 
-					let xAsisData = {};
-					CONSULTING_SELLINGPRICE.forEach( ( CONSULTING_NM, idx2 )=>xAsisData[CONSULTING_NM[0]] = { name: CONSULTING_NM[0] , color : colorRange[idx2] } );
-					const maxMonths = _.maxBy(_.uniqBy(resultData.data["rstMgn.getOrgSellingPriceByDetailList"],"MONTHS"). map( item=> {return { 'MONTH' : item.MONTHS }} ),"MONTH").MONTH;
-					const minMonths = _.minBy(_.uniqBy(resultData.data["rstMgn.getOrgSellingPriceByDetailList"],"MONTHS"). map( item=> {return { 'MONTH' : item.MONTHS }} ),"MONTH").MONTH;
-					const param = {
-							 thisMonth: maxMonths+'월'
-							,lastMonth: minMonths+'월'
- 							,data : {
- 								months: CONSULTING_NMS_DATA
-							}
-							,dataPrev : {
-								months: CONSULTING_NMS_PREV_DATA
-							}
- 							,xAxisData :xAsisData
-					}
-
-					<@pageId>.comparisonChart("<@pageId>_productOSP_chart" , param );
-				}else{
-					
-					<@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] );
-				}
+			CONSULTING_NMS.forEach( ( CONSULTING_NM, idx2 )=> {
 				
-			})
+				const index = idx2 % _colorRange.length;
+				xAsisData[CONSULTING_NM[0]] = { name: CONSULTING_NM[0] , color : _colorRange[index] }   
+				
+			});
+			const maxMonths = _.maxBy(_.uniqBy(resultData.data["rstMgn.getOrgSellingPriceByDetailList"],"MONTHS"). map( item=> {return { 'MONTH' : item.MONTHS }} ),"MONTH").MONTH;
+			const minMonths = _.minBy(_.uniqBy(resultData.data["rstMgn.getOrgSellingPriceByDetailList"],"MONTHS"). map( item=> {return { 'MONTH' : item.MONTHS }} ),"MONTH").MONTH;
+			const param = { thisMonth	: maxMonths+'월'
+							,lastMonth	: minMonths+'월'
+							,data 		: {months: CONSULTING_NMS_DATA}
+							,dataPrev 	: {months: CONSULTING_NMS_PREV_DATA}
+							,xAxisData 	: xAsisData 
+						  }
+
+			<@pageId>.comparisonChart("<@pageId>_productOSP_chart" , param );
 			
 			setTimeout(()=>{
 				$(".highcharts-credits").remove();
@@ -99,6 +92,35 @@ var <@pageId> = {
 				
 			},500)
 		}
+		,setChart2 : (resultData) =>{
+
+  			const getOrgSellingPriceListMONTHLY		=  resultData.data["rstMgn.getSellingGrowthRateList"	].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			const getOrgSellingPriceListOnly_ONE	=  resultData.data["rstMgn.getSellingBranchList"		].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			//const getOrgSellingPriceByDetailList	=  resultData.data["rstMgn.getSellingDetailList"		].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+		    debugger;
+			const containerList 	= [	"<@pageId>_OSPGR_chart","<@pageId>_OPB_chart","<@pageId>_OSPD_chart"];
+			const categoriesList 	= [  _monthArray,_monthArray,_monthArray];
+			const seriesList		= [
+										[
+										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'}}
+										,{  name: '2022년',type: 'line',data:   getOrgSellingPriceListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
+										],
+										[
+										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'}}
+										,{  name: '2022년',type: 'line',data:  getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
+										],
+									 ];
+debugger;
+			containerList.forEach( (chart,idx) => {<@pageId>.lineAndColumnChart( containerList[idx] , categoriesList[idx] );} );
+
+		   
+			
+			setTimeout(()=>{
+				$(".highcharts-credits").remove();
+				$(".highcharts-legend.highcharts-no-tooltip").remove();
+				
+			},500) 
+		}		
 		,mainCategoryChart :  () => {
 		
 			var parm = {
@@ -156,6 +178,10 @@ var <@pageId> = {
 
 				<@pageId>.treemapChart('<@pageId>_subCategoryTreemap',{	minColor: '#8A8BB9',
 													        	maxColor: '#27187F'},treemapData);
+				
+/* 
+				$(".highcharts-credits").remove();
+				$(".highcharts-legend.highcharts-no-tooltip").remove(); */
 			});	
 	
 		}
@@ -173,18 +199,18 @@ var <@pageId> = {
 
 			C_COM.requestQuery(parm, function(resultData) {
 				
- 				var rparm = {
+/* 				var rparm = {
 						 targetId 		: "<@pageId>_contractList"
 						,list			: resultData.data
 				}
 			
-				C_COM.renderHtml("<@pageId>", rparm);
+				C_COM.renderHtml("<@pageId>", rparm); */
 			
 			});	
 	
 		}	
 		
-		,createChart : (container, categories, series)=>_createChart(container, categories, series)
+		
 }
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
@@ -355,62 +381,62 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</section>
 
 				<section class="sec_wrap">
-					<div class="cont_box col3" id="<@pageId>_monthly_OrgSellingPrice">
+					<div class="cont_box col3" id="<@pageId>_OrgSellingPriceGrowthRate">
 						<h3>순매출 성장률</h3>
 						<div class="price" >13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart" id="<@pageId>_monthlyOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart" id="<@pageId>_OSPGR_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col3"  id="<@pageId>_once_OrgSellingPrice">
+					<div class="cont_box col3"  id="<@pageId>_OrgSellingPriceByBranch">
 						<h3>지사별 순매출</h3>
 						<div class="price"> 11,654,165,841원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart2" id="<@pageId>_onceOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart2" id="<@pageId>_OPB_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col3" id="<@pageId>_product_OrgSellingPrice">
+					<div class="cont_box col3" id="<@pageId>_OrgSellingPriceByDetail">
 						<h3>상세별 순매출</h3>
 						<div class="price" >11,654,165,841원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart3" id="<@pageId>_productOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart3" id="<@pageId>_OSPD_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 				</section>
 
 
 				<section class="sec_wrap">
-					<div class="cont_box col3" id="<@pageId>_monthly_OrgSellingPrice">
+					<div class="cont_box col3" id="<@pageId>_FA_Monthly_PAY">
 						<h3>FA 월자문 수수료</h3>
 						<div class="price" >13,844,381,010원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart" id="<@pageId>_monthlyOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart" id="<@pageId>_FA_Monthly_PAY_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col3"  id="<@pageId>_once_OrgSellingPrice">
+					<div class="cont_box col3"  id="<@pageId>_FA_Once_PAY">
 						<h3>FA 1회성 수수료</h3>
 						<div class="price"> 11,654,165,841원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart2" id="<@pageId>_onceOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart2" id="<@pageId>_FA_Once_PAY_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col3" id="<@pageId>_product_OrgSellingPrice">
+					<div class="cont_box col3" id="<@pageId>_FA_Partner_PAY">
 						<h3>FA 외주자문 수수료</h3>
 						<div class="price" >11,654,165,841원</div>
 						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
 
 						<figure class="highcharts-figure">
-					    	<div class="chart3" id="<@pageId>_productOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart3" id="<@pageId>_FA_Partner_PAY_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
 				</section>
