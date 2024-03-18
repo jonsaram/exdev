@@ -588,11 +588,11 @@ var C_COM = {
 	        }
 	    });
 	 }
-	,getFileId : function(GRP_FILE_ID, OWNER_ID, callback) {
+	,getFileId : function(GRP_FILE_ID, OWNER_CD, callback) {
 		if			(isEmpty(GRP_FILE_ID)) {
 			alert('File Group ID가 유효하지 않습니다.');
 			reutrn;
-		} else if	(isEmpty(OWNER_ID)) {
+		} else if	(isEmpty(OWNER_CD)) {
 			alert('File Owner ID가 유효하지 않습니다.');
 			reutrn;
 		} else if	(isEmpty(callback)) {
@@ -602,7 +602,7 @@ var C_COM = {
 		
 		var parm = {
 			 queryId 		: "Filemng.getFileList"
-			,requestParm	: {GRP_FILE_ID : GRP_FILE_ID, OWNER_ID : OWNER_ID}
+			,requestParm	: {GRP_FILE_ID : GRP_FILE_ID, OWNER_CD : OWNER_CD}
 		}
 		C_COM.requestQuery(parm, function(resultData) {
 			callback(resultData.data);
@@ -610,6 +610,26 @@ var C_COM = {
 	 }
 	,fileDownload : function(fileId) {
 		location.href="/filedownload.do?FILE_ID=" + fileId;	
+	 }
+	,clearFileGroup : function(GRP_FILE_ID, OWNER_CD, callback) {
+		if			(isEmpty(GRP_FILE_ID)) {
+			alert('File Group ID가 유효하지 않습니다.');
+			reutrn;
+		} else if	(isEmpty(OWNER_CD)) {
+			alert('File Owner ID가 유효하지 않습니다.');
+			reutrn;
+		} else if	(isEmpty(callback)) {
+			alert('Callback Function이 필요합니다.');
+			reutrn;
+		}		
+		
+		var parm = {
+			 queryId 		: "Filemng.clearFileList"
+			,requestParm	: {GRP_FILE_ID : GRP_FILE_ID, OWNER_CD : OWNER_CD}
+		}
+		C_COM.requestQuery(parm, function(resultData) {
+			callback(resultData);
+		});
 	 }
 }
 

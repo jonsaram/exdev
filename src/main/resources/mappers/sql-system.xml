@@ -649,10 +649,37 @@
 			엑셀 업로드 대상 Table List 
 		*/
 		SELECT
-			 TABLE_NAME
+			 A.TABLE_NAME
 			,COLUMN_LIST
-		FROM TBL_EXP_EXUPTBL
+			,B.ORG_FILE_NM
+			,B.FILE_ID
+		FROM 
+			 TBL_EXP_EXUPTBL A
+			,TBL_EXP_FILEMNG B
+		WHERE 1=1
+			AND	A.TABLE_NAME 	= B.GRP_FILE_ID(+)
+			AND B.OWNER_CD(+)	= 'EXCEL_TEMPLATE'
+			AND B.DEL_YN(+) 	= 'N'
+		ORDER BY A.TABLE_NAME			
 	</select>
+	
+	<select id="getTableInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getTableInfo
+			Table 정보를 가져온다.
+		*/
+		SELECT
+		    <foreach item="columnName" collection="columnArry" separator=",">
+	   			 ${columnName}
+	   		</foreach>
+	   		,UPDATE_USER
+	   		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) AS UPDATE_DATE
+		FROM
+			${tableName}
+		WHERE ROWNUM <![CDATA[ <= ]]> 500
+		ORDER BY UPDATE_DATE DESC
+		 
+	</select>
+	
 
 
 	

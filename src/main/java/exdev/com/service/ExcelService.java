@@ -143,6 +143,7 @@ public class ExcelService  extends ExdevBaseService{
 	        String 						prmKeyAttr		[]	= null;
 	        String 						clearCheck 			= "";
 	        String 						dupleProcess		= "";
+	        String 						backupYn			= "";
 	        
 	        for (Row row : sheet) {
 	        	
@@ -155,6 +156,7 @@ public class ExcelService  extends ExdevBaseService{
 	                Cell cell2 = row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 	                Cell cell3 = row.getCell(2, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 	                Cell cell4 = row.getCell(3, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+	                Cell cell5 = row.getCell(4, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 	                
 	        		tableName 	 = cell1.toString();
 	        		if(!ExdevCommonAPI.isValid(tableName)) {
@@ -173,6 +175,7 @@ public class ExcelService  extends ExdevBaseService{
 	        		}
 	        		clearCheck 	 = cell3.toString();
 	        		dupleProcess = cell4.toString();
+	        		backupYn	 = cell5.toString();
 	        		
 	        		optionMap.put("TABLE_NAME"		, tableName);
 	        		optionMap.put("BK_TABLE_NAME"	, tableName + "_EXBACKUP");
@@ -186,7 +189,7 @@ public class ExcelService  extends ExdevBaseService{
 	            	
 	            	if( lm == null) {
 	        			// 코드관리에서 Table Column정의가 없는 경우 오류 처리
-	        			throw new Exception("Table의 헤더가 Excel Upload Column 관리 Table에 등록되어 있지 않습니다.");
+	        			throw new Exception("Table의 헤더가 Excel Upload Column 관리 Table에 등록되어 있지 않습니다.\n\n[3,A] Cell의 Table명이 Excel Upload관리 메뉴에 등록 되어 있어야 합니다.");
 	            	} else {
 	            		String columnList = (String)lm.get("COLUMN_LIST");
 	            		String columnArray [] = columnList.split("/");
@@ -214,22 +217,28 @@ public class ExcelService  extends ExdevBaseService{
 	        		
 	        		// 기존 Data 지우고 새로 upload인경우 처리
 	        		if("Y".equals(clearCheck)) {
-	        			// 기존 Data Backukp 후 Clear함
-		            	List tabCntList = (List)commonDao.getList("common.existTableName", optionMap);
-	        			Integer tabCnt = tabCntList.size();
-	        			if(tabCnt == 1) {
-	        				// Backup Table이 이미 존재하는 경우
-	        				commonDao.update("common.insertBackupTable"	, optionMap);
-	        				optionMap.put("BK_TYPE", "INSERT");
-	        				commonDao.update("common.insertBackupLog"	, optionMap);
-	        			} else {
-	        				// Backup Table이 없는 경우
-	        				commonDao.update("common.createBackupTable"	, optionMap);
-	        				optionMap.put("BK_TYPE", "CREATE");
-	        				commonDao.update("common.insertBackupLog"	, optionMap);
+
+	        			// Backup 옵션 확인
+	        			if(!"N".equals(backupYn)) {
+	        				// 기존 Data Backukp 후 Clear함
+	        				List tabCntList = (List)commonDao.getList("common.existTableName", optionMap);
+	        				Integer tabCnt = tabCntList.size();
+	        				if(tabCnt == 1) {
+	        					// Backup Table이 이미 존재하는 경우
+	        					commonDao.update("common.insertBackupTable"	, optionMap);
+	        					optionMap.put("BK_TYPE", "INSERT");
+	        					commonDao.update("common.insertBackupLog"	, optionMap);
+	        				} else {
+	        					// Backup Table이 없는 경우
+	        					commonDao.update("common.createBackupTable"	, optionMap);
+	        					optionMap.put("BK_TYPE", "CREATE");
+	        					commonDao.update("common.insertBackupLog"	, optionMap);
+	        				}
+		        			// 백업 완료
 	        			}
-	        			// 백업이 완료되었으므로 기존 Data를 지운다.
-        				commonDao.update("common.deleteTable"			, optionMap);
+	        			
+	        			// 기존 Data를 지운다.
+        				commonDao.update("common.deleteTable"				, optionMap);
 	        		}
 		        // 다섯번째 행부터 Data
 	            } else if (idx > 3) {

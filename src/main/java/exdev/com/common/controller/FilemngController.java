@@ -91,12 +91,15 @@ public class FilemngController {
 		
 		String filePath = (String)fileInfo.get("FILE_PATH");
 		
+		String orgFileName = (String)fileInfo.get("ORG_FILE_NM");
+		
         File f = new File(filePath);
+        
         
         // file 다운로드 설정
         response.setContentType("application/download");
         response.setContentLength((int)f.length());
-        response.setHeader("Content-disposition", "attachment;filename=\"abcd.jpg\"");
+        response.setHeader("Content-disposition", "attachment;filename=\"" + orgFileName + "\"");
         // response 객체를 통해서 서버로부터 파일 다운로드
         OutputStream os = response.getOutputStream();
         // 파일 입력 객체 생성

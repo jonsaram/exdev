@@ -125,6 +125,17 @@
   		UPDATE TBL_EXP_FILEMNG SET DEL_YN = 'Y' WHERE FILE_ID = #{FILE_ID}
   	</update>
   	
+	<update id="clearFileList">
+		/*	Filemng.getFileList
+			업로드 File 정보 조회
+		*/
+		UPDATE TBL_EXP_FILEMNG SET
+			DEL_YN = 'Y'
+		WHERE 1=1
+			AND GRP_FILE_ID = #{GRP_FILE_ID}
+			AND OWNER_CD 	= #{OWNER_CD}
+			AND DEL_YN 		= 'N' 
+   	</update>
    	
    		
     

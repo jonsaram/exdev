@@ -1025,6 +1025,12 @@
 		return newObj;
 	}
 	
+	// 파일 확장자 가져오기
+	function getExtension(filename) {
+	  const parts = filename.split('.');
+	  return parts.pop();
+	}
+	
 	//Json Debugging
 	//Json Debugging
 	//Json Debugging
