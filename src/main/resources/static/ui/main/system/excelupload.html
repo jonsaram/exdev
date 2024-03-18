@@ -49,9 +49,15 @@
 				if(retData.state == "S") {
 					C_POP.alert('Excel Upload에 성공하였습니다.');
 				} else if(retData.state == "E") {
-					C_POP.alert(retData.msg);
+					$("#<@pageId> #errorLog").show();
+					
+					$("#<@pageId> #errorMsg").html(retData.msg);
+
+					$("#<@pageId> #sheetNum").html(retData.sheetNum);
+					
+					$("#<@pageId> #stopIdx").html(retData.stopIdx);
 				} else {
-					dalert(retData);
+					dwrite(retData);
 				}
 			});
 		 }
@@ -251,6 +257,13 @@
 						</div>
 					</div>
 				</div>
+			</div>
+			<div id="errorLog" style="display:none">
+				</br></br>
+				<b>ErrorLog</b></br></br>
+				<textarea cols="100" rows="10" id=errorMsg></textarea></br><br/>
+				sheetNum   : <span id=sheetNum></span><br/><br/>
+				Stop Index : <span id=stopIdx></span><br/>
 			</div>
 		</section>
 	</div>
