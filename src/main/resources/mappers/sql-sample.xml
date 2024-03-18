@@ -8,8 +8,9 @@
 	
 	<!-- MVT 및 Model의 실제 Data (관련 Table => T_MDL_MODEL_SAVE, T_MDL_MODEL_SAVE_MVT_ITEM) -->
 	<select id="getSample" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		SELECT T_CLM 
-		FROM TEST 
+		SELECT 
+			AAA, BBB
+		FROM TBL_EXP_SAMPLE 
 		WHERE 1 = 1
 	</select>
 	<update id="updateSample" parameterType="map">
@@ -152,5 +153,36 @@
         )
     </insert>
 
+    
+    
+    
+    
+    
+    
+    
+	<sql id="getSampleList_body">
+		SELECT
+			 AAA
+			,BBB
+		FROM 
+			TBL_EXP_SAMPLE			
+	</sql>
+    
+	<select id="getSampleList" resultType="java.util.HashMap">
+		/* Sample.getSampleList  */
+		<include refid="getSampleList_body"/>
+	</select>
+	<select id="getSampleList_totalCnt" resultType="Integer">
+		/* Project.getSampleList_totalCnt  */
+		<include refid="common.totalWrapStart"/>
+		<include refid="getSampleList_body"/>
+		<include refid="common.totalWrapEnd"/>
+	</select>
+	<select id="getSampleList_paging" resultType="java.util.HashMap">
+		/* Project.getSampleList_paging  */
+		<include refid="common.pagingWrapStart"/>
+		<include refid="getSampleList_body"/>
+		<include refid="common.pagingWrapEnd"/>
+	</select>
     
 </mapper>

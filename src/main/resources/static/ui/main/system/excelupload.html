@@ -45,6 +45,12 @@
 			});
 		 }
 		,excelUpload		: function() {
+
+			$("#<@pageId> #errorLog").hide();
+			$("#<@pageId> #errorMsg").html("");
+			$("#<@pageId> #sheetNum").html("");
+			$("#<@pageId> #stopIdx").html("");
+			
 			C_COM.selectExcelUploadToTable(function(retData) {
 				if(retData.state == "S") {
 					C_POP.alert('Excel Upload에 성공하였습니다.');
@@ -263,7 +269,7 @@
 				<b>ErrorLog</b></br></br>
 				<textarea cols="100" rows="10" id=errorMsg></textarea></br><br/>
 				sheetNum   : <span id=sheetNum></span><br/><br/>
-				Stop Index : <span id=stopIdx></span><br/>
+				Error Line : <span id=stopIdx></span><br/>
 			</div>
 		</section>
 	</div>

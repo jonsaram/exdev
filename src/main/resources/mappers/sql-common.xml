@@ -164,5 +164,28 @@
 	<update id="deleteTable" flushCache="true">
 		DELETE FROM ${TABLE_NAME}  
    	</update>
+   	
+   	
+	<!-- Paging 관련 Template -->	
+	<sql id="totalWrapStart">
+		SELECT count(1) TOTAL_CNT FROM (
+	</sql>
+	<sql id="totalWrapEnd">
+		)
+	</sql>
+	<sql id="pagingWrapStart">
+		SELECT TBL.* FROM (
+			SELECT 
+				 ROWNUM AS ROWIDX
+				,BODY.*
+			FROM (
+	</sql>	
+	<sql id="pagingWrapEnd">
+			) BODY
+		) TBL
+		WHERE 
+			ROWIDX <![CDATA[>=]]> ${startIdx} AND ROWIDX <![CDATA[<=]]> ${endIdx}
+	</sql>	
+   	
    		
 </mapper>

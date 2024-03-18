@@ -1404,7 +1404,7 @@ var C_PAGING = {
 			option.parm = {};
 		}
 		var parm = {
-			 serviceId 	: "CommonService.getPagingList"
+			 serviceId 	: "ExdevCommonService.getPagingList"
 			,requestParm: {
 				 queryId	: C_PAGING.queryId[key]
 				,option 	: option
@@ -1424,25 +1424,39 @@ var C_PAGING = {
 			
 			
 			var pageListHtml	 = "";
-			pageListHtml	 	 = '<div class="paging">';
+			
+			
+			var pageListHtml	 	 = ``;
+			
 			if(pageIdx > 1) {
-				pageListHtml 	+= '	<a href="javascript:C_PAGING.makePageList(\''+pageId+'\', \''+listDomId+'\', 1)">&laquo;</a>';
+				pageListHtml 	+= `	<a href="javascript:C_PAGING.makePageList('${pageId}', '${listDomId}', 1)" class="btn_pg_first">첫번째 페이지</a>`;
+			} else {
+				pageListHtml 	+= `	<a href="javascript:" class="btn_pg_first disabled">첫번째 페이지</a>`;
 			}
 			if(startPageIdx > option.pageRange) {
-				pageListHtml 	+= '	<a href="javascript:C_PAGING.makePageList(\''+pageId+'\', \''+listDomId+'\', '+prevPageIdx+')">Prev</a>';
+				pageListHtml 	+= `	<a href="javascript:C_PAGING.makePageList('${pageId}', '${listDomId}', ${prevPageIdx})" class="btn_pg_prev">이전 페이지</a>`;
+			} else {
+				pageListHtml 	+= `	<a href="javascript:" class="btn_pg_prev disabled">이전 페이지</a>`;
 			}
 			for(var ii = startPageIdx; ii <= endPageIdx; ii++) {
 				var acrive = "";
-				if(ii == pageIdx) acrive = 'class="active"';
-				pageListHtml 	+= '	<a href="javascript:C_PAGING.makePageList(\''+pageId+'\', \''+listDomId+'\', '+ii+')" '+acrive+'>'+ii+'</a>';
+				if(ii == pageIdx) {
+					pageListHtml 	+= `	<strong title="현재 페이지">${pageIdx}</strong>`;
+					
+				} else {
+					pageListHtml 	+= `	<a href="javascript:C_PAGING.makePageList('${pageId}', '${listDomId}', ${ii})">${ii}</a>`;
+				}
 			}
 			if(endPageIdx < totalPage) {
-				pageListHtml	+= '	<a href="javascript:C_PAGING.makePageList(\''+pageId+'\', \''+listDomId+'\', '+nextPageIdx+')">Next</a>';
+				pageListHtml 	+= `	<a href="javascript:C_PAGING.makePageList('${pageId}', '${listDomId}', ${nextPageIdx})" class="btn_pg_next">다음 페이지</a>`;
+			} else {
+				pageListHtml 	+= `	<a href="javascript:" class="btn_pg_next disabled">다음 페이지</a>`;
 			}
 			if(pageIdx < totalPage) {
-				pageListHtml 	+= '	<a href="javascript:C_PAGING.makePageList(\''+pageId+'\', \''+listDomId+'\', '+totalPage+')">&raquo;</a>';
+				pageListHtml 	+= `	<a href="javascript:C_PAGING.makePageList('${pageId}', '${listDomId}', ${totalPage})" class="btn_pg_last">마지막 페이지</a>`;
+			} else {
+				pageListHtml 	+= `	<a href="javascript:" class="btn_pg_last disabled">마지막 페이지</a>`;
 			}
-			pageListHtml 		+= '</div>';
 			
 			$("#" + pageId + " #" + pagingDomId).html(pageListHtml);
 			
