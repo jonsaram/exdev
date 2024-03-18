@@ -1357,6 +1357,7 @@ var C_PAGING = {
 	,pageRange			: {}	// Page 범위
 	,listDomId			: {}	// 리스트가 표시되는 Dom Id
 	,pagingDomId		: {}	// Page가 표시되는 Dom Id
+	,totalCntDomId		: {}	// Page가 표시되는 Dom Id
 	,queryId			: {}
 	,parmObj			: {}
 	,parmFn				: {}
@@ -1373,6 +1374,7 @@ var C_PAGING = {
 		C_PAGING.pageRange				[key] = parm.pageRange 			;
 		C_PAGING.listDomId				[key] = parm.listDomId     		;
 		C_PAGING.pagingDomId			[key] = parm.pagingDomId     	;
+		C_PAGING.totalCntDomId			[key] = parm.totalCntDomId     	;
 		C_PAGING.queryId				[key] = parm.queryId   			;
 		C_PAGING.parmObj				[key] = parm.parmObj		   	;
 		C_PAGING.parmFn					[key] = parm.parmFn			   	;
@@ -1412,7 +1414,12 @@ var C_PAGING = {
 			,useLoadingBar	: true
 		}
 		C_COM.requestService(parm, function(resultData) {
-			var totalPage = resultData.data.totalPage;
+
+			var totalPage 		= resultData.data.totalPage;
+			
+			var totalCnt		= resultData.data.totalCnt;
+			
+			if(isEmpty(totalCnt)) totalCnt = 0;
 
 			var maxNextPage 	= Math.floor(totalPage / option.pageRange)
 			var startPageIdx	= Math.floor((pageIdx - 1) / option.pageRange) * option.pageRange + 1
@@ -1468,6 +1475,12 @@ var C_PAGING = {
 				,list			: resultData.data.pageList
 			}
 			C_COM.renderHtml(pageId, rparm);
+			
+			if(isValid(C_PAGING.totalCntDomId[key])) {
+				$("#" + pageId + " #" + C_PAGING.totalCntDomId[key]).html(totalCnt);
+			}
+			
+			
 			
 			if(typeof C_PAGING.onPageClickCallback[key] == "function") C_PAGING.onPageClickCallback[key](resultData.data);
 		});
