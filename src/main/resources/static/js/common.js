@@ -192,11 +192,19 @@
         };
 
         $(".tbl_body_scroll").scroll(function(event){
-            var sl = 0;
+            var sl = 10;
             // data 테이블 x축 스크롤을 움직일 때header 테이블 x축 스크롤을 똑같이 움직인다
             if (sl != $(".tbl_body_scroll").scrollLeft()) {
                 sl = $(".tbl_body_scroll").scrollLeft();
                 $(".tbl_head").scrollLeft(sl);
+            }
+        });
+        $(".tbl_body_scroll2").scroll(function(event){
+            var sl = 10;
+            // data 테이블 x축 스크롤을 움직일 때header 테이블 x축 스크롤을 똑같이 움직인다
+            if (sl != $(".tbl_body_scroll2").scrollLeft()) {
+                sl = $(".tbl_body_scroll2").scrollLeft();
+                $(".tbl_head2").scrollLeft(sl);
             }
         });
 
@@ -205,6 +213,14 @@
             $(".tbl_head colgroup col:last-child").width($(".tbl_body_scroll colgroup col:last-child").width() + 8 );
         }else{
             $(".tbl_head colgroup col:last-child").width();
+        }
+
+
+        if ($(".tbl_body_scroll2").hasYScrollBar()) {
+            //y축 스크롤이 있으면 스크롤 넓이인 8px만큼 header 마지막 열 크기를 늘린다
+            $(".tbl_head2 colgroup col:last-child").width($(".tbl_body_scroll2 colgroup col:last-child").width() + 8 );
+        }else{
+            $(".tbl_head2 colgroup col:last-child").width();
         }
     });
 
@@ -217,6 +233,9 @@
     $(document).on("click", ".toggle", function(){
         $(this).parent().children().removeClass('active');
         $(this).addClass('active');
+    });
+    $(document).on("click", ".pay_close", function(){
+        $(this).parent().remove()
     });
     $(document).on("click", ".approver_list_wrap.person .approver_list li", function(){
         $('.approver_list_wrap.person .approver_list li').removeClass('active');
@@ -309,6 +328,13 @@
     $(document).on("click", ".listBtn li a", function(){
         $('.listBtn li a').removeClass('active');
         $(this).addClass('active');
+    });
+
+
+    /*==== upDown Toggle ====*/
+    $(document).on("click", ".upDownToggle", function(){
+        $(this).children().toggleClass('down');
+        $(this).parent().parent().next().toggleClass('upDown');
     });
 
 })(window, window.jQuery);

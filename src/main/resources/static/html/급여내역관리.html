@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Start Asset</title>
+	<link rel="stylesheet" type="text/css" href="../css/libs/jquery-ui.css"/>
+	<link rel="stylesheet" type="text/css" href="../css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="../css/common.css"/>
+	<script type="text/javascript" src="../js/libs/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="../js/libs/jquery-ui.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+	<script type="text/javascript" src="../js/libs/highcharts.js"></script>
+	<script type="text/javascript" src="../js/libs/highcharts-more.js"></script>
+
+</head>
+<body class="main">
+	<header id="header">
+		<div class="wrap">
+			<h1 class="logo"><a href="main.html">Start Asset</a></h1>
+			<nav class="gnb">
+				<ul>
+					<li><a href="main.html">성과관리</a></li>
+					<li><a href="fa_dashboard.html">FA 대쉬보드</a></li>
+					<li><a href="personnel_info.html">인사정보</a></li>
+					<li><a href="performance_ranking.html">실적랭킹</a></li>
+					<li><a href="calender.html">캘린더</a></li>
+					<li class="active"><a href="qdvisory_progress_status.html">자문 진행 현황</a></li>
+					<li><a href="customer_list.html">고객리스트</a></li>
+					<li><a href="customer_dashboard.html">고객 대쉬보드</a></li>
+					<!-- <li><a href="salary_info.html">급여정보</a></li> -->
+					<li><a href="enter_performance.html">실적입력</a></li>
+					<!-- <li><a href="electronic_pay.html">전자결재</a></li>
+					<li><a href="erp.html">ERP</a></li> -->
+					<li><a href="company_board.html">사내게시판</a></li>
+					<li><a href="work_history.html">작업 히스토리</a></li>
+				</ul>
+			</nav>
+			<div class="header_right">
+				<div class="head-btn-wrap">
+			        <button class="menu-btn">
+			            <span class="line line1"></span>
+			            <span class="line line2"></span>
+			            <span class="line line3"></span>
+			        </button>
+			    </div>
+				<button type="button" class="btn_arrow"></button>
+				<a href="#" class="alarm">알림</a>
+				<a href="#" class="user_login"><span>이희성</span></a>
+				<ul class="user_menu">
+					<li><a href="../admin/admin_01.html"><i class="icon_admin"></i>관리자 페이지</a></li>
+					<li><a href="#"><i class="icon_pwEdit"></i>비밀번호 변경</a></li>
+					<li><a href="#"><i class="icon_logout"></i>로그아웃</a></li>
+				</ul>
+			</div>
+		</div>
+	</header>
+	<div class="container">
+		<nav class="lnb">
+			<div class="lnb_tit01">업무관리<button class="btn fold"><i class="icon_arrow"></i></button></div>
+			<ul>
+				<li><a href="qdvisory_progress_status.html">자문 진행 현황</a></li>
+				<li class="active"><a href="급여내역관리.html">급여내역 관리</a></li>
+				<li><a href="급여관리.html">급여관리</a></li>
+				<li><a href="실적현황.html">실적 현황</a></li>
+			</ul>
+		</nav>
+		<div class="cont_wrap backWhite">
+			<div class="cont_top">
+				<h2><i class="icon_bullet"></i>급여내역 관리</h2>
+			</div>
+			<section class="sec_wrap list" style="height:calc(100% - 43px);">
+				<!-- search area -->
+				<div class="search_area mt0">
+					<div class="fl">
+						<!-- 실글 선택 -->
+						<div class="select_box fl" style="width:132px">
+							<button type="button" class="btn radio"><span>2024년 01월</span></button>
+		                    <ul class="select_lst">
+		                        <li>
+		                            <input name="number" id="num01" type="radio" value="">
+		                            <label for="num01">2024년 02월<i class="icon_check"></i></label>
+		                        </li>
+		                        <li>
+		                            <input name="number" id="num02" type="radio" value="">
+		                            <label for="num02">2024년 03월<i class="icon_check"></i></label>
+		                        </li>
+		                        <li>
+		                            <input name="number" id="num03" type="radio" value="">
+		                            <label for="num03">2024년 04월<i class="icon_check"></i></label>
+		                        </li>
+		                    </ul>
+		                </div>
+		            </div>
+		            <div class="search_right">
+						<strong class="total">Total: <span class="pointColr">3</span></strong>
+		            </div>
+				</div>
+				<!-- 테이블 -->
+				<div class="tbl01 col tbl_scroll row2" style="height:calc(100% - 41px);">
+					<div class="tbl01 col tbl_head">
+						<table>
+							<caption>급여관리 리스트</caption>
+							<colgroup>
+								<col style="width:40px;"/>
+								<col style="width:120px;" span="4"/>
+								<col style="width:100px;" span="4"/>
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col" rowspan="2">No.</th>
+									<th scope="col" colspan="3">계약정보</th>
+									<th scope="col" rowspan="2">실적/입금액</th>
+									<th scope="col" rowspan="2">입금일</th>
+									<th scope="col" rowspan="2">계약관례Type</th>
+									<th scope="col" rowspan="2">수수료율</th>
+									<th scope="col" rowspan="2">수수료</th>
+								</tr>
+								<tr>
+									<th scope="col">고객명</th>
+									<th scope="col">컨설팅명</th>
+									<th scope="col">총계약금액</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div class="tbl01 col tbl_body_scroll">
+						<table>
+							<caption>급여관리 리스트</caption>
+							<colgroup>
+								<col style="width:40px;"/>
+								<col style="width:120px;" span="4"/>
+								<col style="width:100px;" span="4"/>
+							</colgroup>
+							<tbody>
+								<tr>
+									<td>1</td>
+									<td>스타에셋</td>
+									<td>월자문 솔루션1</td>
+									<td class="tr">100,000,000</td>
+									<td class="tr">20,000,000</td>
+									<td>2024-01-05</td>
+									<td>코웍</td>
+									<td>5%</td>
+									<td class="tr">1,000,000</td>
+								</tr>
+								<tr>
+									<td>2</td>
+									<td>스타에셋2</td>
+									<td>월자문 솔루션3</td>
+									<td class="tr">50,000,000</td>
+									<td class="tr">5,000,000</td>
+									<td>2024-01-25</td>
+									<td>실행</td>
+									<td>30%</td>
+									<td class="tr">1,500,000</td>
+								</tr>
+							</tbody>
+							<tfoot>
+								<tr>
+									<td></td>
+									<td colspan="2">총계</td>
+									<td class="tr">150,000,000</td>
+									<td class="tr">25,000,000</td>
+									<td colspan="3"></td>
+									<td class="tr">1,500,000</td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+	</div>
+</body>
+
+</html>
