@@ -23,10 +23,15 @@ var <@pageId> = {
 		    for (var i=0; i<keys.length; i++) {
 		    	var key = keys[i];
 		    	$("#<@pageId>_" + key).html(obj[key]);
+		    	$(".<@pageId>_" + key).html(obj[key]);
 		    }
 		}
-		,showList : (loc) => {
-			dalert(loc);
+		,showList : (targetId, dataList) => { 
+			const rpm = {
+					 targetId 		: targetId
+					,list			: dataList  
+				}
+			C_COM.renderHtml("<@pageId>", rpm);
 		}
 		,selectQueryGroup : function(pmt) {
 			var parm = {
@@ -79,11 +84,18 @@ var <@pageId> = {
 				]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
-				//debugger;
-				//console.log("resultData====>",resultData);
-				//dalert(resultData);
 				<@pageId>.showObject(resultData.data['financialanalysis.getBuyerDetail'][0],'');
-				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');
+				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');				
+				<@pageId>.showList("<@pageId>_getBasis02", resultData.data['financialanalysis.getBasis02']);				
+				<@pageId>.showList("<@pageId>_getFinAnalStockholder", resultData.data['financialanalysis.getFinAnalStockholder']);
+				<@pageId>.showList("<@pageId>_getFinAnalExecutive", resultData.data['financialanalysis.getFinAnalExecutive']);
+				<@pageId>.showList("<@pageId>_getFinAnalRate01", resultData.data['financialanalysis.getFinAnalRate']);
+				<@pageId>.showList("<@pageId>_getFinAnalRate02", resultData.data['financialanalysis.getFinAnalRate']);
+				<@pageId>.showList("<@pageId>_getFinAnalRate03", resultData.data['financialanalysis.getFinAnalRate']);
+				<@pageId>.showList("<@pageId>_getFinAnalRate04", resultData.data['financialanalysis.getFinAnalRate']);
+				<@pageId>.showObject(resultData.data['financialanalysis.getFinAnalYear'][0],'');
+				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl01", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl02", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 			});
 		 }
 		,goPage : (pageId,rowId) => {
@@ -248,157 +260,1142 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 </script>
 
 </head>
-		<div class="cont_wrap" style="height:1500px">
+<div class="cont_wrap backWhite">
 			<div class="cont_top">
-				<h2><i class="icon_bullet"></i>기업 개요</h2>
+				<h2><i class="icon_bullet"></i>기업 재무분석</h2>
 			</div>
+			<div class="sec_scroll" style="height:calc(100% - 40px);">
+				<section class="sec_wrap">
+					<!-- 기업개요 -->
+					<div class="company_wrap">
+						<div class="company_left">
+							<div class="com_left_checkP"><i class="icon_analysis"></i>Check Point</div>
+						</div>
+						<div class="company_cont">
+							<div class="com_cont_tit">기업개요</div>
 
-			<section class="sec_wrap list" style="height:calc(100% - 43px);">
-				<!-- 테이블 -->
-				<div class="tbl01 col" style="max-height:506px;">
-					<div class="tbl01 col">
-						<table>
-							<colgroup>
-								<col style="width:15%;"/>
-								<col style="width:35%;"/>
-								<col style="width:15%;"/>
-								<col style="width:*;"/>
-							</colgroup>
-							
-					       <tbody>
-					       	<tr>
-								<td colspan="4" style="text-align:left"><i class="icon_bullet"></i>기업일반</td>
-							</tr>
-					       	<tr>
-                                <td style="text-align:left;" bgcolor="#E9E9E9">기업명</td>
-                                <td style="text-align:left" id="<@pageId>_COMPANY_NM"></td>
-                                <td style="text-align:left" bgcolor="#E9E9E9">설립일자</td>
-                                <td style="text-align:left" id="<@pageId>_ESTABLISHMENT_DATE"></td>
-							</tr>
-					       	<tr>
-                                <td style="text-align:left" bgcolor="#E9E9E9">대표자명</td>
-                                <td style="text-align:left" id="<@pageId>_OWNER_NM"></td>
-                                <td style="text-align:left" bgcolor="#E9E9E9">대표자 생년월일(나이)</td>
-                                <td style="text-align:left" id="<@pageId>_OWNER_BIRTHDAY"></td>
-							</tr>
-					       	<tr>
-                                <td style="text-align:left" bgcolor="#E9E9E9">기업형태</td>
-                                <td style="text-align:left" id="<@pageId>_COMPANY_TYPE"></td>
-                                <td style="text-align:left" bgcolor="#E9E9E9">결산월</td>
-                                <td style="text-align:left" id="<@pageId>_SETTLEMENT_MONTH"></td>
-							</tr>
-					       	<tr>
-                                <td style="text-align:left" bgcolor="#E9E9E9">상시근로자수</td>
-                                <td style="text-align:left" colspan="3" id="<@pageId>_EMPLOYEE_CNT"></td>
-							</tr>
-					       	<tr>
-                                <td style="text-align:left" bgcolor="#E9E9E9">업종</td>
-                                <td style="text-align:left" colspan="3" id="<@pageId>_BUSINESS_TYPE"></td>
-							</tr>
-					       	<tr>
-                                <td style="text-align:left" bgcolor="#E9E9E9">주소(도로명)</td>
-                                <td style="text-align:left" colspan="3" id="<@pageId>_ADDRESS"></td>
-							</tr>
-					       	<tr>
-                                <td style="text-align:left" bgcolor="#E9E9E9">기업인증현황</td>
-                                <td style="text-align:left" colspan="3" id="<@pageId>_COMPANY_CERT_STATUS"></td>
-							</tr>
-					       	<tr>
-                                <td style="text-align:left" bgcolor="#E9E9E9">산업재산권현황</td>
-                                <td style="text-align:left" colspan="3" id="<@pageId>_INDUSTRY_ESTATE_STATUS"></td>
-							</tr>
-					       </tbody>
-						</table>
-					</div>
-				</div>
-				<br>
-				<div class="tbl01 col" style="max-height:506px;">
-					<div class="tbl01 col">
-						<table>
-							<colgroup>
-								<col style="width:16%;"/>
-								<col style="width:16%;"/>
-								<col style="width:16%;"/>
-								<col style="width:16%;"/>
-								<col style="width:16%;"/>
-								<col style="width:*;"/>
-							</colgroup>							
-					       <tbody>
-					       	<tr>
-								<td colspan="4" style="text-align:left"><i class="icon_bullet"></i>자본금 및 주식 발행사항</td>
-							</tr>
-					       	<tr style="text-align:center;" bgcolor="#E9E9E9">
-                                <td>자본금</td>
-                                <td>발행주식 합계</td>
-                                <td>보통주</td>
-                                <td>우선주</td>
-                                <td>상환전환우선주</td>
-                                <td>1주의 금액</td>
-							</tr>
-					       	<tr style="text-align:center;">
-                                <td id="<@pageId>_CAPITAL"></td>
-                                <td id="<@pageId>_STOCK"></td>
-                                <td id="<@pageId>_ORDINARY"></td>
-                                <td id="<@pageId>_PREFERRED_STOCK"></td>
-                                <td id="<@pageId>_SANGWHAN_CONV_PRE_STOCK"></td>
-                                <td id="<@pageId>_ONE_STOCK_PRICE"></td>
-							</tr>
-					       </tbody>
-						</table>
-					</div>
-				</div>
-				<br>
-				<div class="tbl01 col" style="max-height:506px;">
-					<div class="tbl01 col">
-						<table>
-							<colgroup>
-								<col style="width:10%;"/>
-								<col style="width:*;"/>
-							</colgroup>							
-					       <tbody>
-					       	<tr>
-								<td colspan="4" style="text-align:left"><i class="icon_bullet"></i>주요 사업목적</td>
-							</tr>
-					       	<tr style="text-align:center;" bgcolor="#E9E9E9">
-                                <td bgcolor="#E9E9E9">사업목적</td>
-                                <td>
-                                	<table>
-                                		<tr>
-                                			<td></td>
-                                		</tr>
-                                	</table>
-                                </td>
-							</tr>
-					       </tbody>
-						</table>
-					</div>
-				</div>
-				<br>
-				<div class="tbl01 col" style="max-height:506px;">
-					<div class="tbl01 col">
-						<table>
-							<colgroup>
-								<col style="width:10%;"/>
-								<col style="width:*;"/>
-							</colgroup>							
-					       <tbody>
-					       	<tr>
-								<td colspan="4" style="text-align:left"><i class="icon_bullet"></i>주요 사업목적</td>
-							</tr>
-					       	<tr style="text-align:center;" bgcolor="#E9E9E9">
-                                <td bgcolor="#E9E9E9">사업목적</td>
-                                <td>
-                                	<table>
-                                		<tr>
-                                			<td></td>
-                                		</tr>
-                                	</table>
-                                </td>
-							</tr>
-					       </tbody>
-						</table>
-					</div>
-				</div>
-			</section>
+							<div class="com_cont_stit">기업일반
+								<div class="re_date">기준일&nbsp;&nbsp;<span>2023.08.22</span></div>
+							</div>
+							<div class="com_tbl row">
+								<table>
+									<caption></caption>
+									<colgroup>
+										<col style="width:180px;"/>
+										<col style="*"/>
+										<col style="width:180px;"/>
+										<col style="*"/>
+									</colgroup>
+									<tbody>
+										<tr>
+											<th scope="col">기업명</th>
+											<td id="<@pageId>_COMPANY_NM"></td>
+											<th scope="col">설립일자</th>
+											<td id="<@pageId>_ESTABLISHMENT_DATE"></td>
+										</tr>
+										<tr>
+											<th scope="col">대표자명</th>
+											<td id="<@pageId>_OWNER_NM"></td>
+											<th scope="col">대표이사 생년월일(나이)</th>
+											<td id="<@pageId>_OWNER_BIRTHDAY"></td>
+										</tr>
+										<tr>
+											<th scope="col">기업형태</th>
+											<td id="<@pageId>_COMPANY_TYPE"></td>
+											<th scope="col">결산월</th>
+											<td id="<@pageId>_SETTLEMENT_MONTH"></td>
+										</tr>
+										<tr>
+											<th scope="col">상시근로자수</th>
+											<td colspan="3" id="<@pageId>_EMPLOYEE_CNT"></td>
+										</tr>
+										<tr>
+											<th scope="col">업종</th>
+											<td colspan="3" id="<@pageId>_BUSINESS_TYPE"></td>
+										</tr>
+										<tr>
+											<th scope="col">주소(도로명)</th>
+											<td colspan="3" id="<@pageId>_ADDRESS"></td>
+										</tr>
+										<tr>
+											<th scope="col">기업인증현황</th>
+											<td colspan="3" id="<@pageId>_COMPANY_CERT_STATUS"></td>
+										</tr>
+										<tr>
+											<th scope="col">산업재산권현황</th>
+											<td colspan="3" id="<@pageId>_INDUSTRY_ESTATE_STATUS"></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="info_txt">데이터 출처: 법인등기부등본, 근로복지공단</div>
 
+							<div class="com_cont_stit">자본금 및 주식 발행사항</div>
+							<div class="com_tbl col">
+								<table>
+									<caption></caption>
+									<colgroup>
+										<col style="width:17%;"/>
+										<col style="width:16%;"/>
+										<col style="width:16%;"/>
+										<col style="width:17%;"/>
+										<col style="width:18%;"/>
+										<col style="width:16%;"/>
+									</colgroup>
+									<thead>
+										<tr>
+											<th>자본금</th>
+											<th>발행주식 합계</th>
+											<th>보통주</th>
+											<th>우선주</th>
+											<th>상환전환우선주</th>
+											<th>1주의 금액</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+			                                <td id="<@pageId>_CAPITAL"></td>
+			                                <td id="<@pageId>_STOCK"></td>
+			                                <td id="<@pageId>_ORDINARY"></td>
+			                                <td id="<@pageId>_PREFERRED_STOCK"></td>
+			                                <td id="<@pageId>_SANGWHAN_CONV_PRE_STOCK"></td>
+			                                <td id="<@pageId>_ONE_STOCK_PRICE"></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="info_txt">데이터 출처: 법인등기부등본</div>
+
+							<div class="com_cont_stit">주요 사업목적</div>
+							<div class="com_tbl row">
+								<table>
+									<caption></caption>
+									<colgroup>
+										<col style="width:180px;"/>
+										<col style="*"/>
+									</colgroup>
+								        <tbody>
+										<tr>
+											<th>사업목적</th>
+											<td>
+												<ol class="ol_list" id="<@pageId>_getBasis02">											
+												</ol>
+											</td>
+										</tr>
+								        </tbody>								        
+								<script type="text/x-jsrender" id="<@pageId>_getBasis02_template">
+									{{for list}}
+													<li>{{:BUSINESS_PURPOSE}}</li>
+									{{/for}}
+								</script>
+						   		<script type="text/x-jsrender" id="<@pageId>_getBasis02_noData_template">
+													<li>자료가 없습니다.</li>
+						   		</script>
+									</tbody>
+								</table>
+							</div>
+							<div class="info_txt">데이터 출처: 법인등기부등본</div>
+
+						</div>
+					</div>
+
+					<!-- 주주 및 임원 -->
+					<div class="company_wrap">
+						<div class="company_left">
+							<div class="com_left_checkP"><i class="icon_analysis"></i>Check Point</div>
+							<div class="com_left_tit">주주 및 임원 확인사항</div>
+							<ol class="ol_list v2">
+								<li>1) 대표이사와 주주와의 관계</li>
+								<li>2) 차명주주 여부</li>
+								<li>3) 가족 임원 여부</li>
+								<li>4) 대표이사 취임일(근속/경영기간 파악)</li>
+								<li>5) 임원 (재)선임일(다음 등기시점 파악)</li>
+							</ol>
+						</div>
+						<div class="company_cont">
+							<div class="com_cont_tit">주주 및 임원</div>
+
+							<div class="com_cont_stit">주요 주주현황
+								<div class="re_date">기준일&nbsp;&nbsp;<span>2023.08.01</span></div>
+							</div>
+							<div class="com_tbl col">
+								<table>
+									<caption></caption>
+									<colgroup>
+										<col style="width:16%;"/>
+										<col style="width:14%;"/>
+										<col style="width:14%;"/>
+										<col style="width:14%;"/>
+										<col style="width:14%;"/>
+										<col style="width:14%;"/>
+										<col style="width:14%;"/>
+									</colgroup>
+									<thead>
+										<tr>
+											<th>주요주주</th>
+											<th>주식수</th>
+											<th>지분율</th>
+											<th>주식종류</th>
+											<th>경영실권자와의 관계</th>
+											<th>회사와의 관계</th>
+											<th>차명주주 여부</th>
+										</tr>
+									</thead>
+									<tbody id="<@pageId>_getFinAnalStockholder">
+									</tbody>
+									<script type="text/x-jsrender" id="<@pageId>_getFinAnalStockholder_template">
+									{{for list}}
+										<tr>
+											<td>{{:STOCKHOLDER_NM}}</td>
+											<td>{{:STOCK_CNT}}</td>
+											<td>{{:SHARE_RATIO}}</td>
+											<td>{{:STOCK_KIND}}</td>
+											<td>{{:OWNER_RELATIONSHIP}}</td>
+											<td>{{:COMPANY_RELATIONSHIP}}</td>
+											<td>{{:BORROWED_NM_YN}}</td>
+										</tr>
+									{{/for}}
+									</script>
+									<script type="text/x-jsrender" id="<@pageId>_getFinAnalStockholder_noData_template">
+										<tr>	
+											<td colspan=7>자료가 없습니다.</td>	
+										</tr>
+									</script>
+									</tbody>
+								</table>
+							</div>
+							<div class="info_txt">데이터 출처: 직접입력 정보</div>
+
+							<div class="com_cont_stit">임원 현황
+								<div class="re_date">기준일&nbsp;&nbsp;<span>2023.08.22</span></div>
+							</div>
+							<div class="com_tbl col">
+								<table>
+									<caption></caption>
+									<colgroup>
+										<col style="width:12%;"/>
+										<col style="width:12%;"/>
+										<col style="width:12%;"/>
+										<col style="width:12%;"/>
+										<col style="width:13%;"/>
+										<col style="width:13%;"/>
+										<col style="width:13%;"/>
+										<col style="width:13%;"/>
+									</colgroup>
+									<thead>
+										<tr>
+											<th>직위</th>
+											<th>성명</th>
+											<th>나이</th>
+											<th>관계</th>
+											<th>취임일</th>
+											<th>재선임일</th>
+											<th>최근 등기일</th>
+											<th>다음 재선임일</th>
+										</tr>
+									</thead>
+									<tbody id="<@pageId>_getFinAnalExecutive">
+						   			</tbody>
+									<script type="text/x-jsrender" id="<@pageId>_getFinAnalExecutive_template">
+									{{for list}}
+										<tr>
+											<td>{{:JIKWI}}</td>
+											<td>{{:NAME}}</td>
+											<td>{{:AGE}}</td>
+											<td>{{:RELATIONSHIP}}</td>
+											<td>{{:INAUGURATION_DATE}}</td>
+											<td>{{:REAPPOINTMENT_DATE}}</td>
+											<td>{{:LAST_REGISTERED_DATE}}</td>
+											<td>{{:NEXT_REAPPOINTMENT_DATE}}</td>
+										</tr>
+									{{/for}}
+									</script>
+									<script type="text/x-jsrender" id="<@pageId>_getFinAnalExecutive_noData_template">
+										<tr>	
+											<td colspan=8>자료가 없습니다.</td>	
+										</tr>
+									</script>
+									</tbody>
+								</table>
+							</div>
+							<div class="info_txt">데이터 출처: 법인등기부등본</div>
+
+						</div>
+					</div>
+
+					<!-- 재무비율 분석 (1) -->
+					<div class="company_wrap">
+						<div class="company_left">
+							<div class="com_left_checkP"><i class="icon_analysis"></i>Check Point</div>
+							<div class="com_left_tit">업종평균 재무비율 정보</div>
+							<div class="com_left_cont">
+								<i class="icon_check"></i>(M 전문, 과학 및 기술 서비스업)<br>
+								업종평균 재무비율은 한국은행 통계 「2022년 기업경영분석지표」
+								데이터를 자동으로 가져옵니다.
+							</div>
+							<div class="com_left_tit">재무비율 분석 평가 기준</div>
+							<div class="com_left_cont">
+								해당업체의 재무비율이 업종평균 이상인지, 이하인지 우선 비교하고,
+								일반적인 중소 기업의 과거 경험 비율에 근거한 표준비율 대비
+								"우수","양호","위험" 여부를 최종적으로 확인합니다.
+							</div>
+							<div class="com_left_tit">자본완전잠식법인</div>
+							<div class="com_left_cont">
+								자본완전잠식법인의 경우 부채비율과 차입금의존도 비율이
+								마이너스값으로 표시됩니다.
+							</div>
+						</div>
+						<div class="company_cont">
+							<div class="com_cont_tit">재무비율 분석 (1)</div>
+							<div class="clearFix">
+								<div class="col2">
+									<div class="com_cont_stit">안정성 지표</div>
+									<div class="com_tbl line col">
+										<table>
+											<caption></caption>
+											<colgroup>
+												<col style="width:28%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th>재무비율</th>
+													<th>평가</th>
+													<th>해당업체</th>
+													<th>업종평균</th>
+												</tr>
+											</thead>
+						                    <tbody id="<@pageId>_getFinAnalRate01">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalRate01_template">
+						 	                {{for list}}
+						 	                	{{if INDICATORS == '안정성지표' }}
+                                               <tr>
+                                              	<td rowspan='3'>{{:ITEM_NAME}}</td>
+						 	                	<td><img src="../img/img_great.png"></td>
+						 	                	<td>{{:COMPANY_RATE}}</td>
+						 	                	<td>{{:SECTORS_AVG_RATE}}</td>
+                                               </tr>
+                                               <tr>
+						 	                	<td rowspan='2'>표준비율</td>
+                                              	<td colspan='2'>{{:EVALUATION_MAX}}</td>
+                                               </tr>
+                                               <tr>
+						 	                	<td colspan='2'>{{:EVALUATION_MIN}}</td>
+                                               </tr>
+						 	                	{{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalRate01_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=4>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+											</tbody>
+										</table>
+									</div>
+									<div class="com_bottom_info">
+										기업이 재무구조를 건실하게 유지한다는 것은 부채를 적정하게 사용한다는 의미입니다. 안정성 지표는
+										기업의 기초체력인 안정성과 유동성을 측정하는데 이용되며, 채무변제능력을
+										판단하는 중요한 기준이됩니다.
+									</div>
+								</div>
+								<div class="col2">
+									<div class="com_cont_stit">수익성 지표</div>
+									<div class="com_tbl line col">
+										<table>
+											<caption></caption>
+											<colgroup>
+												<col style="width:28%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th>재무비율</th>
+													<th>평가</th>
+													<th>해당업체</th>
+													<th>업종평균</th>
+												</tr>
+											</thead>
+						                    <tbody id="<@pageId>_getFinAnalRate02">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalRate02_template">
+						 	                {{for list}}
+						 	                	{{if INDICATORS == '수익성지표' }}
+                                               <tr>
+                                              	<td rowspan='3'>{{:ITEM_NAME}}</td>
+						 	                	<td><img src="../img/img_great.png"></td>
+						 	                	<td>{{:COMPANY_RATE}}</td>
+						 	                	<td>{{:SECTORS_AVG_RATE}}</td>
+                                               </tr>
+                                               <tr>
+						 	                	<td rowspan='2'>표준비율</td>
+                                              	<td colspan='2'>{{:EVALUATION_MAX}}</td>
+                                               </tr>
+                                               <tr>
+						 	                	<td colspan='2'>{{:EVALUATION_MIN}}</td>
+                                               </tr>
+						 	                	{{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalRate02_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=4>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+											</tbody>
+										</table>
+									</div>
+									<div class="com_bottom_info">
+										기업의 수익성은 기업 발전의 가장 중요한 원동력입니다. 매출수익성이 마진이라면 자본수익성은 투자수익률을 의미합니다. ROE가 정기예금 이자율에도 못 미친다면, 기업경영 자체에 대한 근본적인 사업 타당성 검토가 필요합니다.
+									</div>
+								</div>
+							</div>
+							<div class="info_txt v2">※ 해당기업의 재무정보를 바탕으로 재무비율을 계산하고, 업종평균비율 및 표준비율과 비교 분석하였습니다.</div>
+						</div>
+					</div>
+
+					<!-- 재무비율 분석 (2) -->
+					<div class="company_wrap">
+						<div class="company_left">
+							<div class="com_left_checkP"><i class="icon_analysis"></i>Check Point</div>
+							<div class="com_left_tit">업종평균 재무비율 정보</div>
+							<div class="com_left_cont">
+								<i class="icon_check"></i>(M 전문, 과학 및 기술 서비스업)<br>
+								업종평균 재무비율은 한국은행 통계 「2022년 기업경영분석지표」
+								데이터를 자동으로 가져옵니다.
+							</div>
+							<div class="com_left_tit">재무비율 분석 평가 기준</div>
+							<div class="com_left_cont">
+								해당업체의 재무비율이 업종평균 이상인지, 이하인지 우선 비교하고,
+								일반적인 중소 기업의 과거 경험 비율에 근거한 표준비율 대비
+								"우수","양호","위험" 여부를 최종적으로 확인합니다.
+							</div>
+						</div>
+						<div class="company_cont">
+							<div class="com_cont_tit">재무비율 분석 (2)</div>
+							<div class="clearFix">
+								<div class="col2">
+									<div class="com_cont_stit">성장성 지표</div>
+									<div class="com_tbl line col">
+										<table>
+											<caption></caption>
+											<colgroup>
+												<col style="width:28%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th>재무비율</th>
+													<th>평가</th>
+													<th>해당업체</th>
+													<th>업종평균</th>
+												</tr>
+											</thead>
+						                    <tbody id="<@pageId>_getFinAnalRate03">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalRate03_template">
+						 	                {{for list}}
+						 	                	{{if INDICATORS == '성장성지표' }}
+                                               <tr>
+                                              	<td rowspan='3'>{{:ITEM_NAME}}</td>
+						 	                	<td><img src="../img/img_great.png"></td>
+						 	                	<td>{{:COMPANY_RATE}}</td>
+						 	                	<td>{{:SECTORS_AVG_RATE}}</td>
+                                               </tr>
+                                               <tr>
+						 	                	<td rowspan='2'>표준비율</td>
+                                              	<td colspan='2'>{{:EVALUATION_MAX}}</td>
+                                               </tr>
+                                               <tr>
+						 	                	<td colspan='2'>{{:EVALUATION_MIN}}</td>
+                                               </tr>
+						 	                	{{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalRate03_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=4>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+											</tbody>
+										</table>
+									</div>
+									<div class="com_bottom_info">
+										성장성 지표는 기업의 당해년도 경영규모 및 선과가 전년도에 비하여
+										얼마나 증가 하였는지를 보여줍니다. 아울러 기업의 경쟁력이나 미래수익 창출능력을 간접적으로 나타내는 지표입니다.
+									</div>
+								</div>
+								<div class="col2">
+									<div class="com_cont_stit">활동성 지표</div>
+									<div class="com_tbl line col">
+										<table>
+											<caption></caption>
+											<colgroup>
+												<col style="width:28%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th>재무비율</th>
+													<th>평가</th>
+													<th>해당업체</th>
+													<th>업종평균</th>
+												</tr>
+											</thead>
+						                    <tbody id="<@pageId>_getFinAnalRate04">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalRate04_template">
+						 	                {{for list}}
+						 	                	{{if INDICATORS == '활동성지표' }}
+                                               <tr>
+                                              	<td rowspan='3'>{{:ITEM_NAME}}</td>
+						 	                	<td><img src="../img/img_great.png"></td>
+						 	                	<td>{{:COMPANY_RATE}}</td>
+						 	                	<td>{{:SECTORS_AVG_RATE}}</td>
+                                               </tr>
+                                               <tr>
+						 	                	<td rowspan='2'>표준비율</td>
+                                              	<td colspan='2'>{{:EVALUATION_MAX}}</td>
+                                               </tr>
+                                               <tr>
+						 	                	<td colspan='2'>{{:EVALUATION_MIN}}</td>
+                                               </tr>
+						 	                	{{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalRate04_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=4>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+											</tbody>
+										</table>
+									</div>
+									<div class="com_bottom_info">
+										활동성 지표는 매출을 올리는데 있어 기업이 자원을 얼마나 효율적으로 이용하였는지와 소요 운영자금의 규모를 보여줍니다. 회전율이 높을수록 현금화 속도는 빠르고, 지급능력도 우수함을 의미합니다.
+									</div>
+								</div>
+							</div>
+							<div class="info_txt v2">※ 해당기업의 재무정보를 바탕으로 재무비율을 계산하고, 업종평균비율 및 표준비율과 비교 분석하였습니다.</div>
+						</div>
+					</div>
+
+					<!-- 요약 재무상태표 -->
+					<div class="company_wrap">
+						<div class="company_left">
+							<div class="com_left_checkP"><i class="icon_analysis"></i>Check Point</div>
+							<div class="com_left_tit">재무상태표 체크사항</div>
+							<div class="com_left_cont">
+								<ol class="ol_list v2">
+									<li><span>①</span> 현금 유동성 수준</li>
+									<li><span>②</span> 대표이사 가지급금 유무</li>
+									<li><span>③</span> 법인보험계약 자산처리 계정</li>
+									<li><span>④</span> 직전 5년 법인전환(기업인수) 기업</li>
+									<li><span>⑤</span> 특허권 평가시 사후관리</li>
+									<li><span>⑥</span> 은행대출 등 단기차입금 규모</li>
+									<li><span>⑦</span> 대표이사 가수금 규모</li>
+									<li><span>⑧</span> 퇴직연금 도입여부</li>
+									<li><span>⑨</span> 유상증자(투자유치) 이력</li>
+									<li><span>⑩</span> 자기주식 보유현황</li>
+									<li><span>⑪</span> 유상감자 이력</li>
+									<li><span>⑫</span> 과거 배당이력</li>
+									<li><span>⑬</span> 미처분이익잉여금 규모</li>
+								</ol>
+							</div>
+							<div class="com_left_tit">자본완전잠식법인</div>
+							<div class="com_left_cont">
+								해당법인은 자본완전잠식법인입니다. 자본잠식을 해결하기 위한 방안으로
+								유상증자를 검토해 볼 수 있습니다. 또한 자산재평가가 가능한 고정자산이
+								있는 경우 재평가적립금을 자본으로 전입(무상증자)할 수 있습니다.
+							</div>
+						</div>
+						<div class="company_cont">
+							<div class="com_cont_tit">요약 재무상태표</div>
+							<div class="clearFix">
+								<div class="col2">
+									<div class="com_cont_stit none">
+										<div class="re_date">(단위:천원)</div>
+									</div>
+									<div class="com_tbl line col">
+										<table>
+											<caption></caption>
+											<colgroup>
+												<col style="width:34%;"/>
+												<col style="width:22%;"/>
+												<col style="width:22%;"/>
+												<col style="width:22%;"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th>자산</th>
+													<th class="<@pageId>_YEAR1"></th>
+													<th class="<@pageId>_YEAR2"></th>
+													<th class="<@pageId>_YEAR3"></th>
+												</tr>
+											</thead>
+						                    <tbody id="<@pageId>_getFinAnalStatusDtl01">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl01_template">
+						 	                {{for list}}
+						 	                	{{if GUBUN == '재무상태표' && ITEM_GUBUN == '자산'}}
+                                               <tr {{if ITEM_NAME == '자산'}}class="bg_blue"{{/if}}{{if ITEM_NAME == '유동자산' || ITEM_NAME == '비유동자산'}}class="bg_gray"{{/if}}>
+                                              	<td class="tl">{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
+						 	                	<td class="tr">{{:YEAR1}}</td>
+						 	                	<td class="tr">{{:YEAR2}}</td>
+						 	                	<td class="tr">{{:YEAR3}}</td>
+                                               </tr>
+						 	                	{{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl01_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=4>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="col2">
+									<div class="com_cont_stit none">
+										<div class="re_date">(단위:천원)</div>
+									</div>
+									<div class="com_tbl line col">
+										<table>
+											<caption></caption>
+											<colgroup>
+												<col style="width:34%;"/>
+												<col style="width:22%;"/>
+												<col style="width:22%;"/>
+												<col style="width:22%;"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th>부채 및 자본</th>
+													<th class="<@pageId>_YEAR1"></th>
+													<th class="<@pageId>_YEAR2"></th>
+													<th class="<@pageId>_YEAR3"></th>
+												</tr>
+											</thead>
+						                    <tbody id="<@pageId>_getFinAnalStatusDtl02">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl02_template">
+						 	                {{for list}}
+						 	                	{{if GUBUN == '재무상태표' && (ITEM_GUBUN == '부채' || ITEM_GUBUN == '자본')}}
+                                               <tr {{if ITEM_NAME == '부채' || ITEM_NAME == '자본'}}class="bg_blue"{{/if}}{{if ITEM_NAME == '유동부채' || ITEM_NAME == '비유동부채'}}class="bg_gray"{{/if}}>
+                                              	<td class="tl">{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
+						 	                	<td class="tr">{{:YEAR1}}</td>
+						 	                	<td class="tr">{{:YEAR2}}</td>
+						 	                	<td class="tr">{{:YEAR3}}</td>
+                                               </tr>
+						 	                	{{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl02_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=4>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+							<div class="info_txt v2">※ 기업의 상세재무제표 정보를 바탕으로 법인 컨설팅 관점에서 중요한 주요 계정을 요약한 재무상태표입니다.</div>
+						</div>
+					</div>
+
+					<!-- 요약 손익계산서 -->
+					<div class="company_wrap">
+						<div class="company_left">
+							<div class="com_left_checkP"><i class="icon_analysis"></i>Check Point</div>
+							<div class="com_left_tit">손익계산서 체크사항</div>
+							<div class="com_left_cont">
+								<ol class="ol_list v2">
+									<li><span>①</span> 인건비 부담액(매출대비 비중)</li>
+									<li><span>②</span> 급여의 5~10% 수준 권장</li>
+									<li><span>③</span> 차량운행일지 작성 여부 확인</li>
+									<li><span>④</span> 접대비 한도 3,600만원</li>
+									<li><span>⑤</span> 보험료 비용처리 적정성 확인</li>
+									<li><span>⑥</span> 임대료 부담액('시설자금' 대출 검토)</li>
+									<li><span>⑦</span> 연구전담부서 사후관리</li>
+									<li><span>⑧</span> 가지급금 인정이자 부담</li>
+									<li><span>⑨</span> 정부지원금(고용지원금) 등</li>
+									<li><span>⑩</span> 이자비용 부담</li>
+									<li><span>⑪</span> 세감면·세액공제 적용 여부 확인</li>
+									<li><span>⑫</span> 기업의 최종 수익성</li>
+								</ol>
+							</div>
+						</div>
+						<div class="company_cont">
+							<div class="com_cont_tit">요약 손익계산서</div>
+							<div class="clearFix">
+								<div class="col2">
+									<div class="com_cont_stit none">
+										<div class="re_date">(단위:천원)</div>
+									</div>
+									<div class="com_tbl line col">
+										<table>
+											<caption></caption>
+											<colgroup>
+												<col style="width:28%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th>손익계정</th>
+													<th>2020년</th>
+													<th>2021년</th>
+													<th>2022년</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr class="bg_blue">
+													<td class="tl">매출액</td>
+													<td class="tr">1,656,819</td>
+													<td class="tr">1,242,595</td>
+													<td class="tr">2,330,467</td>
+												</tr>
+												<tr>
+													<td class="tl">매출원가</td>
+													<td class="tr">1,005,354</td>
+													<td class="tr">782,072</td>
+													<td class="tr">1,294,580</td>
+												</tr>
+												<tr class="bg_gray">
+													<td class="tl">매출총이익(손실)</td>
+													<td class="tr">560,465</td>
+													<td class="tr">460,522</td>
+													<td class="tr">1,035,886</td>
+												</tr>
+												<tr class="bg_gray">
+													<td class="tl">판매비와관리비</td>
+													<td class="tr">898,903</td>
+													<td class="tr">672,646</td>
+													<td class="tr">784,190</td>
+												</tr>
+												<tr>
+													<td class="tl">급여<span class="num">①</span></td>
+													<td class="tr">323,966</td>
+													<td class="tr">246,317</td>
+													<td class="tr">246,460</td>
+												</tr>
+												<tr>
+													<td class="tl">임원급여</td>
+													<td class="tr">-</td>
+													<td class="tr">-</td>
+													<td class="tr">-</td>
+												</tr>
+												<tr>
+													<td class="tl">직원급여</td>
+													<td class="tr">257,340</td>
+													<td class="tr">246,317</td>
+													<td class="tr">246,460</td>
+												</tr>
+												<tr>
+													<td class="tl">퇴직급여</td>
+													<td class="tr">3,144</td>
+													<td class="tr">-</td>
+													<td class="tr">-</td>
+												</tr>
+												<tr>
+													<td class="tl">복리후생비<span class="num">②</span></td>
+													<td class="tr">41,918</td>
+													<td class="tr">31,198</td>
+													<td class="tr">48,599</td>
+												</tr>
+												<tr>
+													<td class="tl">차량유지비<span class="num">③</span></td>
+													<td class="tr">21,279</td>
+													<td class="tr">11,312</td>
+													<td class="tr">16,913</td>
+												</tr>
+												<tr>
+													<td class="tl">지급수수료</td>
+													<td class="tr">125,768</td>
+													<td class="tr">26,526</td>
+													<td class="tr">34,401</td>
+												</tr>
+												<tr>
+													<td class="tl">광고선전비</td>
+													<td class="tr">14,487</td>
+													<td class="tr">2,250</td>
+													<td class="tr">2,236</td>
+												</tr>
+												<tr>
+													<td class="tl">접대비<span class="num">④</span></td>
+													<td class="tr">27,443</td>
+													<td class="tr">21,416</td>
+													<td class="tr">33,077</td>
+												</tr>
+												<tr>
+													<td class="tl">보험료<span class="num">⑤</span></td>
+													<td class="tr">6,204</td>
+													<td class="tr">7,804</td>
+													<td class="tr">1,409</td>
+												</tr>
+												<tr>
+													<td class="tl">임차료<span class="num">⑥</span></td>
+													<td class="tr">143,350</td>
+													<td class="tr">131,700</td>
+													<td class="tr">140,838</td>
+												</tr>
+												<tr>
+													<td class="tl">경상개발비<span class="num">⑦</span></td>
+													<td class="tr">-</td>
+													<td class="tr">-</td>
+													<td class="tr">-</td>
+												</tr>
+												<tr class="bg_blue">
+													<td class="tl">영업이익(손실)</td>
+													<td class="tr">(338,438)</td>
+													<td class="tr">(212,123)</td>
+													<td class="tr">(251,696)</td>
+												</tr>
+												<tr class="bg_gray">
+													<td class="tl">영업외수익</td>
+													<td class="tr">16</td>
+													<td class="tr">19,977</td>
+													<td class="tr">137,496</td>
+												</tr>
+												<tr>
+													<td class="tl">이자수익<span class="num">⑧</span></td>
+													<td class="tr">16</td>
+													<td class="tr">2</td>
+													<td class="tr">2</td>
+												</tr>
+												<tr>
+													<td class="tl">보험차익</td>
+													<td class="tr">-</td>
+													<td class="tr">-</td>
+													<td class="tr">-</td>
+												</tr>
+												<tr>
+													<td class="tl">기타영업외수익<span class="num">⑨</span></td>
+													<td class="tr">-</td>
+													<td class="tr">19,975</td>
+													<td class="tr">137,494</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="col2">
+									<div class="com_cont_stit none">
+										<div class="re_date">(단위:천원)</div>
+									</div>
+									<div class="com_tbl line col">
+										<table>
+											<caption></caption>
+											<colgroup>
+												<col style="width:28%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+												<col style="width:24%;"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th>손익계정</th>
+													<th>2020년</th>
+													<th>2021년</th>
+													<th>2022년</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr class="bg_gray">
+													<td class="tl">영업외비용</td>
+													<td class="tr">114,603</td>
+													<td class="tr">113,404</td>
+													<td class="tr">113,412</td>
+												</tr>
+												<tr>
+													<td class="tl">이자비용<span class="num">⑩</span></td>
+													<td class="tr">113,406</td>
+													<td class="tr">113,400</td>
+													<td class="tr">113,400</td>
+												</tr>
+												<tr>
+													<td class="tl">외환차손</td>
+													<td class="tr">-</td>
+													<td class="tr">-</td>
+													<td class="tr">-</td>
+												</tr>
+												<tr class="bg_gray">
+													<td class="tl">법인세차감전 순손익</td>
+													<td class="tr">(453,025)</td>
+													<td class="tr">(305,550)</td>
+													<td class="tr">-</td>
+												</tr>
+												<tr class="bg_gray">
+													<td class="tl">법인세비용<span class="num">⑪</span></td>
+													<td class="tr">-</td>
+													<td class="tr">17,504</td>
+													<td class="tr">8,018</td>
+												</tr>
+												<tr class="bg_blue">
+													<td class="tl">당기순이익<span class="num">⑫</span></td>
+													<td class="tr">(453,025)</td>
+													<td class="tr">(323,055)</td>
+													<td class="tr">267,761</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<div class="com_cont_stit none mt50">
+										기업의 경영활동
+									</div>
+									<img src="../img/img_floor_chart.png">
+								</div>
+							</div>
+							<div class="info_txt v2">※ 기업의 상세재무제표 정보를 바탕으로 법인 컨설팅 관점에서 중요한 주요 계정을 요약한 손익계산서입니다.</div>
+						</div>
+					</div>
+
+					<!-- 주요 경비율 분석 -->
+					<div class="company_wrap">
+						<div class="company_left">
+							<div class="com_left_checkP"><i class="icon_analysis"></i>Check Point</div>
+						</div>
+						<div class="company_cont">
+							<div class="com_cont_tit">주요 경비율 분석</div>
+							<div class="com_bottom_info">
+								주요 경비는 매출원가, 인건비, 임차료로 구성됩니다. 최근 결산 기준 매출액 대비 주요경비율은 72.2% 수준입니다. 매출원가는 작년대비 5.1억원 증가하였고, 인거비는 0.0억원 증가하였습니다. 사업이 성장함에 따라 주요 경비의 증감을 항상 예의 주시 하여야 합니다.
+							</div>
+							<div class="com_cont_stit">직전3년 주요 경비율 추이
+								<div class="re_date">(단위:천원)</div>
+							</div>
+							<div class="com_tbl line col">
+								<table>
+									<caption></caption>
+									<colgroup>
+										<col style="width:28%;"/>
+										<col style="width:24%;"/>
+										<col style="width:24%;"/>
+										<col style="width:24%;"/>
+									</colgroup>
+									<thead>
+										<tr>
+											<th>계정명</th>
+											<th>2020년</th>
+											<th>2021년</th>
+											<th>2022년</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td class="tl"><strong>매출원가</strong></td>
+											<td class="tr">1,005,354</td>
+											<td class="tr">782,072</td>
+											<td class="tr">1,294,580</td>
+										</tr>
+										<tr>
+											<td class="tl pl25">(매출원가/매출액)</td>
+											<td class="tr">64.2%</td>
+											<td class="tr">62.9%</td>
+											<td class="tr">55.6%</td>
+										</tr>
+										<tr>
+											<td class="tl"><strong>인건비</strong></td>
+											<td class="tr">327,110</td>
+											<td class="tr">246,317</td>
+											<td class="tr">246,460</td>
+										</tr>
+										<tr>
+											<td class="tl pl25">(인건비/매출액)</td>
+											<td class="tr">20.9%</td>
+											<td class="tr">19.8%</td>
+											<td class="tr">10.6%</td>
+										</tr>
+										<tr>
+											<td class="tl"><strong>임차료</strong></td>
+											<td class="tr">143,350</td>
+											<td class="tr">131,700</td>
+											<td class="tr">140,838</td>
+										</tr>
+										<tr>
+											<td class="tl pl25">(임차료/매출액)</td>
+											<td class="tr">9.2%</td>
+											<td class="tr">10.6%</td>
+											<td class="tr">6.0%</td>
+										</tr>
+										<tr class="bg_gray">
+											<td class="tl">매출액</td>
+											<td class="tr">1,565,819</td>
+											<td class="tr">1,242,595</td>
+											<td class="tr">2,330,467</td>
+										</tr>
+										<tr class="bg_gray">
+											<td class="tl">주요경비 합계</td>
+											<td class="tr">1,475,814</td>
+											<td class="tr">1,160,089</td>
+											<td class="tr">1,681,878</td>
+										</tr>
+										<tr class="bg_gray">
+											<td class="tl">주요경비율</td>
+											<td class="tr">94.3%</td>
+											<td class="tr">93.4%</td>
+											<td class="tr">72.2%</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<div class="clearFix mt25">
+								<div class="col3">
+									<div class="stat_import_tit">매출원가 비중</div>
+									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
+									<figure class="highcharts-figure2">
+								    	<div class="lineChart01_1" style="width:100%;height:160px; margin:0 auto"></div>
+									</figure>
+								</div>
+								<div class="col3">
+									<div class="stat_import_tit">인건비 비중</div>
+									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
+									<figure class="highcharts-figure2">
+								    	<div class="lineChart01_2" style="width:100%;height:160px; margin:0 auto"></div>
+									</figure>
+								</div>
+								<div class="col3">
+									<div class="stat_import_tit">임차료 비중</div>
+									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
+									<figure class="highcharts-figure2">
+								    	<div class="lineChart01_3" style="width:100%;height:160px; margin:0 auto"></div>
+									</figure>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- 인건비 분석 -->
+					<div class="company_wrap">
+						<div class="company_left">
+							<div class="com_left_checkP"><i class="icon_analysis"></i>Check Point</div>
+							<div class="com_left_tit">투입 노동력</div>
+							<div class="com_left_cont">
+								<i class="icon_check"></i>상시근로자수 + 대표이사수<br>
+								근로복지공단 각 사업연도말 상시근로자수 데이터를 자동으로 가져옵니다.
+							</div>
+						</div>
+						<div class="company_cont">
+							<div class="com_cont_tit">인건비 분석</div>
+							<div class="com_bottom_info">
+								법인의 성장 단계에서 증가했던 인건비 지출은 반대로 법인의 긴축 상황에서 즉각적인 조정이 쉽지 않은 비용입니다. 매년 인당 평균 인건비 및 인당 평균 매출액 증감 추이를 확인하고, 효율적인 인력 관리가 이루어지고 있는지 점검이 필요합니다.
+							</div>
+							<div class="com_cont_stit">인건비 세부 항목 및 복리후생비
+								<div class="re_date">(단위:천원)</div>
+							</div>
+							<div class="com_tbl line col">
+								<table>
+									<caption></caption>
+									<colgroup>
+										<col style="width:28%;"/>
+										<col style="width:24%;"/>
+										<col style="width:24%;"/>
+										<col style="width:24%;"/>
+									</colgroup>
+									<thead>
+										<tr>
+											<th>구분</th>
+											<th>2020년</th>
+											<th>2021년</th>
+											<th>2022년</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td class="tl"><strong>급여</strong></td>
+											<td class="tr">323,966</td>
+											<td class="tr">246,317</td>
+											<td class="tr">246,460</td>
+										</tr>
+										<tr>
+											<td class="tl pl25">임원급여</td>
+											<td class="tr">-</td>
+											<td class="tr">-</td>
+											<td class="tr">-</td>
+										</tr>
+										<tr>
+											<td class="tl pl25">직원급여</td>
+											<td class="tr">257,340</td>
+											<td class="tr">246,317</td>
+											<td class="tr">246,460</td>
+										</tr>
+										<tr>
+											<td class="tl pl25">상영금 및 제수당</td>
+											<td class="tr">-</td>
+											<td class="tr">-</td>
+											<td class="tr">-</td>
+										</tr>
+										<tr>
+											<td class="tl pl25">잡금</td>
+											<td class="tr">-</td>
+											<td class="tr">-</td>
+											<td class="tr">-</td>
+										</tr>
+										<tr>
+											<td class="tl"><strong>퇴직급여</strong></td>
+											<td class="tr">3,144</td>
+											<td class="tr">-</td>
+											<td class="tr">-</td>
+										</tr>
+										<tr class="bg_gray">
+											<td class="tl">인건비 합계</td>
+											<td class="tr">327,110</td>
+											<td class="tr">246,317</td>
+											<td class="tr">246,460</td>
+										</tr>
+										<tr>
+											<td class="tl"><strong>복리후생비</strong></td>
+											<td class="tr">1,475,814</td>
+											<td class="tr">1,160,089</td>
+											<td class="tr">1,681,878</td>
+										</tr>
+										<tr class="bg_gray">
+											<td class="tl">복리후생비/인건비</td>
+											<td class="tr">12.8%</td>
+											<td class="tr">12.4%</td>
+											<td class="tr">19.7%</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<div class="clearFix mt25">
+								<div class="col3">
+									<div class="stat_import_tit">투입 노동력</div>
+									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
+									<figure class="highcharts-figure2">
+								    	<div class="lineChart02_1" style="width:100%;height:160px; margin:0 auto"></div>
+									</figure>
+								</div>
+								<div class="col3">
+									<div class="stat_import_tit">인당 평균 인건비</div>
+									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
+									<figure class="highcharts-figure2">
+								    	<div class="lineChart02_2" style="width:100%;height:160px; margin:0 auto"></div>
+									</figure>
+								</div>
+								<div class="col3">
+									<div class="stat_import_tit">인당 평균 매출액</div>
+									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
+									<figure class="highcharts-figure2">
+								    	<div class="lineChart02_3" style="width:100%;height:160px; margin:0 auto"></div>
+									</figure>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
 		</div>
