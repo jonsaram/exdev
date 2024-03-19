@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dashboardCorPerformance">
+
+	<cache />
+	<!--  -->
+    <select id="getSalesRanking" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getSalesRanking */
+		SELECT '마곡'         AS NAME, 245  AS VALUE   FROM DUAL UNION ALL
+		SELECT '동성로'       AS NAME, 300  AS VALUE   FROM DUAL UNION ALL
+		SELECT '이천'         AS NAME, 202  AS VALUE   FROM DUAL UNION ALL
+		SELECT '가락'         AS NAME, 200  AS VALUE   FROM DUAL UNION ALL
+		SELECT '동해천곡'     AS NAME, 196  AS VALUE   FROM DUAL
+    </select>
+
+    <select id="getRegionsRanking" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getSalesRanking */
+        SELECT '경기'        AS NAME, 768990684  AS VALUE   FROM DUAL UNION ALL
+        SELECT '서울'        AS NAME, 522597110  AS VALUE   FROM DUAL UNION ALL
+        SELECT '대구'        AS NAME, 499882285  AS VALUE   FROM DUAL UNION ALL
+        SELECT '부산'        AS NAME, 398219586  AS VALUE   FROM DUAL UNION ALL
+        SELECT '강원'        AS NAME, 325328868  AS VALUE   FROM DUAL 
+    </select>
+    
+</mapper>
