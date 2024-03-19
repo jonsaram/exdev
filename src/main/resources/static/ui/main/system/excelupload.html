@@ -11,8 +11,9 @@
 			}
 			C_COM.requestQuery(parm, function(resultData) {
                 let rparm = {
-                     targetId   : "uploadTableId"
-                    ,list       : resultData.data
+                     targetId   	: "uploadTableId"
+                    ,list       	: resultData.data
+                    ,targetTotalId 	: "totalCnt" 
                 }
                 C_COM.renderHtml("<@pageId>", rparm);
                 
@@ -131,6 +132,11 @@
 			}
 			
 		 }
+		,regist : function() {
+			C_POP.open('popup_system_registExcelUpload', {}, function(retData) {
+				dalert(retData);
+			});
+		 }
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -161,12 +167,12 @@
 					<div id="<@pageId>_tab1" class="display">
 						<div class="search_area">
 							<div class="fl">
-								<button type="button" class="btn select fl" id="<@pageId>_search">Reload</button>
-								<button type="button" class="btn fl" onclick="<@pageId>.excelUpload()"><i class="icon_upload"></i> Excel 업로드</button>
+								<button type="button" class="btn select fl" id="<@pageId>_search" onclick="<@pageId>.regist()">등록</button>
+								<button type="button" class="btn fl" onclick="<@pageId>.excelUpload()"><i class="icon_upload"></i> Excel 업로드 실행</button>
 							</div>
 
 							<div class="search_right">
-				                <strong class="total">Total: <span class="pointColr">3</span></strong>
+				                <strong class="total">Total: <span class="pointColr" id="totalCnt"></span></strong>
 				            </div>
 						</div>
 						<!-- 테이블 -->

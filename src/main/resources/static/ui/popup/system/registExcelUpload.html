@@ -1,0 +1,54 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		 save : function() {
+			var parm = $("#<@popupId>_form").serializeJSON();
+			 
+			var parm = {
+				 queryId 		: "system.saveExcelUploadInfo"
+				,requestParm	: parm
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				if(resultData.state == "S") {
+					C_POP.alert('등록 되었습니다.');
+				} else {
+					C_POP.alert('등록 실패하였습니다.');
+				}
+				<@popupId>.close();
+			});
+		 }
+		,close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+			
+		 }
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+		
+	
+	});
+</script>
+
+<div class="modal_wrap">
+	<form id="<@popupId>_form">
+	<div class="modal" style="width:570px;height:350px;">
+		<div class="modal_header">
+			<strong class="tit">엑셀 업로드 대상 정보 등록</strong>
+			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<dl class="info_wrap" id="createItems">
+				<dt>테이블명</dt>
+				<dd><input type="text" name="TABLE_NAME" style="width:100%"></dd>
+				<dt>컬럼 List</dt>
+				<dd><input type="text" name="COLUMN_LIST" style="width:100%"></dd>
+			</dl>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select fl" onclick="<@popupId>.save()"	>저장</button>
+			<button type="button" class="btn" onclick="<@popupId>.close()">닫기</a></button>
+		</div>
+	</div>
+	</form>
+</div>
