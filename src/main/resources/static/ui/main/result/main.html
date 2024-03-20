@@ -65,29 +65,36 @@ var <@pageId> = {
 		,setChart : (resultData) =>{
 
 			//월자문 순매출 , 1회성 순매출 , 외주자문 순매출
-			const getOrgSellingPriceListMONTHLY		=  resultData.data["rstMgn.getOrgSellingPriceList"	].map( (item,idx) =>   item.ORG_SELLING_PRICE );
-			const getOrgSellingPriceListOnly_ONE	=  resultData.data["rstMgn.getOrgSellingPriceList_1"].map( (item,idx) =>   item.ORG_SELLING_PRICE );
-			const getOrgSellingPriceListPARTNER		=  resultData.data["rstMgn.getOrgSellingPriceList_2"].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			const sellingPriceListMONTHLY_DATA		=  resultData.data["rstMgn.getOrgSellingPriceList"	];  
+			const sellingPriceListONLY_ONE_DATA		=  resultData.data["rstMgn.getOrgSellingPriceList_1"];  
+			const sellingPriceListPARTNER_DATA		=  resultData.data["rstMgn.getOrgSellingPriceList_2"];
+			
+			const getOrgSellingPriceListMONTHLY		=  sellingPriceListMONTHLY_DATA.map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			const getOrgSellingPriceListOnly_ONE	=  sellingPriceListONLY_ONE_DATA.map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			const getOrgSellingPriceListPARTNER		=  sellingPriceListPARTNER_DATA.map( (item,idx) =>   item.ORG_SELLING_PRICE );
 		    
+			const thisYear 							= _.maxBy(_.uniqBy(sellingPriceListMONTHLY_DATA,"MONTH"). map( item=> {return { 'MONTH' : item.MONTH }} ),"MONTH").MONTH.slice(0,4);
+			const lastYear 							= _.minBy(_.uniqBy(sellingPriceListMONTHLY_DATA,"MONTH"). map( item=> {return { 'MONTH' : item.MONTH }} ),"MONTH").MONTH.slice(0,4);
 			const containerList 	= [	"<@pageId>_monthlyOSP_chart","<@pageId>_onceOSP_chart","<@pageId>_productOSP_chart"];
 			const categoriesList 	= [  _monthArray,_monthArray,_monthArray ];
 			const seriesList		= [
 										[
-										 {  name: '2024년',type: 'column',	data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
-										,{  name: '2023년',type: 'line',	data: getOrgSellingPriceListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
+										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
 										[
-										 {  name: '2024년',type: 'column',	data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
-										,{  name: '2023년',type: 'line',	data: getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
+										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
 										[
-										 {  name: '2024년',type: 'column',	data: getOrgSellingPriceListPARTNER.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
-										,{  name: '2023년',type: 'line',	data: getOrgSellingPriceListPARTNER.slice(0,12),tooltip: {valueSuffix:'억'}}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListPARTNER.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
+										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListPARTNER.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
 									 ];
 
 			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] ) );
 
+			
 			let sum = getOrgSellingPriceListMONTHLY.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 			$("#<@pageId>_monthly_OrgSellingPrice").text(sum.toLocaleString() + "원") ;
 				sum = getOrgSellingPriceListOnly_ONE.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
@@ -601,7 +608,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					</div>
 					<div class="cont_box col2" >
 						<h3>FA 매출순위</h3>
-						<div class="price" id="<@pageId>_fa_selling_rank">13,844,381,010원</div>
+						<div class="price" id="<@pageId>_fa_selling_rank">원</div>
 						<figure class="highcharts-figure">
 					    	<div class="chart9" id="<@pageId>_faSellingRank_chart" style="width:100%; height:280px; margin:75px auto"></div>
 						</figure>
