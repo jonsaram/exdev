@@ -8,13 +8,15 @@ var <@pageId> = {
 		,treemapChart 		: (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
 		,comparisonChart 	: (target, param)=>_comparisonChart(target, param)
 		,lineAndColumnChart : (target, param)=>_lineAndColumn_chart(target, param)
+		,lineWithLabelsChart: (target, param)=>_lineWithLabelsChart(target, param)
 		,createChart 		: (container, categories, series)=>_createChart(container, categories, series)
 		,pageInit : () =>{
 			
+			//월자문 순매출 , 1회성 순매출 , 외주자문 순매출
 			var parm = {
 				queryGroup : [{queryId	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONTRACT_TYPE : "MONTHLY"}}
 							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONTRACT_TYPE : "ONLY_ONE"}}
-							 ,{queryId 	: "rstMgn.getOrgSellingPriceByDetailList",requestParm	: {}}
+							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONTRACT_TYPE : "PARTNER"}}
 							 ]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
@@ -22,105 +24,277 @@ var <@pageId> = {
 				<@pageId>.setChart(resultData )
 			});
 			
+ 			//순매출 성장률 , 지사별 순매출(전년도 추가) , 상세별 순매출(전년도 막대그래프 2개)   
  			var parm2 = {
 					queryGroup : [{queryId	: "rstMgn.getSellingGrowthRateList"	,requestParm	: {CONTRACT_TYPE : "MONTHLY"}}
-								 ,{queryId 	: "rstMgn.getSellingBranchList"		,requestParm	: {CONTRACT_TYPE : "ONLY_ONE"}}
-							//	 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: {}}
+								 ,{queryId 	: "rstMgn.getSellingBranchList"		,requestParm	: {}}
+								 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: {}}
+								 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: {LAST_YEAR:"Y"}}
 								 ]
 			}
  			C_COM.requestQuery(parm2, function(resultData) {
 
 				<@pageId>.setChart2(resultData )
-			});		
+			});	
+			
+ 			//FA 월자문 수수료 , FA 1회성 수수료 , FA 외주자문 수수료.
+ 			var parm3 = {
+					queryGroup : [{queryId	: "rstMgn.getFaPayList"		,requestParm	: {CONTRACT_TYPE : "MONTHLY"	}}
+								 ,{queryId 	: "rstMgn.getFaPayList"		,requestParm	: {CONTRACT_TYPE : "ONLY_ONE"	}}
+							 	 ,{queryId 	: "rstMgn.getFaPayList"		,requestParm	: {CONTRACT_TYPE : "PARTNER"	}}
+								 ]
+			}
+ 			C_COM.requestQuery(parm3, function(resultData) {
+
+				<@pageId>.setChart3(resultData )
+			});	 
+			
+ 			//월자문 계약건수  , FA 매출 순위(전월 비교 차트)
+ 			var parm4 = {
+					queryGroup : [{queryId	: "rstMgn.getContractCnt"		,requestParm	: {CONTRACT_TYPE : "MONTHLY"}}
+								 ,{queryId 	: "rstMgn.getFASellingOrder"	,requestParm	: {}}
+								 ,{queryId 	: "rstMgn.getFASellingOrder"	,requestParm	: {LAST_YEAR:"Y"}}
+								 ]
+			}
+ 			C_COM.requestQuery(parm4, function(resultData) {
+
+				<@pageId>.setChart4(resultData )
+			});
 			
 		}
 		,setChart : (resultData) =>{
 
+			//월자문 순매출 , 1회성 순매출 , 외주자문 순매출
 			const getOrgSellingPriceListMONTHLY		=  resultData.data["rstMgn.getOrgSellingPriceList"	].map( (item,idx) =>   item.ORG_SELLING_PRICE );
 			const getOrgSellingPriceListOnly_ONE	=  resultData.data["rstMgn.getOrgSellingPriceList_1"].map( (item,idx) =>   item.ORG_SELLING_PRICE );
-			const getOrgSellingPriceByDetailList	=  resultData.data["rstMgn.getOrgSellingPriceByDetailList"].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			const getOrgSellingPriceListPARTNER		=  resultData.data["rstMgn.getOrgSellingPriceList_2"].map( (item,idx) =>   item.ORG_SELLING_PRICE );
 		    
-			const containerList 	= [	"<@pageId>_monthlyOSP_chart","<@pageId>_onceOSP_chart"];
-			const categoriesList 	= [  _monthArray,_monthArray];
+			const containerList 	= [	"<@pageId>_monthlyOSP_chart","<@pageId>_onceOSP_chart","<@pageId>_productOSP_chart"];
+			const categoriesList 	= [  _monthArray,_monthArray,_monthArray ];
 			const seriesList		= [
 										[
-										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'}}
-										,{  name: '2022년',type: 'line',data:   getOrgSellingPriceListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
+										 {  name: '2024년',type: 'column',	data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
+										,{  name: '2023년',type: 'line',	data: getOrgSellingPriceListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
 										[
-										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'}}
-										,{  name: '2022년',type: 'line',data:  getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
+										 {  name: '2024년',type: 'column',	data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
+										,{  name: '2023년',type: 'line',	data: getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
+										],
+										[
+										 {  name: '2024년',type: 'column',	data: getOrgSellingPriceListPARTNER.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
+										,{  name: '2023년',type: 'line',	data: getOrgSellingPriceListPARTNER.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
 									 ];
 
 			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] ) );
 
-		    const CONSULTING_NMS				=  resultData.data["rstMgn.getOrgSellingPriceByDetailList"]
-												.map( item => {  return { [item.CONSULTING_NM]: item.ORG_SELLING_PRICE };} )
-												.map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
-
-			const CONSULTING_NMS_DATA = [];
-			const CONSULTING_NMS_PREV_DATA = [];
-			const halfLength = CONSULTING_NMS.length/2;
-			for (let i = 0; i < halfLength; i++) {
-				CONSULTING_NMS_DATA[i] = CONSULTING_NMS[i];
-				CONSULTING_NMS_PREV_DATA[i] = CONSULTING_NMS[halfLength+i];
-			} 	
+			let sum = getOrgSellingPriceListMONTHLY.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_monthly_OrgSellingPrice").text(sum.toLocaleString() + "원") ;
+				sum = getOrgSellingPriceListOnly_ONE.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_once_OrgSellingPrice").text(sum.toLocaleString() + "원") ;
+				sum = getOrgSellingPriceListPARTNER.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_product_OrgSellingPrice").text(sum.toLocaleString() + "원") ;
 			
-			let xAsisData = {};
-
-			CONSULTING_NMS.forEach( ( CONSULTING_NM, idx2 )=> {
-				
-				const index = idx2 % _colorRange.length;
-				xAsisData[CONSULTING_NM[0]] = { name: CONSULTING_NM[0] , color : _colorRange[index] }   
-				
-			});
-			const maxMonths = _.maxBy(_.uniqBy(resultData.data["rstMgn.getOrgSellingPriceByDetailList"],"MONTHS"). map( item=> {return { 'MONTH' : item.MONTHS }} ),"MONTH").MONTH;
-			const minMonths = _.minBy(_.uniqBy(resultData.data["rstMgn.getOrgSellingPriceByDetailList"],"MONTHS"). map( item=> {return { 'MONTH' : item.MONTHS }} ),"MONTH").MONTH;
-			const param = { thisMonth	: maxMonths+'월'
-							,lastMonth	: minMonths+'월'
-							,data 		: {months: CONSULTING_NMS_DATA}
-							,dataPrev 	: {months: CONSULTING_NMS_PREV_DATA}
-							,xAxisData 	: xAsisData 
-						  }
-
-			<@pageId>.comparisonChart("<@pageId>_productOSP_chart" , param );
+			_setRemoveHighChartCredits();
 			
-			setTimeout(()=>{
-				$(".highcharts-credits").remove();
-				$(".highcharts-legend.highcharts-no-tooltip").remove();
-				
-			},500)
 		}
 		,setChart2 : (resultData) =>{
 
-  			const getOrgSellingPriceListMONTHLY		=  resultData.data["rstMgn.getSellingGrowthRateList"	].map( (item,idx) =>   item.ORG_SELLING_PRICE );
-			const getOrgSellingPriceListOnly_ONE	=  resultData.data["rstMgn.getSellingBranchList"		].map( (item,idx) =>   item.ORG_SELLING_PRICE );
-			//const getOrgSellingPriceByDetailList	=  resultData.data["rstMgn.getSellingDetailList"		].map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			//순매출 성장률
+   			const getOrgSellingPriceList			=  resultData.data["rstMgn.getSellingGrowthRateList"	];
+			<@pageId>.lineAndColumnChart( "<@pageId>_OSPGR_chart" , { thisYearSales	: getOrgSellingPriceList.map( item=> item.THIS_YEAR_SALES)
+				  													  ,growthRate	: getOrgSellingPriceList.map( item=> item.GROWTH_RATE)
+				  													} );
+			//지사별 순매출
+  			const getSellingBranchList	=  resultData.data["rstMgn.getSellingBranchList"		];
+  			
+  			const series = [] ;
+  			const branchListCnt = getSellingBranchList.length;
+  			getSellingBranchList.forEach( item => {
+  				
+  					let parm = {
+  						queryId        	: "rstMgn.getSellingBranchList"
+  						,requestParm    : item
+  					}
+  			        C_COM.requestQuery(parm, function(resultData) {
+  			        	
+  			        	let data = [] ;
+  			        	
+  			        	resultData.data.forEach( item => {
+  			        		
+  			        		const monthData = item["TOTAL_INCOME"] ? Number(item.TOTAL_INCOME): 0 ;
+  			        		data.push( monthData )
+  			        		
+  			        	})
+  			        	
+  			        	const seriseData = { name : item.BRANCH_ID , data : data} 
+  			        	series.push(seriseData);
+			
+  			        	if( series.length >= branchListCnt){
+  			        		
+  			        		<@pageId>.lineWithLabelsChart( "<@pageId>_OPB_chart", {series:series});
 
-			const containerList 	= [	"<@pageId>_OSPGR_chart","<@pageId>_OPB_chart","<@pageId>_OSPD_chart"];
+  			        		let sum =0;
+  			        		series.map( item=> item.data ).forEach( ItemArr=>{
+  			        			
+  			        			sum += ItemArr.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  			        		})
+	  						$("#<@pageId>_OrgSellingPriceByBranch").text(sum.toLocaleString() + "원") ;
+  			        	}
+  			        	
+  			        });
+  			})
+
+  			/* 상세별 순매출 (컨설팅상세별) */
+  			const sellingThisYear		=  resultData.data["rstMgn.getSellingDetailList"	];
+  			const sellingLastYear		=  resultData.data["rstMgn.getSellingDetailList_1"	];
+			const thisYear 				= _.maxBy(_.uniqBy(sellingThisYear,"YEAR"). map( item=> {return { 'YEAR' : item.YEAR }} ),"YEAR").YEAR;
+			const lastYear 				= _.minBy(_.uniqBy(sellingLastYear,"YEAR"). map( item=> {return { 'YEAR' : item.YEAR }} ),"YEAR").YEAR;
+  			
+ 		    const CONSULTING_THIS		=  sellingThisYear.map( item => {  return { [item.CONSULTING_NM]: item.ORG_SELLING_PRICE };} )
+														  .map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
+ 		    
+ 		    const CONSULTING_LAST		=  sellingLastYear.map( item => {  return { [item.CONSULTING_NM]: item.ORG_SELLING_PRICE };} )
+														  .map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
+			const CONSULTING_THIS_DATA 	= [];
+			const CONSULTING_LAST_DATA 	= [];
+			
+			CONSULTING_THIS.forEach( (item,index ) => {
+				
+				CONSULTING_THIS_DATA[index] = CONSULTING_THIS[index];
+				CONSULTING_LAST_DATA[index] = CONSULTING_LAST[index];
+				
+			} )
+			
+			let xAsisData = {};
+
+			CONSULTING_THIS.forEach( ( CONSULTING_NM, id )=> {
+				
+				const index = id % _colorRange.length;
+				xAsisData[CONSULTING_NM[0]] = { name: CONSULTING_NM[0] , color : _colorRange[index] }   
+				
+			});
+			
+			const param = { thisMonth	: thisYear+' 년'
+							,lastMonth	: lastYear+' 년'
+							,data 		: {months: CONSULTING_THIS_DATA}
+							,dataPrev 	: {months: CONSULTING_LAST_DATA}
+							,xAxisData 	: xAsisData 
+						  }
+			
+			<@pageId>.comparisonChart("<@pageId>_OSPD_chart" , param );  			
+
+			let sum = CONSULTING_THIS_DATA.map( item=> item[1] ).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_OrgSellingPriceByDetail").text(sum.toLocaleString() + "원") ;
+			
+			_setRemoveHighChartCredits();
+			
+		}		
+		,setChart3 : (resultData) =>{
+			
+			//FA 월자문 수수료 , FA 1회성 수수료 , FA 외주자문 수수료
+  			const getFaPayListMONTHLY	=  resultData.data["rstMgn.getFaPayList"	].map( (item,idx) =>   item.TOTAL_PAYMENT );
+			const getFaPayListOnly_ONE	=  resultData.data["rstMgn.getFaPayList_1"	].map( (item,idx) =>   item.TOTAL_PAYMENT );
+			const getFaPayListPARTNER	=  resultData.data["rstMgn.getFaPayList_2"	].map( (item,idx) =>   item.TOTAL_PAYMENT );
+
+			const containerList 	= [	"<@pageId>_FA_Monthly_PAY_chart","<@pageId>_FA_Once_PAY_chart","<@pageId>_FA_Partner_PAY_chart"];
 			const categoriesList 	= [  _monthArray,_monthArray,_monthArray];
 			const seriesList		= [
 										[
-										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'}}
-										,{  name: '2022년',type: 'line',data:   getOrgSellingPriceListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
+										 {  name: '2024년',type: 'column',yAxis: 1,data: getFaPayListMONTHLY.slice(12),tooltip: {valueSuffix: '억'}}
+										,{  name: '2023년',type: 'line',data:   getFaPayListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
 										[
-										 {  name: '2023년',type: 'column',yAxis: 1,data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'}}
-										,{  name: '2022년',type: 'line',data:  getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
+										 {  name: '2024년',type: 'column',yAxis: 1,data: getFaPayListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'}}
+										,{  name: '2023년',type: 'line',data:  getFaPayListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
+										],
+										[
+										 {  name: '2024년',type: 'column',yAxis: 1,data: getFaPayListPARTNER.slice(12),tooltip: {valueSuffix: '억'}}
+										,{  name: '2023년',type: 'line',data:  getFaPayListPARTNER.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
 									 ];
 
-			containerList.forEach( (chart,idx) => {<@pageId>.lineAndColumnChart( containerList[idx] , categoriesList[idx] );} );
-
-		   
+			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] ) );
+	
+			let sum = getFaPayListMONTHLY.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_FA_Monthly_PAY").text(sum.toLocaleString() + "원") ;
+				sum = getFaPayListOnly_ONE.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_FA_Once_PAY").text(sum.toLocaleString() + "원") ;
+				sum = getFaPayListPARTNER.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_FA_Partner_PAY").text(sum.toLocaleString() + "원") ;
 			
-			setTimeout(()=>{
-				$(".highcharts-credits").remove();
-				$(".highcharts-legend.highcharts-no-tooltip").remove();
+			_setRemoveHighChartCredits();
+			
+		}
+		,setChart4 : (resultData) =>{
+			
+			//월자문 계약건수
+  			const getContractCnt	=  resultData.data["rstMgn.getContractCnt"	 ].map( (item,idx) =>   item.CONTRACT_CNT );
+			<@pageId>.createChart( "<@pageId>_monthlyContractCnt_chart" 
+									, _monthArray , [{  name: '2024년',type: 'column',	data: getContractCnt.slice(  12),tooltip: {valueSuffix:'건'} ,yAxis	: 1}
+													,{  name: '2023년',type: 'line',	data: getContractCnt.slice(0,12),tooltip: {valueSuffix:'건'}}
+													]);
+			
+			//FA 매출순위
+  			const sellingFAListThis		=  resultData.data["rstMgn.getFASellingOrder"];
+  			let   sellingFAListLast		=  resultData.data["rstMgn.getFASellingOrder_1"];
+  			
+			let tempList = [];
+			sellingFAListThis.forEach( item=>{
 				
-			},500) 
-		}		
+				const item2 = sellingFAListLast.filter( lastItem=> lastItem.USER_NM == item.USER_NM );
+				
+				if( item2.length > 0 )tempList.push(item2);
+				else {
+					item2.YEAR 			= item.YEAR - 1;
+					item2.USER_NM		= item.USER_NM ;
+					item2.TOTAL_INCOME 	= 0;
+					tempList.push( item2)
+				}
+			})
+			sellingFAListLast = tempList;
+			
+			const thisYear 				= _.maxBy(_.uniqBy(sellingFAListThis,"YEAR"). map( item=> {return { 'YEAR' : item.YEAR }} ),"YEAR").YEAR;
+			const lastYear 				= _.minBy(_.uniqBy(sellingFAListLast,"YEAR"). map( item=> {return { 'YEAR' : item.YEAR }} ),"YEAR").YEAR;
+			const USER_THIS				=  sellingFAListThis.map( item => {  return { [item.USER_NM]: item.TOTAL_INCOME };} )
+															.map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
+			const USER_LAST				=  sellingFAListLast.map( item => {  return { [item.USER_NM]: item.TOTAL_INCOME };} )
+															.map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
+
+			const USER_THIS_DATA = [];
+			const USER_PREV_DATA = [];
+
+			USER_THIS.forEach( (item,index ) => {
+				
+				USER_THIS_DATA[index] = USER_THIS[index];
+				USER_PREV_DATA[index] = USER_LAST[index];
+				
+			} )
+			
+			let xAsisData = {};
+
+			USER_THIS.forEach( ( USER_NM, id )=> {
+				
+				const index = id % _colorRange.length;
+				xAsisData[USER_NM[0]] = { name: USER_NM[0] , color : _colorRange[index] }   
+				
+			});
+			const param = { thisMonth	: thisYear+' 년'
+							,lastMonth	: lastYear+' 년'
+							,data 		: {months: USER_THIS_DATA}
+							,dataPrev 	: {months: USER_PREV_DATA}
+							,xAxisData 	: xAsisData 
+						  }
+			
+			<@pageId>.comparisonChart("<@pageId>_faSellingRank_chart" , param );  	
+			
+			let sum = getContractCnt.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_monthly_contract_cnt").text(sum.toLocaleString() + "건") ;
+				sum = USER_THIS_DATA.map( item=> item[1] ).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_fa_selling_rank").text(sum.toLocaleString() + "원") ;
+			
+			_setRemoveHighChartCredits();
+		} 
 		,mainCategoryChart :  () => {
 		
 			var parm = {
@@ -179,9 +353,6 @@ var <@pageId> = {
 				<@pageId>.treemapChart('<@pageId>_subCategoryTreemap',{	minColor: '#8A8BB9',
 													        	maxColor: '#27187F'},treemapData);
 				
-/* 
-				$(".highcharts-credits").remove();
-				$(".highcharts-legend.highcharts-no-tooltip").remove(); */
 			});	
 	
 		}
@@ -199,12 +370,12 @@ var <@pageId> = {
 
 			C_COM.requestQuery(parm, function(resultData) {
 				
-/* 				var rparm = {
+  				var rparm = {
 						 targetId 		: "<@pageId>_contractList"
 						,list			: resultData.data
 				}
 			
-				C_COM.renderHtml("<@pageId>", rparm); */
+				C_COM.renderHtml("<@pageId>", rparm); 
 			
 			});	
 	
@@ -218,8 +389,6 @@ C_PM.onLoadPage("<@pageId>", function() {
 	<@pageId>.pageInit();
 	<@pageId>.categoryChart();
 	<@pageId>.contractList();
-	
-
 	
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -310,29 +479,29 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								</thead>
 								<tbody id="<@pageId>_contractList">
 								</tbody>
-<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
-						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
-								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
-			 					<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
-			 					<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</td>
-			 					<td id='SALES_TYPE_NM'		value='{{:SALES_TYPE_NM}}'		>{{:SALES_TYPE_NM}}</td>
-			 					<td id='GET_PATH_NM'		value='{{:GET_PATH_NM}}'		>{{:GET_PATH_NM}}</td>
-			 					<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
-			 					<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
-								<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
-								<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
-								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
- 								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
- 								<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'				>{{:TOT_INCOME}}</td>
-							</tr>
-						{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
-				<tr>	
-					<td colspan=12>자료가 없습니다.</td>	
-				</tr>
-</script>								
+								<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
+								{{for list}}
+									<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
+										<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
+			 							<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
+			 							<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</td>
+			 							<td id='SALES_TYPE_NM'		value='{{:SALES_TYPE_NM}}'		>{{:SALES_TYPE_NM}}</td>
+			 							<td id='GET_PATH_NM'		value='{{:GET_PATH_NM}}'		>{{:GET_PATH_NM}}</td>
+			 							<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
+			 							<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
+										<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
+										<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
+										<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
+ 										<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
+ 										<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'				>{{:TOT_INCOME}}</td>
+									</tr>
+								{{/for}}
+								</script>
+								<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
+									<tr>	
+										<td colspan=12>자료가 없습니다.</td>	
+									</tr>
+								</script>								
 							</table>
 						</div>
 						<!-- paging -->
@@ -351,29 +520,23 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</section>
 
 				<section class="sec_wrap">
-					<div class="cont_box col3" id="<@pageId>_monthly_OrgSellingPrice">
+					<div class="cont_box col3" >
 						<h3>월자문 순매출</h3>
-						<div class="price" >13,844,381,010원</div>
-						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
-
+						<div class="price" id="<@pageId>_monthly_OrgSellingPrice">원</div>
 						<figure class="highcharts-figure">
 					    	<div class="chart" id="<@pageId>_monthlyOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col3"  id="<@pageId>_once_OrgSellingPrice">
+					<div class="cont_box col3">
 						<h3>1회성 순매출</h3>
-						<div class="price"> 11,654,165,841원</div>
-						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
-
+						<div class="price" id="<@pageId>_once_OrgSellingPrice">원</div>
 						<figure class="highcharts-figure">
 					    	<div class="chart2" id="<@pageId>_onceOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col3" id="<@pageId>_product_OrgSellingPrice">
+					<div class="cont_box col3">
 						<h3>외주자문 순매출</h3>
-						<div class="price" >11,654,165,841원</div>
-						<span class="prepare"></span><span class="percent"></span>
-
+						<div class="price"  id="<@pageId>_product_OrgSellingPrice">원</div>
 						<figure class="highcharts-figure">
 					    	<div class="chart3" id="<@pageId>_productOSP_chart" style="width:100%; height:280px; margin-top:55px;"></div>
 						</figure>
@@ -381,60 +544,47 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</section>
 
 				<section class="sec_wrap">
-					<div class="cont_box col3" id="<@pageId>_OrgSellingPriceGrowthRate">
+					<div class="cont_box col3">
 						<h3>순매출 성장률</h3>
-						<div class="price" >13,844,381,010원</div>
-						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
-
+						<div class="price"  id="<@pageId>_OrgSellingPriceGrowthRate"></div>
 						<figure class="highcharts-figure">
-					    	<div class="chart" id="<@pageId>_OSPGR_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart" id="<@pageId>_OSPGR_chart" style="width:100%; height:280px; margin:75px auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col3"  id="<@pageId>_OrgSellingPriceByBranch">
+					<div class="cont_box col3">
 						<h3>지사별 순매출</h3>
-						<div class="price"> 11,654,165,841원</div>
-						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
-
+						<div class="price"  id="<@pageId>_OrgSellingPriceByBranch">원</div>
 						<figure class="highcharts-figure">
-					    	<div class="chart2" id="<@pageId>_OPB_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart2" id="<@pageId>_OPB_chart" style="width:100%; height:320px; margin-top:75px;"></div>
 						</figure>
 					</div>
-					<div class="cont_box col3" id="<@pageId>_OrgSellingPriceByDetail">
+					<div class="cont_box col3">
 						<h3>상세별 순매출</h3>
-						<div class="price" >11,654,165,841원</div>
-						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
-
+						<div class="price" id="<@pageId>_OrgSellingPriceByDetail">원</div>
 						<figure class="highcharts-figure">
-					    	<div class="chart3" id="<@pageId>_OSPD_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart3" id="<@pageId>_OSPD_chart" style="width:100%; height:280px; margin:75px auto"></div>
 						</figure>
 					</div>
 				</section>
 
-
 				<section class="sec_wrap">
-					<div class="cont_box col3" id="<@pageId>_FA_Monthly_PAY">
+					<div class="cont_box col3">
 						<h3>FA 월자문 수수료</h3>
-						<div class="price" >13,844,381,010원</div>
-						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
-
+						<div class="price" id="<@pageId>_FA_Monthly_PAY">원</div>
 						<figure class="highcharts-figure">
 					    	<div class="chart" id="<@pageId>_FA_Monthly_PAY_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col3"  id="<@pageId>_FA_Once_PAY">
+					<div class="cont_box col3" >
 						<h3>FA 1회성 수수료</h3>
-						<div class="price"> 11,654,165,841원</div>
-						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
-
+						<div class="price" id="<@pageId>_FA_Once_PAY">원</div>
 						<figure class="highcharts-figure">
 					    	<div class="chart2" id="<@pageId>_FA_Once_PAY_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col3" id="<@pageId>_FA_Partner_PAY">
+					<div class="cont_box col3">
 						<h3>FA 외주자문 수수료</h3>
-						<div class="price" >11,654,165,841원</div>
-						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
-
+						<div class="price" id="<@pageId>_FA_Partner_PAY">원</div>
 						<figure class="highcharts-figure">
 					    	<div class="chart3" id="<@pageId>_FA_Partner_PAY_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
@@ -442,22 +592,18 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</section>
  
 				<section class="sec_wrap">
-					<div class="cont_box col2" id="<@pageId>_monthly_contract_cnt">
+					<div class="cont_box col2">
 						<h3>월자문 계약건수</h3>
-						<div class="price">13,844,381,010원</div>
-						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
-
+						<div class="price" id="<@pageId>_monthly_contract_cnt">원</div>
 						<figure class="highcharts-figure">
 					    	<div class="chart8" id="<@pageId>_monthlyContractCnt_chart" style="width:100%; height:280px; margin:0 auto"></div>
 						</figure>
 					</div>
-					<div class="cont_box col2"  id="<@pageId>_fa_selling_rank">
+					<div class="cont_box col2" >
 						<h3>FA 매출순위</h3>
-						<div class="price">13,844,381,010원</div>
-						<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
-
+						<div class="price" id="<@pageId>_fa_selling_rank">13,844,381,010원</div>
 						<figure class="highcharts-figure">
-					    	<div class="chart9" id="<@pageId>_faSellingRank_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart9" id="<@pageId>_faSellingRank_chart" style="width:100%; height:280px; margin:75px auto"></div>
 						</figure>
 					</div>
 				</section>

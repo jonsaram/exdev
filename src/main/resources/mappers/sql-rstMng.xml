@@ -118,18 +118,24 @@
 		</if>
 	</select>	
 	
+	<sql id="MONTHS_12"> 
+		SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), LEVEL - 1), 'YYYYMM') AS month
+		FROM DUAL
+		CONNECT BY LEVEL <![CDATA[ <= ]]> 12
+	</sql>
 	
+	<sql id="MONTHS_24"> 
+		SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -12 + LEVEL - 1), 'YYYYMM') AS month
+		FROM DUAL
+		CONNECT BY LEVEL <![CDATA[ <= ]]> 24
+	</sql>
 	
 	<select id="getOrgSellingPriceList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getOrgSellingPriceList
-			전체  순매출 (월자문/1회성컨설팅) 
+			순매출 (월자문/1회성컨설팅/외주자문) 
 		*/
 
-		WITH MONTHS_24 AS (
-			SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -12 + LEVEL - 1), 'YYYYMM') AS month
-			FROM DUAL
-			CONNECT BY LEVEL <![CDATA[ <= ]]> 24
-		)
+		WITH MONTHS_24 AS (<include refid="MONTHS_24"/>)
 		,EACH_CONTRACT AS (
 			SELECT M.month, NVL(CONTRACT_ID, 0) AS CONTRACT_ID, NVL(TOTAL_COST, 0) AS TOTAL_COST, NVL(RESULT_ID, 0) AS RESULT_ID,
 			       NVL(TOT_INCOME, 0) AS TOT_INCOME, NVL(ORG_SELLING_PRICE, 0) AS ORG_SELLING_PRICE, NVL(TOT_COST_PRICE, 0) AS TOT_COST_PRICE
@@ -169,49 +175,14 @@
 		WHERE M.MONTH = C.MONTH(+)
 		ORDER BY M.MONTH
 		
-	</select>	
-	
-	<select id="getOrgSellingPriceByDetailList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	rstMgn.getOrgSellingPriceByDetailList
-			전체  순매출 (컨설팅상세별) 
-		*/
-
-		SELECT 
-		  CT.CONSULTING_ID
-		, CT.CONSULTING_NM 
-		, TO_CHAR(RST.RESULT_DATE, 'YYYYMM') AS MONTHS
-		, SUM(RST.INCOME) AS TOT_INCOME
-		, SUM(ORG_SELLING_PRICE) AS ORG_SELLING_PRICE
-		, SUM(CS.COST_PRICE) AS TOT_COST_PRICE		
-		FROM TBL_EXP_CONTRACT CN
-		,TBL_EXP_RESULT RST
-		,TBL_EXP_COST CS
-		,TBL_EXP_CONSULTING CT
-		WHERE 1=1
-		AND CN.CONTRACT_ID = RST.CONTRACT_ID 
-		AND CN.CONTRACT_ID = CS.CONTRACT_ID
-		AND CS.RESULT_ID = RST.RESULT_ID
-		AND CN.USE_YN = 'Y' AND CN.DEL_YN = 'N'
-		AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
-		AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
-		AND CT.CONSULTING_ID  = CN.CONSULTING_ID 
-		AND TO_CHAR(RST.RESULT_DATE, 'YYYYMM') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -1), 'YYYYMM')
-		AND TO_CHAR(RST.RESULT_DATE, 'YYYYMM') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0 ), 'YYYYMM')
-		GROUP BY  CT.CONSULTING_ID, CT.CONSULTING_NM , TO_CHAR(RST.RESULT_DATE, 'YYYYMM')  
-		ORDER BY MONTHS,CONSULTING_NM	
-		
-	</select>	
+	</select>
 	
 	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getPaymentList
 			전체  수수료 지급 (월자문/1회성컨설팅) 
 		*/
 
-		WITH MONTHS_24 AS (
-			SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -12 + LEVEL - 1), 'YYYYMM') AS month
-			FROM DUAL
-			CONNECT BY LEVEL <![CDATA[ <= ]]> 24
-		)
+		WITH MONTHS_24 AS (<include refid="MONTHS_24"/>)
 		,EACH_PAYMENT AS (
 		
 			SELECT  M.month,  DATA.TOTAL_INCOME
@@ -255,16 +226,12 @@
 	
 	<select id="getSellingGrowthRateList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getSellingGrowthRateList
-			순매출 성장률 (월자문/1회성컨설팅) 
+			순매출 성장률
 		*/
 	
-		WITH MONTHS_24 AS (
-			SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -12 + LEVEL - 1), 'YYYYMM') AS month
-			FROM DUAL
-			CONNECT BY LEVEL <![CDATA[ <= ]]> 24
-		)
+		WITH MONTHS_24 AS (<include refid="MONTHS_24"/>)
 		,EACH_CONTRACT AS (
-		
+
 			SELECT M.month, NVL(CONTRACT_ID, 0) AS CONTRACT_ID, NVL(TOTAL_COST, 0) AS TOTAL_COST, NVL(RESULT_ID, 0) AS RESULT_ID,
 			       NVL(TOT_INCOME, 0) AS TOT_INCOME, NVL(ORG_SELLING_PRICE, 0) AS ORG_SELLING_PRICE, NVL(TOT_COST_PRICE, 0) AS TOT_COST_PRICE
 			FROM MONTHS_24 M
@@ -279,7 +246,7 @@
 				FROM TBL_EXP_CONTRACT CN
 				,TBL_EXP_RESULT RST
 				,TBL_EXP_COST CS
-				WHERE CN.CONTRACT_TYPE = #{CONTRACT_TYPE}
+				WHERE 1=1 
 				AND CN.CONTRACT_ID = RST.CONTRACT_ID 
 				AND CN.CONTRACT_ID = CS.CONTRACT_ID
 				AND CS.RESULT_ID = RST.RESULT_ID
@@ -292,50 +259,58 @@
 			ORDER BY M.MONTH, CONTRACT_ID
 		)
 		,SELLING_PRICE AS (
-		
-			SELECT M.MONTH , NVL(C.ORG_SELLING_PRICE, 0 ) ORG_SELLING_PRICE
+
+			SELECT M.MONTH , SUBSTR(M.MONTH,1,4) YEAR , NVL(C.ORG_SELLING_PRICE, 0 ) ORG_SELLING_PRICE
 			FROM MONTHS_24 M, 
 			(
 			SELECT C.MONTH ,SUM(ORG_SELLING_PRICE) AS ORG_SELLING_PRICE
 			FROM EACH_CONTRACT C
 			GROUP BY C.MONTH 
 			)  C
-			WHERE M.MONTH = C.MONTH(+)
-		)
+			WHERE M.MONTH = C.MONTH
+		) 
 		,SALES_GROWTH AS (
 		    SELECT
-		        A.MONTH AS THIS_MONTH,
-		        B.MONTH AS LAST_MONTH,
-		        A.ORG_SELLING_PRICE AS THIS_MONTH_SALES,
-		        B.ORG_SELLING_PRICE AS LAST_MONTH_SALES,
+		        A.MONTH AS THIS_YEAR,
+		        B.MONTH AS LAST_YEAR,
+		        A.ORG_SELLING_PRICE AS THIS_YEAR_SALES,
+		        B.ORG_SELLING_PRICE AS LAST_YEAR_SALES,
 		        DECODE(B.ORG_SELLING_PRICE,0,0, (A.ORG_SELLING_PRICE / B.ORG_SELLING_PRICE - 1) * 100) AS GROWTH_RATE
 		    FROM SELLING_PRICE A
 		    ,SELLING_PRICE B 
-		    WHERE SUBSTR(A.MONTH, 1, 4) = SUBSTR(B.MONTH, 1, 4)
-			AND TO_NUMBER(SUBSTR(A.MONTH, 5, 2)) = TO_NUMBER(SUBSTR(B.MONTH, 5, 2)) + 1
+		    WHERE A.YEAR = (B.YEAR (+) + 1 )
+			AND TO_NUMBER(SUBSTR(A.MONTH, 5, 2)) = TO_NUMBER(SUBSTR(B.MONTH(+), 5, 2)) 
 		)
-		SELECT
-		    THIS_MONTH,
-		    THIS_MONTH_SALES,
-		    LAST_MONTH_SALES,
-		    GROWTH_RATE
-		FROM SALES_GROWTH
-		ORDER BY THIS_MONTH 	
+
+		SELECT THIS_YEAR, MAX(LAST_YEAR) LAST_YEAR
+		,MAX( THIS_YEAR_SALES)/100000000 THIS_YEAR_SALES
+		,MAX( LAST_YEAR_SALES)/100000000 LAST_YEAR_SALES
+		,MAX( GROWTH_RATE) GROWTH_RATE
+		FROM(
+			SELECT 
+			G.THIS_YEAR, G.LAST_YEAR, G.THIS_YEAR_SALES, G.LAST_YEAR_SALES, G.GROWTH_RATE 
+			FROM SALES_GROWTH G  
+			WHERE THIS_YEAR >= TO_CHAR(SYSDATE, 'YYYY')||'01'
+			UNION 
+			SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), LEVEL - 1), 'YYYYMM') AS MONTH
+			,null,null,null,null
+			FROM DUAL
+			CONNECT BY LEVEL  <![CDATA[ <= ]]>  12
+		)
+		GROUP BY THIS_YEAR
+		ORDER BY THIS_YEAR
 	</select>
+	
 	
 	<select id="getSellingBranchList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getSellingBranchList
 			지사별 순매출  
 		*/
-		WITH MONTHS_24 AS (
-			SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -12 + LEVEL - 1), 'YYYYMM') AS month
-			FROM DUAL
-			CONNECT BY LEVEL <![CDATA[ <= ]]> 24
-		)
+		WITH MONTHS_12 AS (<include refid="MONTHS_12"/>)
 		,EACH_PAYMENT AS (
 		
 			SELECT  M.month,  DATA.BRANCH_ID, DATA.TOTAL_INCOME
-			FROM MONTHS_24 M
+			FROM MONTHS_12 M
 			,(
 				SELECT RESULT_MONTH ,BRANCH_ID ,SUM( PAYMENT) TOTAL_INCOME
 				FROM(
@@ -352,7 +327,6 @@
 						WHERE C.CONTRACT_ID	= R.CONTRACT_ID 
 						AND R.CONTRACT_ID	= P.CONTRACT_ID 
 						AND R.RESULT_ID		= P.RESULT_ID 
-						AND C.CONTRACT_TYPE = #{CONTRACT_TYPE}
 						AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
 						AND P.USER_ID 		= CM.USER_ID
 						AND P.USER_ID 		= U.USER_ID 
@@ -362,6 +336,9 @@
 						AND P.DEL_YN		= 'N'
 						AND CM.USE_YN		= 'Y'
 						AND CM.DEL_YN		= 'N'
+						<if test=" BRANCH_ID != null and !BRANCH_ID.equals('')">
+							AND U.BRANCH_ID = #{BRANCH_ID}
+						</if>		
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
 				)	
@@ -369,130 +346,80 @@
 			) DATA
 			WHERE M.MONTH = DATA.RESULT_MONTH(+)
 		)
-		SELECT * FROM EACH_PAYMENT
-		ORDER BY MONTH		
+		<choose>
+	       	<when test=" BRANCH_ID == null  "> 
+				SELECT DISTINCT BRANCH_ID 
+				FROM EACH_PAYMENT  
+				WHERE BRANCH_ID IS NOT NULL   
+	      	</when>
+	       	<when test=" BRANCH_ID != null and !BRANCH_ID.equals('') ">  
+				SELECT MONTH, LISTAGG(TOTAL_INCOME, ',') within group (order by TOTAL_INCOME) AS TOTAL_INCOME
+				FROM (
+					SELECT MONTH, BRANCH_ID ,TOTAL_INCOME
+					FROM EACH_PAYMENT
+					ORDER BY MONTH
+				)
+				GROUP BY MONTH	
+	      	</when>
+	      	<otherwise>			
+	      	</otherwise>
+		</choose>		
 	
 	</select>
+	
 	
 	<select id="getSellingDetailList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getSellingDetailList
-			상세별 순매출  
+			상세별 순매출 (컨설팅상세별) 
 		*/
-		WITH MONTHS_24 AS (
-			SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -12 + LEVEL - 1), 'YYYYMM') AS month
-			FROM DUAL
-			CONNECT BY LEVEL <![CDATA[ <= ]]> 24
-		)
-		,EACH_PAYMENT AS (
-		
-			SELECT  M.month,  DATA.BRANCH_ID, DATA.TOTAL_INCOME
-			FROM MONTHS_24 M
-			,(
-				SELECT RESULT_MONTH ,BRANCH_ID ,SUM( PAYMENT) TOTAL_INCOME
-				FROM(
-						SELECT DISTINCT
-						TO_CHAR( R.RESULT_DATE, 'YYYYMM') AS RESULT_MONTH
-						,R.INCOME
-						,P.PAYMENT
-						,U.BRANCH_ID
-						FROM TBL_EXP_RESULT R
-						,TBL_EXP_CONTRACT C
-						,TBL_EXP_PAYMENT P
-						,TBL_EXP_CONTRACT_MEMBER CM
-						,TBL_EXP_USER U
-						WHERE C.CONTRACT_ID	= R.CONTRACT_ID 
-						AND R.CONTRACT_ID	= P.CONTRACT_ID 
-						AND R.RESULT_ID		= P.RESULT_ID 
-						AND C.CONTRACT_TYPE = #{CONTRACT_TYPE}
-						AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
-						AND P.USER_ID 		= CM.USER_ID
-						AND P.USER_ID 		= U.USER_ID 
-						AND R.USE_YN		= 'Y'
-						AND R.DEL_YN		= 'N'
-						AND P.USE_YN		= 'Y'
-						AND P.DEL_YN		= 'N'
-						AND CM.USE_YN		= 'Y'
-						AND CM.DEL_YN		= 'N'
-						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
-						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
-				)	
-				GROUP BY  RESULT_MONTH ,BRANCH_ID 
-			) DATA
-			WHERE M.MONTH = DATA.RESULT_MONTH(+)
-		)
-		SELECT * FROM EACH_PAYMENT
-		ORDER BY MONTH		
-	
-	</select>
+
+		SELECT 
+		  CT.CONSULTING_ID
+		, CT.CONSULTING_NM 
+		, TO_CHAR(RST.RESULT_DATE, 'YYYY') AS YEAR
+		, SUM(RST.INCOME) AS TOT_INCOME
+		, SUM(ORG_SELLING_PRICE) AS ORG_SELLING_PRICE
+		, SUM(CS.COST_PRICE) AS TOT_COST_PRICE		
+		FROM TBL_EXP_CONTRACT CN
+		,TBL_EXP_RESULT RST
+		,TBL_EXP_COST CS
+		,TBL_EXP_CONSULTING CT
+		WHERE 1=1
+		AND CN.CONTRACT_ID = RST.CONTRACT_ID 
+		AND CN.CONTRACT_ID = CS.CONTRACT_ID
+		AND CS.RESULT_ID = RST.RESULT_ID
+		AND CN.USE_YN = 'Y' AND CN.DEL_YN = 'N'
+		AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
+		AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
+		AND CT.CONSULTING_ID  = CN.CONSULTING_ID 
+		<choose>
+	       	<when test=" LAST_YEAR == null  "> 
+				AND TO_CHAR(RST.RESULT_DATE, 'YYYY')   <![CDATA[ >= ]]> TO_CHAR( SYSDATE , 'YYYY')
+	      	</when>
+	       	<when test=" LAST_YEAR != null  ">  
+				AND TO_CHAR(RST.RESULT_DATE, 'YYYY')   <![CDATA[ >= ]]> TO_CHAR( SYSDATE - INTERVAL '1' YEAR ,'YYYY')
+				AND TO_CHAR(RST.RESULT_DATE, 'YYYY')   <![CDATA[ <  ]]> TO_CHAR( SYSDATE , 'YYYY')
+	      	</when>
+	      	<otherwise>			
+	      	</otherwise>
+		</choose>		
+		GROUP BY  CT.CONSULTING_ID, CT.CONSULTING_NM , TO_CHAR(RST.RESULT_DATE, 'YYYY')  
+		ORDER BY YEAR,CONSULTING_NM	
+		FETCH NEXT 12 ROWS ONLY
+	</select>		
+
 	
 	<select id="getFaPayList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getFaPayList
-			FA 월자문 수수료 ( 월자문 / 일회성 ) 
+			FA 월자문 수수료 ( 월자문 / 일회성 / 외주자문) 
 		*/
-		SELECT '' PAY FROM DUAL
-	</select>
-	
-	<select id="getFaPartnerPayList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	rstMgn.getFaPartnerPayList
-			FA 외주자문 수수료
-		*/
-		SELECT '' PAY FROM DUAL
-	</select>
-	
-	<select id="getContractCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	rstMgn.getContractCnt
-			전체  계약건수 ( 월자문  ) 
-		*/
-			
-		WITH MONTHS_24 AS (
-			SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -12 + LEVEL - 1), 'YYYYMM') AS month
-			FROM DUAL
-			CONNECT BY LEVEL <![CDATA[ <= ]]> 24
-		)
-		,EACH_CONTRACT AS (
-			SELECT M.month, COUNT(CONTRACT_ID) CONTRACT_CNT
-			FROM MONTHS_24 M
-			, (
-				SELECT CN.CONTRACT_ID
-				, TO_CHAR(RST.RESULT_DATE, 'YYYYMM') AS EACH_MONTH
-				FROM TBL_EXP_CONTRACT CN
-				,TBL_EXP_RESULT RST
-				,TBL_EXP_COST CS
-				WHERE CN.CONTRACT_TYPE = #{CONTRACT_TYPE}
-				AND CN.CONTRACT_ID = RST.CONTRACT_ID 
-				AND CN.CONTRACT_ID = CS.CONTRACT_ID
-				AND CS.RESULT_ID = RST.RESULT_ID
-				AND CN.USE_YN = 'Y' AND CN.DEL_YN = 'N'
-				AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
-				AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
-				GROUP BY CN.CONTRACT_ID, CN.TOTAL_COST, RST.RESULT_ID, TO_CHAR(RST.RESULT_DATE, 'YYYYMM')
-			) DATA 
-			WHERE  M.month = DATA.EACH_MONTH
-			GROUP BY M.month
-			ORDER BY M.month 
-		)
-		SELECT M.MONTH , CONTRACT_CNT
-		FROM MONTHS_24 M, EACH_CONTRACT C
-		WHERE M.MONTH = C.MONTH(+)
-		ORDER BY M.MONTH
-
-	</select>
-	
-	<select id="getFASellingOrder" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	rstMgn.getFASellingOrder
-			전체  FA 매출 순위 
-		*/
-		WITH MONTHS_24 AS (
-			SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -12 + LEVEL - 1), 'YYYYMM') AS month
-			FROM DUAL
-			CONNECT BY LEVEL <![CDATA[ <= ]]> 24
-		)
+		WITH MONTHS_24 AS (<include refid="MONTHS_24"/>)
 		,EACH_PAYMENT AS (
 		
-			SELECT  M.month,  DATA.USER_ID , DATA.USER_NM, DATA.TOTAL_INCOME
+			SELECT  M.month, DATA.TOTAL_PAYMENT
 			FROM MONTHS_24 M
 			,(
-				SELECT RESULT_MONTH ,USER_ID , USER_NM ,SUM( PAYMENT) TOTAL_INCOME
+				SELECT RESULT_MONTH ,USER_ID , USER_NM ,SUM( PAYMENT) TOTAL_PAYMENT
 				FROM(
 						SELECT DISTINCT
 						TO_CHAR( R.RESULT_DATE, 'YYYYMM') AS RESULT_MONTH
@@ -509,7 +436,7 @@
 						WHERE C.CONTRACT_ID	= R.CONTRACT_ID 
 						AND R.CONTRACT_ID	= P.CONTRACT_ID 
 						AND R.RESULT_ID		= P.RESULT_ID 
-						AND C.CONTRACT_TYPE =  #{CONTRACT_TYPE}
+						AND C.CONTRACT_TYPE = #{CONTRACT_TYPE}
 						AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
 						AND P.USER_ID 		= CM.USER_ID
 						AND P.USER_ID 		= U.USER_ID 
@@ -526,8 +453,94 @@
 			) DATA
 			WHERE M.MONTH = DATA.RESULT_MONTH(+)
 		)
-		SELECT * FROM EACH_PAYMENT
-		ORDER BY MONTH			
+		SELECT MONTH, NVL(SUM ( TOTAL_PAYMENT ),0) AS TOTAL_PAYMENT
+		FROM EACH_PAYMENT
+		GROUP BY MONTH
+		ORDER BY MONTH
+	</select>
 
+	
+	<select id="getContractCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getContractCnt
+			전체  계약건수 ( 월자문  ) 
+		*/
+			
+		WITH MONTHS_24 AS (<include refid="MONTHS_24"/>)
+		,EACH_CONTRACT AS (
+			SELECT M.month, COUNT(CONTRACT_ID) CONTRACT_CNT
+			FROM MONTHS_24 M
+			, (
+				SELECT CN.CONTRACT_ID
+				, TO_CHAR(RST.RESULT_DATE, 'YYYYMM') AS EACH_MONTH
+				FROM TBL_EXP_CONTRACT CN
+				,TBL_EXP_RESULT RST
+				,TBL_EXP_COST CS
+				WHERE CN.CONTRACT_TYPE = 'MONTHLY'
+				AND CN.CONTRACT_ID = RST.CONTRACT_ID 
+				AND CN.CONTRACT_ID = CS.CONTRACT_ID
+				AND CS.RESULT_ID = RST.RESULT_ID
+				AND CN.USE_YN = 'Y' AND CN.DEL_YN = 'N'
+				AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
+				AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
+				GROUP BY CN.CONTRACT_ID, CN.TOTAL_COST, RST.RESULT_ID, TO_CHAR(RST.RESULT_DATE, 'YYYYMM')
+			) DATA 
+			WHERE  M.month = DATA.EACH_MONTH
+			GROUP BY M.month
+			ORDER BY M.month 
+		)
+		SELECT M.MONTH  , NVL(CONTRACT_CNT, 0) CONTRACT_CNT
+		FROM MONTHS_24 M, EACH_CONTRACT C
+		WHERE M.MONTH = C.MONTH(+)
+		ORDER BY M.MONTH
+
+	</select>
+	
+	
+	<select id="getFASellingOrder" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getFASellingOrder
+			전체  FA 매출 순위 
+		*/
+		WITH EACH_PAYMENT AS ( 
+						SELECT DATA.RESULT_YEAR , DATA.USER_ID , DATA.USER_NM , DATA.TOTAL_INCOME
+						FROM ( 
+							SELECT RESULT_YEAR , USER_ID , USER_NM , SUM(PAYMENT) TOTAL_INCOME
+							FROM
+							( 
+								SELECT DISTINCT TO_CHAR( R.RESULT_DATE, 'YYYY') AS RESULT_YEAR , R.INCOME , P.PAYMENT , U.BRANCH_ID , U.USER_ID , U.USER_NM
+								FROM TBL_EXP_RESULT R , TBL_EXP_CONTRACT C , TBL_EXP_PAYMENT P , TBL_EXP_CONTRACT_MEMBER CM , TBL_EXP_USER U
+								WHERE C.CONTRACT_ID = R.CONTRACT_ID
+								AND R.CONTRACT_ID = P.CONTRACT_ID
+								AND R.RESULT_ID = P.RESULT_ID
+								AND C.CONTRACT_ID = CM.CONTRACT_ID
+								AND P.USER_ID = CM.USER_ID
+								AND P.USER_ID = U.USER_ID
+								AND R.USE_YN = 'Y'
+								AND R.DEL_YN = 'N'
+								AND P.USE_YN = 'Y'
+								AND P.DEL_YN = 'N'
+								AND CM.USE_YN = 'Y'
+								AND CM.DEL_YN = 'N'
+								<choose>
+							       	<when test=" LAST_YEAR == null  "> 
+										AND TO_CHAR(R.RESULT_DATE, 'YYYY')   <![CDATA[ >= ]]> TO_CHAR( SYSDATE , 'YYYY')
+							      	</when>
+							       	<when test=" LAST_YEAR != null  ">  
+										AND TO_CHAR(R.RESULT_DATE, 'YYYY')   <![CDATA[ >= ]]> TO_CHAR( SYSDATE - INTERVAL '1' YEAR ,'YYYY')
+										AND TO_CHAR(R.RESULT_DATE, 'YYYY')   <![CDATA[ <  ]]> TO_CHAR( SYSDATE , 'YYYY')
+							      	</when>
+							      	<otherwise>			
+							      	</otherwise>
+								</choose>	
+						)
+							GROUP BY RESULT_YEAR , USER_ID , USER_NM 
+						) DATA
+		) 
+		SELECT RESULT_YEAR AS YEAR
+		, USER_NM
+		, SUM(TOTAL_INCOME) AS TOTAL_INCOME
+		FROM EACH_PAYMENT
+		WHERE USER_NM IS NOT NULL
+		GROUP BY RESULT_YEAR, USER_NM
+		ORDER BY TOTAL_INCOME DESC FETCH NEXT 24 ROWS ONLY
 	</select>	
 </mapper>
