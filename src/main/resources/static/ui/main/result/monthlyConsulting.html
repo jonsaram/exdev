@@ -39,12 +39,12 @@ var <@pageId> = {
 					
 				})
 
-				<@pageId>.treemapChart('<@pageId>_subCategoryTreemap',{	minColor: '#8A8BB9',
-													        	maxColor: '#27187F'},treemapData,function(options){
-													        		console.log( options );
-													        		<@pageId>.contractList(options);
-													        		<@pageId>.allContractList(options);
-													        	});
+				<@pageId>.treemapChart('<@pageId>_subCategoryTreemap',{	minColor: '#8A8BB9',maxColor: '#27187F'}
+																	 ,treemapData
+																	 ,function(options){
+														        		<@pageId>.contractList(options);
+														        		<@pageId>.allContractList(options);
+													        		 });
 				
 
 				$(".highcharts-credits").remove();
@@ -200,30 +200,29 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								</thead>
 								<tbody id="<@pageId>_contractList">
 								</tbody>
-<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
-						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
-								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
-			 					<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
-			 					<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
-			 					<td id=''		value=''		>직할</td>
-			 					<td id=''		value=''		>본사</td>
-			 					<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
-			 					<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
-								<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
-								<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
-								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
- 								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
- 								<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'				>{{:TOT_INCOME}}</td>
-							</tr>
-						{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
-				<tr>	
-					<td colspan=12>자료가 없습니다.</td>	
-				</tr>
-</script>									
-
+								<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
+								{{for list}}
+									<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
+										<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
+			 							<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
+			 							<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
+			 							<td id=''		value=''		>직할</td>
+			 							<td id=''		value=''		>본사</td>
+			 							<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
+			 							<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
+										<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
+										<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
+										<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
+ 										<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
+ 										<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'				>{{:TOT_INCOME}}</td>
+									</tr>
+								{{/for}}
+								</script>
+								<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
+									<tr>	
+										<td colspan=12>자료가 없습니다.</td>	
+									</tr>
+								</script>									
 							</table>
 						</div>
 						<!-- paging -->
@@ -293,29 +292,29 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								</thead>
 								<tbody id="<@pageId>_allContractList">
 								</tbody>
-<script type="text/x-jsrender" id="<@pageId>_allContractList_template">						
-						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
-								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
-			 					<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
-			 					<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
-			 					<td id=''		value=''		>직할</td>
-			 					<td id=''		value=''		>본사</td>
-			 					<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
-			 					<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
-								<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
-								<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
-								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
- 								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
- 								<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'			>{{:TOT_INCOME}}</td>
-							</tr>
-						{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@pageId>_allContractList_noData_template">	
-				<tr>	
-					<td colspan=12>자료가 없습니다.</td>	
-				</tr>
-</script>								
+								<script type="text/x-jsrender" id="<@pageId>_allContractList_template">						
+								{{for list}}
+									<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
+										<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
+			 							<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
+			 							<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
+			 							<td id=''		value=''		>직할</td>
+			 							<td id=''		value=''		>본사</td>
+			 							<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
+			 							<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
+										<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
+										<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
+										<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
+ 										<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
+ 										<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'			>{{:TOT_INCOME}}</td>
+									</tr>
+								{{/for}}
+								</script>
+								<script type="text/x-jsrender" id="<@pageId>_allContractList_noData_template">	
+									<tr>	
+										<td colspan=12>자료가 없습니다.</td>	
+									</tr>
+								</script>								
 							</table>
 						</div>
 						<!-- paging -->

@@ -113,8 +113,10 @@
 		AND C.CONTRACT_DATE <![CDATA[<=]]> #{TO_CONTRACT_DATE}
 		</if>		
 		)
+		WHERE CONTRACT_TYPE_NM IS NOT NULL
+		ORDER BY TOTAL_COST DESC		
 		<if test=" RANK != null and !RANK.equals('')">
-		WHERE RANK <![CDATA[<=]]> #{RANK} AND ROWNUM <![CDATA[<=]]> #{RANK}
+		FETCH NEXT #{RANK} ROWS ONLY
 		</if>
 	</select>	
 	

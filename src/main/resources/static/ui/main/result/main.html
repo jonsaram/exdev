@@ -323,13 +323,18 @@ var <@pageId> = {
 					
 				})
 
-				<@pageId>.treemapChart('<@pageId>_mainCategoryTreemap',{	minColor: '#75C2D5',
-													        	maxColor: '#3BA8C3'},
-													        	treemapData,function(options){
-													        		console.log( options );
-													        		<@pageId>.mainCategoryItem = options.type;
-													        		<@pageId>.subCategoryTreemap();
-													        	});
+				<@pageId>.treemapChart('<@pageId>_mainCategoryTreemap',{ minColor: '#75C2D5',maxColor: '#3BA8C3'}
+																	  ,treemapData
+																	  ,function(options){
+																			let menuId, pageId;
+																			switch( options.type){
+																				case "MONTHLY"	:menuId='MN_RST_MNH';pageId='main_result_monthlyConsulting';break;
+																				case "ONCE"		:menuId='MN_RST_ONC';pageId='main_result_onceConsulting';break;
+																				case "COWORK"	:menuId='MN_RST_CWK';pageId='main_result_coworkConsulting';break;
+																				default:
+																			}
+																			getMenuPage(menuId,pageId);
+																	   });
 				<@pageId>.subCategoryTreemap();
 			});
 			
