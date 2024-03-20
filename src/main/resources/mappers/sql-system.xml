@@ -681,6 +681,42 @@
 	</select>
 	
 
+	<update id="saveExcelUploadInfo" parameterType="java.util.HashMap" flushCache="true" >
+		/*	system.saveExcelUploadInfo
+			엑셀 업로드 정보 저장
+		*/
+		MERGE INTO TBL_EXP_EXUPTBL T
+		USING (
+			SELECT 
+		  		 #{sessionVo.spCstmId	} AS SP_CSTM_ID
+		    	,#{TABLE_NAME			} AS TABLE_NAME
+			FROM DUAL
+		) S
+		ON (
+				T.SP_CSTM_ID = S.SP_CSTM_ID 
+			AND T.TABLE_NAME = S.TABLE_NAME
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		  	 T.COLUMN_LIST = #{COLUMN_LIST		}
+		    ,T.UPDATE_USER = #{sessionVo.userId	}
+		    ,T.UPDATE_DATE = sysdate
+		WHEN NOT MATCHED THEN 
+    		INSERT (
+    			 TABLE_NAME	 
+    			,COLUMN_LIST 
+    			,UPDATE_USER 
+    			,UPDATE_DATE 
+    			,SP_CSTM_ID  
+    			
+			)
+		  	VALUES (
+				 #{TABLE_NAME			}
+                ,#{COLUMN_LIST			}
+                ,#{sessionVo.userId		}
+                ,sysdate                
+                ,#{sessionVo.spCstmId	}
+			)
+	</update>
 
-	
 </mapper>

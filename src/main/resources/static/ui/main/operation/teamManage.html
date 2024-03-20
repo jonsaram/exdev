@@ -1,20 +1,182 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-		 sampleVal : "예제 페이지입니다."
-		,sampleFunction : function() {
-			//alert(<@pageId>.sampleVal);	
-		 }	
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
-		<@pageId>.sampleFunction();
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
 
 	});
 </script>
-<div class="cont_wrap">
-	팀관리
+<div class="cont_wrap backWhite">
+	<div class="cont_top">
+		<h2><i class="icon_bullet"></i>팀관리</h2>
+	</div>
+	<section class="sec_wrap list" style="height:calc(100% - 43px);">
+		<!-- search area -->
+		<div class="search_area mt0">
+			<div class="fl">
+                <span class="tit01 fl lh33">사원선택</span>
+                <div class="search_inputWrap fl">
+					<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+				</div>
+				<button class="btn select fl">검색</button>
+            </div>
+		</div>
+		<div class="clearFix mt15" style="height: calc(100% - 53px);">
+			<div class="fl h100 mr15" style="width:calc(50% - 15px);">
+				<div class="cont_top clearFix">
+					<h3 class="fl font16">팀 목록</h3>
+					<div class="fr"><strong class="total">Total: <span class="pointColr">3</span></strong></div>
+				</div>
+
+				<!-- 테이블 -->
+				<div class="tbl01 col tbl_scroll line" style="height:calc(100% - 30px);">
+					<div class="tbl01 col tbl_head">
+						<table>
+							<caption>급여 내역 리스트</caption>
+							<colgroup>
+								<col style="width:45px;"/>
+								<col style="width:120px;"/>
+								<col style="width:120px;"/>
+								<col style="width:120px;"/>
+								<col style="width:120px;"/>
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col">No.</th>
+									<th scope="col">정산년월</th>
+									<th scope="col">사원명</th>
+									<th scope="col">관련계약건수</th>
+									<th scope="col">수수료 합</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div class="tbl01 col tbl_body_scroll">
+						<table>
+							<caption>급여 내역 리스트</caption>
+							<colgroup>
+								<col style="width:45px;"/>
+								<col style="width:120px;"/>
+								<col style="width:120px;"/>
+								<col style="width:120px;"/>
+								<col style="width:120px;"/>
+							</colgroup>
+							<tbody>
+								<tr>
+									<td>1</td>
+									<td>2024년 01월</td>
+									<td>위성열</td>
+									<td>2건</td>
+									<td>1,500,000</td>
+								</tr>
+								<tr>
+									<td>2</td>
+									<td>2024년 01월</td>
+									<td>홍길동</td>
+									<td>4건</td>
+									<td>3,500,000</td>
+								</tr>
+								<tr>
+									<td>3</td>
+									<td>2024년 01월</td>
+									<td>강나래</td>
+									<td>3건</td>
+									<td>2,500,000</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="fl h100 ml15" style="width:calc(50% - 15px);">
+				<div class="cont_top clearFix">
+					<h3 class="fl font16">급여 상세</h3>
+					<div class="fr">
+						<span class="info"><strong>위성열</strong> l <strong>2024년 01월</strong> l</span>
+						<strong class="total">Total: <span class="pointColr">3</span></strong>
+					</div>
+				</div>
+				<!-- 테이블 -->
+				<div class="tbl01 col tbl_scroll row2" style="height:calc(100% - 30px);">
+					<div class="tbl01 col tbl_head2">
+						<table>
+							<caption>급여관리 리스트</caption>
+							<colgroup>
+								<col style="width:40px;"/>
+								<col style="width:120px;" span="4"/>
+								<col style="width:100px;" span="3"/>
+								<col style="width:100px;"/>
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col" rowspan="2">No.</th>
+									<th scope="col" colspan="3">계약정보</th>
+									<th scope="col" rowspan="2">실적/입금액</th>
+									<th scope="col" rowspan="2">입금일</th>
+									<th scope="col" rowspan="2">계약관례Type</th>
+									<th scope="col" rowspan="2">수수료율</th>
+									<th scope="col" rowspan="2">수수료</th>
+								</tr>
+								<tr>
+									<th scope="col">고객명</th>
+									<th scope="col">컨설팅명</th>
+									<th scope="col">총계약금액</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div class="tbl01 col tbl_body_scroll2">
+						<table>
+							<caption>급여관리 리스트</caption>
+							<colgroup>
+								<col style="width:40px;"/>
+								<col style="width:120px;" span="4"/>
+								<col style="width:100px;" span="3"/>
+								<col style="width:100px;"/>
+							</colgroup>
+							<tbody>
+								<tr>
+									<td>1</td>
+									<td>스타에셋</td>
+									<td>월자문 솔루션1</td>
+									<td class="tr">100,000,000</td>
+									<td class="tr">20,000,000</td>
+									<td>2024-01-05</td>
+									<td>코웍</td>
+									<td>5%</td>
+									<td class="tr">1,000,000</td>
+								</tr>
+								<tr>
+									<td>2</td>
+									<td>스타에셋2</td>
+									<td>월자문 솔루션3</td>
+									<td class="tr">50,000,000</td>
+									<td class="tr">5,000,000</td>
+									<td>2024-01-25</td>
+									<td>실행</td>
+									<td>30%</td>
+									<td class="tr">1,500,000</td>
+								</tr>
+							</tbody>
+							<tfoot>
+								<tr>
+									<td></td>
+									<td colspan="2">총계</td>
+									<td class="tr">150,000,000</td>
+									<td class="tr">25,000,000</td>
+									<td colspan="3"></td>
+									<td class="tr">1,500,000</td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</section>
 </div>
