@@ -10,9 +10,16 @@
 				,requestParm	: {}
 			}
 			C_COM.requestQuery(parm, function(resultData) {
+				let list = [];	
+				debugger;
+				$.each(resultData.data, function() {
+					let obj = fn_copyObject(this);
+					obj.COLUMN_LIST = obj.COLUMN_LIST.replaceAll("/", "<br/>");
+					list.push(obj);
+				});
                 let rparm = {
                      targetId   	: "uploadTableId"
-                    ,list       	: resultData.data
+                    ,list       	: list
                     ,targetTotalId 	: "totalCnt" 
                 }
                 C_COM.renderHtml("<@pageId>", rparm);
@@ -132,8 +139,11 @@
 			}
 			
 		 }
-		,regist : function() {
-			C_POP.open('popup_system_registExcelUpload', {}, function(retData) {
+		,regist : function(idx) {
+			var parm = {}
+			if(isValid(idx)) parm = <@pageId>.resultData[idx];
+			
+			C_POP.open('popup_system_registExcelUpload', parm, function(retData) {
 				<@pageId>.loadData();
 			});
 		 }
@@ -202,7 +212,7 @@
 									<tr>
 										<td>{{:#index + 1}}</td>
 										<td class="tl"><a onclick="<@pageId>.showTableInfo('{{:TABLE_NAME}}')">{{:TABLE_NAME}}</a></td>
-										<td class="tl">{{:COLUMN_LIST}}</td>
+										<td class="tl"><a onclick="<@pageId>.regist({{:#index}})">{{:COLUMN_LIST}}</a></td>
 										<td class="tl"><a href="javascript:<@pageId>.templateDownload({{:#index}})">{{:ORG_FILE_NM}}</a></td>
 										<td class="tc"><button type="button" class="btn fl"	onclick="<@pageId>.templateUpload	({{:#index}})"><i class="icon_upload"	></i> Template 업로드	</button></td>
 									</tr>

@@ -1,10 +1,11 @@
 package exdev.com.service;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +25,6 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -121,6 +120,7 @@ public class ExcelService  extends ExdevBaseService{
 		}
 		return resultMap;
 	}
+	@SuppressWarnings("unchecked")
 	public @ResponseBody Map<String, Object> commonExcelUploadExec(@RequestParam("file") MultipartFile file, HttpSession session, int sheetNum) throws Exception {
 
 		SessionVO sessionVo = (SessionVO) session.getAttribute(ExdevConstants.SESSION_ID);
@@ -214,6 +214,21 @@ public class ExcelService  extends ExdevBaseService{
 	        			// 컬럼 개수가 일치하지 않아 오류처리
 	        			throw new Exception("Column개수가 일치하지 않습니다.");
 	        		}
+
+	        		boolean check = true;
+	        		for (int ii=0; ii < headerCnt;ii++ ) {
+	        			String rgColumn = headerList.get(ii);
+	        			Cell cell = row.getCell(ii, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+	        			String rowColumn = cell.toString();
+	        			if(!rgColumn.equals(rowColumn)) {
+	        				check = false;
+	        				break;
+	        			}
+	        		}
+	        		if(!check) {
+		        		// 등록된 Column과 일치하지 않는 경우
+	        			throw new Exception("등록된 Column Name과 일치하지 않습니다.");
+	        		}
 	        		
 	        		// 기존 Data 지우고 새로 upload인경우 처리
 	        		if("Y".equals(clearCheck)) {
@@ -240,8 +255,11 @@ public class ExcelService  extends ExdevBaseService{
 	        			// 기존 Data를 지운다.
         				commonDao.update("common.deleteTable"				, optionMap);
 	        		}
-		        // 다섯번째 행부터 Data
-	            } else if (idx > 3) {
+	        	// 다섯번째 행은 컬럼 Comment
+	        	} else if (idx == 4) {
+	        		
+		        // 여섯번째 행부터 Data
+	            } else if (idx > 4) {
 
 		            Map<String, Object> cellMap = new LinkedHashMap<>();
 
@@ -252,13 +270,24 @@ public class ExcelService  extends ExdevBaseService{
 		                
 		                switch (cell.getCellType()) {
 		                	case NUMERIC:
-		                		Double 	dcellValue 	= Double.parseDouble(cellValue);
-		                		Long 	lcellValue 	= Math.round(dcellValue);
-		                		
-		                		String compStr = (dcellValue + "").replaceAll(".0", "");
-		                		if(compStr.equals(lcellValue.toString())) {
-		                			cellValue = compStr;
+		                		try {
+			                		Double 	dcellValue 	= Double.parseDouble(cellValue);
+			                		Long 	lcellValue 	= Math.round(dcellValue);
+			                		
+			                		String compStr = (dcellValue + "").replaceAll(".0", "");
+			                		if(compStr.equals(lcellValue.toString())) {
+			                			cellValue = compStr;
+			                		}
+		                		} catch(Exception e) {
+	                                // Date 객체로 변환
+	                                Date date = cell.getDateCellValue();
+
+	                                // yyyy-MM-dd 형식으로 변환
+	                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	                                String formattedDate = sdf.format(date);
+	                                cellValue = formattedDate;
 		                		}
+		                
 		                		break;
 		                	default:
 		                }		                
@@ -284,8 +313,15 @@ public class ExcelService  extends ExdevBaseService{
             	List<Map> setUpdateList = new ArrayList<Map>();
             	for (String column : headerList) {
             		HashMap infoMap = new HashMap(); 
-            		infoMap.put("header", column);
-            		infoMap.put("data"	, (String)map.get(column));
+            		
+            		String [] columnArry = column.split(":");
+            		String columnNm 	= columnArry[0];
+            		String columnType	= "X";
+            		if(columnArry.length > 1) columnType = columnArry[1];
+            		
+            		infoMap.put("header"		, columnNm);
+            		infoMap.put("columnType"	, columnType);
+            		infoMap.put("data"			, (String)map.get(column));
             		setInfoList.add(infoMap);
             		
             		boolean keyCheck = false;

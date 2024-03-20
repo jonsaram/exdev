@@ -4,6 +4,15 @@
 		 save : function() {
 			var parm = $("#<@popupId>_form").serializeJSON();
 			
+			if(isEmpty(parm.TABLE_NAME)) {
+				C_POP.alert('테이블명을 입력하세요.');
+				return;
+			}
+			if(isEmpty(parm.COLUMN_LIST)) {
+				C_POP.alert('컬럼List를 입력하세요.');
+				return;
+			}
+			
 			parm.COLUMN_LIST = parm.COLUMN_LIST.replaceAll("\t", "/");
 			 
 			var parm = {
@@ -26,7 +35,13 @@
 		 }
 	}
 	// Popup Load가 완료된후 실행 된다.
-	C_POP.onLoadPopup("<@popupId>", function(data) {
+	C_POP.onLoadPopup("<@popupId>", function(parm) {
+		if(isValid(parm.TABLE_NAME)) {
+			$("#<@popupId> #TABLE_NAME").val(parm.TABLE_NAME)
+		}
+		if(isValid(parm.COLUMN_LIST)) {
+			$("#<@popupId> #COLUMN_LIST").val(parm.COLUMN_LIST)
+		}
 		
 	
 	});
@@ -42,11 +57,15 @@
 		<div class="modal_body">
 			<dl class="info_wrap pay">
 				<dt>테이블명</dt>
-				<dd><input type="text" name="TABLE_NAME" style="width:100%"></dd>
+				<dd><input type="text" name="TABLE_NAME" id="TABLE_NAME" style="width:100%"></dd>
 				<dt>컬럼 List</dt>
-				<dd><input type="text" name="COLUMN_LIST" style="width:100%"></dd>
+				<dd><input type="text" name="COLUMN_LIST" id="COLUMN_LIST" style="width:100%"></dd>
 			</dl>
 		</div>
+		<div class="info_wrap pay">
+			ex) AAA/BBB/NDATE|D
+		</div>
+		
 		<div class="modal_footer">
 			<button type="button" class="btn select fl" onclick="<@popupId>.save()"	>저장</button>
 			<button type="button" class="btn" onclick="<@popupId>.close()">닫기</a></button>

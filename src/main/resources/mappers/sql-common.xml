@@ -62,7 +62,12 @@
     		,SP_CSTM_ID
 		) VALUES (
 	    <foreach item="setInfo" collection="setInfoList" separator=",">
-   			 #{setInfo.data}
+			<if test='setInfo.columnType.equals("D") '>
+			TO_DATE(#{setInfo.data}, 'YYYY-MM-DD HH24:MI:SS')
+			</if>
+			<if test='!setInfo.columnType.equals("D")'>
+			#{setInfo.data}
+			</if>
    		</foreach>
    			,sysdate
    			,#{sessionVo.userId}
@@ -90,8 +95,14 @@
 		WHEN MATCHED THEN
 			UPDATE SET
 		    <foreach item="setInfo" collection="setUpdateList" separator=",">
-	   			  T.${setInfo.header} = #{setInfo.data}
+				<if test='setInfo.columnType.equals("D") '>
+				T.${setInfo.header} = TO_DATE(#{setInfo.data}, 'YYYY-MM-DD HH24:MI:SS')
+				</if>
+				<if test='!setInfo.columnType.equals("D")'>
+				T.${setInfo.header} = #{setInfo.data}
+				</if>
 	   		</foreach>
+	   		
 	   			 ,T.UPDATE_USER		 = #{sessionVo.userId}
 	   			 ,T.UPDATE_DATE		 = sysdate 
 		WHEN NOT MATCHED THEN 
@@ -104,7 +115,12 @@
 	    		,SP_CSTM_ID
 			) VALUES (
 		    <foreach item="setInfo" collection="setInfoList" separator=",">
-	   			 #{setInfo.data}
+				<if test='setInfo.columnType.equals("D") '>
+				TO_DATE(#{setInfo.data}, 'YYYY-MM-DD HH24:MI:SS')
+				</if>
+				<if test='!setInfo.columnType.equals("D")'>
+				#{setInfo.data}
+				</if>
 	   		</foreach>
 	   			,sysdate
 	   			,#{sessionVo.userId}
