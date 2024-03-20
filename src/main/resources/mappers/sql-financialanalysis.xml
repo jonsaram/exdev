@@ -143,9 +143,9 @@
 	기준년도
 	 -->
 	<select id="getFinAnalYear" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		   SELECT TO_CHAR(ADD_MONTHS(SYSDATE, -12*3),'YYYY') AS YEAR1,
-		          TO_CHAR(ADD_MONTHS(SYSDATE, -12*2),'YYYY') AS YEAR2,
-		          TO_CHAR(ADD_MONTHS(SYSDATE, -12*1),'YYYY') AS YEAR3
+		   SELECT TO_CHAR(ADD_MONTHS(SYSDATE, -12*3),'YYYY')||'년' AS YEAR1,
+		          TO_CHAR(ADD_MONTHS(SYSDATE, -12*2),'YYYY')||'년' AS YEAR2,
+		          TO_CHAR(ADD_MONTHS(SYSDATE, -12*1),'YYYY')||'년' AS YEAR3
 		   FROM DUAL
 	</select>
 	<!--
