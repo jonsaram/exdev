@@ -4,13 +4,40 @@
 var <@pageId> = {
 		
 		 mainCategoryItem: ''
+		,excelParam : {}
 		,categoryChart		: ()=> <@pageId>.mainCategoryChart()
 		,treemapChart 		: (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
 		,comparisonChart 	: (target, param)=>_comparisonChart(target, param)
 		,lineAndColumnChart : (target, param)=>_lineAndColumn_chart(target, param)
 		,lineWithLabelsChart: (target, param)=>_lineWithLabelsChart(target, param)
 		,createChart 		: (container, categories, series)=>_createChart(container, categories, series)
-		,pageInit : () =>{
+		,pageInit  : () =>{
+			const toDate	= dayjs().format("YYYY-MM-DD");
+			const fromDate 	= dayjs().subtract(1, 'month').format("YYYY-MM-DD");
+			$("#<@pageId>_fromDate").val(fromDate);
+			$("#<@pageId>_toDate").val(toDate);
+			
+			<@pageId>.setHandler();
+		}
+		,searchList : () => {
+			
+			<@pageId>.contractList();
+		}
+		,setHandler : () => {
+			
+			$("#<@pageId>_search").off().on('click', () =>{
+
+				<@pageId>.searchList();
+		    });
+		    
+			$("#<@pageId>_excelDownload").off().on('click',function(){
+
+ 		    	const $hds = $("#<@pageId>_headingColName th");
+		    	const $tds = $("[name='<@pageId>_tr_0'] td");
+		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"계약 리스트");  
+		    });
+		}
+		,chartInit : () =>{
 			
 			//월자문 순매출 , 1회성 순매출 , 외주자문 순매출
 			var parm = {
@@ -371,15 +398,15 @@ var <@pageId> = {
 		,contractList :  () => {
 
 			const requestParm = {
-					FROM_CONTRACT_DATE:''
-					,TO_CONTRACT_DATE:''
+					FROM_CONTRACT_DATE: $("#<@pageId>_fromDate").val()
+					,TO_CONTRACT_DATE:$("#<@pageId>_toDate").val()
 			};
 			
 			var parm = {
 					 queryId 		: "rstMgn.getContractList"
 					,requestParm	: requestParm
 			}
-
+			<@pageId>.excelParam = parm;
 			C_COM.requestQuery(parm, function(resultData) {
 				
   				var rparm = {
@@ -399,8 +426,10 @@ var <@pageId> = {
 C_PM.onLoadPage("<@pageId>", function() {
 
 	<@pageId>.pageInit();
+
 	<@pageId>.categoryChart();
-	<@pageId>.contractList();
+	setTimeout( ()=>{<@pageId>.contractList();},500)
+	setTimeout( ()=>{<@pageId>.chartInit();},700)
 	
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -411,12 +440,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 <div class="cont_wrap">
 			<div class="cont_top">
 				<h2><i class="icon_bullet"></i>Main</h2>
-
-				<div class="select_box fr" style="width:132px">
-					<button type="button" class="btn radio"><span>전체</span></button>
-                    <ul class="select_lst">
-                    </ul>
-                </div>
 			</div>
 			<div class="sec_scroll">
 				<section class="sec_wrap">
@@ -444,13 +467,30 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<div class="search_area">
 							<span class="tit01">조회기간</span>
 							<div class="calendar_wrap">
-								<input type="text" class="datepicker" style="width:132px">
+								<input type="text" class="datepicker" style="width:132px" id="<@pageId>_fromDate">
 							</div>
+							~
+							<div class="calendar_wrap">
+								<input type="text" class="datepicker" style="width:132px" id="<@pageId>_toDate">
+							</div>
+							<button class="btn select" id='<@pageId>_search'>검색</button>
 							<div class="search_right">
-								<button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>
+								<button type="button" class="btn fl" id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
 								<div class="select_box fl" style="width:132px">
 									<button type="button" class="btn radio"><span>50개 보기</span></button>
-				                    <ul class="select_lst">
+ 										<ul class="select_lst">
+<!-- 				                        <li>
+				                            <input name="number" id="num01" type="radio" value="">
+				                            <label for="num01">50개 보기<i class="icon_check"></i></label>
+				                        </li>
+				                        <li>
+				                            <input name="number" id="num02" type="radio" value="">
+				                            <label for="num02">30개 보기<i class="icon_check"></i></label>
+				                        </li>
+				                        <li>
+				                            <input name="number" id="num03" type="radio" value="">
+				                            <label for="num03">10개 보기<i class="icon_check"></i></label>
+				                        </li> -->
 				                    </ul>
 				                </div>
 				            </div>
@@ -460,7 +500,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<table>
 								<caption>표 캡션</caption>
 								<colgroup>
-									<col style="width:40px;"/>
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
@@ -474,8 +513,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<col style="width:9%;"/>
 								</colgroup>
 								<thead>
-									<tr>
-										<th scope="col"><input type="checkbox"></th>
+									<tr id="<@pageId>_headingColName">
 										<th scope="col">년</th>
 										<th scope="col">월</th>
 										<th scope="col">팀</th>
@@ -489,23 +527,22 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<th scope="col">입금액</th>
 									</tr>
 								</thead>
-								<tbody id="<@pageId>_contractList">
+								<tbody id="<@pageId>_contractList"  style="min-height:350px!important">
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
 								{{for list}}
 									<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
-										<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
 			 							<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
 			 							<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</td>
 			 							<td id='SALES_TYPE_NM'		value='{{:SALES_TYPE_NM}}'		>{{:SALES_TYPE_NM}}</td>
 			 							<td id='GET_PATH_NM'		value='{{:GET_PATH_NM}}'		>{{:GET_PATH_NM}}</td>
 			 							<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
 			 							<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
-										<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
+										<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		style="text-align:left"	>{{:COMPANY_REGNUM}}</td>
 										<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
 										<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
- 										<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{:TOTAL_COST}}</td>
- 										<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'				>{{:TOT_INCOME}}</td>
+ 										<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{numb:TOTAL_COST}}</td>
+ 										<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'			>{{numb:TOT_INCOME}}</td>
 									</tr>
 								{{/for}}
 								</script>
@@ -536,7 +573,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<h3>월자문 순매출</h3>
 						<div class="price" id="<@pageId>_monthly_OrgSellingPrice">원</div>
 						<figure class="highcharts-figure">
-					    	<div class="chart" id="<@pageId>_monthlyOSP_chart" style="width:100%; height:280px; margin:0 auto"></div>
+					    	<div class="chart" id="<@pageId>_monthlyOSP_chart" style="width:100%; height:280px; margin:85px auto"></div>
 						</figure>
 					</div>
 					<div class="cont_box col3">

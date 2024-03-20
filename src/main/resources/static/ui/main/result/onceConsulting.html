@@ -5,6 +5,28 @@ var <@pageId> = {
 		mainCategoryItem: ''
 		,categoryChart	: ()=> <@pageId>.mainCategoryChart()
 		,treemapChart : (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
+		,pageInit  : () =>{
+			const toDate	= dayjs().format("YYYY-MM-DD");
+			const fromDate 	= dayjs().subtract(1, 'month').format("YYYY-MM-DD");
+			$("#<@pageId>_fromDate"		).val(fromDate);
+			$("#<@pageId>_toDate"		).val(toDate);
+			$("#<@pageId>_fromDateAll"	).val(fromDate);
+			$("#<@pageId>_toDateAll"	).val(toDate);
+			
+			<@pageId>.setHandler();
+		}
+		,setHandler : () => {
+			
+			$("#<@pageId>_search").off().on('click', () =>{
+
+				<@pageId>.contractList();
+		    });
+			$("#<@pageId>_searchAll").off().on('click', () =>{
+
+				<@pageId>.allContractList();
+		    });
+			
+		}
 		,mainCategoryChart :  () => {
 		
 			<@pageId>.treemapChart('<@pageId>_mainCategoryTreemap',
@@ -74,9 +96,9 @@ var <@pageId> = {
 
 			const ID = options ? options.id : '';
 			const requestParm = {
-					 CONSULTING_TYPE : 'ONCE'
-					,FROM_CONTRACT_DATE:''
-					,TO_CONTRACT_DATE:''
+					 CONSULTING_TYPE 	:'ONCE'
+					,FROM_CONTRACT_DATE	: $("#<@pageId>_fromDate").val()
+					,TO_CONTRACT_DATE	: $("#<@pageId>_toDate").val()
 					,RANK:'5'
 					,CONSULTING_ID : ID
 			};
@@ -87,7 +109,9 @@ var <@pageId> = {
 		,allContractList :  (options) => {
 
 			const requestParm = {
-					 CONSULTING_TYPE : 'ONCE'
+					 CONSULTING_TYPE 	: 'ONCE'
+					,FROM_CONTRACT_DATE	: $("#<@pageId>_fromDateAll").val()
+					,TO_CONTRACT_DATE	: $("#<@pageId>_toDateAll").val()
 			};
 			
 			<@pageId>.searchList(requestParm, "<@pageId>_allContractList");
@@ -97,9 +121,11 @@ var <@pageId> = {
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
 
-	<@pageId>.categoryChart();
+	<@pageId>.pageInit();
+
 	<@pageId>.contractList();
- 	<@pageId>.allContractList();
+	<@pageId>.categoryChart();
+	setTimeout( ()=>{<@pageId>.allContractList();},500) 	
 	
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -111,10 +137,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 
 			<div class="cont_top">
 				<h2><i class="icon_bullet"></i>일회성 컨설팅</h2>
-
-				<div class="select_box fr" style="width:132px">
-					<button type="button" class="btn radio"><span>전체</span></button>
-                </div>
 			</div>
 			<div class="sec_scroll">
 				<section class="sec_wrap">
@@ -136,14 +158,19 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</div>
 
 					<!-- 전체 계약 리스트 -->
-					<div class="cont_box right">
+					<div class="cont_box right" style="height:350px!important;overflow:auto">
 						<h3>매출 TOP5 거래처</h3>
 						<!-- search area -->
 						<div class="search_area">
 							<span class="tit01">조회기간</span>
 							<div class="calendar_wrap">
-								<input type="text" class="datepicker" style="width:132px">
+								<input type="text" class="datepicker" style="width:132px" id="<@pageId>_fromDate">
 							</div>
+							~
+							<div class="calendar_wrap">
+								<input type="text" class="datepicker" style="width:132px" id="<@pageId>_toDate">
+							</div>
+							<button class="btn select" id='<@pageId>_search'>검색</button>
 							<div class="search_right">
 								<!-- <button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button> -->
 								<div class="select_box fl" style="width:132px">
@@ -228,14 +255,19 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</section>
 
 				<section class="sec_wrap">
-					<div class="cont_box">
+					<div class="cont_box" style='min-height:530px;'>
 						<h3>전체 계약 리스트</h3>
 						<!-- search area -->
 						<div class="search_area">
 							<span class="tit01">조회기간</span>
 							<div class="calendar_wrap">
-								<input type="text" class="datepicker" style="width:132px">
+								<input type="text" class="datepicker" style="width:132px" id="<@pageId>_fromDateAll">
 							</div>
+							~
+							<div class="calendar_wrap">
+								<input type="text" class="datepicker" style="width:132px" id="<@pageId>_toDateAll">
+							</div>
+							<button class="btn select" id='<@pageId>_searchAll'>검색</button>
 							<div class="search_right">
 								<button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>
 								<div class="select_box fl" style="width:132px">
