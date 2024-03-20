@@ -96,6 +96,10 @@ var <@pageId> = {
 				<@pageId>.showObject(resultData.data['financialanalysis.getFinAnalYear'][0],'');
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl01", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl02", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl03", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl04", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl06", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 			});
 		 }
 		,goPage : (pageId,rowId) => {
@@ -829,10 +833,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<table>
 											<caption></caption>
 											<colgroup>
-												<col style="width:34%;"/>
-												<col style="width:22%;"/>
-												<col style="width:22%;"/>
-												<col style="width:22%;"/>
+												<col style="width:31%;"/>
+												<col style="width:23%;"/>
+												<col style="width:23%;"/>
+												<col style="width:23%;"/>
 											</colgroup>
 											<thead>
 												<tr>
@@ -873,10 +877,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<table>
 											<caption></caption>
 											<colgroup>
-												<col style="width:34%;"/>
-												<col style="width:22%;"/>
-												<col style="width:22%;"/>
-												<col style="width:22%;"/>
+												<col style="width:31%;"/>
+												<col style="width:23%;"/>
+												<col style="width:23%;"/>
+												<col style="width:23%;"/>
 											</colgroup>
 											<thead>
 												<tr>
@@ -947,146 +951,50 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<table>
 											<caption></caption>
 											<colgroup>
-												<col style="width:28%;"/>
-												<col style="width:24%;"/>
-												<col style="width:24%;"/>
-												<col style="width:24%;"/>
+												<col style="width:31%;"/>
+												<col style="width:23%;"/>
+												<col style="width:23%;"/>
+												<col style="width:23%;"/>
 											</colgroup>
 											<thead>
 												<tr>
 													<th>손익계정</th>
-													<th>2020년</th>
-													<th>2021년</th>
-													<th>2022년</th>
+													<th class="<@pageId>_YEAR1"></th>
+													<th class="<@pageId>_YEAR2"></th>
+													<th class="<@pageId>_YEAR3"></th>
 												</tr>
 											</thead>
-											<tbody>
-												<tr class="bg_blue">
-													<td class="tl">매출액</td>
-													<td class="tr">1,656,819</td>
-													<td class="tr">1,242,595</td>
-													<td class="tr">2,330,467</td>
-												</tr>
-												<tr>
-													<td class="tl">매출원가</td>
-													<td class="tr">1,005,354</td>
-													<td class="tr">782,072</td>
-													<td class="tr">1,294,580</td>
-												</tr>
-												<tr class="bg_gray">
-													<td class="tl">매출총이익(손실)</td>
-													<td class="tr">560,465</td>
-													<td class="tr">460,522</td>
-													<td class="tr">1,035,886</td>
-												</tr>
-												<tr class="bg_gray">
-													<td class="tl">판매비와관리비</td>
-													<td class="tr">898,903</td>
-													<td class="tr">672,646</td>
-													<td class="tr">784,190</td>
-												</tr>
-												<tr>
-													<td class="tl">급여<span class="num">①</span></td>
-													<td class="tr">323,966</td>
-													<td class="tr">246,317</td>
-													<td class="tr">246,460</td>
-												</tr>
-												<tr>
-													<td class="tl">임원급여</td>
-													<td class="tr">-</td>
-													<td class="tr">-</td>
-													<td class="tr">-</td>
-												</tr>
-												<tr>
-													<td class="tl">직원급여</td>
-													<td class="tr">257,340</td>
-													<td class="tr">246,317</td>
-													<td class="tr">246,460</td>
-												</tr>
-												<tr>
-													<td class="tl">퇴직급여</td>
-													<td class="tr">3,144</td>
-													<td class="tr">-</td>
-													<td class="tr">-</td>
-												</tr>
-												<tr>
-													<td class="tl">복리후생비<span class="num">②</span></td>
-													<td class="tr">41,918</td>
-													<td class="tr">31,198</td>
-													<td class="tr">48,599</td>
-												</tr>
-												<tr>
-													<td class="tl">차량유지비<span class="num">③</span></td>
-													<td class="tr">21,279</td>
-													<td class="tr">11,312</td>
-													<td class="tr">16,913</td>
-												</tr>
-												<tr>
-													<td class="tl">지급수수료</td>
-													<td class="tr">125,768</td>
-													<td class="tr">26,526</td>
-													<td class="tr">34,401</td>
-												</tr>
-												<tr>
-													<td class="tl">광고선전비</td>
-													<td class="tr">14,487</td>
-													<td class="tr">2,250</td>
-													<td class="tr">2,236</td>
-												</tr>
-												<tr>
-													<td class="tl">접대비<span class="num">④</span></td>
-													<td class="tr">27,443</td>
-													<td class="tr">21,416</td>
-													<td class="tr">33,077</td>
-												</tr>
-												<tr>
-													<td class="tl">보험료<span class="num">⑤</span></td>
-													<td class="tr">6,204</td>
-													<td class="tr">7,804</td>
-													<td class="tr">1,409</td>
-												</tr>
-												<tr>
-													<td class="tl">임차료<span class="num">⑥</span></td>
-													<td class="tr">143,350</td>
-													<td class="tr">131,700</td>
-													<td class="tr">140,838</td>
-												</tr>
-												<tr>
-													<td class="tl">경상개발비<span class="num">⑦</span></td>
-													<td class="tr">-</td>
-													<td class="tr">-</td>
-													<td class="tr">-</td>
-												</tr>
-												<tr class="bg_blue">
-													<td class="tl">영업이익(손실)</td>
-													<td class="tr">(338,438)</td>
-													<td class="tr">(212,123)</td>
-													<td class="tr">(251,696)</td>
-												</tr>
-												<tr class="bg_gray">
-													<td class="tl">영업외수익</td>
-													<td class="tr">16</td>
-													<td class="tr">19,977</td>
-													<td class="tr">137,496</td>
-												</tr>
-												<tr>
-													<td class="tl">이자수익<span class="num">⑧</span></td>
-													<td class="tr">16</td>
-													<td class="tr">2</td>
-													<td class="tr">2</td>
-												</tr>
-												<tr>
-													<td class="tl">보험차익</td>
-													<td class="tr">-</td>
-													<td class="tr">-</td>
-													<td class="tr">-</td>
-												</tr>
-												<tr>
-													<td class="tl">기타영업외수익<span class="num">⑨</span></td>
-													<td class="tr">-</td>
-													<td class="tr">19,975</td>
-													<td class="tr">137,494</td>
-												</tr>
+						                    <tbody id="<@pageId>_getFinAnalStatusDtl03">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl03_template">
+						 	                {{for list}}
+						 	                	{{if GUBUN == '손익계산서' && ITEM_GUBUN == '이익'}}
+                                               <tr {{if ITEM_NAME == '매출액' || ITEM_NAME == '영업이익(손실)'}}class="bg_blue"{{/if}}{{if ITEM_NAME == '매출총이익(손실)' || ITEM_NAME == '판매비와관리비'}}class="bg_gray"{{/if}}>
+                                              	<td class="tl">{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
+						 	                	<td class="tr">{{:YEAR1}}</td>
+						 	                	<td class="tr">{{:YEAR2}}</td>
+						 	                	<td class="tr">{{:YEAR3}}</td>
+                                               </tr>
+						 	                	{{/if}}
+						 	                {{/for}}
+						 	                {{for list}}
+						 	                	{{if GUBUN == '손익계산서' && ITEM_GUBUN == '손실'}}
+													{{if ITEM_NAME == '영업이익(손실)' || ITEM_NAME == '영업외수익' || ITEM_NAME.indexOf('이자수익') > -1 || ITEM_NAME == '보험차익' || ITEM_NAME.indexOf('기타영업외수익') > -1}}
+                                               <tr {{if ITEM_NAME == '영업이익(손실)'}}class="bg_blue"{{/if}}{{if ITEM_NAME == '영업외수익'}}class="bg_gray"{{/if}}>
+                                              	<td class="tl">{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
+						 	                	<td class="tr">{{:YEAR1}}</td>
+						 	                	<td class="tr">{{:YEAR2}}</td>
+						 	                	<td class="tr">{{:YEAR3}}</td>
+                                               </tr>
+						 	                		{{/if}}
+						 	                	{{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl03_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=4>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
 											</tbody>
 										</table>
 									</div>
@@ -1107,48 +1015,32 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 											<thead>
 												<tr>
 													<th>손익계정</th>
-													<th>2020년</th>
-													<th>2021년</th>
-													<th>2022년</th>
+													<th class="<@pageId>_YEAR1"></th>
+													<th class="<@pageId>_YEAR2"></th>
+													<th class="<@pageId>_YEAR3"></th>
 												</tr>
 											</thead>
-											<tbody>
-												<tr class="bg_gray">
-													<td class="tl">영업외비용</td>
-													<td class="tr">114,603</td>
-													<td class="tr">113,404</td>
-													<td class="tr">113,412</td>
-												</tr>
-												<tr>
-													<td class="tl">이자비용<span class="num">⑩</span></td>
-													<td class="tr">113,406</td>
-													<td class="tr">113,400</td>
-													<td class="tr">113,400</td>
-												</tr>
-												<tr>
-													<td class="tl">외환차손</td>
-													<td class="tr">-</td>
-													<td class="tr">-</td>
-													<td class="tr">-</td>
-												</tr>
-												<tr class="bg_gray">
-													<td class="tl">법인세차감전 순손익</td>
-													<td class="tr">(453,025)</td>
-													<td class="tr">(305,550)</td>
-													<td class="tr">-</td>
-												</tr>
-												<tr class="bg_gray">
-													<td class="tl">법인세비용<span class="num">⑪</span></td>
-													<td class="tr">-</td>
-													<td class="tr">17,504</td>
-													<td class="tr">8,018</td>
-												</tr>
-												<tr class="bg_blue">
-													<td class="tl">당기순이익<span class="num">⑫</span></td>
-													<td class="tr">(453,025)</td>
-													<td class="tr">(323,055)</td>
-													<td class="tr">267,761</td>
-												</tr>
+						                    <tbody id="<@pageId>_getFinAnalStatusDtl04">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl04_template">
+						 	                {{for list}}
+						 	                	{{if GUBUN == '손익계산서' && ITEM_GUBUN == '손실'}}
+													{{if ITEM_NAME != '영업이익(손실)' && ITEM_NAME != '영업외수익' && ITEM_NAME.indexOf('이자수익') <= -1 && ITEM_NAME != '보험차익' && ITEM_NAME.indexOf('기타영업외수익') <= -1}}
+                                               <tr {{if ITEM_NAME.indexOf('당기순이익') > -1 }}class="bg_blue"{{/if}}{{if ITEM_NAME == '영업외비용' || ITEM_NAME == '법인세차감전 순손익' || ITEM_NAME.indexOf('법인세비용') > -1}}class="bg_gray"{{/if}}>
+                                              	<td class="tl">{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
+						 	                	<td class="tr">{{:YEAR1}}</td>
+						 	                	<td class="tr">{{:YEAR2}}</td>
+						 	                	<td class="tr">{{:YEAR3}}</td>
+                                               </tr>
+						 	                		{{/if}}
+						 	                	{{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl04_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=4>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
 											</tbody>
 										</table>
 									</div>
@@ -1187,66 +1079,30 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<thead>
 										<tr>
 											<th>계정명</th>
-											<th>2020년</th>
-											<th>2021년</th>
-											<th>2022년</th>
+											<th class="<@pageId>_YEAR1"></th>
+											<th class="<@pageId>_YEAR2"></th>
+											<th class="<@pageId>_YEAR3"></th>
 										</tr>
 									</thead>
-									<tbody>
-										<tr>
-											<td class="tl"><strong>매출원가</strong></td>
-											<td class="tr">1,005,354</td>
-											<td class="tr">782,072</td>
-											<td class="tr">1,294,580</td>
-										</tr>
-										<tr>
-											<td class="tl pl25">(매출원가/매출액)</td>
-											<td class="tr">64.2%</td>
-											<td class="tr">62.9%</td>
-											<td class="tr">55.6%</td>
-										</tr>
-										<tr>
-											<td class="tl"><strong>인건비</strong></td>
-											<td class="tr">327,110</td>
-											<td class="tr">246,317</td>
-											<td class="tr">246,460</td>
-										</tr>
-										<tr>
-											<td class="tl pl25">(인건비/매출액)</td>
-											<td class="tr">20.9%</td>
-											<td class="tr">19.8%</td>
-											<td class="tr">10.6%</td>
-										</tr>
-										<tr>
-											<td class="tl"><strong>임차료</strong></td>
-											<td class="tr">143,350</td>
-											<td class="tr">131,700</td>
-											<td class="tr">140,838</td>
-										</tr>
-										<tr>
-											<td class="tl pl25">(임차료/매출액)</td>
-											<td class="tr">9.2%</td>
-											<td class="tr">10.6%</td>
-											<td class="tr">6.0%</td>
-										</tr>
-										<tr class="bg_gray">
-											<td class="tl">매출액</td>
-											<td class="tr">1,565,819</td>
-											<td class="tr">1,242,595</td>
-											<td class="tr">2,330,467</td>
-										</tr>
-										<tr class="bg_gray">
-											<td class="tl">주요경비 합계</td>
-											<td class="tr">1,475,814</td>
-											<td class="tr">1,160,089</td>
-											<td class="tr">1,681,878</td>
-										</tr>
-										<tr class="bg_gray">
-											<td class="tl">주요경비율</td>
-											<td class="tr">94.3%</td>
-											<td class="tr">93.4%</td>
-											<td class="tr">72.2%</td>
-										</tr>
+						            <tbody id="<@pageId>_getFinAnalStatusDtl05">
+						            </tbody>
+						            <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl05_template">
+						 	        {{for list}}
+						 	        	{{if GUBUN == '경비율분석' && ITEM_GUBUN == '경비율'}}
+                                       <tr {{if ITEM_NAME == '매출액' || ITEM_NAME == '주요경비 합계' || ITEM_NAME == '주요경비율'}}class="bg_gray"{{/if}}>
+                                      	<td class="tl">{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
+						 	        	<td class="tr">{{:YEAR1}}</td>
+						 	        	<td class="tr">{{:YEAR2}}</td>
+						 	        	<td class="tr">{{:YEAR3}}</td>
+                                       </tr>
+						 	        	{{/if}}
+						 	        {{/for}}
+						            </script>
+						            <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl05_noData_template">
+						 	        <tr>	
+						 	        	<td colspan=4>자료가 없습니다.</td>	
+						 	        </tr>
+						            </script>
 									</tbody>
 								</table>
 							</div>
@@ -1307,66 +1163,30 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<thead>
 										<tr>
 											<th>구분</th>
-											<th>2020년</th>
-											<th>2021년</th>
-											<th>2022년</th>
+											<th class="<@pageId>_YEAR1"></th>
+											<th class="<@pageId>_YEAR2"></th>
+											<th class="<@pageId>_YEAR3"></th>
 										</tr>
 									</thead>
-									<tbody>
-										<tr>
-											<td class="tl"><strong>급여</strong></td>
-											<td class="tr">323,966</td>
-											<td class="tr">246,317</td>
-											<td class="tr">246,460</td>
-										</tr>
-										<tr>
-											<td class="tl pl25">임원급여</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-										</tr>
-										<tr>
-											<td class="tl pl25">직원급여</td>
-											<td class="tr">257,340</td>
-											<td class="tr">246,317</td>
-											<td class="tr">246,460</td>
-										</tr>
-										<tr>
-											<td class="tl pl25">상영금 및 제수당</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-										</tr>
-										<tr>
-											<td class="tl pl25">잡금</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-										</tr>
-										<tr>
-											<td class="tl"><strong>퇴직급여</strong></td>
-											<td class="tr">3,144</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-										</tr>
-										<tr class="bg_gray">
-											<td class="tl">인건비 합계</td>
-											<td class="tr">327,110</td>
-											<td class="tr">246,317</td>
-											<td class="tr">246,460</td>
-										</tr>
-										<tr>
-											<td class="tl"><strong>복리후생비</strong></td>
-											<td class="tr">1,475,814</td>
-											<td class="tr">1,160,089</td>
-											<td class="tr">1,681,878</td>
-										</tr>
-										<tr class="bg_gray">
-											<td class="tl">복리후생비/인건비</td>
-											<td class="tr">12.8%</td>
-											<td class="tr">12.4%</td>
-											<td class="tr">19.7%</td>
-										</tr>
+						            <tbody id="<@pageId>_getFinAnalStatusDtl06">
+						            </tbody>
+						            <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl06_template">
+						 	        {{for list}}
+						 	        	{{if GUBUN == '인건비분석' && ITEM_GUBUN == '인건비'}}
+                                       <tr {{if ITEM_NAME == '인건비 합계' || ITEM_NAME == '복리후생비/인건비'}}class="bg_gray"{{/if}}>
+                                      	<td class="tl">{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
+						 	        	<td class="tr">{{:YEAR1}}</td>
+						 	        	<td class="tr">{{:YEAR2}}</td>
+						 	        	<td class="tr">{{:YEAR3}}</td>
+                                       </tr>
+						 	        	{{/if}}
+						 	        {{/for}}
+						            </script>
+						            <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl06_noData_template">
+						 	        <tr>	
+						 	        	<td colspan=4>자료가 없습니다.</td>	
+						 	        </tr>
+						            </script>
 									</tbody>
 								</table>
 							</div>
