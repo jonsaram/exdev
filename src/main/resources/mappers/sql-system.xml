@@ -668,8 +668,13 @@
 			Table 정보를 가져온다.
 		*/
 		SELECT
-		    <foreach item="columnName" collection="columnArry" separator=",">
-	   			 ${columnName}
+		    <foreach item="columnObj" collection="columnList" separator=",">
+				<if test='columnObj.type.equals("D") '>
+				TO_CHAR(${columnObj.data}, 'YYYY-MM-DD HH24:MI:SS') AS ${columnObj.data}
+				</if>
+				<if test='!columnObj.type.equals("D") '>
+				${columnObj.data}
+				</if>
 	   		</foreach>
 	   		,UPDATE_USER
 	   		,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) AS UPDATE_DATE

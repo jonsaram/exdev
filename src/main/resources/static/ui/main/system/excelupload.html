@@ -100,20 +100,23 @@
 				if(isEmpty(columnList)) return;
 				
 				let columnArry = columnList.split("/");
+				let columnArryList = [];
 				
 				$.each(columnArry, function(idx) {
 					let val = this.split(":");
-					if(val[1] == "D") {
-						columnArry[idx] = `TO_CHAR( ${val[0]} , 'YYYY-MM-DD HH24:MI:SS' ) AS ${val[0]}`;
-					} else {
-						columnArry[idx] = val[0];	
+					let obj = {
+						 data : val[0]
+						,type : "X"
 					}
-				})
-				
+					if(isValid(val[1])) {
+						obj.type = val[1]; 
+					}
+					columnArryList.push(obj);
+				});
 				
 				var parm = {
 					 queryId 		: "system.getTableInfo"
-					,requestParm	: { tableName : tableName, columnArry : columnArry }
+					,requestParm	: { tableName : tableName, columnList : columnArryList }
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 					
@@ -124,8 +127,8 @@
 					let fullTableMap	= {};
 					
 					if( tableList.length > 0 ) {
-						$.each(columnArry, function(columnName) {
-							showColumnList.push({columnName : this});
+						$.each(columnArryList, function() {
+							showColumnList.push({columnName : this.data});
 						});
 						showColumnList.push({columnName : "UPDATE_DATE"});
 					}
