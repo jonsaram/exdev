@@ -1,14 +1,50 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@pageId> = {
-		 
+		
+		pageInit : () =>{
+			
+		}
+		,searchList : () => {
+			
+			const requestParm = {};
+			
+			var parm = {
+					 queryId 		: "salary.getPaymentList"
+					,requestParm	: requestParm
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+	
+				$(".<@pageId>_pointColr").text(resultData.data.length)
+				var rparm = {
+						 targetId 		: "<@pageId>_salaryList"
+						,list			: resultData.data
+				}
+				C_COM.renderHtml("<@pageId>", rparm);
+
+				let sumTotalCost=0,sumIncome=0,sumPayment=0;
+				resultData.data.forEach(item=>{
+					sumTotalCost 	+=item.TOTAL_COST;
+					sumIncome		+=item.INCOME;
+					sumPayment		+=item.PAYMENT;
+				})
+				$("#sumTotalCost").text(sumTotalCost.toLocaleString());
+				$("#sumIncome").text(sumIncome.toLocaleString());
+				$("#sumPayment").text(sumPayment.toLocaleString());
+				<@pageId>.setHandler();
+			});
+		}
+		,setHandler : () => {
+			
+		}
 }
 
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
 
-
-
+	<@pageId>.pageInit();
+	<@pageId>.searchList();
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
 C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -26,7 +62,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<!-- 실글 선택 -->
 			<div class="select_box fl" style="width:132px">
 				<button type="button" class="btn radio"><span>2024년 01월</span></button>
-                   <ul class="select_lst">
+<!--                    <ul class="select_lst">
                        <li>
                            <input name="number" id="num01" type="radio" value="">
                            <label for="num01">2024년 02월<i class="icon_check"></i></label>
@@ -39,11 +75,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
                            <input name="number" id="num03" type="radio" value="">
                            <label for="num03">2024년 04월<i class="icon_check"></i></label>
                        </li>
-                   </ul>
+                   </ul> -->
                </div>
            </div>
            <div class="search_right">
-			<strong class="total">Total: <span class="pointColr">3</span></strong>
+			<strong class="total">Total: <span class="<@pageId>_pointColr">3</span></strong>
            </div>
 	</div>
 	<!-- 테이블 -->
@@ -82,38 +118,36 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<col style="width:120px;" span="4"/>
 					<col style="width:100px;" span="4"/>
 				</colgroup>
-				<tbody>
-					<tr>
-						<td>1</td>
-						<td>스타에셋</td>
-						<td>월자문 솔루션1</td>
-						<td class="tr">100,000,000</td>
-						<td class="tr">20,000,000</td>
-						<td>2024-01-05</td>
-						<td>코웍</td>
-						<td>5%</td>
-						<td class="tr">1,000,000</td>
-					</tr>
-					<tr>
-						<td>2</td>
-						<td>스타에셋2</td>
-						<td>월자문 솔루션3</td>
-						<td class="tr">50,000,000</td>
-						<td class="tr">5,000,000</td>
-						<td>2024-01-25</td>
-						<td>실행</td>
-						<td>30%</td>
-						<td class="tr">1,500,000</td>
-					</tr>
+				<tbody id="<@pageId>_salaryList">
 				</tbody>
+				<script type="text/x-jsrender" id="<@pageId>_salaryList_template">						
+					{{for list}}
+						<tr name="<@pageId>_tr_{{:#index}}">
+							<td id='RN'							>{{:RN}}</td>
+							<td id='USER_NM'					>{{:USER_NM}}</td>
+							<td id='CONSULTING_NM'				>{{:CONSULTING_NM}}</td>
+							<td id='TOTAL_COST'	class="tr"		>{{numb:TOTAL_COST}}</td>
+							<td id='INCOME'		class="tr"		>{{numb:INCOME}}</td>
+							<td id='RESULT_DATE'class="tc"		>{{:RESULT_DATE}}</td>
+							<td id='RELATION_TYPE_NM' class="tc">{{:RELATION_TYPE_NM}}</td>
+							<td id='RATE'						>{{:RATE}}</td>
+							<td id='PAYMENT' class="tr"			>{{numb:PAYMENT}}</td>
+						</tr>
+					{{/for}}
+				</script>
+				<script type="text/x-jsrender" id="<@pageId>_salaryList_noData_template">	
+						<tr>	
+							<td colspan=8>자료가 없습니다.</td>	
+						</tr>
+				</script>								
 				<tfoot>
 					<tr>
 						<td></td>
-						<td colspan="2">총계</td>
-						<td class="tr">150,000,000</td>
-						<td class="tr">25,000,000</td>
+						<td colspan="2" >총계</td>
+						<td class="tr" id="sumTotalCost"></td>
+						<td class="tr" id="sumIncome"></td>
 						<td colspan="3"></td>
-						<td class="tr">1,500,000</td>
+						<td class="tr" id="sumPayment"></td>
 					</tr>
 				</tfoot>
 			</table>

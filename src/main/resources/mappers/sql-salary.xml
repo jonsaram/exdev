@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="salary">
+
+	<cache />
+
+	<!--
+	급여 관리 
+	 -->	
+	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	salary.getPaymentList
+			급여 리스트 조회 
+		*/
+		SELECT ROW_NUMBER() OVER(ORDER BY R.RESULT_DATE) RN
+		,U.USER_NM 
+		,CST.CONSULTING_ID
+		,CST.CONSULTING_NM 
+		,C.TOTAL_COST 
+		,R.INCOME 
+		,TO_CHAR(R.RESULT_DATE , 'YYYY-MM-DD') AS RESULT_DATE
+		,CM.RELATION_TYPE 
+		,GET_CODE_NM('RELATION_TYPE',CM.RELATION_TYPE) AS RELATION_TYPE_NM
+		,P.RATE || '%' AS RATE
+		,P.PAYMENT
+		/*
+		,CM.*
+		,C.*
+		,R.*
+		,P.*
+		*/ 
+		FROM TBL_EXP_PAYMENT P 
+		,TBL_EXP_USER U 
+		,TBL_EXP_CONTRACT C
+		,TBL_EXP_RESULT R
+		,TBL_EXP_CONSULTING CST
+		,TBL_EXP_CONTRACT_MEMBER CM
+		WHERE U.USER_ID = P.USER_ID 
+		AND P.USER_ID = '51115125782'
+		/* AND P.USER_ID		= sessionVo.userId} */
+		AND P.CONTRACT_ID	= R.CONTRACT_ID 
+		AND P.RESULT_ID		= R.RESULT_ID 
+		AND C.CONSULTING_ID	= CST.CONSULTING_ID (+)
+		AND C.CONTRACT_ID	= CM.CONTRACT_ID 
+		AND U.USER_ID 		= CM.USER_ID 
+		AND C.USE_YN ='Y'	AND C.DEL_YN ='N' 
+		AND R.USE_YN ='Y'	AND R.DEL_YN ='N' 
+		AND CM.USE_YN ='Y'	AND CM.DEL_YN ='N'
+		AND C.CONTRACT_ID 	= R.CONTRACT_ID
+		AND C.CONTRACT_DATE <![CDATA[ >= ]]> TO_DATE('2024-02-01','YYYY-MM-DD')
+		AND C.CONTRACT_DATE <![CDATA[ <= ]]> TO_DATE('2024-04-01','YYYY-MM-DD')
+		FETCH NEXT 15 ROWS ONLY
+	</select>
+
+</mapper>
