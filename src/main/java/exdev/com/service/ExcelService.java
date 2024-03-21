@@ -274,9 +274,9 @@ public class ExcelService  extends ExdevBaseService{
 			                		Double 	dcellValue 	= Double.parseDouble(cellValue);
 			                		Long 	lcellValue 	= Math.round(dcellValue);
 			                		
-			                		String compStr = (dcellValue + "").replaceAll(".0", "");
-			                		if(compStr.equals(lcellValue.toString())) {
-			                			cellValue = compStr;
+			                		String compStr = lcellValue + ".0";
+			                		if(compStr.equals(cellValue.toString())) {
+			                			cellValue = String.valueOf(lcellValue);
 			                		}
 		                		} catch(Exception e) {
 	                                // Date 객체로 변환
