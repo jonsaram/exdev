@@ -239,8 +239,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<col style="width:90px;">
 								<col style="width:80px;"/>
 								<col style="width:150px;"/>
+								<col style="width:150px;"/>
 								<col style="width:100px;"/>
-								<col style="width:90px;"/>
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
 								<col style="width:40px;"/>
@@ -251,11 +251,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<th scope="col"><input type="checkbox"  id="<@pageId>_ckAll"></th>
 								<th scope="col">고객번호</th>
 								<th scope="col">고객명</th>
-								<th scope="col">진행상태</th>
+								<th scope="col">사업자등록번호</th>
 								<th scope="col">연락처</th>
 								<th scope="col">본점주소</th>
-								<th scope="col">상담일</th>
-								<th scope="col">담당자</th>
+								<th scope="col">유입경로</th>
 								<th scope="col"><i class="icon_pen"></i></th>
 								<th scope="col"><i class="icon_trash"></i></th>
 							</tr>
@@ -269,8 +268,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<col style="width:90px;">
 								<col style="width:80px;"/>
 								<col style="width:150px;"/>
+								<col style="width:150px;"/>
 								<col style="width:100px;"/>
-								<col style="width:90px;"/>
 								<col style="width:90px;"/>
 								<col style="width:90px;"/>
 								<col style="width:40px;"/>
@@ -284,15 +283,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:BUYER_ID}}'></td>
 			 					<td id='BUYER_ID'		value='{{:BUYER_ID}}'			>{{:BUYER_ID}}</td>
 			 					<td id='BUYER_NM'		value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</a></td>
-			 					<td id='PROCESS_STATUS'	value='{{:PROCESS_STATUS}}'		>{{:PROCESS_STATUS}}</td>
+			 					<td id='COMPANY_REGNUM'	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</a></td>
 			 					<td id='TEL'			value='{{:TEL}}'				>{{:TEL}}</td>
 								<td id='ADDR'			value='{{:ADDR}}'				>{{:ADDR}}</td>
-								<td id='CONTACT_DATE'	value='{{:CONTACT_DATE}}'		>{{:CONTACT_DATE}}</td>
-								<td id='CONTACT_USER_NM' value='{{:CONTACT_USER_NM}}' 	>{{:CONTACT_USER_NM}}</td>
- 								<td id='CONTACT_USER_ID' value='{{:CONTACT_USER_ID}}' 	style='display:none'>{{:CONTACT_USER_ID}}</td>
- 								<td id='COMPANY_REGNUM'	 value='{{:COMPANY_REGNUM}}'  	style='display:none'>{{:COMPANY_REGNUM}}</td>
- 								<td id='CONTRACT_ID'	 value='{{:CONTRACT_ID}}'		style='display:none'>{{:CONTRACT_ID}}</td>
- 								<td id='CONTRACT_DATE'	value='{{:CONTRACT_DATE}}'		style='display:none'>{{:CONTRACT_DATE}}</td>
+								<td id='HOW_GET_NM'		value='{{:HOW_GET_NM}}'			>{{:HOW_GET_NM}}</td>
 			 					<td><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
 								<td><button id="<@pageId>_delete_{{:#index}}" key='{{:BUYER_ID}}'><i class="icon_trash"></i></button></td>
 							</tr>
@@ -300,7 +294,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 </script>
 <script type="text/x-jsrender" id="<@pageId>_cstmList_noData_template">	
 				<tr>	
-					<td colspan=10>자료가 없습니다.</td>	
+					<td colspan=7>자료가 없습니다.</td>	
 				</tr>
 </script>
 					</table>

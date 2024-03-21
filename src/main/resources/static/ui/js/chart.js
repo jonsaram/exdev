@@ -10,7 +10,7 @@
 		
 			setTimeout(()=>{
 				$(".highcharts-credits").remove();
-				$(".highcharts-legend.highcharts-no-tooltip").remove();
+				//$(".highcharts-legend.highcharts-no-tooltip").remove();
 				
 			},500) 
 	}

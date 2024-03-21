@@ -15,23 +15,16 @@
 		*/
 		SELECT B.BUYER_ID
 		, B.BUYER_NM
-		, DECODE( NVL( C.BUYER_ID ,'NO') , 'NO', '' ,'진행중' ) AS PROCESS_STATUS
 		, B.TEL
 		, B.ADDR
-		, B.COMPANY_REGNUM  
-		, TO_CHAR( C.CONTACT_DATE  , 'YYYY-MM-DD' ) AS CONTACT_DATE
-		, C.USER_ID AS CONTACT_USER_ID /*담당자*/
-		, GET_USER_NM(C.USER_ID) AS CONTACT_USER_NM /* 담당자*/
-		, C.CONTRACT_ID, C.BUYER_ID
-		, C.CONTRACT_DATE, C.CONTRACT_TYPE
-		, C.EXPIRE_DATE, C.TOTAL_COST
-		, C.CONSULTING_ID, C.PROCESS_STATE, C.LAST_SOLUTION, C.TAX_MNG, C.LABOR_MNG
+		, B.COMPANY_REGNUM
+		, B.HOW_GET
+		, GET_CODE_NM( 'HOW_GET', B.HOW_GET ) HOW_GET_NM 
 		FROM TBL_EXP_BUYER B
-		,TBL_EXP_CONTRACT C
-		WHERE B.BUYER_ID = C.BUYER_ID(+)	
+		WHERE 1=1
 		AND B.USE_YN = 'Y'
 		AND B.DEL_YN = 'N'
-		ORDER BY NVL(TO_CHAR(C.CONTACT_DATE,'YYYYMMDD'),'99999999') DESC, B.BUYER_ID
+		ORDER BY B.BUYER_NM
 	</select>
 	 	
 	<update id="updateCstm" parameterType="java.util.HashMap"  flushCache="true" >
@@ -45,6 +38,7 @@
 		         #{TEL} 			AS TEL,
 		         #{ADDR} 			AS ADDR,
 		         #{COMPANY_REGNUM} 	AS COMPANY_REGNUM,
+		         'XXX'				AA HOW_GET,
 		         #{USE_YN} 			AS USE_YN,
 		         #{DEL_YN} 			AS DEL_YN
 		  FROM dual
@@ -57,11 +51,12 @@
 		    T.TEL 				= S.TEL,
 		    T.ADDR 				= S.ADDR,
 		    T.COMPANY_REGNUM	= S.COMPANY_REGNUM,
+		    T.HOW_GET			= S.HOW_GET,
 		    T.USE_YN			= S.USE_YN,
 		    T.DEL_YN			= S.DEL_YN
 		WHEN NOT MATCHED THEN 
-    		INSERT (   BUYER_ID,   BUYER_NM,   TEL,   ADDR,   COMPANY_REGNUM,   USE_YN,   DEL_YN )
-   			VALUES ( S.BUYER_ID, S.BUYER_NM, S.TEL, S.ADDR, S.COMPANY_REGNUM, S.USE_YN, S.DEL_YN )
+    		INSERT (   BUYER_ID,   BUYER_NM,   TEL,   ADDR,   COMPANY_REGNUM,   HOW_GET,   USE_YN,   DEL_YN )
+   			VALUES ( S.BUYER_ID, S.BUYER_NM, S.TEL, S.ADDR, S.COMPANY_REGNUM, S.HOW_GET, S.USE_YN, S.DEL_YN )
 	</update>
 	
 	<delete id="deleteCstm" parameterType="java.util.HashMap"  flushCache="true" >
