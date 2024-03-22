@@ -4,35 +4,29 @@ var <@pageId> = {
 		
 		pageInit : () =>{
 
-		debugger;
 			const yearsArray = Array.from({ length: 4 }, (_, index) => {
 				  const year = 2022 + index;
-				  
-					const monthsArray = Array.from({ length: 12 }, (_, index2) => {
-						  const months = ("0"+(1 + index2) ).slice(-2);
-						  return [months.toString()];
-					});
-				  
-					 return  monthsArray.map( month => {
-						
-						return [year.toString()+"-"+month, year + "년"+ " "+ month+"월"]
-					})	
-					
-					
+				  return [year.toString(), year + "년"];
+			});
+			const monthsArray = Array.from({ length: 12 }, (_, index) => {
+				  const months = ("0"+(1 + index) ).slice(-2);
+				  return [months.toString(), months + "월"];
 			});
 
-
-			var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_year_month"}
+			var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"}
 			C_UICOM.makeSelectBox(yearsArrayList, "single");
-			C_UICOM.setSingleBox("<@pageId>_year_month", dayjs().year());
+			C_UICOM.setSingleBox("<@pageId>_years", dayjs().year());
+			var monthsArrayList = { data : monthsArray,targetId : "<@pageId>_months"}
+			C_UICOM.makeSelectBox(monthsArrayList, "single");
+			C_UICOM.setSingleBox("<@pageId>_months", ("0"+(dayjs().month() + 1) ).slice(-2));
 
 		}
 		,searchList : () => {
 			
-			var contractDate = C_UICOM.getData("<@pageId>_year_month");
-			debugger;
+			var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
+
 			const requestParm = {
-					USER_ID : '51115125782'
+					USER_ID : G_VAL.session.USER_ID //'51115125782'
 					,CONTRACT_DATE : contractDate + '-01'	
 					
 			};
@@ -88,7 +82,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 	<div class="search_area mt0">
 		<div class="fl">
 			<!-- 실글 선택 -->
-			<div id="<@pageId>_year_month" style="width:200px"></div>
+				<div id="<@pageId>_years" style="width:200px"></div>
+				<div id="<@pageId>_months" style="width:200px"></div>
+				<button class="btn select fl" onclick="<@pageId>.searchList()">검색</button>
 <!--			<div class="select_box fl" style="width:132px">
 				<button type="button" class="btn radio"><span>2024년 01월</span></button>
                     <ul class="select_lst">
