@@ -2,12 +2,38 @@
 <script type="text/javascript">
 var <@pageId> = {
 		selectedData : []
+		,searchedUser : {}
 		,pageInit : () =>{
 			
+			const yearsArray = Array.from({ length: 4 }, (_, index) => {
+				  const year = 2022 + index;
+				  return [year.toString(), year + "년"];
+			});
+			const monthsArray = Array.from({ length: 12 }, (_, index) => {
+				  const months = ("0"+(1 + index) ).slice(-2);
+				  return [months.toString(), months + "월"];
+			});
+
+			var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"}
+			C_UICOM.makeSelectBox(yearsArrayList, "single");
+			C_UICOM.setSingleBox("<@pageId>_years", dayjs().year());
+			var monthsArrayList = { data : monthsArray,targetId : "<@pageId>_months"}
+			C_UICOM.makeSelectBox(monthsArrayList, "single");
+			C_UICOM.setSingleBox("<@pageId>_months", ("0"+(dayjs().month() + 1) ).slice(-2));
+
 		}
 		,searchList : () => {
 			
-			const requestParm = {};
+			var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
+			
+			const requestParm = {
+					CONTRACT_DATE : contractDate + '-01'	
+			};
+
+			if( Object.keys(<@pageId>.searchedUser).length > 0 ){
+				
+				requestParm["USER_ID"] = 	<@pageId>.searchedUser.USER_ID;
+			}
 			
 			var parm = {
 					 queryId 		: "salary.getPaymentCntList"
@@ -15,6 +41,9 @@ var <@pageId> = {
 			}
 
 			C_COM.requestQuery(parm, function(resultData) {
+				
+				$("#<@pageId>_pointColrList").text(resultData.data.length)
+				
 				var rparm = {
 						 targetId 		: "<@pageId>_paymentCntList"
 						,list			: resultData.data
@@ -24,7 +53,7 @@ var <@pageId> = {
 			});
 		}
 		,rowClick : (obj) => {
-			debugger;
+
 			const index =  $(obj).attr("index");
 			const selectedRow = <@pageId>.selectedData[index];
 			
@@ -36,11 +65,16 @@ var <@pageId> = {
 			}
 
 			C_COM.requestQuery(parm, function(resultData) {
+				
+				$("#<@pageId>_pointColr").text(resultData.data.length)
 				var rparm = {
 						 targetId 		: "<@pageId>_paymentDetailList"
 						,list			: resultData.data
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
+				
+				$("#<@pageId>_payUserName").text(selectedRow.USER_NM);
+				$("#<@pageId>_payDate").text(selectedRow.CALC_PAY_DATE);
 				
 				let sumTotalCost=0,sumIncome=0,sumPayment=0;
 				resultData.data.forEach(item=>{
@@ -54,6 +88,16 @@ var <@pageId> = {
 				$("#sumPayment").text(sumPayment.toLocaleString());
 			});			
 		}
+		,memberSearchPopup : function(gubun) {
+	      	
+ 			let param = {};
+			C_POP.open('popup_system_memberSearchPopup', {param:param, gubun:gubun}, function(retData) {
+	         
+				<@pageId>.searchedUser = retData;
+				const placeHolder = ` ${<@pageId>.searchedUser.USER_NM} ( ${<@pageId>.searchedUser.USER_ID} )`;
+				$("#<@pageId>_USER").val(placeHolder)
+			});
+		}		
 }
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
@@ -68,97 +112,65 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 });
 </script>
 	
-<div class="cont_wrap backWhite">
-	<div class="cont_top">
-		<h2><i class="icon_bullet"></i>급여관리</h2>
-	</div>
-	<section class="sec_wrap list" style="height:calc(100% - 43px);">
-		<!-- search area -->
-		<div class="search_area mt0">
-			<div class="fl">
-				<!-- 실글 선택 -->
-				<div class="select_box fl" style="width:110px">
-					<button type="button" class="btn radio"><span>2024년</span></button>
-<!--                     <ul class="select_lst">
-                        <li>
-                            <input name="year" id="year01" type="radio" value="">
-                            <label for="year01">2024년<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="year" id="year02" type="radio" value="">
-                            <label for="year02">2025년<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="year" id="year03" type="radio" value="">
-                            <label for="year03">2026년<i class="icon_check"></i></label>
-                        </li>
-                    </ul> -->
-                </div>
-                <!-- 실글 선택 -->
-				<div class="select_box fl" style="width:90px">
-					<button type="button" class="btn radio"><span>01월</span></button>
-<!--                     <ul class="select_lst">
-                        <li>
-                            <input name="month" id="month01" type="radio" value="">
-                            <label for="month01">01월<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="month" id="month02" type="radio" value="">
-                            <label for="month02">02월<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="month" id="month03" type="radio" value="">
-                            <label for="month03">03월<i class="icon_check"></i></label>
-                        </li>
-                    </ul> -->
-                </div>
-                <span class="tit01 fl lh33">사원선택</span>
-                <div class="search_inputWrap fl">
-					<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
-				</div>
-				<button class="btn select fl">검색</button>
-            </div>
-		</div>
-		<div class="clearFix mt15" style="height: calc(100% - 53px);">
-			<div class="fl h100 mr15" style="width:calc(35% - 15px);">
-				<div class="cont_top clearFix">
-					<h3 class="fl font16">급여 내역 리스트</h3>
-					<div class="fr"><strong class="total">Total: <span class="<@pageId>_pointColr">3</span></strong></div>
-				</div>
+	<div class="cont_wrap backWhite">
+			<div class="cont_top">
+				<h2><i class="icon_bullet"></i>급여관리</h2>
+			</div>
+			<section class="sec_wrap list" style="height:calc(100% - 43px);">
+				<!-- search area -->
+				<div class="search_area mt0">
+					<div class="fl">
 
-				<!-- 테이블 -->
-				<div class="tbl01 col tbl_scroll line" style="height:calc(100% - 30px);">
-					<div class="tbl01 col tbl_head">
-						<table>
-							<caption>급여 내역 리스트</caption>
-							<colgroup>
-								<col style="width:45px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-							</colgroup>
-							<thead>
-								<tr>
-									<th scope="col">No.</th>
-									<th scope="col">정산년월</th>
-									<th scope="col">사원명</th>
-									<th scope="col">관련계약건수</th>
-									<th scope="col">수수료 합</th>
-								</tr>
-							</thead>
-						</table>
-					</div>
-					<div class="tbl01 col tbl_body_scroll">
-						<table>
-							<caption>급여 내역 리스트</caption>
-							<colgroup>
-								<col style="width:45px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-							</colgroup>
+						<div id="<@pageId>_years" style="width:200px"></div>
+						<div id="<@pageId>_months" style="width:200px"></div>
+
+		                <span class="tit01 fl lh33">사원선택</span>
+		                <div class="search_inputWrap fl">
+							<input type="search" name="" id="<@pageId>_USER" placeholder="사원이름(사원ID)" style='width:200px;'><button class="search_btn"  onclick="<@pageId>.memberSearchPopup('USER');"><i class="icon_search"></i></button>
+						</div>
+						<button class="btn select fl" onclick="<@pageId>.searchList()">검색</button>
+		            </div>
+				</div>
+				<div class="clearFix mt15" style="height: calc(100% - 53px);">
+					<div class="fl h100 mr15" style="width:calc(35% - 15px);">
+						<div class="cont_top clearFix">
+							<h3 class="fl font16">급여 내역 리스트</h3>
+							<div class="fr"><strong class="total">Total: <span class="pointColr" id="<@pageId>_pointColrList">3</span></strong></div>
+						</div>
+
+						<!-- 테이블 -->
+						<div class="tbl01 col tbl_scroll line" style="height:calc(100% - 30px);">
+							<div class="tbl01 col tbl_head">
+								<table>
+									<caption>급여 내역 리스트</caption>
+									<colgroup>
+										<col style="width:45px;"/>
+										<col style="width:120px;"/>
+										<col style="width:120px;"/>
+										<col style="width:120px;"/>
+										<col style="width:120px;"/>
+									</colgroup>
+									<thead>
+										<tr>
+											<th scope="col">No.</th>
+											<th scope="col">정산년월</th>
+											<th scope="col">사원명</th>
+											<th scope="col">관련계약건수</th>
+											<th scope="col">수수료 합</th>
+										</tr>
+									</thead>
+								</table>
+							</div>
+							<div class="tbl01 col tbl_body_scroll">
+								<table>
+									<caption>급여 내역 리스트</caption>
+									<colgroup>
+										<col style="width:45px;"/>
+										<col style="width:120px;"/>
+										<col style="width:120px;"/>
+										<col style="width:120px;"/>
+										<col style="width:120px;"/>
+									</colgroup>
 							<tbody  id="<@pageId>_paymentCntList">
 							</tbody>
  							<script type="text/x-jsrender" id="<@pageId>_paymentCntList_template">						
@@ -177,56 +189,56 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<td colspan=5>자료가 없습니다.</td>	
 								</tr>
 							</script>
-						</table>
+								</table>
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
-			<div class="fl h100 ml15" style="width:calc(65% - 15px);">
-				<div class="cont_top clearFix">
-					<h3 class="fl font16">급여 상세</h3>
-					<div class="fr">
-						<span class="info"><strong>위성열</strong> l <strong>2024년 01월</strong> l</span>
-						<strong class="total">Total: <span class="pointColr">3</span></strong>
-					</div>
-				</div>
-				<!-- 테이블 -->
-				<div class="tbl01 col tbl_scroll row2" style="height:calc(100% - 30px);">
-					<div class="tbl01 col tbl_head2">
-						<table>
-							<caption>급여관리 리스트</caption>
-							<colgroup>
-								<col style="width:40px;"/>
-								<col style="width:120px;" span="4"/>
-								<col style="width:100px;" span="3"/>
-								<col style="width:100px;"/>
-							</colgroup>
-							<thead>
-								<tr>
-									<th scope="col" rowspan="2">No.</th>
-									<th scope="col" colspan="3">계약정보</th>
-									<th scope="col" rowspan="2">실적/입금액</th>
-									<th scope="col" rowspan="2">입금일</th>
-									<th scope="col" rowspan="2">계약관례Type</th>
-									<th scope="col" rowspan="2">수수료율</th>
-									<th scope="col" rowspan="2">수수료</th>
-								</tr>
-								<tr>
-									<th scope="col">고객명</th>
-									<th scope="col">컨설팅명</th>
-									<th scope="col">총계약금액</th>
-								</tr>
-							</thead>
-						</table>
-					</div>
-					<div class="tbl01 col tbl_body_scroll2">
-						<table>
-							<caption>급여관리 리스트</caption>
-							<colgroup>
-								<col style="width:40px;"/>
-								<col style="width:120px;" span="4"/>
-								<col style="width:100px;" span="3"/>
-								<col style="width:100px;"/>
-							</colgroup>
+					<div class="fl h100 ml15" style="width:calc(65% - 15px);">
+						<div class="cont_top clearFix">
+							<h3 class="fl font16">급여 상세</h3>
+							<div class="fr">
+								<span class="info"><strong id="<@pageId>_payUserName"></strong> l <strong  id="<@pageId>_payDate"></strong> l</span>
+								<strong class="total">Total: <span class="pointColr" id="<@pageId>_pointColr">3</span></strong>
+							</div>
+						</div>
+						<!-- 테이블 -->
+						<div class="tbl01 col tbl_scroll row2" style="height:calc(100% - 30px);">
+							<div class="tbl01 col tbl_head2">
+								<table>
+									<caption>급여관리 리스트</caption>
+									<colgroup>
+										<col style="width:40px;"/>
+										<col style="width:120px;" span="4"/>
+										<col style="width:100px;" span="3"/>
+										<col style="width:100px;"/>
+									</colgroup>
+									<thead>
+										<tr>
+											<th scope="col" rowspan="2">No.</th>
+											<th scope="col" colspan="3">계약정보</th>
+											<th scope="col" rowspan="2">실적/입금액</th>
+											<th scope="col" rowspan="2">입금일</th>
+											<th scope="col" rowspan="2">계약관례Type</th>
+											<th scope="col" rowspan="2">수수료율</th>
+											<th scope="col" rowspan="2">수수료</th>
+										</tr>
+										<tr>
+											<th scope="col">고객명</th>
+											<th scope="col">컨설팅명</th>
+											<th scope="col">총계약금액</th>
+										</tr>
+									</thead>
+								</table>
+							</div>
+							<div class="tbl01 col tbl_body_scroll2">
+								<table>
+									<caption>급여관리 리스트</caption>
+									<colgroup>
+										<col style="width:40px;"/>
+										<col style="width:120px;" span="4"/>
+										<col style="width:100px;" span="3"/>
+										<col style="width:100px;"/>
+									</colgroup>
 							<tbody  id="<@pageId>_paymentDetailList">
 							</tbody>
  							<script type="text/x-jsrender" id="<@pageId>_paymentDetailList_template">						
@@ -259,12 +271,12 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<td class="tr" id="sumPayment"></td>
 								</tr>
 							</tfoot>
-						</table>
+
+								</table>
+							</div>
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
 
-	</section>
-</div>
-	
+			</section>
+		</div>

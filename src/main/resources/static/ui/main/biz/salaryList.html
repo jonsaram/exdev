@@ -16,7 +16,7 @@ var <@pageId> = {
 
 			C_COM.requestQuery(parm, function(resultData) {
 	
-				$(".<@pageId>_pointColr").text(resultData.data.length)
+				$("#<@pageId>_pointColr").text(resultData.data.length)
 				var rparm = {
 						 targetId 		: "<@pageId>_salaryList"
 						,list			: resultData.data
@@ -79,7 +79,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
                </div>
            </div>
            <div class="search_right">
-			<strong class="total">Total: <span class="<@pageId>_pointColr">3</span></strong>
+			<strong class="total">Total: <span  class="pointColr" id="<@pageId>_pointColr">3</span></strong>
            </div>
 	</div>
 	<!-- 테이블 -->

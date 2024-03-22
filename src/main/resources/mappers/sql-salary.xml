@@ -49,8 +49,10 @@
 		AND R.USE_YN ='Y'	AND R.DEL_YN ='N' 
 		AND CM.USE_YN ='Y'	AND CM.DEL_YN ='N'
 		AND C.CONTRACT_ID 	= R.CONTRACT_ID
-		AND C.CONTRACT_DATE <![CDATA[ >= ]]> TO_DATE('2024-02-01','YYYY-MM-DD')
-		AND C.CONTRACT_DATE <![CDATA[ <= ]]> TO_DATE('2024-04-01','YYYY-MM-DD')
+		<if test=" CONTRACT_DATE != null and !CONTRACT_DATE.equals('')">
+		AND C.CONTRACT_DATE <![CDATA[ >= ]]> TO_DATE(#{CONTRACT_DATE},'YYYY-MM-DD')
+		AND C.CONTRACT_DATE <![CDATA[ <= ]]> ADD_MONTHS(TO_DATE(#{CONTRACT_DATE},'YYYY-MM-DD'), 1)
+		</if>
 	</sql>
 		
 	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -58,7 +60,7 @@
 			급여 리스트 조회 
 		*/
 		<include refid="paymentList"/>
-		FETCH NEXT 15 ROWS ONLY
+
 	</select>
 
 	<select id="getPaymentCntList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -82,7 +84,7 @@
 			급여 상세 리스트 조회 
 		*/
 		<include refid="paymentList"/>
-		FETCH NEXT 15 ROWS ONLY
+
 	</select>
 
 </mapper>
