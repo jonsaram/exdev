@@ -200,7 +200,7 @@
             }
         });
         $(".tbl_body_scroll2").scroll(function(event){
-            var sl = 10;
+            var sl = 1;
             // data 테이블 x축 스크롤을 움직일 때header 테이블 x축 스크롤을 똑같이 움직인다
             if (sl != $(".tbl_body_scroll2").scrollLeft()) {
                 sl = $(".tbl_body_scroll2").scrollLeft();
@@ -210,6 +210,12 @@
 
         if ($(".tbl_body_scroll").hasYScrollBar()) {
             //y축 스크롤이 있으면 스크롤 넓이인 8px만큼 header 마지막 열 크기를 늘린다
+            $(".tbl_head colgroup col:last-child").width($(".tbl_body_scroll colgroup col:last-child").width() + 1 );
+        }else{
+            $(".tbl_head colgroup col:last-child").width();
+        }
+        if ($(".tbl_body_scroll").hasXScrollBar()) {
+            //x축 스크롤이 있으면 스크롤 넓이인 8px만큼 header 마지막 열 크기를 늘린다
             $(".tbl_head colgroup col:last-child").width($(".tbl_body_scroll colgroup col:last-child").width() + 8 );
         }else{
             $(".tbl_head colgroup col:last-child").width();
@@ -218,6 +224,12 @@
 
         if ($(".tbl_body_scroll2").hasYScrollBar()) {
             //y축 스크롤이 있으면 스크롤 넓이인 8px만큼 header 마지막 열 크기를 늘린다
+            $(".tbl_head2 colgroup col:last-child").width($(".tbl_body_scroll2 colgroup col:last-child").width() - 8 );
+        }else{
+            $(".tbl_head2 colgroup col:last-child").width();
+        }
+        if ($(".tbl_body_scroll2").hasXScrollBar()) {
+            //x축 스크롤이 있으면 스크롤 넓이인 8px만큼 header 마지막 열 크기를 늘린다
             $(".tbl_head2 colgroup col:last-child").width($(".tbl_body_scroll2 colgroup col:last-child").width() + 8 );
         }else{
             $(".tbl_head2 colgroup col:last-child").width();
@@ -341,4 +353,6 @@
 
 $(document).ready(function() {
     $('.select_box').dropdown();
+
+
 });
