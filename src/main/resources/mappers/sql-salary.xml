@@ -8,18 +8,18 @@
 
 	<!--
 	급여 관리 
-	 -->	
-	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	salary.getPaymentList
-			급여 리스트 조회 
-		*/
+	 -->
+	<sql id="paymentList">
+
 		SELECT ROW_NUMBER() OVER(ORDER BY R.RESULT_DATE) RN
+		,U.USER_ID 
 		,U.USER_NM 
 		,CST.CONSULTING_ID
 		,CST.CONSULTING_NM 
 		,C.TOTAL_COST 
 		,R.INCOME 
-		,TO_CHAR(R.RESULT_DATE , 'YYYY-MM-DD') AS RESULT_DATE
+		,TO_CHAR(R.RESULT_DATE , 'YYYY-MM-DD') 	AS RESULT_DATE
+		,TO_CHAR(R.RESULT_DATE , 'YYYY-MM') 	AS RESULT_DATE_MONTH
 		,CM.RELATION_TYPE 
 		,GET_CODE_NM('RELATION_TYPE',CM.RELATION_TYPE) AS RELATION_TYPE_NM
 		,P.RATE || '%' AS RATE
@@ -37,8 +37,9 @@
 		,TBL_EXP_CONSULTING CST
 		,TBL_EXP_CONTRACT_MEMBER CM
 		WHERE U.USER_ID = P.USER_ID 
-		AND P.USER_ID = '51115125782'
-		/* AND P.USER_ID		= sessionVo.userId} */
+		<if test=" USER_ID != null and !USER_ID.equals('')">
+		AND P.USER_ID		= #{USER_ID}
+		</if>
 		AND P.CONTRACT_ID	= R.CONTRACT_ID 
 		AND P.RESULT_ID		= R.RESULT_ID 
 		AND C.CONSULTING_ID	= CST.CONSULTING_ID (+)
@@ -50,6 +51,37 @@
 		AND C.CONTRACT_ID 	= R.CONTRACT_ID
 		AND C.CONTRACT_DATE <![CDATA[ >= ]]> TO_DATE('2024-02-01','YYYY-MM-DD')
 		AND C.CONTRACT_DATE <![CDATA[ <= ]]> TO_DATE('2024-04-01','YYYY-MM-DD')
+	</sql>
+		
+	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	salary.getPaymentList
+			급여 리스트 조회 
+		*/
+		<include refid="paymentList"/>
+		FETCH NEXT 15 ROWS ONLY
+	</select>
+
+	<select id="getPaymentCntList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	salary.getPaymentCntList
+			급여 내역 리스트 조회 
+		*/
+		SELECT ROW_NUMBER() OVER(ORDER BY USER_NM) RN
+		,SUBSTR(RESULT_DATE_MONTH,0,4)||'년 '||SUBSTR(RESULT_DATE_MONTH,6)||'월' AS CALC_PAY_DATE
+		,USER_ID 
+		,USER_NM
+		,count(*) CNT
+		,SUM(PAYMENT) AS TOTAL_PAYMENT
+ 		FROM(
+		<include refid="paymentList"/>
+		)
+		GROUP BY RESULT_DATE_MONTH, USER_ID, USER_NM
+	</select>
+
+	<select id="getPaymentDetailList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	salary.getPaymentDetailList
+			급여 상세 리스트 조회 
+		*/
+		<include refid="paymentList"/>
 		FETCH NEXT 15 ROWS ONLY
 	</select>
 
