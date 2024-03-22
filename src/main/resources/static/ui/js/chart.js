@@ -354,7 +354,7 @@
 		
 	}
 */
-	function _lineAndColumn_chart(target, param){
+	function _lineAndColumnChart(target, param){
 		
 			const thisYearSales = param.thisYearSales;
 			const growthRate = param.growthRate;
@@ -383,20 +383,20 @@
 		            }
 		        },
 		        title: {
-		            text: '작년대비성장률',
+		            text: '',//작년대비성장률
 		            style: {
 		                color: Highcharts.getOptions().colors[1]
 		            }
 		        }
 		    }, { // Secondary yAxis
 		        title: {
-		            text: '금년매출',
+		            text: '',//금년매출
 		            style: {
 		                color: Highcharts.getOptions().colors[0]
 		            }
 		        },
 		        labels: {
-		            format: '{value}억원',
+		            format: '{value}억',
 		            style: {
 		                color: Highcharts.getOptions().colors[0]
 		            }
@@ -407,11 +407,11 @@
 		        shared: true
 		    },
 		    legend: {
-		        align: 'left',
-		        x: 80,
+		        align: 'center',
+		        x: 50,
 		        verticalAlign: 'top',
-		        y: 60,
-		        floating: true,
+		        y: 0,
+		        floating: false,
 		        backgroundColor:
 		            Highcharts.defaultOptions.legend.backgroundColor || // theme
 		            'rgba(255,255,255,0.25)'
