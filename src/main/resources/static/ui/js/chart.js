@@ -2,17 +2,13 @@
 	const _monthArray	= ['1월', '2월', '3월', '4월', '5월', '6월','7월', '8월', '9월', '10월', '11월', '12월'];
 	const _colorRange	= ['#FE2371','#544FC5','#2CAFFE','#2CAFFE','#FE6A35','#6B8ABC','#1C74BD','#1C74BD','#00A6A6','#D568FB']
 	
-    Highcharts.setOptions({
-        colors: ['#27187F', '#F29423']
-    });
+    Highcharts.setOptions({colors: ['#27187F', '#F29423']});
 
 	function _setRemoveHighChartCredits() {
-		
-			setTimeout(()=>{
-				$(".highcharts-credits").remove();
-				//$(".highcharts-legend.highcharts-no-tooltip").remove();
-				
-			},500) 
+	
+		setTimeout(()=>{
+			$(".highcharts-credits").remove();
+		},500) 
 	}
 	
 	function _getRandomColor() {
@@ -104,49 +100,46 @@
 	function _treemapChart(target, colorAxis, treemapData, func){
 	
 		Highcharts.chart(target, {
-			    colorAxis: colorAxis,
+			colorAxis: colorAxis,
 		    series: [{
-		        type: 'treemap'
+		         type: 'treemap'
 				,events: {
 				            click: function (event) {
-	
-								if( func )
-									func(event.point.options);
+								func ? func(event.point.options) : '' ;
 				            }
 				}
-		        ,layoutAlgorithm: 'squarified',   
-		        alternateStartingDirection: true, 
-		        levels: [{
-		            level: 1,
-		            layoutStartingDirection: 'vertical',
-		            layoutAlgorithm: 'squarified',
-		            dataLabels: {
-		                enabled: true,
-		                align: 'center',
-		                verticalAlign: 'middle',
-		                style: {
-		                    fontSize: '15px',
-		                    fontWeight: 'lighter',
-		                    color:'white',
-		                    textOutline: 'none'
+		        ,layoutAlgorithm: 'squarified'   
+		        ,alternateStartingDirection: true 
+		        ,levels: [{
+		            level: 1
+		            ,layoutStartingDirection: 'vertical'
+		            ,layoutAlgorithm: 'squarified'
+		            ,dataLabels: {
+		                enabled: true
+		                ,align: 'center'
+		                ,verticalAlign: 'middle'
+		                ,style: {
+		                    fontSize: '15px'
+		                    ,fontWeight: 'lighter'
+		                    ,color:'white'
+		                    ,textOutline: 'none'
 	
-		                },
-		                formatter: function () {
+		                }
+		                ,formatter: function () {
 		                    return '<div style="text-align: center;">' + this.point.name +'</div><br><g>' + this.point.value + '%</div>';
 		                }
 	
 		            }
-		        }],
-		        data: treemapData
-		    }],
-		    title: {
+		        }]
+		        ,data: treemapData
+		    }]
+		    ,title: {
 		        text: ''
-		    },
-		    tooltip: {
+		    }
+		    ,tooltip: {
 		        pointFormat: '<b>{point.name}</b>:<br> {point.value}%<br>'
-		    },
-		    credits: { enabled: false },
-		    
+		    }
+		    ,credits: { enabled: false },
 		})
 	
 	}
@@ -197,7 +190,7 @@
 		            '{point.key}' +
 		            '</span><br/>',
 		        pointFormat: '<span style="color:{point.color}">\u25CF</span> ' +
-		            '{series.name}: <b>{point.y} 억</b><br/>'
+		            '{series.name}: <b>{point.y} 억</b><br/>' // ◯ 문자 
 		    },
 		    xAxis: {
 		        type: 'category',
@@ -255,7 +248,7 @@
 		});
 		
 	}
-
+/*
 	function _comparisonChart2 (target, param){
 		
 		const thisMonth =	param.thisMonth;
@@ -360,7 +353,7 @@
 		});
 		
 	}
-
+*/
 	function _lineAndColumn_chart(target, param){
 		
 			const thisYearSales = param.thisYearSales;
