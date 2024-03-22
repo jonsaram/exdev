@@ -4,7 +4,11 @@ var <@pageId> = {
 		 checkedItems : []
  		,excelParam : {}
 		,pageInit : () =>{
-			
+			var pagingChunkList = { 
+					 data 			: [ ["50","50개 보기"],["30","30개 보기"],["10","10개 보기"]]
+				 	,targetId 		: "<@pageId>_pagingChunk" 
+			}
+			C_UICOM.makeSelectBox(pagingChunkList, "single");
 		}
 		,searchList : () => {
 			
@@ -15,15 +19,32 @@ var <@pageId> = {
 					,requestParm	: requestParm
 			}
 			<@pageId>.excelParam = parm;
-			C_COM.requestQuery(parm, function(resultData) {
-				var rparm = {
-						 targetId 		: "<@pageId>_contractList"
-						,list			: resultData.data
-				}
 			
-				C_COM.renderHtml("<@pageId>", rparm);
-				<@pageId>.setHandler();
-			});
+			const listRange = C_UICOM.getData("<@pageId>_pagingChunk");
+			// 페이징 처리 초기화
+			C_PAGING.create({
+	 			 pageId				: "<@pageId>"
+	 			,listDomId			: "<@pageId>_contractList"
+	 			,pagingDomId		: "pageDiv"
+	 			,totalCntDomId		: "totalCnt"
+	 			,queryId			: "contract.getContractList"
+				,listRange			: Number(listRange)
+				,pageRange			: 10
+				// <@pageId>.setSearchParm function에서 반환하는 json object값을 Query Parameter로 사용한다.
+	 			,parmFn				: function() {
+	 				let parm = requestParm
+	 				return 	parm;
+	 			 }
+				// 페이지를 클릭 했을때 처리가 필요하면 아래에 정의 함
+				,onPageClickCallback: function(data) {
+
+				 }
+				// 검색해온 List를 수정한다.
+				,makeListFn			: function(list) {
+					<@pageId>.setHandler();
+				 }
+	 		});			
+			
 		}
 		,updateItem : (param) => {
 
@@ -209,11 +230,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<div class="search_right">
 					<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>계약 등록</button>
 					<button type="button" class="btn fl" id="<@pageId>_excelDownload"><i class="icon_download"></i> 계약 리스트 다운로드</button>
-	
-					<!-- 실글 선택 -->
-					<div class="select_box fl" style="width:132px">
-						<button type="button" class="btn radio"><span>50개 보기</span></button>
-	                </div>
+					<strong class="total">Total: <span class="pointColr" id="totalCnt"></span></strong>
+ 					<div id="<@pageId>_pagingChunk" style="margin-left: 5px;width:130px"></div>
 	            </div>
 			</div>
 			<!-- 테이블 -->
@@ -278,9 +296,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
-			 					<td id='BUYER_ID'			value='{{:BUYER_ID}}'			>{{:BUYER_ID}}</td>
-			 					<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</a></td>
-			 					<td id='PROCESS_STATE'		value='{{:PROCESS_STATE}}'		>{{:PROCESS_STATE}}</td>
+			 					<td id='BUYER_ID'			class='tl' value='{{:BUYER_ID}}'			>{{:BUYER_ID}}</td>
+			 					<td id='BUYER_NM'			class='tl' value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</a></td>
+			 					<td id='PROCESS_STATE_NM'	value='{{:PROCESS_STATE_NM}}'	>{{:PROCESS_STATE_NM}}</td>
 			 					<td id='CONTACT_DATE'		value='{{:CONTACT_DATE}}'		>{{:CONTACT_DATE}}</td>
 								<td id='USER_NM' 			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
 								<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
@@ -299,7 +317,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
  								<td id='LAST_SOLUTION'		value='{{:LAST_SOLUTION}}'		style='display:none'>{{:LAST_SOLUTION}}</td>
  								<td id='USE_YN'				value='{{:USE_YN}}'				style='display:none'>{{:USE_YN}}</td>
  								<td id='DEL_YN'				value='{{:DEL_YN}}'				style='display:none'>{{:DEL_YN}}</td>
-			 					<td><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
+			 					<td class='tl'><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
 								<td><button id="<@pageId>_delete_{{:#index}}" key='{{:CONTRACT_ID}}'><i class="icon_trash"></i></button></td>
 							</tr>
 						{{/for}}
@@ -312,18 +330,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					</table>
 				</div>
 			</div>
-			<!-- paging -->
-			<div class="paging">
-				<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-				<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-				<strong title="현재 페이지">1</strong>
-				<a href="#none">2</a>
-				<a href="#none">3</a>
-				<a href="#none">4</a>
-				<a href="#none">5</a>
-				<a href="#none" class="btn_pg_next">다음 페이지</a>
-				<a href="#none" class="btn_pg_last">마지막 페이지</a>
-			</div>
+		<!-- paging -->
+		<div class="paging" id="pageDiv">
+		</div>
+
 		</section>
 	
 	</div>

@@ -198,14 +198,11 @@
 		AND C.DEL_YN = 'N'
 	</select>		
 	
-	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	contract.getContractList
-			계약 리스트 조회 
-		*/
+	<sql id="getContractList_body">
 		SELECT C.CONTRACT_ID
 		,C.BUYER_ID 
 		,B.BUYER_NM
-		,C.PROCESS_STATE 
+		,GET_CODE_NM('PROCESS_STATE', C.PROCESS_STATE ) AS PROCESS_STATE_NM 
 		,TO_CHAR( C.CONTACT_DATE , 'YYYY-MM-DD') 	AS CONTACT_DATE 
 		,C.USER_ID 									AS USER_ID
 		,GET_USER_NM(C.USER_ID) 					AS USER_NM /* 담당자*/
@@ -235,10 +232,28 @@
 		</if>
 		AND C.USE_YN = 'Y'
 		AND C.DEL_YN = 'N'
-		AND C.CONSULTING_ID = CT.CONSULTING_ID
+		AND C.CONSULTING_ID = CT.CONSULTING_ID		
+	</sql>	
+	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	contract.getContractList
+			계약 리스트 조회 
+		*/
+		<include refid="getContractList_body"/>
 		ORDER BY C.UPDATE_DATE DESC
 	</select>	
-
+	<select id="getContractList_totalCnt" resultType="Integer">
+		/* contract.getContractList_totalCnt  */
+		<include refid="common.totalWrapStart"/>
+		<include refid="getContractList_body"/>
+		<include refid="common.totalWrapEnd"/>
+	</select>
+	<select id="getContractList_paging" resultType="java.util.HashMap">
+		/* contract.getContractList_paging  */
+		<include refid="common.pagingWrapStart"/>
+		<include refid="getContractList_body"/>
+		<include refid="common.pagingWrapEnd"/>
+	</select>
+	
 	<select id="getBuyerList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getBuyerList
 			고객 리스트 조회 
