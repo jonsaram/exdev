@@ -521,6 +521,7 @@ var C_COM = {
         };
 
         $(templateWebId + " .tbl_body_scroll").scroll(function(event){
+            var sl = 1;
             // data 테이블 x축 스크롤을 움직일 때header 테이블 x축 스크롤을 똑같이 움직인다
             if (sl != $(templateWebId + " .tbl_body_scroll").scrollLeft()) {
                 sl = $(templateWebId + " .tbl_body_scroll").scrollLeft();
