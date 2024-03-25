@@ -2,6 +2,7 @@
 <script type="text/javascript">
 var <@pageId> = {
 		 checkedItems : []
+		,searchedData:[]
  		,excelParam : {}
 		,pageInit : () =>{
 			
@@ -36,7 +37,9 @@ var <@pageId> = {
 	 				return 	parm;
 	 			 }
 				,onPageClickCallback: function(data) {
-
+				
+					<@pageId>.searchedData = data;
+					
 				 }
 				,makeListFn			: function(list) {
 					<@pageId>.chkHandler();
@@ -123,6 +126,7 @@ var <@pageId> = {
 		    	<@pageId>.searchList();
 		    })
 		    
+		    $("#<@pageId>_pagingChunk"	).off().on('change',() =><@pageId>.searchList());
 		}
 		,chkHandler : () => {
 			
@@ -160,18 +164,9 @@ var <@pageId> = {
 		}
 		,goPage : (pageId,rowId) => {
 			
-			const $tds = $(`[name='<@pageId>_tr_${rowId}']`)
-			const jsonObject = {};
-			
-			$tds.children("td").each(function() {
-				
-			    const id = this.id;
-			    const value = $(this).text().trim();
-				if( id )
-			    	jsonObject[id] = value;
-			});
-			
-			C_PM.movePage( pageId.trim(), jsonObject );
+			const pageList = main_operation_hrInfo.searchedData?.pageList;
+			const clickedRow = pageList[rowId];
+			C_PM.movePage( pageId.trim(), clickedRow );
 			
 		}
  		,nameSearch : (e) => {
@@ -288,49 +283,33 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</colgroup>
 						<tbody  id="<@pageId>_hiInfoList">
 						</tbody>
-<script type="text/x-jsrender" id="<@pageId>_hiInfoList_template">						
+						<script type="text/x-jsrender" id="<@pageId>_hiInfoList_template">						
 						{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'></td>
-			 					<td id='USER_ID'		value='{{:USER_ID}}'		style="text-align:right">{{:USER_ID}}</td>
-			 					<td id='USER_NM'		value='{{:USER_NM}}'		style="text-align:right"><a href="javascript:<@pageId>.goPage('main_operation_hrInfoView' , '{{:#index}}' );">{{:USER_NM}}</a></td>
-			 					<td id='E_MAIL'			value='{{:E_MAIL}}'			style="text-align:right">{{:E_MAIL}}</td>
-			 					<td id='PHONE_NUM'		value='{{:PHONE_NUM}}'		style="text-align:right">{{:PHONE_NUM}}</td>
-								<td id='BASE_BRANCH_NM'	value='{{:BASE_BRANCH_NM}}'	>{{:BASE_BRANCH_NM}}</td>
-								<td id='SP_BRANCH_NM'	value='{{:SP_BRANCH_NM}}'	style="text-align:right">{{:SP_BRANCH_NM}}</td>
-								<td id='BRANCH_NM'		value='{{:BRANCH_NM}}'		style="text-align:right">{{:BRANCH_NM}}</td>
-								<td id='ROLE_NM'		value='{{:ROLE_NM}}'	 	style="text-align:left">{{:ROLE_NM}}</td>
-								<td id='GRADE_NM'		value='{{:GRADE_NM}}'	 	>{{:GRADE_NM}}</td>
-								<td id='STATE_NM'		value='{{:STATE_NM}}'	 	>{{:STATE_NM}}</td>
-								<td id='AMOUNT'			value='{{:AMOUNT}}'		 	style="text-align:right">{{:AMOUNT}}</td>
-								<td id='INSURANCE_REG_DATE'	value='{{:INSURANCE_REG_DATE}}'>{{:INSURANCE_REG_DATE}}</td>
-								<td id='INSURANCE_EXP_DATE'	value='{{:INSURANCE_EXP_DATE}}'>{{:INSURANCE_EXP_DATE}}</td>
-								<td id='REG_DATE'		value='{{:REG_DATE}}'		>{{:REG_DATE}}</td>
-								<td id='UPGRADE_DATE'	value='{{:UPGRADE_DATE}}'	>{{:UPGRADE_DATE}}</td>
- 								<td id='ROLE'			value='{{:ROLE}}'			style='display:none'>{{:ROLE}}</td>
- 								<td id='GRADE'			value='{{:GRADE}}'			style='display:none'>{{:GRADE}}</td>
- 								<td id='STATE'			value='{{:STATE}}'			style='display:none'>{{:STATE}}</td>
- 								<td id='USER_DESC'		value='{{:USER_DESC}}'		style='display:none'>{{:USER_DESC}}</td>
- 								<td id='BASE_BRANCH_ID'	value='{{:BASE_BRANCH_ID}}'	style='display:none'>{{:BASE_BRANCH_ID}}</td>
- 								<td id='SP_BRANCH_ID'	value='{{:SP_BRANCH_ID}}'	style='display:none'>{{:SP_BRANCH_ID}}</td>
- 								<td id='BRANCH_ID'		value='{{:BRANCH_ID}}'		style='display:none'>{{:BRANCH_ID}}</td>
- 								<td id='JUMIN'			value='{{:JUMIN}}'			style='display:none'>{{:JUMIN}}</td>
- 								<td id='POST_NUM'		value='{{:POST_NUM}}'		style='display:none'>{{:POST_NUM}}</td>
- 								<td id='ADDR1'			value='{{:ADDR1}}'			style='display:none'>{{:ADDR1}}</td>
- 								<td id='ADDR2'			value='{{:ADDR2}}'			style='display:none'>{{:ADDR2}}</td>
- 								<td id='ADDR'			value='{{:ADDR}}'			style='display:none'>{{:ADDR}}</td>
- 								<td id='SURETY_INSURANCE'   value='{{:SURETY_INSURANCE}}' style='display:none'>{{:SURETY_INSURANCE}}</td>
- 								<td id='SURETY_INSURANCE_NM' value='{{:SURETY_INSURANCE_NM}}' style='display:none'>{{:SURETY_INSURANCE_NM}}</td>
-			 					<td id='GENDER'			value='{{:GENDER}}'			style='display:none'>{{:GENDER}}</td>
-			 					<td id='GENDER_NM'		value='{{:GENDER_NM}}'		style='display:none'>{{:GENDER_NM}}</td>
+			 					<td id='USER_ID'		class='tl'>{{:USER_ID}}</td>
+			 					<td id='USER_NM'		class='tl'><a href="javascript:<@pageId>.goPage('main_operation_hrInfoView' , '{{:#index}}' );">{{:USER_NM}}</a></td>
+			 					<td id='E_MAIL'			class='tl'>{{:E_MAIL}}</td>
+			 					<td id='PHONE_NUM'		class='tl'>{{:PHONE_NUM}}</td>
+								<td id='BASE_BRANCH_NM'	class='tl'>{{:BASE_BRANCH_NM}}</td>
+								<td id='SP_BRANCH_NM'	class='tl'>{{:SP_BRANCH_NM}}</td>
+								<td id='BRANCH_NM'		class='tl'>{{:BRANCH_NM}}</td>
+								<td id='ROLE_NM'		class='tc'>{{:ROLE_NM}}</td>
+								<td id='GRADE_NM'		class='tc'>{{:GRADE_NM}}</td>
+								<td id='STATE_NM'		class='tc'>{{:STATE_NM}}</td>
+								<td id='AMOUNT'			class='tr'>{{:AMOUNT}}</td>
+								<td id='INSURANCE_REG_DATE'	class='tc'>{{:INSURANCE_REG_DATE}}</td>
+								<td id='INSURANCE_EXP_DATE'	class='tc'>{{:INSURANCE_EXP_DATE}}</td>
+								<td id='REG_DATE'		class='tc'>{{:REG_DATE}}</td>
+								<td id='UPGRADE_DATE'	class='tc'>{{:UPGRADE_DATE}}</td>
 							</tr>
 						{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@pageId>_hiInfoList_noData_template">	
-				<tr>	
-					<td colspan=17>자료가 없습니다.</td>	
-				</tr>
-</script>
+						</script>
+						<script type="text/x-jsrender" id="<@pageId>_hiInfoList_noData_template">	
+						<tr>	
+							<td colspan=17>자료가 없습니다.</td>	
+						</tr>
+						</script>
 					</table>
 				</div>
 			</div>

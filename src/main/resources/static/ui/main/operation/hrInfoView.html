@@ -23,17 +23,7 @@
 			    
 			}
 			
-	  		const USER_ID	= $(".employee_num.tc.parmVal").text();
-	  		
-			const $hrImg	= $("#<@pageId>_hrImg");
-				
-			$("#<@pageId>_hrImg").removeClass("no_img");
-			
-			$("#<@pageId>_hrImg img").length == 0 ? $hrImg.append("img"):'';
-			
-			$("#<@pageId>_hrImg img").on('error', () => $hrImg.children("img").attr("src", "../img/icon_noimg.png") );
-
-			$hrImg.children("img").attr("src","../img/hrImg/img_"+USER_ID+".png");
+	  		<@pageId>.getUserImg();
 			
 		}
 		,updateItem : (param) => {
@@ -71,6 +61,13 @@
 			C_POP.open('popup_operation_hrInfoUpdatePopup', {param:<@pageId>.recvData, mode:"U"}, function(retData) {
 				
 				if(isValid(retData)){
+					
+					if( retData.RELOAD_IMG == 'Y'){
+						
+						<@pageId>.getUserImg();
+						
+					}
+					
 					<@pageId>.updateItem(retData);
 				}
 			});
@@ -121,6 +118,15 @@
 				}
 			});	
 		}	
+		,getUserImg : ()=>{
+
+			C_COM.getFileId($(".employee_num.tc.parmVal").text(), "USER_FACE", function(fileObjList) {
+				let fileId = fileObjList[0].FILE_ID;
+				let imgPath = C_COM.getImageUrl(fileId);
+				$("#<@pageId>_hrImg").attr("src", imgPath);
+			});						
+
+		}
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function(param) {
@@ -149,8 +155,8 @@
 							<h3 class="fl lh24">FA 인사정보</h3>
 							<a href="javascript:<@pageId>.openPopup()" class="btn small select fr">수정</a>
 						</div>
-						<figure class="photo_wrap" id="<@pageId>_hrImg">
-							<img src="../img/icon_noimg.png"/>
+						<figure class="photo_wrap">
+							<img src="../img/icon_noimg.png" id="<@pageId>_hrImg"/>
 						</figure>
 						<div class="employee_num tc parmVal" 	data-key="USER_ID"></div>
 						<div class="name tc parmVal" 			data-key="USER_NM"></div>
@@ -224,24 +230,24 @@
 								</thead>
 								<tbody  id="educationList">
 								</tbody>
-<script type="text/x-jsrender" id="educationList_template">	
-				{{for list}}
-				<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
- 					<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
- 					<td id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
- 					<td id='SCHOOL_NAME'	value='{{:SCHOOL_NAME}}'	>{{:SCHOOL_NAME}}</td>
- 					<td id='MAJOR'			value='{{:MAJOR}}' 			>{{:MAJOR}}</td>
- 					<td id='GRADUATE_YN'	value='{{:GRADUATE_YN}}' 	>{{:GRADUATE_YN}}</td>
- 					<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
- 					<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td> 
-				</tr>
-				{{/for}}
-</script>
-<script type="text/x-jsrender" id="educationList_noData_template">	
-				<tr>	
-					<td colspan=5>자료가 없습니다.</td>	
-				</tr>
-</script>
+								<script type="text/x-jsrender" id="educationList_template">	
+								{{for list}}
+									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+ 										<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
+ 										<td id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
+ 										<td id='SCHOOL_NAME'	value='{{:SCHOOL_NAME}}'	>{{:SCHOOL_NAME}}</td>
+ 										<td id='MAJOR'			value='{{:MAJOR}}' 			>{{:MAJOR}}</td>
+ 										<td id='GRADUATE_YN'	value='{{:GRADUATE_YN}}' 	>{{:GRADUATE_YN}}</td>
+ 										<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
+ 										<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td> 
+									</tr>
+								{{/for}}
+								</script>
+								<script type="text/x-jsrender" id="educationList_noData_template">	
+									<tr>	
+										<td colspan=5>자료가 없습니다.</td>	
+									</tr>
+								</script>
 							</table>
 						</div>
 
@@ -273,24 +279,24 @@
 								</thead>
 								<tbody  id="careerList">
 								</tbody>
-<script type="text/x-jsrender" id="careerList_template">	
-				{{for list}}
-				<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
- 					<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
- 					<td id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
- 					<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
- 					<td id='POSITION'		value='{{:POSITION}}'		>{{:POSITION}}</td>
- 					<td id='BIZ_INFORM'		value='{{:BIZ_INFORM}}' 	>{{:BIZ_INFORM}}</td>
- 					<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
- 					<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
-				</tr>
-				{{/for}}
-</script>
-<script type="text/x-jsrender" id="careerList_noData_template">	
-				<tr>	
-					<td colspan=5>자료가 없습니다.</td>	
-				</tr>
-</script>
+								<script type="text/x-jsrender" id="careerList_template">	
+								{{for list}}
+									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+ 										<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
+ 										<td id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
+ 										<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
+ 										<td id='POSITION'		value='{{:POSITION}}'		>{{:POSITION}}</td>
+ 										<td id='BIZ_INFORM'		value='{{:BIZ_INFORM}}' 	>{{:BIZ_INFORM}}</td>
+ 										<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
+ 										<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
+									</tr>
+								{{/for}}
+								</script>
+								<script type="text/x-jsrender" id="careerList_noData_template">	
+									<tr>	
+										<td colspan=5>자료가 없습니다.</td>	
+									</tr>
+								</script>
 							</table>
 						</div>
 					</div>
@@ -320,22 +326,22 @@
 								</thead>
 								<tbody  id="positionList">
 								</tbody>
-<script type="text/x-jsrender" id="positionList_template">	
-				{{for list}}
-				<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
- 					<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
- 					<td id='POSITION'		value='{{:POSITION}}'		>{{:POSITION}}</td>
- 					<td id='PA_DATE'		value='{{:PA_DATE}}' 		>{{:PA_DATE}}</td>
- 					<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
- 					<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
-				</tr>
-				{{/for}}
-</script>
-<script type="text/x-jsrender" id="positionList_noData_template">	
-				<tr>	
-					<td colspan=3>자료가 없습니다.</td>	
-				</tr>
-</script>
+								<script type="text/x-jsrender" id="positionList_template">	
+								{{for list}}
+									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+ 										<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
+ 										<td id='POSITION'		value='{{:POSITION}}'		>{{:POSITION}}</td>
+ 										<td id='PA_DATE'		value='{{:PA_DATE}}' 		>{{:PA_DATE}}</td>
+ 										<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
+ 										<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
+									</tr>
+								{{/for}}
+								</script>
+								<script type="text/x-jsrender" id="positionList_noData_template">	
+									<tr>	
+										<td colspan=3>자료가 없습니다.</td>	
+									</tr>
+								</script>
 							</table>
 						</div>
 					</div>
@@ -360,22 +366,22 @@
 								</thead>
 								<tbody  id="gradeList">
 								</tbody>
-<script type="text/x-jsrender" id="gradeList_template">	
-				{{for list}}
-				<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
- 					<td id='GRADE_NM'		value='{{:GRADE_NM}}' 		>{{:GRADE_NM}}</td>
- 					<td id='UPGRADE_DATE'	value='{{:UPGRADE_DATE}}' 	>{{:UPGRADE_DATE}}</td>
- 					<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
- 					<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
- 					<td id='GRADE'			value='{{:GRADE}}'			style='display:none'>{{:GRADE}}</td>
-				</tr>
-				{{/for}}
-</script>
-<script type="text/x-jsrender" id="gradeList_noData_template">	
-				<tr>	
-					<td colspan=2>자료가 없습니다.</td>	
-				</tr>
-</script>
+								<script type="text/x-jsrender" id="gradeList_template">	
+								{{for list}}
+									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+ 										<td id='GRADE_NM'		value='{{:GRADE_NM}}' 		>{{:GRADE_NM}}</td>
+ 										<td id='UPGRADE_DATE'	value='{{:UPGRADE_DATE}}' 	>{{:UPGRADE_DATE}}</td>
+ 										<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
+ 										<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
+ 										<td id='GRADE'			value='{{:GRADE}}'			style='display:none'>{{:GRADE}}</td>
+									</tr>
+								{{/for}}
+								</script>
+								<script type="text/x-jsrender" id="gradeList_noData_template">	
+									<tr>	
+										<td colspan=2>자료가 없습니다.</td>	
+									</tr>
+								</script>
 							</table>
 						</div>
 						

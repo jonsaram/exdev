@@ -1,7 +1,10 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@popupId> = {
-		 recvData : []	
+		  recvData : []
+		 ,OWNER_CD : "USER_FACE"
+		 ,RELOAD_IMG:'N'
+		 ,USER_ID  : ""
 	 	 ,mode : ''
 	 	 ,BRANCH_DATA : {}
 		 ,hiarachySelData: []
@@ -38,6 +41,7 @@
 				 	returnData[key] = val;
 			 })			 
 			 
+			 returnData['RELOAD_IMG'] = RELOAD_IMG;
 			 <@popupId>.close(returnData);
 			 
 		 }
@@ -342,13 +346,31 @@
         }
 		,makeSabunCode : () => {
 			return Math.round(Math.random() * 100000000000 ) ;
-		}
+		 }
+		,selectImage : function() {
+			let parm = {
+				 GRP_FILE_ID	: <@popupId>.USER_ID
+				,OWNER_CD 		: <@popupId>.OWNER_CD
+				,clearFileGroup	: "Y"
+			}
 
+			<@popupId>.fileuploadComp.selectFile(parm, function(data) {
+				if(isValid(data)) {
+					let imgPath = C_COM.getImageUrl(data);
+					$("#<@popupId>_userImg").attr("src", imgPath);
+					<@popupId>.RELOAD_IMG='Y';
+				} else {
+					C_POP.alert('알수 없는 Error 발생');
+				}
+			});
+		 }
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
 
 		<@popupId>.recvData	= data;
+		
+		<@popupId>.USER_ID = data.param.USER_ID;
 
 		<@popupId>.mode = <@popupId>.recvData.mode;
 
@@ -362,6 +384,14 @@
 		<@popupId>.getSelectData( <@popupId>.pageInit ); 
 		<@popupId>.setHandler();
 		
+		// image upload component
+		C_COMP.import("fileuploadComp", "component_compFilemng",{hide : "Y"} , function(fileId) {});
+		
+		C_COM.getFileId(<@popupId>.USER_ID, <@popupId>.OWNER_CD, function(fileObjList) {
+			let fileId = fileObjList[0].FILE_ID;
+			let imgPath = C_COM.getImageUrl(fileId);
+			$("#<@popupId>_userImg").attr("src", imgPath);
+		});
 	});
 </script>
 
@@ -380,7 +410,8 @@
 			<input type="hidden" id="USER_DESC"/>
 			<input type="hidden" id="STATE"/>
 			<div class="clearFix mt15">
-				<figure class="photo_wrap no_img">
+				<figure class="photo_wrap img" onclick="<@popupId>.selectImage()">
+					<img src="../img/icon_noimg.png" id="<@popupId>_userImg"/>
 				</figure>
 				<ul class="info_wrap col2">
 					<li>

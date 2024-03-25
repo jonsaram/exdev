@@ -649,6 +649,9 @@ var C_COM = {
 	,fileDownload : function(fileId) {
 		location.href="/filedownload.do?FILE_ID=" + fileId;	
 	 }
+	,getImageUrl : function(fileId) {
+		return "/filedownload.do?FILE_ID=" + fileId;
+	 }
 	,clearFileGroup : function(GRP_FILE_ID, OWNER_CD, callback) {
 		if			(isEmpty(GRP_FILE_ID)) {
 			alert('File Group ID가 유효하지 않습니다.');
