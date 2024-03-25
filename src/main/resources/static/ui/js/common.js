@@ -1,6 +1,23 @@
+
+function _setSearchListCnt (targetId) {
+	
+    var singleboxList = { 
+            data 		: C_COM.getCodeList("SEARCH_LIST_CNT")
+           ,targetId 	: targetId 
+	}
+    
+	C_UICOM.makeSelectBox(singleboxList, "single");	
+}
+
+function _getSearchListCnt (targetId) {
+	
+	C_UICOM.getData(targetId)
+	
+}
+
 function _numberWithCommas (num) {
 	
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 

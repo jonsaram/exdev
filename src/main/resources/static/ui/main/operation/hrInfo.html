@@ -5,26 +5,43 @@ var <@pageId> = {
  		,excelParam : {}
 		,pageInit : () =>{
 			
+			_setSearchListCnt("<@pageId>_pagingChunk" );
+			
 		}
 		,searchList : (searchName) => {
 			
-			const requestParm = { USER_NM : searchName };
+			const requestParm = { 
+					USER_NM : searchName
+					,
+					
+			};
 			
 			var parm = {
 					 queryId 		: "hrInfo.getHrInfoList"
 					,requestParm	: requestParm
 			}
 			<@pageId>.excelParam = parm;
-			C_COM.requestQuery(parm, function(resultData) {
-				var rparm = {
-						 targetId 		: "<@pageId>_hiInfoList"
-						,list			: resultData.data
-				}
-			
-				C_COM.renderHtml("<@pageId>", rparm);
-				
-				<@pageId>.chkHandler();
-			});
+
+			const listRange = C_UICOM.getData("<@pageId>_pagingChunk");
+			C_PAGING.create({
+	 			 pageId				: "<@pageId>"
+	 			,listDomId			: "<@pageId>_hiInfoList"
+	 			,pagingDomId		: "pageDiv"
+	 			,totalCntDomId		: "totalCnt"
+	 			,queryId			: "hrInfo.getHrInfoList"
+				,listRange			: Number(listRange)
+				,pageRange			: 10
+	 			,parmFn				: function() {
+	 				let parm = requestParm
+	 				return 	parm;
+	 			 }
+				,onPageClickCallback: function(data) {
+
+				 }
+				,makeListFn			: function(list) {
+					<@pageId>.chkHandler();
+				 }
+	 		});	
 		}
 		,updateItem : (param) => {
 
@@ -211,25 +228,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>신규 직원 추가</button>
 					<button type="button" class="btn fl" id="<@pageId>_excelDownload"><i class="icon_download"></i> 직원 리스트 다운로드</button>
 					<button type="button" class="btn fl" id="<@pageId>_excelDownload_select"><i class="icon_download"></i> 선택 직원 다운로드</button>
-	
-					<!-- 실글 선택 -->
-					<div class="select_box fl" style="width:132px">
-						<button type="button" class="btn radio"><span>50개 보기</span></button>
-<!-- 	                    <ul class="select_lst">
-	                        <li>
-	                            <input name="number" id="num01" type="radio" value="">
-	                            <label for="num01">50개 보기<i class="icon_check"></i></label>
-	                        </li>
-	                        <li>
-	                            <input name="number" id="num02" type="radio" value="">
-	                            <label for="num02">30개 보기<i class="icon_check"></i></label>
-	                        </li>
-	                        <li>
-	                            <input name="number" id="num03" type="radio" value="">
-	                            <label for="num03">10개 보기<i class="icon_check"></i></label>
-	                        </li>
-	                    </ul> -->
-	                </div>
+					<div 	style="width:132px"			 id="<@pageId>_pagingChunk" ></div>
 	            </div>
 			</div>
 			<!-- 테이블 -->
@@ -335,18 +334,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					</table>
 				</div>
 			</div>
-			<!-- paging -->
-			<div class="paging">
-				<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-				<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-				<strong title="현재 페이지">1</strong>
-				<a href="#none">2</a>
-				<a href="#none">3</a>
-				<a href="#none">4</a>
-				<a href="#none">5</a>
-				<a href="#none" class="btn_pg_next">다음 페이지</a>
-				<a href="#none" class="btn_pg_last">마지막 페이지</a>
-			</div>
+		<!-- paging -->
+		<div class="paging" id="pageDiv">
+		</div>
+
 		</section>
 	
 	</div>

@@ -48,11 +48,7 @@
 		ORDER BY COLOR_VALUE DESC
 	</select>	
 
-	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	rstMgn.getContractList
-			전체 계약 리스트
-		*/
-		
+	<sql id="getContractList_body">
 		SELECT C.CONTRACT_ID
 		, C.USER_ID
 		, GET_USER_NM(C.USER_ID) USER_NM
@@ -102,25 +98,44 @@
 		AND C.USER_ID = U.USER_ID AND U.USE_YN = 'Y' AND U.DEL_YN = 'N'
 		AND U.USER_ID = TM.USER_ID
 		AND TEAM.TEAM_ID = TM.TEAM_ID
-		<if test=" CONSULTING_ID != null and !CONSULTING_ID.equals('')">
-		AND CS.CONSULTING_ID = #{CONSULTING_ID}
-		</if>		
-		<if test=" CONSULTING_TYPE != null and !CONSULTING_TYPE.equals('')">
-		AND CS.CONSULTING_TYPE = #{CONSULTING_TYPE}
-		</if>		
-		<if test=" FROM_CONTRACT_DATE != null and !FROM_CONTRACT_DATE.equals('')">
-		AND C.CONTRACT_DATE <![CDATA[>=]]> TO_DATE( #{FROM_CONTRACT_DATE} , 'YYYY-MM-DD') 
-		</if>		
-		<if test=" TO_CONTRACT_DATE != null and !TO_CONTRACT_DATE.equals('')">
-		AND C.CONTRACT_DATE <![CDATA[<=]]> TO_DATE( #{TO_CONTRACT_DATE} , 'YYYY-MM-DD')
-		</if>		
 		AND GET_CODE_NM( 'HOW_GET', B.HOW_GET ) IS NOT NULL
-		ORDER BY TOTAL_COST DESC		
-		<if test=" RANK != null and !RANK.equals('')">
-		FETCH NEXT #{RANK} ROWS ONLY
+		<if test=" parm.CONSULTING_ID != null and !parm.CONSULTING_ID.equals('')">
+		AND CS.CONSULTING_ID = #{parm.CONSULTING_ID}
+		</if>		
+		<if test=" parm.CONSULTING_TYPE != null and !parm.CONSULTING_TYPE.equals('')">
+		AND CS.CONSULTING_TYPE = #{parm.CONSULTING_TYPE}
+		</if>		
+		<if test=" parm.FROM_CONTRACT_DATE != null and !parm.FROM_CONTRACT_DATE.equals('')">
+		AND C.CONTRACT_DATE <![CDATA[>=]]> TO_DATE( #{parm.FROM_CONTRACT_DATE} , 'YYYY-MM-DD') 
+		</if>		
+		<if test=" parm.TO_CONTRACT_DATE != null and !parm.TO_CONTRACT_DATE.equals('')">
+		AND C.CONTRACT_DATE <![CDATA[<=]]> TO_DATE( #{parm.TO_CONTRACT_DATE} , 'YYYY-MM-DD')
+		</if>			
+	</sql>	
+	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getContractList
+			전체 계약 리스트
+		*/
+		<include refid="getContractList_body"/>
+		ORDER BY TOTAL_COST DESC ,CONTRACT_YEAR, CONTRACT_MONTH
+		<if test=" parm.RANK != null and !parm.RANK.equals('')">
+			FETCH NEXT #{parm.RANK} ROWS ONLY
 		</if>
 	</select>	
-	
+	<select id="getContractList_totalCnt" resultType="Integer">
+		/* rstMgn.getContractList_totalCnt  */
+		<include refid="common.totalWrapStart"/>
+		<include refid="getContractList_body"/>
+		<include refid="common.totalWrapEnd"/>
+	</select>
+	<select id="getContractList_paging" resultType="java.util.HashMap">
+		/* rstMgn.getContractList_paging  */
+		<include refid="common.pagingWrapStart"/>
+		<include refid="getContractList_body"/>
+		ORDER BY TOTAL_COST DESC ,CONTRACT_YEAR, CONTRACT_MONTH
+		<include refid="common.pagingWrapEnd"/>
+	</select>
+		
 	<sql id="MONTHS_12"> 
 		SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), LEVEL - 1), 'YYYYMM') AS month
 		FROM DUAL

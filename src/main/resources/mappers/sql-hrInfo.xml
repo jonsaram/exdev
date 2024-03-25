@@ -9,10 +9,7 @@
 	<!--
 	인사정보 관리 
 	 -->	
-	<select id="getHrInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	hrInfo.getHrInfoList
-			인사정보 리스트 조회 
-		*/
+	<sql id="getHrInfoList_body">
 		SELECT U.SP_CSTM_ID
 			,U.USER_ID
 			,U.USER_NM
@@ -72,9 +69,28 @@
         <if test=" USER_NM != null and !USER_NM.equals('') ">
         AND U.USER_NM like '%' || #{USER_NM} || '%'
         </if>
+	</sql>
+	<select id="getHrInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	hrInfo.getHrInfoList
+			인사정보 리스트 조회 
+		*/
+		<include refid="getHrInfoList_body"/>
         ORDER BY USER_ID
+	</select>	
+	<select id="getHrInfoList_totalCnt" resultType="Integer">
+		/* hrInfo.getHrInfoList_totalCnt  */
+		<include refid="common.totalWrapStart"/>
+		<include refid="getHrInfoList_body"/>
+		<include refid="common.totalWrapEnd"/>
 	</select>
-	 	
+	<select id="getHrInfoList_paging" resultType="java.util.HashMap">
+		/* hrInfo.getHrInfoList_paging  */
+		<include refid="common.pagingWrapStart"/>
+		<include refid="getHrInfoList_body"/>
+        ORDER BY USER_ID
+		<include refid="common.pagingWrapEnd"/>
+	</select>
+		 	
 	<update id="updateHrInfo" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	hrInfo.updateHrInfo
 			인사정보  저장

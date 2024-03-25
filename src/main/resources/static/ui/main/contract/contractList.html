@@ -4,11 +4,9 @@ var <@pageId> = {
 		 checkedItems : []
  		,excelParam : {}
 		,pageInit : () =>{
-			var pagingChunkList = { 
-					 data 			: [ ["50","50개 보기"],["30","30개 보기"],["10","10개 보기"]]
-				 	,targetId 		: "<@pageId>_pagingChunk" 
-			}
-			C_UICOM.makeSelectBox(pagingChunkList, "single");
+			
+			_setSearchListCnt("<@pageId>_pagingChunk" );
+			
 		}
 		,searchList : () => {
 			

@@ -9,10 +9,7 @@
 	<!--
 	업무 관리 
 	 -->	
-	<select id="getCstmList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	cstm.getCstmList
-			고객 리스트 조회 
-		*/
+	<sql id="getCstmList_body">
 		SELECT B.BUYER_ID
 		, B.BUYER_NM
 		, B.TEL
@@ -25,8 +22,28 @@
 		AND B.USE_YN = 'Y'
 		AND B.DEL_YN = 'N'
 		ORDER BY B.BUYER_NM
+	</sql>
+	<select id="getCstmList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	cstm.getCstmList
+			고객 리스트 조회 
+		*/
+		<include refid="getCstmList_body"/>
+        ORDER BY USER_ID
+	</select>	
+	<select id="getCstmList_totalCnt" resultType="Integer">
+		/* hrInfo.getCstmList_totalCnt  */
+		<include refid="common.totalWrapStart"/>
+		<include refid="getCstmList_body"/>
+		<include refid="common.totalWrapEnd"/>
 	</select>
-	 	
+	<select id="getCstmList_paging" resultType="java.util.HashMap">
+		/* hrInfo.getCstmList_paging  */
+		<include refid="common.pagingWrapStart"/>
+		<include refid="getCstmList_body"/>
+        ORDER BY USER_ID
+		<include refid="common.pagingWrapEnd"/>
+	</select>
+		 	
 	<update id="updateCstm" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	cstm.updateCstm
 			고객  저장
