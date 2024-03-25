@@ -520,6 +520,26 @@ var C_COM = {
             return (this.prop("scrollWidth") == 0 && this.prop("clientWidth") == 0) || (this.prop("scrollWidth") > this.prop("clientWidth"));
         };
 
+		C_COM.adjustTableScroll(templateId)
+
+		C_COM.makeNumberTypeToInput(templateWebId);
+		
+	    /*==== consulting active ====*/
+	    $(templateWebId).on("click", templateWebId + " .listBtn li a", function(){
+	        $(templateWebId + ' .listBtn li a').removeClass('active');
+	        $(this).addClass('active');
+	    });
+
+        // 스크롤 존재할 경우
+        if( $(templateWebId + " .sec_scroll").hasScrollBar() ){
+            $(templateWebId + " .sec_scroll").addClass('resize');
+        }else{
+           $(templateWebId + " .sec_scroll").removeClass('resize');
+        }
+	 }
+	,adjustTableScroll : function(templateId) {
+		var templateWebId = "#" + templateId + " ";
+
         $(templateWebId + " .tbl_body_scroll").scroll(function(event){
             var sl = 1;
             // data 테이블 x축 스크롤을 움직일 때header 테이블 x축 스크롤을 똑같이 움직인다
@@ -565,31 +585,6 @@ var C_COM = {
             $(templateWebId + " .tbl_head2 colgroup col:last-child").width();
         }
 
-		C_COM.makeNumberTypeToInput(templateWebId);
-		
-	    /*==== consulting active ====*/
-	    $(templateWebId).on("click", templateWebId + " .listBtn li a", function(){
-	        $(templateWebId + ' .listBtn li a').removeClass('active');
-	        $(this).addClass('active');
-	    });
-
-        // 스크롤 존재할 경우
-        if( $(templateWebId + " .sec_scroll").hasScrollBar() ){
-            $(templateWebId + " .sec_scroll").addClass('resize');
-        }else{
-           $(templateWebId + " .sec_scroll").removeClass('resize');
-        }
-
-	 }
-
-	,adjustTableScroll : function(templateId) {
-		var templateWebId = "#" + templateId + " ";
-        if ($(templateWebId + " .tbl_body_scroll").hasYScrollBar()) {
-            //y축 스크롤이 있으면 스크롤 넓이인 8px만큼 header 마지막 열 크기를 늘린다
-            $(templateWebId + " .tbl_head colgroup col:last-child").width($(templateWebId + " .tbl_body_scroll colgroup col:last-child").width() + 8 );
-        }else{
-            $(templateWebId + " .tbl_head colgroup col:last-child").width();
-        }
 	 }
 	
 	,excelUploadCallbackFn : undefined
@@ -787,6 +782,10 @@ var C_PM = {
 	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
 	,preInitPage : function(pageId, targetDomId) {
 		C_COM.preInitTemplate(pageId);
+		
+		C_WIN.addListnerWindowResize(pageId, function() {
+			C_COM.adjustTableScroll(pageId);
+		});
 	 }
 	// Page에 Load시 스크립트 실행 후 공통 설정을 한다.
 	,afterInitPage : function(pageId) {
@@ -1886,4 +1885,29 @@ $(function() {
 			alert(templateId);
 		}
 	});
+});
+
+
+
+
+var C_WIN = {
+	 callbackMap: {}
+	,addListnerWindowResize : function(pageId, callback) {
+		C_WIN.callbackMap[pageId] = callback;
+	 }
+	,onWindowResize : function() {
+		
+		var pageId = C_PM.getCurrentPageId();
+		
+		if(isValid(C_WIN.callbackMap[pageId])) {
+			C_WIN.callbackMap[pageId]();
+		}
+	 }
+} 
+
+$(window).resize(function() {
+	hasYScrollBar();
+	hasXScrollBar();
+	
+	//C_WIN.onWindowResize();
 });
