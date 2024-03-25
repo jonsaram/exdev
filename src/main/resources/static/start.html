@@ -24,7 +24,7 @@
 	<script type="text/javascript" 	src="./ui/js/common/function_common.js"		></script>
 	<script type="text/javascript" 	src="./ui/js/common/project_common.js"		></script>
     <script type="text/javascript" src="./ui/js/common.js" 						></script>
-    <script type="text/javascript" src="./ui/js/menu.js"   						></script>
+<!--     <script type="text/javascript" src="./ui/js/menu.js"   						></script>  -->
     <script type="text/javascript" src="./ui/js/excel.js"  						></script>
     <script type="text/javascript" src="./ui/js/chart.js"  						></script>
     <script type="text/javascript" src="./ui/js/lodash.js" 						></script>
@@ -39,21 +39,36 @@
 		// Session설정
 		var sendParm = {
 			 targetUrl 	: _WEB_ROOT_URL + "/setSession.do"
-             ,data       : {
-                spCstmId    : "starasset"
-               ,userId      : "jonsaram"
-               ,userNm      : "위성열"
-               ,grade       : "S마스터"
-               ,email       : "jonsaram@explan.co.kr"
-             }
-			 /*
+/*			 
 			,data		: {
                 spCstmId	: "starasset"
-               ,userId  	: "windrider"
-               ,userNm  	: "이응규"
+               ,userId  	: "123456789"
+               ,userNm  	: "이희성"
                ,grade		: "S마스터"
-               ,email	  	: "jonsaram@explan.co.kr"
-			 }*/
+               ,email	  	: "K2navyrd@starasset.co.kr"
+			 }
+			,data		: {
+			    spCstmId	: "starasset"
+			   ,userId  	: "51115125782"
+			   ,userNm  	: "유태원"
+			   ,grade	: "S마스터"
+			   ,email	: "jonsaram@explan.co.kr"
+			 }
+			,data		: {
+			    spCstmId	: "starasset"
+			   ,userId  	: "99933532664"
+			   ,userNm  	: "유진스"
+			   ,grade	: "S마스터"
+			   ,email	: "jonsaram@explan.co.kr"
+			 }
+*/
+			,data		: {
+			    spCstmId	: "starasset"
+			   ,userId  	: "jonsaram"
+			   ,userNm  	: "위성열"
+			   ,grade	: "S마스터"
+			   ,email	: "jonsaram@explan.co.kr"
+			 }
 		}
 		
 		ajaxRequest(sendParm);
@@ -70,7 +85,7 @@
 			// 시작 Page Id
 			C_PM.movePage("sample_index");
 			
-			setMenu();
+			C_MENU.initMenu();
 		});	
 
 		
@@ -80,10 +95,105 @@
 			
 			C_PM.movePage(pageId.trim(), parameter);
 		}
+
 		
-		function showLeftMenuToggle() {
-			 $("#mainContainer").toggleClass('collapse');
-		}
+		var C_MENU = {
+			 nowMainMenuIdx	:0
+			,nowSubMenuIdx	:0
+			,mainMenuList	: []
+			,subMenuListMap	: {}
+			,subMenuList	: []
+			,initMenu : function() {
+				var parm = {
+					 queryId 		: "system.getMenuList"
+					,requestParm	: {}
+				}	
+				C_COM.requestQuery(parm, function(resultData) {
+					let menuOrgList 	= resultData.data;
+					let mainMenuList 	= []
+					let subMenuAllList	= []
+					$.each(menuOrgList, function() {
+						if(this.MENU_DEPTH == 0) 	mainMenuList	.push(this);
+						else						subMenuAllList	.push(this);
+					});
+					
+					C_MENU.mainMenuList = mainMenuList;
+					
+					$.each(subMenuAllList, function() {
+						if(isEmpty(C_MENU.subMenuListMap[this.PARENT_MENU_ID])) C_MENU.subMenuListMap[this.PARENT_MENU_ID] = [];
+						C_MENU.subMenuListMap[this.PARENT_MENU_ID].push(this);	
+					});
+					C_MENU.showMainMenuList(0);
+					
+					C_MENU.showSubMenuList(0, 0);
+				});
+			 }
+			,setMenuActive : function(menuList, idx) {
+				$.each(menuList, function(i) {
+					menuList[i].activeClass = "";
+				});
+				menuList[idx].activeClass = "active";
+			 }
+			,showMainMenuList : function(idx) {
+				// 현재 선택된 Main Idx 저장
+				C_MENU.nowMainMenuIdx = idx;
+				// 현재 선택된 Main Menu Active 설정
+				C_MENU.setMenuActive(C_MENU.mainMenuList, idx);
+
+				var rparm = {
+					 targetId 		: "mainMenuList"
+					,list			: C_MENU.mainMenuList
+				}
+				C_COM.renderHtml("header", rparm);
+			 }
+			,setSubMenuList	 : function(mainMenuIdx) {
+				let PARENT_MENU_ID = C_MENU.mainMenuList[mainMenuIdx].MENU_ID;
+				
+				let subMenuList = C_MENU.subMenuListMap[PARENT_MENU_ID];
+				
+				C_MENU.subMenuList = subMenuList;
+				
+				return subMenuList;
+			 }
+			,showSubMenuList : function(mainMenuIdx, subMenuIdx) {
+
+				let subMenuList = C_MENU.setSubMenuList(mainMenuIdx);
+				
+				let PARENT_MENU_NM = subMenuList[subMenuIdx].PARENT_MENU_NM;
+				
+				C_MENU.setMenuActive(subMenuList, subMenuIdx);
+				
+				var rparm = {
+					 targetId 		: "subMenuList"
+					,list			: subMenuList
+					,PARENT_MENU_NM	: PARENT_MENU_NM
+				}
+				C_COM.renderHtml("mainContainer", rparm);
+			 }
+			,moveMainMenu 	: function(mainMenuIdx) {
+				C_MENU.showSubMenuList(mainMenuIdx, 0);
+				C_MENU.moveSubMenu(0);
+				if(C_MENU.mainMenuList[mainMenuIdx].MENU_ID == "MN_SCD") {
+					$("#subMenuList").hide();
+				} else {
+					$("#subMenuList").show();
+				}  
+				
+			 }
+			,moveSubMenu	: function(idx) {
+				let subMenu = C_MENU.subMenuList[idx];
+				let parm = {};
+				if(isValid(subMenu.PARAMETER)) {
+					eval(`parm = ${subMenu.PARAMETER}` );
+				}
+				C_PM.movePage(subMenu.PAGE_ID, parm);
+			 }
+		} 
+		
+		
+		
+		
+		
 	</script>
 	
 	
@@ -99,8 +209,13 @@
 		<div class="wrap">
 			<h1 class="logo"><a href="#">Start Asset</a></h1>
 			<nav class="gnb">
-				<ul id="gnb_MenuList">
+				<ul id="mainMenuList">
 				</ul>
+				<script type="text/x-jsrender" id="mainMenuList_template">						
+				{{for list}}
+					<li class="{{:activeClass}}"><a href="javascript:C_MENU.moveMainMenu({{:#index}});">{{:MENU_NM}}</a></li>
+				{{/for}}
+				</script>
 			</nav>
 			<div class="header_right">
 				<div class="head-btn-wrap">
@@ -122,8 +237,20 @@
 		</div>
 	</header>
 	<div class="container" id="mainContainer">
-		<nav class="lnb" id="lnb_MenuList">
+		<nav class="lnb" id="subMenuList">
 		</nav>
+		<script type="text/x-jsrender" id="subMenuList_template">						
+			<div class="lnb_tit01">{{:PARENT_MENU_NM}}<button class="btn fold"><i class="icon_arrow"></i></button></div>
+			<ul>
+				<li>
+					<ul>
+					{{for list}}
+						<li class="{{:activeClass}}"><a href="javascript:C_MENU.moveSubMenu({{:#index}});">{{:MENU_NM}}</a></li>
+					{{/for}}
+					</ul>
+				</li>
+			</ul>
+		</script>
 		<span id="bodyBlock">
 		</span>
 
