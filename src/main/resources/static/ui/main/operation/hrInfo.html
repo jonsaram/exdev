@@ -446,7 +446,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</tbody>
 						<script type="text/x-jsrender" id="<@pageId>_hiInfoList_template">						
 						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+							<tr name="<@pageId>_tr_{{:#index}}"
+								{{if INSURANCE_EXP_DATE_OVER === "OVER"}}
+    								class="expiration_date"
+								{{/if}} 
+							     value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'></td>
 			 					<td id='USER_ID'		class='tl'>{{:USER_ID}}</td>
 			 					<td id='USER_NM'		class='tl'><a href="javascript:<@pageId>.goPage('main_operation_hrInfoView' , '{{:#index}}' );">{{:USER_NM}}</a></td>
