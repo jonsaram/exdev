@@ -138,7 +138,7 @@ var <@pageId> = {
 					,requestParm	: requestParm
 			}
 			<@pageId>.excelParam = parm;
-			const listRange = C_UICOM.getData("<@pageId>_pagingChunk");
+			let listRange = C_UICOM.getData("<@pageId>_pagingChunk");
 
 			C_PAGING.create({
 	 			 pageId				: "<@pageId>"
@@ -146,7 +146,7 @@ var <@pageId> = {
 	 			,pagingDomId		: "pageDiv"
 	 			,totalCntDomId		: "totalCnt"
 	 			,queryId			: "hrInfo.getHrInfoList"
-				,listRange			: Number(listRange)
+				,listRange			: isEmpty(listRange) ? 10 : Number(listRange)
 				,pageRange			: 10
 	 			,parmFn				: function() {
 	 				
