@@ -80,8 +80,16 @@
 								<div class="piechart_wrap stateWrap">
 									<div class="state"><span class="num">보통</span></div>
 								</div>
-								<figure>
-									<div class="chart pt10" style="height:280px"></div>
+								<figure class="clearFix">
+									<div class="chart pt10 fl" style="width:300px; height:280px"></div>
+									<ul class="status_wrap mt35 pr50 fr">
+										<li><i class="status veryBest"></i><span>최우수</span></li>
+										<li><i class="status great"></i><span>우수</span></li>
+										<li><i class="status good"></i><span>양호</span></li>
+										<li><i class="status commonly"></i><span>보통</span></li>
+										<li><i class="status inadequate"></i><span>미흡</span></li>
+										<li><i class="status inferior"></i><span>열위</span></li>
+									</ul>
 								</figure>
 							</div>
 						</section>
@@ -164,19 +172,8 @@ $(function () {
 	        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
 	    },
 	    legend: {
-	    	layout: 'vertical',
-			align: 'right',
-			verticalAlign: 'top',
-			x:-60,
-	        y:0,
-	        padding:10,
-			itemMarginTop:10,
-            itemMarginBottom:10,
-	        itemStyle: {
-	            fontWeight:'bold',
-	            fontFamily: 'Noto Sans KR',
-	            fontSize: '14px'
-	        },
+	    	enabled: false,
+
 	    },
 	    accessibility: {
 	        point: {
@@ -190,31 +187,27 @@ $(function () {
 	            },
 	            startAngle: -140,
 	            endAngle: 220,
-	            center: ['35%', '50%'],
+	            center: ['60%', '50%'],
 	            size: '100%',
 	            borderRadius: 50,
 	            showInLegend: true
 	        },
 
 	    },
-	    colors: ['#ffd84f', '#00b5dd','#32c100', '#1000c6','#f07300','#dd0000'],
+	    colors: ['#ffd84f', '#ffffff'],
 	    series: [{
 	        type: 'pie',
 	        name: 'Browser share',
 	        innerSize: '82%',
 	        data: [
-	            ['보통', 45.00],
-	            ['우수', 12.00],
-	            ['양호', 8.00],
-	            ['최우수', 5.00],
-	            ['미흡', 1.00],
-	            ['열위', 2.00]
+	            ['보통', 40.00],
+	            ['', 60.00]
 	        ]
 	    }]
 	});
 
 	Highcharts.setOptions({
-		colors: ['#1000c6', '#ffffff','#ffffff', '#ffffff','#ffffff','#ffffff']
+		colors: ['#1000c6', '#00b5dd','#32c100', '#ffd84f','#f07300','#dd0000']
 	});
 });
 </script>

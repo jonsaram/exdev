@@ -182,7 +182,13 @@
 .status.tel_consul:before{background:#e5b266}
 .status.other_work:before{background:#8dcc76}
 .status.send_email:before{background:#72bfd2}
-.status.seminar:before{background:#d770c0}
+.status.seminar:before{background:#32c100}
+.status.veryBest:before{background:#1000c6}
+.status.great:before{background:#00b5dd}
+.status.good:before{background:#d770c0}
+.status.commonly:before{background:#ffd84f}
+.status.inadequate:before{background:#f07300}
+.status.inferior:before{background:#dd0000}
 .content{margin-top:8px}
 .content dl{width:100%;font-size:0}
 .content dt,.content dd{margin-top:5px;font-size:12px;display:inline-block;line-height:20px}
@@ -256,12 +262,12 @@
 .tbl_scroll{height:calc(100% - 93px);}
 .tbl_head,.tbl_head2{overflow-x:hidden;}
 .tbl_head table,.tbl_head2 table{overflow:hidden;}
-.tbl_body_scroll,.tbl_body_scroll2{overflow-y:auto;height:calc(100% - 43px);}
+.tbl_body_scroll0,.tbl_body_scroll,.tbl_body_scroll2{overflow-y:auto;height:calc(100% - 43px);}
 .row2 .tbl_body_scroll,.row2 .tbl_body_scroll2{height:calc(100% - 85px);}
 .tbl01 + .btn_area.right {margin-top:30px; }
 .tbl01 > table {border-top:1px solid #c4c5c8;background:#fff}
 .tbl01 + .tbl01 > table{border-top:0}
-.tbl01.tbl_body_scroll > table,.tbl01.tbl_body_scroll2 > table{border-top:0}
+.tbl01.tbl_body_scroll0 > table,.tbl01.tbl_body_scroll > table,.tbl01.tbl_body_scroll2 > table{border-top:0}
 .tbl01 > table > * > tr > th {background:#f8f8f8;}
 .tbl01 > table > thead > tr > th {padding:3px 10px;height:42px;line-height:16px;font-size:12px;color:#333;border-bottom:1px solid #bcbec1;}
 .row2 .tbl01 > table > thead > tr > th,
@@ -442,11 +448,12 @@
 .price_wrap > .won_wrap:last-child{border-right:0}
 .price_wrap .stit{font-size:14px;color:#8A8C92}
 .price_wrap .num_wrap{position:absolute;bottom:10px;right:15px;text-align:right;font-size:25px;font-weight:600;color:#333}
-.piechart_wrap {position:absolute;left:calc(38% - 35px);top:calc(50% - 30px);z-index:2}
+.piechart_wrap {position:absolute;left:calc(46% - 35px);top:calc(50% - 30px);z-index:2}
 .piechart_wrap .percent{font-size:30px;font-weight:600;color:#333}
 .piechart_wrap .won{font-size:15px;color:#8A8C92;text-align:center;}
-.piechart_wrap.stateWrap {position:absolute;left:calc(38% - 30px);top:calc(50% - 10px);z-index:2}
+.piechart_wrap.stateWrap {position:absolute;left:calc(30% - 20px);top:calc(52% - 10px);z-index:2}
 .piechart_wrap.stateWrap .state{font-size:30px;font-weight:600;color:#333}
+.chart_legend{float:left;padding:20px 0 0 50px}
 .todoList_wrap{margin-top:10px}
 .todoList_wrap li{padding:0 0 8px}
 .todoList_wrap label{position:relative;width: calc(100% - 20px);margin-left:-19px;padding:0 0 0 24px;cursor:pointer;font-size:12px;line-height:18px;vertical-align:middle;border-radius:4px;}
@@ -525,6 +532,7 @@
 .stit_schedule{padding:25px 10px 10px;font-size:15px;font-weight:600;}
 .status_wrap{padding:0 10px}
 .status_wrap li{margin-bottom:10px}
+figure .status_wrap li{margin-bottom:17px}
 .check_subTeam_wrap{min-height:143px}
 .schedule_wrap .status + span{font-size:13px}
 .schedule_wrap .ui-widget-content{margin:0 auto;width:100%;border:0;background:none}
@@ -741,6 +749,7 @@
 @media screen and (max-width: 1770px) { /* PC */
 /*	.btn_arrow{display:block;}
 	.header_right{width:181px}*/
+	.piechart_wrap.stateWrap {position:absolute;left:calc(40% - 20px);}
 
 	.wrap.resize{white-space:inherit;}
 	.wrap.resize .gnb{height:137px;border:1px solid #c4c5c8;border-top:0;}
@@ -748,6 +757,7 @@
 	.wrap.resize .gnb ul{text-align:inherit;}
 }
 @media screen and (max-width: 1100px) {
+
 	/*.btn_arrow{display:none}
 	.gnb ul,.btn_arrow{display:none}
 	.head-btn-wrap{display:block;}*/
