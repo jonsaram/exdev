@@ -394,9 +394,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<caption>인사정보 리스트</caption>
 						<colgroup>
 								<col style="width:40px;"/>
+								<col style="width:40px;"/>
 								<col style="width:90px;">
 								<col style="width:80px;"/>
-								<col style="width:150px;"/>
+								<col style="width:120px;"/>
 								<col style="width:100px;"/>
 								<col style="width:90px;" span="3"/>
 								<col style="width:80px;" span="2"/>
@@ -408,6 +409,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<thead>
 							<tr id="<@pageId>_headingColName">
 								<th scope="col"><input type="checkbox"></th>
+								<th scope="col">No.</th>
 								<th scope="col">사원번호</th>
 								<th scope="col">성명</th>
 								<th scope="col">이메일주소</th>
@@ -431,9 +433,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<table>
 						<colgroup>
 								<col style="width:40px;"/>
+								<col style="width:40px;"/>
 								<col style="width:90px;">
 								<col style="width:80px;"/>
-								<col style="width:150px;"/>
+								<col style="width:120px;"/>
 								<col style="width:100px;"/>
 								<col style="width:90px;" span="3"/>
 								<col style="width:80px;" span="2"/>
@@ -452,6 +455,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								{{/if}} 
 							     value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'></td>
+			 					<td id='ROWIDX'			class='tc'>{{:ROWIDX}}</td>
 			 					<td id='USER_ID'		class='tl'>{{:USER_ID}}</td>
 			 					<td id='USER_NM'		class='tl'><a href="javascript:<@pageId>.goPage('main_operation_hrInfoView' , '{{:#index}}' );">{{:USER_NM}}</a></td>
 			 					<td id='E_MAIL'			class='tl'>{{:E_MAIL}}</td>

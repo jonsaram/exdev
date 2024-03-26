@@ -501,6 +501,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
+									<col style="width:55px;"/>
 									<col style="width:60px;"/>
 									<col style="width:11%;"/>
 									<col style="width:11%;"/>
@@ -510,6 +511,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								</colgroup>
 								<thead>
 									<tr id="<@pageId>_headingColName">
+										<th scope="col">NO.</th>
 										<th scope="col">년</th>
 										<th scope="col">월</th>
 										<th scope="col">팀</th>
@@ -528,6 +530,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
 								{{for list}}
 									<tr name="<@pageId>_tr_{{:#index}}" value='{{:CONTRACT_ID}}'>
+			 							<td id='ROWIDX'				>{{:ROWIDX}}</td>
 			 							<td id='CONTRACT_YEAR'		>{{:CONTRACT_YEAR}}</td>
 			 							<td id='CONTRACT_MONTH'		>{{:CONTRACT_MONTH}}</td>
 			 							<td id='TEAM_NM'			>{{:TEAM_NM}}</td>
@@ -544,7 +547,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								</script>
 								<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
 									<tr>	
-										<td colspan=11>자료가 없습니다.</td>	
+										<td colspan=12>자료가 없습니다.</td>	
 									</tr>
 								</script>								
 							</table>
