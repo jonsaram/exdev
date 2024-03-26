@@ -1,6 +1,6 @@
 
 
-function _excelDownload ( $hds ,$tds,requestParm , title)  {
+function _excelDownload ( $hds ,$tds,requestParm , title , isPaging)  {
 
 		let excelColumnNames =  [];
 		$.each( $hds, function(){
@@ -19,7 +19,7 @@ function _excelDownload ( $hds ,$tds,requestParm , title)  {
 		excelParam["queryId"]		  = requestParm.queryId; 
 		excelParam["columnOrders"	] = excelColumnOrder;
 		excelParam["downInfo"		] = JSON.stringify({  title : title, menu : title});
-		excelParam["requestParm"	] = JSON.stringify(requestParm.requestParm );
+		excelParam["requestParm"	] = isPaging ? JSON.stringify({parm:requestParm.requestParm }) :JSON.stringify(requestParm.requestParm );
 		excelParam["columnNames"	] = excelColumnNames;
 		
 	    var xhr = new XMLHttpRequest();
