@@ -4,8 +4,6 @@
 
 <mapper namespace="hrInfo">
 
-	<cache />
-
 	<!--
 	인사정보 관리 
 	 -->	
@@ -25,7 +23,7 @@
             ,BR.BRANCH_ID
             ,BR.BRANCH_NM
 			,U.ROLE
-			,GET_CODE_NM('USER_ROLE', U.ROLE)		AS ROLE_NM
+			,NVL(GET_CODE_NM('USER_ROLE', U.ROLE),'-')		AS ROLE_NM
 			,U.GRADE
 			,GET_CODE_NM('GRADE', U.GRADE)		AS GRADE_NM
 			,U.STATE
@@ -35,13 +33,13 @@
 			,U.POST_NUM
 			,U.ADDR1
 			,U.ADDR2
-			,U.ADDR1 || '&lt;BR&gt;' || U.ADDR2  AS ADDR
+			,U.ADDR1 || ' ' || U.ADDR2  AS ADDR
 			,U.UPDATE_USER
 			,U.UPDATE_DATE
 			,NVL(TO_CHAR( I.AMOUNT   , '999,999,999,999,999'),'0')	AS AMOUNT 
 			,NVL(TO_CHAR( I.REG_DATE ,'YYYY-MM-DD'  ),'-' ) 		AS INSURANCE_REG_DATE
 			,NVL(TO_CHAR( I.EXP_DATE ,'YYYY-MM-DD'  ),'-' ) 		AS INSURANCE_EXP_DATE
-			,TO_CHAR( GHIS.MAX_UPGRADE_DATE,'YYYY-MM-DD') 			AS UPGRADE_DATE
+			,NVL(TO_CHAR( GHIS.MAX_UPGRADE_DATE,'YYYY-MM-DD'),'-')	AS UPGRADE_DATE
             ,U.SURETY_INSURANCE 
             ,NVL(GET_CODE_NM('G_SURETY_INSURANCE', U.SURETY_INSURANCE),'-') AS SURETY_INSURANCE_NM 
 		FROM TBL_EXP_USER U
@@ -65,10 +63,39 @@
         AND U.USER_ID = I.USER_ID(+)
         AND U.BRANCH_ID = BR.BRANCH_ID(+)
         AND U.USER_ID = GHIS.USER_ID(+)	
-
-        <if test=" USER_NM != null and !USER_NM.equals('') ">
-        AND U.USER_NM like '%' || #{USER_NM} || '%'
-        </if>
+        AND #{parm.IS_MULTI_SEARCH} = #{parm.IS_MULTI_SEARCH} 
+       	<if test='parm.IS_MULTI_SEARCH.equals("N" ) '> 
+        	<if test=" parm.USER_ID != null and !parm.USER_ID.equals('') ">
+		    AND U.USER_ID like '%' || #{parm.USER_ID} || '%'  
+        	</if>
+			<if test=" parm.USER_NM != null and !parm.USER_NM.equals('') ">
+		    AND U.USER_NM like '%' || #{parm.USER_NM} || '%' 
+        	</if>
+        	<if test=" parm.EMAIL != null and !parm.EMAIL.equals('') ">
+		    AND U.E_MAIL like '%' || #{parm.EMAIL} || '%' 
+        	</if>
+        	<if test=" parm.PHONE_NUM != null and !parm.PHONE_NUM.equals('') ">
+		    AND U.PHONE_NUM like '%' || #{parm.PHONE_NUM} || '%' 
+        	</if>
+		</if>		 
+		       	
+       	<if test="parm.IS_MULTI_SEARCH =='Y' ">  
+	        AND ( 
+        	<if test=" parm.USER_ID != null and !parm.USER_ID.equals('') ">
+		        U.USER_ID like '%' || #{parm.USER_ID} || '%'  OR
+        	</if>
+	        	<if test=" parm.USER_NM != null and !parm.USER_NM.equals('') ">
+		        U.USER_NM like '%' || #{parm.USER_NM} || '%'  OR
+        	</if>
+        	<if test=" parm.EMAIL != null and !parm.EMAIL.equals('') ">
+		        U.E_MAIL like '%' || #{parm.EMAIL} || '%'  OR
+        	</if>
+        	<if test=" parm.PHONE_NUM != null and !parm.PHONE_NUM.equals('') ">
+		        U.PHONE_NUM like '%' || #{parm.PHONE_NUM} || '%'  OR
+        	</if> 
+        	1=1 )
+      	</if>
+				
 	</sql>
 	<select id="getHrInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	hrInfo.getHrInfoList
@@ -108,15 +135,15 @@
 		         #{ROLE}		AS "ROLE",
 		         #{GRADE}		AS GRADE,
 		         NVL(#{STATE},'INUSE') AS STATE,
-		         TO_DATE( #{REG_DATE}, 'YYYY-MM-SS' )	AS REG_DATE,
+		         TO_DATE( #{REG_DATE}, 'YYYY-MM-DD' )	AS REG_DATE,
 		         #{JUMIN}		AS JUMIN,
 		         #{POST_NUM}	AS POST_NUM,
 		         #{ADDR1}		AS ADDR1,
 		         #{ADDR2}		AS ADDR2,
 		         'Y' 			AS USE_YN,
 		         'N' 			AS DEL_YN,
-		         '' 			AS SALES_TYPE,
-		         '' 			AS SURETY_INSURANCE,
+		         #{SALES_TYPE}	AS SALES_TYPE,
+		         #{SURETY_INSURANCE} AS SURETY_INSURANCE,
 		        #{sessionVo.userId}	AS UPDATE_USER,
 		         SYSDATE 		AS UPDATE_DATE
 		  FROM dual

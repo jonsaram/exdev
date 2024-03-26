@@ -4,17 +4,26 @@ var <@pageId> = {
 		 checkedItems : []
 		,searchedData:[]
  		,excelParam : {}
+ 		,SEARCH_COLUMN:[]
+ 		,SEARCH_WORD:''
 		,pageInit : () =>{
 			
 			_setSearchListCnt("<@pageId>_pagingChunk" );
 			
 		}
-		,searchList : (searchName) => {
-			
-			const requestParm = { 
-					USER_NM : searchName
-					,
-					
+		,searchList : () => {
+
+			const searchVal = $("#main_operation_hrInfo_msSearch").val();
+
+			const requestParm = {
+					 IS_MULTI_SEARCH	: <@pageId>.SEARCH_COLUMN.length > 1 ? 'Y' :'N'
+					,USER_NM 	: <@pageId>.SEARCH_COLUMN.includes("USER_NM") ? searchVal : null
+					,USER_ID 	: <@pageId>.SEARCH_COLUMN.includes("USER_ID") ? searchVal : null
+					,EMAIL	 	: <@pageId>.SEARCH_COLUMN.includes("EMAIL") ? searchVal : null
+					,PHONE_NUM 	: <@pageId>.SEARCH_COLUMN.includes("PHONE_NUM") ? searchVal : null
+/* 					,BASE_BRANCH:
+					,SP_BRANCH:
+					,BRANCH: */
 			};
 			
 			var parm = {
@@ -22,8 +31,8 @@ var <@pageId> = {
 					,requestParm	: requestParm
 			}
 			<@pageId>.excelParam = parm;
-
 			const listRange = C_UICOM.getData("<@pageId>_pagingChunk");
+			debugger;
 			C_PAGING.create({
 	 			 pageId				: "<@pageId>"
 	 			,listDomId			: "<@pageId>_hiInfoList"
@@ -33,6 +42,7 @@ var <@pageId> = {
 				,listRange			: Number(listRange)
 				,pageRange			: 10
 	 			,parmFn				: function() {
+	 				
 	 				let parm = requestParm
 	 				return 	parm;
 	 			 }
@@ -108,10 +118,12 @@ var <@pageId> = {
 		    
 		    $("#<@pageId>_delete").click(function(){
 		    	
-		    	<@pageId>.checkedItems.forEach( key =>{
-					<@pageId>.deleteOne(key);
-		    	})
-		    	
+		    	C_POP.confirm('선택하신 인사정보를 삭제 하시겠습니까?', function() {
+		    		
+			    	<@pageId>.checkedItems.forEach( key =>{
+						<@pageId>.deleteOne(key);
+			    	})
+		    	});
 		    })
 		    
 		    $("#<@pageId>_excelDownload").click(function(){
@@ -123,7 +135,9 @@ var <@pageId> = {
 		    })
 		    
 			$("#<@pageId>_search").click( () =>{
-		    	<@pageId>.searchList();
+				
+				 const value= $("#<@pageId>_msSearch").val()
+		    	<@pageId>.msSearch({key:'Enter',target:{value:value}});
 		    })
 		    
 		    $("#<@pageId>_pagingChunk"	).off().on('change',() =><@pageId>.searchList());
@@ -169,12 +183,20 @@ var <@pageId> = {
 			C_PM.movePage( pageId.trim(), clickedRow );
 			
 		}
- 		,nameSearch : (e) => {
+ 		,msSearch : (e) => {
 			
 			 if (e.key === "Enter") {
 				 
-			        var USER_NM = event.target.value;
-					<@pageId>.searchList( USER_NM );
+				 	const $checked = $("input[type='checkbox'][id^='<@pageId>_search']:checked");
+			        let SEARCH_WORD = e.target.value;
+			        let  = []; 
+			        $.each( $checked,  function(index, check)  
+			        { 
+			        	<@pageId>.SEARCH_COLUMN.push($(check).attr("column") ); 
+					}); 
+			        	
+			        alert(<@pageId>.SEARCH_COLUMN )	
+					<@pageId>.searchList();
 			}
 		}
 }
@@ -203,20 +225,33 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<div class="search_area mt0">
 				<!-- 멀티 선택 -->
 				<div class="fl">
-					<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
-					<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
 				
-					<div class="dropdown fl" style="width:200px;">
+					<div class="dropdown fl" style="width:120px;">
 						<button type="button" class="btn arrow">
 							<span class="hida">Select</span>
 							<p class="multiSel"></p>
 						</button>
 					    <div class="mutliSelect">
+					        <ul><li><input type="checkbox" value="사원 번호" column="USER_ID"	id="<@pageId>_searchUserId"><label for="mutli01">사원 번호</label></li>
+					            <li><input type="checkbox" value="성명" 	 column="USER_NM"	id="<@pageId>_searchUserNm"><label for="mutli02">성명</label></li>
+					            <li><input type="checkbox" value="이메일" 	 column="EMAIL"		id="<@pageId>_searchEmail"><label for="mutli03">이메일</label></li>
+					            <li><input type="checkbox" value="연락처" 	 column="PHONE_NUM"	id="<@pageId>_searchPhoneNum"><label for="mutli04">연락처</label></li>
+					        </ul>					    
 					    </div>
 					</div>
+					
 					<div class="search_inputWrap">
-						<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
+						<input type="search" id="<@pageId>_msSearch" onkeydown="<@pageId>.msSearch(event)" style='width:100px;'><button class="search_btn"><i class="icon_search"></i></button>
 					</div>
+					
+<div id="selectBoxId" style="width:200px"></div>
+<div id="selectBoxId" style="width:200px"></div>
+<div id="selectBoxId" style="width:200px"></div>
+<div id="selectBoxId" style="width:200px"></div>					
+					
+					<button type="button" class="btn select fr" id="<@pageId>_search">조회</button>
+					<button type="button" class="btn fr" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
+					
 				</div>
 	
 				<div class="search_right">
@@ -291,10 +326,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			 					<td id='USER_NM'		class='tl'><a href="javascript:<@pageId>.goPage('main_operation_hrInfoView' , '{{:#index}}' );">{{:USER_NM}}</a></td>
 			 					<td id='E_MAIL'			class='tl'>{{:E_MAIL}}</td>
 			 					<td id='PHONE_NUM'		class='tl'>{{:PHONE_NUM}}</td>
-								<td id='BASE_BRANCH_NM'	class='tl'>{{:BASE_BRANCH_NM}}</td>
+								<td id='BASE_BRANCH_NM'	class='tc'>{{:BASE_BRANCH_NM}}</td>
 								<td id='SP_BRANCH_NM'	class='tl'>{{:SP_BRANCH_NM}}</td>
 								<td id='BRANCH_NM'		class='tl'>{{:BRANCH_NM}}</td>
-								<td id='ROLE_NM'		class='tc'>{{:ROLE_NM}}</td>
+								<td id='ROLE_NM'		class='tl'>{{:ROLE_NM}}</td>
 								<td id='GRADE_NM'		class='tc'>{{:GRADE_NM}}</td>
 								<td id='STATE_NM'		class='tc'>{{:STATE_NM}}</td>
 								<td id='AMOUNT'			class='tr'>{{:AMOUNT}}</td>

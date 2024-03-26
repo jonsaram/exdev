@@ -9,22 +9,21 @@
 			
 		}
 		,pageInit : (param) =>{
-			
-			for (var key in param) {
-				
-			    var value = param[key];
 
-			    $(".info.parmVal").filter(function() {
-			        return $(this).data("key") === key;
-			    }).text(" : "+value);
-			    $(".tc.parmVal").filter(function() {
-			        return $(this).data("key") === key;
-			    }).text( value);
-			    
-			}
+			<@pageId>.setParamOnThisPage(param);
+			
+		}
+		,setParamOnThisPage : (param) => {
+			
+			Object.entries( param).map( ([key,value]) =>{
+				
+				if( isValid(key)){
+					$("#<@pageId>_"+key).text(value);
+				}
+				
+			})
 			
 	  		<@pageId>.getUserImg();
-			
 		}
 		,updateItem : (param) => {
 
@@ -49,7 +48,7 @@
 					console.log(<@pageId>.requestParm);
 
 					<@pageId>.recvData = <@pageId>.requestParm;
-					<@pageId>.pageInit( <@pageId>.requestParm );
+					<@pageId>.setParamOnThisPage( <@pageId>.requestParm );
 
 				}else{
 					C_POP.alert(resultData.msg)
@@ -134,7 +133,7 @@
 		<@pageId>.recvData = param;
  		<@pageId>.pageInit( param );
  		<@pageId>.setHandler();
- 		<@pageId>.setHistories();
+ 		<@pageId>.getHistories();
 
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -158,44 +157,44 @@
 						<figure class="photo_wrap">
 							<img src="../img/icon_noimg.png" id="<@pageId>_hrImg"/>
 						</figure>
-						<div class="employee_num tc parmVal" 	data-key="USER_ID"></div>
-						<div class="name tc parmVal" 			data-key="USER_NM"></div>
+						<div class="employee_num tc parmVal" 	id="<@pageId>_USER_ID"></div>
+						<div class="name tc parmVal" 			id="<@pageId>_USER_NM"></div>
 						<ul class="info_wrap personnel">
 							<li>
 								<label>입사일</label>
-								<div class="info parmVal" data-key="REG_DATE" >
+								<div class="info parmVal" id="<@pageId>_REG_DATE" >
 								</div>
 							</li>
 							<li>
 								<label>휴대전화</label>
-								<div class="info parmVal" data-key="PHONE_NUM" >
+								<div class="info parmVal" id="<@pageId>_PHONE_NUM" >
 								</div>
 							</li>
 							<li>
 								<label>이메일</label>
-								<div class="info parmVal" data-key="E_MAIL" >
+								<div class="info parmVal" id="<@pageId>_E_MAIL" >
 								</div>
 							</li>
 							<li class="hauto">
 								<label>주소</label>
-								<div class="info lh20 parmVal" data-key="ADDR">
+								<div class="info lh20 parmVal" id="<@pageId>_ADDR">
 								</div>
 							</li>
 							<li>
 								<label>신용입보</label>
-								<div class="info parmVal" data-key="SURETY_INSURANCE_NM"></div>
+								<div class="info parmVal" id="<@pageId>_SURETY_INSURANCE_NM"></div>
 							</li>
 							<li>
 								<label>가입금액</label>
-								<div class="info parmVal" data-key="AMOUNT"></div>
+								<div class="info parmVal" id="<@pageId>_AMOUNT"></div>
 							</li>
 							<li>
 								<label>가입일</label>
-								<div class="info parmVal" data-key="INSURANCE_REG_DATE"></div>
+								<div class="info parmVal" id="<@pageId>_INSURANCE_REG_DATE"></div>
 							</li>
 							<li>
 								<label>만기일</label>
-								<div class="info parmVal" data-key="INSURANCE_EXP_DATE"></div>
+								<div class="info parmVal" id="<@pageId>_INSURANCE_EXP_DATE"></div>
 							</li>
 						</ul>
 					</div>
