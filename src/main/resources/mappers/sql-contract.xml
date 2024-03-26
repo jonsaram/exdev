@@ -199,7 +199,8 @@
 	</select>		
 	
 	<sql id="getContractList_body">
-		SELECT C.CONTRACT_ID
+		SELECT ROW_NUMBER() OVER (ORDER BY C.UPDATE_DATE DESC) AS RN
+		,C.CONTRACT_ID
 		,C.BUYER_ID 
 		,B.BUYER_NM
 		,GET_CODE_NM('PROCESS_STATE', C.PROCESS_STATE ) AS PROCESS_STATE_NM 
@@ -251,6 +252,7 @@
 		/* contract.getContractList_paging  */
 		<include refid="common.pagingWrapStart"/>
 		<include refid="getContractList_body"/>
+		ORDER BY C.UPDATE_DATE DESC
 		<include refid="common.pagingWrapEnd"/>
 	</select>
 	

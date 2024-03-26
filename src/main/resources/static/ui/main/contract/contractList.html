@@ -241,6 +241,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<caption>계약 리스트</caption>
 						<colgroup>
 								<col style="width:40px;"/>
+								<col style="width:40px;"/>
 								<col style="width:90px;">
 								<col style="width:130px;"/>
 								<col style="width:100px;"/>
@@ -257,6 +258,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<thead>
 							<tr id="<@pageId>_headingColName">
 								<th scope="col"><input type="checkbox"  id="<@pageId>_ckAll"></th>
+								<th scope="col">No.</th>
 								<th scope="col">고객번호</th>
 								<th scope="col">고객명</th>
 								<th scope="col">진행상태</th>
@@ -277,6 +279,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<table>
 						<colgroup>
 								<col style="width:40px;"/>
+								<col style="width:40px;"/>
 								<col style="width:90px;">
 								<col style="width:130px;"/>
 								<col style="width:100px;"/>
@@ -296,6 +299,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
+			 					<td id='RN'					class='tc' >{{:RN}}</td>
 			 					<td id='BUYER_ID'			class='tl' value='{{:BUYER_ID}}'			>{{:BUYER_ID}}</td>
 			 					<td id='BUYER_NM'			class='tl' value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</a></td>
 			 					<td id='PROCESS_STATE_NM'	value='{{:PROCESS_STATE_NM}}'	>{{:PROCESS_STATE_NM}}</td>
