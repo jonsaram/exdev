@@ -63,8 +63,8 @@
         AND U.USER_ID = I.USER_ID(+)
         AND U.BRANCH_ID = BR.BRANCH_ID(+)
         AND U.USER_ID = GHIS.USER_ID(+)	
-        AND #{parm.IS_MULTI_SEARCH} = #{parm.IS_MULTI_SEARCH} 
-       	<if test='parm.IS_MULTI_SEARCH.equals("N" ) '> 
+        <choose>
+       	<when test='parm.IS_MULTI_SEARCH == "N" '> 
         	<if test=" parm.USER_ID != null and !parm.USER_ID.equals('') ">
 		    AND U.USER_ID like '%' || #{parm.USER_ID} || '%'  
         	</if>
@@ -77,24 +77,42 @@
         	<if test=" parm.PHONE_NUM != null and !parm.PHONE_NUM.equals('') ">
 		    AND U.PHONE_NUM like '%' || #{parm.PHONE_NUM} || '%' 
         	</if>
-		</if>		 
-		       	
-       	<if test="parm.IS_MULTI_SEARCH =='Y' ">  
-	        AND ( 
+		</when>	 
+       	<when test='parm.IS_MULTI_SEARCH == "Y" '>  
+	        AND (
         	<if test=" parm.USER_ID != null and !parm.USER_ID.equals('') ">
-		        U.USER_ID like '%' || #{parm.USER_ID} || '%'  OR
+		        U.USER_ID like '%' || #{parm.USER_ID} || '%'
         	</if>
-	        	<if test=" parm.USER_NM != null and !parm.USER_NM.equals('') ">
-		        U.USER_NM like '%' || #{parm.USER_NM} || '%'  OR
+        	<if test=" parm.USER_NM != null and !parm.USER_NM.equals('') ">
+        		<if test=" parm.USER_ID != null and !parm.USER_ID.equals('') ">
+        		OR
+        		</if>
+		        U.USER_NM like '%' || #{parm.USER_NM} || '%'
         	</if>
         	<if test=" parm.EMAIL != null and !parm.EMAIL.equals('') ">
+				<if test=" (parm.USER_ID != null and !parm.USER_ID.equals('') ) or ( parm.USER_NM != null and !parm.USER_NM.equals(''))">
+        		OR
+        		</if>
 		        U.E_MAIL like '%' || #{parm.EMAIL} || '%'  OR
         	</if>
         	<if test=" parm.PHONE_NUM != null and !parm.PHONE_NUM.equals('') ">
-		        U.PHONE_NUM like '%' || #{parm.PHONE_NUM} || '%'  OR
+				<if test=" (parm.USER_ID != null and !parm.USER_ID.equals('') ) or ( parm.USER_NM != null and !parm.USER_NM.equals('')) or (parm.EMAIL != null and !parm.EMAIL.equals(''))">
+        		OR
+        		</if>
+		        U.PHONE_NUM like '%' || #{parm.PHONE_NUM} || '%'   
         	</if> 
-        	1=1 )
-      	</if>
+        	 )
+        	 </when>
+      	</choose>
+       	<if test=" parm.BASE_BRANCH != null and !parm.BASE_BRANCH.equals('') ">
+	    AND BR.BASE_BRANCH_ID = #{parm.BASE_BRANCH}  
+       	</if>
+       	<if test=" parm.SP_BRANCH != null and !parm.SP_BRANCH.equals('') ">
+	    AND BR.SP_BRANCH_ID = #{parm.SP_BRANCH}  
+       	</if>
+       	<if test=" parm.BRANCH != null and !parm.BRANCH.equals('') ">
+	    AND BR.BRANCH_ID = #{parm.BRANCH}  
+       	</if>
 				
 	</sql>
 	<select id="getHrInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
