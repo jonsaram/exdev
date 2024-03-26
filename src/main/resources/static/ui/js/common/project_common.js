@@ -629,13 +629,13 @@ var C_COM = {
 	,getFileId : function(GRP_FILE_ID, OWNER_CD, callback) {
 		if			(isEmpty(GRP_FILE_ID)) {
 			alert('File Group ID가 유효하지 않습니다.');
-			reutrn;
+			return;
 		} else if	(isEmpty(OWNER_CD)) {
 			alert('File Owner ID가 유효하지 않습니다.');
-			reutrn;
+			return;
 		} else if	(isEmpty(callback)) {
 			alert('Callback Function이 필요합니다.');
-			reutrn;
+			return;
 		}		
 		
 		var parm = {
