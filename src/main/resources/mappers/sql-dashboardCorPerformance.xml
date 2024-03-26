@@ -5,23 +5,110 @@
 <mapper namespace="dashboardCorPerformance">
 
 	<cache />
-	<!--  -->
+	
+	<!-- 매출액 순위, 영업이익별 순위 -->
     <select id="getSalesRanking" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getSalesRanking */
-		SELECT '마곡'         AS NAME, 245  AS VALUE   FROM DUAL UNION ALL
-		SELECT '동성로'       AS NAME, 300  AS VALUE   FROM DUAL UNION ALL
-		SELECT '이천'         AS NAME, 202  AS VALUE   FROM DUAL UNION ALL
-		SELECT '가락'         AS NAME, 200  AS VALUE   FROM DUAL UNION ALL
-		SELECT '동해천곡'     AS NAME, 196  AS VALUE   FROM DUAL
+        SELECT SP_CSTM_ID
+              ,STORE_ID
+              ,STORE_NM
+              ,STORE_NM3
+              ,AMOUNT
+              ,AMOUNT1
+        FROM   (
+                SELECT B.SP_CSTM_ID
+                      ,B.STORE_ID
+                      ,B.STORE_NM
+                      ,B.STORE_NM3
+                      ,SUM(A.AMOUNT)         AS AMOUNT
+                      ,SUM(A.AMOUNT)/1000000 AS AMOUNT1
+                FROM   TBL_EXP_STORE_FINANCIAL A
+                       JOIN TBL_EXP_STORE_INFO B
+                         ON  1 = 1
+                         AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                         AND A.STORE_ID   = B.STORE_ID
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{spCstmId}
+                AND    A.YEAR       = #{year}
+                AND    A.SUBJECT    = #{subject}
+                GROUP BY B.SP_CSTM_ID
+                        ,B.STORE_ID
+                        ,B.STORE_NM
+                        ,B.STORE_NM3
+                ORDER BY  SUM(A.AMOUNT) DESC
+               )
+        WHERE  1 = 1
+        AND    ROWNUM <![CDATA[ <= ]]> 5
     </select>
 
     <select id="getRegionsRanking" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /*  dashboardCorPerformance.getSalesRanking */
-        SELECT '경기'        AS NAME, 768990684  AS VALUE   FROM DUAL UNION ALL
-        SELECT '서울'        AS NAME, 522597110  AS VALUE   FROM DUAL UNION ALL
-        SELECT '대구'        AS NAME, 499882285  AS VALUE   FROM DUAL UNION ALL
-        SELECT '부산'        AS NAME, 398219586  AS VALUE   FROM DUAL UNION ALL
-        SELECT '강원'        AS NAME, 325328868  AS VALUE   FROM DUAL 
+        /*  dashboardCorPerformance.getRegionsRanking */
+        SELECT SP_CSTM_ID
+              ,REGION
+              ,REGION_NM
+              ,YEAR
+              ,AMOUNT
+              ,AMOUNT1
+        FROM   (
+                    SELECT B.SP_CSTM_ID
+                          ,B.REGION
+                          ,GET_CODE_NM('STORE_REGION', B.REGION) AS REGION_NM
+                          ,A.YEAR
+                          ,SUM(A.AMOUNT)           AS AMOUNT
+                          ,SUM(A.AMOUNT)/100000000 AS AMOUNT1
+                    FROM   TBL_EXP_STORE_FINANCIAL A
+                           JOIN TBL_EXP_STORE_INFO B
+                             ON  1 = 1
+                             AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                             AND A.STORE_ID   = B.STORE_ID
+                    WHERE  1 = 1
+                    AND    A.SP_CSTM_ID = #{spCstmId}
+                    AND    A.YEAR       = #{year}
+                    GROUP BY B.SP_CSTM_ID
+                            ,B.REGION
+                            ,GET_CODE_NM('STORE_REGION', B.REGION)
+                            ,A.YEAR
+                    ORDER BY  SUM(A.AMOUNT) DESC
+               )
+        WHERE  1 = 1
+        AND    ROWNUM <![CDATA[ <= ]]> 5
+    </select>
+    
+    <select id="getMonthAccrue" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getMonthAccrue */
+        WITH STORE_FINANCIAL AS (
+            SELECT MONTH
+                  ,SUBJECT
+                  ,SUM(AMOUNT) AS AMOUNT
+            FROM   TBL_EXP_STORE_FINANCIAL
+            WHERE  1 = 1
+            AND    SUBJECT IN ('SUBJECT_001','SUBJECT_003','SUBJECT_010','SUBJECT_005') 
+            AND    SP_CSTM_ID = #{spCstmId}
+            AND    YEAR = #{year}
+            GROUP BY MONTH
+                    ,SUBJECT
+            ORDER BY MONTH
+                    ,SUBJECT
+        )
+		SELECT MONTH
+		      ,SUBJECT
+		      ,AMOUNT
+		FROM   (
+		        SELECT SUBJECT, '01' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01') GROUP BY SUBJECT, '01' UNION ALL
+		        SELECT SUBJECT, '02' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02') GROUP BY SUBJECT, '02' UNION ALL
+		        SELECT SUBJECT, '03' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03') GROUP BY SUBJECT, '03' UNION ALL
+		        SELECT SUBJECT, '04' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04') GROUP BY SUBJECT, '04' UNION ALL
+		        SELECT SUBJECT, '05' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05') GROUP BY SUBJECT, '05' UNION ALL
+		        SELECT SUBJECT, '06' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06') GROUP BY SUBJECT, '06' UNION ALL
+		        SELECT SUBJECT, '07' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07') GROUP BY SUBJECT, '07' UNION ALL
+		        SELECT SUBJECT, '08' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07','08') GROUP BY SUBJECT, '08' UNION ALL
+		        SELECT SUBJECT, '09' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07','08','09') GROUP BY SUBJECT, '09' UNION ALL
+		        SELECT SUBJECT, '10' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07','08','09','10') GROUP BY SUBJECT, '10' UNION ALL
+		        SELECT SUBJECT, '11' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07','08','09','10','11') GROUP BY SUBJECT, '11' UNION ALL
+		        SELECT SUBJECT, '12' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07','08','09','10','11','12') GROUP BY SUBJECT, '12'
+		        ) A
+		ORDER BY MONTH
+		        ,SUBJECT
     </select>
     
 </mapper>
