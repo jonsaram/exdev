@@ -122,7 +122,7 @@
 		<if test=" SORT_ORDER != null and !SORT_ORDER.equals('') ">
 		AND T.SORT_ORDER = #{SORT_ORDER}
 		</if>
-
+		AND T.DEL_YN = 'N'
 		ORDER BY SORT_ORDER
 	</select>
 		
