@@ -8,73 +8,8 @@
 	 	 ,mode : ''
 	 	 ,BRANCH_DATA : {}
 		 ,hiarachySelData: []
-		 ,close : function(returnData) {
-			 
-			if(isEmpty(returnData)) returnData = {};
-			C_POP.close(returnData);
-		 }
-		 ,apply : () =>{
-			 
-			 if( <@popupId>.validation() == false){
-				 return;
-			 }
-
-			 let returnData = {};
-			 const $inputs = $("#<@popupId>_items input");
-			 $.each( $inputs, function(){
-				 
-				 let key = $(this).attr("id");
-				 let val = $(this).val();
-				 
-				 if(key)
-				 	returnData[key] = val;
-			 })
-			 
-			 returnData['ADDR'] = returnData['ADDR1'] +"<BR>"+ returnData['ADDR2'];
-
-			 const $selects = $("#<@popupId>_items [id^='<@popupId>_select']");
-			 $.each( $selects, function(){
-				 let id  = $(this).attr("id");
-				 let key = $(this).attr("column");
-				 let val = C_UICOM.getData(id);
-				 if(key)
-				 	returnData[key] = val;
-			 })			 
-			 
-			 returnData['RELOAD_IMG'] = <@popupId>.RELOAD_IMG;
-			 <@popupId>.close(returnData);
-			 
-		 }
-		 ,validation : () =>{
-			 
-			 if( $("#<@popupId>_items #USER_NM").val() 		== "" ) {C_POP.alert("이름을 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #PHONE_NUM").val() 	== "" ) {C_POP.alert("핸드폰번호를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #JUMIN").val() 		== "" ) {C_POP.alert("주민등록번호를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #REG_DATE").val() 	== "" ) {C_POP.alert("입사일을 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #E_MAIL").val() 		== "" ) {C_POP.alert("이메일을 입력하여 주십시오."); return false;}
-			 //if( $("#<@popupId>_items #POST_NUM").val() 	== "" ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #ADDR1").val() 		== "" ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #ADDR2").val() 		== "" ) {C_POP.alert("상세주소를 입력하여 주십시오."); return false;}
-			 const phonePattern = /^01(?:0|1|[6-9])(?:\d{3}|\d{4})\d{4}$/;
-			 //if( !phonePattern.test($("#<@popupId>_items #PHONE_NUM").val())){C_POP.alert("올바른 핸드폰번호를 입력하여 주십시오."); return false;}
-			 return true;
-			 
-		 }
-		 ,fnRadioCheckValue : (name , pValue) => {
-
-				const radioButtons = $("#<@popupId>_items input[name='"+name+"']");
-				if( pValue ){
-				 
-					const theRadioBtn = radioButtons.filter("[value='"+pValue+"']");
-					 theRadioBtn.prop('checked',true);
-				}else{
+		 ,pageInit : () => {
 				
-					const selectedValue = radioButtons.filter(":checked").val();
-					return selectedValue;
-				 }
-		}
-		,pageInit : () => {
-			
 			<@popupId>.setTitleHeight();
 
 			C_UICOM.makeSelectBox({ 
@@ -93,9 +28,14 @@
 						 data : C_COM.getCodeList("GRADE")
 			 			,targetId : "<@popupId>_selectGrade" }, "single");
 
+			C_UICOM.makeSelectBox({ 
+						 data : C_COM.getCodeList("SALES_TYPE")
+			 			,targetId : "<@popupId>_selectSalesType" }, "single");
+
  			C_UICOM.makeSelectBox({ 
 						 data : <@popupId>.BRANCH_DATA["BASE_BRANCH"	]
 			 			,targetId : "<@popupId>_selectBaseBranch" }, "single");
+
  			
  			
  			
@@ -103,22 +43,96 @@
 
 				Object.entries(<@popupId>.recvData.param).forEach(([key, value]) => {
 					
-					if( $("#<@popupId>_items #" + key).length > 0 ){
+					if( $("#<@popupId>_" + key).length > 0 ){
 						
-					    $("#<@popupId>_items #" + key).val(value);
+					    $("#<@popupId>_" + key).val(value);
 					}else{
-						
+						debugger;
 					    <@popupId>.setSingleBox(key,value);
 					}
 				    
 				});
 				
+			}else{
+				
+				const toDate	= dayjs().format("YYYY-MM-DD");
+				$("#<@popupId>_REG_DATE").val(toDate);
 			}
 			
 			
 			$("#<@popupId>_selectBaseBranch").trigger('change');
-			
+		 
+		 }		 
+		 ,close : function(returnData) {
+			 
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+		 ,apply : () =>{
+			 
+			 if( <@popupId>.validation() == false){
+				 return;
+			 }
+
+			 let returnData = {};
+			 const $inputs = $("#<@popupId>_items input");
+			 $.each( $inputs, function(){
+				 
+				 let key = $(this).attr("id").replace("<@popupId>_","");
+				 let val = $(this).val();
+				 
+				 if(key){
+										 
+				 	returnData[key] = val;
+				 }
+			 })
+			 
+			 returnData['ADDR'] = returnData['ADDR1'] +" "+ returnData['ADDR2'];
+
+			 const $selects = $("#<@popupId>_items [id^='<@popupId>_select']");
+			 $.each( $selects, function(){
+				 let id  = $(this).attr("id");
+				 let key = $(this).attr("column");
+				 if(key){
+					key 	 = key.indexOf("<@popupId>_") > -1 ? key.replace("<@popupId>_","") : key;
+					let val = C_UICOM.getData(id);
+					returnData[key] = val;
+				 }
+			 })			 
+			 
+			 returnData['RELOAD_IMG'] = <@popupId>.RELOAD_IMG;
+			 <@popupId>.close(returnData);
+			 
+		 }
+		 ,validation : () =>{
+			 
+			 if( $("#<@popupId>USER_NM").val() 		== "" ) {C_POP.alert("이름을 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>PHONE_NUM").val() 	== "" ) {C_POP.alert("핸드폰번호를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>JUMIN").val() 		== "" ) {C_POP.alert("주민등록번호를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>REG_DATE").val() 	== "" ) {C_POP.alert("입사일을 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>E_MAIL").val() 		== "" ) {C_POP.alert("이메일을 입력하여 주십시오."); return false;}
+			 //if( $("#<@popupId>POST_NUM").val() 	== "" ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>ADDR1").val() 		== "" ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>ADDR2").val() 		== "" ) {C_POP.alert("상세주소를 입력하여 주십시오."); return false;}
+			 const phonePattern = /^01(?:0|1|[6-9])(?:\d{3}|\d{4})\d{4}$/;
+			 //if( !phonePattern.test($("#<@popupId>PHONE_NUM").val())){C_POP.alert("올바른 핸드폰번호를 입력하여 주십시오."); return false;}
+			 return true;
+			 
+		 }
+		 ,fnRadioCheckValue : (name , pValue) => {
+
+				const radioButtons = $("#<@popupId>_items input[name='"+name+"']");
+				if( pValue ){
+				 
+					const theRadioBtn = radioButtons.filter("[value='"+pValue+"']");
+					 theRadioBtn.prop('checked',true);
+				}else{
+				
+					const selectedValue = radioButtons.filter(":checked").val();
+					return selectedValue;
+				 }
 		}
+
 		,setSingleBox : (key, value) => {
 			
 			let selectId = "";
@@ -388,9 +402,13 @@
 		C_COMP.import("fileuploadComp", "component_compFilemng",{hide : "Y"} , function(fileId) {});
 		
 		C_COM.getFileId(<@popupId>.USER_ID, <@popupId>.OWNER_CD, function(fileObjList) {
-			let fileId = fileObjList[0].FILE_ID;
-			let imgPath = C_COM.getImageUrl(fileId);
-			$("#<@popupId>_userImg").attr("src", imgPath);
+			
+			if( fileObjList.length> 0){
+				
+				let fileId = fileObjList[0].FILE_ID;
+				let imgPath = C_COM.getImageUrl(fileId);
+				$("#<@popupId>_userImg").attr("src", imgPath);
+			}
 		});
 	});
 </script>
@@ -407,37 +425,37 @@
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body" style="overflow:visible;" id="<@popupId>_items">
-			<input type="hidden" id="USER_DESC"/>
-			<input type="hidden" id="STATE"/>
+			<input type="hidden" id="<@popupId>_USER_DESC"/>
+			<input type="hidden" id="<@popupId>_STATE"/>
 			<div class="clearFix mt15">
 				<!-- 
 				<figure class="photo_wrap no_img" onclick="<@popupId>.selectImage()">
 				</figure>
 				 -->
 				<figure class="photo_wrap fl mr15" onclick="<@popupId>.selectImage()">
-					<img src="../img/img_photo01.jpg">
+					<img src="../img/icon_noimg.png" id="<@popupId>_userImg">
 				</figure>
 				<ul class="info_wrap col2">
 					<li>
 						<label>사번코드</label>
-						<div class="info"><input type="text" id="USER_ID" style="width:100%" disabled></div>
+						<div class="info"><input type="text" id="<@popupId>_USER_ID" style="width:100%" disabled></div>
 					</li>
 					<li>
 						<label>이름</label>
-						<div class="info"><input type="text" id="USER_NM" style="width:100%"></div>
+						<div class="info"><input type="text" id="<@popupId>_USER_NM" style="width:100%"></div>
 					</li>
 					<li>
 						<label>핸드폰번호</label>
-						<div class="info"><input type="text" id="PHONE_NUM" style="width:100%"></div>
+						<div class="info"><input type="text" id="<@popupId>_PHONE_NUM" style="width:100%"></div>
 					</li>
 					<li>
 						<label>주민등록번호</label>
-						<div class="info"><input type="text" id="JUMIN" style="width:100%"></div>
+						<div class="info"><input type="text" id="<@popupId>_JUMIN" style="width:100%"></div>
 					</li>
 					<li>
 						<label>성별</label>
 						<div class="info">
-							<div id="<@popupId>_selectGender" column = "GENDER" class="select_box" style="width:100%">
+							<div id="<@popupId>_selectGender" column = "<@popupId>_GENDER" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
@@ -445,7 +463,7 @@
 						<label>입사일</label>
 						<div class="info">
 							<div class="calendar_wrap w100">
-								<input type="text" class="datepicker" id="REG_DATE" style="width:100%">
+								<input type="text" class="datepicker" id="<@popupId>_REG_DATE" style="width:100%">
 							</div>
 						</div>
 					</li>
@@ -455,7 +473,7 @@
 				<ul class="info_wrap col2">
 					<li>
 						<label>이메일</label>
-						<div class="info"><input type="text" id="E_MAIL" style="width:100%"></div>
+						<div class="info"><input type="text" id="<@popupId>_E_MAIL" style="width:100%"></div>
 					</li>
 					<li>
 						<label>&nbsp;</label>
@@ -464,35 +482,35 @@
 					<li class="w100">
 						<label>주소</label>
 						<div class="info">
-							<input type="text" id="POST_NUM" >
+							<input type="text" id="<@popupId>_POST_NUM" >
 							<button class="btn" id="<@popupId>_postSearch">우편번호 검색</button>
 						</div>
 					</li>
 					<li class="w100 ml0">
 						<label>&nbsp;</label>
 						<div class="info">
-							<input type="text" class="fl"     id="ADDR1" style="width:calc(70% - 2px)">
-							<input type="text" class="fl ml4" id="ADDR2" style="width:calc(30% - 2px)">
+							<input type="text" class="fl"     id="<@popupId>_ADDR1" style="width:calc(70% - 2px)">
+							<input type="text" class="fl ml4" id="<@popupId>_ADDR2" style="width:calc(30% - 2px)">
 						</div>
 					</li>
 					<li>
 						<label>보증입보</label>
 						<div class="info">
-							<div id="<@popupId>_selectSuretyIns" class="select_box" style="width:100%">
+							<div id="<@popupId>_selectSuretyIns" column = "SURETY_INSURANCE" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
 					<li>
 						<label>가입금액</label>
 						<div class="info">
-							<input type="text" id="AMOUNT" class="number" style="width:100%">
+							<input type="text" id="<@popupId>_AMOUNT" class="number" style="width:100%">
 						</div>
 					</li>
 					<li>
 						<label>가입일</label>
 						<div class="info">
 							<div class="calendar_wrap w100">
-								<input type="text" class="datepicker" id="INSURANCE_REG_DATE" style="width:100%">
+								<input type="text" class="datepicker" id="<@popupId>_INSURANCE_REG_DATE" style="width:100%">
 							</div>
 						</div>
 					</li>
@@ -500,7 +518,7 @@
 						<label>만기일</label>
 						<div class="info">
 							<div class="calendar_wrap w100">
-								<input type="text" class="datepicker" id="INSURANCE_EXP_DATE" style="width:100%">
+								<input type="text" class="datepicker" id="<@popupId>_INSURANCE_EXP_DATE" style="width:100%">
 							</div>
 						</div>
 					</li>
@@ -536,6 +554,13 @@
 						<label>등급</label>
 						<div class="info">
 							<div id="<@popupId>_selectGrade" column = "GRADE" class="select_box" style="width:100%">
+			                </div>
+						</div>
+					</li>
+					<li>
+						<label>SALES TYPE</label>
+						<div class="info">
+							<div id="<@popupId>_selectSalesType" column = "SALES_TYPE" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>

@@ -75,7 +75,7 @@
 		,setHandler : () => {
 
 		}
-		,setHistories : () => {
+		,getHistories : () => {
 			
 			const requestParm = {SP_CSTM_ID: G_VAL.SP_CSTM_ID , USER_ID: <@pageId>.recvData.USER_ID}
 			const parm = {
@@ -120,16 +120,19 @@
 		,getUserImg : ()=>{
 
 			C_COM.getFileId($(".employee_num.tc.parmVal").text(), "USER_FACE", function(fileObjList) {
-				let fileId = fileObjList[0].FILE_ID;
-				let imgPath = C_COM.getImageUrl(fileId);
-				$("#<@pageId>_hrImg").attr("src", imgPath);
+				
+				if( fileObjList.length > 0 ){
+					
+					let fileId	= fileObjList[0].FILE_ID;
+					let imgPath	= C_COM.getImageUrl(fileId);
+					$("#<@pageId>_hrImg").attr("src", imgPath);
+				}
 			});						
 
 		}
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function(param) {
-
 		<@pageId>.recvData = param;
  		<@pageId>.pageInit( param );
  		<@pageId>.setHandler();
