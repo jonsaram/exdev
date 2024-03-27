@@ -2,14 +2,22 @@
 <script type="text/javascript">
  var <@popupId> = {
 	 selectedList:[]
+ 	,recvData : {}
     ,close : function(returnData) {
  
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
 	}
  	,pageInit : () => {
+ 		
+ 		let fromDate =""
+ 		if( <@popupId>.recvData.YEAR_PERIOD ){
+ 			fromDate			= dayjs().subtract(<@popupId>.recvData.YEAR_PERIOD, 'year').format("YYYY-MM-DD");
+ 		}else{
+ 			fromDate			= dayjs().subtract(1, 'month').format("YYYY-MM-DD");
+ 		}
+ 			
   		let toDate				= dayjs().format("YYYY-MM-DD");
- 		let fromDate			= dayjs().subtract(1, 'month').format("YYYY-MM-DD");
  		$("#<@popupId>_items #FROM_DATE").val(fromDate);
  		$("#<@popupId>_items #TO_DATE").val(toDate);
  	}
@@ -96,6 +104,8 @@
 // Popup Load가 완료된후 실행 된다.
 C_POP.onLoadPopup("<@popupId>", function(data) {
 
+	<@popupId>.recvData = data;
+	
 	<@popupId>.pageInit();
 	<@popupId>.searchList();
 	<@popupId>.setHandler();
@@ -154,17 +164,19 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				<table>
 					<caption>표 캡션</caption>
 					<colgroup>
-						<col style="width:20%;"/>
-						<col style="width:20%;"/>
-						<col style="width:20%;"/>
-						<col style="width:20%;"/>
-						<col style="width:20%;"/>
+						<col style="width:15%;"/>
+						<col style="width:15%;"/>
+						<col style="width:15%;"/>
+						<col style="width:15%;"/>
+						<col style="width:15%;"/>
+						<col style="width:15%;"/>
 					</colgroup>
 					<thead>
 						<tr>
 							<th scope="col">고객번호</th>
 							<th scope="col">고객명</th>
 							<th scope="col">담당자</th>
+							<th scope="col">컨설팅명</th>
 							<th scope="col">진행상태</th>
 							<th scope="col">자문계약일</th>
 						</tr>
@@ -175,11 +187,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 <script type="text/x-jsrender" id="<@popupId>_contractList_template">						
 						{{for list}}
 							<tr class="select"	name="<@popupId>_tr_{{:#index}}" value='{{:CONTRACT_ID}}'>
-							<td id='BUYER_ID'			value='{{:BUYER_ID}}'			>{{:BUYER_ID}}</td>
-							<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
-							<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
-							<td id='PROCESS_STATE_MN'	value='{{:PROCESS_STATE_MN}}'	>{{:PROCESS_STATE_MN}}</td>
-							<td id='CONTRACT_DATE'		value='{{:CONTRACT_DATE}}'		>{{:CONTRACT_DATE}}</td>							
+							<td id='BUYER_ID'			class='tl'>{{:BUYER_ID}}</td>
+							<td id='BUYER_NM'			class='tl'>{{:BUYER_NM}}</td>
+							<td id='USER_NM'			class='tl'>{{:USER_NM}}</td>
+							<td id='CONSULTING_NM'		class='tl'>{{:CONSULTING_NM}}</td>
+							<td id='PROCESS_STATE_MN'	class='tl'>{{:PROCESS_STATE_MN}}</td>
+							<td id='CONTRACT_DATE'		class='tc'>{{:CONTRACT_DATE}}</td>							
 							</tr>
 						{{/for}}
 </script>

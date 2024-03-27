@@ -47,6 +47,7 @@ var <@pageId> = {
 				var rparm = {
 						 targetId 		: "<@pageId>_paymentCntList"
 						,list			: resultData.data
+						,targetTotalId	: "<@pageId>_totalCnt"
 				}
 				<@pageId>.selectedData = resultData.data;
 				C_COM.renderHtml("<@pageId>", rparm);
@@ -70,6 +71,7 @@ var <@pageId> = {
 				var rparm = {
 						 targetId 		: "<@pageId>_paymentDetailList"
 						,list			: resultData.data
+						,targetTotalId	: "<@pageId>_totalCntDetail"
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 				
@@ -135,7 +137,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<div class="fl h100 mr15" style="width:calc(35% - 15px);">
 						<div class="cont_top clearFix">
 							<h3 class="fl font16">급여 내역 리스트</h3>
-							<div class="fr"><strong class="total">Total: <span class="pointColr" id="<@pageId>_pointColrList">3</span></strong></div>
+							<div class="fr"><strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt"></span></strong></div>
 						</div>
 
 						<!-- 테이블 -->
@@ -184,7 +186,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<h3 class="fl font16">급여 상세</h3>
 							<div class="fr">
 								<span class="info"><strong id="<@pageId>_payUserName"></strong> l <strong  id="<@pageId>_payDate"></strong> l</span>
-								<strong class="total">Total: <span class="pointColr" id="<@pageId>_pointColr">3</span></strong>
+								<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCntDetail"></span></strong>
 							</div>
 						</div>
 						<!-- 테이블 -->

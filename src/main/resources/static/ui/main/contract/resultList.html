@@ -2,39 +2,97 @@
 <script type="text/javascript">
 var <@pageId> = {
 		 checkedItems : []
+		,selectedContract : {}
+		,selectedUser : {}
  		,excelParam : {}
 		,pageInit : () =>{
 			
+			const yearsArray = Array.from({ length: 4 }, (_, index) => {
+				  const year = 2022 + index;
+				  return [year.toString(), year + "년"];
+			});
+			const monthsArray = Array.from({ length: 12 }, (_, index) => {
+				  const months = ("0"+(1 + index) ).slice(-2);
+				  return [months.toString(), months + "월"];
+			});
+
+			var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"}
+			C_UICOM.makeSelectBox(yearsArrayList, "single");
+			C_UICOM.setSingleBox("<@pageId>_years", dayjs().year());
+			var monthsArrayList = { data : monthsArray,targetId : "<@pageId>_months"}
+			C_UICOM.makeSelectBox(monthsArrayList, "single");
+			C_UICOM.setSingleBox("<@pageId>_months", ("0"+(dayjs().month() + 1) ).slice(-2));
+	
+			<@pageId>.setHanler();
 		}
-		,searchList : (searchName) => {
+		,searchList : () => {
 			
-			const requestParm = { USER_NM : searchName };
+			var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
+
+			const requestParm = {
+					 USER_ID : G_VAL.session.USER_ID
+					,FROM_RESULT_DATE : contractDate + '-01'	
+					,TO_RESULT_DATE : dayjs(contractDate, "YYYY-MM").endOf('month').format('YYYY-MM-DD')
+					,CONTRACT_ID : <@pageId>.selectedContract["CONTRACT_ID"]
+			};
 			
 			var parm = {
-					 queryId 		: "contract.getContractInfoList"
+					 queryId 		: "result.getResultList"
 					,requestParm	: requestParm
 			}
-			<@pageId>.excelParam = parm;
+
 			C_COM.requestQuery(parm, function(resultData) {
+								
 				var rparm = {
-						 targetId 		: "<@pageId>_contractInfoList"
+						 targetId 		: "<@pageId>_resultList"
 						,list			: resultData.data
+						,targetTotalId	: "<@pageId>_totalCnt"
 				}
-			
 				C_COM.renderHtml("<@pageId>", rparm);
+			});  
+		}
+		,openSelectContract : () => {
+
+			let param = [];	
+
+			C_POP.open('popup_contract_contractSearchPopup', {YEAR_PERIOD:'1'}, function(retData) {
+
+				if(isValid(retData)){
+					
+					<@pageId>.selectedContract = retData;
+					const BUYER_NM 		=	retData["BUYER_NM"];
+					const CONSULTING_NM	=	retData["CONSULTING_NM"];
+					const USER_ID		=	retData["USER_ID"];
+					const USER_NM		=	retData["USER_NM"];
+					
+					const contract_name = `${CONSULTING_NM} ( ${BUYER_NM} )`;
+					$("[name='<@pageId>_contract']").val(contract_name);
+					const user_name = `${USER_NM} ( ${USER_ID} )`;
+					$("[name='<@pageId>_user']").val(user_name);
+				}
 				
-				<@pageId>.chkHandler();
 			});
+			
+		}		
+		,openSelectUser : () => {
+
+			_memberSearchPopup({gubun:'USER'},(retData)=>{
+				
+				<@pageId>.selectedUser = retData;
+				const placeHolder = ` ${<@pageId>.selectedUser.USER_NM} ( ${<@pageId>.selectedUser.USER_ID} )`;
+				$("[name='<@pageId>_user']").val(placeHolder)
+
+			})
+			
 		}
-		
-		
-		,updateItem : (param) => {
-		} 
-		,deleteItem : (delKey) => {
-		}
-		, deleteOne : (key) =>{
-		}
-		,setHandler : () => {
+		,setHanler : () => {
+			
+			$("#<@pageId>_search").click( () =>{
+			
+				<@pageId>.searchList();
+
+		    })
+			
 		}
 }
 
@@ -42,7 +100,6 @@ var <@pageId> = {
 C_PM.onLoadPage("<@pageId>", function() {
 
 	<@pageId>.pageInit();
-	<@pageId>.searchList(); 
 
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -50,134 +107,84 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 	<@pageId>.searchList();
 });
 </script>
-
-		<div class="cont_wrap backWhite">
-			<div class="cont_top">
-				<h2><i class="icon_bullet"></i>실적 현황</h2>
+<div class="cont_wrap backWhite">
+	<div class="cont_top">
+		<h2><i class="icon_bullet"></i>실적 현황</h2>
+	</div>
+	<section class="sec_wrap list" style="height:calc(100% - 43px);">
+	<!-- search area -->
+	<div class="search_area mt0">
+		<div class="fl">
+			<!-- 싱글 선택 -->
+			<div class="select_box fl" style="width:210px">
+				<div id="<@pageId>_years" style="width:100px"></div>
+				<div id="<@pageId>_months" style="width:100px"></div>
+               </div>
+               <span class="tit01 fl lh33">계약선택</span>
+               <div class="search_inputWrap fl">
+				<input type="search" name="<@pageId>_contract" style="width:300px;" onclick="javascript:<@pageId>.openSelectContract();"><button class="search_btn"><i class="icon_search"></i></button>
 			</div>
-			<section class="sec_wrap list" style="height:calc(100% - 43px);">
-				<!-- search area -->
-				<div class="search_area mt0">
-					<div class="fl">
-						<!-- 싱글 선택 -->
-						<div class="select_box fl" style="width:110px">
-							<button type="button" class="btn radio"><span>2024년</span></button>
-		                    <ul class="select_lst">
-		                        <li>
-		                            <input name="year" id="year01" type="radio" value="">
-		                            <label for="year01">2024년<i class="icon_check"></i></label>
-		                        </li>
-		                        <li>
-		                            <input name="year" id="year02" type="radio" value="">
-		                            <label for="year02">2025년<i class="icon_check"></i></label>
-		                        </li>
-		                        <li>
-		                            <input name="year" id="year03" type="radio" value="">
-		                            <label for="year03">2026년<i class="icon_check"></i></label>
-		                        </li>
-		                    </ul>
-		                </div>
-		                <!-- 싱글 선택 -->
-						<div class="select_box fl" style="width:90px">
-							<button type="button" class="btn radio"><span>01월</span></button>
-		                    <ul class="select_lst">
-		                        <li>
-		                            <input name="month" id="month01" type="radio" value="">
-		                            <label for="month01">01월<i class="icon_check"></i></label>
-		                        </li>
-		                        <li>
-		                            <input name="month" id="month02" type="radio" value="">
-		                            <label for="month02">02월<i class="icon_check"></i></label>
-		                        </li>
-		                        <li>
-		                            <input name="month" id="month03" type="radio" value="">
-		                            <label for="month03">03월<i class="icon_check"></i></label>
-		                        </li>
-		                    </ul>
-		                </div>
-		                <span class="tit01 fl lh33">계약선택</span>
-		                <div class="search_inputWrap fl">
-							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
-						</div>
-						<span class="tit01 fl lh33">담당자선택</span>
-		                <div class="search_inputWrap fl">
-							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
-						</div>
-						<button class="btn select fl">검색</button>
-		            </div>
-		            <div class="search_right">
-						<strong class="total">Total: <span class="pointColr">3</span></strong>
-		            </div>
-				</div>
-				<!-- 테이블 -->
-				<div class="tbl01 col tbl_scroll line" style="height:calc(100% - 41px);">
-					<table>
-						<caption>실적 현황 리스트</caption>
-						<colgroup>
-							<col style="width:40px;"/>
-							<col style="width:120px;" span="3"/>
-							<col style="width:100px;"/>
-							<col style="width:120px;" span="5"/>
-							<col style="width:120px;"/>
-						</colgroup>
-						<thead>
-							<tr>
-								<th scope="col">No.</th>
-								<th scope="col">등록년월</th>
-								<th scope="col">고객명</th>
-								<th scope="col">상품명</th>
-								<th scope="col">담당자</th>
-								<th scope="col">총계약금액</th>
-								<th scope="col">잔금</th>
-								<th scope="col">입금일</th>
-								<th scope="col">입금액</th>
-								<th scope="col">비용</th>
-								<th scope="col">순매출</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>1</td>
-								<td>2024년 01월</td>
-								<td>스타에셋</td>
-								<td>월자문 솔루션1</td>
-								<td>위성열</td>
-								<td class="tr">100,000,000</td>
-								<td class="tr">50,000,000</td>
-								<td>2024-01-05</td>
-								<td class="tr">20,000,000</td>
-								<td class="tr">5,000,000</td>
-								<td class="tr">15,000,000</td>
-							</tr>
-							<tr>
-								<td>2</td>
-								<td>2024년 01월</td>
-								<td>스타에셋</td>
-								<td>월자문 솔루션1</td>
-								<td>위성열</td>
-								<td class="tr">100,000,000</td>
-								<td class="tr">50,000,000</td>
-								<td>2024-01-05</td>
-								<td class="tr">20,000,000</td>
-								<td class="tr">5,000,000</td>
-								<td class="tr">15,000,000</td>
-							</tr>
-							<tr>
-								<td>3</td>
-								<td>2024년 01월</td>
-								<td>스타에셋</td>
-								<td>월자문 솔루션1</td>
-								<td>위성열</td>
-								<td class="tr">100,000,000</td>
-								<td class="tr">50,000,000</td>
-								<td>2024-01-05</td>
-								<td class="tr">20,000,000</td>
-								<td class="tr">5,000,000</td>
-								<td class="tr">15,000,000</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</section>
-		</div>
+			<span class="tit01 fl lh33">담당자</span>
+               <div class="search_inputWrap fl">
+				<input type="search" name="<@pageId>_user" style="width:200px;" disabled>
+			</div>
+			<button class="btn select fl" id="<@pageId>_search" >검색</button>
+           </div>
+           <div class="search_right">
+			<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt"></span></strong>
+           </div>
+	</div>
+	<!-- 테이블 -->
+	<div class="tbl01 col tbl_scroll line" style="height:calc(100% - 41px);">
+		<table>
+			<caption>실적 현황 리스트</caption>
+			<colgroup>
+				<col style="width:40px;"/>
+				<col style="width:120px;" span="3"/>
+				<col style="width:100px;"/>
+				<col style="width:120px;" span="5"/>
+				<col style="width:120px;"/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th scope="col">No.</th>
+					<th scope="col">등록년월</th>
+					<th scope="col">고객명</th>
+					<th scope="col">상품명</th>
+					<th scope="col">담당자</th>
+					<th scope="col">총계약금액</th>
+					<th scope="col">잔금</th>
+					<th scope="col">입금일</th>
+					<th scope="col">입금액</th>
+					<th scope="col">비용</th>
+					<th scope="col">순매출</th>
+				</tr>
+			</thead>
+			<tbody id="<@pageId>_resultList">
+			</tbody>
+			<script type="text/x-jsrender" id="<@pageId>_resultList_template">						
+			{{for list}}
+				<tr name="<@pageId>_tr_{{:#index}}">
+					<td>{{:RN}}</td>
+					<td class="tc">{{:UPDATE_DATE_MONTH}}</td>
+					<td class="tl">{{:BUYER_NM}}</td>
+					<td class="tl">{{:CONSULTING_NM}}</td>
+					<td class="tl">{{:USER_NM}}</td>
+					<td class="tr">{{numb:TOTAL_COST}}</td>
+					<td class="tr">{{numb:REMAINING_SUM}}</td>
+					<td class="tr">{{:RESULT_DATE}}</td>
+					<td class="tr">{{numb:INCOME}}</td>
+					<td class="tr">{{numb:PAYMENT}}</td>
+					<td class="tr">{{numb:ORG_SELLING_PRICE}}</td>
+				</tr>
+			{{/for}}
+			</script>
+			<script type="text/x-jsrender" id="<@pageId>_resultList_noData_template">	
+				<tr>	
+					<td colspan=11>자료가 없습니다.</td>	
+				</tr>
+			</script>
+		</table>
+	</div>
+	</section>
 </div>

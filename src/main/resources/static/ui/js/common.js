@@ -157,3 +157,11 @@ function _excelUpload(pageId,queryId,searchFnc)
     });
 	
 }	
+
+function _memberSearchPopup(param, func){
+
+	C_POP.open('popup_system_memberSearchPopup', {param:param, gubun:param.gubun}, function(retData) {
+		func(retData);
+	});
+
+}
