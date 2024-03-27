@@ -85,31 +85,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<div id="<@pageId>_years" style="width:200px"></div>
 				<div id="<@pageId>_months" style="width:200px"></div>
 				<button class="btn select fl" onclick="<@pageId>.searchList()">검색</button>
-<!--			<div class="select_box fl" style="width:132px">
-				<button type="button" class="btn radio"><span>2024년 01월</span></button>
-                    <ul class="select_lst">
-                       <li>
-                           <input name="number" id="num01" type="radio" value="">
-                           <label for="num01">2024년 02월<i class="icon_check"></i></label>
-                       </li>
-                       <li>
-                           <input name="number" id="num02" type="radio" value="">
-                           <label for="num02">2024년 03월<i class="icon_check"></i></label>
-                       </li>
-                       <li>
-                           <input name="number" id="num03" type="radio" value="">
-                           <label for="num03">2024년 04월<i class="icon_check"></i></label>
-                       </li>
-                   </ul>
-               </div> -->
            </div>
            <div class="search_right">
 			<strong class="total">Total: <span  class="pointColr" id="<@pageId>_pointColr">3</span></strong>
            </div>
 	</div>
 	<!-- 테이블 -->
-	<div class="tbl01 col tbl_scroll row2" style="height:calc(100% - 98px);">
-		<div class="tbl01 col tbl_head">
+	<div class="tbl01 col tbl_scroll row2" style="height:calc(100% - 41px);">
 			<table>
 				<caption>급여관리 리스트</caption>
 				<colgroup>
@@ -133,16 +115,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<th scope="col">총계약금액</th>
 					</tr>
 				</thead>
-			</table>
-		</div>
-		<div class="tbl01 col tbl_body_scroll">
-			<table>
-				<caption>급여관리 리스트</caption>
-				<colgroup>
-					<col style="width:40px;"/>
-					<col style="width:120px;" span="4"/>
-					<col style="width:100px;" span="4"/>
-				</colgroup>
 				<tbody id="<@pageId>_salaryList">
 				</tbody>
 				<script type="text/x-jsrender" id="<@pageId>_salaryList_template">						
@@ -175,8 +147,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<td class="tr" id="sumPayment"></td>
 					</tr>
 				</tfoot>
-			</table>
-		</div>
+			</table>				
 	</div>
 </section>
 </div>
