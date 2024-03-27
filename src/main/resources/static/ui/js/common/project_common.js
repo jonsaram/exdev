@@ -672,7 +672,39 @@ var C_COM = {
 			callback(resultData);
 		});
 	 }
+	,makeArrayTwoColumn : function(list, column1, column2) {
+		
+		if(isEmpty(list)) {
+			return [];
+		}
+		if(isEmpty(column1) || isEmpty(column2)) {
+			C_POP.alert('C_COM.makeArrayTwoColumn Function의 Parameter값을 확인하세요.');
+			return [];
+		}
+		
+		let retList = [];
+		$.each(list, function() {
+			let arr = [this[column1], this[column2]];
+			retList.push(arr);
+		});
+		return retList;
+		
+	 }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * 작성자 : 위성열 

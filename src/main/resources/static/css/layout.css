@@ -259,33 +259,48 @@
 [class*="tbl"].row > table > tbody > tr > th {text-align:left;}
 [class*="tbl"].col > table > * > tr > * {text-align:center;}
 .tbl01{width:100%}
-.tbl_scroll{height:calc(100% - 93px);}
+.tbl_scroll{border-top:1px solid #c4c5c8;height:calc(100% - 93px);overflow:auto;}
 .tbl_head,.tbl_head2{overflow-x:hidden;}
 .tbl_head table,.tbl_head2 table{overflow:hidden;}
 .tbl_body_scroll0,.tbl_body_scroll,.tbl_body_scroll2{overflow-y:auto;height:calc(100% - 43px);}
 .row2 .tbl_body_scroll,.row2 .tbl_body_scroll2{height:calc(100% - 85px);}
 .tbl01 + .btn_area.right {margin-top:30px; }
-.tbl01 > table {border-top:1px solid #c4c5c8;background:#fff}
+.tbl01 > table {border-top:1px solid #bcbec1;background:#fff}
+.tbl_scroll table {border-top:0;}
+.tbl01 > table > thead{position:sticky;top:0px;}
+.tbl01 > table > thead:after{content:'';position:absolute;bottom:0;width:100%;border-top:1px solid #bcbec1;}
+.row2 > table > thead tr:nth-child(2) th{position:relative;}
+.row2 > table > thead tr:nth-child(2) th:after{content:'';position:absolute;top:-1px;left:0;width:100%;border-top:1px solid #bcbec1;}
 .tbl01 + .tbl01 > table{border-top:0}
 .tbl01.tbl_body_scroll0 > table,.tbl01.tbl_body_scroll > table,.tbl01.tbl_body_scroll2 > table{border-top:0}
 .tbl01 > table > * > tr > th {background:#f8f8f8;}
 .tbl01 > table > thead > tr > th {padding:3px 10px;height:42px;line-height:16px;font-size:12px;color:#333;border-bottom:1px solid #bcbec1;}
 .row2 .tbl01 > table > thead > tr > th,
-.line .tbl01 > table > thead > tr > th{border-right:1px solid #bcbec1;}
+.row2 table > thead > tr > th,
+.line .tbl01 > table > thead > tr > th,
+.line table > thead > tr > th{border-right:1px solid #bcbec1;}
 .row2 .tbl01 > table > thead > tr:nth-child(1) > th:last-child,
-.line .tbl01 > table > thead > tr:nth-child(1) > th:last-child{border-right:0}
+.row2 table > thead > tr:nth-child(1) > th:last-child,
+.line .tbl01 > table > thead > tr:nth-child(1) > th:last-child,
+.line table > thead > tr:nth-child(1) > th:last-child{border-right:0}
 .tbl01 > table > thead > tr > th:last-child > * {border-right:0 none;}
+.tbl01 > table > tfoot{position:sticky;bottom:0px;}
+.tbl01 > table > tfoot:before{content:'';position:absolute;top:-1px;width:100%;border-top:1px solid #bcbec1;}
+.tbl01 > table > tfoot:after{content:'';position:absolute;bottom:0;width:100%;border-bottom:1px solid #bcbec1;}
 .tbl01 > table > tfoot > tr > *,
 .tbl01 > table > tbody > tr > * {padding:3px 10px;height:42px;color:#333;line-height:16px;font-size:12px;border-bottom:1px solid #bcbec1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .tbl01 > table > tfoot > tr > *{color:#27187f;font-weight:600;background:#f0eeff;}
 .row2 .tbl01 > table > tfoot > tr > td,
+.row2 table > tfoot > tr > td,
 .line .tbl01 > table > tfoot > tr > td{border-right:1px solid #bcbec1;}
 .row2 .tbl01 > table > tfoot > tr:nth-child(1) > td:last-child,
 .line .tbl01 > table > tfoot > tr:nth-child(1) > td:last-child{border-right:0}
 
 .tbl01 > table > tbody > tr > [rowspan] {border-left: 1px solid #e8e8e8;}
 .row2 .tbl01 > table > tbody > tr > *,
-.line .tbl01 > table > tbody > tr > *{border-right:1px solid #bcbec1;}
+.row2 table > tbody > tr > *,
+.line .tbl01 > table > tbody > tr > *,
+.line  table > tbody > tr > *{border-right:1px solid #bcbec1;}
 .tbl01 > table > tfoot > tr > *:last-child,
 .tbl01 > table > tbody > tr > *:last-child {border-right: 0 none;}
 .tbl01 > table > tbody > tr > .ty01 {height:91px;}
@@ -614,9 +629,11 @@ figure .status_wrap li{margin-bottom:17px}
 .up{margin-top:0;margin-bottom:4px;display:inline-block;border:5px solid transparent;border-bottom-color:#333;}
 
 .total{margin:0 10px -15px 10px;display:inline-block;vertical-align:bottom;}
-.cont_top .info{margin:0 0 -5px 10px;font-weight:normal; display:inline-block;vertical-align:bottom;}
+.cont_top .info{margin:0 0 -3px 10px;font-weight:normal; display:inline-block;vertical-align:bottom;}
 .cont_top .info strong{margin:0 10px}
-.cont_top .total{margin:0 10px -5px 10px;display:inline-block;vertical-align:bottom;}
+.cont_top .total{margin:0 10px -3px 10px;display:inline-block;vertical-align:bottom;}
+.cont_top:has(.lh33) .total{margin:0 10px -10px 10px}
+.cont_top:has(.lh33) .info{margin:0 0 -10px 10px;}
 
 /* customer dashboard */
 .img_company{margin:63px 0 6px 0}

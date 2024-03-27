@@ -10,6 +10,38 @@
 	        $(this).children().toggleClass('down');
 	        $(this).parent().parent().next().toggleClass('upDown');
 	    });
+	    
+		// 첫번째 SelectBox 세팅	    
+		let parm = {
+			 queryId 		: "advice.getMyCustomerList"
+			,requestParm	: {}
+		}
+		C_COM.requestQuery(parm, function(resultData) {
+			let codeList = C_COM.makeArrayTwoColumn(resultData.data, "BUYER_ID", "BUYER_NM");
+			var singleboxList = { 
+				 defaultItem 	: ["", "선택"]
+				,data 			: codeList
+			 	,targetId 		: "<@pageId>_customerSelectBox" 
+			}
+			C_UICOM.makeSelectBox(singleboxList, "single");
+		});
+		
+		// 두번째 SelectBox 세팅	    
+		let parm2 = {
+			 queryId 		: "advice.getConsultingList"
+			,requestParm	: {}
+		}
+		C_COM.requestQuery(parm2, function(resultData) {
+			let codeList = C_COM.makeArrayTwoColumn(resultData.data, "CONSULTING_ID", "CONSULTING_NM");
+			var singleboxList = { 
+				 defaultItem 	: ["", "선택"]
+				,data 			: codeList
+			 	,targetId 		: "<@pageId>_consultingSelectBox" 
+			}
+			C_UICOM.makeSelectBox(singleboxList, "single");
+		});
+		
+		
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -30,45 +62,8 @@
 					<label for="to">~</label>
 					<input type="text" id="to" name="to" class="datepicker" style="width:114px">
 				</div>
-				<div class="select_box fl" style="width:132px">
-					<button type="button" class="btn radio"><span>고객명</span></button>
-                    <ul class="select_lst">
-                        <li>
-                            <input name="customer" id="customer01" type="radio" value="">
-                            <label for="customer01">고객명1<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="customer" id="customer02" type="radio" value="">
-                            <label for="customer02">고객명2<i class="icon_check"></i></label>
-                        </li>
-                    </ul>
-                </div>
-                <div class="select_box fl" style="width:132px">
-					<button type="button" class="btn radio"><span>고객명</span></button>
-                    <ul class="select_lst">
-                        <li>
-                            <input name="customer" id="customer01" type="radio" value="">
-                            <label for="customer01">고객명1<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="customer" id="customer02" type="radio" value="">
-                            <label for="customer02">고객명2<i class="icon_check"></i></label>
-                        </li>
-                    </ul>
-                </div>
-                <div class="select_box fl" style="width:132px">
-					<button type="button" class="btn radio"><span>컨설팅상품</span></button>
-                    <ul class="select_lst">
-                        <li>
-                            <input name="consult" id="consult01" type="radio" value="">
-                            <label for="consult01">컨설팅상품1<i class="icon_check"></i></label>
-                        </li>
-                        <li>
-                            <input name="consult" id="consult02" type="radio" value="">
-                            <label for="consult02">컨설팅상품2<i class="icon_check"></i></label>
-                        </li>
-                    </ul>
-                </div>
+				<div id="<@pageId>_customerSelectBox" 	class="select_box fl" style="width:160px"></div>
+                <div id="<@pageId>_consultingSelectBox" class="select_box fl" style="width:200px"></div>
                 <span class="tit01 fl lh33 tr" style="min-width:40px;">내용</span>
                 <input type="text" name="" class="fl">
                 <button class="btn select fl">검색</button>
@@ -79,7 +74,7 @@
 		<h3 class="fl font16">프로젝트 결재 상신 리스트</h3>
 		<div class="fr">결재 진행 중 <strong class="pointColr">2</strong> 건</div>
 	</div>
-	<div class="sec_scroll" style="height:calc(100% - 96px);">
+	<div class="sec_scroll" style="height:calc(100% - 140px);">
 		<section class="sec_wrap">
 			<div class="cont_box project_list">
 				<ol>
@@ -101,60 +96,58 @@
 				</div>
 				<div class="cont_box">
 					<!-- 진행 사항 -->
-					<div>
-						<div class="cont_top clearFix">
-							<h4 class="fl lh24">- 진행 사항</h4>
-							<div class="fr inlineBlock_wrap">
-								<a href="" class="btn small">등록</a>
-							</div>
+					<div class="cont_top clearFix">
+						<h4 class="fl lh24">- 진행 사항</h4>
+						<div class="fr inlineBlock_wrap">
+							<a href="#modal-ex01" class="btn small">등록</a>
 						</div>
-						<div class="approver_list_wrap person mb15">
-							<ul class="approver_list">
-								<li><span class="txt"><span>02-05 11:15 </span><span>: 1차 고객 면담 완료</span></span><button class="pay_close">닫기</button></li>
-								<li><span class="txt"><span>02-04 14:23 </span><span>: 전화 상담 진행</span></span><button class="pay_close">닫기</button></li>
-							</ul>
-						</div>
+					</div>
+					<div class="approver_list_wrap person mb15">
+						<ul class="approver_list">
+							<li><span class="txt"><span>02-05 11:15 </span><span>: 1차 고객 면담 완료</span></span><button class="pay_close">닫기</button></li>
+							<li><span class="txt"><span>02-04 14:23 </span><span>: 전화 상담 진행</span></span><button class="pay_close">닫기</button></li>
+						</ul>
 					</div>
 
 					<!-- Schedule -->
-					<div>
-						<div class="cont_top clearFix">
-							<h4 class="fl lh24">- Schedule</h4>
-							<div class="fr inlineBlock_wrap">
-								<a href="" class="btn small">등록</a>
-							</div>
-						</div>
-						<div class="approver_list_wrap person mb15">
-							<ul class="approver_list">
-								<li><span class="txt"><span>02-07 11:00 </span><span>: 2차 고객 면담</span></span><button class="pay_close">닫기</button></li>
-								<li><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span><button class="pay_close">닫기</button></li>
-							</ul>
+					<div class="cont_top clearFix">
+						<h4 class="fl lh24">- Schedule</h4>
+						<div class="fr inlineBlock_wrap">
+							<a href="" class="btn small">등록</a>
 						</div>
 					</div>
+					<div class="approver_list_wrap person mb15">
+						<ul class="approver_list">
+							<li><span class="txt"><span>02-07 11:00 </span><span>: 2차 고객 면담</span></span><button class="pay_close">닫기</button></li>
+							<li><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span><button class="pay_close">닫기</button></li>
+							<li><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span><button class="pay_close">닫기</button></li>
+							<li><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span><button class="pay_close">닫기</button></li>
+						</ul>
+					</div>
+
 					<!-- TO-DO List -->
-					<div>
-						<div class="cont_top clearFix">
-							<h4 class="fl lh24">- TO-DO List</h4>
-							<div class="fr inlineBlock_wrap">
-								<a href="" class="btn small">등록</a>
-							</div>
+					<div class="cont_top clearFix">
+						<h4 class="fl lh24">- TO-DO List</h4>
+						<div class="fr inlineBlock_wrap">
+							<a href="#modal-ex02" class="btn small">등록</a>
 						</div>
-						<div class="approver_list_wrap person mb15">
-							<ul class="approver_list">
-								<li>
-									<input type="checkbox" name="customer" class="check_undo" id="custom01">
-									<label for="custom01"><span class="txt"><span>02-07 11:00 </span><span>: 2차 고객 면담</span></span></label>
-									<button class="pay_close">닫기</button>
-								</li>
-								<li>
-									<input type="checkbox" name="customer" class="check_undo" id="custom02">
-									<label for="custom02"><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span></label>
-									<button class="pay_close">닫기</button>
-								</li>
-							</ul>
-						</div>
+					</div>
+					<div class="approver_list_wrap person mb15">
+						<ul class="approver_list">
+							<li>
+								<input type="checkbox" name="customer" class="check_undo" id="custom01">
+								<label for="custom01"><span class="txt"><span>02-07 11:00 </span><span>: 2차 고객 면담</span></span></label>
+								<button class="pay_close">닫기</button>
+							</li>
+							<li>
+								<input type="checkbox" name="customer" class="check_undo" id="custom02">
+								<label for="custom02"><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span></label>
+								<button class="pay_close">닫기</button>
+							</li>
+						</ul>
 					</div>
 				</div>
+
 				<!-- 유니테크 / 일회성 컨설팅 1 -->
 				<div class="cont_top mt15 clearFix">
 					<h4 class="fl">유니테크 / 일회성 컨설팅 1</h4>
@@ -163,29 +156,6 @@
 					</div>
 				</div>
 				<div class="cont_box">
-					<!-- TO-DO List -->
-					<div>
-						<div class="cont_top clearFix">
-							<h4 class="fl lh24">- TO-DO List</h4>
-							<div class="fr inlineBlock_wrap">
-								<a href="" class="btn small">등록</a>
-							</div>
-						</div>
-						<div class="approver_list_wrap person mb15">
-							<ul class="approver_list">
-								<li>
-									<input type="checkbox" name="customer" class="check_undo" id="custom01">
-									<label for="custom01"><span class="txt"><span>02-07 11:00 </span><span>: 2차 고객 면담</span></span></label>
-									<button class="pay_close">닫기</button>
-								</li>
-								<li>
-									<input type="checkbox" name="customer" class="check_undo" id="custom02">
-									<label for="custom02"><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span></label>
-									<button class="pay_close">닫기</button>
-								</li>
-							</ul>
-						</div>
-					</div>
 				</div>
 
 			</div>

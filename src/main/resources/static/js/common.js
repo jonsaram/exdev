@@ -342,13 +342,6 @@
         $(this).addClass('active');
     });
 
-
-    /*==== upDown Toggle ====*/
-    $(document).on("click", ".upDownToggle", function(){
-        $(this).children().toggleClass('down');
-        $(this).parent().parent().next().toggleClass('upDown');
-    });
-
 })(window, window.jQuery);
 
 $(document).ready(function() {
