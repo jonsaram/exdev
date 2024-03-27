@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Start Asset</title>
+	<link rel="stylesheet" type="text/css" href="../css/libs/jquery-ui.css"/>
+	<link rel="stylesheet" type="text/css" href="../css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="../css/common.css"/>
+	<script type="text/javascript" src="../js/libs/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="../js/libs/jquery-ui.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+	<script type="text/javascript" src="../js/libs/highcharts.js"></script>
+	<script type="text/javascript" src="../js/libs/highcharts-more.js"></script>
+
+</head>
+<body class="main">
+	<header id="header">
+		<div class="wrap">
+			<h1 class="logo"><a href="main.html">Start Asset</a></h1>
+			<nav class="gnb">
+				<ul>
+					<li><a href="main.html">성과관리</a></li>
+					<li><a href="fa_dashboard.html">FA 대쉬보드</a></li>
+					<li><a href="personnel_info.html">인사정보</a></li>
+					<li><a href="performance_ranking.html">실적랭킹</a></li>
+					<li><a href="calender.html">캘린더</a></li>
+					<li class="active"><a href="qdvisory_progress_status.html">자문 진행 현황</a></li>
+					<li><a href="customer_list.html">고객리스트</a></li>
+					<li><a href="customer_dashboard.html">고객 대쉬보드</a></li>
+					<!-- <li><a href="salary_info.html">급여정보</a></li> -->
+					<li><a href="enter_performance.html">실적입력</a></li>
+					<!-- <li><a href="electronic_pay.html">전자결재</a></li>
+					<li><a href="erp.html">ERP</a></li> -->
+					<li><a href="company_board.html">사내게시판</a></li>
+					<li><a href="work_history.html">작업 히스토리</a></li>
+				</ul>
+			</nav>
+			<div class="header_right">
+				<div class="head-btn-wrap">
+			        <button class="menu-btn">
+			            <span class="line line1"></span>
+			            <span class="line line2"></span>
+			            <span class="line line3"></span>
+			        </button>
+			    </div>
+				<button type="button" class="btn_arrow"></button>
+				<a href="#" class="alarm">알림</a>
+				<a href="#" class="user_login"><span>이희성</span></a>
+				<ul class="user_menu">
+					<li><a href="../admin/admin_01.html"><i class="icon_admin"></i>관리자 페이지</a></li>
+					<li><a href="#"><i class="icon_pwEdit"></i>비밀번호 변경</a></li>
+					<li><a href="#"><i class="icon_logout"></i>로그아웃</a></li>
+				</ul>
+			</div>
+		</div>
+	</header>
+	<div class="container">
+		<nav class="lnb">
+			<div class="lnb_tit01">업무관리<button class="btn fold"><i class="icon_arrow"></i></button></div>
+			<ul>
+				<li><a href="qdvisory_progress_status.html">자문 진행 현황</a></li>
+				<li><a href="급여내역관리.html">급여내역 관리</a></li>
+				<li><a href="급여관리.html">급여관리</a></li>
+				<li class="active"><a href="팀관리.html">팀관리</a></li>
+				<li><a href="실적현황.html">실적 현황</a></li>
+			</ul>
+		</nav>
+		<div class="cont_wrap backWhite">
+			<div class="cont_top">
+				<h2><i class="icon_bullet"></i>팀관리</h2>
+			</div>
+			<section class="sec_wrap list" style="height:calc(100% - 43px);">
+				<!-- search area -->
+				<div class="search_area mt0">
+					<div class="fl">
+		                <span class="tit01 fl lh33">사원선택</span>
+		                <div class="search_inputWrap fl">
+							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+						</div>
+						<button class="btn select fl">검색</button>
+		            </div>
+				</div>
+				<div class="clearFix mt15" style="height: calc(100% - 53px);">
+					<div class="fl h100 mr15" style="width:calc(50% - 25px);">
+						<div class="cont_top clearFix">
+							<h3 class="fl font16 lh33">팀목록</h3>
+							<button class="btn select fl">추가</button>
+							<div class="fr"><strong class="total">Total: <span class="pointColr">3</span></strong></div>
+						</div>
+
+						<!-- 테이블 -->
+						<div class="tbl01 col tbl_scroll" style="height:calc(100% - 30px);">
+							<table>
+								<caption>급여 내역 리스트</caption>
+								<colgroup>
+									<col style="width:45px;"/>
+									<col style="width:120px;"/>
+									<col style="width:120px;"/>
+									<col style="width:120px;"/>
+									<col style="width:120px;"/>
+									<col style="width:120px;"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">No.</th>
+										<th scope="col">팀명</th>
+										<th scope="col">팀명수</th>
+										<th scope="col">생년일</th>
+										<th scope="col">소속지사명</th>
+										<th scope="col">관리</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>1</td>
+										<td>스타A팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>A지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>2</td>
+										<td>스타B팀</td>
+										<td>4</td>
+										<td>2024-03-15</td>
+										<td>B지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>3</td>
+										<td>스타C팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>B지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>스타D팀</td>
+										<td>3</td>
+										<td>2024-03-15</td>
+										<td>D지사</td>
+										<td>
+											<a href=""><i class="icon_pen"></i></a>
+											<a href=""><i class="icon_trash"></i></a>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="fl h100 ml15" style="width:calc(50% - 15px);">
+						<div class="cont_top clearFix">
+							<h3 class="fl font16 lh33">스타 A팀 Member List</h3>
+							<div class="fr">
+								<span class="info"><strong>위성열</strong> l <strong>2024년 01월</strong> l</span>
+								<strong class="total">Total: <span class="pointColr">3</span></strong>
+							</div>
+						</div>
+						<!-- 테이블 -->
+						<div class="tbl01 col tbl_scroll" style="height:calc(100% - 30px);">
+							<table>
+								<caption>스타 A팀 Member List</caption>
+								<colgroup>
+									<col style="width:45px;"/>
+									<col style="width:120px;"/>
+									<col style="width:120px;"/>
+									<col style="width:120px;"/>
+									<col style="width:120px;"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">No.</th>
+										<th scope="col">팀원ID</th>
+										<th scope="col">팀원명</th>
+										<th scope="col">역할</th>
+										<th scope="col">등급</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>1</td>
+										<td>joinsaram</td>
+										<td>위성열</td>
+										<td>팀원</td>
+										<td>FA</td>
+									</tr>
+									<tr>
+										<td>2</td>
+										<td>xxxyyyzzz</td>
+										<td>이용규</td>
+										<td>팀원</td>
+										<td>FA</td>
+									</tr>
+									<tr>
+										<td>3</td>
+										<td>statwow</td>
+										<td>유태원</td>
+										<td>스텝</td>
+										<td>마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+									<tr>
+										<td>4</td>
+										<td>love1234</td>
+										<td>이희성</td>
+										<td>팀장</td>
+										<td>S마스터</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+			</section>
+		</div>
+	</div>
+</body>
+
+</html>
