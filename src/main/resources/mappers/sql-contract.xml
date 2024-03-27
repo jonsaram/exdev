@@ -306,21 +306,21 @@
 		, GENDER
 		, SALES_TYPE
 		, GET_CODE_NM('SALES_TYPE', SALES_TYPE)		AS SALES_TYPE_NM
-		, RECOMMENDER_ID
-		, GET_CODE_NM('USER_ID', RECOMMENDER_ID)		AS RECOMMENDER_NM 
+		, RECOMMENDER_ID							AS RECOMMENDER_ID
+		, GET_CODE_NM('USER_ID', RECOMMENDER_ID)	AS RECOMMENDER_NM 
 		FROM TBL_EXP_USER
 		WHERE 1=1
-		AND ( UPPER(USER_ID) 	like '%' || UPPER( #{SEARCH_ID} ) || '%'
-		OR    UPPER(USER_NM) 	like '%' || UPPER( #{SEARCH_ID} ) || '%'
-		OR    UPPER(GRADE) like '%'||UPPER( #{SEARCH_ID} ) || '%'
-		OR    UPPER(GET_CODE_NM('GRADE', GRADE)) like '%'||UPPER( #{SEARCH_ID} ) || '%'
-		OR    UPPER(GET_CODE_NM('SALES_TYPE', SALES_TYPE)) 
-								like '%' || UPPER( #{SEARCH_ID} ) || '%'
-		)
+		AND ( 
+		   UPPER(USER_ID) 						like '%' || UPPER( #{SEARCH_ID} ) || '%'
+		OR UPPER(USER_NM) 						like '%' || UPPER( #{SEARCH_ID} ) || '%'
+		OR UPPER(GRADE) 						like '%' || UPPER( #{SEARCH_ID} ) || '%'
+		OR UPPER(GET_CODE_NM('GRADE', GRADE))	like '%' || UPPER( #{SEARCH_ID} ) || '%'
+		OR UPPER(GET_CODE_NM('SALES_TYPE', SALES_TYPE)) 
+												like '%' || UPPER( #{SEARCH_ID} ) || '%' )
 		AND USE_YN = 'Y'
 		AND DEL_YN = 'N'
 		<if test=" EXCEPT_MEMERS != null and !EXCEPT_MEMERS.equals('') ">
-		    <foreach item="member" collection="EXCEPT_MEMERS" open="AND USER_ID  NOT IN (" close=")" separator=",">
+		    <foreach item="member" collection="EXCEPT_MEMERS" open="AND USER_ID NOT IN (" close=")" separator=",">
     			#{member}
     		</foreach>	
 		</if>

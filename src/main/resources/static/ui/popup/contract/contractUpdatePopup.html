@@ -149,15 +149,20 @@ var <@popupId> = {
 		let param = {};
 
 		C_POP.open('popup_system_memberSearchPopup', {param:param, gubun:gubun}, function(retData) {
+
+              if( !isEmpty( retData["BUYER_ID"])){
+            	  
+	              <@popupId>.selectedRow["BUYER_ID"]	= retData["BUYER_ID"] ;
+	              <@popupId>.selectedRow["BUYER_NM"]	= retData["BUYER_NM"];
+	              <@popupId>.buyerId					= retData["BUYER_ID"] ;
+              }
               
-			Object.keys(retData).forEach( item =>{
-					
-        		const value = retData[item];
-        			
-				$("#<@popupId>_"+item).val(value);
-					
-			});
-          	
+              if( !isEmpty( retData["USER_ID"])){
+	              <@popupId>.selectedRow["USER_ID"]		= retData["USER_ID"];
+	              <@popupId>.selectedRow["USER_NM"]		= retData["USER_NM"];
+	              <@popupId>.userId						= retData["USER_ID"] ;
+              }  
+              
 			<@popupId>.memberSet();
 			
 		});
@@ -166,7 +171,9 @@ var <@popupId> = {
 
 		const buyerId	= <@popupId>.selectedRow["BUYER_ID"];
 		const buyerNm	= <@popupId>.selectedRow["BUYER_NM"];
-		if( buyerId )$("#<@popupId>_BUYER").val(<@popupId>.selectedRow["BUYER"]);
+		if( buyerId ){
+			$("#<@popupId>_BUYER").val(buyerNm+ " ("+buyerId+")");
+		}
 		const userId	= <@popupId>.selectedRow["USER_ID"];
 		const userNm	= <@popupId>.selectedRow["USER_NM"];
 		if( userId ){

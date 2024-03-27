@@ -1,74 +1,24 @@
 <meta charset="utf-8">
 <script type="text/javascript">
  var <@popupId> = {
-	rcvData : {}
- 	,returnData : {}
- 	,queryId : ''	
- 	,targetId : ''	
-    ,searchId : ''	
-	,exceptMembers : []
- 	,searchedMember : []
+	 rcvData 		: {}
+ 	,returnData 	: {}
+ 	,queryId 		: ''	
+ 	,targetId 		: ''	
+    ,searchId 		: ''	
+	,exceptMembers	: []
+ 	,searchedRows	: []
     ,close : function(returnData) {
  
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
 	}
-	,searchList : function(){
-
-		<@popupId>.searchId = $("[name='SEARCH_ID']").val();
+ 	,pageInit : (data) => {
+ 		
+ 		<@popupId>.setTitle(data.gubun);
 		
-		const requestParm = {SEARCH_ID: <@popupId>.searchId , EXCEPT_MEMERS : <@popupId>.exceptMembers};
-		let parm = {
-			queryId        : <@popupId>.queryId
-			,requestParm    : requestParm
-		}
-        C_COM.requestQuery(parm, function(resultData) {
-        
-        	<@popupId>.searchedMember = resultData.data;
-        	
-        	let rparm = {
-           			targetId   : <@popupId>.targetId
-					,list       : resultData.data
-			}
-            
-			C_COM.renderHtml("<@popupId>", rparm);
-			<@popupId>.setHandler();
-		});
-	}
-	,setTitle : (gubun) => {
-
-	   	$("#<@popupId> .tit").text		( gubun == "BUYER" ? "고객 선택"  : "사원 선택" 	);
-	   	$("#<@popupId> ._search").text	( gubun == "BUYER" ? "고객 검색"  : "사원 검색"	);
-	   	$("#<@popupId> ._list").text	( gubun == "BUYER" ? "고객 리스트": "사원 리스트");
-     	
-	}		
-	,setHandler : () => {
-
- 			$("tr[name^='<@popupId>_tr_']").off().on('dblclick',function() {
-
- 					const idx	= $(this).attr('name').replace("<@popupId>_tr_","");
- 					const user	= <@popupId>.searchedMember[idx];
-					<@popupId>.close(user);
- 			});
- 			 
-	}
-	,nameSearch : (e) => {
-		
-		 if (e.key === "Enter") {
-
-				<@popupId>.searchId = event.target.value;
-				<@popupId>.searchList();
-				
-		}
-	}
-	
-}
-// Popup Load가 완료된후 실행 된다.
-C_POP.onLoadPopup("<@popupId>", function(data) {
- 	
-		<@popupId>.rcvData 		= data;
 		const searchText		= data.param.searchText;
-		 $("[name='SEARCH_ID']").val(searchText)
+		 $("[name='<@popupId>_SEARCH_ID']").val(searchText)
 		 
 		if(data.param.ALL_MEMBERS){
 			<@popupId>.exceptMembers= data.param.ALL_MEMBERS.map( member => member.USER_ID);
@@ -89,17 +39,67 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			<@popupId>.targetId= "<@popupId>_userList"
 			
 		}
+		
+ 	}
+	,searchList : function(){
 
-		<@popupId>.setTitle(data.gubun);
+		<@popupId>.searchId = $("[name='<@popupId>_SEARCH_ID']").val();
+		
+		const requestParm = {SEARCH_ID: <@popupId>.searchId , EXCEPT_MEMERS : <@popupId>.exceptMembers};
+		let parm = {
+			queryId        : <@popupId>.queryId
+			,requestParm    : requestParm
+		}
+        C_COM.requestQuery(parm, function(resultData) {
+        
+        	<@popupId>.searchedRows = resultData.data;
+        	
+        	let rparm = {
+           			targetId   : <@popupId>.targetId
+					,list       : resultData.data
+			}
+            
+			C_COM.renderHtml("<@popupId>", rparm);
+
+		});
+		
+	}
+	,setTitle : (gubun) => {
+
+	   	$("#<@popupId> .tit").text		( gubun == "BUYER" ? "고객 선택"  : "사원 선택"	);
+	   	$("#<@popupId> ._search").text	( gubun == "BUYER" ? "고객 검색"  : "사원 검색"	);
+	   	$("#<@popupId> ._list").text	( gubun == "BUYER" ? "고객 리스트": "사원 리스트");
+     	
+	}		
+	,nameSearch : (e) => {
+		
+		if (e.key === "Enter") {
+
+			<@popupId>.searchId = event.target.value;
+			<@popupId>.searchList();
+				
+		}
+		
+	}
+	,getRow : (index) => {
+		
+		const user	= <@popupId>.searchedRows[index];
+		<@popupId>.close(user);	
+		
+	}
+}
+// Popup Load가 완료된후 실행 된다.
+C_POP.onLoadPopup("<@popupId>", function(data) {
+ 	
+		<@popupId>.rcvData = data;
+		
+		<@popupId>.pageInit(data);
 
 		<@popupId>.searchList();
-
  });
-    
-    
 </script>
    <!-- 고객 선택 팝업 -->
-<div class="modal_wrap" id="<@popupId>">
+<div class="modal_wrap">
 	<div class="modal"  style="width:500px;height:610px;">
 		<div class="modal_header">
                <strong class="tit">고객 선택/사원 선택</strong>
@@ -110,7 +110,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
                    <dt class="_search">고객 검색/사원 검색</dt>
                    <dd>
                        <div class="search_inputWrap" style="width:100%">
-                        <input type="search" name="SEARCH_ID" onkeydown="<@popupId>.nameSearch(event)"><button class="search_btn" onclick="<@popupId>.searchList()"><i class="icon_search"></i></button>
+                        <input type="search" name="<@popupId>_SEARCH_ID" onkeydown="<@popupId>.nameSearch(event)"><button class="search_btn" onclick="<@popupId>.searchList()"><i class="icon_search"></i></button>
                        </div>
                    </dd>
                    
@@ -125,7 +125,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<col style="width:40%;"/>
 						</colgroup>
 						<thead>
-							<tr id="<@popupId>_headingColName">
+							<tr>
 								<th scope="col">고객번호</th>
 								<th scope="col">고객명</th>
 								<th scope="col">본점주소</th>
@@ -135,11 +135,10 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</tbody>
 						<script type="text/x-jsrender" id="<@popupId>_cstmList_template">						
 							{{for list}}
-								<tr name="<@popupId>_tr_{{:#index}}" value='{{{:BUYER_ID}}'>
-				 					<td id='BUYER_ID'		value='{{:BUYER_ID}}'		>{{:BUYER_ID}}</td>
-			 						<td id='BUYER_NM'		value='{{:BUYER_NM}}'		>{{:BUYER_NM}}</td>
-			 						<td id='ADDR'			value='{{:ADDR}}' style="text-align:left">{{:ADDR}}</td>
-			 						<td id='DEL_YN'			value='{{:DEL_YN}}' 		style="display:none">{{:DEL_YN}}</td>
+								<tr name="<@popupId>_tr_{{:#index}}" ondblclick="javascript:<@popupId>.getRow('{{:#index}}')">
+				 					<td id='BUYER_ID'		>{{:BUYER_ID}}</td>
+			 						<td id='BUYER_NM'		>{{:BUYER_NM}}</td>
+			 						<td id='ADDR' class='tl'>{{:ADDR}}</td>
 								</tr>
 							{{/for}}
 						</script>
@@ -164,7 +163,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<col style="width:25%;"/>
 						</colgroup>
 						<thead>
-							<tr id="<@popupId>_headingColName">
+							<tr>
 								<th scope="col">사원ID</th>
 								<th scope="col">사원이름</th>
 								<th scope="col">등급</th>
@@ -175,20 +174,17 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</tbody>
 						<script type="text/x-jsrender" id="<@popupId>_userList_template">						
 						{{for list}}
-							<tr name="<@popupId>_tr_{{:#index}}" value='{{{:USER_ID}}'>
-			 					<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
-			 					<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
-			 					<td id='GRADE_NM'		value='{{:GRADE_NM}}'		>{{:GRADE_NM}}</td>
-			 					<td id='SALES_TYPE_NM'  value='{{:SALES_TYPE_NM}}'  >{{:SALES_TYPE_NM}}</td>
-			 					<td id='GRADE' 			value='{{:GRADE}}'			style="display:none">{{:GRADE}}</td>
-			 					<td id='SALES_TYPE' 	value='{{:SALES_TYPE}}'		style="display:none">{{:SALES_TYPE}}</td>
-			 					<td id='BRANCH_ID' 		value='{{:BRANCH_ID}}'		style="display:none">{{:BRANCH_ID}}</td>
+							<tr name="<@popupId>_tr_{{:#index}}" ondblclick="javascript:<@popupId>.getRow('{{:#index}}')">
+			 					<td id='USER_ID'		>{{:USER_ID}}</td>
+			 					<td id='USER_NM'		>{{:USER_NM}}</td>
+			 					<td id='GRADE_NM'		>{{:GRADE_NM}}</td>
+			 					<td id='SALES_TYPE_NM'  >{{:SALES_TYPE_NM}}</td>
 							</tr>
 						{{/for}}
 						</script>
 						<script type="text/x-jsrender" id="<@popupId>_userList_noData_template">	
 						<tr>	
-							<td colspan=3>자료가 없습니다.</td>	
+							<td colspan=7>자료가 없습니다.</td>	
 						</tr>
 						</script>
 					</table>
