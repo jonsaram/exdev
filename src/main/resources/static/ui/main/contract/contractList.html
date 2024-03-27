@@ -3,6 +3,7 @@
 var <@pageId> = {
 		 checkedItems : []
  		,excelParam : {}
+ 		,searchedRows : []
 		,pageInit : () =>{
 			
 			_setSearchListCnt("<@pageId>_pagingChunk" );
@@ -39,6 +40,8 @@ var <@pageId> = {
 				 }
 				// 검색해온 List를 수정한다.
 				,makeListFn			: function(list) {
+					
+					<@pageId>.searchedRows = list;	
 					<@pageId>.setHandler();
 				 }
 	 		});			
@@ -128,17 +131,27 @@ var <@pageId> = {
     		<@pageId>.deleteItem({CONTRACT_ID:CONTRACT_ID})
     		
 		}
+		,modify : (index) =>{
+			
+			const selectedRow = <@pageId>.searchedRows[index];
+			<@pageId>.openPopup(selectedRow);
+		}
+		,delete : (index) =>{
+			debugger;
+			const selectedRow = <@pageId>.searchedRows[index];
+			<@pageId>.deleteOne(selectedRow["CONTRACT_ID"]);
+		}
 		,setHandler : () => {
 
 			_chkHandler("<@pageId>",<@pageId>);
 		    
-		    $("#<@pageId>_insert").click(function(){
+		    $("#<@pageId>_insertBtn").click(function(){
 		    	
 				<@pageId>.openPopup();
 
 		    })
 		    
-		    $("#<@pageId>_delete").click(function(){
+		    $("#<@pageId>_deleteBtn").click(function(){
 		    	
 		    	<@pageId>.checkedItems.forEach( key =>{
 					<@pageId>.deleteOne(key);
@@ -146,7 +159,7 @@ var <@pageId> = {
 		    	
 		    })
 		    
-		    $("#<@pageId>_excelDownload").click(function(){
+		    $("#<@pageId>_excelDownloadBtn").click(function(){
 
  		    	const $hds = $("#<@pageId>_headingColName th");
 		    	const $tds = $("[name='<@pageId>_tr_0'] td");
@@ -154,47 +167,26 @@ var <@pageId> = {
 		    	
 		    })
 		    
-		    $("[id^='<@pageId>_modify_']").off().on('click',function(){
-
-		    	const index = $(this).attr("index");
-				const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
-				<@pageId>.openPopup($tds);
-				
-		    })
-		    
-		    $("[id^='<@pageId>_delete_']").off().on('click',function(){
-
-		    	const key = $(this).attr("key");
-				<@pageId>.deleteOne(key);
-				
-		    })
-		    
-			$("#<@pageId>_search").click( () =>{
+			$("#<@pageId>_searchBtn").click( () =>{
 		    	<@pageId>.searchList();
 		    })
 		    
 		    $("#<@pageId>_pagingChunk"	).off().on('change',() =><@pageId>.searchList());
 		    
 		}
-		,openPopup : ($tds) => {
+		,openPopup : (selectedRow) => {
 
-			let param = [];	
-			$.each( $tds , function(){
-
-				const key = $(this).attr("id");
-				const val = $(this).attr("value");
-				param.push( { "key": key, "val": val } );
+			let param = selectedRow;	
+			const mode = isEmpty(selectedRow) ? "I" :"U";
+			
+			C_POP.open('popup_contract_contractUpdatePopup', {param:selectedRow, mode:mode}
+				, function(retData) {
 				
-			})
-
-			C_POP.open('popup_contract_contractUpdatePopup', {param:param, mode:param.length > 0 ? "U" : "I"}, function(retData) {
-				
-				if(isValid(retData)){
-					
-					<@pageId>.updateItem(retData);
-					
-				}
-				
+					if(isValid(retData)){
+						
+						<@pageId>.updateItem(retData);
+						
+					}
 			});
 			
 		}
@@ -223,13 +215,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<div class="search_area mt0">
 				<!-- 멀티 선택 -->
 				<div class="fl">
-					<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
-					<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
+					<button type="button" class="btn fl" 		id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
+					<button type="button" class="btn select fl" id="<@pageId>_searchBtn">조회</button>
 				</div>
 	
 				<div class="search_right">
-					<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>계약 등록</button>
-					<button type="button" class="btn fl" id="<@pageId>_excelDownload"><i class="icon_download"></i> 계약 리스트 다운로드</button>
+					<button type="button" class="btn select fl" id="<@pageId>_insertBtn"><i class="icon_user_plus"></i>계약 등록</button>
+					<button type="button" class="btn fl" 		id="<@pageId>_excelDownloadBtn"><i class="icon_download"></i> 계약 리스트 다운로드</button>
 					<strong class="total">Total: <span class="pointColr" id="totalCnt"></span></strong>
  					<div id="<@pageId>_pagingChunk" style="margin-left: 5px;width:130px"></div>
 	            </div>
@@ -297,32 +289,22 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</tbody>
 <script type="text/x-jsrender" id="<@pageId>_contractList_template">						
 						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:CONTRACT_ID}}'>
+							<tr name="<@pageId>_tr_{{:#index}}">
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
 			 					<td id='ROWIDX'					class='tc' >{{:ROWIDX}}</td>
-			 					<td id='BUYER_ID'			class='tl' value='{{:BUYER_ID}}'			>{{:BUYER_ID}}</td>
-			 					<td id='BUYER_NM'			class='tl' value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</a></td>
-			 					<td id='PROCESS_STATE_NM'	value='{{:PROCESS_STATE_NM}}'	>{{:PROCESS_STATE_NM}}</td>
-			 					<td id='CONTACT_DATE'		value='{{:CONTACT_DATE}}'		>{{:CONTACT_DATE}}</td>
-								<td id='USER_NM' 			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
-								<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
-								<td id='CONTRACT_DATE'		value='{{:CONTRACT_DATE}}'		>{{:CONTRACT_DATE}}</td>
-								<td id='EXPIRE_DATE'		value='{{:EXPIRE_DATE}}'		>{{:EXPIRE_DATE}}</td>
-								<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{numb:TOTAL_COST}}</td>
-								<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
- 								<td id='USER_ID'			value='{{:USER_ID}}'			style='display:none'>{{:USER_ID}}</td>
- 								<td id='CONTRACT_TYPE'		value='{{:CONTRACT_TYPE}}'		style='display:none'>{{:CONTRACT_TYPE}}</td>
- 								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'		style='display:none'>{{:CONTRACT_ID}}</td>
- 								<td id='TAX_MNG'			value='{{:TAX_MNG}}'			style='display:none'>{{:TAX_MNG}}</td>
- 								<td id='LABOR_MNG'			value='{{:LABOR_MNG}}'			style='display:none'>{{:LABOR_MNG}}</td>
- 								<td id='CONSULTING_ID'		value='{{:CONSULTING_ID}}'		style='display:none'>{{:CONSULTING_ID}}</td>
- 								<td id='CONSULTING_CLASS'	value='{{:CONSULTING_CLASS}}'	style='display:none'>{{:CONSULTING_CLASS}}</td>
- 								<td id='PROCESS_STATE'		value='{{:PROCESS_STATE}}'		style='display:none'>{{:PROCESS_STATE}}</td>
- 								<td id='LAST_SOLUTION'		value='{{:LAST_SOLUTION}}'		style='display:none'>{{:LAST_SOLUTION}}</td>
- 								<td id='USE_YN'				value='{{:USE_YN}}'				style='display:none'>{{:USE_YN}}</td>
- 								<td id='DEL_YN'				value='{{:DEL_YN}}'				style='display:none'>{{:DEL_YN}}</td>
-			 					<td class='tl'><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
-								<td><button id="<@pageId>_delete_{{:#index}}" key='{{:CONTRACT_ID}}'><i class="icon_trash"></i></button></td>
+			 					<td id='BUYER_ID'			class='tl' >{{:BUYER_ID}}</td>
+			 					<td id='BUYER_NM'			class='tl' >{{:BUYER_NM}}</a></td>
+			 					<td id='PROCESS_STATE_NM'	>{{:PROCESS_STATE_NM}}</td>
+			 					<td id='CONTACT_DATE'		>{{:CONTACT_DATE}}</td>
+								<td id='USER_NM' 			>{{:USER_NM}}</td>
+								<td id='CONTRACT_TYPE_NM'	>{{:CONTRACT_TYPE_NM}}</td>
+								<td id='CONTRACT_DATE'		>{{:CONTRACT_DATE}}</td>
+								<td id='EXPIRE_DATE'		>{{:EXPIRE_DATE}}</td>
+								<td id='TOTAL_COST'			>{{numb:TOTAL_COST}}</td>
+								<td id='CONSULTING_NM'		>{{:CONSULTING_NM}}</td>
+			 					<td 						class='tl'>
+									<button><i onclick="javascript:<@pageId>.modify('{{:#index}}')" class="icon_pen"></i></button></td>
+								<td><button><i onclick="javascript:<@pageId>.delete('{{:#index}}')" class="icon_trash"></i></button></td>
 							</tr>
 						{{/for}}
 </script>

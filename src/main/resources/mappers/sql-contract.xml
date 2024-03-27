@@ -203,6 +203,7 @@
 		,C.CONTRACT_ID
 		,C.BUYER_ID 
 		,B.BUYER_NM
+		,B.BUYER_NM || ' ( ' || B.BUYER_ID || ' )'  AS "BUYER"
 		,GET_CODE_NM('PROCESS_STATE', C.PROCESS_STATE ) AS PROCESS_STATE_NM 
 		,TO_CHAR( C.CONTACT_DATE , 'YYYY-MM-DD') 	AS CONTACT_DATE 
 		,C.USER_ID 									AS USER_ID
@@ -224,16 +225,20 @@
 		,NVL(( 	SELECT MIN( REMAINING_SUM ) FROM TBL_EXP_RESULT I 
 				WHERE I.CONTRACT_ID = C.CONTRACT_ID AND I.USE_YN = 'Y' AND I.DEL_YN = 'N')
 			,C.TOTAL_COST) AS REMAINING_SUM
+		,U.RECOMMENDER_ID
+		,GET_CODE_NM('USER_ID', U.RECOMMENDER_ID)		AS RECOMMENDER_NM 
 		FROM TBL_EXP_CONTRACT C
 		,TBL_EXP_BUYER B
 		,TBL_EXP_CONSULTING CT
+		,TBL_EXP_USER U
 		WHERE C.BUYER_ID = B.BUYER_ID(+)
 		<if test=" CONTRACT_ID != null and !CONTRACT_ID.equals('') ">
 		AND C.CONTRACT_ID = #{CONTRACT_ID}
 		</if>
-		AND C.USE_YN = 'Y'
-		AND C.DEL_YN = 'N'
+		AND C.USE_YN = 'Y' 		AND C.DEL_YN = 'N'
+		AND U.USE_YN = 'Y'      AND U.DEL_YN = 'N'
 		AND C.CONSULTING_ID = CT.CONSULTING_ID		
+		AND C.USER_ID = U.USER_ID
 	</sql>	
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getContractList
@@ -336,14 +341,18 @@
 		         #{CONTRACT_TYPE} 						AS CONTRACT_TYPE,
 		         TO_DATE(#{EXPIRE_DATE},'YYYY-MM-DD')	AS EXPIRE_DATE,
 		         REPLACE(#{TOTAL_COST},',','') 			AS TOTAL_COST,
-				 #{CONSULTING_ID} 						AS CONSULTING_ID,
-				 #{PROCESS_STATE} 						AS PROCESS_STATE,
-		         #{LAST_SOLUTION} 						AS LAST_SOLUTION,
 		         #{TAX_MNG} 							AS TAX_MNG,
 		         #{LABOR_MNG} 							AS LABOR_MNG,
 		         #{CONSULTING_CLASS} 					AS CONSULTING_CLASS,
-		         #{USE_YN} 								AS USE_YN,
-		         #{DEL_YN} 								AS DEL_YN, 
+		         <if test=" CONSULTING_ID != null and !CONSULTING_ID.equals('') ">
+				 #{CONSULTING_ID} 						AS CONSULTING_ID,
+				 </if>
+				 <if test=" PROCESS_STATE != null and !PROCESS_STATE.equals('') ">
+				 #{PROCESS_STATE} 						AS PROCESS_STATE,
+				 </if>
+				 <if test=" LAST_SOLUTION != null and !LAST_SOLUTION.equals('') ">
+		         #{LAST_SOLUTION} 						AS LAST_SOLUTION,
+		         </if>
 		         #{sessionVo.userId}					AS UPDATE_USER
 		  FROM dual
 		) S
@@ -358,24 +367,49 @@
 		         T.CONTRACT_TYPE 	= S.CONTRACT_TYPE,
 		         T.EXPIRE_DATE 		= S.EXPIRE_DATE,
 		         T.TOTAL_COST 		= S.TOTAL_COST,
- 		         T.CONSULTING_ID 	= S.CONSULTING_ID,
- 		         T.PROCESS_STATE 	= S.PROCESS_STATE,
-		         T.LAST_SOLUTION 	= S.LAST_SOLUTION, 
 		         T.TAX_MNG 			= S.TAX_MNG,
 		         T.LABOR_MNG 		= S.LABOR_MNG,
 		         T.CONSULTING_CLASS	= S.CONSULTING_CLASS,
-		         T.USE_YN			= S.USE_YN,
-		         T.DEL_YN			= S.DEL_YN,
+		         <if test=" CONSULTING_ID != null and !CONSULTING_ID.equals('') ">
+ 		         T.CONSULTING_ID 	= S.CONSULTING_ID,
+				 </if>
+				 <if test=" PROCESS_STATE != null and !PROCESS_STATE.equals('') ">
+ 		         T.PROCESS_STATE 	= S.PROCESS_STATE,
+				 </if>
+				 <if test=" LAST_SOLUTION != null and !LAST_SOLUTION.equals('') ">
+		         T.LAST_SOLUTION 	= S.LAST_SOLUTION, 
+		         </if>
 		         T.UPDATE_USER		= S.UPDATE_USER,
 		         T.UPDATE_DATE		= SYSDATE
 		WHEN NOT MATCHED THEN 
      		INSERT (  CONTRACT_ID, USER_ID, BUYER_ID, CONTACT_DATE, CONTRACT_DATE, CONTRACT_TYPE, EXPIRE_DATE
-    				, TOTAL_COST, CONSULTING_ID, PROCESS_STATE, LAST_SOLUTION,  TAX_MNG, LABOR_MNG, CONSULTING_CLASS, USE_YN
-    				, DEL_YN,  UPDATE_USER,   UPDATE_DATE )
+    				, TOTAL_COST,  TAX_MNG, LABOR_MNG, CONSULTING_CLASS
+    				<if test=" CONSULTING_ID != null and !CONSULTING_ID.equals('') "> 
+    					, CONSULTING_ID
+					 </if>
+					 <if test=" PROCESS_STATE != null and !PROCESS_STATE.equals('') ">
+	    				, PROCESS_STATE
+					 </if>
+					 <if test=" LAST_SOLUTION != null and !LAST_SOLUTION.equals('') ">
+	    				, LAST_SOLUTION
+	    			 </if>	
+    				,  UPDATE_USER  
+	    			 , UPDATE_DATE
+    				)
    			VALUES (  S.CONTRACT_ID, S.USER_ID, S.BUYER_ID, S.CONTACT_DATE, S.CONTRACT_DATE, S.CONTRACT_TYPE, S.EXPIRE_DATE
-    				, S.TOTAL_COST, S.CONSULTING_ID, S.PROCESS_STATE,  S.LAST_SOLUTION, S.TAX_MNG, S.LABOR_MNG, S.CONSULTING_CLASS, S.USE_YN
-    				, S.DEL_YN,  S.UPDATE_USER,   SYSDATE )
-    		
+    				, S.TOTAL_COST, S.TAX_MNG, S.LABOR_MNG, S.CONSULTING_CLASS
+    				<if test=" CONSULTING_ID != null and !CONSULTING_ID.equals('') "> 
+    					, S.CONSULTING_ID
+					</if>
+					<if test=" PROCESS_STATE != null and !PROCESS_STATE.equals('') ">
+	    				, S.PROCESS_STATE
+					</if>
+					<if test=" LAST_SOLUTION != null and !LAST_SOLUTION.equals('') ">
+	    				, S.LAST_SOLUTION
+	    			 </if>
+    				 , S.UPDATE_USER
+	    			 , SYSDATE 
+    				)
 	</update>
 	
 	<delete id="deleteContract" parameterType="java.util.HashMap"  flushCache="true" >

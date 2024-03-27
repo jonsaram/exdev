@@ -3,10 +3,12 @@
 var <@popupId> = {
 	 recvData : []	
  	 ,mode : ''
+ 	 ,selectedRow : {}
  	 ,addCoworkRtnData : []
  	 ,addSalseManRtnData : []
  	 ,addSuggesterRtnData : []
- 	 ,RECOMMENDER : {}
+ 	 ,userId :''
+ 	 ,buyerId:''
 	 ,close : function(returnData) {
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
@@ -17,7 +19,7 @@ var <@popupId> = {
 			 return;
 		 }
 
-		 let returnData = {};
+		 let returnData = {CONTRACT_ID : <@popupId>.selectedRow["CONTRACT_ID"]};
 		 const $inputs = $("#<@popupId>_items input");
 		 $.each( $inputs, function(){
 
@@ -34,15 +36,17 @@ var <@popupId> = {
 		 
 		 returnData["CONTRACT_MEMBER"]	= <@popupId>.getContractMember(returnData["CONTRACT_ID"],returnData["USER_ID"]);
 		 
+		 returnData["USER_ID"]	= <@popupId>.userId;
+		 returnData["BUYER_ID"]	= <@popupId>.buyerId;
 		 
 		 <@popupId>.close(returnData);
 		 
 	 }
 	 ,validation : () =>{
 		 
-		 if( $("#<@popupId>_items #<@popupId>_BUYER_NM").val() 		== "" ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
-		 if( $("#<@popupId>_items #<@popupId>_TEL").val() 			== "" ) {C_POP.alert("연락처를 입력하여 주십시오."); return false;}
-		 if( $("#<@popupId>_items #<@popupId>_ADDR").val() 			== "" ) {C_POP.alert("본점주소를 입력하여 주십시오."); return false;}
+ 		 if( $("#<@popupId>_BUYER_NM").val() 		== "" ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
+		 if( $("#<@popupId>_TEL").val() 			== "" ) {C_POP.alert("연락처를 입력하여 주십시오."); return false;}
+		 if( $("#<@popupId>_ADDR").val() 			== "" ) {C_POP.alert("본점주소를 입력하여 주십시오."); return false;}
 		 return true;
 		 
 	 }
@@ -51,28 +55,18 @@ var <@popupId> = {
 		<@popupId>.setTitleHeight();
 		
 		if( <@popupId>.mode == "U" ){
-
-				$.each( <@popupId>.recvData.param , function(idx,obj){
-					
-					if(idx != 0 ){
-						
-						const id = obj.key;
-						let val = obj.val;
-						
-						if( id ==  "TOTAL_COST" ) val = <@popupId>.numberWithCommas(val);
-						
-						$("#<@popupId>_items #<@popupId>_" + id).val(val);
-					    
-					}
-				})
+				Object.entries(<@popupId>.selectedRow).forEach(([key, val]) => {
+				    $("#<@popupId>_" + key).val(val);
+				    if( key == "TOTAL_COST")$("#<@popupId>_TOTAL_COST").val(<@popupId>.numberWithCommas(val));
+				});				
 				
 				<@popupId>.savedContractMemberSearch();
 		}
 
 		<@popupId>.memberSet();
 		
- 		const CONTRACT_TYPE 	= $("#<@popupId>_items #<@popupId>_CONTRACT_TYPE").val();
-		const CONSULTING_CLASS 	= $("#<@popupId>_items #<@popupId>_CONSULTING_CLASS").val();
+		const CONTRACT_TYPE		= <@popupId>.selectedRow["CONTRACT_TYPE"];
+		const CONSULTING_CLASS	= <@popupId>.selectedRow["CONSULTING_CLASS"];
 		
 		C_UICOM.makeSelectBox({ 
 			 defaultItem 	: ["--", "선택"]
@@ -91,7 +85,7 @@ var <@popupId> = {
 	}
 	,savedContractMemberSearch : () => {
 		
-		const CONTRACT_ID = <@popupId>.recvData.param.filter( item => item.key== "CONTRACT_ID")[0].val
+		const CONTRACT_ID = <@popupId>.selectedRow["CONTRACT_ID"]
 		var parm = {
 				 queryId 		: "contract.getContractMemberList"
 				,requestParm	: {CONTRACT_ID : CONTRACT_ID}
@@ -118,8 +112,9 @@ var <@popupId> = {
 			
 		});
 	}
-	,selectSuggester : (RECOMMENDER_ID) => {
-		
+	,selectSuggester : () => {
+	
+		const RECOMMENDER_ID = <@popupId>.selectedRow["RECOMMENDER_ID"]
 		const requestParm = {};
 		
 		var parm = {
@@ -152,34 +147,32 @@ var <@popupId> = {
 	,memberSearchPopup : function(gubun) {
       	
 		let param = {};
-		let RECOMMENDER_ID = '';
+
 		C_POP.open('popup_system_memberSearchPopup', {param:param, gubun:gubun}, function(retData) {
               
 			Object.keys(retData).forEach( item =>{
 					
         		const value = retData[item];
         			
-				$("#<@popupId>_items #<@popupId>_"+item).val(value);
-				
-				if( item =='RECOMMENDER_ID')RECOMMENDER_ID = value;
+				$("#<@popupId>_"+item).val(value);
 					
 			});
           	
-			<@popupId>.memberSet(RECOMMENDER_ID);
+			<@popupId>.memberSet();
 			
 		});
 	}
-	,memberSet : (RECOMMENDER_ID) => {
-		
-		const buyerId = $("#<@popupId>_items #<@popupId>_BUYER_ID").val();
-		const buyerNm = $("#<@popupId>_items #<@popupId>_BUYER_NM").val();
-		if( buyerId )$("#<@popupId>_items #<@popupId>_BUYER").val(buyerNm+ " ("+buyerId+")");
-		const userId = $("#<@popupId>_items #<@popupId>_USER_ID").val();
-		const userNm = $("#<@popupId>_items #<@popupId>_USER_NM").val();
+	,memberSet : () => {
+
+		const buyerId	= <@popupId>.selectedRow["BUYER_ID"];
+		const buyerNm	= <@popupId>.selectedRow["BUYER_NM"];
+		if( buyerId )$("#<@popupId>_BUYER").val(<@popupId>.selectedRow["BUYER"]);
+		const userId	= <@popupId>.selectedRow["USER_ID"];
+		const userNm	= <@popupId>.selectedRow["USER_NM"];
 		if( userId ){
-			$("#<@popupId>_items #<@popupId>_USER").val(userNm+ " ("+userId+")");
-			$("#<@popupId>_items #<@popupId>_CPY_USER_NM").text(userNm);
-			if( RECOMMENDER_ID )<@popupId>.selectSuggester(RECOMMENDER_ID);
+			$("#<@popupId>_USER").val(userNm+ " ("+userId+")");
+			$("#<@popupId>_CPY_USER_NM").text(userNm);
+			if( <@popupId>.selectedRow["RECOMMENDER_ID"] )<@popupId>.selectSuggester();
 		}
 
 	}
@@ -195,8 +188,8 @@ var <@popupId> = {
 		
 		$("#<@popupId>_addCowork").on('click', (event) => {
 			event.preventDefault();
-			const CONTRACT_ID	= 	$("#<@popupId>_items>#<@popupId>_CONTRACT_ID").val();
-			const USER_ID		=	$("#<@popupId>_items>#<@popupId>_USER_ID").val()
+			const CONTRACT_ID	= 	$("#<@popupId>_CONTRACT_ID").val();
+			const USER_ID		=	$("#<@popupId>_USER_ID").val()
 			const contractMember= 	<@popupId>.getContractMember(CONTRACT_ID, USER_ID);
 
 			let param = {"ALL_MEMBERS": contractMember};
@@ -217,8 +210,8 @@ var <@popupId> = {
 		
 		$("#<@popupId>_addSalesMan").on('click', (event) => {
 			event.preventDefault();
-			const CONTRACT_ID	= 	$("#<@popupId>_items>#<@popupId>_CONTRACT_ID").val();
-			const USER_ID		=	$("#<@popupId>_items>#<@popupId>_USER_ID").val()
+			const CONTRACT_ID	= 	$("#<@popupId>_CONTRACT_ID").val();
+			const USER_ID		=	$("#<@popupId>_USER_ID").val()
 			const contractMember= 	<@popupId>.getContractMember(CONTRACT_ID, USER_ID);
 			
 			let param = {"ALL_MEMBERS": contractMember};
@@ -237,10 +230,10 @@ var <@popupId> = {
 			
 		})
 		
-		$("#<@popupId>_items a[name^='tab']").on('click', (obj) =>{
+		$("a[name^='<@popupId>_tab']").on('click', (obj) =>{
 			
-		    $('a[name^="tab"]').parent().toggleClass('active');
-		    $('#<@popupId> #tab1, #<@popupId> #tab2').toggle();
+		    $('a[name^="<@popupId>_tab"]').parent().toggleClass('active');
+		    $('#<@popupId>_tab1, #<@popupId>_tab2').toggle();
 
 		})
 			 
@@ -331,9 +324,11 @@ var <@popupId> = {
 // Popup Load가 완료된후 실행 된다.
 C_POP.onLoadPopup("<@popupId>", function(data) {
 
-	<@popupId>.recvData	= data;
-
-	<@popupId>.mode = <@popupId>.recvData.mode;
+	<@popupId>.recvData		= data;
+	<@popupId>.mode			= <@popupId>.recvData.mode;
+	<@popupId>.selectedRow 	= <@popupId>.recvData.param;
+	<@popupId>.userId 		= <@popupId>.selectedRow.USER_ID;
+	<@popupId>.buyerId 		= <@popupId>.selectedRow.BUYER_ID;
 	
 	<@popupId>.pageInit();
 	
@@ -356,11 +351,11 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				<!-- tap area -->
 				<div class="tab_wrap mt15" style="height:calc(100% - 15px);">
 					<ul>
-						<li class="active"><a href="javascript:void(0)" name="tab1">계약정보</a></li>
-						<li><a href="javascript:void(0)" name="tab2">관련자정보</a></li>
+						<li class="active"><a href="javascript:void(0)" name="<@popupId>_tab1">계약정보</a></li>
+						<li><a href="javascript:void(0)" name="<@popupId>_tab2">관련자정보</a></li>
 					</ul>
 					<div class="tab_content">
-						<div id="tab1" class="display" style='display:block;'>
+						<div id="<@popupId>_tab1" class="display" style='display:block;'>
 							<ul class="info_wrap col2 pay">
 								<li class="w100">
 									<label>고객선택</label>
@@ -420,7 +415,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<li class="ml0">
 									<label>총계약금액</label>
 									<div class="info">
-										<input type="text"  class="number"   id="<@popupId>_TOTAL_COST" style="width:100%">
+										<input type="text"  class="number"  id="<@popupId>_TOTAL_COST" style="width:100%" number>
 									</div>
 								</li>
 								<li class="w100">
@@ -452,7 +447,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								</li>
 							</ul>
 						</div>
-						<div id="tab2" class="display" style="overflow:auto;">
+						<div id="<@popupId>_tab2" class="display" style="overflow:auto;">
 							<dl class="info_wrap pay mt0">
 								<dt class="mb0">담당 컨설턴트 :</dt>
 								<dd class="mb0" id="<@popupId>_CPY_USER_NM"></dd>
@@ -579,20 +574,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</div>
 					</div>
 				</div>
-				<input type="hidden" id="<@popupId>_CONTRACT_ID">
-				<input type="hidden" id="<@popupId>_CONSULTING_ID" value="temp">
-				<input type="hidden" id="<@popupId>_PROCESS_STATE" value="PRE_STATE">
-				<input type="hidden" id="<@popupId>_LAST_SOLUTION" value="last">
-				<input type="hidden" id="<@popupId>_USE_YN" value="Y">
-				<input type="hidden" id="<@popupId>_DEL_YN" value="N">
-				<input type="hidden" id="<@popupId>_BRANCH_ID">
-				<input type="hidden" id="<@popupId>_BUYER_NM">
-				<input type="hidden" id="<@popupId>_BUYER_ID">
-				<input type="hidden" id="<@popupId>_USER_NM">
-				<input type="hidden" id="<@popupId>_USER_ID">
-				<input type="hidden" id="<@popupId>_CONTRACT_TYPE_NM">
-				<input type="hidden" id="<@popupId>_CONTRACT_TYPE">
-				<input type="hidden" id="<@popupId>_CONSULTING_CLASS">				
 	</div> <!-- //modal_body -->
 
 		<div class="modal_footer">
