@@ -59,5 +59,42 @@
 		*/
 		DELETE FROM  TBL_EXP_CONSULTING
 		WHERE CONSULTING_ID	= #{CONSULTING_ID}
-	</delete>		
+	</delete>
+
+	<select id="getTeamList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	operation.getTeamList
+			팀 리스트 가져오기
+		*/
+		SELECT
+		     TEAM_ID
+		    ,TEAM_NM
+		    ,(SELECT count(*) FROM TBL_EXP_TEAM_MEMBER B WHERE A.TEAM_ID = B.TEAM_ID) AS MEMBER_CNT
+		    ,(SELECT BRANCH_NM FROM TBL_EXP_BRANCH C WHERE A.BRANCH_ID = C.BRANCH_ID) AS BRANCH_NM
+		    ,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD' ) UPDATE_DATE
+		FROM
+		    TBL_EXP_TEAM A
+	</select>
+
+	<select id="getTeamMemberList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	operation.getTeamMemberList
+			팀 Member 리스트 가져오기
+		*/
+		SELECT
+		     TEAM_ID
+		    ,USER_ID
+		    ,GET_USER_NM(USER_ID) AS USER_NM
+		    ,TEAM_USER_ROLE
+		    ,GET_CODE_NM('TEAM_USER_ROLE', TEAM_USER_ROLE) AS TEAM_USER_ROLE_NM
+		    ,(SELECT GET_CODE_NM('GRADE', GRADE) FROM TBL_EXP_USER A WHERE A.USER_ID = B.USER_ID) AS GRADE
+		    ,SP_CSTM_ID
+		    ,UPDATE_USER
+		    ,UPDATE_DATE
+		FROM
+		    TBL_EXP_TEAM_MEMBER B
+		WHERE 
+			TEAM_ID = #{TEAM_ID}  
+   	</select>
+
+
+			
 </mapper>

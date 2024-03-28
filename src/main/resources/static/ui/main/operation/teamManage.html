@@ -1,9 +1,56 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
+		 teamList		: []
+		,teamMemberList	: []
+		,loadData : function() {
+			var parm = {
+				 queryId 		: "operation.getTeamList"
+				,requestParm	: {}
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				<@pageId>.teamList = resultData.data;
+				
+				
+				var parm = {
+					 targetId 		: "<@pageId>_teamList"
+					,list			: resultData.data
+					,targetTotalId	: "totalCnt"
+				}
+				C_COM.renderHtml("<@pageId>", parm);
+			});
+			
+		 }
+		,selectTeam : function(idx) {
+			let teamItem = <@pageId>.teamList[idx];
+			
+			var parm = {
+				 queryId 		: "operation.getTeamMemberList"
+				,requestParm	: teamItem
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				<@pageId>.teamMemberList = resultData.data;
+				
+				var parm = {
+					 targetId 		: "<@pageId>_teamMemberList"
+					,list			: resultData.data
+					,targetTotalId	: "totalMemberCnt"
+				}
+				C_COM.renderHtml("<@pageId>", parm);
+				
+				$("#<@pageId> #teamNm").html(teamItem.TEAM_NM);
+				
+			});
+				
+		 }
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
+		<@pageId>.loadData();
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -26,120 +73,110 @@
             </div>
 		</div>
 		<div class="clearFix mt15" style="height: calc(100% - 53px);">
-			<div class="fl h100 mr15" style="width:calc(50% - 15px);">
+			<div class="fl h100 mr15" style="width:calc(50% - 25px);">
 				<div class="cont_top clearFix">
-					<h3 class="fl font16">팀 목록</h3>
-					<div class="fr"><strong class="total">Total: <span class="pointColr">3</span></strong></div>
+					<h3 class="fl font16 lh33">팀목록</h3>
+					<button class="btn select fl">추가</button>
+					<div class="fr"><strong class="total">Total: <span class="pointColr" id="totalCnt"></span></strong></div>
 				</div>
 
 				<!-- 테이블 -->
-				<div class="tbl01 col tbl_scroll line" style="height:calc(100% - 30px);">
-					<div class="tbl01 col tbl_head">
-						<table>
-							<caption>급여 내역 리스트</caption>
-							<colgroup>
-								<col style="width:45px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-							</colgroup>
-							<thead>
-								<tr>
-									<th scope="col">No.</th>
-									<th scope="col">정산년월</th>
-									<th scope="col">사원명</th>
-									<th scope="col">관련계약건수</th>
-									<th scope="col">수수료 합</th>
-								</tr>
-							</thead>
-						</table>
-					</div>
-					<div class="tbl01 col tbl_body_scroll">
-						<table>
-							<caption>급여 내역 리스트</caption>
-							<colgroup>
-								<col style="width:45px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-								<col style="width:120px;"/>
-							</colgroup>
-							<tbody>
-								<tr>
-									<td>1</td>
-									<td>2024년 01월</td>
-									<td>위성열</td>
-									<td>2건</td>
-									<td>1,500,000</td>
-								</tr>
-								<tr>
-									<td>2</td>
-									<td>2024년 01월</td>
-									<td>홍길동</td>
-									<td>4건</td>
-									<td>3,500,000</td>
-								</tr>
-								<tr>
-									<td>3</td>
-									<td>2024년 01월</td>
-									<td>강나래</td>
-									<td>3건</td>
-									<td>2,500,000</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
+				<div class="tbl01 col tbl_scroll" style="height:calc(100% - 30px);">
+					<table>
+						<caption>팀 리스트</caption>
+						<colgroup>
+							<col style="width:45px;"/>
+							<col style="width:120px;"/>
+							<col style="width:120px;"/>
+							<col style="width:120px;"/>
+							<col style="width:120px;"/>
+							<col style="width:120px;"/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">No.</th>
+								<th scope="col">팀명</th>
+								<th scope="col">팀명수</th>
+								<th scope="col">생년일</th>
+								<th scope="col">소속지사명</th>
+								<th scope="col">관리</th>
+							</tr>
+						</thead>
+						<tbody id="<@pageId>_teamList">
+						</tbody>
+						<script type="text/x-jsrender" id="<@pageId>_teamList_template">						
+							{{for list}}
+							<tr onclick="<@pageId>.selectTeam({{:#index}})">
+								<td>{{:#index + 1}}</td>
+								<td>{{:TEAM_NM}}</td>
+								<td>{{:MEMBER_CNT}}</td>
+								<td>{{:UPDATE_DATE}}</td>
+								<td>{{:BRANCH_NM}}</td>
+								<td>
+									<a href=""><i class="icon_pen"></i></a>
+									<a href=""><i class="icon_trash"></i></a>
+								</td>
+							</tr>
+							{{/for}}
+						</script>
+						<script type="text/x-jsrender" id="<@pageId>_teamList_noData_template">	
+							<tr>	
+								<td colspan=6>자료가 없습니다.</td>	
+							</tr>
+						</script>
+					</table>
 				</div>
 			</div>
 			<div class="fl h100 ml15" style="width:calc(50% - 15px);">
 				<div class="cont_top clearFix">
-					<h3 class="fl font16">급여 상세</h3>
+					<h3 class="fl font16 lh33"><span id="teamNm"></span> Member List</h3>
 					<div class="fr">
-						<span class="info"><strong>위성열</strong> l <strong>2024년 01월</strong> l</span>
-						<strong class="total">Total: <span class="pointColr">3</span></strong>
+						<strong class="total">Total: <span class="pointColr" id="totalMemberCnt">3</span></strong>
 					</div>
 				</div>
 				<!-- 테이블 -->
-				<div class="tbl01 col tbl_scroll row2" style="height:calc(100% - 30px);">
-					<div class="tbl01 col tbl_head2">
-						<table>
-							<caption>급여관리 리스트</caption>
-							<colgroup>
-								<col style="width:45px;"/>
-								<col style="width:200px;"/>
-								<col style="width:100px;"/>
-								<col style="width:100px;"/>
-							</colgroup>
-							<thead>
-								<tr>
-									<th scope="col">No.</th>
-									<th scope="col">계약정보</th>
-									<th scope="col">계약정보</th>
-									<th scope="col">계약정보</th>
-								</tr>
-							</thead>
-						</table>
-					</div>
-					<div class="tbl01 col tbl_body_scroll2">
-						<table>
-							<caption>급여관리 리스트</caption>
-							<colgroup>
-								<col style="width:45px;"/>
-								<col style="width:200px;"/>
-								<col style="width:100px;"/>
-								<col style="width:100px;"/>
-							</colgroup>
-							<tbody>
-								<tr>
-									<td>1</td>
-									<td>스타에셋</td>
-									<td>월자문 솔루션1</td>
-									<td class="tr">100,000,000</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
+				<div class="tbl01 col tbl_scroll" style="height:calc(100% - 30px);">
+					<table>
+						<caption>스타 A팀 Member List</caption>
+						<colgroup>
+							<col style="width:45px;"/>
+							<col style="width:120px;"/>
+							<col style="width:120px;"/>
+							<col style="width:120px;"/>
+							<col style="width:120px;"/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">No.</th>
+								<th scope="col">팀원ID</th>
+								<th scope="col">팀원명</th>
+								<th scope="col">역할</th>
+								<th scope="col">등급</th>
+							</tr>
+						</thead>
+						<tbody id="<@pageId>_teamMemberList">
+							<tr>	
+								<td colspan=5>팀을 선택하세요.</td>	
+							</tr>
+						</tbody>
+						<script type="text/x-jsrender" id="<@pageId>_teamMemberList_template">						
+							{{for list}}
+							<tr>
+								<td>{{:#index + 1}}</td>
+								<td>{{:USER_ID}}</td>
+								<td>{{:USER_NM}}</td>
+								<td>{{:TEAM_USER_ROLE_NM}}</td>
+								<td>{{:GRADE}}</td>
+							</tr>
+							{{/for}}
+						</script>
+						<script type="text/x-jsrender" id="<@pageId>_teamMemberList_noData_template">	
+							<tr>	
+								<td colspan=5>팀 Member가 없습니다.</td>	
+							</tr>
+						</script>
+						
+					</table>
 				</div>
 			</div>
 		</div>

@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -268,29 +269,32 @@ public class ExcelService  extends ExdevBaseService{
 		                
 		                String cellValue = cell.toString();
 		                
-		                switch (cell.getCellType()) {
-		                	case NUMERIC:
-		                		try {
-			                		Double 	dcellValue 	= Double.parseDouble(cellValue);
-			                		Long 	lcellValue 	= Math.round(dcellValue);
-			                		
-			                		String compStr = lcellValue + ".0";
-			                		if(compStr.equals(cellValue.toString())) {
-			                			cellValue = String.valueOf(lcellValue);
-			                		}
-		                		} catch(Exception e) {
-	                                // Date 객체로 변환
-	                                Date date = cell.getDateCellValue();
+		                String column = headerList.get(i);
+	            		String [] columnArry = column.split(":");
 
-	                                // yyyy-MM-dd 형식으로 변환
-	                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	                                String formattedDate = sdf.format(date);
-	                                cellValue = formattedDate;
-		                		}
-		                
-		                		break;
-		                	default:
-		                }		                
+	            		if(columnArry.length > 1 && "D".equals(columnArry[1])) {
+                            
+	            			Date date = cell.getDateCellValue();
+                            // yyyy-MM-dd 형식으로 변환
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String formattedDate = sdf.format(date);
+                            cellValue = formattedDate;
+                            
+	            		} else if(cell.getCellType() == CellType.NUMERIC) {
+	                		
+	            			cell.setCellType(CellType.STRING);
+	            			
+	            			cellValue = cell.getStringCellValue();
+	            			
+	            			Double 	dcellValue 	= Double.parseDouble(cellValue);
+	                		Long 	lcellValue 	= Math.round(dcellValue);
+	                		
+	                		String compStr = lcellValue + ".0";
+	                		if(compStr.equals(cellValue.toString())) {
+	                			cellValue = String.valueOf(lcellValue);
+	                		}
+	                		
+	            		}
 	                    cellMap.put(headerList.get(i), cellValue);
 		            }
 		            
