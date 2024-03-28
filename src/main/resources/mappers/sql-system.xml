@@ -447,31 +447,35 @@
 		/*	system.getUser
 			User 조회 
 		*/
-		SELECT T.SP_CSTM_ID 
-			,T.USER_ID
-			,T.USER_NM
-			,T.USER_DESC
-			,T.E_MAIL
-			,T.PHONE_NUM
-			,T.STATE
-			,GET_CODE_NM('USER_STATE', T.STATE)		AS STATE_NM
-			,T.UPDATE_USER
-			,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
-	        ,T.USE_YN
-	        ,T.DEL_YN
-			,T.SURETY_INSURANCE
-			,T.GENDER
-			,T.SALES_TYPE
+		SELECT U.SP_CSTM_ID 
+			,U.USER_ID
+			,U.USER_NM
+			,U.USER_DESC
+			,U.E_MAIL
+			,U.PHONE_NUM
+			,U.STATE
+			,GET_CODE_NM('USER_STATE', U.STATE)		AS STATE_NM
+			,U.UPDATE_USER
+			,TO_CHAR( U.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+	        ,U.USE_YN
+	        ,U.DEL_YN
+			,U.SURETY_INSURANCE
+			,U.GENDER
+			,U.SALES_TYPE
 			,GET_CODE_NM('SALES_TYPE', SALES_TYPE)		AS SALES_TYPE_NM
-	        ,T.RECOMMENDER_ID
+	        ,U.RECOMMENDER_ID
 	        ,GET_CODE_NM('USER_ID', RECOMMENDER_ID)		AS RECOMMENDER_NM 
-		FROM TBL_EXP_USER T
+	        ,ROLE
+	        ,GET_CODE_NM('USER_ROLE',U.ROLE) 			AS ROLE_NM
+	        ,GRADE
+	        ,GET_CODE_NM('GRADE',U.GRADE) 				AS GRADE_NM
+		FROM TBL_EXP_USER U
 		WHERE 1 = 1		
 		<if test=" USER_ID != null and !USER_ID.equals('') ">
-		AND T.USER_ID = #{USER_ID}
+		AND U.USER_ID = #{USER_ID}
 		</if>
 		<if test=" STATE != null and !STATE.equals('') ">
-		AND T.STATE = #{STATE}
+		AND U.STATE = #{STATE}
 		</if>
 	</select>	
 	
@@ -479,42 +483,42 @@
 		/*	system.getUserList
 			User 리스트 조회 
 		*/
-		SELECT T.SP_CSTM_ID 
-			,T.USER_ID
-			,T.USER_NM
-			,T.USER_DESC
-			,T.E_MAIL
-			,T.PHONE_NUM
-			,T.STATE
-			,GET_CODE_NM('USER_STATE', T.STATE)		AS STATE_NM
-			,T.UPDATE_USER
-			,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+		SELECT U.SP_CSTM_ID 
+			,U.USER_ID
+			,U.USER_NM
+			,U.USER_DESC
+			,U.E_MAIL
+			,U.PHONE_NUM
+			,U.STATE
+			,GET_CODE_NM('USER_STATE', U.STATE)		AS STATE_NM
+			,U.UPDATE_USER
+			,TO_CHAR( U.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
 	        ,A.ROLE_ID  
 	        ,R.ROLE_NM 
 	        ,R.ROLE_DESC
-	        ,T.USE_YN
-	        ,T.DEL_YN
-			,T.SURETY_INSURANCE
-			,T.GENDER
-			,T.SALES_TYPE
+	        ,U.USE_YN
+	        ,U.DEL_YN
+			,U.SURETY_INSURANCE
+			,U.GENDER
+			,U.SALES_TYPE
 			,GET_CODE_NM('SALES_TYPE', SALES_TYPE)		AS SALES_TYPE_NM
-	        ,T.RECOMMENDER_ID
+	        ,U.RECOMMENDER_ID
 	        ,GET_CODE_NM('USER_ID', RECOMMENDER_ID)		AS RECOMMENDER_NM 
 		FROM TBL_EXP_USER T
         ,TBL_EXP_AUTH A
         ,TBL_EXP_ROLE R
 		WHERE 1 = 1		
-		AND T.SP_CSTM_ID = A.SP_CSTM_ID
-		AND T.SP_CSTM_ID = R.SP_CSTM_ID
-        AND T.USER_ID = A.USER_ID
+		AND U.SP_CSTM_ID = A.SP_CSTM_ID
+		AND U.SP_CSTM_ID = R.SP_CSTM_ID
+        AND U.USER_ID = A.USER_ID
         AND R.ROLE_ID = A.ROLE_ID 
 		<if test=" USER_ID != null and !USER_ID.equals('') ">
-		AND T.USER_ID = #{USER_ID}
+		AND U.USER_ID = #{USER_ID}
 		</if>
 		<if test=" STATE != null and !STATE.equals('') ">
-		AND T.STATE = #{STATE}
+		AND U.STATE = #{STATE}
 		</if>
-        ORDER BY T.USER_ID, A.ROLE_ID
+        ORDER BY U.USER_ID, A.ROLE_ID
 	</select>
 	
 	<update id="updateUser" parameterType="java.util.HashMap"  flushCache="true" >

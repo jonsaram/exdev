@@ -3,7 +3,7 @@
 var <@popupId> = {
 	 recvData : []	
  	 ,mode : ''
- 	 ,selectedRow : {}
+ 	 ,updatingData : {NEW_USER:{},NEW_BUYER:{}}
  	 ,addCoworkRtnData : []
  	 ,addSalseManRtnData : []
  	 ,addSuggesterRtnData : []
@@ -15,12 +15,8 @@ var <@popupId> = {
 		C_POP.close(returnData);
 	 }
 	 ,apply : () =>{
-		 
-		 if( <@popupId>.validation() == false){
-			 return;
-		 }
 
-		 let returnData = {CONTRACT_ID : <@popupId>.selectedRow["CONTRACT_ID"]};
+		 let returnData = {CONTRACT_ID : <@popupId>.updatingData["CONTRACT_ID"]};
 		 const $inputs = $("#<@popupId>_items input");
 		 $.each( $inputs, function(){
 
@@ -41,14 +37,28 @@ var <@popupId> = {
 		 returnData["BUYER_ID"]			= <@popupId>.buyerId;
 		 returnData["CONSULTING_ID"]	= <@popupId>.consultingId;
 		 
+		 if( <@popupId>.validation(returnData) == false){
+			 return;
+		 }
+		 
 		 <@popupId>.close(returnData);
 		 
 	 }
-	 ,validation : () =>{
+	 ,validation : (returnData) =>{
+	 
+ 		 if( isEmpty(returnData["BUYER_ID"]) ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
+ 		 if( isEmpty(returnData["USER_ID"]) ) {C_POP.alert("계약담당자를 입력하여 주십시오."); return false;}
+		 if( isEmpty(returnData["CONTACT_DATE"]) ) {C_POP.alert("상담일을 선택하여 주십시오."); return false;}
+		 if( isEmpty(returnData["CONTRACT_DATE"]) ) {C_POP.alert("자문계약일을 선택하여 주십시오."); return false;}
+		 if( isEmpty(returnData["EXPIRE_DATE"]) ) {C_POP.alert("만료일을 선택하여 주십시오."); return false;}
+		 if( returnData["CONTRACT_TYPE"] == '--'  ) {C_POP.alert("계약구분을 선택하여 주십시오."); return false;}
+		 if( isEmpty(returnData["TOTAL_COST"]) ) {C_POP.alert("총계약금액을 입력하여 주십시오."); return false;}
+		 if( isEmpty(returnData["CONSULTING"]) ) {C_POP.alert("컨설팅 상품을 입력하여 주십시오."); return false;}
+		 if( returnData["CONSULTING_CLASS"] == '--'  ) {C_POP.alert("컨설팅 분야를 선택하여 주십시오."); return false;}
+		 if( isEmpty(returnData["TAX_MNG"]) ) {C_POP.alert("세무담당을 입력하여 주십시오."); return false;}
+		 if( isEmpty(returnData["LABOR_MNG"]) ) {C_POP.alert("노무담당을 입력하여 주십시오."); return false;}
+		 if( <@popupId>.getContractMember().length == 0) {C_POP.alert("코웍 사원/영업사원을 등록하여 주십시오."); return false;}
 		 
- 		 if( $("#<@popupId>_BUYER_NM").val() 		== "" ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
-		 if( $("#<@popupId>_TEL").val() 			== "" ) {C_POP.alert("연락처를 입력하여 주십시오."); return false;}
-		 if( $("#<@popupId>_ADDR").val() 			== "" ) {C_POP.alert("본점주소를 입력하여 주십시오."); return false;}
 		 return true;
 		 
 	 }
@@ -58,24 +68,24 @@ var <@popupId> = {
 		
 		let CONTRACT_TYPE,CONSULTING_CLASS;
 		if( <@popupId>.mode == "U" ){
-				Object.entries(<@popupId>.selectedRow).forEach(([key, val]) => {
+				Object.entries(<@popupId>.updatingData).forEach(([key, val]) => {
 				    $("#<@popupId>_" + key).val(val);
 				    if( key == "TOTAL_COST")$("#<@popupId>_TOTAL_COST").val(_numberWithCommas(val));
 				});				
 				
 				<@popupId>.savedContractMemberSearch();
 				
-				<@popupId>.memberSet();
+				<@popupId>.memberSet('old');
 				
-				const consultingTypeNm	= <@popupId>.selectedRow["CONSULTING_TYPE_NM"];
-				const consultingNm		= <@popupId>.selectedRow["CONSULTING_NM"];
+				const consultingTypeNm	= <@popupId>.updatingData["CONSULTING_TYPE_NM"];
+				const consultingNm		= <@popupId>.updatingData["CONSULTING_NM"];
 				if( consultingNm ){
 					$("#<@popupId>_CONSULTING").val( `${consultingNm} ( ${consultingTypeNm} )`);
 					
 				}
 
-				CONTRACT_TYPE		= <@popupId>.selectedRow["CONTRACT_TYPE"];
-				CONSULTING_CLASS	= <@popupId>.selectedRow["CONSULTING_CLASS"];
+				CONTRACT_TYPE		= <@popupId>.updatingData["CONTRACT_TYPE"];
+				CONSULTING_CLASS	= <@popupId>.updatingData["CONSULTING_CLASS"];
 		}
 
 		
@@ -96,7 +106,7 @@ var <@popupId> = {
 	}
 	,savedContractMemberSearch : () => {
 		
-		const CONTRACT_ID = <@popupId>.selectedRow["CONTRACT_ID"]
+		const CONTRACT_ID = <@popupId>.updatingData["CONTRACT_ID"]
 		var parm = {
 				 queryId 		: "contract.getContractMemberList"
 				,requestParm	: {CONTRACT_ID : CONTRACT_ID}
@@ -123,23 +133,22 @@ var <@popupId> = {
 			
 		});
 	}
-	,selectSuggester : () => {
+	,selectSuggester : (recommId) => {
 	
-		const RECOMMENDER_ID = <@popupId>.selectedRow["RECOMMENDER_ID"]
 		const requestParm = {};
 		
 		var parm = {
 				 queryId 		: "system.getUser"
-				,requestParm	: {USER_ID : RECOMMENDER_ID}
+				,requestParm	: {USER_ID : recommId}
 		}
 
 		C_COM.requestQuery(parm, function(resultData) {
 
 			if( resultData.data ){
 				
-				<@popupId>.RECOMMENDER = resultData.data[0];
-				const recommender =<@popupId>.RECOMMENDER; 
-				$("#<@popupId>_suggester td#POSITION").attr("POSITION", recommender.POSITION).html(recommender.POSITION)
+				<@popupId>.RECOMMENDER 	= resultData.data[0];
+				const recommender 		= resultData.data[0];
+				$("#<@popupId>_suggester td#ROLE_NM").attr("ROLE_NM", recommender.ROLE_NM).html(recommender.ROLE_NM)
 				$("#<@popupId>_suggester td#USER_ID").attr("USER_ID", recommender.USER_ID).html(recommender.USER_ID)
 				$("#<@popupId>_suggester td#USER_NM").attr("USER_NM", recommender.USER_NM).html(recommender.USER_NM)
 				$("#<@popupId>_suggester td#GRADE_NM").attr("GRADE_NM", recommender.GRADE_NM).html(recommender.GRADE_NM)
@@ -163,34 +172,56 @@ var <@popupId> = {
 
               if( !isEmpty( retData["BUYER_ID"])){
             	  
-	              <@popupId>.selectedRow["BUYER_ID"]	= retData["BUYER_ID"] ;
-	              <@popupId>.selectedRow["BUYER_NM"]	= retData["BUYER_NM"];
+	              <@popupId>.updatingData["NEW_BUYER"]	= retData ;
 	              <@popupId>.buyerId					= retData["BUYER_ID"] ;
               }
               
               if( !isEmpty( retData["USER_ID"])){
-	              <@popupId>.selectedRow["USER_ID"]		= retData["USER_ID"];
-	              <@popupId>.selectedRow["USER_NM"]		= retData["USER_NM"];
+	              <@popupId>.updatingData["NEW_USER"]	= retData;
 	              <@popupId>.userId						= retData["USER_ID"] ;
               }  
               
-			<@popupId>.memberSet();
+			<@popupId>.memberSet('new');
 			
 		});
 	}
-	,memberSet : () => {
+	,memberSet : (gubun) => {
 
-		const buyerId	= <@popupId>.selectedRow["BUYER_ID"];
-		const buyerNm	= <@popupId>.selectedRow["BUYER_NM"];
-		if( buyerId ){
-			$("#<@popupId>_BUYER").val(buyerNm+ " ("+buyerId+")");
-		}
-		const userId	= <@popupId>.selectedRow["USER_ID"];
-		const userNm	= <@popupId>.selectedRow["USER_NM"];
-		if( userId ){
-			$("#<@popupId>_USER").val(userNm+ " ("+userId+")");
-			$("#<@popupId>_CPY_USER_NM").text(userNm);
-			if( <@popupId>.selectedRow["RECOMMENDER_ID"] )<@popupId>.selectSuggester();
+		if( gubun == 'old'){
+			
+			const buyerId	= <@popupId>.updatingData["BUYER_ID"];
+			const buyerNm	= <@popupId>.updatingData["BUYER_NM"];
+			if( buyerId ){
+				$("#<@popupId>_BUYER").val(buyerNm+ " ("+buyerId+")");
+			}
+			const userId	= <@popupId>.updatingData["USER_ID"];
+			const userNm	= <@popupId>.updatingData["USER_NM"];
+			const recommId	= <@popupId>.updatingData["RECOMMENDER_ID"]
+			if( userId ){
+				$("#<@popupId>_USER").val(userNm+ " ("+userId+")");
+				$("#<@popupId>_CPY_USER_NM").text(userNm);
+				if( recommId )<@popupId>.selectSuggester(recommId);
+			}
+		}else{
+
+			const newBuyer  = <@popupId>.updatingData["NEW_BUYER"];
+			if( newBuyer ){
+				const buyerId	= newBuyer["BUYER_ID"];
+				const buyerNm	= newBuyer["BUYER_NM"];
+				if( buyerId)$("#<@popupId>_BUYER").val(buyerNm+ " ("+buyerId+")");
+			}
+			const newUser  	= <@popupId>.updatingData["NEW_USER"];
+			if( newUser ){
+				const userId	= newUser["USER_ID"];
+				const userNm	= newUser["USER_NM"];
+				const recommId	= newUser["RECOMMENDER_ID"];
+				if( userId){
+					$("#<@popupId>_USER").val(userNm+ " ("+userId+")");
+					$("#<@popupId>_CPY_USER_NM").text(userNm);
+
+					if( recommId )<@popupId>.selectSuggester(recommId);
+				}
+			}
 		}
 
 	}
@@ -203,7 +234,7 @@ var <@popupId> = {
 			const consultingNm	= retData["CONSULTING_NM"];
 			const consultingTypeNm= retData["CONSULTING_TYPE_NM"];
 			if( !isEmpty(consultingNm) ){
-				<@popupId>.selectedRow["CONSULTING_ID"]	= retData["CONSULTING_ID"] ;
+				<@popupId>.updatingData["CONSULTING_ID"]	= retData["CONSULTING_ID"] ;
 				<@popupId>.consultingId=  retData["CONSULTING_ID"] ;
 				$("#<@popupId>_CONSULTING").val( `${consultingNm} ( ${consultingTypeNm} )` );
 			}
@@ -349,10 +380,10 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 
 	<@popupId>.recvData		= data;
 	<@popupId>.mode			= <@popupId>.recvData.mode;
-	<@popupId>.selectedRow 	= <@popupId>.recvData.param;
-	<@popupId>.userId 		= <@popupId>.selectedRow?.USER_ID;
-	<@popupId>.buyerId 		= <@popupId>.selectedRow?.BUYER_ID;
-	<@popupId>.consultingId= <@popupId>.selectedRow?.CONSULTING_ID;
+	<@popupId>.updatingData	= <@popupId>.recvData.param;
+	<@popupId>.userId 		= <@popupId>.updatingData?.USER_ID;
+	<@popupId>.buyerId 		= <@popupId>.updatingData?.BUYER_ID;
+	<@popupId>.consultingId= <@popupId>.updatingData?.CONSULTING_ID;
 	
 	<@popupId>.pageInit();
 	
@@ -396,7 +427,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label>상담일</label>
 									<div class="info">
 										<div class="calendar_wrap">
-											<input type="text" class="datepicker" id="<@popupId>_CONTACT_DATE" style="width:100%">
+											<input type="text" class="datepicker" id="<@popupId>_CONTACT_DATE" style="width:100%" required>
 										</div>
 									</div>
 								</li>
@@ -584,7 +615,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									</thead>
 									<tbody  id="<@popupId>_suggester">
 										<tr>
-						 					<td id='POSITION'></td>
+						 					<td id='ROLE_NM'></td>
 						 					<td id='USER_ID' ></td>
 						 					<td id='USER_NM' ></td>
 						 					<td id='GRADE_NM'></td>
