@@ -215,7 +215,9 @@
 		,TO_CHAR( C.EXPIRE_DATE , 'YYYY-MM-DD' ) 	AS EXPIRE_DATE 
 		,C.TOTAL_COST /* 총계약금액 */
 		,C.CONSULTING_ID
-		,CT.CONSULTING_NM /* 컨설팅명 */
+		,CT.CONSULTING_NM/* 컨설팅명 */
+		,CT.CONSULTING_TYPE
+		,GET_CODE_NM('CONSULTING_TYPE', CT.CONSULTING_TYPE )  CONSULTING_TYPE_NM
 		,TAX_MNG
 		,LABOR_MNG
 		,CONSULTING_CLASS
@@ -343,10 +345,8 @@
 		         REPLACE(#{TOTAL_COST},',','') 			AS TOTAL_COST,
 		         #{TAX_MNG} 							AS TAX_MNG,
 		         #{LABOR_MNG} 							AS LABOR_MNG,
-		         #{CONSULTING_CLASS} 					AS CONSULTING_CLASS,
-		         <if test=" CONSULTING_ID != null and !CONSULTING_ID.equals('') ">
+		         <!-- #{CONSULTING_CLASS} 					AS CONSULTING_CLASS, -->
 				 #{CONSULTING_ID} 						AS CONSULTING_ID,
-				 </if>
 				 <if test=" PROCESS_STATE != null and !PROCESS_STATE.equals('') ">
 				 #{PROCESS_STATE} 						AS PROCESS_STATE,
 				 </if>
@@ -369,10 +369,8 @@
 		         T.TOTAL_COST 		= S.TOTAL_COST,
 		         T.TAX_MNG 			= S.TAX_MNG,
 		         T.LABOR_MNG 		= S.LABOR_MNG,
-		         T.CONSULTING_CLASS	= S.CONSULTING_CLASS,
-		         <if test=" CONSULTING_ID != null and !CONSULTING_ID.equals('') ">
+		         <!-- T.CONSULTING_CLASS	= S.CONSULTING_CLASS, -->
  		         T.CONSULTING_ID 	= S.CONSULTING_ID,
-				 </if>
 				 <if test=" PROCESS_STATE != null and !PROCESS_STATE.equals('') ">
  		         T.PROCESS_STATE 	= S.PROCESS_STATE,
 				 </if>
@@ -383,32 +381,26 @@
 		         T.UPDATE_DATE		= SYSDATE
 		WHEN NOT MATCHED THEN 
      		INSERT (  CONTRACT_ID, USER_ID, BUYER_ID, CONTACT_DATE, CONTRACT_DATE, CONTRACT_TYPE, EXPIRE_DATE
-    				, TOTAL_COST,  TAX_MNG, LABOR_MNG, CONSULTING_CLASS
-    				<if test=" CONSULTING_ID != null and !CONSULTING_ID.equals('') "> 
-    					, CONSULTING_ID
-					 </if>
-					 <if test=" PROCESS_STATE != null and !PROCESS_STATE.equals('') ">
-	    				, PROCESS_STATE
-					 </if>
+    				, TOTAL_COST,  TAX_MNG, LABOR_MNG , PROCESS_STATE	, CONSULTING_ID
+    				<!-- , CONSULTING_CLASS -->
 					 <if test=" LAST_SOLUTION != null and !LAST_SOLUTION.equals('') ">
 	    				, LAST_SOLUTION
 	    			 </if>	
-    				,  UPDATE_USER  
+    				 , UPDATE_USER  
 	    			 , UPDATE_DATE
+	    			 , USE_YN
+	    			 , DEL_YN
     				)
    			VALUES (  S.CONTRACT_ID, S.USER_ID, S.BUYER_ID, S.CONTACT_DATE, S.CONTRACT_DATE, S.CONTRACT_TYPE, S.EXPIRE_DATE
-    				, S.TOTAL_COST, S.TAX_MNG, S.LABOR_MNG, S.CONSULTING_CLASS
-    				<if test=" CONSULTING_ID != null and !CONSULTING_ID.equals('') "> 
-    					, S.CONSULTING_ID
-					</if>
-					<if test=" PROCESS_STATE != null and !PROCESS_STATE.equals('') ">
-	    				, S.PROCESS_STATE
-					</if>
+    				, S.TOTAL_COST, S.TAX_MNG, S.LABOR_MNG , 'PRE_CONTRACT' , S.CONSULTING_ID 
+    				<!-- , S.CONSULTING_CLASS -->
 					<if test=" LAST_SOLUTION != null and !LAST_SOLUTION.equals('') ">
 	    				, S.LAST_SOLUTION
 	    			 </if>
     				 , S.UPDATE_USER
-	    			 , SYSDATE 
+	    			 , SYSDATE
+	    			 , 'Y'
+	    			 , 'N' 
     				)
 	</update>
 	
@@ -528,6 +520,25 @@
 		FROM   TBL_EXP_USER U,TBL_EXP_BRANCH BR 
 		WHERE BR.BRANCH_ID = #{BRANCH_ID}  
 		AND U.USER_ID = BR.USER_ID
+	</select>	
+
+	<select id="getConsultingList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	contract.getConsultingList
+			컨설팅 리스트 조회 
+		*/
+		SELECT CONSULTING_ID
+		,CONSULTING_NM 
+		,CONSULTING_TYPE 
+		,GET_CODE_NM('CONSULTING_TYPE', CONSULTING_TYPE )  CONSULTING_TYPE_NM
+		,CONSULTING_DESC 
+		FROM TBL_EXP_CONSULTING 
+		WHERE 1=1
+		AND (
+			CONSULTING_ID 	like '%' || #{SEARCH_ID} || '%'
+		 OR CONSULTING_NM 	like '%' || #{SEARCH_ID} || '%'
+		 OR GET_CODE_NM('CONSULTING_TYPE', CONSULTING_TYPE ) like '%' || #{SEARCH_ID} || '%'
+		 OR CONSULTING_DESC like '%' || #{SEARCH_ID} || '%'
+		)
 	</select>	
 	
 	

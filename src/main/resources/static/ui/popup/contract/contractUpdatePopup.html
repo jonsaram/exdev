@@ -9,6 +9,7 @@ var <@popupId> = {
  	 ,addSuggesterRtnData : []
  	 ,userId :''
  	 ,buyerId:''
+ 	 ,consultingId:''
 	 ,close : function(returnData) {
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
@@ -36,8 +37,9 @@ var <@popupId> = {
 		 
 		 returnData["CONTRACT_MEMBER"]	= <@popupId>.getContractMember(returnData["CONTRACT_ID"],returnData["USER_ID"]);
 		 
-		 returnData["USER_ID"]	= <@popupId>.userId;
-		 returnData["BUYER_ID"]	= <@popupId>.buyerId;
+		 returnData["USER_ID"]			= <@popupId>.userId;
+		 returnData["BUYER_ID"]			= <@popupId>.buyerId;
+		 returnData["CONSULTING_ID"]	= <@popupId>.consultingId;
 		 
 		 <@popupId>.close(returnData);
 		 
@@ -54,19 +56,28 @@ var <@popupId> = {
 		
 		<@popupId>.setTitleHeight();
 		
+		let CONTRACT_TYPE,CONSULTING_CLASS;
 		if( <@popupId>.mode == "U" ){
 				Object.entries(<@popupId>.selectedRow).forEach(([key, val]) => {
 				    $("#<@popupId>_" + key).val(val);
-				    if( key == "TOTAL_COST")$("#<@popupId>_TOTAL_COST").val(<@popupId>.numberWithCommas(val));
+				    if( key == "TOTAL_COST")$("#<@popupId>_TOTAL_COST").val(_numberWithCommas(val));
 				});				
 				
 				<@popupId>.savedContractMemberSearch();
+				
+				<@popupId>.memberSet();
+				
+				const consultingTypeNm	= <@popupId>.selectedRow["CONSULTING_TYPE_NM"];
+				const consultingNm		= <@popupId>.selectedRow["CONSULTING_NM"];
+				if( consultingNm ){
+					$("#<@popupId>_CONSULTING").val( `${consultingNm} ( ${consultingTypeNm} )`);
+					
+				}
+
+				CONTRACT_TYPE		= <@popupId>.selectedRow["CONTRACT_TYPE"];
+				CONSULTING_CLASS	= <@popupId>.selectedRow["CONSULTING_CLASS"];
 		}
 
-		<@popupId>.memberSet();
-		
-		const CONTRACT_TYPE		= <@popupId>.selectedRow["CONTRACT_TYPE"];
-		const CONSULTING_CLASS	= <@popupId>.selectedRow["CONSULTING_CLASS"];
 		
 		C_UICOM.makeSelectBox({ 
 			 defaultItem 	: ["--", "선택"]
@@ -118,7 +129,7 @@ var <@popupId> = {
 		const requestParm = {};
 		
 		var parm = {
-				 queryId 		: "system.getUserList"
+				 queryId 		: "system.getUser"
 				,requestParm	: {USER_ID : RECOMMENDER_ID}
 		}
 
@@ -183,16 +194,24 @@ var <@popupId> = {
 		}
 
 	}
-	,setHandler : () => {
-	
-		$(".number").on( 'input', (e) => {
-
-			let inputValue = event.target.value.replace(/[^\d,]/g, '');
-				inputValue = <@popupId>.numberWithCommas(parseInt(inputValue.replace(/,/g, '')));
-
-				event.target.value = inputValue;
-		})
+	,consultingSearchPopup : () => {
 		
+		let param = {searchText:""};
+
+		C_POP.open('popup_contract_consultingSearchPopup', {param:param}, function(retData) {
+
+			const consultingNm	= retData["CONSULTING_NM"];
+			const consultingTypeNm= retData["CONSULTING_TYPE_NM"];
+			if( !isEmpty(consultingNm) ){
+				<@popupId>.selectedRow["CONSULTING_ID"]	= retData["CONSULTING_ID"] ;
+				<@popupId>.consultingId=  retData["CONSULTING_ID"] ;
+				$("#<@popupId>_CONSULTING").val( `${consultingNm} ( ${consultingTypeNm} )` );
+			}
+			
+		});
+	}
+	,setHandler : () => {
+
 		$("#<@popupId>_addCowork").on('click', (event) => {
 			event.preventDefault();
 			const CONTRACT_ID	= 	$("#<@popupId>_CONTRACT_ID").val();
@@ -245,9 +264,6 @@ var <@popupId> = {
 		})
 			 
 	} 
-	,numberWithCommas : (x) => {
-            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	}
 	,getContractMember : (CONTRACT_ID, USER_ID) => {
 		
 		let contractMember = []
@@ -334,8 +350,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.recvData		= data;
 	<@popupId>.mode			= <@popupId>.recvData.mode;
 	<@popupId>.selectedRow 	= <@popupId>.recvData.param;
-	<@popupId>.userId 		= <@popupId>.selectedRow.USER_ID;
-	<@popupId>.buyerId 		= <@popupId>.selectedRow.BUYER_ID;
+	<@popupId>.userId 		= <@popupId>.selectedRow?.USER_ID;
+	<@popupId>.buyerId 		= <@popupId>.selectedRow?.BUYER_ID;
+	<@popupId>.consultingId= <@popupId>.selectedRow?.CONSULTING_ID;
 	
 	<@popupId>.pageInit();
 	
@@ -343,11 +360,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 
 });
 </script>
-<style>
-.number {
-	text-align: right;
-}
-</style>
 <div class="modal_wrap">
 	<div class="modal" style="width:680px;height:720px;">
 		<div class="modal_header">
@@ -406,7 +418,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									</div>
 								</li>
 								
-								<li>
+								<li style="visibility: hidden;">
 									<label></label>
 									<div class="info"><input type="text" style="width:100%" disabled></div>
 								</li>
@@ -422,14 +434,16 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<li class="ml0">
 									<label>총계약금액</label>
 									<div class="info">
-										<input type="text"  class="number"  id="<@popupId>_TOTAL_COST" style="width:100%" number>
+										<input type="text"  id="<@popupId>_TOTAL_COST" style="width:100%" number>
 									</div>
 								</li>
 								<li class="w100">
 									<label>컨설팅 상품</label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%">
-											<input type="search" name=""><a href="javascript:void(0);" class="search_btn"><i class="icon_search"></i></a>
+											<input type="search" id="<@popupId>_CONSULTING" placeholder="상품명(상품TYPE)">
+											<a href="javascript:void(0);" class="search_btn"  onclick="<@popupId>.consultingSearchPopup();">
+											<i class="icon_search"></i></a>
 										</div>
 									</div>
 								</li>

@@ -137,7 +137,7 @@ var <@pageId> = {
 			<@pageId>.openPopup(selectedRow);
 		}
 		,delete : (index) =>{
-			debugger;
+
 			const selectedRow = <@pageId>.searchedRows[index];
 			<@pageId>.deleteOne(selectedRow["CONTRACT_ID"]);
 		}
@@ -176,7 +176,7 @@ var <@pageId> = {
 		}
 		,openPopup : (selectedRow) => {
 
-			let param = selectedRow;	
+			selectedRow = selectedRow || {};	
 			const mode = isEmpty(selectedRow) ? "I" :"U";
 			
 			C_POP.open('popup_contract_contractUpdatePopup', {param:selectedRow, mode:mode}

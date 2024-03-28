@@ -443,6 +443,38 @@
 	<!--
 	USER 관리 
 	 -->	
+	<select id="getUser" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getUser
+			User 조회 
+		*/
+		SELECT T.SP_CSTM_ID 
+			,T.USER_ID
+			,T.USER_NM
+			,T.USER_DESC
+			,T.E_MAIL
+			,T.PHONE_NUM
+			,T.STATE
+			,GET_CODE_NM('USER_STATE', T.STATE)		AS STATE_NM
+			,T.UPDATE_USER
+			,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+	        ,T.USE_YN
+	        ,T.DEL_YN
+			,T.SURETY_INSURANCE
+			,T.GENDER
+			,T.SALES_TYPE
+			,GET_CODE_NM('SALES_TYPE', SALES_TYPE)		AS SALES_TYPE_NM
+	        ,T.RECOMMENDER_ID
+	        ,GET_CODE_NM('USER_ID', RECOMMENDER_ID)		AS RECOMMENDER_NM 
+		FROM TBL_EXP_USER T
+		WHERE 1 = 1		
+		<if test=" USER_ID != null and !USER_ID.equals('') ">
+		AND T.USER_ID = #{USER_ID}
+		</if>
+		<if test=" STATE != null and !STATE.equals('') ">
+		AND T.STATE = #{STATE}
+		</if>
+	</select>	
+	
 	<select id="getUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	system.getUserList
 			User 리스트 조회 
