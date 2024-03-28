@@ -111,4 +111,196 @@
 		        ,SUBJECT
     </select>
     
+    <select id="getMonthSales" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getMonthSales */
+        SELECT MONTH
+              ,SUBJECT
+              ,SUM(AMOUNT) AS AMOUNT
+        FROM   TBL_EXP_STORE_FINANCIAL
+        WHERE  1 = 1
+        AND    SUBJECT IN ('SUBJECT_001','SUBJECT_003','SUBJECT_010','SUBJECT_005') 
+        AND    SP_CSTM_ID = #{spCstmId}
+        AND    YEAR = #{year}
+        GROUP BY MONTH
+                ,SUBJECT
+        ORDER BY MONTH
+                ,SUBJECT
+    </select>
+    
+    <select id="SalesAndGoalSales" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.SalesAndGoalSales */
+        WITH SALES_GOAL AS (
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '01' AS MONTH, MONTH1  AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} UNION ALL
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '02' AS MONTH, MONTH2  AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} UNION ALL
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '03' AS MONTH, MONTH3  AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} UNION ALL
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '04' AS MONTH, MONTH4  AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} UNION ALL
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '05' AS MONTH, MONTH5  AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} UNION ALL
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '06' AS MONTH, MONTH6  AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} UNION ALL
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '07' AS MONTH, MONTH7  AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} UNION ALL
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '08' AS MONTH, MONTH8  AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} UNION ALL
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '09' AS MONTH, MONTH9  AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} UNION ALL
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '10' AS MONTH, MONTH10 AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} UNION ALL
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '11' AS MONTH, MONTH11 AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} UNION ALL
+                SELECT SP_CSTM_ID, STORE_ID, YEAR, '12' AS MONTH, MONTH12 AS AMOUNT FROM   TBL_EXP_STORE_SALES_GOAL WHERE SP_CSTM_ID = #{spCstmId} 
+                )
+        SELECT A.SP_CSTM_ID
+              ,A.STORE_ID
+              ,C.STORE_NM3 
+              ,SUM(A.AMOUNT)   AS AMOUNT
+              ,SUM(B.AMOUNT)   AS AMOUNT_GOAL
+        FROM   TBL_EXP_STORE_FINANCIAL A
+               JOIN  SALES_GOAL B
+                 ON  1 = 1
+                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                 AND A.STORE_ID = B.STORE_ID
+                 AND A.YEAR = B.YEAR
+                 AND A.MONTH = B.MONTH
+               JOIN TBL_EXP_STORE_INFO C
+                 ON  1 = 1
+                 AND A.SP_CSTM_ID = C.SP_CSTM_ID
+                 AND A.STORE_ID   = C.STORE_ID  
+        WHERE  1 = 1
+        AND    A.SUBJECT = 'SUBJECT_001' 
+        AND    A.SP_CSTM_ID = #{spCstmId}
+        GROUP BY A.SP_CSTM_ID
+                ,A.STORE_ID
+                ,C.STORE_NM3
+        ORDER BY A.SP_CSTM_ID
+                ,A.STORE_ID
+    </select>
+    
+    <select id="getComparisonPreMonth" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getComparisonPreMonth */
+        SELECT SP_CSTM_ID
+              ,STORE_ID
+              ,STORE_NM3
+              ,NVL(MAX(AMOUNT), 0) AS AMOUNT
+              ,NVL(MAX(AMOUNT_PREVIOUS), 0) AS AMOUNT_PREVIOUS
+        FROM   (
+                SELECT A.SP_CSTM_ID
+                      ,A.STORE_ID
+                      ,C.STORE_NM3 
+                      ,A.AMOUNT
+                      ,NULL      AS AMOUNT_previous
+                FROM   TBL_EXP_STORE_FINANCIAL A
+                       JOIN TBL_EXP_STORE_INFO C
+                         ON  1 = 1
+                         AND A.SP_CSTM_ID = C.SP_CSTM_ID
+                         AND A.STORE_ID   = C.STORE_ID  
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{spCstmId}
+                AND    A.SUBJECT = 'SUBJECT_001' 
+                AND    A.YEAR    = #{year}
+                AND    A.MONTH   = #{month}
+                UNION ALL
+                SELECT A.SP_CSTM_ID
+                      ,A.STORE_ID
+                      ,C.STORE_NM3 
+                      ,NULL          AS AMOUNT
+                      ,A.AMOUNT      AS AMOUNT_previous
+                FROM   TBL_EXP_STORE_FINANCIAL A
+                       JOIN TBL_EXP_STORE_INFO C
+                         ON  1 = 1
+                         AND A.SP_CSTM_ID = C.SP_CSTM_ID
+                         AND A.STORE_ID   = C.STORE_ID  
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{spCstmId}
+                AND    A.SUBJECT = #{subject}
+                AND    A.YEAR    = #{preYear}
+                AND    A.MONTH   = #{preMonth}
+                        ) A
+        GROUP BY SP_CSTM_ID
+                ,STORE_ID
+                ,STORE_NM3  
+        ORDER BY SP_CSTM_ID
+                ,STORE_ID
+    </select>
+    
+    
+    <sql id="getFinancial_body">
+        SELECT ROW_NUMBER() OVER (ORDER BY A.STORE_ID,A.YEAR,A.MONTH DESC) AS RN
+              ,A.SP_CSTM_ID
+              ,A.STORE_ID
+              ,A.YEAR
+              ,A.MONTH
+              ,C.STORE_NM3
+              ,A.SUBJECT
+              ,GET_CODE_NM('FINANCIAL_SUBJECT', A.SUBJECT) AS SUBJECT_NM 
+              ,A.AMOUNT AS AMOUNT
+        FROM   TBL_EXP_STORE_FINANCIAL A
+               JOIN TBL_EXP_STORE_INFO C
+                 ON  1 = 1
+                 AND A.SP_CSTM_ID = C.SP_CSTM_ID
+                 AND A.STORE_ID   = C.STORE_ID  
+        WHERE  1 = 1
+        AND    A.SUBJECT = 'SUBJECT_001' 
+        AND    A.YEAR    = '2023'
+        AND    A.MONTH   = '01'
+    </sql>  
+    
+    <!-- 매출액 순위, 영업이익별 순위 -->
+    <select id="getFinancial" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getFinancial */
+        <include refid="getFinancial_body"/>
+        ORDER BY  A.SP_CSTM_ID
+              ,A.YEAR
+              ,A.MONTH
+              ,A.STORE_ID
+              ,C.STORE_NM3 
+    </select>
+    
+    <select id="getFinancial_totalCnt" resultType="Integer">
+        /* dashboardCorPerformance.getFinancial_totalCnt  */
+        <include refid="common.totalWrapStart"/>
+        <include refid="getFinancial_body"/>
+        <include refid="common.totalWrapEnd"/>
+    </select>
+    
+    <select id="getFinancial_paging" resultType="java.util.HashMap">
+        /* dashboardCorPerformance.getFinancial_paging  */
+        <include refid="common.pagingWrapStart"/>
+        <include refid="getFinancial_body"/>
+        ORDER BY  A.SP_CSTM_ID
+              ,A.YEAR
+              ,A.MONTH
+              ,A.STORE_ID
+              ,C.STORE_NM3 
+        <include refid="common.pagingWrapEnd"/>
+    </select>
+    
+    <!-- 매장정보 조회 -->
+    <select id="getStore" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getStore */
+        SELECT SP_CSTM_ID
+              ,STORE_ID
+              ,STORE_NM
+              ,STORE_NM1
+              ,STORE_NM2
+              ,STORE_NM3
+              ,STORE_ID  AS CODE_ID
+              ,STORE_NM3 AS CODE_NM
+              ,STORE_NM4
+              ,STORE_NM5
+              ,ADDRESS
+              ,STORE_MANAGER_NM
+              ,REGION
+              ,DEPARTMENT_CHARGE
+              ,CONTRACT_DATE
+              ,OPENING_DAY
+              ,TRANSFER_DAY
+              ,CLOSING_DATE
+              ,FRANCHISE_STORE
+              ,NOTE
+              ,TB_ROTATION
+              ,TB_ROTATION_GOAL
+              ,START_MARKETING
+              ,SUPERVISOR
+              ,UPDATE_USER
+              ,UPDATE_DATE
+        FROM   TBL_EXP_STORE_INFO
+        WHERE  1 = 1
+        AND    SP_CSTM_ID = #{spCstmId}
+        ORDER BY STORE_NM3 
+    </select>
+    
 </mapper>
