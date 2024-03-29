@@ -20,17 +20,31 @@ var <@pageId> = {
         	
 			let REMAINING_SUM_LIST = [];
         	let no = 0,resultId='';
+        	let TOTAL_ROW = {"INCOME":0,"COST_PRICE":0,"ORG_SELLING_PRICE":0,"PAYMENT":0,"RATE":0,"REAL_PROFIT":0};
+        	let RESULT_ID = '';
+        	let resultIdCnt = 0;
+
         	resultData.data.forEach( (row,idx) => {
 
+        		RESULT_ID = row["RESULT_ID"];
         		<@pageId>.selectedList[idx] = row;
         		
-        		if( row.RESULT_ID != resultId){
-        			resultId = row.RESULT_ID;
+        		if( row["RESULT_ID"] != resultId){
+        			resultId = row["RESULT_ID"];
+	       			resultIdCnt++;
+	       			TOTAL_ROW["INCOME"] += Number(row["INCOME"]);
+	       			TOTAL_ROW["COST_PRICE"] += Number(row["COST_PRICE"]);
+	       			TOTAL_ROW["ORG_SELLING_PRICE"] += Number(row["ORG_SELLING_PRICE"]);
+	       			TOTAL_ROW["REAL_PROFIT"] += Number(row["REAL_PROFIT"]);        			
         			row['RN'] = ++no;
         		}else{
         			row['RN'] = no;
         		}
+        		
         		REMAINING_SUM_LIST.push( row.REMAINING_SUM);
+
+        		TOTAL_ROW["RATE"] 		+= Number(row["RATE"]);
+				TOTAL_ROW["PAYMENT"] 	+= Number(row["PAYMENT"]);
         	})
         	
         	let rparm = {
@@ -49,6 +63,15 @@ var <@pageId> = {
     			
     		}
         	
+ 			const trTemplate = $("#<@pageId>_resultList_total_template").render({ INCOME 			: _numberWithCommas(TOTAL_ROW["INCOME"])
+ 																				, COST_PRICE 		: _numberWithCommas(TOTAL_ROW["COST_PRICE"])
+ 																				, ORG_SELLING_PRICE : _numberWithCommas(TOTAL_ROW["ORG_SELLING_PRICE"])
+ 																				, RATE 				: _numberWithCommas(TOTAL_ROW["RATE"] / resultIdCnt)
+ 																				, PAYMENT 			: _numberWithCommas(TOTAL_ROW["PAYMENT"])
+ 																				, REAL_PROFIT		: _numberWithCommas(TOTAL_ROW["REAL_PROFIT"])
+ 																				});
+			$("#<@pageId>_resultList").append(trTemplate);
+
 			<@pageId>.setHandler();
 		});
 	}
@@ -381,7 +404,23 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<td colspan=16>자료가 없습니다.</td>	
 						</tr>
 					</script>
-					
+					<script type="text/x-jsrender" id="<@pageId>_resultList_total_template">	
+						<tr>
+							<td></td>
+							<td class="tr"></td>
+							<td></td>
+							<td class="tr">{{:INCOME}}</td>
+							<td class="tr"></td>
+							<td class="tr">{{:COST_PRICE}}</td>
+							<td class="tr">{{:ORG_SELLING_PRICE}}</td>
+							<td colspan="4">계</td>
+							<td>{{:RATE}}%</td>
+							<td class="tr">{{:PAYMENT}}</td>
+							<td class="tr">{{:REAL_PROFIT}}</td>
+							<td></td>
+							<td></td>
+						</tr>	
+					</script>
 				</table>
 			</div>
 		</div>
