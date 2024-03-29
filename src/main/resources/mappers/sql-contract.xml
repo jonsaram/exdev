@@ -4,12 +4,11 @@
 
 <mapper namespace="contract">
 
-	<cache />
 
 	<!--
 	계약 관리 
 	 -->	
-	<select id="getContractInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+<!-- 	<select id="getContractInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getContractInfoList
 			실적 입력 내역 리스트 조회 
 		*/
@@ -162,11 +161,8 @@
 				,ORG_SELLING_PRICE	/*순매출*/
 				,TOTAL_PAYMENT		/*총수수료*/
 		ORDER BY RESULT_ID				
-	</select>
-
-	<!--
-	계약 관리 
-	 -->	
+	</select> -->
+<!-- 
 	<select id="getContractItem" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getContractItem
 			계약 조회 
@@ -197,7 +193,7 @@
 		AND C.USE_YN = 'Y'
 		AND C.DEL_YN = 'N'
 	</select>		
-	
+	 -->
 	<sql id="getContractList_body">
 		SELECT ROW_NUMBER() OVER (ORDER BY C.UPDATE_DATE DESC) AS RN
 		,C.CONTRACT_ID
@@ -404,13 +400,26 @@
     				)
 	</update>
 	
+	<update id="updateContractProcessState" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	contract.updateContractProcessState
+			계약 상태 저장
+		*/
+		UPDATE TBL_EXP_CONTRACT
+		SET PROCESS_STATE = #{PROCESS_STATE}
+		,	UPDATE_USER = #{sessionVo.userId}
+		,	UPDATE_DATE = SYSDATE
+		WHERE CONTRACT_ID	 = #{CONTRACT_ID}
+	</update>
+	
 	<delete id="deleteContract" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	contract.deleteContract
 			계약 삭제
 		*/
 		UPDATE TBL_EXP_CONTRACT
 		SET USE_YN = 'N'
-		,DEL_YN = 'Y'
+		,	DEL_YN = 'Y'
+		,	UPDATE_USER = #{sessionVo.userId}
+		,	UPDATE_DATE = SYSDATE
 		WHERE CONTRACT_ID	 = #{CONTRACT_ID}
 	</delete>
 	
@@ -453,7 +462,6 @@
 		    WHEN 'DEPT_HEADER' 		THEN '3' 
 	    END
 	</select>	
-		
 
 	<update id="updateContractMember" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	contract.updateContractMember
@@ -464,9 +472,9 @@
 		  SELECT #{CONTRACT_ID}		AS CONTRACT_ID,
 		         #{USER_ID} 		AS USER_ID,
 		         #{RELATION_TYPE} 	AS RELATION_TYPE,
-		         #{BUSINESS_HIERARCHY} AS BUSINESS_HIERARCHY,
-		         #{USE_YN} 			AS USE_YN,
-		         #{DEL_YN} 			AS DEL_YN,
+		         ''					AS BUSINESS_HIERARCHY,
+		         'Y'	 			AS USE_YN,
+		         'N' 				AS DEL_YN,
 		         #{sessionVo.userId}	AS UPDATE_USER
 		  FROM dual
 		) S
@@ -494,7 +502,7 @@
 		WHERE CONTRACT_ID	= #{CONTRACT_ID}
 	</delete>
 	
-
+<!-- 
 	<select id="getOverridingList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getOverridingList
 			Overriding 관련 상급자 조회 
@@ -521,7 +529,7 @@
 		WHERE BR.BRANCH_ID = #{BRANCH_ID}  
 		AND U.USER_ID = BR.USER_ID
 	</select>	
-
+ -->
 	<select id="getConsultingList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getConsultingList
 			컨설팅 리스트 조회 
@@ -540,8 +548,5 @@
 		 OR CONSULTING_DESC like '%' || #{SEARCH_ID} || '%'
 		)
 	</select>	
-	
-	
-	
 			
 </mapper>

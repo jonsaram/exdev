@@ -40,6 +40,7 @@ var <@pageId> = {
             
 			C_COM.renderHtml("<@pageId>", rparm);
        	
+        	mergeTableTD('<@pageId>_resultList', {startIdx : 15, endIdx : 16, startRowIdx : 1});
         	mergeTableTD('<@pageId>_resultList', {startIdx : 1, endIdx : 7, startRowIdx : 1});
         	
     		if( <@pageId>.selectedList.length > 0 ){
@@ -69,31 +70,31 @@ var <@pageId> = {
 				
                 if (resultData.state === 'S') {
 
-                	if( constInfo.length > 0){
-                		
-	            		constInfo.forEach( item => {
-	        				
-	        				var parm = {
-	        							queryId 	: "result.updateCostItem"
-	        						   ,requestParm	: item
-	        				}
-	        				C_COM.requestQuery(parm, function(resultData) {
-	        					
-	        	                if (resultData.state === 'S') {
-	        	                	
-	        	                	<@pageId>.updateResultItem(resultInfo);	
-	        	                }
-	        				});				
-	        			})
-                	}else{ 
-                		
-                		<@pageId>.updateResultItem(resultInfo);
-                		
-                	}
+
                 }
 			});				
 	    
 		})
+		
+		const constInfoLength = constInfo.length;
+		if( constInfoLength >  0){
+			
+    		constInfo.forEach( (item, index ) => {
+				
+				var parm = {
+							queryId 	: "result.updateCostItem"
+						   ,requestParm	: item
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					
+	                if (resultData.state === 'S') {
+	                	
+	                	if( constInfoLength >= (index+1) )
+	                		<@pageId>.updateResultItem(resultInfo);	
+	                }
+				});				
+			})		
+		}
 		
 	}
 	,updateResultItem : (resultInfo) =>{
@@ -125,10 +126,6 @@ var <@pageId> = {
  		const RESULT_ID		= key.split("||")[1];
  		<@pageId>.deleteItem({CONTRACT_ID:CONTRACT_ID,RESULT_ID:RESULT_ID})
  		
-	}
-	,updateContractInfo : () => {
-		
-
 	}
 	,setHandler : () => {
 		
