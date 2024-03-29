@@ -205,7 +205,7 @@
                          AND A.STORE_ID   = C.STORE_ID  
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{spCstmId}
-                AND    A.SUBJECT = #{subject}
+                AND    A.SUBJECT = 'SUBJECT_001' 
                 AND    A.YEAR    = #{preYear}
                 AND    A.MONTH   = #{preMonth}
                         ) A
@@ -233,9 +233,13 @@
                  AND A.SP_CSTM_ID = C.SP_CSTM_ID
                  AND A.STORE_ID   = C.STORE_ID  
         WHERE  1 = 1
-        AND    A.SUBJECT = 'SUBJECT_001' 
-        AND    A.YEAR    = '2023'
-        AND    A.MONTH   = '01'
+        AND    A.SP_CSTM_ID = #{parm.spCstmId}
+        <if test=" !'ALL'.equals(parm.storeId) ">
+            AND    A.STORE_ID = #{parm.storeId} 
+        </if>
+        AND    A.SUBJECT = #{parm.subject} 
+        AND    A.YEAR    = #{parm.year}
+        AND    A.MONTH   = #{parm.month}
     </sql>  
     
     <!-- 매출액 순위, 영업이익별 순위 -->

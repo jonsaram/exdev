@@ -5,73 +5,28 @@
 <mapper namespace="schedule">
 
 	<cache />
-	   <!-- 임시로 작성 팀원 관리 DB 적용되면 시스템 모듈에서 조회  이응규 -->
-    <select id="getUserList1" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-	SELECT  SP_CSTM_ID,
-		    USER_ID,
-		    USER_NM,
-		    USER_DESC,
-		    E_MAIL,
-		    PHONE_NUM,
-		    BRANCH_ID,
-		    GRADE,
-		    STATE,
-		    REG_DATE,
-		    JUMIN,
-		    POST_NUM,
-		    ADDR1,
-		    ADDR2,
-		    UPDATE_USER,
-		    UPDATE_DATE,
-		    SURETY_INSURANCE,
-		    GENDER,
-		    SALES_TYPE,
-		    USE_YN,
-		    DEL_YN,
-		    RECOMMENDER_ID
-		FROM TBL_EXP_USER
-		WHERE 1 = 1
-		AND  USER_ID IN 
-		<foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-		        #{userId}
-        </foreach>
+	   <!-- 팀원조회 -->
+    <select id="getTeamMember" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getTeamMember */
+        
+		SELECT  USER_ID
+		       ,GET_USER_NM(USER_ID) AS USER_NM
+		FROM   TBL_EXP_TEAM_MEMBER A
+		       JOIN (SELECT SP_CSTM_ID
+		              ,TEAM_ID
+		        FROM   TBL_EXP_TEAM_MEMBER
+		        WHERE  1 = 1
+		        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+		        AND    USER_ID    = #{sessionVo.userId}
+		        AND    ROWNUM <![CDATA[<]]> 2 
+		       ) B
+		         ON  1 = 1
+		         AND A.SP_CSTM_ID = B.SP_CSTM_ID
+		         AND A.TEAM_ID = B.TEAM_ID
+		WHERE  1 = 1           
+		AND    USER_ID != #{sessionVo.userId}
     </select>
 
-	<!-- 임시로 작성 팀원 관리 DB 적용되면 시스템 모듈에서 조회  이응규 -->
-    <select id="getUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /* schedule.getUserList */
-        SELECT T.SP_CSTM_ID 
-            ,T.USER_ID
-            ,T.USER_NM
-            ,T.USER_DESC
-            ,T.E_MAIL
-            ,T.PHONE_NUM
-            ,T.STATE
-            ,GET_CODE_NM('USER_STATE', T.STATE)     AS STATE_NM
-            ,T.UPDATE_USER
-            ,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
-            ,A.ROLE_ID  
-            ,R.ROLE_NM 
-            ,R.ROLE_DESC
-            ,T.USE_YN
-            ,T.DEL_YN
-            ,T.SURETY_INSURANCE
-            ,T.GENDER
-            ,T.SALES_TYPE
-            ,GET_CODE_NM('SALES_TYPE', SALES_TYPE)      AS SALES_TYPE_NM
-            ,T.RECOMMENDER_ID
-            ,GET_CODE_NM('USER_ID', RECOMMENDER_ID)     AS RECOMMENDER_NM 
-        FROM TBL_EXP_USER T
-        ,TBL_EXP_AUTH A
-        ,TBL_EXP_ROLE R
-        WHERE 1 = 1     
-        AND T.SP_CSTM_ID = A.SP_CSTM_ID
-        AND T.SP_CSTM_ID = R.SP_CSTM_ID
-        AND T.USER_ID = A.USER_ID
-        AND R.ROLE_ID = A.ROLE_ID 
-        AND T.USER_ID IN ('windrider','trigger11kr','51115125782')
-    </select>
-    
 	<!-- 중복 일정체크  이응규 -->
     <select id="scheduleDuplicationCheck" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.scheduleDuplicationCheck */

@@ -30,7 +30,7 @@
             // 지점
             let requestParm1 = {};
             requestParm1["spCstmId"] = "starasset";
-            
+
             var parm1 = {
                     queryId  : "dashboardCorPerformance.getStore"
                    ,requestParm   : requestParm1
@@ -40,8 +40,9 @@
             	
                 const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
                 
-                var selectBoxStoreList = { 
-                        data : DATA
+                var selectBoxStoreList = {
+                		defaultItem    : ["ALL", "전체"]
+                       ,data : DATA
                        ,targetId : "<@pageId>_selectBoxStoreList" 
                 }
                 
@@ -130,9 +131,7 @@
                  }
                 // 검색해온 List를 수정한다.
                 ,makeListFn         : function(list) {
-                    
-                    <@pageId>.searchedRows = list;  
-                    <@pageId>.setHandler();
+                    <@pageId>.searchedRows = list; 
                  }
             });
          
@@ -206,6 +205,7 @@
             let requestParm121 = {};
             requestParm121["spCstmId"]  = "starasset";
             requestParm121["year"]      = "2023";
+            
             var parm121 = {
                     queryId  : "dashboardCorPerformance.getMonthAccrue"
                    ,requestParm   : requestParm121
@@ -215,7 +215,7 @@
             	<@pageId>.setChart121( resultData );
 
             });
-
+            
             let requestParm122 = {};
             requestParm122["spCstmId"]  = "starasset";
             requestParm122["year"]      = "2023";
@@ -231,7 +231,7 @@
             
             <@pageId>.setChart131( "resultData" );
             <@pageId>.setChart132( "resultData" );
-
+            
             /* 매출현황 TAB    매출현황 TAB    매출현황 TAB    매출현황 TAB    매출현황 TAB    매출현황 TAB    */
             
             /* 일별 매출 달성률 TAB    일별 매출 달성률 TAB    일별 매출 달성률 TAB    일별 매출 달성률 TAB    */
@@ -248,7 +248,7 @@
                 <@pageId>.setChart221( resultData );
 
             });
-
+            
             let requestParm231 = {};
             requestParm231["spCstmId"]  = "starasset";
             requestParm231["year"]      = "2023";
@@ -265,7 +265,6 @@
                 <@pageId>.setChart231( resultData );
 
             });
-            
             /* 일별 매출 달성률 TAB    일별 매출 달성률 TAB    일별 매출 달성률 TAB    일별 매출 달성률 TAB    */
             
             
@@ -1018,9 +1017,7 @@
         
     	<@pageId>.pageInit();
         <@pageId>.setChart();
-        <@pageId>.searchList611();
-        
-        
+        <@pageId>.setHandler();
            
         /*========================================================*/
         /*
@@ -1512,7 +1509,129 @@
                      주차별 매출 데이터 분석
                  </div>
                  <div id="<@pageId>_tab4" class="display">
-                     매장별 매출 분석
+                    <div class="container">
+                        <div class="cont_wrap lnb_none">
+                            <div class="cont_top">
+                                <h2><i class="icon_bullet"></i>매장별 매출 분석</h2>
+                            </div>
+                            <div class="sec_scroll">
+                                <section class="sec_wrap">
+                                    <div class="cont_box col1">
+                                        <h3>매출 비교 그래프</h3>
+                                        <div class="price"></div>
+                                        <span class="prepare"></span>
+                                        <figure class="highcharts-figure">
+                                            <div class="chart221" id="<@pageId>_chart411" style="width:100%; height:280px; margin:0 auto"></div>
+                                        </figure>
+                                    </div>
+                                </section>
+                                <section class="sec_wrap">
+                                    <div class="cont_box col2">
+                                        <h3>매출액 순위</h3>
+                                        <div class="price">&nbsp;</div>
+                                        <figure class="highcharts-figure">
+                                            <div class="chart111" id="<@pageId>_chart111" style="width:100%; height:280px; margin:0 auto"></div>
+                                        </figure>
+                                        
+                                        <!-- 전체 계약 리스트 -->
+                                        <div >
+                                            <h3>지점명</h3>
+                                            <!-- 테이블 -->
+                                            <div class="tbl01 col">
+                                                <table>
+                                                    <caption>표 캡션</caption>
+                                                    <colgroup>
+                                                        <col style="width:40px;"/>
+                                                        <col style="width:150px;"/>
+                                                        <col style="width:100px;"/>
+                                                    </colgroup>
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">No</th>
+                                                            <th scope="col">지점명</th>
+                                                            <th scope="col">계</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tableId111">
+                                                    </tbody>
+                                                    <script type="text/x-jsrender" id="tableId111_template">    
+                                                        {{for list}}
+                                                            <tr id="trId_{{:#index}}" name="<@pageId>_tr_{{:#index}}" '>
+                                                                <td id='INDEX'           value='{{:#index + 1}}' >{{:#index + 1}}</td>
+                                                                <td id='NAME'            value='{{:STORE_NM3}}'  >{{:STORE_NM3}}</td>
+                                                                <td id='VALUE'           value='{{:AMOUNT}}'  >{{:AMOUNT}}</td>
+                                                            </tr>
+                                                        {{/for}}
+                                                    </script>
+                                                    <script type="text/x-jsrender" id="tableId111_noData_template">    
+                                                       <tr>    
+                                                           <td colspan=3>자료가 없습니다.</td>    
+                                                       </tr>
+                                                    </script>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cont_box col2">
+                                        <h3>영업이익별 순위</h3>
+                                        <div class="price">&nbsp;</div>
+                
+                                        <figure class="highcharts-figure">
+                                            <div class="chart112" id="<@pageId>_chart112" style="width:100%; height:280px; margin:0 auto"></div>
+                                        </figure>
+                                        <!-- 지점 리스트 -->
+                                        <div >
+                                            <h3>지점명</h3>
+                                            <!-- 테이블 -->
+                                            <div class="tbl01 col">
+                                                <table>
+                                                    <caption>표 캡션</caption>
+                                                    <colgroup>
+                                                        <col style="width:40px;"/>
+                                                        <col style="width:150px;"/>
+                                                        <col style="width:100px;"/>
+                                                    </colgroup>
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">No</th>
+                                                            <th scope="col">지점명</th>
+                                                            <th scope="col">계</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tableId112">
+                                                    </tbody>
+                                                    <script type="text/x-jsrender" id="tableId112_template">    
+                                                        {{for list}}
+                                                            <tr id="trId_{{:#index}}" name="<@pageId>_tr_{{:#index}}" '>
+                                                                <td id='INDEX'           value='{{:#index + 1}}' >{{:#index + 1}}</td>
+                                                                <td id='NAME'            value='{{:STORE_NM3}}'  >{{:STORE_NM3}}</td>
+                                                                <td id='VALUE'           value='{{:AMOUNT}}'  >{{:AMOUNT}}</td>
+                                                            </tr>
+                                                        {{/for}}
+                                                    </script>
+                                                    <script type="text/x-jsrender" id="tableId112_noData_template">    
+                                                       <tr>    
+                                                           <td colspan=3>자료가 없습니다.</td>    
+                                                       </tr>
+                                                    </script>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                                <section class="sec_wrap">
+                                    <div class="cont_box col1">
+                                        <h3>마진 비교 그래프</h3>
+                                        <div class="price"></div>
+                                        <span class="prepare"></span>
+                                        <figure class="highcharts-figure">
+                                            <div class="chart231" id="<@pageId>_chart431" style="width:100%; height:280px; margin:0 auto"></div>
+                                        </figure>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
                  </div>
                  <div id="<@pageId>_tab5" class="display">
                      가맹점 리스트및 현황
@@ -1589,7 +1708,7 @@
                                                 </script>
                                                 <script type="text/x-jsrender" id="<@pageId>_tableId611_noData_template">    
                                                    <tr>    
-                                                       <td colspan=3>자료가 없습니다.</td>    
+                                                       <td colspan=6>자료가 없습니다.</td>    
                                                    </tr>
                                                 </script>
                                             </table>

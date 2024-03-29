@@ -16,7 +16,6 @@
         ,allApplyYn    : 'N'
         ,today : ''
         ,close : function() {
-            console.log("=== close ===");
             var obj = new Object();
             C_POP.close(obj);
          }
@@ -38,7 +37,6 @@
             C_COM.renderHtml("<@popupId>", rparm);
          }
         ,searchSchedule : function(scheduleId) {
-            console.log("== searchSchedule 2=>"+scheduleId);
             
             let requestParm = {};
             requestParm["scheduleId"]  = scheduleId;
@@ -687,14 +685,20 @@
 
         //============== 종료분 ==============
             
-        console.log("=== 2 ===>");
+        
             
         // 오늘날짜 세팅
+        /*
         let date = new Date();
-        
-        let today = date.getFullYear() +
+        let today1 = date.getFullYear() +
                           '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
                           '-' + ( (date.getDate()) <= 9 ? "0" + (date.getDate()) : (date.getDate()) );
+
+        console.log("=== today1["+today1+"] ===>");
+        */
+        var today = data["today"];
+        console.log("=== today["+today+"] ===>");
+        
         
         $('#<@popupId>_dateStart').val(today);
         $('#<@popupId>_dateEnd').val(today);
