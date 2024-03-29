@@ -42,39 +42,6 @@
     };
 
 
-    /*============= 멀티선택 ================*/
-    $(document).on("click", ".dropdown button", function(){
-        $(this).parent().children().find("ul").slideToggle('fast');
-    });
-
-    // 외부 링크
-    $(document).bind('click', function(e) {
-      var $clicked = $(e.target);
-      if (!$clicked.parents().hasClass("dropdown")) {
-        $(".dropdown ul").hide();
-      };
-    });
-
-    //체크박스 체크할때
-    $(document).on("click", ".mutliSelect input[type='checkbox']", function(){
-      var title = $(this).closest('.mutliSelect').find('input[type="checkbox"]').val(),
-        title = $(this).val() + ",";
-
-      if ($(this).is(':checked')) {
-        var html = '<span title="' + title + '">' + title + '</span>';
-        $(this).closest('.mutliSelect').parent().children().find(".multiSel").append(html);
-        $(this).closest('.mutliSelect').parent().children().find(".hida").hide();
-      }
-      else {
-        $(this).closest('.mutliSelect').parent().children().find(".multiSel").find('span[title="' + title + '"]').remove();
-        var checkLength = $(this).closest('.mutliSelect').parent().children().find(".multiSel").find('span').length;
-        if(checkLength == 0){
-            $(this).closest('.mutliSelect').parent().children().find(".hida").show();
-        }
-      }
-    });
-
-
     /*==== Gnb 영역 너무 길때 생긴 버튼 ====*/
     // $(document).on("click", ".btn_arrow", function(){
     //     $(this).parents().find('.wrap').toggleClass('resize');
@@ -267,16 +234,6 @@
            $(".sec_scroll").removeClass('resize');
         }
     });
-
-    /*==== 첨부파일 추가 ====*/
-    $(document).on("click", ".file", function(){
-        $('input[type=file]#file-input').click();
-    });
-    // $(document).on("change", "input[type=file]#file-input", function(){
-    //     var title = $(this).val();
-    //     var html = '<li><span class="txt">'+ title +'</span><button class="pay_close">닫기</button></li>';
-    //     $(this).parent().children().find('.approver_list').append(html);
-    // });
 
     /*==== bar chart ====*/
     $(function() {
