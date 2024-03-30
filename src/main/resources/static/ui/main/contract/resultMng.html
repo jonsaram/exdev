@@ -23,7 +23,7 @@ var <@pageId> = {
         	let TOTAL_ROW = {"INCOME":0,"COST_PRICE":0,"ORG_SELLING_PRICE":0,"PAYMENT":0,"RATE":0,"REAL_PROFIT":0};
         	let RESULT_ID = '';
         	let resultIdCnt = 0;
-
+			let LAST_RESULT_ID = '';
         	resultData.data.forEach( (row,idx) => {
 
         		RESULT_ID = row["RESULT_ID"];
@@ -45,8 +45,16 @@ var <@pageId> = {
 
         		TOTAL_ROW["RATE"] 		+= Number(row["RATE"]);
 				TOTAL_ROW["PAYMENT"] 	+= Number(row["PAYMENT"]);
+				
+				LAST_RESULT_ID = !isEmpty(row["LAST_RESULT_ID"]) ? row["LAST_RESULT_ID"] :'';
         	})
         	
+        	resultData.data.forEach( (row,idx) => {
+        		
+        		row["LAST_RESULT_ID"] = row["RESULT_ID"] == LAST_RESULT_ID ?  LAST_RESULT_ID :'';
+
+        	})
+       	
         	let rparm = {
            			targetId   : "<@pageId>_resultList"
 					,list       : resultData.data
@@ -54,7 +62,7 @@ var <@pageId> = {
             
 			C_COM.renderHtml("<@pageId>", rparm);
        	
-        	mergeTableTD('<@pageId>_resultList', {startIdx : 15, endIdx : 16, startRowIdx : 1});
+        	mergeTableTD('<@pageId>_resultList', {startIdx : 14, endIdx : 14, startRowIdx : 1});
         	mergeTableTD('<@pageId>_resultList', {startIdx : 1, endIdx : 7, startRowIdx : 1});
         	
     		if( <@pageId>.selectedList.length > 0 ){
@@ -117,8 +125,10 @@ var <@pageId> = {
 	                }
 				});				
 			})		
+		}else{
+			
+			<@pageId>.updateResultItem(resultInfo);	
 		}
-		
 	}
 	,updateResultItem : (resultInfo) =>{
 		var parm = {
@@ -165,18 +175,10 @@ var <@pageId> = {
 				C_POP.alert('잔금완납되어 추가 실적을 등록할수 없습니다.');
 				return;
 			}
-			<@pageId>.openRegPopup();
+			<@pageId>.openUpdatePopup();
 
 	    })
-	    
-	    $("[id^='<@pageId>_modify_']").off().on('click',function(){
 
-	    	const index = $(this).attr("index");
-			const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
-			<@pageId>.openRegPopup($tds);
-			
-	    })
-	    
 	    $("[id^='<@pageId>_delete_']").off().on('click',function(){
 
 	    	const key = $(this).attr("key");
@@ -219,26 +221,15 @@ var <@pageId> = {
 		});
 		
 	}
-	,openRegPopup : ($tds) => {
-		
-		let arrList = [];
-		$.each( $tds , function(){
+	,openUpdatePopup : (idx) => {
 
-			const key = $(this).attr("id");
-			const val = $(this).attr("value");
-			
-			if(key){
-				
-				arrList.push( { "key": key, "val": val } );
-			}
-			
-		})
-
-		const param = arrList.reduce((acc, obj) => {
-		    acc[obj.key] = obj.val;
-		    return acc;
-		}, {}); 
-		const mode = Object.keys(param).length > 0 ? "U" : "I";
+		let mode = "I";
+		let param = "";
+		if( !isEmpty(idx) )
+		{
+			param 	= <@pageId>.selectedList[idx];
+			mode 	= "U";
+		}
 
  		C_POP.open('popup_result_resultUpdatePopup', {	  mode:mode
  												, param:param 
@@ -374,29 +365,38 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					</tbody>
 					<script type="text/x-jsrender" id="<@pageId>_resultList_template">
 						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}">
-								<td	id="RN" 			value='{{:RN}}'							>{{:RN}}</td>
-								<td id="TOTAL_COST" 	value='{{:TOTAL_COST}}'		class="tr"	>{{numb:TOTAL_COST}}</td>
-								<td id="RESULT_DATE" 	value='{{:RESULT_DATE}}' 				>{{:RESULT_DATE}}</td>
-								<td id="INCOME" 		value='{{:INCOME}}'			class="tr"	>{{numb:INCOME}}</td>
-								<td id="REMAINING_SUM" 	value='{{:REMAINING_SUM}}'	class="tr"	>{{numb:REMAINING_SUM}}</td>
-								<td id="COST_PRICE" 	value='{{:COST_PRICE}}'		class="tr"	>{{numb:COST_PRICE}}</td>
-								<td id="ORG_SELLING_PRICE" 	value='{{:ORG_SELLING_PRICE}}'	class="tr"	>{{numb:ORG_SELLING_PRICE}}</td>
-								<td id="USER_ID" 		value='{{:USER_ID}}'						>{{:USER_ID}}</td>
-								<td id="USER_NM" 		value='{{:USER_NM}}'						>{{:USER_NM}}</td>
-								<td id="GRADE_NM" 		value='{{:GRADE_NM}}'						>{{:GRADE_NM}}</td>
-								<td id="RELATION_TYPE_NM" 	value='{{:RELATION_TYPE_NM}}'			>{{:RELATION_TYPE_NM}}</td>
-								<td id="RATE"	 		value='{{:RATE}}'							>{{:RATE}}</td>
-								<td id="PAYMENT" 		value='{{:PAYMENT}}'			class="tr"	>{{numb:PAYMENT}}</td>
-								<td id="REAL_PROFIT" 	value='{{:REAL_PROFIT}}'		class="tr"	>{{numb:REAL_PROFIT}}</td>
-								<td id="CONTRACT_ID"	value='{{:CONTRACT_ID}}'		style="display:none">{{:CONTRACT_ID}}</td>
-								<td id="RELATION_TYPE"	value='{{:RELATION_TYPE}}'		style="display:none">{{:RELATION_TYPE}}</td>
-								<td id="RESULT_ID" 		value='{{:RESULT_ID}}'			style="display:none">{{:RESULT_ID}}</td>
-								<td id="ROLE"	 		value='{{:ROLE}}'				style="display:none">{{:ROLE}}</td>
-			 					<td><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
-								<td><button id="<@pageId>_delete_{{:#index}}" key='{{:CONTRACT_ID}}||{{:RESULT_ID}}'><i class="icon_trash"></i></button></td>
+							<tr>
+								<td				>{{:RN}}					</td>
+								<td class="tr"	>{{numb:TOTAL_COST}}		</td>
+								<td				>{{:RESULT_DATE}}			</td>
+								<td class="tr"  >{{numb:INCOME}}			</td>
+								<td class="tr"	>{{numb:REMAINING_SUM}}		</td>
+								<td class="tr"	>{{numb:COST_PRICE}}		</td>
+								<td class="tr"	>{{numb:ORG_SELLING_PRICE}}	</td>
+								<td				>{{:USER_ID}}				</td>
+								<td				>{{:USER_NM}}				</td>
+								<td				>{{:GRADE_NM}}				</td>
+								<td				>{{:RELATION_TYPE_NM}}		</td>
+								<td				>{{:RATE}}					</td>
+								<td class="tr"	>{{numb:PAYMENT}}			</td>
+								<td class="tr"	>{{numb:REAL_PROFIT}}		</td>
 
-							</tr>
+			 					<td rowspan="4">
+									{{if LAST_RESULT_ID != ""}}
+									<button id="<@pageId>_modify_{{:#index}}" index="{{:#getIndex()}}" onclick="javascript:<@pageId>.openUpdatePopup('{{:#getIndex()}}','{{:RESULT_ID}}')">
+									<i class="icon_pen"></i>
+									</button>
+									{{/if}}
+								</td>
+
+								<td rowspan="4">
+									{{if LAST_RESULT_ID != ""}}
+									<button id="<@pageId>_delete_{{:#index}}" key='{{:CONTRACT_ID}}||{{:RESULT_ID}}'>
+									<i class="icon_trash"></i>
+									</button>
+									{{/if}}
+								</td>
+
 						{{/for}}
 					</script>
 					<script type="text/x-jsrender" id="<@pageId>_resultList_noData_template">	
@@ -405,7 +405,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</tr>
 					</script>
 					<script type="text/x-jsrender" id="<@pageId>_resultList_total_template">	
-						<tr>
+						<tr style="background-color:#F2F3FF !important;">
 							<td></td>
 							<td class="tr"></td>
 							<td></td>

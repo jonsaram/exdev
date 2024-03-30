@@ -89,6 +89,11 @@ var <@pageId> = {
 			
 			$("#<@pageId>_search").click( () =>{
 			
+				const CONTRACT_ID =<@pageId>.selectedContract?.CONTRACT_ID;
+				if( isEmpty( CONTRACT_ID )){
+					alert('계약을 먼저 선택하여 주십시오. ');
+					return;
+				}
 				<@pageId>.searchList();
 
 		    })

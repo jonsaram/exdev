@@ -28,6 +28,7 @@
 			,R.INCOME
 			,R.REMAINING_SUM
 			,NVL(CO.SUM_COST_PRICE ,0) AS COST_PRICE
+			,COST_ID_AGG
 			,R.CONTRACT_ID
 			,R.RESULT_ID
 			,U.USER_ID
@@ -47,10 +48,11 @@
 			,R.UPDATE_USER
 			,R.UPDATE_DATE
 			,TO_CHAR( R.UPDATE_DATE, 'YYYY-MM') AS UPDATE_DATE_MONTH
+			,CASE WHEN ROW_NUMBER() OVER (ORDER BY R.UPDATE_DATE , <include refid="buisnessHierarchyOrderBy"/>) = COUNT(*) OVER () THEN R.RESULT_ID END AS LAST_RESULT_ID			
 			FROM TBL_EXP_RESULT R
 			,TBL_EXP_CONTRACT C
 			,(
-				SELECT CONTRACT_ID, RESULT_ID, SUM(COST_PRICE) SUM_COST_PRICE
+				SELECT CONTRACT_ID, RESULT_ID, SUM(COST_PRICE) SUM_COST_PRICE, LISTAGG(CS.COST_ID,',') AS COST_ID_AGG
 				FROM TBL_EXP_COST CS WHERE CS.CONTRACT_ID = #{CONTRACT_ID}
 				AND USE_YN = 'Y' AND DEL_YN = 'N'
 				GROUP BY CONTRACT_ID, RESULT_ID 
@@ -237,12 +239,13 @@
 				           							WHERE 	CONTRACT_ID = p_CONTRACT_ID
 				           							AND 	USE_YN= 'Y' AND DEL_YN = 'N'
 				          						) 	,
-					T.ORG_SELLING_PRICE		= T.INCOME - 						  
-												( SELECT SUM(COST_PRICE) FROM TBL_EXP_COST
+					T.ORG_SELLING_PRICE		= NVL(T.INCOME - 						  
+												NVL(( SELECT SUM(COST_PRICE) FROM TBL_EXP_COST
 				           							WHERE CONTRACT_ID = p_CONTRACT_ID
-				           							AND   RESULT_ID 	= p_RESULT_ID
+				           							AND   RESULT_ID	  = p_RESULT_ID
 				           							AND   USE_YN= 'Y' AND DEL_YN = 'N'
-				          						)
+				          						),0)
+				          						,0)
 		   		WHERE  T.CONTRACT_ID	= p_CONTRACT_ID
 				   AND T.RESULT_ID		= p_RESULT_ID	
 				;
