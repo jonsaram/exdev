@@ -158,10 +158,16 @@ function _excelUpload(pageId,queryId,searchFnc)
 	
 }	
 
-function _memberSearchPopup(param, func){
+function _memberSearchPopup (param, func){
+      	
+	const gubun 	= isEmpty(param.gubun)? 'USER_ID' : param.gubun ;   
 
-	C_POP.open('popup_system_memberSearchPopup', {param:param, gubun:param.gubun}, function(retData) {
-		func(retData);
+	C_POP.open('popup_system_memberSearchPopup', {param:param, gubun:gubun}, function(retData) {
+
+		if( typeof func === 'function' ){
+		
+			func(retData);
+		}
+		
 	});
-
 }
