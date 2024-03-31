@@ -3,6 +3,7 @@
  var <@popupId> = {
 	 rcvData 		: {}
  	,returnData 	: {}
+ 	,autoRtn		: false
  	,queryId 		: ''	
  	,targetId 		: ''	
     ,searchId 		: ''	
@@ -40,6 +41,13 @@
 			
 		}
 		
+		const autoRtn = data.param.autoRtn ? true:false;
+		if( autoRtn ){
+			<@popupId>.autoRtn	= true;
+			$("[name='<@popupId>_SEARCH_ID']").val(data.param.searchText)
+			<@popupId>.searchList();
+		}
+		
  	}
 	,searchList : function(){
 
@@ -53,6 +61,11 @@
         C_COM.requestQuery(parm, function(resultData) {
         
         	<@popupId>.searchedRows = resultData.data;
+        	
+        	if( <@popupId>.autoRtn && <@popupId>.searchedRows.length == 1){
+        		
+        		<@popupId>.getRow(0);
+        	}
         	
         	let rparm = {
            			targetId   : <@popupId>.targetId

@@ -224,6 +224,28 @@ var <@popupId> = {
 		}
 
 	}
+	,handleKeyPress : (event, gubun) => {
+
+	    if (event.key === 'Enter') {
+	    	const value = event.target.value;
+
+	    	_memberSearchPopup( {autoRtn:true, gubun:gubun, searchText:value } , (retData)=>{
+
+	              if( !isEmpty( retData["BUYER_ID"])){
+	            	  
+		              <@popupId>.updatingData["NEW_BUYER"]	= retData ;
+		              <@popupId>.buyerId					= retData["BUYER_ID"] ;
+	              }
+	              
+	              if( !isEmpty( retData["USER_ID"])){
+		              <@popupId>.updatingData["NEW_USER"]	= retData;
+		              <@popupId>.userId						= retData["USER_ID"] ;
+	              }  
+	              
+				<@popupId>.memberSet('new');
+	    	})
+	    }
+	}
 	,consultingSearchPopup : () => {
 		
 		let param = {searchText:""};
@@ -398,7 +420,8 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label>고객선택</label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%">
-											<input type="search" id="<@popupId>_BUYER" placeholder="고객명(고객번호)"><a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('BUYER');" class="search_btn"><i class="icon_search"></i></a>
+											<input type="search" id="<@popupId>_BUYER" placeholder="고객명(고객번호)" onkeypress="<@popupId>.handleKeyPress(event,'BUYER')">
+											<a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('BUYER');" class="search_btn"><i class="icon_search"></i></a>
 										</div>
 									</div>
 								</li>
@@ -406,7 +429,8 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label>계약담당자</label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%">
-											<input type="search" id="<@popupId>_USER" placeholder="사원이름(사원ID)"><a  href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
+											<input type="search" id="<@popupId>_USER" placeholder="사원이름(사원ID)" onkeypress="<@popupId>.handleKeyPress(event)">
+											<a  href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
 										</div>
 									</div>
 								</li>
