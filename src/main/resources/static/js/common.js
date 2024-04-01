@@ -206,6 +206,9 @@
     /*==== lnb 영역 접고/닫기 버튼 ====*/
     $(document).on("click", ".btn.fold", function(){
         $(this).parent().parent().parent().toggleClass('collapse');
+        if ($(this).parent().hasClass('company')) {
+            $(this).parent().parent().toggleClass('collapse');
+        }
     });
 
     /*==== 결재 버튼 ====*/
