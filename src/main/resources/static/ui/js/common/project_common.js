@@ -1220,6 +1220,8 @@ var C_UICOM = {
 
 			$(templateWebId).html(html);
 			
+			$(templateWebId).css("z-index", 1);
+			
 			C_UICOM.initMultiBox(targetId);
 
 		}
