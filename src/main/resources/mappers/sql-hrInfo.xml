@@ -136,7 +136,7 @@
 		/* hrInfo.getHrInfoList_paging  */
 		<include refid="common.pagingWrapStart"/>
 		<include refid="getHrInfoList_body"/>
-        ORDER BY USER_ID
+        ORDER BY CASE WHEN U.UPDATE_DATE > sysdate - 1 THEN 0 ELSE 1 END , USER_ID
 		<include refid="common.pagingWrapEnd"/>
 	</select>
 		 	

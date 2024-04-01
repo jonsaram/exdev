@@ -119,15 +119,9 @@
 		}	
 		,getUserImg : ()=>{
 
-			C_COM.getFileId($(".employee_num.tc.parmVal").text(), "USER_FACE", function(fileObjList) {
-				
-				if( fileObjList.length > 0 ){
-					
-					let fileId	= fileObjList[0].FILE_ID;
-					let imgPath	= C_COM.getImageUrl(fileId);
-					$("#<@pageId>_hrImg").attr("src", imgPath);
-				}
-			});						
+			if( $("#<@pageId>_USER_ID").text() ){
+				_getImageFile("<@pageId>_hrImg",{GRP_FILE_ID:$("#<@pageId>_USER_ID").text() , OWNER_CD:"USER_FACE" });
+			}
 
 		}
 	}
@@ -391,5 +385,6 @@
 				</section>
 			</div>
 		</section>
+		<div id="fileuploadComp"></div>
 	</div>
 </div>

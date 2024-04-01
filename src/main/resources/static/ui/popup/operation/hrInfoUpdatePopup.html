@@ -8,8 +8,9 @@
 	 	 ,mode : ''
 	 	 ,BRANCH_DATA : {}
 		 ,hiarachySelData: []
-		 ,pageInit : () => {
-				
+		 ,pageInit : (BRANCH_DATA) =>{
+			
+			<@popupId>.BRANCH_DATA = BRANCH_DATA;
 			<@popupId>.setTitleHeight();
 
 			C_UICOM.makeSelectBox({ 
@@ -152,16 +153,12 @@
 		}
 		
 		,setTitleHeight : () => {
-			
-			<@popupId>.mode == "I" ? $("#<@popupId>_items #USER_ID").val( <@popupId>.makeSabunCode() ) : '';
 
- 			<@popupId>.mode == "I" ? $(".updateMode").hide() : $(".updateMode").show();
+			<@popupId>.mode == "I" ? $("#<@popupId>_items #<@popupId>_USER_ID").val( <@popupId>.makeSabunCode() ) : '';
+
 			let title = <@popupId>.mode == "I" ? "신규 직원 추가" : "직원 정보 수정";
 	  	 	$(".tit").html( title );
 
-			var modalHeight = (<@popupId>.mode == "I") ? "650px" : "640px";
-			$(".modal").css({"height": modalHeight});
-			
 		}
 		,setHandler : () => {
 			
@@ -348,9 +345,9 @@
 			
 		    new daum.Postcode({
 		        oncomplete: function(data) {
-		        	$("#<@popupId>_items #POST_NUM").val( data.zonecode );
-		        	$("#<@popupId>_items #ADDR1").val( data.roadAddress );
-		        	$("#<@popupId>_items #ADDR2").focus();
+		        	$("#<@popupId>_items #<@popupId>_POST_NUM").val( data.zonecode );
+		        	$("#<@popupId>_items #<@popupId>_ADDR1").val( data.roadAddress );
+		        	$("#<@popupId>_items #<@popupId>_ADDR2").focus();
 		        }
 		    }).open();
 		    
@@ -388,28 +385,20 @@
 
 		<@popupId>.mode = <@popupId>.recvData.mode;
 
+		if( <@popupId>.USER_ID ){
+			_getImageFile("<@popupId>_userImg",{GRP_FILE_ID:<@popupId>.USER_ID , OWNER_CD:<@popupId>.OWNER_CD });
+		}
+
 		<@popupId>.hiarachySelData = Object.entries(<@popupId>.recvData.param)
-	    										.filter(item => item[0].indexOf("BRANCH_ID") > -1)
-											    .reduce((acc, item) => {
-											        acc[item[0]] = item[1];
-											        return acc;
-											    }, {}); 		
+		.filter(item => item[0].indexOf("BRANCH_ID") > -1)
+	    .reduce((acc, item) => {
+	        acc[item[0]] = item[1];
+	        return acc;
+	    }, {});
 		
-		<@popupId>.getSelectData( <@popupId>.pageInit ); 
+		_getBranchSelectData(<@popupId>.pageInit);
+		
 		<@popupId>.setHandler();
-		
-		// image upload component
-		C_COMP.import("fileuploadComp", "component_compFilemng",{hide : "Y"} , function(fileId) {});
-		
-		C_COM.getFileId(<@popupId>.USER_ID, <@popupId>.OWNER_CD, function(fileObjList) {
-			
-			if( fileObjList.length> 0){
-				
-				let fileId = fileObjList[0].FILE_ID;
-				let imgPath = C_COM.getImageUrl(fileId);
-				$("#<@popupId>_userImg").attr("src", imgPath);
-			}
-		});
 	});
 </script>
 
@@ -428,10 +417,6 @@
 			<input type="hidden" id="<@popupId>_USER_DESC"/>
 			<input type="hidden" id="<@popupId>_STATE"/>
 			<div class="clearFix mt15">
-				<!-- 
-				<figure class="photo_wrap no_img" onclick="<@popupId>.selectImage()">
-				</figure>
-				 -->
 				<figure class="photo_wrap fl mr15" onclick="<@popupId>.selectImage()">
 					<img src="../img/icon_noimg.png" id="<@popupId>_userImg">
 				</figure>
