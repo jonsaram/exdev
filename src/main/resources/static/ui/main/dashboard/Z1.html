@@ -17,8 +17,8 @@ var <@pageId> = {
 				return requestParm;
 				
 		}
+		,createChart 		: (container, categories, series)=>_lineRateChart(container, categories, series)
 		,showObject : (obj, loc) => {
-			//debugger;
 			var keys = Object.keys(obj);
 		    for (var i=0; i<keys.length; i++) {
 		    	var key = keys[i];
@@ -100,8 +100,56 @@ var <@pageId> = {
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl04", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl06", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				
+				<@pageId>.setChart('Sales',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.setChart('Personal',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.setChart('Hire',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
 			});
 		 }
+		,setChart : (gubun, yearData, chartData) =>{
+			const _3yearArray = [yearData.YEAR1, yearData.YEAR2, yearData.YEAR3];
+			const getCostOfSalesRate = [];
+			const getCostOfPersonalRate = [];
+			const getCostOfHireRate = [];
+			//debugger;
+			$.each(chartData, function(index, item){
+				if(gubun=='Sales'){
+					if(item.ITEM_NAME == '(매출원가/매출액)'){
+						getCostOfSalesRate.push(parseFloat(item.YEAR1.replace(',','')));
+						getCostOfSalesRate.push(parseFloat(item.YEAR2.replace(',','')));
+						getCostOfSalesRate.push(parseFloat(item.YEAR3.replace(',','')));
+					}
+				} else if(gubun=='Personal'){
+					if(item.ITEM_NAME == '(인건비/매출액)'){
+						getCostOfPersonalRate.push(parseFloat(item.YEAR1.replace(',','')));
+						getCostOfPersonalRate.push(parseFloat(item.YEAR2.replace(',','')));
+						getCostOfPersonalRate.push(parseFloat(item.YEAR3.replace(',','')));
+					}
+				} else if(gubun=='Hire'){
+					if(item.ITEM_NAME == '(임차료/매출액)'){
+						getCostOfHireRate.push(parseFloat(item.YEAR1.replace(',','')));
+						getCostOfHireRate.push(parseFloat(item.YEAR2.replace(',','')));
+						getCostOfHireRate.push(parseFloat(item.YEAR3.replace(',','')));
+					}
+				}
+			})
+			if(gubun=='Sales'){
+				//매출원가 비중
+  				<@pageId>.createChart( "<@pageId>_costOfSalesRate_chart" 
+									, _3yearArray , [{  name: '매출원가 비중(%)',type: 'line',	data: getCostOfSalesRate,tooltip: {valueSuffix:'%'}}
+													]);
+			} else if(gubun=='Personal'){
+				//인건비 비중
+  				<@pageId>.createChart( "<@pageId>_costOfPersonalRate_chart" 
+									, _3yearArray , [{  name: '인건비 비중(%)',type: 'line',	data: getCostOfPersonalRate,tooltip: {valueSuffix:'%'}}
+													]);
+			} else if(gubun=='Hire'){
+				//임차료 비중
+  				<@pageId>.createChart( "<@pageId>_costOfHireRate_chart" 
+									, _3yearArray , [{  name: '임차료 비중(%)',type: 'line',	data: getCostOfHireRate,tooltip: {valueSuffix:'%'}}
+													]);
+			}
+		}
 		,goPage : (pageId,rowId) => {
 
 			const $tds = $(`[name='<@pageId>_tr_${rowId}']`)
@@ -1112,21 +1160,21 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<div class="stat_import_tit">매출원가 비중</div>
 									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
 									<figure class="highcharts-figure2">
-								    	<div class="lineChart01_1" style="width:100%;height:160px; margin:0 auto"></div>
+								    	<div class="chart8" id="<@pageId>_costOfSalesRate_chart" style="width:100%; height:160px; margin-top:0 auto"></div>
 									</figure>
 								</div>
 								<div class="col3">
 									<div class="stat_import_tit">인건비 비중</div>
 									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
 									<figure class="highcharts-figure2">
-								    	<div class="lineChart01_2" style="width:100%;height:160px; margin:0 auto"></div>
+								    	<div class="chart8" id="<@pageId>_costOfPersonalRate_chart" style="width:100%;height:160px; margin:0 auto"></div>
 									</figure>
 								</div>
 								<div class="col3">
 									<div class="stat_import_tit">임차료 비중</div>
 									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
 									<figure class="highcharts-figure2">
-								    	<div class="lineChart01_3" style="width:100%;height:160px; margin:0 auto"></div>
+								    	<div class="chart8" id="<@pageId>_costOfHireRate_chart" style="width:100%;height:160px; margin:0 auto"></div>
 									</figure>
 								</div>
 							</div>

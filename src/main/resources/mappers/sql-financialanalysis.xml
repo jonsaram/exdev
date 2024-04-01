@@ -133,7 +133,10 @@
 				          TO_CHAR(ADD_MONTHS(SYSDATE, -12*1),'YYYY') AS YEAR3
 				   FROM dual
 		        ) Y
-		  WHERE M.FIN_ANAL_STATUS_ID = D.FIN_ANAL_STATUS_ID
+		  WHERE M.BUYER_ID = D.BUYER_ID
+		    AND M.YEAR = D.YEAR
+		    AND M.GUBUN  = D.gubun
+		    AND M.ITEM_GUBUN = D.ITEM_GUBUN
 		    AND M.BUYER_ID = #{BUYER_ID}
 		    AND M.YEAR IN (Y.YEAR1,Y.YEAR2,Y.YEAR3)
           GROUP BY M.GUBUN, M.ITEM_GUBUN, D.SEQ, D.DEPTH, D.ITEM_NAME
@@ -152,8 +155,7 @@
 	재무상태표,손익계산서, 주요경비율, 인건비 분석
 	 -->
 	<select id="getFinAnalStatusMst" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		   SELECT FIN_ANAL_STATUS_ID
-				, BUYER_ID
+		   SELECT BUYER_ID
 				, YEAR
 				, GUBUN
 				, ITEM_GUBUN
