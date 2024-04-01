@@ -171,3 +171,59 @@ function _memberSearchPopup (param, func){
 		
 	});
 }
+
+function _getBranchSelectData ( callback ) {
+	
+	let BRANCH_DATA = [];		
+	var parm = {
+			queryGroup : [
+				 {
+					 queryId 		: "hrInfo.getBaseBranchList"
+					,requestParm	: {}
+				 }
+				,{
+					 queryId 		: "hrInfo.getSpBranchList"
+					,requestParm	: {}
+				 }
+				,{
+					 queryId 		: "hrInfo.getBranchList"
+					,requestParm	: {}
+				 }
+			]
+	}			
+	C_COM.requestQuery(parm, function(resultData) {
+
+			if( resultData.state == "S"){
+
+				BRANCH_DATA["BASE_BRANCH"		] = resultData.data["hrInfo.getBaseBranchList"].map( item=> [item.CODE_ID, item.CODE_NM] ) ;
+				BRANCH_DATA["SP_BRANCH"			] = resultData.data["hrInfo.getSpBranchList"].map( item=> [item.CODE_ID, item.CODE_NM] ) ;
+				BRANCH_DATA["BRANCH"			] = resultData.data["hrInfo.getBranchList"].map( item=> [item.CODE_ID, item.CODE_NM] ) ;
+				
+				callback ? callback(BRANCH_DATA) : null;
+				
+			}else{
+				C_POP.alert(resultData.msg)
+			}
+	});
+}
+
+function _getImageFile (targetId , obj ) {
+	/*
+    const $page = $("#"+pageId);
+    const $fileUploadDiv = $("<div></div>").attr("id", targetId);
+    $page.append($fileUploadDiv);
+	*/
+
+	// image upload component
+	C_COMP.import("fileuploadComp", "component_compFilemng",{hide : "Y"} , function(fileId) {alert("$###")});
+	C_COM.getFileId(obj["GRP_FILE_ID"], obj["OWNER_CD"], function(fileObjList) {
+		
+		if( fileObjList.length> 0){
+			
+			let fileId = fileObjList[0].FILE_ID;
+			let imgPath = C_COM.getImageUrl(fileId);
+			$("#"+targetId).attr("src", imgPath);
+		}
+	});	
+	
+}
