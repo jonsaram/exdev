@@ -8,6 +8,22 @@ var <@pageId> = {
 			
 			_setSearchListCnt("<@pageId>_pagingChunk" );
 			
+			const targetId = "<@pageId>_selectSearchItem";
+			var multiboxList = { 
+					 data : [
+					 		 ["1111", "고객번호"	]
+					 		,["2222", "고객번호1"	]
+					 		,["3333", "고객번호2"	]
+					 		,["4444", "고객명"		]
+					 ]
+				 	,targetId : targetId 
+				}
+				C_UICOM.makeSelectBox(multiboxList, "multi");
+				
+				C_UICOM.addChangeListner(targetId, function(dataObj) {
+					dalert(dataObj);
+				});
+			
 		}
 		,searchList : (searchName) => {
 			
@@ -137,6 +153,7 @@ var <@pageId> = {
 
 			C_POP.open('popup_customer_cstmUpdatePopup', {param:param, mode:mode}, function(retData) {
 				if(isValid(retData)){
+
 					<@pageId>.updateItem(retData);
 				}
 			});
@@ -180,12 +197,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
 				
 					<div class="dropdown fl" style="width:200px;">
-						<button type="button" class="btn arrow">
+<!-- 						<button type="button" class="btn arrow">
 							<span class="hida">Select</span>
 							<p class="multiSel"></p>
 						</button>
 					    <div class="mutliSelect">
-					    </div>
+					    </div> -->
+						<div id="<@pageId>_selectSearchItem" style="width:200px"></div>
 					</div>
 					<div class="search_inputWrap">
 						<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
