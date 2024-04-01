@@ -40,7 +40,7 @@
 		/* hrInfo.getCstmList_paging  */
 		<include refid="common.pagingWrapStart"/>
 		<include refid="getCstmList_body"/>
-        ORDER BY B.BUYER_NM
+        ORDER BY CASE WHEN B.UPDATE_DATE > SYSDATE-1 THEN 0 ELSE 1 END ,B.BUYER_NM
 		<include refid="common.pagingWrapEnd"/>
 	</select>
 		 	
@@ -55,9 +55,12 @@
 		         #{TEL} 			AS TEL,
 		         #{ADDR} 			AS ADDR,
 		         #{COMPANY_REGNUM} 	AS COMPANY_REGNUM,
-		         'XXX'				AA HOW_GET,
-		         #{USE_YN} 			AS USE_YN,
-		         #{DEL_YN} 			AS DEL_YN
+		         #{HOW_GET}		 	AS HOW_GET,
+		         #{sessionVo.spCstmId} AS SP_CSTM_ID,
+		         'Y' 				AS USE_YN,
+		         'N'	 			AS DEL_YN,
+		         #{sessionVo.userId} AS UPDATE_USER,
+		         SYSDATE			AS UPDATE_DATE 
 		  FROM dual
 		) S
 		ON (T.BUYER_ID	= S.BUYER_ID 
@@ -69,11 +72,14 @@
 		    T.ADDR 				= S.ADDR,
 		    T.COMPANY_REGNUM	= S.COMPANY_REGNUM,
 		    T.HOW_GET			= S.HOW_GET,
+		    T.SP_CSTM_ID		= S.SP_CSTM_ID,
 		    T.USE_YN			= S.USE_YN,
-		    T.DEL_YN			= S.DEL_YN
+		    T.DEL_YN			= S.DEL_YN,
+		    T.UPDATE_USER		= S.UPDATE_USER,
+		    T.UPDATE_DATE		= S.UPDATE_DATE
 		WHEN NOT MATCHED THEN 
-    		INSERT (   BUYER_ID,   BUYER_NM,   TEL,   ADDR,   COMPANY_REGNUM,   HOW_GET,   USE_YN,   DEL_YN )
-   			VALUES ( S.BUYER_ID, S.BUYER_NM, S.TEL, S.ADDR, S.COMPANY_REGNUM, S.HOW_GET, S.USE_YN, S.DEL_YN )
+    		INSERT (   BUYER_ID,   BUYER_NM,   TEL,   ADDR,   COMPANY_REGNUM,   HOW_GET,   SP_CSTM_ID,   USE_YN,   DEL_YN,   UPDATE_USER,   UPDATE_DATE )
+   			VALUES ( S.BUYER_ID, S.BUYER_NM, S.TEL, S.ADDR, S.COMPANY_REGNUM, S.HOW_GET, S.SP_CSTM_ID, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE )
 	</update>
 	
 	<delete id="deleteCstm" parameterType="java.util.HashMap"  flushCache="true" >

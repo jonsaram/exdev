@@ -2,6 +2,7 @@
 <script type="text/javascript">
 var <@pageId> = {
 		 checkedItems : []
+		,searchedRows : []
  		,excelParam : {}
 		,pageInit : () =>{
 			
@@ -35,7 +36,13 @@ var <@pageId> = {
 
 				 }
 				,makeListFn			: function(list) {
-					<@pageId>.chkHandler();
+					
+					<@pageId>.searchedRows= list;
+
+					setTimeout( ()=>{
+						
+						_chkHandler("<@pageId>",<@pageId>);
+					},500)
 				 }
 	 		});			
 
@@ -79,9 +86,10 @@ var <@pageId> = {
 				}				
 			});				
 		}
-		, deleteOne : (key) =>{
-			
-    		const BUYER_ID 	= key;
+		, deleteOne : (index) =>{
+			debugger;
+			let row = <@pageId>.searchedRows[index];
+    		const BUYER_ID 	= row["BUYER_ID"];
     		<@pageId>.deleteItem({BUYER_ID:BUYER_ID})
     		
 		}
@@ -97,8 +105,8 @@ var <@pageId> = {
 		    
 		    $("#<@pageId>_delete").off().on('click',function(){
 		    	
-		    	<@pageId>.checkedItems.forEach( key =>{
-					<@pageId>.deleteOne(key);
+		    	<@pageId>.checkedItems.forEach( index =>{
+					<@pageId>.deleteOne(index);
 		    	})
 		    	
 		    })
@@ -110,58 +118,24 @@ var <@pageId> = {
 		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"고객 리스트");  
 		    	
 		    })
-		    			    
-		    $("[id^='<@pageId>_modify_']").off().on('click',function(){
-
-		    	const index = $(this).attr("index");
-				const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
-				<@pageId>.openPopup($tds);
-				
-		    })
-		    
-		    $("[id^='<@pageId>_delete_']").off().on('click',function(){
-
-		    	const key = $(this).attr("key");
-				<@pageId>.deleteOne(key);
-				
-		    })
-		    
+	    
 			$("#<@pageId>_search").off().on('click', () =>{
 		    	<@pageId>.searchList();
 		    })
 		    
 		}
-		,chkHandler : () => {
-			
-		    $("#<@pageId>_ckAll").click(function() {
+		,openPopup : (index) => {
 
-		    	const isAllChk =  $(this).prop("checked");
-				$("[id^='<@pageId>_ck_']").prop("checked", isAllChk);
-				
-		    	const ckboxes = $("[id^='<@pageId>_ck_']");
-			    <@pageId>.checkedItems = isAllChk ? ckboxes.map(function() { return this.value; }).get() : [];
-
-		    });
-		    $("[id^='<@pageId>_ck_']").click(function() {
-
-			        if ($(this).prop("checked")){<@pageId>.checkedItems.push($(this).val());}
-		    	else { <@pageId>.checkedItems = <@pageId>.checkedItems.filter(item => item !== $(this).val());}  
-		        
-		        const $checkboxSelector = $("[id^='<@pageId>_ck_']")
-		        const allCheckboxChecked = $checkboxSelector.length === $checkboxSelector.filter(":checked").length;
-		        $("#<@pageId>_ckAll").prop("checked", allCheckboxChecked);
-		        
-		    });
-		    
-		}		
-		,openPopup : ($tds) => {
-
-			let mode = "I";
 			let param = [];
-			if( isEmpty($tds)==false && $tds.length > 0 ){param = $tds;mode="U"}
-			
-			C_POP.open('popup_customer_cstmUpdatePopup', {param:param, mode:mode}, function(retData) {
+			let mode = "I";
+			let row = {};
+			if( index != undefined ){
+				
+				let row = <@pageId>.searchedRows[index];
+				if( isEmpty(row)==false ){param = row;mode="U"};
+			}
 
+			C_POP.open('popup_customer_cstmUpdatePopup', {param:param, mode:mode}, function(retData) {
 				if(isValid(retData)){
 					<@pageId>.updateItem(retData);
 				}
@@ -275,17 +249,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</tbody>
 						<script type="text/x-jsrender" id="<@pageId>_cstmList_template">						
 						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{{:BUYER_ID}}'>
+							<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:BUYER_ID}}'>
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:BUYER_ID}}'></td>
-			 					<td id='ROWIDX'			value='{{:ROWIDX}}'	   				class='tc'>{{:ROWIDX}}</td>
+			 					<td id='ROWIDX'			value='{{:ROWIDX}}'	   			class='tc'>{{:ROWIDX}}</td>
 			 					<td id='BUYER_ID'		value='{{:BUYER_ID}}'			class='tl'>{{:BUYER_ID}}</td>
 			 					<td id='BUYER_NM'		value='{{:BUYER_NM}}'			class='tl'>{{:BUYER_NM}}</a></td>
 			 					<td id='COMPANY_REGNUM'	value='{{:COMPANY_REGNUM}}'		class='tl'>{{:COMPANY_REGNUM}}</a></td>
 			 					<td id='TEL'			value='{{:TEL}}'				class='tl'>{{:TEL}}</td>
 								<td id='ADDR'			value='{{:ADDR}}'				class='tl'>{{:ADDR}}</td>
 								<td id='HOW_GET_NM'		value='{{:HOW_GET_NM}}'			>{{:HOW_GET_NM}}</td>
-			 					<td><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
-								<td><button id="<@pageId>_delete_{{:#index}}" key='{{:BUYER_ID}}'><i class="icon_trash"></i></button></td>
+			 					<td><button onclick="javascript:<@pageId>.openPopup('{{:#index}}');"><i class="icon_pen"></i></button></td>
+								<td><button onclick="javascript:<@pageId>.deleteOne('{{:#index}}');"><i class="icon_trash"></i></button></td>
 							</tr>
 						{{/for}}
 						</script>

@@ -125,9 +125,10 @@ var <@pageId> = {
 				});					
 			});				
 		}
-		, deleteOne : (key) =>{
+		, deleteOne : (index) =>{
 			
-    		const CONTRACT_ID	= key;
+			let row = <@pageId>.searchedRows[index];			
+    		const CONTRACT_ID	= row["CONTRACT_ID"];
     		<@pageId>.deleteItem({CONTRACT_ID:CONTRACT_ID})
     		
 		}
@@ -153,8 +154,8 @@ var <@pageId> = {
 		    
 		    $("#<@pageId>_deleteBtn").click(function(){
 		    	
-		    	<@pageId>.checkedItems.forEach( key =>{
-					<@pageId>.deleteOne(key);
+		    	<@pageId>.checkedItems.forEach( index =>{
+					<@pageId>.deleteOne(index);
 		    	})
 		    	
 		    })

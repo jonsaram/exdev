@@ -136,11 +136,11 @@ var <@pageId> = {
 				});
 				
 			}
-			, deleteOne : (key) =>{
-				
-				const SP_CSTM_ID	= key.split("||")[0];
-				const MENU_ID 		= key.split("||")[1];
-				<@pageId>.deleteItem( { SP_CSTM_ID:SP_CSTM_ID , MENU_ID:MENU_ID } )
+			, deleteOne : (index) =>{
+				let row = <@pageId>.searchedRows[index];
+
+				const MENU_ID 		= row["MENU_ID"];
+				<@pageId>.deleteItem( { MENU_ID:MENU_ID } )
 			  		
 			}
 			,setHandler : () => {
@@ -156,8 +156,8 @@ var <@pageId> = {
 			    
 			    $("#<@pageId>_delete").click(function(){
 			    	
-			    	<@pageId>.checkedItems.forEach( key =>{
-						<@pageId>.deleteOne(key);
+			    	<@pageId>.checkedItems.forEach( index =>{
+						<@pageId>.deleteOne(index);
 			    	})
 			    	
 			    })
