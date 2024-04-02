@@ -35,7 +35,30 @@
 		}
 	
 		,save : function() {
-			 
+			let saveData = {
+				 CONTRACT_ID	: C_COM.makeUniqueId()
+				,USER_ID 		: <@popupId>.userInfo		.USER_ID
+				,BUYER_ID 		: <@popupId>.buyerInfo		.BUYER_ID
+				,CONSULTING_ID 	: <@popupId>.consultingInfo	.CONSULTING_ID
+			}
+			
+			var parm ={
+					 queryId 		: "contract.registProject"
+					,requestParm	: saveData
+			}
+	
+			C_COM.requestQuery(parm, function(resultData) {
+	
+				if( resultData.state == "S"){
+					
+					C_POP.alert('등록되었습니다.');
+					
+					<@popupId>.close({reload:'Y'});
+				
+				}else{
+					C_POP.alert(resultData.msg)
+				}
+			});				
 		 }
 		,close : function(returnData) {
 			if(isEmpty(returnData)) returnData = {};

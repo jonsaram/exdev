@@ -548,5 +548,74 @@
 		 OR CONSULTING_DESC like '%' || #{SEARCH_ID} || '%'
 		)
 	</select>	
+
+
+
+	<update id="registProject">
+		MERGE INTO TBL_EXP_CONTRACT T
+		USING (
+		  SELECT #{CONTRACT_ID}							AS CONTRACT_ID
+		  FROM DUAL
+		) S
+		ON (
+			T.CONTRACT_ID	= S.CONTRACT_ID 
+		)
+		WHEN MATCHED THEN
+			UPDATE SET
+				 T.USER_ID 			= #{USER_ID				}
+				,T.BUYER_ID 		= #{BUYER_ID			}
+				,T.CONSULTING_ID 	= #{CONSULTING_ID		}
+				,T.UPDATE_USER		= #{sessionVo.userId	}
+				,T.UPDATE_DATE		= SYSDATE
+		WHEN NOT MATCHED THEN 
+			INSERT ( 
+				 CONTRACT_ID
+				,USER_ID
+				,BUYER_ID
+				,CONSULTING_ID
+				,PROCESS_STATE
+				,USE_YN
+				,DEL_YN
+				,UPDATE_DATE
+				,UPDATE_USER
+				,SP_CSTM_ID
+			) VALUES ( 
+				 #{CONTRACT_ID			}
+				,#{USER_ID				}
+				,#{BUYER_ID				}
+				,#{CONSULTING_ID		}
+				,'PRE_CONTRACT'
+				,'Y'
+				,'N' 
+	   			,sysdate
+	   			,#{sessionVo.userId		}
+				,#{sessionVo.spCstmId	}
+			)
+	</update>
+
+	<select id="getProjectList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	contract.getProjectList
+			프로젝트 리스트 조회 
+		*/
+		SELECT 
+			 CONTRACT_ID
+			,USER_ID
+			,GET_USER_NM(A.USER_ID) AS USER_NM
+			,BUYER_ID
+			,(SELECT BUYER_NM FROM TBL_EXP_BUYER WHERE BUYER_ID = A.BUYER_ID) AS BUYER_NM
+			,CONSULTING_ID
+			,(SELECT CONSULTING_NM FROM TBL_EXP_CONSULTING WHERE CONSULTING_ID = A.CONSULTING_ID) AS CONSULTING_NM
+			,PROCESS_STATE
+			,GET_CODE_NM('PROCESS_STATE', PROCESS_STATE) AS PROCESS_STATE_NM
+			,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) AS UPDATE_DATE
+		FROM 
+		 	TBL_EXP_CONTRACT  A
+		WHERE  1=1
+			AND	UPDATE_USER = #{sessionVo.userId}
+			AND	SP_CSTM_ID	= #{sessionVo.spCstmId}
+		ORDER BY UPDATE_DATE DESC		
+	</select>	
+
+
 			
 </mapper>

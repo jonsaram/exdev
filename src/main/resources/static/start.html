@@ -61,11 +61,18 @@
 			   ,grade	: "S마스터"
 			   ,email	: "jonsaram@explan.co.kr"
 			 }
-*/
 			,data		: {
 			    spCstmId	: "starasset"
 			   ,userId  	: "jonsaram"
 			   ,userNm  	: "위성열"
+			   ,grade	: "S마스터"
+			   ,email	: "jonsaram@explan.co.kr"
+			 }
+			*/
+			,data		: {
+			    spCstmId	: "starasset"
+			   ,userId  	: "20569492304"
+			   ,userNm  	: "아이브"
 			   ,grade	: "S마스터"
 			   ,email	: "jonsaram@explan.co.kr"
 			 }
@@ -173,7 +180,7 @@
 			,moveMainMenu 	: function(mainMenuIdx) {
 				C_MENU.showSubMenuList(mainMenuIdx, 0);
 				C_MENU.moveSubMenu(0);
-				if(C_MENU.mainMenuList[mainMenuIdx].MENU_ID == "MN_SCD") {
+				if(in_array(C_MENU.mainMenuList[mainMenuIdx].MENU_ID, ["MN_SCD", "MN_FDS"])) {
 					$("#subMenuList").hide();
 				} else {
 					$("#subMenuList").show();
@@ -258,7 +265,7 @@
 		</div>
 	</header>
 	<div class="container" id="mainContainer">
-		<nav class="lnb" id="subMenuList">
+		<nav class="lnb" id="subMenuList" style="display:none">
 		</nav>
 		<script type="text/x-jsrender" id="subMenuList_template">						
 			<div class="lnb_tit01">{{:PARENT_MENU_NM}}<button class="btn fold"><i class="icon_arrow"></i></button></div>

@@ -3,15 +3,30 @@
 	var <@pageId> = {
 		openProjectPopup : function() {
 			C_POP.open('popup_operation_projectRegistPopup', {}, function(retData) {
-				if(isValid(retData)){
-					dalert(retData);
+				if(retData.reload == 'Y') {
+					<@pageId>.loadData();
 				}
 			});
-		}
+		 }
+		,loadData : function() {
+			var parm = {
+				 queryId 		: "contract.getProjectList"
+				,requestParm	: {}
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				var rparm = {
+						 targetId 		: "<@pageId>_projectList"
+						,list			: resultData.data
+						,targetTotalId	: "<@pageId>_totalCnt"
+				}
+				C_COM.renderHtml("<@pageId>", rparm);
+			});  
+				
+		 }
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
-
+		<@pageId>.loadData();
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -29,7 +44,7 @@
 						<button class="btn select fl" onclick="<@pageId>.openProjectPopup()">프로젝트 추가</button>
 		            </div>
 		            <div class="search_right">
-						<strong class="total">Total: <span class="pointColr">3</span></strong>
+						<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
 		            </div>
 				</div>
 				<!-- 테이블 -->
@@ -42,6 +57,7 @@
 							<col style="width:150px;"/>
 							<col style="width:*"/>
 							<col style="width:150px;"/>
+							<col style="width:200px;"/>
 							<col style="width:150px;"/>
 						</colgroup>
 						<thead>
@@ -51,19 +67,30 @@
 								<th scope="col">담당자명</th>
 								<th scope="col">상품명</th>
 								<th scope="col">상태</th>
+								<th scope="col">등록일</th>
 								<th scope="col">관리</th>
 							</tr>
 						</thead>
-						<tbody>
+						<tbody id="<@pageId>_projectList">
+						</tbody>
+						<script type="text/x-jsrender" id="<@pageId>_projectList_template">						
+							{{for list}}
 							<tr>
-								<td>1</td>
-								<td>스타에셋</td>
-								<td>위성열</td>
-								<td>월자문 솔루션1</td>
-								<td>제안진행</td>
+								<td>{{:#index + 1}}</td>
+								<td>{{:BUYER_NM}}</td>
+								<td>{{:USER_NM}}</td>
+								<td>{{:CONSULTING_NM}}</td>
+								<td>{{:PROCESS_STATE_NM}}</td>
+								<td>{{:UPDATE_DATE}}</td>
 								<td>수정/삭제</td>
 							</tr>
-						</tbody>
+							{{/for}}
+						</script>
+						<script type="text/x-jsrender" id="<@pageId>_projectList_noData_template">	
+							<tr>	
+								<td colspan=7>자료가 없습니다.</td>	
+							</tr>
+						</script>
 					</table>
 				</div>
 			</section>
