@@ -12,7 +12,7 @@ var <@pageId> = {
 					 		,["BUYER_NM", "고객명"	]
 					 		,["COMPANY_REGNUM", "사업자등록번호"	]
 					 		,["ADDR", "본점주소"		]
-					 ])
+			])
 
 			
 		}
@@ -25,6 +25,7 @@ var <@pageId> = {
 								, BUYER_NM : SEARCH_TEXT && SEARCH_TEXT.indexOf("BUYER_NM") > -1 ? searchText : ''
 								, COMPANY_REGNUM : SEARCH_TEXT && SEARCH_TEXT.indexOf("COMPANY_REGNUM") > -1 ? searchText : ''
 								, ADDR : SEARCH_TEXT && SEARCH_TEXT.indexOf("ADDR") > -1 ? searchText : ''
+								, CHECK_MEMBER : $("#mainMenuList .active").text() == '업무관리' ? 'Y' :'N'
 								};
 			
 			var parm = {
@@ -204,7 +205,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<button type="button" class="btn fl" id="<@pageId>_excelDownloadBtn"><i class="icon_download"></i>Excel 다운로드</button>
 						<button type="button" class="btn fl"><i class="icon_upload"></i> Excel 업로드</button>
 					<div id="<@pageId>_pagingChunk" style="margin-left: 5px;width:130px"></div>
-					<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">3</span></strong>
+					<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
 	            </div>
 			</div>
 			<!-- 테이블 -->

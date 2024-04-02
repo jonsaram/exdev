@@ -45,6 +45,20 @@
 				1=1
 			</if>
 		)
+		<if test=' parm.CHECK_MEMBER != null and parm.CHECK_MEMBER =="Y" '>
+		/* 고객을 등록 / 고객과 연계된 계약의 멤버들 */
+		AND (  B.UPDATE_USER = #{sessionVo.userId}
+			OR 
+			   B.BUYER_ID IN ( SELECT DISTINCT C.BUYER_ID  
+								FROM TBL_EXP_CONTRACT C
+								,TBL_EXP_CONTRACT_MEMBER CM 
+								WHERE C.CONTRACT_ID = CM.CONTRACT_ID 
+								AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
+								AND CM.USE_YN  = 'Y' AND C.DEL_YN = 'N'
+								AND CM.USER_ID = #{sessionVo.userId}
+				)
+		)
+		</if>
 		
 	</sql>
 	<select id="getCstmList" resultType="java.util.HashMap" flushCache="true"  useCache="false">

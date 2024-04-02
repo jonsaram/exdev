@@ -79,28 +79,28 @@ var <@pageId> = {
         }
 		,searchList : () => {
 
-			const searchVal = $("#<@pageId>_msSearch").val();
-			if( isEmpty(searchVal) ){
-				$("input[type='checkbox'][id^='<@pageId>_search']:checked").prop("checked", false);
-				$(".multiSel").empty();
-				$(".hida").length == 0 ? $(".multiSel").after('<span class="hida">Select</span>') :'';
+			const searchVal = $("#<@pageId>_nmSearch").val();
+			
+ 			if( isEmpty(searchVal) ){
 				<@pageId>.SEARCH_COLUMN = [];
 			}
 			const baseBranch= C_UICOM.getData("<@pageId>_selectBaseBranch");
 			const spBranch	= C_UICOM.getData("<@pageId>_selectSpBranch");
 			const branch	= C_UICOM.getData("<@pageId>_selectBranch");
-			
+
+			const SEARCH_TEXT = ["USER_ID","USER_NM","EMAIL","PHONE"];
 			const requestParm = {
-					 IS_MULTI_SEARCH	: <@pageId>.SEARCH_COLUMN.length > 1 ? 'Y' :'N'
-					,USER_NM 	: <@pageId>.SEARCH_COLUMN.includes("USER_NM") ? searchVal : null
-					,USER_ID 	: <@pageId>.SEARCH_COLUMN.includes("USER_ID") ? searchVal : null
-					,EMAIL	 	: <@pageId>.SEARCH_COLUMN.includes("EMAIL") ? searchVal : null
-					,PHONE_NUM 	: <@pageId>.SEARCH_COLUMN.includes("PHONE_NUM") ? searchVal : null
- 					,BASE_BRANCH:	baseBranch == "--" ? null : baseBranch
-					,SP_BRANCH	:	spBranch == "--" ? null : spBranch
-					,BRANCH		:	branch == "--" ? null : branch
+				 IS_MULTI_SEARCH	: 'Y'					
+				,USER_NM 	: searchVal
+				,USER_ID	: searchVal
+				,EMAIL 		: searchVal
+				,PHONE_NUM 	: searchVal
+				,BASE_BRANCH: baseBranch == "--" ? null : baseBranch
+ 				,SP_BRANCH	: spBranch == "--" ? null : spBranch
+ 				,BRANCH		: branch == "--" ? null : branch
 			};
-			
+
+			debugger;
 			var parm = {
 					 queryId 		: "hrInfo.getHrInfoList"
 					,requestParm	: requestParm
@@ -112,7 +112,7 @@ var <@pageId> = {
 	 			 pageId				: "<@pageId>"
 	 			,listDomId			: "<@pageId>_hiInfoList"
 	 			,pagingDomId		: "pageDiv"
-	 			,totalCntDomId		: "totalCnt"
+	 			,totalCntDomId		: "<@pageId>_totalCnt"
 	 			,queryId			: "hrInfo.getHrInfoList"
 				,listRange			: isEmpty(listRange) ? 10 : Number(listRange)
 				,pageRange			: 10
@@ -127,8 +127,8 @@ var <@pageId> = {
 					
 				 }
 				,makeListFn			: function(list) {
-					<@pageId>.SEARCH_COLUMN = [];
-					<@pageId>.chkHandler();
+					
+					setTimeout( ()=>{<@pageId>.chkHandler();},500)
 				 }
 	 		});	
 		}
@@ -196,18 +196,19 @@ var <@pageId> = {
 		    	});
 		    })
 		    
-		    $("#<@pageId>_excelDownload").click(function(){
+		    $("#<@pageId>_excelDownloadBtn").click(function(){
 
  		    	const $hds = $("#<@pageId>_headingColName th");
 		    	const $tds = $("[name='<@pageId>_tr_0'] td");
-		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"직원 리스트", true);  
+		    	
+		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"직원 리스트", true );  
 		    	
 		    })
 		    
-			$("#<@pageId>_search").click( () =>{
+			$("#<@pageId>_searchBtn").click( () =>{
 				
-				 const value= $("#<@pageId>_msSearch").val()
-		    	<@pageId>.msSearch({key:'Enter',target:{value:value}});
+				 const value= $("#<@pageId>_nmSearch").val()
+		    	<@pageId>.nameSearch({key:'Enter',target:{value:value}});
 		    })
 		    
 		    $("#<@pageId>_pagingChunk"	).off().on('change',() =><@pageId>.searchList());
@@ -234,26 +235,8 @@ var <@pageId> = {
 		    
 		}
 		,chkHandler : () => {
-			
-		    $("#<@pageId>_ckAll").click(function() {
 
-		    	const isAllChk =  $(this).prop("checked");
-				$("[id^='<@pageId>_ck_']").prop("checked", isAllChk);
-				
-		    	const ckboxes = $("[id^='<@pageId>_ck_']");
-			    <@pageId>.checkedItems = isAllChk ? ckboxes.map(function() { return this.value; }).get() : [];
-
-		    });
-		    $("[id^='<@pageId>_ck_']").click(function() {
-
-				if ($(this).prop("checked")){<@pageId>.checkedItems.push($(this).val());}
-		    	else { <@pageId>.checkedItems = <@pageId>.checkedItems.filter(item => item !== $(this).val());}  
-		        
-		        const $checkboxSelector = $("[id^='<@pageId>_ck_']")
-		        const allCheckboxChecked = $checkboxSelector.length === $checkboxSelector.filter(":checked").length;
-		        $("#<@pageId>_ckAll").prop("checked", allCheckboxChecked);
-		        
-		    });
+			_chkHandler("<@pageId>",<@pageId>);
 		    
 		}		
 		,openPopup : () => {
@@ -274,20 +257,25 @@ var <@pageId> = {
 			C_PM.movePage( pageId.trim(), clickedRow );
 			
 		}
- 		,msSearch : (e) => {
+		,nameSearch : (e) => {
 			
 			 if (e.key === "Enter") {
 				 
-				 	const $checked = $("input[type='checkbox'][id^='<@pageId>_search']:checked");
-			        let SEARCH_WORD = e.target.value;
-			        let  = []; 
-			        $.each( $checked,  function(index, check)  
-			        { 
-			        	<@pageId>.SEARCH_COLUMN.push($(check).attr("column") ); 
-					}); 
-			        	
 					<@pageId>.searchList();
+					
 			}
+		}
+		,checkedMemberExcelDownload : () => {
+			
+	    	const $hds = $("#<@pageId>_headingColName th");
+	    	const $tds = $("[name='<@pageId>_tr_0'] td");
+	    	const checkedRow = [];
+	    	<@pageId>.checkedItems.forEach( idx => {
+	    		checkedRow.push( <@pageId>.searchedData.pageList[idx] );	
+	    	})
+
+	    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"직원 리스트", true, checkedRow);  			
+			
 		}
 }
 
@@ -316,37 +304,27 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<!-- 멀티 선택 -->
 				<div class="fl">
 				
-					<div class="dropdown fl" style="width:120px;">
-						<button type="button" class="btn arrow">
-							<span class="hida">Select</span>
-							<p class="multiSel"></p>
-						</button>
-					    <div class="mutliSelect">
-					        <ul><li><input type="checkbox" value="사원 번호" column="USER_ID"	id="<@pageId>_searchUserId"><label for="mutli01">사원 번호</label></li>
-					            <li><input type="checkbox" value="성명" 	 column="USER_NM"	id="<@pageId>_searchUserNm"><label for="mutli02">성명</label></li>
-					            <li><input type="checkbox" value="이메일" 	 column="EMAIL"		id="<@pageId>_searchEmail"><label for="mutli03">이메일</label></li>
-					            <li><input type="checkbox" value="연락처" 	 column="PHONE_NUM"	id="<@pageId>_searchPhoneNum"><label for="mutli04">연락처</label></li>
-					        </ul>					    
-					    </div>
-					</div>
-					<div class="search_inputWrap fl">
-						<input type="search" id="<@pageId>_msSearch" onkeydown="<@pageId>.msSearch(event)" style='width:100px;'><button class="search_btn"><i class="icon_search"></i></button>
+					<div class="search_inputWrap fl" style='width:100px;'>
+						<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
 					</div>
 					
 					<div id="<@pageId>_selectBaseBranch" column = "BASE_BRANCH_ID" class="select_box" style="width:85px;"></div>
 					<div id="<@pageId>_selectSpBranch" column = "SP_BRANCH_ID" class="select_box" style="width:115px;"></div>
 					<div id="<@pageId>_selectBranch" column = "BRANCH_ID" class="select_box" style="width:125px;"></div>
 			
-					<button type="button" class="btn select fr" id="<@pageId>_search" style='margin-left:8px;'>조회</button>
+					<button type="button" class="btn select fr" id="<@pageId>_searchBtn" style='margin-left:8px;'>조회</button>
 					<button type="button" class="btn fr" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 					
 				</div>
 	
 				<div class="search_right">
+				
 					<button type="button" class="btn select fl" onclick="javascript:<@pageId>.openPopup();"><i class="icon_user_plus"></i>직원 추가</button>
-					<button type="button" class="btn fl" id="<@pageId>_excelDownload"><i class="icon_download"></i>직원 List Download</button>
-					<button type="button" class="btn fl" id="<@pageId>_excelDownload_select"><i class="icon_download"></i>선택 직원 Download</button>
-					<div 	style="width:108px"			 id="<@pageId>_pagingChunk" ></div>
+					<button type="button" class="btn fl" id="<@pageId>_excelDownloadBtn"><i class="icon_download"></i>직원 Download</button>
+					<button type="button" class="btn fl" onclick="javascript:<@pageId>.checkedMemberExcelDownload()"><i class="icon_download"></i>선택 직원 Download</button>
+					<div 	style="width:107px"			 id="<@pageId>_pagingChunk" ></div>
+					<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
+					
 	            </div>
 			</div>
 			<!-- 테이블 -->
@@ -370,7 +348,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</colgroup>
 						<thead>
 							<tr id="<@pageId>_headingColName">
-								<th scope="col"><input type="checkbox"></th>
+								<th scope="col"><input type="checkbox"  id="<@pageId>_ckAll"></th>
 								<th scope="col">No.</th>
 								<th scope="col">사원번호</th>
 								<th scope="col">성명</th>
@@ -416,7 +394,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
     								class="expiration_date"
 								{{/if}} 
 							     value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
-								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'></td>
+								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}"></td>
 			 					<td id='ROWIDX'			class='tc'>{{:ROWIDX}}</td>
 			 					<td id='USER_ID'		class='tl'>{{:USER_ID}}</td>
 			 					<td id='USER_NM'		class='tl'><a href="javascript:<@pageId>.goPage('main_operation_hrInfoView' , '{{:#index}}' );">{{:USER_NM}}</a></td>
