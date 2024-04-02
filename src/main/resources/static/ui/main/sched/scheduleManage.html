@@ -134,9 +134,15 @@
                    // 오늘의 일정 count
                    console.log("toDay ==>"+<@pageId>.toDay);
                    
+                   let length = 24; // 표시할 글자수 기준
+                   let title = resultData.data[i].TITLE;
+                   if (title.length > length) {
+                	   title = title.substr(0, length - 2) + '...';
+                   }
+                   
                    var obj = new Object();
                    obj.id    = resultData.data[i].SCHEDULE_ID;
-                   obj.title = resultData.data[i].TITLE;
+                   obj.title = title;//resultData.data[i].TITLE;
                    obj.start = resultData.data[i].SCHEDULE_DATE1+'T'+resultData.data[i].START_TIME_HOUR+':'+resultData.data[i].START_TIME_MINUTE+':00';
                    obj.end   = resultData.data[i].SCHEDULE_DATE1+'T'+resultData.data[i].END_TIME_HOUR+':'+resultData.data[i].END_TIME_MINUTE+':00';
                    obj.textColor = resultData.data[i].TEXT_COLOR;

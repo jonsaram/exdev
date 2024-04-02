@@ -1,0 +1,223 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@compId> = {
+			 searchedRows : [] // 페이지
+			,pageInit : () => {
+
+	            const yearsArray = Array.from({ length: 4 }, (_, index) => {
+	                  const year = 2022 + index;
+	                  return [year.toString(), year + "년"];
+	            });
+	            var yearsArrayList = { data : yearsArray,targetId : "<@compId>_years"}
+	            C_UICOM.makeSelectBox(yearsArrayList, "single");
+	            C_UICOM.setSingleBox("<@compId>_years", dayjs().year());
+	            
+	            // 월
+	            var monthList = C_COM.getCodeList("STORE_MONTH");
+	            
+	            var selectBoxMonthList = { 
+	                 data : monthList
+	                ,targetId : "<@compId>_selectBoxMonth" 
+	            }
+	            C_UICOM.makeSelectBox(selectBoxMonthList, "single");
+	            
+	            // 지점
+	            let requestParm1 = {};
+	            requestParm1["spCstmId"] = "starasset";
+
+	            var parm1 = {
+	                    queryId  : "dashboardCorPerformance.getStore"
+	                   ,requestParm   : requestParm1
+	            }
+	            
+	            C_COM.requestQuery(parm1, function(resultData) {
+	                
+	                const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
+	                
+	                var selectBoxStoreList = {
+	                        defaultItem    : ["ALL", "전체"]
+	                       ,data : DATA
+	                       ,targetId : "<@compId>_selectBoxStoreList" 
+	                }
+	                
+	                C_UICOM.makeSelectBox(selectBoxStoreList, "single");
+	            });
+	                        
+	            
+	            // 과목
+	            var subjectList = C_COM.getCodeList("FINANCIAL_SUBJECT");
+	            
+	            var selectBoxSubjectList = { 
+	                 data : subjectList
+	                ,targetId : "<@compId>_selectBoxSubjectList" 
+	            }
+	            C_UICOM.makeSelectBox(selectBoxSubjectList, "single");
+	            
+	            _setSearchListCnt("<@compId>_pagingChunk" );
+	            
+
+	            C_UICOM.addChangeListner("<@compId>_selectBoxMonth", function(dataObj) {
+	                console.log("_selectBoxMonth  =>"+dataObj);
+	                <@compId>.month = dataObj;
+	            });
+	            
+	            C_UICOM.addChangeListner("<@compId>_selectBoxStoreList", function(dataObj) {
+	                console.log("_selectBoxStoreList  =>"+dataObj);
+	                <@compId>.store = dataObj;
+	            });
+
+	            C_UICOM.addChangeListner("<@compId>_selectBoxSubjectList", function(dataObj) {
+	                console.log("_selectBoxSubjectList  =>"+dataObj);
+	                <@compId>.subject = dataObj;
+	            });
+	            
+			}
+
+	        ,searchList : () => {
+	            
+	            console.log("searchList");
+	            /* 재무제표 TAB    재무제표 TAB    재무제표 TAB    재무제표 TAB    재무제표 TAB    재무제표 TAB    */
+	            var years   = C_UICOM.getData("<@compId>_years");
+	            var month   = C_UICOM.getData("<@compId>_selectBoxMonth");
+	            var storeId = C_UICOM.getData("<@compId>_selectBoxStoreList");
+	            var subject = C_UICOM.getData("<@compId>_selectBoxSubjectList");
+	            
+	            console.log("  years["+years+"]   month["+month+"]   storeId["+storeId+"]   subject["+subject+"]   ");
+	            
+	            let requestParm = {};
+	            requestParm["spCstmId"]  = "starasset";
+	            requestParm["storeId"]   = storeId;
+	            requestParm["year"]      = years;
+	            requestParm["month"]     = month;
+	            requestParm["subject"]   = subject;
+	            
+	            const listRange = C_UICOM.getData("<@compId>_pagingChunk");
+
+	            console.log("611  listRange["+listRange+"]    ");
+	            
+	            // 페이징 처리 초기화
+	            C_PAGING.create({
+	                 pageId             : "<@compId>"
+	                ,listDomId          : "<@compId>_tableId"
+	                ,pagingDomId        : "<@compId>_pageDiv"
+	                ,totalCntDomId      : "<@compId>_totalCnt"
+	                ,queryId            : "dashboardCorPerformance.getFinancial"
+	                ,listRange          : Number(listRange)
+	                ,pageRange          : 10
+	                // <@compId>.setSearchParm function에서 반환하는 json object값을 Query Parameter로 사용한다.
+	                ,parmFn             : function() {
+	                    let parm = requestParm
+	                    return  parm;
+	                 }
+	                // 페이지를 클릭 했을때 처리가 필요하면 아래에 정의 함
+	                ,onPageClickCallback: function(data) {
+
+	                 }
+	                // 검색해온 List를 수정한다.
+	                ,makeListFn         : function(list) {
+	                    <@compId>.searchedRows = list; 
+	                 }
+	            });
+	            /* 재무제표 TAB    재무제표 TAB    재무제표 TAB    재무제표 TAB    재무제표 TAB    재무제표 TAB    */
+	        }
+	        ,setHandler : () => {
+
+	            $("#<@compId>_pagingChunk"  ).off().on('change',() =><@compId>.searchList(""));
+	            
+	            $("#<@compId>_searchBtn").click( () =>{
+	                console.log(" search 클릭");
+	                <@compId>.searchList();
+	            })            
+	            
+	        }
+	}
+	// Component Load가 완료된후 실행 된다.
+	C_COMP.onLoadComp("<@compId>", function(data) {
+        <@compId>.pageInit();
+        <@compId>.setHandler();
+	});
+</script>
+<div class="container">
+    <div class="cont_wrap lnb_none">
+        <div class="cont_top">
+            <h2><i class="icon_bullet"></i>재무제표</h2>
+        </div>
+        <div class="sec_scroll">
+            <section class="sec_wrap">
+                <div class="cont_box">
+                    <!-- search area -->
+                    <div class="search_area">
+                        <div class="calendar_wrap">
+                            <div class="select_box fl" style="width:132px">
+                                <div id="<@compId>_years" style="width:132px"></div>
+                            </div>
+                            <div class="select_box fl" style="width:132px">
+                                <div id="<@compId>_selectBoxMonth" style="width:132px"></div>
+                            </div>
+                            <div class="select_box fl" style="width:132px">
+                                 <div id="<@compId>_selectBoxStoreList" style="width:132px"></div>
+                            </div>
+                            <div class="select_box fl" style="width:132px">
+                                <div id="<@compId>_selectBoxSubjectList" style="width:132px"></div>
+                            </div>
+                            <div class="select_box fl" style="width:132px">
+                                <button type="button" class="btn select fl" id="<@compId>_searchBtn">조회</button>
+                            </div>
+                        </div>
+                        <div class="search_right">
+                            <strong class="total">Total: <span class="pointColr" id="<@compId>_totalCnt"></span></strong>
+                            <div id="<@compId>_pagingChunk" style="margin-left: 5px;width:130px"></div>
+                            
+                        </div>
+                    </div>
+                    <!-- 테이블 -->
+                    <div class="tbl01 col">
+                        <table>
+                            <caption>표 캡션</caption>
+                            <colgroup>
+                                <col style="width:50px;"/>
+                                <col style="width:150px;"/>
+                                <col style="width:120px;"/>
+                                <col style="width:*"/>
+                                <col style="width:100px;"/>
+                                <col style="width:100px;"/>
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Num</th>
+                                    <th scope="col">월</th>
+                                    <th scope="col">지점명</th>
+                                    <th scope="col">과목</th>
+                                    <th scope="col">비율</th>
+                                    <th scope="col">계</th>
+                                </tr>
+                            </thead>
+                            <tbody id="<@compId>_tableId">
+                            </tbody>
+                            <script type="text/x-jsrender" id="<@compId>_tableId_template">    
+                                                    {{for list}}
+                                                        <tr id="trId_{{:#index}}" name="<@compId>_tr_{{:#index}}" '>
+                                                            <td>{{:#index + 1}}</td>
+                                                            <td>{{:MONTH}}월</td>
+                                                            <td>{{:STORE_NM3}}</td>
+                                                            <td>{{:SUBJECT_NM}}</td>
+                                                            <td>80%</td>
+                                                            <td>{{:AMOUNT}}</td>
+                                                        </tr>
+                                                    {{/for}}
+                                                </script>
+                            <script type="text/x-jsrender" id="<@compId>_tableId_noData_template">    
+                                                   <tr>    
+                                                       <td colspan=6>자료가 없습니다.</td>    
+                                                   </tr>
+                                                </script>
+                        </table>
+                    </div>
+                    <!-- paging -->
+                    <div class="paging" id="<@compId>_pageDiv">
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

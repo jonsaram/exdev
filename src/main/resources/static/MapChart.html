@@ -1,0 +1,98 @@
+<html>
+  <head>
+      <style type="text/css">
+      #container {
+    height: 500px;
+    min-width: 310px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.loading {
+    margin-top: 10em;
+    text-align: center;
+    color: gray;
+}
+      </style> 
+      <script src="https://code.highcharts.com/maps/highmaps.js"></script>
+      <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
+    <script type='text/javascript'>
+	    (async () => {
+	
+	        const topology = await fetch(
+	            'https://code.highcharts.com/mapdata/countries/kr/kr-all.topo.json'
+	        ).then(response => response.json());
+	
+	        // Prepare demo data. The data is joined to map using value of 'hc-key'
+	        // property by default. See API docs for 'joinBy' for more info on linking
+	        // data and map.
+	        const data = [
+                ['kr-4194', 0]
+              , ['kr-pu', 0]
+              , ['kr-kg', 30] /* 경기도*/
+              , ['kr-cb', 30] /* 전라북도*/
+              , ['kr-2688', 30]  /* 경상북도*/
+              , ['kr-kn', 30] /* 경상남도*/
+              , ['kr-2685', 30] /* 전라남도*/
+              , ['kr-sj', 30] /* 세종시*/
+              , ['kr-tj', 30] /* 대전시*/
+              , ['kr-ul', 30] /* 울산시*/
+              , ['kr-in', 30] /* 인천시*/
+              , ['kr-kw', 30] /* 강원도*/
+              , ['kr-gn', 30] /* 충청남도*/
+              , ['kr-cj', 30] /* 제주도*/
+              , ['kr-gb', 30] /* 충청북도*/
+              , ['kr-so', 30] /* 서울시*/
+              , ['kr-tg', 30] /* 대구시*/
+              , ['kr-kj', 30] /* 광주시*/
+            ];
+	        console.log("====== topology ========");
+	        console.log(topology);
+	        
+	        // Create the chart
+	        Highcharts.mapChart('container', {
+	            chart: {
+	                map: topology
+	            },
+	
+	            title: {
+	                text: 'Highcharts Maps basic demo'
+	            },
+	
+	            subtitle: {
+	                text: 'Source map: <a href="http://code.highcharts.com/mapdata/countries/kr/kr-all.topo.json">South Korea</a>'
+	            },
+	
+	            mapNavigation: {
+	                enabled: true,
+	                buttonOptions: {
+	                    verticalAlign: 'bottom'
+	                }
+	            },
+	
+	            colorAxis: {
+	                min: 0
+	            },
+	
+	            series: [{
+	                data: data,
+	                name: 'Random data',
+	                states: {
+	                    hover: {
+	                        color: '#BADA55'
+	                    }
+	                },
+	                dataLabels: {
+	                    enabled: true,
+	                    format: '{point.name}'
+	                }
+	            }]
+	        });
+	
+	    })();
+    </script>
+  </head>
+  <body>
+    <div id="container"></div>
+  </body>
+</html>

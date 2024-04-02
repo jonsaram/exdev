@@ -289,10 +289,10 @@
               ,STORE_MANAGER_NM
               ,REGION
               ,DEPARTMENT_CHARGE
-              ,CONTRACT_DATE
-              ,OPENING_DAY
-              ,TRANSFER_DAY
-              ,CLOSING_DATE
+              ,TO_CHAR( CONTRACT_DATE , 'YYYY-MM-DD')  AS CONTRACT_DATE 
+              ,TO_CHAR( OPENING_DAY , 'YYYY-MM-DD')    AS OPENING_DAY
+              ,TO_CHAR( TRANSFER_DAY , 'YYYY-MM-DD')   AS TRANSFER_DAY
+              ,TO_CHAR( CLOSING_DATE , 'YYYY-MM-DD')   AS CLOSING_DATE
               ,FRANCHISE_STORE
               ,NOTE
               ,TB_ROTATION
@@ -304,7 +304,74 @@
         FROM   TBL_EXP_STORE_INFO
         WHERE  1 = 1
         AND    SP_CSTM_ID = #{spCstmId}
+        <if test=" startDate != null and startDate != '' and endDate != null and endDate != '' " >
+            AND    OPENING_DAY BETWEEN TO_DATE( #{startDate}, 'YYYY-MM-DD') AND TO_DATE(#{endDate}, 'YYYY-MM-DD')
+        </if>
+                
         ORDER BY STORE_NM3 
     </select>
+    
+    <sql id="getStorePage_body">
+        SELECT ROW_NUMBER() OVER (ORDER BY  SP_CSTM_ID, STORE_ID) AS RN
+              ,SP_CSTM_ID
+              ,STORE_ID
+              ,STORE_NM
+              ,STORE_NM1
+              ,STORE_NM2
+              ,STORE_NM3
+              ,STORE_ID  AS CODE_ID
+              ,STORE_NM3 AS CODE_NM
+              ,STORE_NM4
+              ,STORE_NM5
+              ,ADDRESS
+              ,STORE_MANAGER_NM
+              ,REGION
+              ,DEPARTMENT_CHARGE
+              ,TO_CHAR( CONTRACT_DATE , 'YYYY-MM-DD')  AS CONTRACT_DATE 
+              ,TO_CHAR( OPENING_DAY , 'YYYY-MM-DD')    AS OPENING_DAY
+              ,TO_CHAR( TRANSFER_DAY , 'YYYY-MM-DD')   AS TRANSFER_DAY
+              ,TO_CHAR( CLOSING_DATE , 'YYYY-MM-DD')   AS CLOSING_DATE
+              ,FRANCHISE_STORE
+              ,NOTE
+              ,TB_ROTATION
+              ,TB_ROTATION_GOAL
+              ,START_MARKETING
+              ,SUPERVISOR
+              ,UPDATE_USER
+              ,UPDATE_DATE
+        FROM   TBL_EXP_STORE_INFO
+        WHERE  1 = 1
+        <if test=" parm.dateStart != null and parm.dateStart != '' and parm.dateEnd != null and parm.dateEnd != '' " >
+            AND    OPENING_DAY BETWEEN TO_DATE( #{parm.dateStart}, 'YYYY-MM-DD') AND TO_DATE(#{parm.dateEnd}, 'YYYY-MM-DD')
+        </if>
+        <if test=" !'ALL'.equals(parm.region) ">
+            AND    REGION = #{parm.region} 
+        </if>
+        <if test=" !'ALL'.equals(parm.supervisor) ">
+            AND    supervisor = #{parm.supervisor} 
+        </if>
+    </sql>  
+    <select id="getStorePage" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getStorePage */
+        <include refid="getStorePage_body"/>
+        ORDER BY STORE_NM3 
+    </select>
+    
+    <select id="getStorePage_totalCnt" resultType="Integer">
+        /* dashboardCorPerformance.getStorePage_totalCnt  */
+        <include refid="common.totalWrapStart"/>
+        <include refid="getStorePage_body"/>
+        <include refid="common.totalWrapEnd"/>
+    </select>
+    
+    <select id="getStorePage_paging" resultType="java.util.HashMap">
+        /* dashboardCorPerformance.getStorePage_paging  */
+        <include refid="common.pagingWrapStart"/>
+        <include refid="getStorePage_body"/>
+        ORDER BY STORE_NM3
+        <include refid="common.pagingWrapEnd"/>
+    </select>
+    
+    
     
 </mapper>

@@ -1,0 +1,902 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+    var <@compId> = {
+             searchedRows : [] // 페이지
+            ,pageInit : () => {
+                
+                
+            }
+            ,setChart : () => {
+                let requestParm111 = {};
+                requestParm111["spCstmId"] = "starasset";
+                requestParm111["year"]     = "2023";
+                requestParm111["subject"]  = "SUBJECT_001";
+                
+                var parm111 = {
+                        queryId  : "dashboardCorPerformance.getSalesRanking"
+                       ,requestParm   : requestParm111
+                }
+                C_COM.requestQuery(parm111, function(resultData) {
+
+                    <@compId>.setChart111(resultData );
+                    
+                    let rparm111 = {
+                            targetId   : "tableId111"
+                           ,list       : resultData.data
+                    }
+                    C_COM.renderHtml("<@compId>", rparm111);
+                });
+
+                let requestParm112 = {};
+                requestParm112["spCstmId"]  = "starasset";
+                requestParm112["year"]      = "2023";
+                requestParm112["subject"]   = "SUBJECT_005";
+                
+                var parm112 = {
+                        queryId  : "dashboardCorPerformance.getSalesRanking"
+                       ,requestParm   : requestParm112
+                }
+                C_COM.requestQuery(parm112, function(resultData) {
+
+                    <@compId>.setChart112(resultData );
+                    let rparm12 = {
+                            targetId   : "tableId112"
+                           ,list       : resultData.data
+                    }
+                    C_COM.renderHtml("<@compId>", rparm12);
+                    
+                });
+                
+                let requestParm113 = {};
+                requestParm113["spCstmId"]  = "starasset";
+                requestParm113["year"]      = "2023";
+                
+                var parm113 = {
+                        queryId  : "dashboardCorPerformance.getRegionsRanking"
+                       ,requestParm   : requestParm113
+                }
+                C_COM.requestQuery(parm113, function(resultData) {
+
+                    <@compId>.setChart113(resultData);
+                    
+                    let rparm113 = {
+                            targetId   : "tableId113"
+                           ,list       : resultData.data
+                    }
+                    C_COM.renderHtml("<@compId>", rparm113);
+                });
+
+
+                let requestParm121 = {};
+                requestParm121["spCstmId"]  = "starasset";
+                requestParm121["year"]      = "2023";
+                
+                var parm121 = {
+                        queryId  : "dashboardCorPerformance.getMonthAccrue"
+                       ,requestParm   : requestParm121
+                }
+                
+                C_COM.requestQuery(parm121, function(resultData) {
+                    <@compId>.setChart121( resultData );
+
+                });
+                
+                let requestParm122 = {};
+                requestParm122["spCstmId"]  = "starasset";
+                requestParm122["year"]      = "2023";
+                var parm122 = {
+                        queryId  : "dashboardCorPerformance.getMonthSales"
+                       ,requestParm   : requestParm122
+                }
+                
+                C_COM.requestQuery(parm122, function(resultData) {
+                    <@compId>.setChart122( resultData );
+
+                });
+                
+                <@compId>.setChart131( "resultData" );
+                <@compId>.setChart132( "resultData" );
+            }
+
+            ,setChart111 : (resultData) =>{
+
+                var categoriesArr = []; 
+                var dataArr = [];
+                
+                for (var i=0; i<resultData.data.length; i++){
+                    
+                    categoriesArr[i] = resultData.data[i].STORE_NM3;
+                    dataArr[i] = resultData.data[i].AMOUNT1;
+                     
+                }
+                
+                
+                $("#<@compId>_chart111").highcharts({
+                   
+                    credits: {enabled: false},// 하이차트 워터마크 삭제
+                    title: {
+                        text: '',
+                        align: 'left'
+                    },
+                    subtitle: {
+                        text: '',
+                        align: 'left'
+                    },
+                    xAxis: [{
+                        labels: {
+                            style: {
+                                color: '#8A8C92',
+                                fontFamily: 'Noto Sans KR',
+                                fontSize: '11px'
+                            }
+                        },
+                        lineColor: '#DADADA', /* x축 라인색 */
+                        categories: categoriesArr,
+                        crosshair: true
+                    }],
+                    yAxis: [{
+                        labels: {
+                            format: '{value}백만',
+                            style: {
+                                color: '#8A8C92',
+                                fontFamily: 'Noto Sans KR',
+                                fontSize: '11px'
+                            }
+                        },
+                        title: {
+                            text: ''
+                        }
+                    }, { // Secondary yAxis
+                        title: {
+                            text: '',
+                            style: {
+                            }
+                        },
+                        labels: {
+                            format: ' '
+                        },
+                        opposite: true
+                    }],
+                    tooltip: {
+                        shared: true
+                    },
+                    legend: {
+                        align: 'right',
+                        x:0,
+                        verticalAlign: 'top',
+                        y: 0,
+                        itemStyle: {
+                            color: '#8A8C92',
+                            fontFamily: 'Noto Sans KR',
+                            fontSize: '11px'
+                        },
+                        symbolRadius:0,//범례 심볼 radius 지정
+                        symbolWidth:10,
+                        symbolHeight:10,
+                        x: 0,//가로 위치 지정.
+                        y: -2,//세로 위치 지정.
+                    },
+                    plotOptions: {//라인에 원표시 삭제
+                        line:{
+                            marker: {
+                                enabled: false
+                            }
+                        }
+                    },
+                    series: [{
+                        name: '매출액',
+                        type: 'column',
+                        yAxis: 0,
+
+                        data: dataArr,
+                        tooltip: {
+                            valueSuffix: '백만'
+                        }
+
+                    }]
+                });
+            }//setChart111
+
+            ,setChart112 : ( resultData ) =>{
+                
+                var categoriesArr = []; 
+                var dataArr = [];
+                
+                for (var i=0; i<resultData.data.length; i++){
+                    categoriesArr[i] = resultData.data[i].STORE_NM3;
+                    dataArr[i] = resultData.data[i].AMOUNT1;
+                }
+                
+                Highcharts.setOptions({
+                    colors: ['#27187F', '#F29423']
+                });
+
+                $('#<@compId>_chart112').highcharts({
+                    chart: {
+                        zoomType: 'xy',
+                        margin: [50, 0, 40, 45],
+                    },
+                    credits: {enabled: false},// 하이차트 워터마크 삭제
+                    title: {
+                        text: '',
+                        align: 'left'
+                    },
+                    subtitle: {
+                        text: '',
+                        align: 'left'
+                    },
+                    xAxis: [{
+                        labels: {
+                            style: {
+                                color: '#8A8C92',
+                                fontFamily: 'Noto Sans KR',
+                                fontSize: '11px'
+                            }
+                        },
+                        lineColor: '#DADADA', /* x축 라인색 */
+                        categories: categoriesArr,
+                        crosshair: true
+                    }],
+                    yAxis: [{
+                        labels: {
+                            format: '{value}백만',
+                            style: {
+                                color: '#8A8C92',
+                                fontFamily: 'Noto Sans KR',
+                                fontSize: '11px'
+                            }
+                        },
+                        title: {
+                            text: ''
+                        }
+                    }, { // Secondary yAxis
+                        title: {
+                            text: '',
+                            style: {
+                            }
+                        },
+                        labels: {
+                            format: ' '
+                        },
+                        opposite: true
+                    }],
+                    tooltip: {
+                        shared: true
+                    },
+                    legend: {
+                        align: 'right',
+                        x:0,
+                        verticalAlign: 'top',
+                        y: 0,
+                        itemStyle: {
+                            color: '#8A8C92',
+                            fontFamily: 'Noto Sans KR',
+                            fontSize: '11px'
+                        },
+                        symbolRadius:0,//범례 심볼 radius 지정
+                        symbolWidth:10,
+                        symbolHeight:10,
+                        x: 0,//가로 위치 지정.
+                        y: -2,//세로 위치 지정.
+                    },
+                    plotOptions: {//라인에 원표시 삭제
+                        line:{
+                            marker: {
+                                enabled: false
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'V.영업이익',
+                        type: 'column',
+                        yAxis: 0,                
+                        data: dataArr,
+                        tooltip: {
+                            valueSuffix: '백만'
+                        }
+
+                    }]
+                });
+
+            }//setChart112
+
+            ,setChart113 : (resultData) =>{
+                
+
+                var categoriesArr = []; 
+                var dataArr = [];
+                
+                for (var i=0; i<resultData.data.length; i++){
+                    categoriesArr[i] = resultData.data[i].REGION_NM;
+                    dataArr[i] = resultData.data[i].AMOUNT1;
+                     
+                }
+                
+                Highcharts.setOptions({
+                    colors: ['#27187F', '#F29423']
+                });
+
+
+                $('#<@compId>_chart113').highcharts({
+                    chart: {
+                        zoomType: 'xy',
+                        margin: [50, 0, 40, 45],
+                    },
+                    credits: {enabled: false},// 하이차트 워터마크 삭제
+                    title: {
+                        text: '',
+                        align: 'left'
+                    },
+                    subtitle: {
+                        text: '',
+                        align: 'left'
+                    },
+                    xAxis: [{
+                        labels: {
+                            style: {
+                                color: '#8A8C92',
+                                fontFamily: 'Noto Sans KR',
+                                fontSize: '11px'
+                            }
+                        },
+                        lineColor: '#DADADA', /* x축 라인색 */
+                        categories: categoriesArr,
+                        crosshair: true
+                    }],
+                    yAxis: [{
+                        labels: {
+                            format: '{value}억',
+                            style: {
+                                color: '#8A8C92',
+                                fontFamily: 'Noto Sans KR',
+                                fontSize: '11px'
+                            }
+                        },
+                        title: {
+                            text: ''
+                        }
+                    }, { // Secondary yAxis
+                        title: {
+                            text: '',
+                            style: {
+                            }
+                        },
+                        labels: {
+                            format: ' '
+                        },
+                        opposite: true
+                    }],
+                    tooltip: {
+                        shared: true
+                    },
+                    legend: {
+                        align: 'right',
+                        x:0,
+                        verticalAlign: 'top',
+                        y: 0,
+                        itemStyle: {
+                            color: '#8A8C92',
+                            fontFamily: 'Noto Sans KR',
+                            fontSize: '11px'
+                        },
+                        symbolRadius:0,//범례 심볼 radius 지정
+                        symbolWidth:10,
+                        symbolHeight:10,
+                        x: 0,//가로 위치 지정.
+                        y: -2,//세로 위치 지정.
+                    },
+                    plotOptions: {//라인에 원표시 삭제
+                        line:{
+                            marker: {
+                                enabled: false
+                            }
+                        }
+                    },
+                    series: [{
+                        name: '매출액',
+                        type: 'column',
+                        yAxis: 0,                
+                        data: dataArr,
+                        tooltip: {
+                            valueSuffix: '억'
+                        }
+
+                    }]
+                });
+
+
+            }//setChart113
+            ,setChartData : function( resultData,subject ) {
+                //console.log("=== setChart21Data");
+                let resultList = [];
+                var j = 0;
+                for (var i=0; i< resultData.data.length; i++){
+                    if( resultData.data[i].SUBJECT == subject ){
+                        resultList[j++] = resultData.data[i].AMOUNT;
+                    }
+                }
+                return resultList;
+             }
+            
+            ,setChart121 : (resultData ) =>{
+                //console.log("=== setChart21");
+                
+                var categories1Arr = <@compId>.setChartData( resultData, "SUBJECT_001");
+                var categories2Arr = <@compId>.setChartData( resultData, "SUBJECT_003");
+                var categories3Arr = <@compId>.setChartData( resultData, "SUBJECT_005");
+                var categories4Arr = <@compId>.setChartData( resultData, "SUBJECT_010");
+                
+                $('#<@compId>_chart121').highcharts({
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: '누적 매출 현황',
+                        align: 'left'
+                    },
+                    colors: ['#27187F', '#F29423','#66ff00', '#0099ff'],
+                    xAxis: {
+                        categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                        crosshair: true,
+                        lineColor: '#66ff00', /* x축 라인색 */
+                        accessibility: {
+                            description: 'Countries'
+                        }
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: '1000 metric tons (MT)'
+                        }
+                    },
+                    tooltip: {
+                        valueSuffix: ' (1000 MT)'
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: [
+                        {
+                            name: '매출액',
+                            type: 'column',
+                            yAxis: 0,
+                            tooltip: {
+                                valueSuffix: '억'
+                            },
+                            data: categories1Arr
+                        },
+                        {
+                            name: '매출총이익',
+                            type: 'column',
+                            yAxis: 0,  
+                            data: categories2Arr
+                        },
+                        {
+                            name: '당기순이익',
+                            type: 'column',
+                            yAxis: 0,  
+                            tooltip: {
+                                valueSuffix: '억'
+                            },
+                            data: categories3Arr
+                        },
+                        {
+                            name: '영업이익',
+                            type: 'column',
+                            yAxis: 0, 
+                            tooltip: {
+                                valueSuffix: '억'
+                            }, 
+                            data: categories4Arr
+                        }
+                    ]
+
+                });
+            }//setChart21
+            
+            ,setChart122 : (resultData) =>{
+               console.log("=== setChart122");
+                
+                var categories1Arr = <@compId>.setChartData( resultData, "SUBJECT_001");
+                var categories2Arr = <@compId>.setChartData( resultData, "SUBJECT_003");
+                var categories3Arr = <@compId>.setChartData( resultData, "SUBJECT_005");
+                var categories4Arr = <@compId>.setChartData( resultData, "SUBJECT_010");
+                
+                $('#<@compId>_chart122').highcharts({
+
+                    title: {
+                        text: '월별 매출 그래프',
+                        align: 'left'
+                    },
+
+
+                    yAxis: {
+                        title: {
+                            text: ''
+                        }
+                    },
+                    colors: ['#27187F', '#F29423','#66ff00', '#0099ff'],
+                    xAxis: {
+                        categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                        accessibility: {
+                            rangeDescription: '2'
+                        }
+                    },
+
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle'
+                    },
+
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+
+                    series: [{
+                        name: '매출액',
+                        data: categories1Arr
+                    }, {
+                        name: '매출총이익',
+                        data: categories2Arr
+                    }, {
+                        name: '당기순이익',
+                        data: categories4Arr
+                    }, {
+                        name: '영업이익',
+                        data: categories3Arr
+                    }],
+
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 500
+                            },
+                            chartOptions: {
+                                legend: {
+                                    layout: 'horizontal',
+                                    align: 'center',
+                                    verticalAlign: 'bottom'
+                                }
+                            }
+                        }]
+                    }
+
+                });
+            }//setChart122
+
+            ,setChart131 : (resultData) =>{
+                
+                $('#<@compId>_chart131').highcharts({
+                     
+                    title: {
+                        text: '월별 비율 그래프',
+                        align: 'left'
+                    },
+
+
+                    yAxis: {
+                        title: {
+                            text: ''
+                        }
+                    },
+                    colors: ['#27187F', '#F29423','#66ff00', '#0099ff'],
+                    xAxis: {
+                        categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                        accessibility: {
+                            rangeDescription: '2'
+                        }
+                    },
+
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle'
+                    },
+
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+
+                    series: [
+                    {
+                        name: '매출총이익',
+                        data: [24916, 37941, 29742, 29851, 32490,  30282,   38121,  36885,  33726,  34243,  31050]
+                    }, {
+                        name: '당기순이익',
+                        data: [11744, 30000, 16005, 19771, 20185,  24377,   32147,  30912,  29243,  29213,  25663]
+                    }, {
+                        name: '영업이익',
+                        data: [21908, 5548,   8105, 11248,  8989,  11816,   18274,  17300,  13053,  11906,  10073]
+                    }],
+
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 500
+                            },
+                            chartOptions: {
+                                legend: {
+                                    layout: 'horizontal',
+                                    align: 'center',
+                                    verticalAlign: 'bottom'
+                                }
+                            }
+                        }]
+                    }
+
+                });
+            }//setChart131
+
+            ,setChart132 : (resultData) =>{
+                
+                $('#<@compId>_chart132').highcharts({
+
+                    title: {
+                        text: '지점별 비율 그래프',
+                        align: 'left'
+                    },
+
+
+                    yAxis: {
+                        title: {
+                            text: ''
+                        }
+                    },
+                    colors: ['#27187F', '#F29423','#66ff00', '#0099ff'],
+                    xAxis: {
+                        categories: ['가락', '경주', '동래', '동해천곡', '부천송내', '수원인계', '양산물금', '양주옥정', '인천연수', '정관', '춘천2', '포항두호'],
+                        accessibility: {
+                            rangeDescription: '2'
+                        }
+                    },
+
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle'
+                    },
+
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+
+                    series: [{
+                        name: '매출총이익',
+                        data: [24916, 37941, 29742, 29851, 32490,  30282,   38121,  36885,  33726,  34243,  31050,  31050]
+                    }, {
+                        name: '당기순이익',
+                        data: [11744, 30000, 16005, 19771, 20185,  24377,   32147,  30912,  29243,  29213,  25663,  31050]
+                    }, {
+                        name: '영업이익',
+                        data: [21908, 5548,   8105, 11248,  8989,  11816,   18274,  17300,  13053,  11906,  10073,  31050]
+                    }],
+
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 500
+                            },
+                            chartOptions: {
+                                legend: {
+                                    layout: 'horizontal',
+                                    align: 'center',
+                                    verticalAlign: 'bottom'
+                                }
+                            }
+                        }]
+                    }
+
+                });
+            }//setChart132
+
+    }
+    // Component Load가 완료된후 실행 된다.
+    C_COMP.onLoadComp("<@compId>", function(data) {
+        <@compId>.pageInit();
+        <@compId>.setChart();
+    });
+</script>
+<!-- 매출현황 -->
+<div class="container">
+    <div class="cont_wrap lnb_none">
+        <div class="cont_top">
+            <h2><i class="icon_bullet"></i>매출현황</h2>
+        </div>
+        <div class="sec_scroll">
+            <section class="sec_wrap">
+                <div class="cont_box col3">
+                    <h3>매출액 순위</h3>
+                    <div class="price">&nbsp;</div>
+                    <figure class="highcharts-figure">
+                        <div class="chart111" id="<@compId>_chart111" style="width:100%; height:280px; margin:0 auto"></div>
+                    </figure>
+                    
+                    <!-- 전체 계약 리스트 -->
+                    <div >
+                        <h3>지점명</h3>
+                        <!-- 테이블 -->
+                        <div class="tbl01 col">
+                            <table>
+                                <caption>표 캡션</caption>
+                                <colgroup>
+                                    <col style="width:40px;"/>
+                                    <col style="width:150px;"/>
+                                    <col style="width:100px;"/>
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">No</th>
+                                        <th scope="col">지점명</th>
+                                        <th scope="col">계</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableId111">
+                                </tbody>
+                                <script type="text/x-jsrender" id="tableId111_template">    
+                                    {{for list}}
+                                        <tr id="trId_{{:#index}}" name="<@compId>_tr_{{:#index}}" '>
+                                            <td id='INDEX'           value='{{:#index + 1}}' >{{:#index + 1}}</td>
+                                            <td id='NAME'            value='{{:STORE_NM3}}'  >{{:STORE_NM3}}</td>
+                                            <td id='VALUE'           value='{{:AMOUNT}}'  >{{:AMOUNT}}</td>
+                                        </tr>
+                                    {{/for}}
+                                </script>
+                                <script type="text/x-jsrender" id="tableId111_noData_template">    
+                                   <tr>    
+                                       <td colspan=3>자료가 없습니다.</td>    
+                                   </tr>
+                                </script>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="cont_box col3">
+                    <h3>영업이익별 순위</h3>
+                    <div class="price">&nbsp;</div>
+
+                    <figure class="highcharts-figure">
+                        <div class="chart112" id="<@compId>_chart112" style="width:100%; height:280px; margin:0 auto"></div>
+                    </figure>
+                    <!-- 지점 리스트 -->
+                    <div >
+                        <h3>지점명</h3>
+                        <!-- 테이블 -->
+                        <div class="tbl01 col">
+                            <table>
+                                <caption>표 캡션</caption>
+                                <colgroup>
+                                    <col style="width:40px;"/>
+                                    <col style="width:150px;"/>
+                                    <col style="width:100px;"/>
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">No</th>
+                                        <th scope="col">지점명</th>
+                                        <th scope="col">계</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableId112">
+                                </tbody>
+                                <script type="text/x-jsrender" id="tableId112_template">    
+                                    {{for list}}
+                                        <tr id="trId_{{:#index}}" name="<@compId>_tr_{{:#index}}" '>
+                                            <td id='INDEX'           value='{{:#index + 1}}' >{{:#index + 1}}</td>
+                                            <td id='NAME'            value='{{:STORE_NM3}}'  >{{:STORE_NM3}}</td>
+                                            <td id='VALUE'           value='{{:AMOUNT}}'  >{{:AMOUNT}}</td>
+                                        </tr>
+                                    {{/for}}
+                                </script>
+                                <script type="text/x-jsrender" id="tableId112_noData_template">    
+                                   <tr>    
+                                       <td colspan=3>자료가 없습니다.</td>    
+                                   </tr>
+                                </script>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="cont_box col3">
+                    <h3>권역별 순위</h3>
+                    <div class="price">&nbsp;</div>
+
+                    <figure class="highcharts-figure">
+                        <div class="chart113" id="<@compId>_chart113"  style="width:100%; height:280px; margin:0 auto"></div>
+                    </figure>
+                    <!-- 권역 리스트 -->
+                    <div >
+                        <h3>권역</h3>
+                        <!-- 테이블 -->
+                        <div class="tbl01 col">
+                            <table>
+                                <caption>표 캡션</caption>
+                                <colgroup>
+                                    <col style="width:40px;"/>
+                                    <col style="width:150px;"/>
+                                    <col style="width:100px;"/>
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">No</th>
+                                        <th scope="col">권역</th>
+                                        <th scope="col">계</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableId113">
+                                </tbody>
+                                <script type="text/x-jsrender" id="tableId113_template">    
+                                    {{for list}}
+                                        <tr id="trId_{{:#index}}" name="<@compId>_tr_{{:#index}}" '>
+                                            <td id='INDEX'           value='{{:#index + 1}}' >{{:#index + 1}}</td>
+                                            <td id='NAME'            value='{{:REGION_NM}}'  >{{:REGION_NM}}</td>
+                                            <td id='VALUE'           value='{{:AMOUNT}}'  >{{:AMOUNT}}</td>
+                                        </tr>
+                                    {{/for}}
+                                </script>
+                                <script type="text/x-jsrender" id="tableId113_noData_template">    
+                                   <tr>    
+                                       <td colspan=3>자료가 없습니다.</td>    
+                                   </tr>
+                                </script>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="sec_wrap">
+                <div class="cont_box col2">
+                    <h3>누적 매출 현황</h3>
+                    <div class="price"></div>
+                    <span class="prepare"></span>
+                    <figure class="highcharts-figure">
+                        <div class="chart21" id="<@compId>_chart121" style="width:100%; height:280px; margin:0 auto"></div>
+                    </figure>
+                </div>
+                <div class="cont_box col2">
+                    <h3>월별 매출 그래프</h3>
+                    <div class="price"></div>
+                    <span class="prepare"></span>
+
+                    <figure class="highcharts-figure">
+                        <div class="chart22" id="<@compId>_chart122" style="width:100%; height:280px; margin:0 auto"></div>
+                    </figure>
+                </div>
+            </section>
+            
+            <section class="sec_wrap">
+                <div class="cont_box col2">
+                    <h3>월별 비율 그래프</h3>
+                    <div class="price"></div>
+                    <span class="prepare"></span>
+
+                    <figure class="highcharts-figure">
+                        <div class="chart31" id="<@compId>_chart131" style="width:100%; height:280px; margin:0 auto"></div>
+                    </figure>
+                </div>
+                <div class="cont_box col2">
+                    <h3>지점별 비율 그래프</h3>
+                    <div class="price"></div>
+                    <span class="prepare"></span>
+
+                    <figure class="highcharts-figure">
+                        <div class="chart32" id="<@compId>_chart132" style="width:100%; height:280px; margin:0 auto"></div>
+                    </figure>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
