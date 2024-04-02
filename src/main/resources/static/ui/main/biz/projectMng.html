@@ -1,7 +1,13 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-
+		openProjectPopup : function() {
+			C_POP.open('popup_operation_projectRegistPopup', {}, function(retData) {
+				if(isValid(retData)){
+					dalert(retData);
+				}
+			});
+		}
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -20,7 +26,7 @@
 				<!-- search area -->
 				<div class="search_area mt0">
 					<div class="fl">
-						<button class="btn select fl">프로젝트 추가</button>
+						<button class="btn select fl" onclick="<@pageId>.openProjectPopup()">프로젝트 추가</button>
 		            </div>
 		            <div class="search_right">
 						<strong class="total">Total: <span class="pointColr">3</span></strong>

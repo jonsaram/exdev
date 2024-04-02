@@ -1,0 +1,93 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		 buyerInfo 		: {}
+		,userInfo		: {}	
+		,consultingInfo	: {}	
+	 	,buyerSearchPopup : function(gubun) {
+	      	
+			let param = {};
+
+			C_POP.open('popup_system_memberSearchPopup', {param : {}, gubun:gubun}, function(retData) {
+				<@popupId>.buyerInfo = retData;
+				
+				$("#<@popupId>_BUYER").val(retData.BUYER_NM);
+			});
+		 }
+	 	,userSearchPopup : function(gubun) {
+	      	
+			let param = {};
+
+			C_POP.open('popup_system_memberSearchPopup', {param : {}, gubun:gubun}, function(retData) {
+				<@popupId>.userInfo = retData;
+				
+				$("#<@popupId>_USER").val(retData.USER_NM);
+			});
+		 }
+		,consultingSearchPopup : () => {
+			let param = {searchText:""};
+	
+			C_POP.open('popup_contract_consultingSearchPopup', {param:{}}, function(retData) {
+				<@popupId>.consultingInfo = retData;
+				
+				$("#<@popupId>_CONSULTING").val(retData.CONSULTING_NM);
+			});
+		}
+	
+		,save : function() {
+			 
+		 }
+		,close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+		
+	});
+</script>
+<div class="modal_wrap" id="modal-ex2">
+	<div class="modal" style="width:570px;height:300px;">
+		<div class="modal_header">
+			<strong class="tit">프로젝트 등록</strong>
+			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body mt15">
+			<ul class="info_wrap col2 pay">
+				<li class="w100">
+					<label>고객선택</label>
+					<div class="info">
+						<div class="search_inputWrap" style="width:100%">
+							<input type="search" id="<@popupId>_BUYER" placeholder="고객명(고객번호)" onkeypress="<@popupId>.handleKeyPress(event,'BUYER')">
+							<a href="javascript:void(0);" onclick="<@popupId>.buyerSearchPopup('BUYER');" class="search_btn"><i class="icon_search"></i></a>
+						</div>
+					</div>
+				</li>
+				<li class="w100 ml0">
+					<label>영업담당자</label>
+					<div class="info">
+						<div class="search_inputWrap" style="width:100%">
+							<input type="search" id="<@popupId>_USER" placeholder="사원이름(사원ID)" onkeypress="<@popupId>.handleKeyPress(event)">
+							<a  href="javascript:void(0);" onclick="<@popupId>.userSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
+						</div>
+					</div>
+				</li>
+				<li class="w100">
+					<label>컨설팅 상품</label>
+					<div class="info">
+						<div class="search_inputWrap" style="width:100%">
+							<input type="search" id="<@popupId>_CONSULTING" placeholder="상품명(상품TYPE)">
+							<a href="javascript:void(0);" class="search_btn"  onclick="<@popupId>.consultingSearchPopup();">
+							<i class="icon_search"></i></a>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select" onclick="<@popupId>.save()">저장</button>
+			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+		</div>
+	</div>
+</div>

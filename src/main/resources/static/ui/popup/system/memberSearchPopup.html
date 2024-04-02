@@ -113,7 +113,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 </script>
    <!-- 고객 선택 팝업 -->
 <div class="modal_wrap">
-	<div class="modal"  style="width:500px;height:610px;">
+	<div class="modal"  style="width:700px;height:610px;">
 		<div class="modal_header">
                <strong class="tit">고객 선택/사원 선택</strong>
                <button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
@@ -149,9 +149,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<script type="text/x-jsrender" id="<@popupId>_cstmList_template">						
 							{{for list}}
 								<tr name="<@popupId>_tr_{{:#index}}" ondblclick="javascript:<@popupId>.getRow('{{:#index}}')">
-				 					<td id='BUYER_ID'		>{{:BUYER_ID}}</td>
-			 						<td id='BUYER_NM'		>{{:BUYER_NM}}</td>
-			 						<td id='ADDR' class='tl'>{{:ADDR}}</td>
+				 					<td id='BUYER_ID'		class="tl">{{:BUYER_ID}}</td>
+			 						<td id='BUYER_NM'		class="tl">{{:BUYER_NM}}</td>
+			 						<td id='ADDR'			class="tl">{{:ADDR}}</td>
 								</tr>
 							{{/for}}
 						</script>
