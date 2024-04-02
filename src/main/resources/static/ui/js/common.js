@@ -229,3 +229,12 @@ function _getImageFile (targetId , obj ) {
 	});	
 	
 }
+
+function _makeMultiBox(targetId, data){
+
+	var multiboxList = { 
+		 data : data
+	 	,targetId : targetId 
+	}
+	C_UICOM.makeSelectBox(multiboxList, "multi");
+}
