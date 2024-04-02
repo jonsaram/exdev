@@ -399,7 +399,9 @@ public class ExcelService  extends ExdevBaseService{
     public Workbook download(Map<String, Object> requestBodyMap, HttpSession session) throws Exception {
     	
         Workbook workbook = new XSSFWorkbook();
-        
+        Gson gson = new Gson();
+        String checkRowStr = (String)requestBodyMap.get("checkedRow");
+        Map checkedRow = gson.fromJson(checkRowStr, Map.class);
         Map downInfo = (Map)requestBodyMap.get("downInfo");       
         String title 	= (String) downInfo.get("title");
         String menu 	= (String) downInfo.get("menu");
@@ -429,7 +431,14 @@ public class ExcelService  extends ExdevBaseService{
         bodyCellStyle.setBorderBottom(BorderStyle.THIN);
 
         // Retrieve data from service
-        Map resultMap = commonService.requestQuery(requestBodyMap, session);
+        Map resultMap = null;
+        if( checkedRow != null ) {
+        	
+        	resultMap = checkedRow;
+        }else {
+        	
+        	resultMap = commonService.requestQuery(requestBodyMap, session);
+        }
         List<Map<String, Object>> dataList = (List<Map<String, Object>>) resultMap.get("data");
         String[] columnOrders = ((String) requestBodyMap.get("columnOrders")).split(",");
 
@@ -477,8 +486,13 @@ public class ExcelService  extends ExdevBaseService{
             for (int i = 0; i < columnNames.length; i++) {
                 Cell cell = dataRow.createCell(i);
                 Object value = rowData.get(columnOrders[i]);
+                String colName = columnNames[i];
+
                 if (value != null) {
-                    cell.setCellValue(value.toString());
+                    if( colName.toUpperCase().equals("NO.")) {
+                    	value = String.valueOf(((Double) value).intValue());
+                    }
+                    cell.setCellValue(""+value.toString());
                 }
                 cell.setCellStyle(bodyCellStyle);
             }

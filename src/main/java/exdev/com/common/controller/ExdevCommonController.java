@@ -198,6 +198,7 @@ public class ExdevCommonController {
             @RequestParam(value = "columnNames"	, required = true) String columnNames,
             @RequestParam(value = "columnOrders"	, required = true) String columnOrders,
             @RequestParam(value = "downInfo"	, required = true) String downInfo,
+            @RequestParam(value = "checkedRow"	, required = true) String checkedRow,
              HttpServletResponse res,HttpSession session) throws Exception {
 	
 	try {
@@ -215,6 +216,7 @@ public class ExdevCommonController {
 			resultMap.put("columnNames",columnNames);
 			resultMap.put("columnOrders",columnOrders);
 			resultMap.put("downInfo",mapDownInfo);
+			resultMap.put("checkedRow",checkedRow);
 			resultMap.put("requestParm",mapRequestParm);
 					
 			

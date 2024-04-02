@@ -1,6 +1,6 @@
 
 
-function _excelDownload ( $hds ,$tds,requestParm , title , isPaging)  {
+function _excelDownload ( $hds ,$tds,requestParm , title , isPaging , checkedRow)  {
 
 		let excelColumnNames =  [];
 		$.each( $hds, function(){
@@ -10,9 +10,14 @@ function _excelDownload ( $hds ,$tds,requestParm , title , isPaging)  {
 		
 		let excelColumnOrder =  [];
 		$.each( $tds, function(){
-			$(this).attr("id") ? 
-				$(this).css('display') !== 'none' ?
-					excelColumnOrder.push( $(this).attr("id") ):'':'';
+			
+			if( $(this).attr("id") ) {
+				if($(this).css('display') !== 'none' ){
+					if($(this).attr("id") =='ROWIDX' ) excelColumnOrder.push( "RN" );
+					else excelColumnOrder.push( $(this).attr("id") );
+				}
+			} 
+					
 		})
 
 		let excelParam = {};
@@ -21,6 +26,7 @@ function _excelDownload ( $hds ,$tds,requestParm , title , isPaging)  {
 		excelParam["downInfo"		] = JSON.stringify({  title : title, menu : title});
 		excelParam["requestParm"	] = isPaging ? JSON.stringify({parm:requestParm.requestParm }) :JSON.stringify(requestParm.requestParm );
 		excelParam["columnNames"	] = excelColumnNames;
+		excelParam["checkedRow"		] = JSON.stringify({ data :checkedRow});
 		
 	    var xhr = new XMLHttpRequest();
 	    var urlParams = new URLSearchParams( excelParam ).toString();

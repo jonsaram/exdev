@@ -8,7 +8,8 @@
 	인사정보 관리 
 	 -->	
 	<sql id="getHrInfoList_body">
-		SELECT U.SP_CSTM_ID
+		SELECT ROW_NUMBER() OVER( ORDER BY U.USER_ID) RN
+			,U.SP_CSTM_ID
 			,U.USER_ID
 			,U.USER_NM
 			,U.USER_DESC
@@ -97,7 +98,7 @@
 				<if test=" (parm.USER_ID != null and !parm.USER_ID.equals('') ) or ( parm.USER_NM != null and !parm.USER_NM.equals(''))">
         		OR
         		</if>
-		        U.E_MAIL like '%' || #{parm.EMAIL} || '%'  OR
+		        U.E_MAIL like '%' || #{parm.EMAIL} || '%'
         	</if>
         	<if test=" parm.PHONE_NUM != null and !parm.PHONE_NUM.equals('') ">
 				<if test=" (parm.USER_ID != null and !parm.USER_ID.equals('') ) or ( parm.USER_NM != null and !parm.USER_NM.equals('')) or (parm.EMAIL != null and !parm.EMAIL.equals(''))">
@@ -105,6 +106,9 @@
         		</if>
 		        U.PHONE_NUM like '%' || #{parm.PHONE_NUM} || '%'   
         	</if> 
+			<if test=" parm.USER_ID == '' and parm.USER_NM == '' and parm.EMAIL == '' and parm.PHONE_NUM == ''">
+				1=1
+			</if>        	
         	 )
         	 </when>
       	</choose>
