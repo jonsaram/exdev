@@ -21,6 +21,12 @@ var <@pageId> = {
 			const SEARCH_TEXT = C_UICOM.getData("<@pageId>_selectSearchItem");
 			const searchText =  $("#<@pageId>_nmSearch").val();
 
+			if( isEmpty(SEARCH_TEXT) && !isEmpty(searchText) ){
+				
+				C_POP.alert("항목 선택 후 조회하여 주십시오. ");
+				return ; 
+				
+			}
 			const requestParm = { BUYER_ID : SEARCH_TEXT && SEARCH_TEXT.indexOf("BUYER_ID") > -1 ? searchText : ''
 								, BUYER_NM : SEARCH_TEXT && SEARCH_TEXT.indexOf("BUYER_NM") > -1 ? searchText : ''
 								, COMPANY_REGNUM : SEARCH_TEXT && SEARCH_TEXT.indexOf("COMPANY_REGNUM") > -1 ? searchText : ''
@@ -38,7 +44,7 @@ var <@pageId> = {
 			C_PAGING.create({
 	 			 pageId				: "<@pageId>"
 	 			,listDomId			: "<@pageId>_cstmList"
-	 			,pagingDomId		: "pageDiv"
+	 			,pagingDomId		: "<@pageId>_pageDiv"
 	 			,totalCntDomId		: "<@pageId>_totalCnt"
 	 			,queryId			: "cstm.getCstmList"
 				,listRange			: Number(listRange)
@@ -165,6 +171,19 @@ var <@pageId> = {
 				<@pageId>.searchList();
 			}
 		}
+		,excelUpload		: function() {
+
+			C_COM.selectExcelUploadToTable(function(retData) {
+				if(retData.state == "S") {
+					C_POP.alert('Excel Upload에 성공하였습니다.');
+					<@pageId>.searchList();
+				} else if(retData.state == "E") {
+					alert('에러')
+				} else {
+					dwrite(retData);
+				}
+			});
+		 }
 }
 
 // Page Load가 완료된후 실행 된다.
@@ -203,7 +222,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<button type="button" class="btn select fl" id="<@pageId>_insertBtn"><i class="icon_user_plus"></i>상담 고객 추가</button>
 					<button type="button" class="btn fl"><i class="icon_letter"></i>고객 문서 전달</button>
 						<button type="button" class="btn fl" id="<@pageId>_excelDownloadBtn"><i class="icon_download"></i>Excel 다운로드</button>
-						<button type="button" class="btn fl"><i class="icon_upload"></i> Excel 업로드</button>
+						<button type="button" class="btn fl" onclick="<@pageId>.excelUpload();"><i class="icon_upload"></i> Excel 업로드</button>
 					<div id="<@pageId>_pagingChunk" style="margin-left: 5px;width:130px"></div>
 					<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
 	            </div>
@@ -282,7 +301,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</div>
 			</div>
 		<!-- paging -->
-		<div class="paging" id="pageDiv">
+		<div class="paging" id="<@pageId>_pageDiv">
 		</div>
 		</section>
 	

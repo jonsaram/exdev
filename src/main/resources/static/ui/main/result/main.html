@@ -360,6 +360,7 @@ var <@pageId> = {
 																				case "COWORK"	:menuId='MN_RST_CWK';pageId='main_result_coworkConsulting';break;
 																				default:
 																			}
+																			
 																			getMenuPage(menuId,pageId);
 																	   });
 				<@pageId>.subCategoryTreemap();
@@ -411,8 +412,8 @@ var <@pageId> = {
 			C_PAGING.create({
 	 			 pageId				: "<@pageId>"
 	 			,listDomId			: "<@pageId>_contractList"
-	 			,pagingDomId		: "pageDiv"
-	 			,totalCntDomId		: "totalCnt"
+	 			,pagingDomId		: "<@pageId>_pageDiv"
+	 			,totalCntDomId		: "<@pageId>_totalCnt"
 	 			,queryId			: "rstMgn.getContractList"
 				,listRange			: 5
 				,pageRange			: 10
@@ -489,6 +490,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<button class="btn select" id='<@pageId>_search'>검색</button>
 							<div class="search_right">
 								<button type="button" class="btn fl" id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
+								<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
 				            </div>
 						</div>
 						<!-- 테이블 -->
@@ -553,7 +555,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							</table>
 						</div>
 						<!-- paging -->
-						<div class="paging" id="pageDiv">
+						<div class="paging" id="<@pageId>_pageDiv">
 						</div>
 					</div>
 				</section>

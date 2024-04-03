@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.math.BigDecimal;
 
 import javax.servlet.http.HttpSession;
 
@@ -399,9 +400,7 @@ public class ExcelService  extends ExdevBaseService{
     public Workbook download(Map<String, Object> requestBodyMap, HttpSession session) throws Exception {
     	
         Workbook workbook = new XSSFWorkbook();
-        Gson gson = new Gson();
         String checkRowStr = (String)requestBodyMap.get("checkedRow");
-        Map checkedRow = gson.fromJson(checkRowStr, Map.class);
         Map downInfo = (Map)requestBodyMap.get("downInfo");       
         String title 	= (String) downInfo.get("title");
         String menu 	= (String) downInfo.get("menu");
@@ -431,15 +430,27 @@ public class ExcelService  extends ExdevBaseService{
         bodyCellStyle.setBorderBottom(BorderStyle.THIN);
 
         // Retrieve data from service
-        Map resultMap = null;
-        if( checkedRow != null ) {
-        	
-        	resultMap = checkedRow;
-        }else {
-        	
-        	resultMap = commonService.requestQuery(requestBodyMap, session);
-        }
+        Map resultMap = commonService.requestQuery(requestBodyMap, session);
+        
         List<Map<String, Object>> dataList = (List<Map<String, Object>>) resultMap.get("data");
+
+        if(checkRowStr !=null  && !checkRowStr.isEmpty()) {
+        	
+        	List<Map<String, Object>> dataListTemp = new ArrayList<>(); 
+        	String[] checkRows = checkRowStr.split(",");
+        	
+        	for(String rowIdx : checkRows) {
+        		
+                int index = Integer.parseInt(rowIdx);
+                if (index >= 0 && index < dataList.size()) {
+                    Map<String, Object> tempRow = dataList.get(index);
+                    dataListTemp.add(tempRow); 
+                }
+        	}
+        	
+        	dataList = dataListTemp;
+        }
+        
         String[] columnOrders = ((String) requestBodyMap.get("columnOrders")).split(",");
 
         // Add document security
@@ -489,10 +500,8 @@ public class ExcelService  extends ExdevBaseService{
                 String colName = columnNames[i];
 
                 if (value != null) {
-                    if( colName.toUpperCase().equals("NO.")) {
-                    	value = String.valueOf(((Double) value).intValue());
-                    }
-                    cell.setCellValue(""+value.toString());
+                    
+                    cell.setCellValue(this.getCellValue(colName,value));
                 }
                 cell.setCellStyle(bodyCellStyle);
             }
@@ -500,4 +509,15 @@ public class ExcelService  extends ExdevBaseService{
 
         return workbook;
     }
+    
+	private String getCellValue(String colName, Object value) {
+
+        if (value instanceof BigDecimal) {
+            value = String.valueOf(((BigDecimal) value).intValue());
+        } else if (value instanceof Double) {
+            value = String.valueOf(((Double) value).intValue());
+        }
+        return (String)value;
+        
+	}
   }

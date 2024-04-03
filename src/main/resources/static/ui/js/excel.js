@@ -21,12 +21,12 @@ function _excelDownload ( $hds ,$tds,requestParm , title , isPaging , checkedRow
 		})
 
 		let excelParam = {};
-		excelParam["queryId"]		  = requestParm.queryId; 
+		excelParam["queryId"		] = requestParm.queryId; 
 		excelParam["columnOrders"	] = excelColumnOrder;
 		excelParam["downInfo"		] = JSON.stringify({  title : title, menu : title});
 		excelParam["requestParm"	] = isPaging ? JSON.stringify({parm:requestParm.requestParm }) :JSON.stringify(requestParm.requestParm );
 		excelParam["columnNames"	] = excelColumnNames;
-		excelParam["checkedRow"		] = JSON.stringify({ data :checkedRow});
+		excelParam["checkedRow"		] = !checkedRow ? '' : checkedRow;
 		
 	    var xhr = new XMLHttpRequest();
 	    var urlParams = new URLSearchParams( excelParam ).toString();

@@ -24,7 +24,7 @@ var <@pageId> = {
 			C_PAGING.create({
 	 			 pageId				: "<@pageId>"
 	 			,listDomId			: "<@pageId>_contractList"
-	 			,pagingDomId		: "pageDiv"
+	 			,pagingDomId		: "<@pageId>_pageDiv"
 	 			,totalCntDomId		: "<@pageId>_totalCnt"
 	 			,queryId			: "contract.getContractList"
 				,listRange			: Number(listRange)
@@ -318,7 +318,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</div>
 			</div>
 		<!-- paging -->
-		<div class="paging" id="pageDiv">
+		<div class="paging" id="<@pageId>_pageDiv">
 		</div>
 
 		</section>

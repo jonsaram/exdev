@@ -248,112 +248,7 @@
 		});
 		
 	}
-/*
-	function _comparisonChart2 (target, param){
-		
-		const thisMonth =	param.thisMonth;
-		const lastMonth =	param.lastMonth;
-		const data 		=	param.data;
-		const dataPrev 	=	param.dataPrev;
-		const xAxisData =	param.xAxisData;
-	
-		for (const [key, value] of Object.entries(xAxisData)) {
-		    value.ucCode = key.toUpperCase();
-		}
-		
-		const getData = data => data.map(point => ({
-		    name: point[0],
-		    y: point[1],
-		    color: xAxisData[point[0]].color
-		}));
-		
-		Highcharts.chart(target, {
-		    chart: {
-		        type: 'column'
-		    },
-		    xAxisData,
-		    title: {
-		        text: '',
-		        align: 'left'
-		    },
-		    subtitle: {
-		        text: '',
-		        align: 'left'
-		    },
-		    plotOptions: {
-		        series: {
-		            grouping: false,
-		            borderWidth: 0
-		        }
-		    },
-		    legend: {
-		        enabled: false
-		    },
-		    tooltip: {
-		        shared: true,
-		        headerFormat: '<span style="font-size: 15px">' +
-		            '{point.key}' +
-		            '</span><br/>',
-		        pointFormat: '<span style="color:{point.color}">\u25CF</span> ' +
-		            '{series.name}: <b>{point.y} 억</b><br/>'
-		    },
-		    xAxis: {
-		        type: 'category',
-		        accessibility: {
-		            description: 'xAxisData'
-		        },
-		        max: xAxisData.length,
-		        labels: {
-		            useHTML: true,
-		            animate: true,
-		            format: '{value}<br>' +
-		                '<span class="f32">' +
-		                '<span style="display:inline-block;height:32px;vertical-align:text-top;" ' +
-		                'class="flag {value}"></span></span>',
-		            style: {
-		                textAlign: 'center'
-		            }
-		        }
-		    },
-		    yAxis: [{
-		        title: {
-		            text: ''
-	
-		        },
-	 			format: '{value}억',
-		        showFirstLabel: false
-		    }],
-		    series: [
-			{
-		        name: lastMonth,
-		        color: 'rgba(158, 159, 163, 0.5)',
-		        pointPlacement: -0.3,
-		        linkedTo: 'main',
-		        data: dataPrev["months"].slice()
-		    }, 
-			{
-		        name: thisMonth,
-		        id: 'main',
-		        dataSorting: {
-		            enabled: true,
-		            matchByName: true
-		        },
-		        dataLabels: [{
-		            enabled: true,
-		            inside: false,
-		            style: {
-		                fontSize: '10px'
-		            }
-		        }],
-		        data: getData(data["months"]).slice()
-		    }],
-		    exporting: {
-		        allowHTML: true
-		    }
-		});
-		
-	}
-*/
+
 	function _lineAndColumnChart(target, param){
 		
 			const thisYearSales = param.thisYearSales;
@@ -408,9 +303,14 @@
 		    },
 		    legend: {
 		        align: 'center',
-		        x: 50,
+		        x: 130,
 		        verticalAlign: 'top',
 		        y: 0,
+                itemStyle: {
+                    color: '#8A8C92',
+                    fontFamily: 'Noto Sans KR',
+                    fontSize: '11px'
+                },
 		        floating: false,
 		        backgroundColor:
 		            Highcharts.defaultOptions.legend.backgroundColor || // theme
@@ -440,7 +340,9 @@
 	
 		const series = param.series ;
 		Highcharts.chart(target, {
-		
+			chart :{
+			  margin: [50, 0, 40, 45],
+			},
 		    title: {
 		        text: '',
 		        align: 'left'
@@ -467,12 +369,26 @@
 		       // crosshair: true
 		    }],
 	
-		    legend: {
+/*		    legend: {
 		        layout: 'vertical',
 		        align: 'left',
 		        verticalAlign: 'middle'
-		    },
-		
+		    },*/
+		    legend: {
+		        align: 'center',
+		        x: 260,
+		        verticalAlign: 'top',
+		        y: -180,
+                itemStyle: {
+                    color: '#8A8C92',
+                    fontFamily: 'Noto Sans KR',
+                    fontSize: '11px'
+                },
+		        floating: true,
+		        backgroundColor:
+		            Highcharts.defaultOptions.legend.backgroundColor || // theme
+		            'rgba(255,255,255,0.25)'
+		    },		
 		    plotOptions: {
 		        series: {
 		            label: {

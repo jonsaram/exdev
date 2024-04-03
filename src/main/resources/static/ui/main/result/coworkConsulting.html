@@ -29,7 +29,7 @@ var <@pageId> = {
 
  		    	const $hds = $("#<@pageId>_headingColName th");
 		    	const $tds = $("#<@pageId>_allContractList [name='<@pageId>_tr_0'] td");
-		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"월자문 계약 리스트");  
+		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"코웍 외주자문 컨설팅 리스트");  
 		    });		
 			
 		}
@@ -112,8 +112,8 @@ var <@pageId> = {
 				C_PAGING.create({
 		 			 pageId				: "<@pageId>"
 		 			,listDomId			: targetId
-		 			,pagingDomId		: "pageDiv"
-		 			,totalCntDomId		: "totalCnt"
+		 			,pagingDomId		: "<@pageId>_pageDiv"
+		 			,totalCntDomId		: "<@pageId>_totalCnt"
 		 			,queryId			: "rstMgn.getContractList"
 					,listRange			: Number(listRange)
 					,pageRange			: 10
@@ -291,6 +291,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<div class="search_right">
 								<button type="button" class="btn fl" id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
  								<div id="<@pageId>_pagingChunk" style="margin-left: 5px;width:130px"></div>
+								<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
 							</div>
 						</div>
 						<!-- 테이블 -->
@@ -355,7 +356,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							</table>
 						</div>
 						<!-- paging -->
-						<div class="paging" id="pageDiv">
+						<div class="paging" id="<@pageId>_pageDiv">
 						</div>
 
 					</div>

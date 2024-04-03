@@ -8,7 +8,8 @@
 	업무 관리 
 	 -->	
 	<sql id="getCstmList_body">
-		SELECT  B.BUYER_ID
+		SELECT ROW_NUMBER() OVER( ORDER BY B.BUYER_NM) RN
+		, B.BUYER_ID
 		, B.BUYER_NM
 		, B.TEL
 		, B.ADDR
