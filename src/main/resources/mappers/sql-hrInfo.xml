@@ -64,6 +64,7 @@
         	GROUP BY USER_ID
         ) GHIS
 		WHERE 1=1
+		AND U.USE_YN = 'Y' AND U.DEL_YN = 'N'
 		AND U.SP_CSTM_ID = I.SP_CSTM_ID(+)
         AND U.USER_ID = I.USER_ID(+)
         AND U.BRANCH_ID = BR.BRANCH_ID(+)
@@ -214,6 +215,8 @@
 		*/
 		UPDATE TBL_EXP_USER
 		SET STATE = 'DELETED' 
+		,USE_YN = 'N'
+		,DEL_YN = 'Y'
 		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND	  USER_ID	 = #{USER_ID}
 	</delete>
@@ -347,11 +350,12 @@
 		,USER_ID
 		,TO_CHAR(UPGRADE_DATE, 'YYYY-MM-DD') AS UPGRADE_DATE 
 		,GRADE
-		,GET_CODE_NM('USER_GRADE', GRADE)		AS GRADE_NM
+		,GET_CODE_NM('GRADE', GRADE)		AS GRADE_NM
 		FROM TBL_EXP_GRADE_HIST
 		WHERE 1=1
 		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND USER_ID = #{USER_ID}
+		ORDER BY DECODE( GRADE, 'S-MASTER' , 0 , 'MASTER' , 1 , 'FA' , 2, 3)
 	</select>
 	
 </mapper>

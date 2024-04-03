@@ -103,10 +103,10 @@
 
 				if( resultData.state == "S"){
 	
-					var rparm1 = {targetId : "educationList"	,list: resultData.data["hrInfo.getEducationHistList"]};
-					var rparm2 = {targetId : "careerList"		,list: resultData.data["hrInfo.getCareerHistList"]};
-					var rparm3 = {targetId : "positionList"		,list: resultData.data["hrInfo.getPositionHistList"]};
-					var rparm4 = {targetId : "gradeList"		,list: resultData.data["hrInfo.getGradeHistList"]};
+					var rparm1 = {targetId : "<@pageId>_educationList"	,list: resultData.data["hrInfo.getEducationHistList"]};
+					var rparm2 = {targetId : "<@pageId>_careerList"		,list: resultData.data["hrInfo.getCareerHistList"]};
+					var rparm3 = {targetId : "<@pageId>_positionList"	,list: resultData.data["hrInfo.getPositionHistList"]};
+					var rparm4 = {targetId : "<@pageId>_gradeList"		,list: resultData.data["hrInfo.getGradeHistList"]};
 					
 					C_COM.renderHtml("<@pageId>", rparm1);
 					C_COM.renderHtml("<@pageId>", rparm2);
@@ -225,9 +225,9 @@
 										<th scope="col">졸업여부</th>
 									</tr>
 								</thead>
-								<tbody  id="educationList">
+								<tbody  id="<@pageId>_educationList">
 								</tbody>
-								<script type="text/x-jsrender" id="educationList_template">	
+								<script type="text/x-jsrender" id="<@pageId>_educationList_template">	
 								{{for list}}
 									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
  										<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
@@ -235,12 +235,10 @@
  										<td id='SCHOOL_NAME'	value='{{:SCHOOL_NAME}}'	>{{:SCHOOL_NAME}}</td>
  										<td id='MAJOR'			value='{{:MAJOR}}' 			>{{:MAJOR}}</td>
  										<td id='GRADUATE_YN'	value='{{:GRADUATE_YN}}' 	>{{:GRADUATE_YN}}</td>
- 										<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
- 										<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td> 
 									</tr>
 								{{/for}}
 								</script>
-								<script type="text/x-jsrender" id="educationList_noData_template">	
+								<script type="text/x-jsrender" id="<@pageId>_educationList_noData_template">	
 									<tr>	
 										<td colspan=5>자료가 없습니다.</td>	
 									</tr>
@@ -274,9 +272,9 @@
 										<th scope="col">업무내용</th>
 									</tr>
 								</thead>
-								<tbody  id="careerList">
+								<tbody  id="<@pageId>_careerList">
 								</tbody>
-								<script type="text/x-jsrender" id="careerList_template">	
+								<script type="text/x-jsrender" id="<@pageId>_careerList_template">	
 								{{for list}}
 									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
  										<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
@@ -284,12 +282,10 @@
  										<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
  										<td id='POSITION'		value='{{:POSITION}}'		>{{:POSITION}}</td>
  										<td id='BIZ_INFORM'		value='{{:BIZ_INFORM}}' 	>{{:BIZ_INFORM}}</td>
- 										<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
- 										<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
 									</tr>
 								{{/for}}
 								</script>
-								<script type="text/x-jsrender" id="careerList_noData_template">	
+								<script type="text/x-jsrender" id="<@pageId>_careerList_noData_template">	
 									<tr>	
 										<td colspan=5>자료가 없습니다.</td>	
 									</tr>
@@ -321,20 +317,18 @@
 										<th scope="col">발령일</th>
 									</tr>
 								</thead>
-								<tbody  id="positionList">
+								<tbody  id="<@pageId>_positionList">
 								</tbody>
-								<script type="text/x-jsrender" id="positionList_template">	
+								<script type="text/x-jsrender" id="<@pageId>_positionList_template">	
 								{{for list}}
-									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+									<tr name="<@pageId>_tr_{{:#index}}">
  										<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
  										<td id='POSITION'		value='{{:POSITION}}'		>{{:POSITION}}</td>
  										<td id='PA_DATE'		value='{{:PA_DATE}}' 		>{{:PA_DATE}}</td>
- 										<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
- 										<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
 									</tr>
 								{{/for}}
 								</script>
-								<script type="text/x-jsrender" id="positionList_noData_template">	
+								<script type="text/x-jsrender" id="<@pageId>_positionList_noData_template">	
 									<tr>	
 										<td colspan=3>자료가 없습니다.</td>	
 									</tr>
@@ -361,20 +355,17 @@
 										<th scope="col">승격일</th>
 									</tr>
 								</thead>
-								<tbody  id="gradeList">
+								<tbody  id="<@pageId>_gradeList">
 								</tbody>
-								<script type="text/x-jsrender" id="gradeList_template">	
+								<script type="text/x-jsrender" id="<@pageId>_gradeList_template">	
 								{{for list}}
-									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+									<tr name="<@pageId>_tr_{{:#index}}">
  										<td id='GRADE_NM'		value='{{:GRADE_NM}}' 		>{{:GRADE_NM}}</td>
  										<td id='UPGRADE_DATE'	value='{{:UPGRADE_DATE}}' 	>{{:UPGRADE_DATE}}</td>
- 										<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		style='display:none'>{{:SP_CSTM_ID}}</td>
- 										<td id='USER_ID'		value='{{:USER_ID}}'		style='display:none'>{{:USER_ID}}</td>
- 										<td id='GRADE'			value='{{:GRADE}}'			style='display:none'>{{:GRADE}}</td>
 									</tr>
 								{{/for}}
 								</script>
-								<script type="text/x-jsrender" id="gradeList_noData_template">	
+								<script type="text/x-jsrender" id="<@pageId>_gradeList_noData_template">	
 									<tr>	
 										<td colspan=2>자료가 없습니다.</td>	
 									</tr>
