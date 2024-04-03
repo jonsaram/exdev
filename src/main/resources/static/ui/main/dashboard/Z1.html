@@ -104,6 +104,11 @@ var <@pageId> = {
 				<@pageId>.setChart('Sales',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.setChart('Personal',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.setChart('Hire',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				
+				<@pageId>.setChart('InputLaborForce',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.setChart('LaborCostPerPerson',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.setChart('SaleAmountPerPerson',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				
 			});
 		 }
 		,setChart : (gubun, yearData, chartData) =>{
@@ -111,6 +116,11 @@ var <@pageId> = {
 			const getCostOfSalesRate = [];
 			const getCostOfPersonalRate = [];
 			const getCostOfHireRate = [];
+			const getInputLaborForce = [];
+			const getTotalLaborCost = [];
+			const getLaborCostPerPerson = [];
+			const getTotalSaleAmount = [];
+			const getSaleAmountPerPerson = [];
 			//debugger;
 			$.each(chartData, function(index, item){
 				if(gubun=='Sales'){
@@ -131,8 +141,45 @@ var <@pageId> = {
 						getCostOfHireRate.push(parseFloat(item.YEAR2.replace(',','')));
 						getCostOfHireRate.push(parseFloat(item.YEAR3.replace(',','')));
 					}
+				} else if(gubun=='InputLaborForce'){
+					if(item.ITEM_NAME == '상시근로자수'){
+						getInputLaborForce.push(parseFloat(item.YEAR1.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR2.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR3.replace(',','')));
+					}
+				}else if(gubun=='LaborCostPerPerson'){
+					if(item.ITEM_NAME == '인건비 합계'){
+						getTotalLaborCost.push(parseFloat(item.YEAR1.replace(',','')));
+						getTotalLaborCost.push(parseFloat(item.YEAR2.replace(',','')));
+						getTotalLaborCost.push(parseFloat(item.YEAR3.replace(',','')));
+					}else if(item.ITEM_NAME == '상시근로자수'){
+						getInputLaborForce.push(parseFloat(item.YEAR1.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR2.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR3.replace(',','')));
+					}
+				}else if(gubun=='SaleAmountPerPerson'){
+					if(item.ITEM_NAME == '매출액'){
+						getTotalSaleAmount.push(parseFloat(item.YEAR1.replace(',','')));
+						getTotalSaleAmount.push(parseFloat(item.YEAR2.replace(',','')));
+						getTotalSaleAmount.push(parseFloat(item.YEAR3.replace(',','')));
+					}else if(item.ITEM_NAME == '상시근로자수'){
+						getInputLaborForce.push(parseFloat(item.YEAR1.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR2.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR3.replace(',','')));
+					}
 				}
 			})
+			if(gubun=='LaborCostPerPerson'){
+				//debugger;
+				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[0]/getInputLaborForce[0]));
+				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[1]/getInputLaborForce[1]));
+				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[2]/getInputLaborForce[2]));
+			}else if(gubun=='SaleAmountPerPerson'){
+				//debugger;
+				getSaleAmountPerPerson.push(Math.round(getTotalSaleAmount[0]/getInputLaborForce[0]));
+				getSaleAmountPerPerson.push(Math.round(getTotalSaleAmount[1]/getInputLaborForce[1]));
+				getSaleAmountPerPerson.push(Math.round(getTotalSaleAmount[2]/getInputLaborForce[2]));
+			}
 			if(gubun=='Sales'){
 				//매출원가 비중
   				<@pageId>.createChart( "<@pageId>_costOfSalesRate_chart" 
@@ -147,6 +194,21 @@ var <@pageId> = {
 				//임차료 비중
   				<@pageId>.createChart( "<@pageId>_costOfHireRate_chart" 
 									, _3yearArray , [{  name: '임차료 비중(%)',type: 'line',	data: getCostOfHireRate,tooltip: {valueSuffix:'%'}}
+													]);
+			} else if(gubun=='InputLaborForce'){
+				//투입노동력
+  				<@pageId>.createChart( "<@pageId>_inputLaborForce_chart" 
+									, _3yearArray , [{  name: '투입노동력(명)',type: 'line',	data: getInputLaborForce,tooltip: {valueSuffix:'명'}}
+													]);
+			} else if(gubun=='LaborCostPerPerson'){				
+				//인당 평균 인건비
+  				<@pageId>.createChart( "<@pageId>_laborCostPerPerson_chart" 
+									, _3yearArray , [{  name: '인당 평균 인건비(천원)',type: 'line',	data: getLaborCostPerPerson,tooltip: {valueSuffix:'천원'}}
+													]);
+			}else if(gubun=='SaleAmountPerPerson'){				
+				//인당 평균 매출액
+  				<@pageId>.createChart( "<@pageId>_SaleAmountPerPerson_chart" 
+									, _3yearArray , [{  name: '인당 평균 매출액(천원)',type: 'line',	data: getSaleAmountPerPerson,tooltip: {valueSuffix:'천원'}}
 													]);
 			}
 		}
@@ -1244,21 +1306,21 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<div class="stat_import_tit">투입 노동력</div>
 									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
 									<figure class="highcharts-figure2">
-								    	<div class="lineChart02_1" style="width:100%;height:160px; margin:0 auto"></div>
+								    	<div class="chart8" id="<@pageId>_inputLaborForce_chart" style="width:100%; height:160px; margin-top:0 auto"></div>
 									</figure>
 								</div>
 								<div class="col3">
 									<div class="stat_import_tit">인당 평균 인건비</div>
 									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
 									<figure class="highcharts-figure2">
-								    	<div class="lineChart02_2" style="width:100%;height:160px; margin:0 auto"></div>
+								    	<div class="chart8" id="<@pageId>_laborCostPerPerson_chart" style="width:100%; height:160px; margin-top:0 auto"></div>
 									</figure>
 								</div>
 								<div class="col3">
 									<div class="stat_import_tit">인당 평균 매출액</div>
 									<!-- 차트색: #656fb4, 차트 bottom 라인색: #dddddd, 차트년도 색: #545454 -->
 									<figure class="highcharts-figure2">
-								    	<div class="lineChart02_3" style="width:100%;height:160px; margin:0 auto"></div>
+								    	<div class="chart8" id="<@pageId>_SaleAmountPerPerson_chart" style="width:100%; height:160px; margin-top:0 auto"></div>
 									</figure>
 								</div>
 							</div>

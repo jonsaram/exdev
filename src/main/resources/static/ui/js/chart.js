@@ -448,7 +448,7 @@ function _lineRateChart(container, categories, series  ) {
             }],
             yAxis: [{
                 labels: {
-                    format: '{value}%',
+                    format: '{value}',
                     style: {
                         color: '#8A8C92',
                         fontFamily: 'Noto Sans KR',
