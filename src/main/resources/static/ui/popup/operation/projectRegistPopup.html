@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@popupId> = {
-		 buyerInfo 		: {}
+		 CONTRACT_ID 	: "" 	
+		,buyerInfo 		: {}
 		,userInfo		: {}	
 		,consultingInfo	: {}	
 	 	,buyerSearchPopup : function(gubun) {
@@ -36,10 +37,22 @@
 	
 		,save : function() {
 			let saveData = {
-				 CONTRACT_ID	: C_COM.makeUniqueId()
+				 CONTRACT_ID	: <@popupId>.CONTRACT_ID
 				,USER_ID 		: <@popupId>.userInfo		.USER_ID
 				,BUYER_ID 		: <@popupId>.buyerInfo		.BUYER_ID
 				,CONSULTING_ID 	: <@popupId>.consultingInfo	.CONSULTING_ID
+			}
+			if(isEmpty(saveData.BUYER_ID )) {
+				C_POP.alert('고객을 선택하세요.');
+				return;
+			}
+			if(isEmpty(saveData.USER_ID )) {
+				C_POP.alert('영업담당자를 선택하세요.');
+				return;
+			}
+			if(isEmpty(saveData.CONSULTING_ID )) {
+				C_POP.alert('컨설팅 상품을 선택하세요.');
+				return;
 			}
 			
 			var parm ={
@@ -66,8 +79,22 @@
 		 }
 	}
 	// Popup Load가 완료된후 실행 된다.
-	C_POP.onLoadPopup("<@popupId>", function(data) {
-		
+	C_POP.onLoadPopup("<@popupId>", function(parm) {
+		if(parm.mode == 'M') {
+			let projectItem = parm.projectItem;
+
+			<@popupId>.userInfo			.USER_ID 		= projectItem.USER_ID;
+			<@popupId>.buyerInfo		.BUYER_ID 		= projectItem.BUYER_ID;
+			<@popupId>.consultingInfo	.CONSULTING_ID 	= projectItem.CONSULTING_ID;
+			
+			$("#<@popupId>_USER"		).val(projectItem.USER_NM		);
+			$("#<@popupId>_BUYER"		).val(projectItem.BUYER_NM		);
+			$("#<@popupId>_CONSULTING"	).val(projectItem.CONSULTING_NM	);
+			
+			<@popupId>.CONTRACT_ID = projectItem.CONTRACT_ID
+		} else {
+			<@popupId>.CONTRACT_ID = C_COM.makeUniqueId();
+		}
 	});
 </script>
 <div class="modal_wrap" id="modal-ex2">

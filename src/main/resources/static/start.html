@@ -105,8 +105,9 @@
 
 		
 		var C_MENU = {
-			 nowMainMenuIdx	:0
-			,nowSubMenuIdx	:0
+			 nowMainMenuIdx	: 0
+			,nowSubMenuIdx	: 0
+			,allMenuMap		: {}
 			,mainMenuList	: []
 			,subMenuListMap	: {}
 			,subMenuList	: []
@@ -119,9 +120,21 @@
 					let menuOrgList 	= resultData.data;
 					let mainMenuList 	= []
 					let subMenuAllList	= []
+					let mainMenuIdx 	= -1;
+					let subMenuIdx		= 0;
 					$.each(menuOrgList, function() {
-						if(this.MENU_DEPTH == 0) 	mainMenuList	.push(this);
-						else						subMenuAllList	.push(this);
+						C_MENU.allMenuMap[this.MENU_ID] = this;
+						if(this.MENU_DEPTH == 0) {
+							mainMenuIdx++;
+							mainMenuList	.push(this);
+							C_MENU.allMenuMap[this.MENU_ID].mainIndex = mainMenuIdx;
+							subMenuIdx = 0;
+						} else	{
+							subMenuAllList	.push(this);
+							C_MENU.allMenuMap[this.MENU_ID].mainIndex = mainMenuIdx;
+							C_MENU.allMenuMap[this.MENU_ID].subIndex = subMenuIdx;
+							subMenuIdx++;
+						}
 					});
 					
 					C_MENU.mainMenuList = mainMenuList;
@@ -133,6 +146,7 @@
 					C_MENU.showMainMenuList(0);
 					
 					C_MENU.showSubMenuList(0, 0);
+
 				});
 			 }
 			,setMenuActive : function(menuList, idx) {
@@ -195,11 +209,15 @@
 				}
 				C_PM.movePage(subMenu.PAGE_ID, parm);
 			 }
+			,moveMenu : function(subMenuId) {
+				let mainIndex	= C_MENU.allMenuMap[subMenuId].mainIndex;
+				let subIndex	= C_MENU.allMenuMap[subMenuId].subIndex;
+				
+				C_MENU.moveMainMenu(mainIndex);
+				C_MENU.showSubMenuList(mainIndex, subIndex);
+				C_MENU.moveSubMenu(subIndex);
+			 }
 		} 
-		
-		
-		
-		
 		
 	</script>
 	

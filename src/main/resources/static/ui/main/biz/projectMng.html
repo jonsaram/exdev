@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-		openProjectPopup : function() {
+		 projectList : []
+		,openProjectPopup : function() {
 			C_POP.open('popup_operation_projectRegistPopup', {}, function(retData) {
 				if(retData.reload == 'Y') {
 					<@pageId>.loadData();
@@ -14,6 +15,9 @@
 				,requestParm	: {}
 			}
 			C_COM.requestQuery(parm, function(resultData) {
+				
+				<@pageId>.projectList = resultData.data;
+				
 				var rparm = {
 						 targetId 		: "<@pageId>_projectList"
 						,list			: resultData.data
@@ -22,6 +26,18 @@
 				C_COM.renderHtml("<@pageId>", rparm);
 			});  
 				
+		 }
+		,modify	: function(index) {
+			let projectItem = <@pageId>.projectList[index];
+			
+			C_POP.open('popup_operation_projectRegistPopup', {mode : 'M', projectItem : projectItem }, function(retData) {
+				if(retData.reload == 'Y') {
+					<@pageId>.loadData();
+				}
+			});
+		 }
+		,approval : function() {
+			
 		 }
 	}
 	// Page Load가 완료된후 실행 된다.
@@ -58,17 +74,19 @@
 							<col style="width:*"/>
 							<col style="width:150px;"/>
 							<col style="width:200px;"/>
+							<col style="width:70px;"/>
 							<col style="width:150px;"/>
 						</colgroup>
 						<thead>
 							<tr>
 								<th scope="col">No.</th>
 								<th scope="col">고객명</th>
-								<th scope="col">담당자명</th>
+								<th scope="col">영업담당자명</th>
 								<th scope="col">상품명</th>
 								<th scope="col">상태</th>
-								<th scope="col">등록일</th>
-								<th scope="col">관리</th>
+								<th scope="col">등록/수정일</th>
+								<th scope="col">결재</th>
+								<th scope="col"><i class="icon_pen"></i> &nbsp;&nbsp; <i class="icon_trash"></i></th>
 							</tr>
 						</thead>
 						<tbody id="<@pageId>_projectList">
@@ -82,13 +100,17 @@
 								<td>{{:CONSULTING_NM}}</td>
 								<td>{{:PROCESS_STATE_NM}}</td>
 								<td>{{:UPDATE_DATE}}</td>
-								<td>수정/삭제</td>
+								<td><button type="button" class="btn fl tc" onclick="<@pageId>.approval({{:#index}})">결재</button></td>
+								<td>
+									<button onclick="<@pageId>.modify({{:#index}})"><i class="icon_pen"		></i></button>	&nbsp; 
+									<button onclick="<@pageId>.delete({{:#index}})"><i class="icon_trash"	></i></button>
+								</td>
 							</tr>
 							{{/for}}
 						</script>
 						<script type="text/x-jsrender" id="<@pageId>_projectList_noData_template">	
 							<tr>	
-								<td colspan=7>자료가 없습니다.</td>	
+								<td colspan=9>자료가 없습니다.</td>	
 							</tr>
 						</script>
 					</table>

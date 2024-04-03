@@ -615,13 +615,13 @@ var C_COM = {
 	        success: function(response) {
 				if(typeof C_COM.excelUploadCallbackFn == "function" ) C_COM.excelUploadCallbackFn(response);
 				else {
-					alert('Excel Upload에 성공 하였습니다.');	
+					C_POP.alert('Excel Upload에 성공 하였습니다.');	
 				}
 			}
 	        ,error: function(error) {
 				if(typeof C_COM.excelUploadCallbackFn == "function" ) C_COM.excelUploadCallbackFn(error);
 				else {
-					alert('Excel Upload에 실패 하였습니다.');	
+					C_POP.alert('Excel Upload에 실패 하였습니다.');	
 				}
 	        }
 	    });
