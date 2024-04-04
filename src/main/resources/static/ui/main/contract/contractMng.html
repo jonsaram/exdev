@@ -323,7 +323,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</colgroup>
 						<tbody  id="<@pageId>_contractList">
 						</tbody>
-<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
+						<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
 						{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}">
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
@@ -343,20 +343,18 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td><button><i onclick="javascript:<@pageId>.delete('{{:#index}}')" class="icon_trash"></i></button></td>
 							</tr>
 						{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
-				<tr>	
-					<td colspan=13>자료가 없습니다.</td>	
-				</tr>
-</script>
+						</script>
+						<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
+							<tr>	
+								<td colspan=13>자료가 없습니다.</td>	
+							</tr>
+						</script>
 					</table>
 				</div>
 			</div>
-		<!-- paging -->
-		<div class="paging" id="<@pageId>_pageDiv">
-		</div>
-
+			<!-- paging -->
+			<div class="paging" id="<@pageId>_pageDiv">
+			</div>
 		</section>
-	
 	</div>
 </div>
