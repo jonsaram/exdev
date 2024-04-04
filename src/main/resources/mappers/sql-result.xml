@@ -175,7 +175,7 @@
 	
 	<update id="updateResultItem" parameterType="java.util.HashMap"  flushCache="true" >
 		<!-- x	result.updateResultItem
-			실적 저장
+			실적 저장 ( PROCESS_STATE : RESULTING )
 		-->
 	    { CALL
 		    DECLARE
@@ -251,6 +251,14 @@
 				;
 				
 				COMMIT;
+				
+				UPDATE TBL_EXP_PALN T
+				SET PROCESS_STATE = 'RESULTING'
+				WHERE CONTRACT_ID = p_CONTRACT_ID
+				;
+				
+				COMMIT;
+				
 			END
 		}		   			
 	</update>
