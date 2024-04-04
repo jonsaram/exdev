@@ -21,9 +21,11 @@
 		,setInput : (retData) => {
 			const itemId	= retData["<@gubun>_ID"];
 			const itemNm	= retData["<@gubun>_NM"];
+
 			if( itemId ){
 				$("#<@compId>_val").val(itemNm+ " ("+itemId+")");
 			}
+
     		C_COMP.callback("<@compId>", retData);
 		 }
 		,getRetData : function() {
@@ -33,6 +35,9 @@
 	// Component Load가 완료된후 실행 된다.
 	C_COMP.onLoadComp("<@compId>", function(data) {
 		
+		if(isValid(data.defaultInfo)) {
+			<@compId>.setInput(data.defaultInfo);			
+		}
 	});
 </script>
 <div>

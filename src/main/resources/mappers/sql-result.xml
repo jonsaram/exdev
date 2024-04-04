@@ -127,6 +127,7 @@
 		AND C.USER_ID	= U.USER_ID
 		AND C.BUYER_ID	= B.BUYER_ID
 		AND C.CONSULTING_ID = CS.CONSULTING_ID
+		AND C.PROCESS_STATE IN ( 'CONTRACTED', 'COMPLETED' )
 	       	<if test=" USER_ID != null and !USER_ID.equals('') and USER != null and !USER.equals('')">  
 				AND (	C.USER_ID  LIKE '%' || #{USER_ID} || '%'
 				  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'

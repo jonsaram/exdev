@@ -65,6 +65,7 @@
         	if( <@popupId>.autoRtn && <@popupId>.searchedRows.length == 1){
         		
         		<@popupId>.getRow(0);
+        		return;
         	}
         	
         	let rparm = {
@@ -108,7 +109,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 		
 		<@popupId>.pageInit(data);
 
-		<@popupId>.searchList();
+		const autoRtn = data.param?.autoRtn ? true:false;
+		if( !autoRtn )
+			<@popupId>.searchList();
  });
 </script>
    <!-- 고객 선택 팝업 -->

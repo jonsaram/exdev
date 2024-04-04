@@ -62,7 +62,7 @@ var <@pageId> = {
             
 			C_COM.renderHtml("<@pageId>", rparm);
        	
-        	mergeTableTD('<@pageId>_resultList', {startIdx : 14, endIdx : 14, startRowIdx : 1});
+        	mergeTableTD('<@pageId>_resultList', {startIdx : 14, endIdx : 16, startRowIdx : 1});
         	mergeTableTD('<@pageId>_resultList', {startIdx : 1, endIdx : 7, startRowIdx : 1});
         	
     		if( <@pageId>.selectedList.length > 0 ){
@@ -204,7 +204,7 @@ var <@pageId> = {
 
 					<@pageId>.contractItem =  resultData.data[0];
 					const obj 				= resultData.data[0];
-
+					$("#<@pageId>_contractId").hide().text(<@pageId>.contractItem.CONTRACT_ID);	
 					Object.entries(obj).forEach( item =>{
 						
 						const key	= item[0],value = item[1];
@@ -221,13 +221,14 @@ var <@pageId> = {
 		});
 		
 	}
-	,openUpdatePopup : (idx) => {
+	,openUpdatePopup : (RESULT_ID) => {
 
 		let mode = "I";
 		let param = "";
-		if( !isEmpty(idx) )
+		if( !isEmpty(RESULT_ID) )
 		{
-			param 	= <@pageId>.selectedList[idx];
+			
+			param 	= <@pageId>.selectedList.find( row => row.RESULT_ID == RESULT_ID);
 			mode 	= "U";
 		}
 
@@ -257,6 +258,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 <div class="cont_wrap">
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>실적 관리</h2>
+		<div id="<@pageId>_contractId"></div>
 	</div>
 
 	<section class="sec_wrap list" style="height:calc(100% - 43px);">
@@ -381,15 +383,15 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td class="tr"	>{{numb:PAYMENT}}			</td>
 								<td class="tr"	>{{numb:REAL_PROFIT}}		</td>
 
-			 					<td rowspan="4">
+			 					<td >
 									{{if LAST_RESULT_ID != ""}}
-									<button id="<@pageId>_modify_{{:#index}}" index="{{:#getIndex()}}" onclick="javascript:<@pageId>.openUpdatePopup('{{:#getIndex()}}','{{:RESULT_ID}}')">
+									<button onclick="javascript:<@pageId>.openUpdatePopup('{{:RESULT_ID}}')">
 									<i class="icon_pen"></i>
 									</button>
 									{{/if}}
 								</td>
 
-								<td rowspan="4">
+								<td >
 									{{if LAST_RESULT_ID != ""}}
 									<button id="<@pageId>_delete_{{:#index}}" key='{{:CONTRACT_ID}}||{{:RESULT_ID}}'>
 									<i class="icon_trash"></i>

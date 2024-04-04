@@ -10,6 +10,7 @@ var <@popupId> = {
  	 ,userId :''
  	 ,buyerId:''
  	 ,consultingId:''
+ 	 ,processState:''
 	 ,close : function(returnData) {
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
@@ -37,18 +38,18 @@ var <@popupId> = {
 
 		 returnData["CONTRACT_MEMBER"]	= <@popupId>.getContractMember(returnData["CONTRACT_ID"],returnData["USER_ID"]);
 		 
-		 if( validCheck == false ) returnData["PROCESS_STATE"]	= "CONTRACTED";
-		 else  returnData["PROCESS_STATE"]	= "COMPLETED";
-		 
 		 if( validCheck && <@popupId>.validation(returnData) == false){
 			 return null;
 		 }
 		 
 		 return returnData;
  	 }
-	 ,apply : () =>{
+	 ,apply : (processState) =>{
 
 		 const returnData = <@popupId>.makeReturnData(false);
+		 
+		 if( processState ) returnData["PROCESS_STATE"] = processState;
+		 else returnData["PROCESS_STATE"]	= <@popupId>.processState;
 		 
 		 <@popupId>.close(returnData);
 		 
@@ -71,12 +72,13 @@ var <@popupId> = {
 		 return true;
 		 
 	 }
-	,pageInit : () => {
+	,pageInit : (readonly) => {
 		
 		<@popupId>.setTitleHeight();
 		
 		let CONTRACT_TYPE,CONSULTING_CLASS;
 		if( <@popupId>.mode == "U" ){
+			
 				Object.entries(<@popupId>.updatingData).forEach(([key, val]) => {
 				    $("#<@popupId>_" + key).val(val);
 				    if( key == "TOTAL_COST")$("#<@popupId>_TOTAL_COST").val(_numberWithCommas(val));
@@ -112,6 +114,24 @@ var <@popupId> = {
 		if( CONSULTING_CLASS ) 
 			C_UICOM.setSingleBox("<@popupId>_selectConsultingClass", CONSULTING_CLASS);
 
+		
+		if( readonly){
+			
+			setTimeout( ()=>{
+				$("#<@popupId>_BUYER").prop("disabled", true);
+				$("#<@popupId>_BUYER+a").remove()
+				$("#<@popupId>_USER").prop("disabled", true);
+				$("#<@popupId>_USER+a").remove()
+				$("#<@popupId>_TOTAL_COST").prop("disabled", true);
+				$("#<@popupId>_CONSULTING").prop("disabled", true);
+				$("#<@popupId>_CONSULTING+a").remove();
+				$("#<@popupId>_addCowork").remove();
+				$("#<@popupId>_addSalesMan").remove();
+				$("#<@popupId>_addSalesMan").remove();
+				$("#<@popupId>_coworkList button").remove();
+				$("#<@popupId>_salesManList button").remove();
+			},500)
+		}
 	}
 	,savedContractMemberSearch : () => {
 		
@@ -173,27 +193,6 @@ var <@popupId> = {
   	 	$("#<@popupId> .tit").html( title );
 		
 	}
-	,memberSearchPopup : function(gubun) {
-      	
-		let param = {};
-
-		C_POP.open('popup_system_memberSearchPopup', {param:param, gubun:gubun}, function(retData) {
-
-              if( !isEmpty( retData["BUYER_ID"])){
-            	  
-	              <@popupId>.updatingData["NEW_BUYER"]	= retData ;
-	              <@popupId>.buyerId					= retData["BUYER_ID"] ;
-              }
-              
-              if( !isEmpty( retData["USER_ID"])){
-	              <@popupId>.updatingData["NEW_USER"]	= retData;
-	              <@popupId>.userId						= retData["USER_ID"] ;
-              }  
-              
-			<@popupId>.memberSet('new');
-			
-		});
-	}
 	,memberSet : (gubun) => {
 
 		if( gubun == 'old'){
@@ -232,28 +231,6 @@ var <@popupId> = {
 			}
 		}
 
-	}
-	,handleKeyPress : (event, gubun) => {
-
-	    if (event.key === 'Enter') {
-	    	const value = event.target.value;
-
-	    	_memberSearchPopup( {autoRtn:true, gubun:gubun, searchText:value } , (retData)=>{
-
-	              if( !isEmpty( retData["BUYER_ID"])){
-	            	  
-		              <@popupId>.updatingData["NEW_BUYER"]	= retData ;
-		              <@popupId>.buyerId					= retData["BUYER_ID"] ;
-	              }
-	              
-	              if( !isEmpty( retData["USER_ID"])){
-		              <@popupId>.updatingData["NEW_USER"]	= retData;
-		              <@popupId>.userId						= retData["USER_ID"] ;
-	              }  
-	              
-				<@popupId>.memberSet('new');
-	    	})
-	    }
 	}
 	,consultingSearchPopup : () => {
 		
@@ -393,27 +370,11 @@ var <@popupId> = {
 	}
 	,nextState : () =>{
 		
-		C_POP.confirm('실행 완료 상태로 전환하시겠습니까?', function() {
+		C_POP.confirm('체결 완료 상태로 전환하시겠습니까?', function() {
 
-			if( <@popupId>.makeReturnData(true) = null)return;
+			if( <@popupId>.makeReturnData(true) == null)return;
 			
-			var parm = {
-					 queryId 		: "contract.updateContractProcessState"
-					,requestParm	: {
-										 CONTRACT_ID : <@popupId>.updatingData["CONTRACT_ID"]
-										,PROCESS_STATE : 'CONTRACTED'
-										}
-			}
-
-			C_COM.requestQuery(parm, function(resultData) {
-
-				if( resultData.state == "S" ){
-
-					C_POP.alert("실행 완료 되었습니다.");
-					
-				}
-
-			});
+			<@popupId>.apply('CONTRACTED');
 		});
 		
 	}
@@ -436,6 +397,34 @@ var <@popupId> = {
 
 		});
 	}
+	,setComponent : () => {
+		
+		let parm = {
+			 gubun 			: "BUYER"
+			,placeholder 	: "고객명(고객번호)"
+			,defaultInfo	: <@popupId>.updatingData
+		}
+		C_COMP.import("<@popupId>_BUYER", "component_common_compSelectUser",parm , function(retData) {
+
+			<@popupId>.updatingData["NEW_BUYER"]	= retData ;
+			<@popupId>.buyerId = retData["BUYER_ID"]
+			<@popupId>.memberSet('new');
+			
+		});	
+
+		let parm2 = {
+			 gubun 			: "USER"
+			,placeholder 	: "사원이름(사원ID)"
+			,defaultInfo	: <@popupId>.updatingData
+		}
+		C_COMP.import("<@popupId>_USER", "component_common_compSelectUser",parm2 , function(retData) {
+			
+			<@popupId>.updatingData["NEW_USER"]	= retData ;
+			<@popupId>.userId = retData["USER_ID"]
+			<@popupId>.memberSet('new');
+			
+		});	
+	}
 
 }
 // Popup Load가 완료된후 실행 된다.
@@ -448,39 +437,21 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.buyerId 		= <@popupId>.updatingData?.BUYER_ID;
 	<@popupId>.consultingId= <@popupId>.updatingData?.CONSULTING_ID;
 	
-	if( <@popupId>.mode == "V"){
-		
-		$("#<@popupId>_applyBtn").remove();
-		$("#<@popupId>_closeBtn").html("닫기");
-	}
-	if( <@popupId>.mode == "U" && <@popupId>.updatingData["PROCESS_STATE"] !='CONTRACTING' ){
+	<@popupId>.processState = <@popupId>.updatingData["PROCESS_STATE"] ;
+	if( <@popupId>.mode == "U" && <@popupId>.processState !='CONTRACTED' &&  <@popupId>.processState !='COMPLETED' ){
 		$("#<@popupId>_nextStateBtn").show();
 	}
-	<@popupId>.pageInit();
+	
+	let readonly=false;
+	if( <@popupId>.mode == "U" && ( <@popupId>.processState =='CONTRACTED' ||  <@popupId>.processState =='COMPLETED' ) ){
+		readonly = true;
+	}
+	
+	<@popupId>.setComponent();
+	
+	<@popupId>.pageInit(readonly);
 	
 	<@popupId>.setHandler();
-	
-
-	
-	
-	// Component 설정
-	let parm = {
-		 gubun 			: "BUYER"
-		,placeholder 	: "고객명(고객번호)"
-	}
-	C_COMP.import("<@popupId>_customer", "component_common_compSelectUser",parm , function(retData) {
-		dalert(retData);		
-	});	
-
-	
-	let parm2 = {
-		 gubun 			: "USER"
-		,placeholder 	: "사원이름(사원ID)"
-	}
-	C_COMP.import("<@popupId>_buyer1", "component_common_compSelectUser",parm2 , function(retData) {
-		dalert(retData);		
-	});	
-	
 });
 </script>
 <div class="modal_wrap">
@@ -502,32 +473,14 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<li class="w100">
 									<label>고객선택</label>
 									<div class="info">
-										<div class="search_inputWrap" style="width:100%">
-											<input type="search" id="<@popupId>_BUYER" placeholder="고객명(고객번호)" onkeypress="<@popupId>.handleKeyPress(event,'BUYER')">
-											<a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('BUYER');" class="search_btn"><i class="icon_search"></i></a>
-										</div>
-									</div>
-								</li>
-								<li class="w100 ml0">
-									<label>고객선택2</label>
-									<div class="info">
-										<div class="search_inputWrap" style="width:100%" id="<@popupId>_customer">
+										<div class="search_inputWrap" style="width:100%" id="<@popupId>_BUYER">
 										</div>
 									</div>
 								</li>
 								<li class="w100 ml0">
 									<label>계약담당자</label>
 									<div class="info">
-										<div class="search_inputWrap" style="width:100%">
-											<input type="search" id="<@popupId>_USER" placeholder="사원이름(사원ID)" onkeypress="<@popupId>.handleKeyPress(event)">
-											<a  href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
-										</div>
-									</div>
-								</li>
-								<li class="w100 ml0">
-									<label>계약담당자2</label>
-									<div class="info">
-										<div class="search_inputWrap" style="width:100%" id="<@popupId>_buyer1">
+										<div class="search_inputWrap" style="width:100%" id="<@popupId>_USER">
 										</div>
 									</div>
 								</li>
@@ -737,7 +690,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	</div> <!-- //modal_body -->
 
 		<div class="modal_footer">
-			<button type="button" class="btn select" id="<@popupId>_nextStateBtn" onclick="<@popupId>.nextState()" style="display:none;">실행완료</button>
+			<button type="button" class="btn select" id="<@popupId>_nextStateBtn" onclick="<@popupId>.nextState()" style="display:none;">계약체결완료</button>
 			<button type="button" class="btn select" id="<@popupId>_applyBtn" onclick="<@popupId>.apply()" >저장</button>
 			<button type="button" class="btn close"  id="<@popupId>_closeBtn" onclick="<@popupId>.close()" >취소</button>
 		</div>
