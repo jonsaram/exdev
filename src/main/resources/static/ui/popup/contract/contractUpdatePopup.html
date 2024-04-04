@@ -14,8 +14,8 @@ var <@popupId> = {
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
 	 }
-	 ,apply : () =>{
-
+ 	 ,makeReturnData : (validCheck) => {
+ 		 
 		 let returnData = {CONTRACT_ID : <@popupId>.updatingData["CONTRACT_ID"]};
 		 const $inputs = $("#<@popupId>_items input");
 		 $.each( $inputs, function(){
@@ -37,9 +37,18 @@ var <@popupId> = {
 
 		 returnData["CONTRACT_MEMBER"]	= <@popupId>.getContractMember(returnData["CONTRACT_ID"],returnData["USER_ID"]);
 		 
-		 if( <@popupId>.validation(returnData) == false){
-			 return;
+		 if( validCheck == false ) returnData["PROCESS_STATE"]	= "CONTRACTED";
+		 else  returnData["PROCESS_STATE"]	= "COMPLETED";
+		 
+		 if( validCheck && <@popupId>.validation(returnData) == false){
+			 return null;
 		 }
+		 
+		 return returnData;
+ 	 }
+	 ,apply : () =>{
+
+		 const returnData = <@popupId>.makeReturnData(false);
 		 
 		 <@popupId>.close(returnData);
 		 
@@ -384,7 +393,10 @@ var <@popupId> = {
 	}
 	,nextState : () =>{
 		
-		C_POP.confirm('계약체결 완료 상태로 전환하시겠습니까?', function() {
+		C_POP.confirm('실행 완료 상태로 전환하시겠습니까?', function() {
+
+			if( <@popupId>.makeReturnData(true) = null)return;
+			
 			var parm = {
 					 queryId 		: "contract.updateContractProcessState"
 					,requestParm	: {
@@ -397,8 +409,7 @@ var <@popupId> = {
 
 				if( resultData.state == "S" ){
 
-					C_POP.alert("계약체결 되었습니다.");
-					<@popupId>.apply();
+					C_POP.alert("실행 완료 되었습니다.");
 					
 				}
 
@@ -442,12 +453,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 		$("#<@popupId>_applyBtn").remove();
 		$("#<@popupId>_closeBtn").html("닫기");
 	}
-	if( <@popupId>.mode == "U" && <@popupId>.updatingData["CONTRACT_ID"] ){
-		
-		<@popupId>.checkCanNextState(<@popupId>.updatingData["CONTRACT_ID"]);
-		
+	if( <@popupId>.mode == "U" && <@popupId>.updatingData["PROCESS_STATE"] !='CONTRACTING' ){
+		$("#<@popupId>_nextStateBtn").show();
 	}
-	
 	<@popupId>.pageInit();
 	
 	<@popupId>.setHandler();
@@ -694,7 +702,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	</div> <!-- //modal_body -->
 
 		<div class="modal_footer">
-			<button type="button" class="btn select" id="<@popupId>_nextStateBtn" onclick="<@popupId>.nextState()" style="display:none;">체결완료</button>
+			<button type="button" class="btn select" id="<@popupId>_nextStateBtn" onclick="<@popupId>.nextState()" style="display:none;">실행완료</button>
 			<button type="button" class="btn select" id="<@popupId>_applyBtn" onclick="<@popupId>.apply()" >저장</button>
 			<button type="button" class="btn close"  id="<@popupId>_closeBtn" onclick="<@popupId>.close()" >취소</button>
 		</div>
