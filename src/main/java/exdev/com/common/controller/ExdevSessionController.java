@@ -3,12 +3,15 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import exdev.com.ExdevCommonAPI;
 import exdev.com.common.ExdevConstants;
+import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.common.vo.SessionVO;
 
 /**
@@ -17,16 +20,26 @@ import exdev.com.common.vo.SessionVO;
 @Controller("ExdevSessionController")
 public class ExdevSessionController {
 	
+	@Autowired
+	private ExdevCommonDao commonDao;
+
 	@RequestMapping("setSession.do")
 	public @ResponseBody Map setSession(@RequestBody Map map, HttpSession session) throws Exception {
 		
 		SessionVO sessionVO = new SessionVO();
 		
-		String spCstmId = (String)map.get("spCstmId"	);
-		String userNm 	= (String)map.get("userNm"		);
-		String userId 	= (String)map.get("userId"		);
-		String grade 	= (String)map.get("grade"		);
-		String email	= (String)map.get("email"		);
+		Map userInfo = (Map)commonDao.getObject("system.getUserInfo", map);
+		
+		if(!ExdevCommonAPI.isValid(userInfo)) {
+			map.put("state", "E");
+			return map;
+		}
+		
+		String spCstmId = (String)userInfo.get("SP_CSTM_ID"	);
+		String userNm 	= (String)userInfo.get("USER_NM"	);
+		String userId 	= (String)userInfo.get("USER_ID"	);
+		String grade 	= (String)userInfo.get("GRADE"		);
+		String email	= (String)userInfo.get("EMAIL"		);
 		
 		sessionVO.setSpCstmId	(spCstmId	);
 		sessionVO.setUserId		(userId		);
@@ -36,6 +49,6 @@ public class ExdevSessionController {
 		
 		session.setAttribute(ExdevConstants.SESSION_ID, sessionVO);
 		
-		return null;
+		return userInfo;
 	}
 }

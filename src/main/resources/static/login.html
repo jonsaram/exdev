@@ -6,6 +6,44 @@
 	<title>Start Asset</title>
 	<link rel="stylesheet" type="text/css" href="css/common.css"/>
 	<link rel="stylesheet" type="text/css" href="css/layout.css"/>
+	<script type="text/javascript" src="./js/libs/jquery-1.12.4.min.js"	></script>
+	<script type="text/javascript" 	src="./ui/js/lib/jsrender.js"				></script>
+	<script type="text/javascript" 	src="./ui/js/common/config.js"				></script>
+	<script type="text/javascript" 	src="./ui/js/common/function_ajax.js"		></script>
+	<script type="text/javascript" 	src="./ui/js/common/function_common.js"		></script>
+	<script type="text/javascript" 	src="./ui/js/common/project_common.js"		></script>
+    <script type="text/javascript" src="./ui/js/common.js" 						></script>
+	<script>
+		function login() {
+			
+			let userId = $("#userId").val();
+			let userPw = $("#userPw").val();
+
+			var sendParm = {
+				 targetUrl 	: _WEB_ROOT_URL + "/setSession.do"
+				,data		: {
+				    userId	 	: userId
+				   ,userPw		: userPw
+				 }
+			}
+			
+			let userInfo = ajaxRequest(sendParm);
+			
+			if(userInfo.state == "E") {
+				C_POP.alert('로그인 정보를 확인 하세요.');
+				return;
+			}
+			C_COM.saveSessionData("userInfo", userInfo);
+			
+			location.href="/start.html";
+			
+		}
+		
+		$(function() {
+			$("#userId").focus();
+		});
+		
+	</script>
 </head>
 <body class="login">
 	<header class="header">
@@ -16,19 +54,14 @@
 		<div class="idpw_wap">
 			<dl>
 				<dt><img src="img/icon_id.png" title="id icon"></dt>
-				<dd><input type="text" name="ID" placeholder="ID"></dd>
+				<dd><input type="text" id="userId" placeholder="ID"></dd>
 			</dl>
 			<dl>
 				<dt><img src="img/icon_pw.png" title="password icon"></dt>
-				<dd><input type="password" name="PASSWORDS" placeholder="PASSWORDS"></dd>
+				<dd><input type="password" id="userPw" placeholder="PASSWORDS"></dd>
 			</dl>
 		</div>
-
-		<div class="searchId_wrap">
-			<a href="" class="search_id">아이디/비밀번호 찾기</a>
-			<a href="" class="sign_up">회원가입</a>
-		</div>
-		<button type="button">LOG IN</button>
+		<button type="button" onclick="login()">LOG IN</button>
 	</div>
 </body>
 </html>
