@@ -382,6 +382,49 @@ var <@popupId> = {
 		}
 		
 	}
+	,nextState : () =>{
+		
+		C_POP.confirm('계약체결 완료 상태로 전환하시겠습니까?', function() {
+			var parm = {
+					 queryId 		: "contract.updateContractProcessState"
+					,requestParm	: {
+										 CONTRACT_ID : <@popupId>.updatingData["CONTRACT_ID"]
+										,PROCESS_STATE : 'CONTRACTED'
+										}
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+
+				if( resultData.state == "S" ){
+
+					C_POP.alert("계약체결 되었습니다.");
+					<@popupId>.apply();
+					
+				}
+
+			});
+		});
+		
+	}
+	,checkCanNextState : (contractId) =>{
+		
+		var parm = {
+				 queryId 		: "contract.canNextState"
+				,requestParm	: {CONTRACT_ID : contractId}
+		}
+
+		C_COM.requestQuery(parm, function(resultData) {
+
+			if( resultData.data ){
+				
+				if( resultData.data[0].CAN_NEXT_STATE == "Y") {
+					$("#<@popupId>_nextStateBtn").show();
+				}
+				
+			}
+
+		});
+	}
 
 }
 // Popup Load가 완료된후 실행 된다.
@@ -393,6 +436,17 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.userId 		= <@popupId>.updatingData?.USER_ID;
 	<@popupId>.buyerId 		= <@popupId>.updatingData?.BUYER_ID;
 	<@popupId>.consultingId= <@popupId>.updatingData?.CONSULTING_ID;
+	
+	if( <@popupId>.mode == "V"){
+		
+		$("#<@popupId>_applyBtn").remove();
+		$("#<@popupId>_closeBtn").html("닫기");
+	}
+	if( <@popupId>.mode == "U" && <@popupId>.updatingData["CONTRACT_ID"] ){
+		
+		<@popupId>.checkCanNextState(<@popupId>.updatingData["CONTRACT_ID"]);
+		
+	}
 	
 	<@popupId>.pageInit();
 	
@@ -640,8 +694,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	</div> <!-- //modal_body -->
 
 		<div class="modal_footer">
-			<button type="button" class="btn select" onclick="<@popupId>.apply()" >등록</button>
-			<button type="button" class="btn close"  onclick="<@popupId>.close()" >취소</button>
+			<button type="button" class="btn select" id="<@popupId>_nextStateBtn" onclick="<@popupId>.nextState()" style="display:none;">체결완료</button>
+			<button type="button" class="btn select" id="<@popupId>_applyBtn" onclick="<@popupId>.apply()" >저장</button>
+			<button type="button" class="btn close"  id="<@popupId>_closeBtn" onclick="<@popupId>.close()" >취소</button>
 		</div>
 	</div>
 </div>

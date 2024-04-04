@@ -164,7 +164,9 @@
 		
 		Highcharts.chart(target, {
 		    chart: {
-		        type: 'column'
+		        type: 'column',
+
+                margin: [50, 0, 40, 45]
 		    },
 		    xAxisData,
 		    title: {
@@ -181,9 +183,25 @@
 		            borderWidth: 0
 		        }
 		    },
-		    legend: {
+/*		    legend: {
 		        enabled: false
-		    },
+		    },*/
+            legend: {
+                align: 'right',
+                x: 0,
+                verticalAlign: 'top',
+                y: 0,
+                itemStyle: {
+                    color: '#8A8C92',
+                    fontFamily: 'Noto Sans KR',
+                    fontSize: '11px'
+                },
+                symbolRadius: 0,
+                symbolWidth: 10,
+                symbolHeight: 10,
+                x:  0,
+                y: -2,
+            },
 		    tooltip: {
 		        shared: true,
 		        headerFormat: '<span style="font-size: 15px">' +
@@ -448,7 +466,7 @@ function _lineRateChart(container, categories, series  ) {
             }],
             yAxis: [{
                 labels: {
-                    format: '{value}',
+                    format: '{value}%',
                     style: {
                         color: '#8A8C92',
                         fontFamily: 'Noto Sans KR',

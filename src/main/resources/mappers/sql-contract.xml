@@ -4,207 +4,18 @@
 
 <mapper namespace="contract">
 
-
-	<!--
-	계약 관리 
-	 -->	
-<!-- 	<select id="getContractInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	contract.getContractInfoList
-			실적 입력 내역 리스트 조회 
-		*/
-		WITH RESULT_LIST AS
-		(
-				SELECT 
-				 R.RESULT_ID
-				,TO_CHAR( R.RESULT_DATE,   'YYYY-MM-DD') AS RESULT_DATE /* 실적일 */
-				,TO_CHAR( R.RESULT_DATE,   'YYYY') AS RESULT_YEAR /* 실적년 */
-				,TO_CHAR( R.RESULT_DATE,   'MM') AS RESULT_MONTH /* 실적월 */
-				,NULL 							 AS TEAM  
-				,B.HOW_GET
-				,GET_CODE_NM('HOW_GET', B.HOW_GET)		AS HOW_GET_NM /* 유입경로 */
-				,C.CONTRACT_TYPE
-				,GET_CODE_NM('CONTRACT_TYPE', C.CONTRACT_TYPE)		AS CONTRACT_TYPE_NM /* 구분 */ 
-				,C.USER_ID AS CONTRACT_USER_ID /*담당자*/
-				,GET_USER_NM(C.USER_ID) AS CONTRACT_USER_NM /* 담당자*/
-				,B.COMPANY_REGNUM 						/* 사업자등록번호*/
-				,B.BUYER_NM								/*거래처 */
-				,CT.CONSULTING_NM						/*컨설팅 명*/
-				,C.TOTAL_COST							/*총계약 금액*/
-				,R.INCOME/*입금액*/
-				,R.REMAINING_SUM/*잔금*/
-				,R.ORG_SELLING_PRICE/*순매출*/
-				,RL.SHARE_RATE  /*지급율*/
-				,R.TOTAL_PAYMENT/*총수수료*/
-				,P.PAYMENT /*담당자수수료*/
-				,DECODE(  RL.GUBUN , 'CO_WORK1' , GET_USER_NM(RL.USER_ID),'') AS COWORK1_USER_NM/*코웍1*/
-				,DECODE(  RL.GUBUN , 'CO_WORK1' , RL.SHARE_RATE,0) ||'%' AS COWORK1_SHARE_RATE/*코웍1*/
-				,DECODE(  RL.GUBUN , 'CO_WORK1' , RL.SHARE_RATE,0) *  R.ORG_SELLING_PRICE AS COWORK1_PAYMENT/*코웍1*/
-		
-				,DECODE(  RL.GUBUN , 'CO_WORK2' , GET_USER_NM(RL.USER_ID),'') AS COWORK2_USER_NM/*코웍2*/
-				,DECODE(  RL.GUBUN , 'CO_WORK2' , RL.SHARE_RATE,0) ||'%' AS COWORK2_SHARE_RATE/*코웍2*/
-				,DECODE(  RL.GUBUN , 'CO_WORK2' , RL.SHARE_RATE,0) *  R.ORG_SELLING_PRICE AS COWORK2_PAYMENT/*코웍2*/
-				
-				,( DECODE(RL.RELATION_TYPE , 'TEAM_CAPTAIN' , RL.SHARE_RATE , 0) * R.ORG_SELLING_PRICE ) AS TEAM_CAPTAIN_PAYMENT/*팀장 수당 */ 
-				,( DECODE(RL.RELATION_TYPE , 'CONTRACTOR' , RL.SHARE_RATE , 0) * R.ORG_SELLING_PRICE ) AS CONTRACTOR_PAYMENT/*지점장수당  */
-				,C."CONTRACT_ID"
-				,C.USER_ID
-				,C.SP_CSTM_ID
-				,TO_CHAR( C.CONTACT_DATE , 'YYYY-MM-DD') AS CONTACT_DATE
-				,TO_CHAR( C.CONTRACT_DATE, 'YYYY-MM-DD') AS CONTRACT_DATE
-				,TO_CHAR( C.EXPIRE_DATE,   'YYYY-MM-DD') AS EXPIRE_DATE
-				,C.CONSULTING_ID
-				,C.LAST_SOLUTION
-				,C.TAX_MNG
-				,C.LABOR_MNG
-				,C.BUYER_ID
-				,C.PROCESS_STATE
-				,GET_CODE_NM('PROCESS_STATE', C.PROCESS_STATE)		AS PROCESS_STATE_NM
-				,b.tel AS BUYER_TEL
-				,b.addr AS BUYER_ADDR 
-		
-				,COST.COST_ID
-				,COST.COST_NM
-				,COST.COST_DESC
-				,COST.COST_PRICE
-				,P.USER_ID AS PAYMENT_USER_ID
-				,RL.RELATION_TYPE
-				,GET_CODE_NM('RELATION_TYPE', RL.RELATION_TYPE)		AS RELATION_TYPE_NM
-				,GET_CODE_NM('SHARE_TYPE', RL.SHARE_TYPE)		AS SHARE_TYPE_NM
-				FROM TBL_EXP_RESULT R 
-				, TBL_EXP_CONTRACT C
-				, TBL_EXP_BUYER B
-				, TBL_EXP_CONSULTING CT
-				, TBL_EXP_COST COST
-				, TBL_EXP_PAYMENT P
-				, (
-					SELECT 
-					    CASE 
-					        WHEN RELATION_TYPE = 'CO_WORK' 
-					        THEN 'CO_WORK' || ROW_NUMBER() OVER(PARTITION BY RELATION_TYPE ORDER BY CONTRACT_ID)
-					        ELSE RELATION_TYPE
-					    END AS GUBUN,
-					    CONTRACT_ID,
-					    RELATION_TYPE,
-					    USER_ID,
-					    SHARE_RATE,
-					    SHARE_TYPE
-					FROM  TBL_EXP_CONTRACT_RELATION
-				) RL
-				WHERE 1=1
-				AND R.CONTRACT_ID	= C.CONTRACT_ID 
-				AND C.BUYER_ID		= B.BUYER_ID
-				AND C.CONSULTING_ID	= CT.CONSULTING_ID
-				
-				AND C.CONTRACT_ID = COST.CONTRACT_ID
-				AND C.CONTRACT_ID = P.CONTRACT_ID
-				AND C.CONTRACT_ID = RL.CONTRACT_ID
-				AND C.SP_CSTM_ID = B.SP_CSTM_ID
-		
-				ORDER BY RESULT_DATE
-		)		
-			
-		SELECT  DISTINCT
-				 RESULT_ID
-				,RESULT_YEAR 	/* 실적년 */
-				,RESULT_MONTH 	/* 실적월 */
-				,TEAM  
-				,HOW_GET
-				,HOW_GET_NM 	/* 유입경로*/
-				,CONTRACT_TYPE
-				,CONTRACT_TYPE_NM /* 구분 */
-				,CONTRACT_USER_ID /*담당자*/
-				,CONTRACT_USER_NM /* 담당자*/
-				,COMPANY_REGNUM 	/* 사업자등록번호*/
-				,BUYER_NM			/*거래처 */
-				,CONSULTING_NM		/*컨설팅 명*/
-				,CONSULTING_ID
-				
-				,TOTAL_COST			/*총계약 금액*/
-				,INCOME				/*입금액*/
-				,REMAINING_SUM		/*잔금*/
-				,ORG_SELLING_PRICE	/*순매출*/
-				,TOTAL_PAYMENT		/*총수수료*/
-				
-				,MAX(PAYMENT)			AS PAYMENT 
-				,MAX(COWORK1_USER_NM)	AS COWORK1_USER_NM/*코웍1*/
-				,MAX(COWORK1_SHARE_RATE) AS COWORK1_SHARE_RATE	
-				,MAX(COWORK1_PAYMENT) AS COWORK1_PAYMENT	
-				,MAX(COWORK2_USER_NM) AS COWORK2_USER_NM	/*코웍2*/
-				,MAX(COWORK2_SHARE_RATE) AS COWORK2_SHARE_RATE	
-				,MAX(COWORK2_PAYMENT) AS COWORK2_PAYMENT	
-				,MAX(TEAM_CAPTAIN_PAYMENT) AS TEAM_CAPTAIN_PAYMENT/*팀장 수당*/ 
-				,MAX(CONTRACTOR_PAYMENT) AS CONTRACTOR_PAYMENT		/*지점장수당*/
-		
-				,MAX(SHARE_RATE) SHARE_RATE  		/*지급율*/
-		
-		FROM RESULT_LIST
-		
-		GROUP BY 
-				 RESULT_ID
-				,RESULT_YEAR 	/* 실적년 */
-				,RESULT_MONTH 	/* 실적월 */
-				,TEAM  
-				,HOW_GET
-				,HOW_GET_NM 	/* 유입경로*/
-				,CONTRACT_TYPE
-				,CONTRACT_TYPE_NM /* 구분*/ 
-				,CONTRACT_USER_ID /*담당자*/
-				,CONTRACT_USER_NM /* 담당자*/
-				,COMPANY_REGNUM 	/* 사업자등록번호*/
-				,BUYER_NM			/*거래처 */
-				,CONSULTING_NM		/*컨설팅 명*/
-				,CONSULTING_ID
-				,TOTAL_COST			/*총계약 금액*/
-				
-				,INCOME				/*입금액*/
-				,REMAINING_SUM		/*잔금*/
-				,ORG_SELLING_PRICE	/*순매출*/
-				,TOTAL_PAYMENT		/*총수수료*/
-		ORDER BY RESULT_ID				
-	</select> -->
-<!-- 
-	<select id="getContractItem" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	contract.getContractItem
-			계약 조회 
-		*/
-		SELECT C.CONTRACT_ID
-		,C.BUYER_ID 
-		,C.PROCESS_STATE 
-		,TO_CHAR( C.CONTACT_DATE , 'YYYY-MM-DD') 	AS CONTACT_DATE 
-		,C.USER_ID 									AS USER_ID
-		,GET_USER_NM(C.USER_ID) 					AS USER_NM /* 담당자*/
-		,C.CONTRACT_TYPE
-		,GET_CODE_NM('CONTRACT_TYPE', C.CONTRACT_TYPE)	AS CONTRACT_TYPE_NM
-		,C.TOTAL_COST /* 계약금액 */
-		,TO_CHAR( C.CONTRACT_DATE , 'YYYY-MM-DD' ) 	AS CONTRACT_DATE 
-		,TO_CHAR( C.EXPIRE_DATE , 'YYYY-MM-DD' ) 	AS EXPIRE_DATE 
-		,C.TOTAL_COST /* 총계약금액 */
-		,C.CONSULTING_ID
-		,'컨설팅명' CONSULTING_NM /* 컨설팅명 */
-		,TAX_MNG
-		,LABOR_MNG
-		,CONSULTING_CLASS
-		,GET_CODE_NM('CONSULTING_CLASS', C.CONSULTING_CLASS)	AS CONSULTING_CLASS_NM
-		,C.USE_YN
-		,C.DEL_YN
-		FROM TBL_EXP_CONTRACT C 
-		WHERE 1=1
-		AND C.CONTRACT_ID = #{CONTRACT_ID}
-		AND C.USE_YN = 'Y'
-		AND C.DEL_YN = 'N'
-	</select>		
-	 -->
 	<sql id="getContractList_body">
 		SELECT ROW_NUMBER() OVER (ORDER BY C.UPDATE_DATE DESC) AS RN
 		,C.CONTRACT_ID
 		,C.BUYER_ID 
 		,B.BUYER_NM
 		,B.BUYER_NM || ' ( ' || B.BUYER_ID || ' )'  AS "BUYER"
+		,C.PROCESS_STATE
 		,GET_CODE_NM('PROCESS_STATE', C.PROCESS_STATE ) AS PROCESS_STATE_NM 
 		,TO_CHAR( C.CONTACT_DATE , 'YYYY-MM-DD') 	AS CONTACT_DATE 
 		,C.USER_ID 									AS USER_ID
-		,GET_USER_NM(C.USER_ID) 					AS USER_NM /* 담당자*/
-		,GET_USER_NM(C.USER_ID) || '( ' || C.USER_ID || ' )'  AS "USER"
+		,U.USER_NM				 					AS USER_NM /* 담당자*/
+		,U.USER_NM || '( ' || C.USER_ID || ' )'  	AS "USER"
 		,C.CONTRACT_TYPE
 		,GET_CODE_NM('CONTRACT_TYPE', C.CONTRACT_TYPE)	AS CONTRACT_TYPE_NM
 		,TO_CHAR( C.CONTRACT_DATE , 'YYYY-MM-DD' ) 	AS CONTRACT_DATE 
@@ -230,13 +41,39 @@
 		,TBL_EXP_CONSULTING CT
 		,TBL_EXP_USER U
 		WHERE C.BUYER_ID = B.BUYER_ID(+)
-		<if test=" CONTRACT_ID != null and !CONTRACT_ID.equals('') ">
-		AND C.CONTRACT_ID = #{CONTRACT_ID}
+		<if test=" parm.CONTRACT_ID != null and !parm.CONTRACT_ID.equals('') ">
+		AND C.CONTRACT_ID = #{parm.CONTRACT_ID}
 		</if>
 		AND C.USE_YN = 'Y' 		AND C.DEL_YN = 'N'
 		AND U.USE_YN = 'Y'      AND U.DEL_YN = 'N'
 		AND C.CONSULTING_ID = CT.CONSULTING_ID		
 		AND C.USER_ID = U.USER_ID
+		AND C.PROCESS_STATE != 'PRE_CONTRACT'
+		<if test=" parm.PROCESS_STATE != null and !parm.PROCESS_STATE.equals('') ">
+			AND C.PROCESS_STATE = #{parm.PROCESS_STATE}
+		</if>
+       	<if test='parm.IS_MULTI_SEARCH == "Y" '>  
+	        AND (
+        	<if test=" parm.BUYER_ID != null and !parm.BUYER_ID.equals('') ">
+		        C.BUYER_ID like '%' || #{parm.BUYER_ID} || '%'
+        	</if>
+        	<if test=" parm.BUYER_ID != null and !parm.BUYER_ID.equals('') ">
+        		<if test=" parm.BUYER_NM != null and !parm.BUYER_NM.equals('') ">
+        		OR
+        		</if>
+		        B.BUYER_NM like '%' || #{parm.BUYER_NM} || '%'
+        	</if>
+        	<if test=" parm.USER_NM != null and !parm.USER_NM.equals('') ">
+				<if test=" (parm.BUYER_ID != null and !parm.BUYER_ID.equals('') ) or ( parm.BUYER_NM != null and !parm.BUYER_NM.equals(''))">
+        		OR
+        		</if>
+		        U.USER_NM like '%' || #{parm.USER_NM} || '%'
+        	</if>
+			<if test=" parm.BUYER_ID == '' and parm.BUYER_NM == '' and parm.USER_NM == '' ">
+				1=1
+			</if>        	
+        	 )
+		</if>		
 	</sql>	
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getContractList
@@ -400,9 +237,34 @@
     				)
 	</update>
 	
+	<select id="canNextState" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	contract.canNextState
+			진행상태 변경가능 확인 ( from 체결 진행중 to 체결 완료 ) 
+		*/
+		SELECT CASE WHEN SUM(CNT) > 1100 THEN 'Y' ELSE 'N' END  CAN_NEXT_STATE 
+		FROM (
+				SELECT 1000 CNT 
+				FROM TBL_EXP_CONTRACT 
+				WHERE CONTRACT_ID = #{CONTRACT_ID} 
+				AND USE_YN = 'Y' AND DEL_YN = 'N' 
+				AND PROCESS_STATE ='CONTRACTING' 
+			UNION ALL 
+				SELECT 100 
+				FROM TBL_EXP_CONTRACT_MEMBER  
+				WHERE CONTRACT_ID = #{CONTRACT_ID} 
+				AND RELATION_TYPE = 'EXECUTE'  
+				AND USE_YN = 'Y' AND DEL_YN = 'N'
+			UNION ALL 
+				SELECT COUNT(*) 
+				FROM TBL_EXP_CONTRACT_MEMBER 
+				WHERE CONTRACT_ID = #{CONTRACT_ID} 
+				AND RELATION_TYPE != 'EXECUTE'  
+				AND USE_YN = 'Y' AND DEL_YN = 'N'
+		)		
+	</select>	
 	<update id="updateContractProcessState" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	contract.updateContractProcessState
-			계약 상태 저장
+			계약 상태 변경
 		*/
 		UPDATE TBL_EXP_CONTRACT
 		SET PROCESS_STATE = #{PROCESS_STATE}
