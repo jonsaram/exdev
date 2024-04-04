@@ -504,7 +504,7 @@
 			,GET_CODE_NM('SALES_TYPE', SALES_TYPE)		AS SALES_TYPE_NM
 	        ,U.RECOMMENDER_ID
 	        ,GET_CODE_NM('USER_ID', RECOMMENDER_ID)		AS RECOMMENDER_NM 
-		FROM TBL_EXP_USER T
+		FROM TBL_EXP_USER U
         ,TBL_EXP_AUTH A
         ,TBL_EXP_ROLE R
 		WHERE 1 = 1		
@@ -795,5 +795,46 @@
 				USER_ID = #{userId}
 			AND USER_PW = #{userPw}
 	</select>
+
+
+	<select id="searchUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.searchUserList
+			User 리스트 조회 
+		*/
+		SELECT
+		     SP_CSTM_ID
+		    ,USER_ID
+		    ,USER_NM
+		    ,USER_DESC
+		    ,E_MAIL
+		    ,PHONE_NUM
+		    ,BRANCH_ID
+		    ,"ROLE"
+		    ,GRADE
+		    ,STATE
+		    ,REG_DATE
+		    ,JUMIN
+		    ,POST_NUM
+		    ,ADDR1
+		    ,ADDR2
+		    ,UPDATE_USER
+		    ,UPDATE_DATE
+		    ,SURETY_INSURANCE
+		    ,GENDER
+		    ,SALES_TYPE
+		    ,USE_YN
+		    ,DEL_YN
+		    ,RECOMMENDER_ID
+		    ,USER_PW
+		FROM
+		    TBL_EXP_USER
+		WHERE 1=1	
+			AND SP_CSTM_ID = #{sessionVo.spCstmId}
+		<if test="USER_ID != null and !ROLE_ID.equals('') ">
+			AND USER_ID LIKE '%'||#{USER_ID}||'%'
+		</if>
+			
+	</select>
+
 
 </mapper>

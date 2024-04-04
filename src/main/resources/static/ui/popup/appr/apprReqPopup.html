@@ -180,8 +180,8 @@
     }
     // Popup Load가 완료된후 실행 된다.
     C_POP.onLoadPopup("<@popupId>", function(data) {
-
-    	<@popupId>.APPROVAL_ID = C_COM.makeUniqueId();// 결재 ID 생성
+		if(isValid(data.APPROVAL_ID))	<@popupId>.APPROVAL_ID = data.APPROVAL_ID;
+		else				    		<@popupId>.APPROVAL_ID = C_COM.makeUniqueId();// 결재 신규ID 생성
     	
     	// 결재 Textarea Component Include
     	C_COMP.import("textEditorComp", "component_compTextEditor", {content:""}, function(data) {

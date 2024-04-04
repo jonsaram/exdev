@@ -1,4 +1,5 @@
 package exdev.com.common.controller;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
@@ -51,4 +52,22 @@ public class ExdevSessionController {
 		
 		return userInfo;
 	}
+
+
+	@RequestMapping("getSession.do")
+	public @ResponseBody Map getSession(@RequestBody Map map, HttpSession session) throws Exception {
+		
+		SessionVO sessionVO = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
+		
+		HashMap userInfo = new HashMap();
+
+		userInfo.put("SP_CSTM_ID"	,  sessionVO.getSpCstmId());
+		userInfo.put("USER_NM"		,  sessionVO.getUserNm	());
+		userInfo.put("USER_ID"		,  sessionVO.getUserId	());
+		userInfo.put("GRADE"		,  sessionVO.getGrade	());
+		userInfo.put("EMAIL"		,  sessionVO.getEmail	());
+		
+		return userInfo;
+	}
+
 }

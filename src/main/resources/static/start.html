@@ -38,15 +38,27 @@
 	<script type="text/javascript">
 		// Session설정
 		
-		let userInfo = C_COM.loadSessionData("userInfo", true);
+		var sendParm = {
+			 targetUrl 	: _WEB_ROOT_URL + "/getSession.do"
+			,data		: {}
+		}
 		
-		G_VAL.session			= userInfo				;
+		let userInfo = ajaxRequest(sendParm);
+		
+		if(isEmpty(userInfo)) {
+			C_POP.alert('Session정보가 없습니다. 로그인을 해주세요.');
+			location.replace("/");
+			
+		} else {
+			G_VAL.session			= userInfo				;
 
-		G_VAL.session.spCstmId	= userInfo.SP_CSTM_ID 	;
-		G_VAL.session.userId  	= userInfo.USER_ID 		;
-		G_VAL.session.userNm  	= userInfo.USER_NM 		;
-		G_VAL.session.grade		= userInfo.GRADE 		;
-		G_VAL.session.email		= userInfo.E_MAIL 		;
+			G_VAL.session.spCstmId	= userInfo.SP_CSTM_ID 	;
+			G_VAL.session.userId  	= userInfo.USER_ID 		;
+			G_VAL.session.userNm  	= userInfo.USER_NM 		;
+			G_VAL.session.grade		= userInfo.GRADE 		;
+			G_VAL.session.email		= userInfo.E_MAIL 		;
+		}
+		
 		
 		$(function() {
 			// 시작 Page Id

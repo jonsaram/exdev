@@ -18,6 +18,10 @@
 				
 				<@pageId>.projectList = resultData.data;
 				
+				$.each(<@pageId>.projectList, function(idx) {
+					if(isEmpty(this.APP_STATE_NM)) <@pageId>.projectList[idx].APP_STATE_NM = "";
+				});
+				
 				var rparm = {
 						 targetId 		: "<@pageId>_projectList"
 						,list			: resultData.data
@@ -37,7 +41,10 @@
 			});
 		 }
 		,approval : function() {
-			
+	        let requestParm = {}
+	        C_POP.open('popup_appr_apprReqPopup', requestParm, function() {
+
+	        });
 		 }
 	}
 	// Page Load가 완료된후 실행 된다.
@@ -100,7 +107,13 @@
 								<td>{{:CONSULTING_NM}}</td>
 								<td>{{:PROCESS_STATE_NM}}</td>
 								<td>{{:UPDATE_DATE}}</td>
-								<td><button type="button" class="btn fl tc" onclick="<@pageId>.approval({{:#index}})">결재</button></td>
+								<td>
+								{{if APP_STATE_NM=="" }} 
+									<button type="button" class="btn fl tc" onclick="<@pageId>.approval({{:#index}})">결재</button>
+								{{else}}
+									{{:APP_STATE_NM}}	
+								{{/if}}
+								</td>
 								<td>
 									<button onclick="<@pageId>.modify({{:#index}})"><i class="icon_pen"		></i></button>	&nbsp; 
 									<button onclick="<@pageId>.delete({{:#index}})"><i class="icon_trash"	></i></button>
