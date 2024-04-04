@@ -208,9 +208,6 @@ var <@pageId> = {
 
 			selectedRow = selectedRow || {};	
 			let mode = isEmpty(selectedRow) ? "I" :"U";
-			 if( selectedRow["PROCESS_STATE"] == "RESULTING" || selectedRow["PROCESS_STATE"] == "COMPLETED" ){
-				 mode = "V";
-			 }  
 			C_POP.open('popup_contract_contractUpdatePopup', {param:selectedRow, mode:mode}
 				, function(retData) {
 				
@@ -342,13 +339,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td id='TOTAL_COST'			class='tr'>{{numb:TOTAL_COST}}</td>
 								<td id='CONSULTING_NM'		class='tl'>{{:CONSULTING_NM}}</td>
 			 					<td 						class='tl'>
-									<button>
-										<i onclick="javascript:<@pageId>.modify('{{:#index}}')"
-										{{if PROCESS_STATE == "RESULTING" || PROCESS_STATE == "COMPLETED"}}class="icon_letter" 
-										{{else}}class="icon_pen"
-										{{/if}} 
-										></i>
-									</button></td>
+									<button><i onclick="javascript:<@pageId>.modify('{{:#index}}')" class="icon_pen"  ></i></button></td>
 								<td><button><i onclick="javascript:<@pageId>.delete('{{:#index}}')" class="icon_trash"></i></button></td>
 							</tr>
 						{{/for}}
