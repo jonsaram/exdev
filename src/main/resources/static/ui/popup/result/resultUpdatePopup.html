@@ -109,9 +109,16 @@ var <@popupId> = {
 		}
 		
 		$("#<@popupId>_contractInfo #TOTAL_COST"	).html( _numberWithCommas( parentData.contractItem.TOTAL_COST )		);
-		$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( _numberWithCommas( parentData.contractItem.REMAINING_SUM )	);
 		$("#<@popupId>_resultInfo	#<@popupId>_RESULT_DATE"	).val(resultDate) ;
 		
+		var parm = {
+				 queryId 	: "contract.getContractList"
+				,requestParm: {CONTRACT_ID : parentData.contractItem.CONTRACT_ID}
+		}
+		C_COM.requestQuery(parm, function(resultData) {
+
+			$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( _numberWithCommas( resultData.data[0].REMAINING_SUM )	);
+		});
 		
 		<@popupId>.selectTempPayment(parentData) ;
 		
