@@ -459,7 +459,28 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.pageInit();
 	
 	<@popupId>.setHandler();
+	
 
+	
+	
+	// Component 설정
+	let parm = {
+		 gubun 			: "BUYER"
+		,placeholder 	: "고객명(고객번호)"
+	}
+	C_COMP.import("<@popupId>_customer", "component_common_compSelectUser",parm , function(retData) {
+		dalert(retData);		
+	});	
+
+	
+	let parm2 = {
+		 gubun 			: "USER"
+		,placeholder 	: "사원이름(사원ID)"
+	}
+	C_COMP.import("<@popupId>_buyer1", "component_common_compSelectUser",parm2 , function(retData) {
+		dalert(retData);		
+	});	
+	
 });
 </script>
 <div class="modal_wrap">
@@ -488,11 +509,25 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									</div>
 								</li>
 								<li class="w100 ml0">
+									<label>고객선택2</label>
+									<div class="info">
+										<div class="search_inputWrap" style="width:100%" id="<@popupId>_customer">
+										</div>
+									</div>
+								</li>
+								<li class="w100 ml0">
 									<label>계약담당자</label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%">
 											<input type="search" id="<@popupId>_USER" placeholder="사원이름(사원ID)" onkeypress="<@popupId>.handleKeyPress(event)">
 											<a  href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
+										</div>
+									</div>
+								</li>
+								<li class="w100 ml0">
+									<label>계약담당자2</label>
+									<div class="info">
+										<div class="search_inputWrap" style="width:100%" id="<@popupId>_buyer1">
 										</div>
 									</div>
 								</li>

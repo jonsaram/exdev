@@ -1,0 +1,41 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@compId> = {
+		 retData : {}	
+		,memberSearchPopup : function() {
+			let value = $("#<@compId>_val").val();
+	    	_memberSearchPopup( {autoRtn:true, gubun:'<@gubun>', searchText:value } , (retData)=>{
+	    		<@compId>.retData = retData;
+	    		<@compId>.setInput(retData);
+	    	});
+		 } 
+		,handleKeyPress : (event, gubun) => {
+		    if (event.key === 'Enter') {
+		    	const value = event.target.value;
+		    	_memberSearchPopup( {autoRtn:true, gubun:'<@gubun>', searchText:value } , (retData)=>{
+		    		<@compId>.retData = retData;
+		    		<@compId>.setInput(retData);
+		    	})
+		    }
+		 }
+		,setInput : (retData) => {
+			const itemId	= retData["<@gubun>_ID"];
+			const itemNm	= retData["<@gubun>_NM"];
+			if( itemId ){
+				$("#<@compId>_val").val(itemNm+ " ("+itemId+")");
+			}
+    		C_COMP.callback("<@compId>", retData);
+		 }
+		,getRetData : function() {
+			return <@compId>.retData;	
+		 }
+	}
+	// Component Load가 완료된후 실행 된다.
+	C_COMP.onLoadComp("<@compId>", function(data) {
+		
+	});
+</script>
+<div>
+	<input type="search" id="<@compId>_val" placeholder="<@placeholder>" onkeypress="<@compId>.handleKeyPress(event)">
+	<a href="javascript:void(0);" onclick="<@compId>.memberSearchPopup();" class="search_btn"><i class="icon_search"></i></a>
+</div>
