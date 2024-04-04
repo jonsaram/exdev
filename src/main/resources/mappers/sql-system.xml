@@ -760,4 +760,40 @@
 			)
 	</update>
 
+
+	<select id="getUserInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getUserInfo
+			User 조회 
+		*/
+		SELECT
+		     SP_CSTM_ID
+		    ,USER_ID
+		    ,USER_NM
+		    ,USER_DESC
+		    ,E_MAIL
+		    ,PHONE_NUM
+		    ,BRANCH_ID
+		    ,"ROLE"
+		    ,GRADE
+		    ,STATE
+		    ,REG_DATE
+		    ,JUMIN
+		    ,POST_NUM
+		    ,ADDR1
+		    ,ADDR2
+		    ,UPDATE_USER
+		    ,UPDATE_DATE
+		    ,SURETY_INSURANCE
+		    ,GENDER
+		    ,SALES_TYPE
+		    ,USE_YN
+		    ,DEL_YN
+		    ,RECOMMENDER_ID
+		FROM
+		    TBL_EXP_USER		
+		WHERE
+				USER_ID = #{userId}
+			AND USER_PW = #{userPw}
+	</select>
+
 </mapper>

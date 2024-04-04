@@ -37,64 +37,24 @@
     
 	<script type="text/javascript">
 		// Session설정
-		var sendParm = {
-			 targetUrl 	: _WEB_ROOT_URL + "/setSession.do"
-/*			 
-			,data		: {
-                spCstmId	: "starasset"
-               ,userId  	: "123456789"
-               ,userNm  	: "이희성"
-               ,grade		: "S마스터"
-               ,email	  	: "K2navyrd@starasset.co.kr"
-			 }
-			,data		: {
-			    spCstmId	: "starasset"
-			   ,userId  	: "51115125782"
-			   ,userNm  	: "유태원"
-			   ,grade	: "S마스터"
-			   ,email	: "jonsaram@explan.co.kr"
-			 }
-			,data		: {
-			    spCstmId	: "starasset"
-			   ,userId  	: "99933532664"
-			   ,userNm  	: "유진스"
-			   ,grade	: "S마스터"
-			   ,email	: "jonsaram@explan.co.kr"
-			 }
-			,data		: {
-			    spCstmId	: "starasset"
-			   ,userId  	: "jonsaram"
-			   ,userNm  	: "위성열"
-			   ,grade	: "S마스터"
-			   ,email	: "jonsaram@explan.co.kr"
-			 }
-			*/
-			,data		: {
-			    spCstmId	: "starasset"
-			   ,userId  	: "20569492304"
-			   ,userNm  	: "아이브"
-			   ,grade	: "S마스터"
-			   ,email	: "jonsaram@explan.co.kr"
-			 }
-		}
 		
-		ajaxRequest(sendParm);
+		let userInfo = C_COM.loadSessionData("userInfo", true);
 		
-		G_VAL.session = sendParm.data;
+		G_VAL.session			= userInfo				;
+
+		G_VAL.session.spCstmId	= userInfo.SP_CSTM_ID 	;
+		G_VAL.session.userId  	= userInfo.USER_ID 		;
+		G_VAL.session.userNm  	= userInfo.USER_NM 		;
+		G_VAL.session.grade		= userInfo.GRADE 		;
+		G_VAL.session.email		= userInfo.E_MAIL 		;
 		
-		G_VAL.session.SP_CSTM_ID 	= sendParm.data.spCstmId	;
-		G_VAL.session.USER_ID 		= sendParm.data.userId  	;
-		G_VAL.session.USER_NM 		= sendParm.data.userNm  	;
-		G_VAL.session.GRADE 		= sendParm.data.grade	;
-		G_VAL.session.E_MAIL 		= sendParm.data.email	;
-	
 		$(function() {
 			// 시작 Page Id
-			C_PM.movePage("sample_index");
-			
 			C_MENU.initMenu();
+			
+			$("#loginUserNm").html(userInfo.USER_NM);
+			
 		});	
-
 		
 		var sessionInfo = {}
 		
@@ -102,7 +62,6 @@
 			
 			C_PM.movePage(pageId.trim(), parameter);
 		}
-
 		
 		var C_MENU = {
 			 nowMainMenuIdx	: 0
@@ -143,10 +102,10 @@
 						if(isEmpty(C_MENU.subMenuListMap[this.PARENT_MENU_ID])) C_MENU.subMenuListMap[this.PARENT_MENU_ID] = [];
 						C_MENU.subMenuListMap[this.PARENT_MENU_ID].push(this);	
 					});
-					C_MENU.showMainMenuList(0);
+					setTimeout(function() {
+						C_MENU.moveMenu("MN_DSH_FA");	
+					}, 1000);
 					
-					C_MENU.showSubMenuList(0, 0);
-
 				});
 			 }
 			,setMenuActive : function(menuList, idx) {
@@ -213,9 +172,10 @@
 				let mainIndex	= C_MENU.allMenuMap[subMenuId].mainIndex;
 				let subIndex	= C_MENU.allMenuMap[subMenuId].subIndex;
 				
-				C_MENU.moveMainMenu(mainIndex);
-				C_MENU.showSubMenuList(mainIndex, subIndex);
-				C_MENU.moveSubMenu(subIndex);
+				C_MENU.showMainMenuList	(mainIndex				);
+				C_MENU.moveMainMenu		(mainIndex				);
+				C_MENU.showSubMenuList	(mainIndex, subIndex	);
+				C_MENU.moveSubMenu		(subIndex				);
 			 }
 		} 
 		
@@ -273,11 +233,11 @@
 			    </div>
 				<button type="button" class="btn_arrow"></button>
 				<a href="#" class="alarm">알림</a>
-				<a href="#" class="user_login"><span>이희성</span></a>
+				<a href="#" class="user_login"><span id="loginUserNm">이희성</span></a>
 				<ul class="user_menu">
 					<li><a href="#"><i class="icon_admin"></i>관리자 페이지</a></li>
 					<li><a href="#"><i class="icon_pwEdit"></i>비밀번호 변경</a></li>
-					<li><a href="#"><i class="icon_logout"></i>로그아웃</a></li>
+					<li><a href="javascript:logout()"><i class="icon_logout"></i>로그아웃</a></li>
 				</ul>
 			</div>
 		</div>
