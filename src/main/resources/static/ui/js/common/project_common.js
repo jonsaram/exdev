@@ -156,13 +156,12 @@ var C_COM = {
 				var resultData = ajaxRequest(sendParm);
 				if(resultData.state == "S") {
 					return resultData;
+				} else if(resultData.state == "NO_SESSION"){
+					C_POP.alert('Session 정보가 없습니다.\n\n로그인 화면으로 이동합니다.');
+					location.href="/";
+					return null;
 				} else {
-					if(resultData.STATUS == "FAIL") {
-						C_POP.alert(resultData.STATUS_MESSAGE);
-						if(resultData.STATUS_MESSAGE == "No Authority Request.") location.reload();
-					} else {
-						C_POP.alert(resultData.msg);
-					}
+					C_POP.alert(resultData.msg);
 					return null;
 				}
 			}
@@ -192,16 +191,15 @@ var C_COM = {
 				ajaxRequest(sendParm, function(resultData) {
 					if(resultData.state == "S") {
 						if(typeof callback == "function") callback(resultData);
+					} else if(resultData.state == "NO_SESSION"){
+						C_POP.alert('Session 정보가 없습니다.\n\n로그인 화면으로 이동합니다.');
+						location.href="/";
+						return null;
 					} else {
-						if(resultData.STATUS == "FAIL") {
-							C_POP.alert(resultData.STATUS_MESSAGE);
-							if(resultData.STATUS_MESSAGE == "No Authority Request.") location.reload();
+						if(typeof errCallback == "function") {
+							errCallback(resultData);
 						} else {
-							if(typeof errCallback == "function") {
-								errCallback(resultData);
-							} else {
-								C_POP.alert(resultData.msg);
-							}
+							C_POP.alert(resultData.msg);
 						}
 						return null;
 					}
@@ -1442,6 +1440,8 @@ var C_PAGING = {
 	,parmFn				: {}
 	,onPageClickCallback: {}
 	,makeListFn			: {}
+	,allDataList		: {}
+	,pageInfo			: {}
 	,create 			: function(parm) {
 		var pageId 		= parm.pageId;
 		var listDomId 	= parm.listDomId;
@@ -1564,6 +1564,127 @@ var C_PAGING = {
 			if(typeof C_PAGING.onPageClickCallback[key] == "function") C_PAGING.onPageClickCallback[key](resultData.data);
 		});
 	 }
+	 // Local Paging 
+	,renderHtml : function(pageId, parm) {
+		
+		if(isValid(parm.list)) {
+			$.each(parm.list, function(idx) {
+				if(idx == 0 && isValid(this.rownum)) return false;
+				parm.list[idx].rownum = idx + 1;
+			});
+		}
+		
+
+		var listDomId 	= parm.targetId;
+		var key = pageId + listDomId;
+		if(isEmpty(parm.listRange)) parm.listRange = C_PAGING.defaultListRange;
+		if(isEmpty(parm.pageRange)) parm.pageRange = C_PAGING.defaultPageRange;
+	
+		C_PAGING.listRange				[key] = parm.listRange 			; 
+		C_PAGING.pageRange				[key] = parm.pageRange 			;
+		C_PAGING.listDomId				[key] = parm.listDomId     		;
+		C_PAGING.pagingDomId			[key] = parm.pagingDomId     	;
+		C_PAGING.totalCntDomId			[key] = parm.totalCntDomId     	;
+		C_PAGING.onPageClickCallback	[key] = parm.onPageClickCallback;
+		C_PAGING.allDataList			[key] = parm.list				; //new
+		
+		let totalCnt = parm.list.length;
+		
+		C_PAGING.pageInfo				[key] = {
+			 totalPage	: Math.ceil(totalCnt / parm.listRange)
+			,totalCnt	: totalCnt
+		}
+		
+		C_PAGING.makeRenderHtml(pageId, listDomId, 1);
+	 }
+	,makeRenderHtml : function(pageId, listDomId, pageIdx) {
+		
+		var key = pageId + listDomId;
+		
+		var pagingDomId = C_PAGING.pagingDomId[key];
+		
+		var option = {
+			 currentPage	: Number(pageIdx)
+			,listRange		: C_PAGING.listRange[key]
+			,pageRange		: C_PAGING.pageRange[key]
+		}
+
+		let pageInfo 	= C_PAGING.pageInfo		[key];
+		let allDataList	= C_PAGING.allDataList	[key];
+		
+		var totalPage 		= pageInfo.totalPage;
+		
+		var totalCnt		= pageInfo.totalCnt;
+		
+		if(isEmpty(totalCnt)) totalCnt = 0;
+
+		var maxNextPage 	= Math.floor(totalPage / option.pageRange)
+		var startPageIdx	= Math.floor((pageIdx - 1) / option.pageRange) * option.pageRange + 1
+		var	endPageIdx		= startPageIdx + option.pageRange - 1;
+		if(endPageIdx > totalPage) endPageIdx = totalPage;
+		
+		var prevPageIdx		= startPageIdx 	- 1;
+		var nextPageIdx		= endPageIdx 	+ 1;
+		
+		var pageListHtml	  = ``;
+		
+		if(pageIdx > 1) {
+			pageListHtml 	+= `	<a href="javascript:C_PAGING.makeRenderHtml('${pageId}', '${listDomId}', 1)" class="btn_pg_first">첫번째 페이지</a>`;
+		} else {
+			pageListHtml 	+= `	<a href="javascript:" class="btn_pg_first disabled">첫번째 페이지</a>`;
+		}
+		if(startPageIdx > option.pageRange) {
+			pageListHtml 	+= `	<a href="javascript:C_PAGING.makeRenderHtml('${pageId}', '${listDomId}', ${prevPageIdx})" class="btn_pg_prev">이전 페이지</a>`;
+		} else {
+			pageListHtml 	+= `	<a href="javascript:" class="btn_pg_prev disabled">이전 페이지</a>`;
+		}
+		for(var ii = startPageIdx; ii <= endPageIdx; ii++) {
+			var acrive = "";
+			if(ii == pageIdx) {
+				pageListHtml 	+= `	<strong title="현재 페이지">${pageIdx}</strong>`;
+				
+			} else {
+				pageListHtml 	+= `	<a href="javascript:C_PAGING.makeRenderHtml('${pageId}', '${listDomId}', ${ii})">${ii}</a>`;
+			}
+		}
+		if(endPageIdx < totalPage) {
+			pageListHtml 	+= `	<a href="javascript:C_PAGING.makeRenderHtml('${pageId}', '${listDomId}', ${nextPageIdx})" class="btn_pg_next">다음 페이지</a>`;
+		} else {
+			pageListHtml 	+= `	<a href="javascript:" class="btn_pg_next disabled">다음 페이지</a>`;
+		}
+		if(pageIdx < totalPage) {
+			pageListHtml 	+= `	<a href="javascript:C_PAGING.makeRenderHtml('${pageId}', '${listDomId}', ${totalPage})" class="btn_pg_last">마지막 페이지</a>`;
+		} else {
+			pageListHtml 	+= `	<a href="javascript:" class="btn_pg_last disabled">마지막 페이지</a>`;
+		}
+		
+		$("#" + pageId + " #" + pagingDomId).html(pageListHtml);
+		
+		if(typeof C_PAGING.makeListFn[key] == "function") list = C_PAGING.makeListFn[key](list);
+		
+		let startListIdx	= (pageIdx - 1) * option.listRange 
+		let endListIdx		= pageIdx * option.listRange 
+		
+		let list = [];
+		
+		$.each(allDataList, function(idx) {
+			if(idx >= startListIdx && idx < endListIdx) {
+				list.push(this);
+			}
+		});
+
+		var rparm = {
+			 targetId 		: listDomId
+			,list			: list
+		}
+		C_COM.renderHtml(pageId, rparm);
+		
+		if(isValid(C_PAGING.totalCntDomId[key])) {
+			$("#" + pageId + " #" + C_PAGING.totalCntDomId[key]).html(totalCnt);
+		}
+		
+		if(typeof C_PAGING.onPageClickCallback[key] == "function") C_PAGING.onPageClickCallback[key](resultData.data);
+	}		
 }
 
 // Table Widht 동적 조절 처리

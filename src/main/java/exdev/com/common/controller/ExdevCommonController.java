@@ -47,6 +47,7 @@ import com.google.gson.Gson;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import exdev.com.common.ExdevConstants;
+import exdev.com.common.service.ExdevBaseService;
 import exdev.com.common.service.ExdevCommonService;
 import exdev.com.common.vo.SessionVO;
 import exdev.com.service.ApprovalService;
@@ -84,6 +85,11 @@ public class ExdevCommonController {
 		
 		SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
 		
+		if(sessionVo == null) {
+			Map resultInfo = ExdevBaseService.makeResult(ExdevBaseService.REQUEST_NO_SESSION, "Session정보가 없습니다.", null);
+			return resultInfo;
+		}
+
 		map.put("sessionVo", sessionVo);
 		
 		Map resultMap = commonService.requestService(map, session);
@@ -98,6 +104,11 @@ public class ExdevCommonController {
 
 		SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
 		
+		if(sessionVo == null) {
+			Map resultInfo = ExdevBaseService.makeResult(ExdevBaseService.REQUEST_NO_SESSION, "Session정보가 없습니다.", null);
+			return resultInfo;
+		}
+		
 		map.put("sessionVo", sessionVo);
 		
 		Map resultMap = commonService.requestQuery(map, session);
@@ -109,6 +120,11 @@ public class ExdevCommonController {
 	public @ResponseBody Map requestQueryGroup(@RequestBody Map map, HttpSession session) throws Exception {
 
 		SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
+
+		if(sessionVo == null) {
+			Map resultInfo = ExdevBaseService.makeResult(ExdevBaseService.REQUEST_NO_SESSION, "Session정보가 없습니다.", null);
+			return resultInfo;
+		}
 		
 		map.put("sessionVo", sessionVo);
 		

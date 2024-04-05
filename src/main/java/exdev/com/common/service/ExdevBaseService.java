@@ -8,6 +8,7 @@ public class ExdevBaseService
 {
 	public static final String REQUEST_SUCCESS 	= "S";
 	public static final String REQUEST_FAIL 		= "F";
+	public static final String REQUEST_NO_SESSION	= "NO_SESSION";
 
 	protected Map 		resultInfo = null;
 	protected List<Map>	resultList = null;
