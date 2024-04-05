@@ -7,6 +7,7 @@
                 
             }
             ,setChart : () => {
+            	debugger;
                 let requestParm111 = {};
                 requestParm111["spCstmId"] = "starasset";
                 requestParm111["year"]     = "2023";
@@ -18,15 +19,17 @@
                 }
                 C_COM.requestQuery(parm111, function(resultData) {
 
-                    <@compId>.setChart111(resultData );
-                    
+                    //<@compId>.setChart111(resultData );
+                    console.log("111")
                     let rparm111 = {
-                            targetId   : "tableId111"
+                            targetId   : "tableId11"
                            ,list       : resultData.data
                     }
                     C_COM.renderHtml("<@compId>", rparm111);
+                    console.log("222")
                 });
-
+                
+                /*
                 let requestParm112 = {};
                 requestParm112["spCstmId"]  = "starasset";
                 requestParm112["year"]      = "2023";
@@ -96,6 +99,7 @@
                 
                 <@compId>.setChart131( "resultData" );
                 <@compId>.setChart132( "resultData" );
+                */
             }
 
             ,setChart111 : (resultData) =>{
@@ -709,194 +713,314 @@
         <@compId>.setChart();
     });
 </script>
-<!-- 매출현황 -->
-<div class="container">
-    <div class="cont_wrap lnb_none">
-        <div class="cont_top">
-            <h2><i class="icon_bullet"></i>매출현황</h2>
+
+<!-- search area -->
+<div class="search_area plpr5">
+    <div class="fl">
+        <!-- 시작년월 선택 -->
+        <div class="select_box fl" style="width:100px">
+            <div id="<@compId>_startYears" style="width:100px"></div>
         </div>
-        <div class="sec_scroll">
-            <section class="sec_wrap">
-                <div class="cont_box col3">
-                    <h3>매출액 순위</h3>
-                    <div class="price">&nbsp;</div>
-                    <figure class="highcharts-figure">
-                        <div class="chart111" id="<@compId>_chart111" style="width:100%; height:280px; margin:0 auto"></div>
-                    </figure>
-                    
-                    <!-- 전체 계약 리스트 -->
-                    <div >
-                        <h3>지점명</h3>
-                        <!-- 테이블 -->
-                        <div class="tbl01 col">
-                            <table>
-                                <caption>표 캡션</caption>
-                                <colgroup>
-                                    <col style="width:40px;"/>
-                                    <col style="width:150px;"/>
-                                    <col style="width:100px;"/>
-                                </colgroup>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">No</th>
-                                        <th scope="col">지점명</th>
-                                        <th scope="col">계</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tableId111">
-                                </tbody>
-                                <script type="text/x-jsrender" id="tableId111_template">    
-                                    {{for list}}
-                                        <tr id="trId_{{:#index}}" name="<@compId>_tr_{{:#index}}" '>
-                                            <td id='INDEX'           value='{{:#index + 1}}' >{{:#index + 1}}</td>
-                                            <td id='NAME'            value='{{:STORE_NM3}}'  >{{:STORE_NM3}}</td>
-                                            <td id='VALUE'           value='{{:AMOUNT}}'  >{{:AMOUNT}}</td>
-                                        </tr>
-                                    {{/for}}
-                                </script>
-                                <script type="text/x-jsrender" id="tableId111_noData_template">    
-                                   <tr>    
-                                       <td colspan=3>자료가 없습니다.</td>    
-                                   </tr>
-                                </script>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="cont_box col3">
-                    <h3>영업이익별 순위</h3>
-                    <div class="price">&nbsp;</div>
-
-                    <figure class="highcharts-figure">
-                        <div class="chart112" id="<@compId>_chart112" style="width:100%; height:280px; margin:0 auto"></div>
-                    </figure>
-                    <!-- 지점 리스트 -->
-                    <div >
-                        <h3>지점명</h3>
-                        <!-- 테이블 -->
-                        <div class="tbl01 col">
-                            <table>
-                                <caption>표 캡션</caption>
-                                <colgroup>
-                                    <col style="width:40px;"/>
-                                    <col style="width:150px;"/>
-                                    <col style="width:100px;"/>
-                                </colgroup>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">No</th>
-                                        <th scope="col">지점명</th>
-                                        <th scope="col">계</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tableId112">
-                                </tbody>
-                                <script type="text/x-jsrender" id="tableId112_template">    
-                                    {{for list}}
-                                        <tr id="trId_{{:#index}}" name="<@compId>_tr_{{:#index}}" '>
-                                            <td id='INDEX'           value='{{:#index + 1}}' >{{:#index + 1}}</td>
-                                            <td id='NAME'            value='{{:STORE_NM3}}'  >{{:STORE_NM3}}</td>
-                                            <td id='VALUE'           value='{{:AMOUNT}}'  >{{:AMOUNT}}</td>
-                                        </tr>
-                                    {{/for}}
-                                </script>
-                                <script type="text/x-jsrender" id="tableId112_noData_template">    
-                                   <tr>    
-                                       <td colspan=3>자료가 없습니다.</td>    
-                                   </tr>
-                                </script>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="cont_box col3">
-                    <h3>권역별 순위</h3>
-                    <div class="price">&nbsp;</div>
-
-                    <figure class="highcharts-figure">
-                        <div class="chart113" id="<@compId>_chart113"  style="width:100%; height:280px; margin:0 auto"></div>
-                    </figure>
-                    <!-- 권역 리스트 -->
-                    <div >
-                        <h3>권역</h3>
-                        <!-- 테이블 -->
-                        <div class="tbl01 col">
-                            <table>
-                                <caption>표 캡션</caption>
-                                <colgroup>
-                                    <col style="width:40px;"/>
-                                    <col style="width:150px;"/>
-                                    <col style="width:100px;"/>
-                                </colgroup>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">No</th>
-                                        <th scope="col">권역</th>
-                                        <th scope="col">계</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tableId113">
-                                </tbody>
-                                <script type="text/x-jsrender" id="tableId113_template">    
-                                    {{for list}}
-                                        <tr id="trId_{{:#index}}" name="<@compId>_tr_{{:#index}}" '>
-                                            <td id='INDEX'           value='{{:#index + 1}}' >{{:#index + 1}}</td>
-                                            <td id='NAME'            value='{{:REGION_NM}}'  >{{:REGION_NM}}</td>
-                                            <td id='VALUE'           value='{{:AMOUNT}}'  >{{:AMOUNT}}</td>
-                                        </tr>
-                                    {{/for}}
-                                </script>
-                                <script type="text/x-jsrender" id="tableId113_noData_template">    
-                                   <tr>    
-                                       <td colspan=3>자료가 없습니다.</td>    
-                                   </tr>
-                                </script>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
-            <section class="sec_wrap">
-                <div class="cont_box col2">
-                    <h3>누적 매출 현황</h3>
-                    <div class="price"></div>
-                    <span class="prepare"></span>
-                    <figure class="highcharts-figure">
-                        <div class="chart21" id="<@compId>_chart121" style="width:100%; height:280px; margin:0 auto"></div>
-                    </figure>
-                </div>
-                <div class="cont_box col2">
-                    <h3>월별 매출 그래프</h3>
-                    <div class="price"></div>
-                    <span class="prepare"></span>
-
-                    <figure class="highcharts-figure">
-                        <div class="chart22" id="<@compId>_chart122" style="width:100%; height:280px; margin:0 auto"></div>
-                    </figure>
-                </div>
-            </section>
-            
-            <section class="sec_wrap">
-                <div class="cont_box col2">
-                    <h3>월별 비율 그래프</h3>
-                    <div class="price"></div>
-                    <span class="prepare"></span>
-
-                    <figure class="highcharts-figure">
-                        <div class="chart31" id="<@compId>_chart131" style="width:100%; height:280px; margin:0 auto"></div>
-                    </figure>
-                </div>
-                <div class="cont_box col2">
-                    <h3>지점별 비율 그래프</h3>
-                    <div class="price"></div>
-                    <span class="prepare"></span>
-
-                    <figure class="highcharts-figure">
-                        <div class="chart32" id="<@compId>_chart132" style="width:100%; height:280px; margin:0 auto"></div>
-                    </figure>
-                </div>
-            </section>
+        <div class="select_box fl" style="width:100px">
+            <div id="<@compId>_startMonths" style="width:100px"></div>
         </div>
+        <div class="calendar_wrap fl">
+            <label for="to">~</label>
+        </div>
+        <!-- 종료년월 선택 -->
+        <div class="select_box fl" style="width:100px">
+            <div id="<@compId>_endYears" style="width:100px"></div>
+        </div>
+        <div class="select_box fl" style="width:100px">
+            <div id="<@compId>_endMonths" style="width:100px"></div>
+        </div>
+        <span class="tit01 fl lh33">권역</span>
+        <!-- 권역 선택 -->
+        <div class="select_box fl" style="width:150px">
+            <div id="<@compId>_selectBoxRegion" style="width:132px"></div>
+        </div>
+                     
+        <!-- 지점명 선택 -->
+        <!--
+        <div class="select_box fl" style="width:170px">
+            <button type="button" class="btn radio"><span>지점명</span></button>
+            <ul class="select_lst">
+                <li>
+                    <input name="name" id="name01" type="radio" value="">
+                    <label for="name01">지점명<i class="icon_check"></i></label>
+                </li>
+                <li>
+                    <input name="name" id="name02" type="radio" value="">
+                    <label for="name02">지점명1<i class="icon_check"></i></label>
+                </li>
+                <li>
+                    <input name="name" id="name03" type="radio" value="">
+                    <label for="name03">지점명2<i class="icon_check"></i></label>
+                </li>
+            </ul>
+        </div>
+         -->
+        <span class="tit01 fl lh33">슈퍼바이저</span>
+        <!-- 슈퍼바이저 선택 -->
+        <div class="select_box fl" style="width:132px">
+             <div id="<@compId>_selectBoxSupervisor" style="width:132px"></div>
+        </div>
+        <button type="button" class="btn select fl" id="<@compId>_searchBtn">조회</button>
     </div>
 </div>
+<section class="sec_wrap">
+    <div class="cont_box col3">
+        <h3>매출액 순위</h3>
+        <figure class="highcharts-figure2 mt15">
+            <!-- 차트 영역 -->
+            <div class="chart01" style="width:100%;height:291px;margin:0 auto">
+                <!-- 임시 차트 이미지 -->
+                <img src="../img/img_sales01.png" style="width:100%;height:291px;">
+            </div>
+        </figure>
+<!-- 테이블 -->
+                                    <div class="tbl01 col noScroll mt20">
+                                        <table>
+                                            <caption>표 캡션</caption>
+                                            <colgroup>
+                                                <col style="width:80px;"/>
+                                                <col style="*"/>
+                                                <col style="width:150px;"/>
+                                            </colgroup>
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col"></th>
+                                                    <th scope="col" class="tl">지점명</th>
+                                                    <th scope="col" class="tr">계</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tableId11">
+				                            </tbody>
+				                            <script type="text/x-jsrender" id="tableId11_template">    
+                                                    {{for list}}
+                                                        <tr>
+                                                            <td class="tl">1.</td>
+                                                            <td class="tl">마곡</td>
+                                                            <td class="tr">245,635,432</td>
+                                                        </tr>
+                                                    {{/for}}
+                                                </script>
+				                            <script type="text/x-jsrender" id="tableId11_noData_template">    
+                                                   <tr>    
+                                                       <td colspan=6>자료가 없습니다.</td>    
+                                                   </tr>
+                                           </script>
+				                                                
+                                            <tfoot>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="tl">총합계</td>
+                                                    <td class="tr">3,217,247,597</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <!-- paging -->
+                                    <div class="paging small">
+                                        <a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+                                        <a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+                                        <strong title="현재 페이지">1</strong>
+                                        <a href="#none">2</a>
+                                        <a href="#none">3</a>
+                                        <a href="#none">4</a>
+                                        <a href="#none">5</a>
+                                        <a href="#none" class="btn_pg_next">다음 페이지</a>
+                                        <a href="#none" class="btn_pg_last">마지막 페이지</a>
+                                    </div>
+    </div>
+    <div class="cont_box col3">
+        <h3>영업이익별 순위</h3>
+        <figure class="highcharts-figure2 mt15">
+            <!-- 차트 영역 -->
+            <div class="chart02" style="width:100%;height:291px;margin:0 auto">
+                <!-- 임시 차트 이미지 -->
+                <img src="../img/img_sales02.png" style="width:100%;height:291px;">
+            </div>
+        </figure>
+        <!-- 테이블 -->
+        <div class="tbl01 col noScroll mt20">
+            <table>
+                <caption>표 캡션</caption>
+                <colgroup>
+                    <col style="width:80px;"/>
+                    <col style="*"/>
+                    <col style="width:150px;"/>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col" class="tl">지점명</th>
+                        <th scope="col" class="tr">계</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tl">1.</td>
+                        <td class="tl">동성로</td>
+                        <td class="tr">72,016,989</td>
+                    </tr>
+                    <tr>
+                        <td class="tl">2.</td>
+                        <td class="tl">이천</td>
+                        <td class="tr">60,808,358</td>
+                    </tr>
+                    <tr>
+                        <td class="tl">3.</td>
+                        <td class="tl">마곡</td>
+                        <td class="tr">41,812,660</td>
+                    </tr>
+                    <tr>
+                        <td class="tl">4.</td>
+                        <td class="tl">동해천곡</td>
+                        <td class="tr">39,259,255</td>
+                    </tr>
+                    <tr>
+                        <td class="tl">5.</td>
+                        <td class="tl">전주우아</td>
+                        <td class="tr">33,770,854</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td class="tl">총합계</td>
+                        <td class="tr">428,130,210</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <!-- paging -->
+        <div class="paging">
+            <a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+            <a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+            <strong title="현재 페이지">1</strong>
+            <a href="#none">2</a>
+            <a href="#none">3</a>
+            <a href="#none">4</a>
+            <a href="#none">5</a>
+            <a href="#none" class="btn_pg_next">다음 페이지</a>
+            <a href="#none" class="btn_pg_last">마지막 페이지</a>
+        </div>
+    </div>
+    <div class="cont_box col3">
+        <h3>권역별 순위</h3>
+        <figure class="highcharts-figure2 mt15">
+            <!-- 차트 영역 -->
+            <div class="chart03" style="width:100%;height:291px;margin:0 auto">
+                <!-- 임시 차트 이미지 -->
+                <img src="../img/img_sales03.png" style="width:100%;height:291px;">
+            </div>
+        </figure>
+        <!-- 테이블 -->
+        <div class="tbl01 col noScroll mt20">
+            <table>
+                <caption>표 캡션</caption>
+                <colgroup>
+                    <col style="width:80px;"/>
+                    <col style="*"/>
+                    <col style="width:150px;"/>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col" class="tl">권역</th>
+                        <th scope="col" class="tr">계</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tl">1.</td>
+                        <td class="tl">경기</td>
+                        <td class="tr">768,990,684</td>
+                    </tr>
+                    <tr>
+                        <td class="tl">2.</td>
+                        <td class="tl">서울</td>
+                        <td class="tr">525,882,285</td>
+                    </tr>
+                    <tr>
+                        <td class="tl">3.</td>
+                        <td class="tl">대구</td>
+                        <td class="tr">499,882,285</td>
+                    </tr>
+                    <tr>
+                        <td class="tl">4.</td>
+                        <td class="tl">부산</td>
+                        <td class="tr">398,219,586</td>
+                    </tr>
+                    <tr>
+                        <td class="tl">5.</td>
+                        <td class="tl">강원</td>
+                        <td class="tr">325,328,868</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td class="tl">총합계</td>
+                        <td class="tr">3,217,247,597</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <!-- paging -->
+        <div class="paging">
+            <a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+            <a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+            <strong title="현재 페이지">1</strong>
+            <a href="#none">2</a>
+            <a href="#none">3</a>
+            <a href="#none">4</a>
+            <a href="#none">5</a>
+            <a href="#none" class="btn_pg_next">다음 페이지</a>
+            <a href="#none" class="btn_pg_last">마지막 페이지</a>
+        </div>
+    </div>
+</section>
+
+<section class="sec_wrap">
+    <div class="cont_box col2">
+        <h3>누적 매출 현황</h3>
+        <figure class="highcharts-figure2">
+            <div class="chart02_01" style="width:100%;height:250px;margin:0 auto">
+                <!-- 임시 차트 이미지 -->
+                <img src="../img/img_chart_list01.png" style="width:100%;height:250px;">
+            </div>
+        </figure>
+    </div>
+    <div class="cont_box col2">
+        <h3>월별 매출 그래프</h3>
+        <figure class="highcharts-figure2">
+            <div class="chart02_02" style="width:100%;height:250px;margin:0 auto">
+                <!-- 임시 차트 이미지 -->
+                <img src="../img/img_chart_list02.png" style="width:100%;height:250px;">
+            </div>
+        </figure>
+    </div>
+</section>
+
+<section class="sec_wrap">
+    <div class="cont_box col2">
+        <h3>월별 비율 그래프</h3>
+        <figure class="highcharts-figure2">
+            <div class="chart02_01" style="width:100%;height:345px;margin:0 auto">
+                <!-- 임시 차트 이미지 -->
+                <img src="../img/img_chart_list03.png" style="width:100%;height:345px;">
+            </div>
+        </figure>
+    </div>
+    <div class="cont_box col2">
+        <h3>지점별 비율 그래프</h3>
+        <figure class="highcharts-figure2">
+            <div class="chart02_02" style="width:100%;height:345px;margin:0 auto">
+                <!-- 임시 차트 이미지 -->
+                <img src="../img/img_chart_list04.png" style="width:100%;height:345px;">
+            </div>
+        </figure>
+    </div>
+</section>

@@ -38,12 +38,11 @@
                 ORDER BY  SUM(A.AMOUNT) DESC
                )
         WHERE  1 = 1
-        AND    ROWNUM <![CDATA[ <= ]]> 5
     </select>
 
-    <select id="getRegionsRanking" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /*  dashboardCorPerformance.getRegionsRanking */
-        SELECT SP_CSTM_ID
+    <sql id="getSalesRanking_bak_body">
+        SELECT ROW_NUMBER() OVER (ORDER BY AMOUNT DESC) AS RN
+              ,SP_CSTM_ID
               ,REGION
               ,REGION_NM
               ,YEAR
@@ -62,16 +61,35 @@
                              AND A.SP_CSTM_ID = B.SP_CSTM_ID
                              AND A.STORE_ID   = B.STORE_ID
                     WHERE  1 = 1
-                    AND    A.SP_CSTM_ID = #{spCstmId}
-                    AND    A.YEAR       = #{year}
+                    AND    A.SP_CSTM_ID = #{parm.spCstmId}
+                    AND    A.YEAR       = #{parm.year}
                     GROUP BY B.SP_CSTM_ID
                             ,B.REGION
                             ,GET_CODE_NM('STORE_REGION', B.REGION)
                             ,A.YEAR
-                    ORDER BY  SUM(A.AMOUNT) DESC
                )
         WHERE  1 = 1
-        AND    ROWNUM <![CDATA[ <= ]]> 5
+    </sql>  
+
+    <select id="getSalesRanking_bak" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getSalesRanking */
+        <include refid="getSalesRanking_bak_body"/>
+        ORDER BY AMOUNT 
+    </select>
+    
+    <select id="getSalesRanking_bak_totalCnt" resultType="Integer">
+        /* dashboardCorPerformance.getSalesRanking_totalCnt  */
+        <include refid="common.totalWrapStart"/>
+        <include refid="getSalesRanking_bak_body"/>
+        <include refid="common.totalWrapEnd"/>
+    </select>
+    
+    <select id="getSalesRanking_bak_paging" resultType="java.util.HashMap">
+        /* dashboardCorPerformance.getSalesRanking_paging  */
+        <include refid="common.pagingWrapStart"/>
+        <include refid="getSalesRanking_bak_body"/>
+        ORDER BY AMOUNT
+        <include refid="common.pagingWrapEnd"/>
     </select>
     
     <select id="getMonthAccrue" resultType="java.util.HashMap" flushCache="true"  useCache="false">
