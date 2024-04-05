@@ -1,0 +1,279 @@
+<html>
+  <head>
+      <style type="text/css">
+      #container {
+    height: 700px;
+    min-width: 450px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.loading {
+    margin-top: 10em;
+    text-align: center;
+    color: gray;
+}
+      </style> 
+      <script src="https://code.highcharts.com/maps/highmaps.js"></script>
+      <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
+      
+    <script type='text/javascript'>
+    (async () => {
+
+        
+        /* 한국 */ 
+        const topology = await fetch(
+            'https://code.highcharts.com/mapdata/countries/kr/kr-all.topo.json'
+        ).then(response => response.json());
+        
+        console.log(topology);
+        
+        const data = [
+            [
+                'k1',
+                37.5643919,
+                126.9758164,
+                '서울',
+                5
+            ],
+            [
+                'k2',
+                37.2889583147884,
+                127.05363483660717,
+                '경기도',
+                10
+            ],
+            [
+                'k3',
+                35.82055163047458,
+                127.10878907697222,
+                '전라북도',
+                3
+            ],
+            [
+                'k4',
+                36.5811725714317,
+                128.50246094299018,
+                '경상북도',
+                7
+            ],
+            [
+                'k5',
+                35.237597367855884,
+                128.6920404088174,
+                '경상남도',
+                9
+            ],
+            [
+                'k6',
+                34.81558042746477,
+                126.46307357602808,
+                '전라남도',
+                3
+            ],
+            [
+                'k7',
+                36.47999150371578,
+                127.28899419152685,
+                '세종시',
+                0
+            ],
+            [
+                'k8',
+                36.35060068830531,
+                127.38523620466007,
+                '대전시',
+                0
+            ],
+            [
+                'k9',
+                35.53883702547578,
+                129.3114052855886,
+                '울산시',
+                1
+            ],
+            [
+                'k10',
+                37.455418927779235,
+                126.7053055767402,
+                '인천시',
+                1
+            ],
+            [
+                'k11',
+                37.88496764674133,
+                127.7297595449055,
+                '강원도',
+                254125
+            ],
+            [
+                'k12',
+                36.65867940317982,
+                126.67268064016514,
+                '충청남도',
+                2
+            ],
+            [
+                'k13',
+                36.635401202305665,
+                127.49282617876952,
+                '충청북도',
+                4
+            ],
+            [
+                'k14',
+                35.89109950802855,
+                128.60068770451574,
+                '대구시',
+                3
+            ],
+            [
+                'k15',
+                35.15997605211781,
+                126.85186067763465,
+                '광주시',
+                3
+            ],
+            [
+                'k16',
+                33.489027746766986,
+                126.49863739269496,
+                '제주도',
+                3
+            ]
+        ];
+        
+        
+        // Create the chart
+        Highcharts.mapChart('container', {
+            chart: {
+                map: topology,
+                margin: 1
+            },
+
+            title: {
+                text: '지도',
+                align: 'right',
+                floating: true,
+                style: {
+                    textOutline: '5px contrast'
+                }
+            },
+
+            subtitle: {
+                text: '',
+                align: 'right',
+                floating: true,
+                y: 36
+            },
+
+            mapNavigation: {
+                enabled: true,
+                buttonOptions: {
+                    alignTo: 'spacingBox',
+                    verticalAlign: 'bottom'
+                }
+            },
+
+            mapView: {
+                padding: [0, 0, 80, 0]
+            },
+
+            colorAxis: {
+                min: 0,
+                max: 15,
+                labels: {
+                    format: '{value}'
+                },
+                stops: [
+                    [0,   '#A9A9F5'],
+                    [0.2, '#8181F7'],
+                    [0.4, '#5858FA'],
+                    [0.6, '#2E2EFE'],
+                    [0.8, '#0000FF'],
+                    [0.9, '#08088A'],
+                    [1,   '#08088A']
+                ]
+            },
+
+            legend: {
+                title: {
+                    text: 'Degrees Celsius'
+                },
+                floating: true,
+                backgroundColor: '#ffffffcc'
+            },
+
+            tooltip: {
+                headerFormat: '<span style="color:{point.color}">\u25CF</span> {point.key}:<br/>',
+                pointFormat: '지점수: <b>{point.y}</b>'
+            },
+
+            exporting: {
+                buttons: {
+                    contextButton: {
+                        align: 'left'
+                    }
+                }
+            },
+
+            series: [{
+                allAreas: true,
+                name: 'Countries',
+                borderColor: '#A0A0A0',
+                states: {
+                    inactive: {
+                        opacity: 1
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                nullColor: 'rgba(197, 219, 200, 0.3)',
+                enableMouseTracking: false
+            },{
+                name: '',
+                keys: ['id', 'lat', 'lon', 'name', 'y'],
+                data,
+                animation: false,
+                type: 'mappoint',
+                showInLegend: false,
+                marker: {
+                    enabled: true
+                },
+                marker: {
+                    lineWidth: 10,
+                    lineColor: '#fff',
+                    symbol: 'mapmarker',
+                    radius: -18
+                },
+                dataLabels: {
+                    crop: false,
+                    format: '{y}',
+                    inside: false,
+                    y: -1,
+                    x: -1,
+                    style: {
+                        color: 'contrast',
+                        textOutline: 'none'
+                    },
+                    shape: 'mapmarker',
+                    borderColor: 'black',
+                    borderWidth: 2,
+                    backgroundColor: 'auto'
+                }
+            }]
+        });
+
+    })();
+
+    </script>
+  </head>
+<body>
+
+<figure class="highcharts-figure">
+    <div id="container"></div>
+</figure>
+  </body>
+</html>
+

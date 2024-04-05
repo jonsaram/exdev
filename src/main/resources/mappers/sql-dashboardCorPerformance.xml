@@ -390,6 +390,36 @@
         <include refid="common.pagingWrapEnd"/>
     </select>
     
-    
+    <select id="getRegionsRanking" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getRegionsRanking */
+        SELECT SP_CSTM_ID
+              ,REGION
+              ,REGION_NM
+              ,YEAR
+              ,AMOUNT
+              ,AMOUNT1
+        FROM   (
+                    SELECT B.SP_CSTM_ID
+                          ,B.REGION
+                          ,GET_CODE_NM('STORE_REGION', B.REGION) AS REGION_NM
+                          ,A.YEAR
+                          ,SUM(A.AMOUNT)           AS AMOUNT
+                          ,SUM(A.AMOUNT)/100000000 AS AMOUNT1
+                    FROM   TBL_EXP_STORE_FINANCIAL A
+                           JOIN TBL_EXP_STORE_INFO B
+                             ON  1 = 1
+                             AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                             AND A.STORE_ID   = B.STORE_ID
+                    WHERE  1 = 1
+                    AND    A.SP_CSTM_ID = #{spCstmId}
+                    AND    A.YEAR       = #{year}
+                    GROUP BY B.SP_CSTM_ID
+                            ,B.REGION
+                            ,GET_CODE_NM('STORE_REGION', B.REGION)
+                            ,A.YEAR
+                    ORDER BY  SUM(A.AMOUNT) DESC
+               )
+        WHERE  1 = 1
+    </select>
     
 </mapper>
