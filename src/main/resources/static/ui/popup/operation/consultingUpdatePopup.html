@@ -16,6 +16,13 @@ var <@popupId> = {
 			 return;
 			}
 			
+			const canDel = <@popupId>.selectedItem["CAN_DEL"] ;
+			if( gubun == "D" && canDel =='N'){
+				C_POP.alert("계약에서 사용중인 컨설팅상품은 삭제할 수 없습니다. "); 
+				return false;
+			}
+			
+			
 			let returnData = {};
 			 
 			returnData = {
@@ -30,6 +37,12 @@ var <@popupId> = {
 			 
 		 }
 		 ,validation : () =>{
+			 
+			 if( isEmpty( C_UICOM.getData("<@popupId>_selectBoxId") ) ) {C_POP.alert("컨설팅 TYPE을 선택하여 주십시오."); return false;}
+			 if( isEmpty( $("#<@popupId>_CONSULTING_NM").val() 		) ) {C_POP.alert("컨설팅 상품명을 입력하여 주십시오."); return false;}
+			 if( isEmpty( $("#<@popupId>_CONSULTING_DESC").val() ) ) {C_POP.alert("컨설팅 내용을 입력하여 주십시오."); return false;}
+
+
 			 
 			 return true;
 			 
@@ -103,8 +116,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.recvData	= data;
 	<@popupId>.mode = <@popupId>.recvData.mode;
 	<@popupId>.selectedItem = <@popupId>.recvData.selectedItem;
-	
-debugger;
+
 	<@popupId>.pageInit();
 	<@popupId>.setHandler();
 	

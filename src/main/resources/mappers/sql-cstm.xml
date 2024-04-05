@@ -16,6 +16,15 @@
 		, B.COMPANY_REGNUM
 		, B.HOW_GET
 		, GET_CODE_NM( 'HOW_GET', B.HOW_GET ) HOW_GET_NM 
+		, CASE 
+			WHEN  ( SELECT COUNT(1) 
+					FROM TBL_EXP_CONTRACT I 
+					WHERE I.BUYER_ID = B.BUYER_ID 
+					AND I.USE_YN ='Y' AND DEL_YN='N') 
+					<![CDATA[ > ]]> 0 
+			THEN 'N'
+			ELSE 'Y'
+		END AS CAN_DEL
 		FROM TBL_EXP_BUYER B
 		WHERE 1=1
 		AND B.USE_YN = 'Y'
@@ -128,6 +137,8 @@
 		UPDATE TBL_EXP_BUYER
 		SET USE_YN = 'N' 
 		, DEL_YN = 'Y' 
+		,UPDATE_USER = #{sessionVo.userId}
+		,UPDATE_DATE = SYSDATE
 		WHERE BUYER_ID = #{BUYER_ID}  
 	</delete> 
 	

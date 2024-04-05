@@ -52,7 +52,7 @@ var <@pageId> = {
     			
 					case "SP_BRANCH"	: 
 											C_UICOM.makeSelectBox({ 
-												defaultItem 	: ["--", "전체"]
+												 defaultItem 	: ["--", "전체"]
 												,data : DATA
 									 			,targetId : "<@pageId>_selectSpBranch" }, "single");
 
@@ -65,7 +65,7 @@ var <@pageId> = {
 					case "BRANCH"		:
 						
 											C_UICOM.makeSelectBox({
-												defaultItem 	: ["--", "전체"]
+												 defaultItem 	: ["--", "전체"]
 												,data : DATA
 									 			,targetId : "<@pageId>_selectBranch" }, "single");
 											
@@ -179,7 +179,13 @@ var <@pageId> = {
 		, deleteOne : (idx) =>{
 			
 			const checkedRow = <@pageId>.searchedData[idx];
-    		<@pageId>.deleteItem({USER_ID:checkedRow["USER_ID"]})
+			if( checkedRow["CAN_DEL"]== "N"){
+				
+				C_POP.alert("계약관계가 있는 ["+checkedRow["USER_NM"]+" 인사정보]를 삭제할 수 없습니다. "); 
+				return false;
+			}
+			const USER_ID =  checkedRow["USER_ID"];
+    		<@pageId>.deleteItem({USER_ID:USER_ID})
     		
 		}
 		,setHandler : () => {
@@ -270,7 +276,7 @@ var <@pageId> = {
 			
 	    	const $hds = $("#<@pageId>_headingColName th");
 	    	const $tds = $("[name='<@pageId>_tr_0'] td");
-	    	debugger;
+
 	    	let listRange 	= C_UICOM.getData("<@pageId>_pagingChunk") ;
 	    	listRange 		= isEmpty(listRange) ? 10 : Number(listRange)
 	    	const offset = ( Number($("#<@pageId>_pageDiv strong").html()) - 1 ) * listRange;

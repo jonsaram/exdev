@@ -41,10 +41,11 @@
 			 
 		 }
 		,pageInit : () => {
-			
+			//G_VAL.COMMON_CODE_MAP
 			<@popupId>.setTitleHeight();
 			const selectTargetId = "<@popupId>_selectHowgetId" ;
 			var codeList = C_COM.getCodeList("HOW_GET");
+
 			var singleboxList = { 
 				 defaultItem 	: ["--", "선택"]
 				,data 			: codeList
@@ -77,13 +78,12 @@
  		<@popupId>.recvData	= data;
 
 		<@popupId>.mode = <@popupId>.recvData.mode;
-		
 		<@popupId>.pageInit();
 	});
 </script>
 
 <div class="modal_wrap" id="modal-ex">
-	<div class="modal" style="width:450px;height:350px;">
+	<div class="modal" style="width:450px;height:370px;">
 		<div class="modal_header">
 			<strong class="tit">고객등록</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
@@ -112,7 +112,7 @@
 					</li>
 					<li>
 						<label>유입경로</label>
-						<div class="info"><div id="<@popupId>_selectHowgetId" style="width:200px"></div></div>
+						<div class="info"><div id="<@popupId>_selectHowgetId" style="width:100%"></div></div>
 					</li>
 				</ul>
 			</div>

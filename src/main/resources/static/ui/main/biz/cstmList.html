@@ -107,9 +107,14 @@ var <@pageId> = {
 				}				
 			});				
 		}
-		, deleteOne : (index) =>{
+		, deleteOne : (idx) =>{
 
-			let row = <@pageId>.searchedRows[index];
+			let row = <@pageId>.searchedRows[idx];
+			if( row["CAN_DEL"]== "N"){
+				
+				C_POP.alert("계약관계가 있는 ["+row["BUYER_NM"]+" 고객정보]를 삭제할 수 없습니다. "); 
+				return false;
+			}
     		const BUYER_ID 	= row["BUYER_ID"];
     		<@pageId>.deleteItem({BUYER_ID:BUYER_ID})
     		
@@ -125,10 +130,14 @@ var <@pageId> = {
 		    })
 		    
 		    $("#<@pageId>_deleteBtn").off().on('click',function(){
-		    	
-		    	<@pageId>.checkedItems.forEach( index =>{
-					<@pageId>.deleteOne(index);
-		    	})
+
+		    	C_POP.confirm('선택하신 고객정보를 삭제 하시겠습니까?', function() {
+		    		
+			    	<@pageId>.checkedItems.forEach( idx =>{
+			    		
+						<@pageId>.deleteOne(idx);
+			    	})
+		    	});
 		    	
 		    })
 		    
@@ -155,7 +164,7 @@ var <@pageId> = {
 				let row = <@pageId>.searchedRows[index];
 				if( isEmpty(row)==false ){param = row;mode="U"};
 			}
-			C_POP.open('popup_customer_cstmUpdatePopup', {param:param, mode:mode}, function(retData) {
+			C_POP.open('popup_biz_cstmUpdatePopup', {param:param, mode:mode}, function(retData) {
 				if(isValid(retData)){
 
 					<@pageId>.updateItem(retData);
@@ -210,14 +219,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<div class="search_area mt0">
 				<!-- 멀티 선택 -->
 				<div class="fl">
-					<button type="button" class="btn fl" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
-					<div class="dropdown fl" id="<@pageId>_selectSearchItem"  style="width:200px;">
+				
+					<div class="search_inputWrap fl" style='width:355px;'>
+						<div class="dropdown fl" id="<@pageId>_selectSearchItem"  style="width:150px;">
+						</div>
+						<div class="search_inputWrap">
+							<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
+						</div>
 					</div>
-					<div class="search_inputWrap">
-						<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
-					</div>
+					<button type="button" class="btn select fr" id="<@pageId>_searchBtn" style='margin-left:8px;'>조회</button>
+					<button type="button" class="btn fr" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
 				</div>
-				<button type="button" class="btn select fl" id="<@pageId>_searchBtn">조회</button>
 				<div class="search_right">
 					<button type="button" class="btn select fl" id="<@pageId>_insertBtn"><i class="icon_user_plus"></i>상담 고객 추가</button>
 					<button type="button" class="btn fl"><i class="icon_letter"></i>고객 문서 전달</button>
