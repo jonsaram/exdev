@@ -1683,7 +1683,15 @@ var C_PAGING = {
 			$("#" + pageId + " #" + C_PAGING.totalCntDomId[key]).html(totalCnt);
 		}
 		
-		if(typeof C_PAGING.onPageClickCallback[key] == "function") C_PAGING.onPageClickCallback[key](resultData.data);
+		if(typeof C_PAGING.onPageClickCallback[key] == "function") {
+			
+			let retParm = {
+				 pageIdx 	: pageIdx
+				,list		: list
+			}
+			
+			C_PAGING.onPageClickCallback[key](retParm);	
+		}
 	}		
 }
 

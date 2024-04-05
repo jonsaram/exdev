@@ -76,6 +76,14 @@
 			,pageRange		: 3			// Page 범위
 			,pagingDomId	: "pageDiv"	// Page가 표시되는 Dom Id
 			,totalCntDomId	: "total"
+			,onPageClickCallback : function(pageInfo) {
+				// pageInfo의 멤버 변수
+				// pageInfo = {
+				// 		 list  : ...	
+				//		,pageIdx : ...
+				// }
+				dalert(pageInfo);
+			 }
 		}
 		C_PAGING.renderHtml("<@pageId>", rparm);
 	});
