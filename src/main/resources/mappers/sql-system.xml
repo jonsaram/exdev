@@ -221,6 +221,7 @@
 		<if test=" GRP_CODE != null and !GRP_CODE.equals('') ">
 		AND ( T.GRP_CODE_ID like '%' || #{GRP_CODE} || '%'
 		   OR T.GRP_CODE_NM like '%' || #{GRP_CODE} || '%'
+		   OR T.CODE_DESC 	like '%' || #{GRP_CODE} || '%'
 		)
 		</if>
 		
@@ -284,6 +285,7 @@
 		<if test=" CODE != null and !CODE.equals('') ">
 		AND ( T.CODE_ID like '%' || #{CODE} || '%'
 		   OR T.CODE_NM like '%' || #{CODE} || '%'
+		   OR T.CODE_DESC like '%' || #{CODE} || '%'
 		) 
 		</if>
 		ORDER BY P_SORT_ORDER , T_SORT_ORDER	

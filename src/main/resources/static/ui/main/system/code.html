@@ -303,7 +303,7 @@ var <@pageId> = {
 		        }
 		    })
 		    
-		    $("#<@pageId>_prmGRP_CODE , #<@pageId>_prmCODE").keypress(function(event) {
+		    $("#<@pageId>_prmGRP_CODE , #<@pageId>_prmCODE , #<@pageId>_prmCODE_NM").keypress(function(event) {
 		    
 		        if (event.which === 13) {
 		            var inputValue = $(this).val();
@@ -449,42 +449,45 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>TBL_EXP_GRPCODE</h2>
 	</div>
-	<section class="sec_wrap list" id="<@pageId>_grpcode_section" style="height:calc(50% - 43px);">
+	<section class="sec_wrap list" id="<@pageId>_grpcode_section" style="height:50%;">
 		<!-- search area -->
 		<div class="search_area mt0">
 			<!-- 멀티 선택 -->
 			<div class="fl" style="width:900px;">
-				<button type="button" class="btn fl" name="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
-				<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
+			
+			
 				<div  class="select_box fl" id="<@pageId>_selectDelYn" style="width:140px;margin-left:10px;"></div>
 				
 				<div class="search_inputWrap" style='margin-left:10px;'>
-				
-				GRP_CODE : <input type="search" id="<@pageId>_prmGRP_CODE"  style='width:200px;'>
-				CODE	 : <input type="search" id="<@pageId>_prmCODE" 		style='width:200px;'>
+
+					GRP_CODE : <input type="search" id="<@pageId>_prmGRP_CODE"  style='width:150px;'>
+					CODE	 : <input type="search" id="<@pageId>_prmCODE" 		style='width:150px;'>
+	
+					<button type="button" class="btn select fr" id="<@pageId>_search"  style='margin-left:8px;'>조회</button>
+					<button type="button" class="btn fr" name="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 				
 				</div>
 
-				 <div  class="select_box fl" id="<@pageId>_selectMenuDept" style="width:130px;margin-left:10px;"></div>
+				 <!-- <div  class="select_box fl" id="<@pageId>_selectMenuDept" style="width:130px;margin-left:10px;"></div> -->
 
 			</div>
 
 			<div class="search_right">
 				<button type="button" class="btn select fl" name="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button>
 				<button type="button" class="btn fl"  name="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
-				<button type="button" class="btn fl"  name="<@pageId>_excelUpload"><i class="icon_download"></i> Excel 업로드</button>
-				<input type="file" id="<@pageId>_excelFileInput" style="padding-left:5px;padding-top:5px;width: calc(100% - 350px); "/>
+				<!-- <button type="button" class="btn fl"  name="<@pageId>_excelUpload"><i class="icon_download"></i> Excel 업로드</button> -->
+				<!-- <input type="file" id="<@pageId>_excelFileInput" style="padding-left:5px;padding-top:5px;width: calc(100% - 350px); "/> -->
             </div>
 		</div>
 		<!-- 테이블 -->
-		<div class="tbl01 col tbl_scroll" style="max-height:206px;">
+		<div class="tbl01 col tbl_scroll" style="max-height:256px;">
 			<div class="tbl01 col tbl_head">
 			<table>
 				<caption>TBL_EXP_GRPCODE</caption>
 				<colgroup>
 					<col style="width:40px;"/>
 					<col style="width:100px;"/>
-					<col style="width:80px;"/>
+					<col style="width:110px;"/>
 					<col style="width:110px;"/>
 					<col style="width:80px;"/>
 					<col style="width:100px;"/>
@@ -513,13 +516,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</thead>
 			</table>
 			</div>
-<!--  -->					
+					
 			<div class="tbl01 col tbl_body_scroll">
 			<table>
 				<colgroup>
 					<col style="width:40px;"/>
 					<col style="width:100px;"/>
-					<col style="width:80px;"/>
+					<col style="width:110px;"/>
 					<col style="width:110px;"/>
 					<col style="width:80px;"/>
 					<col style="width:100px;"/>
@@ -533,8 +536,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			
 				<tbody  id="grpCodeList">
 				</tbody>
-				
-<script type="text/x-jsrender" id="grpCodeList_template">	
+				<script type="text/x-jsrender" id="grpCodeList_template">	
 				{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}" 							 value='{{:GRP_CODE_ID}}'>
 					<td><input type='checkbox' id="<@pageId>_ck_grp_{{:#index}}" value='{{:GRP_CODE_ID}}'></td>
@@ -552,34 +554,22 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<td><button id="<@pageId>_delete_{{:#index}}" key='{{:GRP_CODE_ID}}'><i class="icon_trash"></i></button></td>
 				</tr>
 				{{/for}}
-</script>
-<script type="text/x-jsrender" id="grpCodeList_noData_template">	
+				</script>
+				<script type="text/x-jsrender" id="grpCodeList_noData_template">	
 				<tr>	
 					<td colspan=12>자료가 없습니다.</td>	
 				</tr>
-</script>
+				</script>
 			</table>
 			</div>
-		</div>
-		<!-- paging -->
-		<div class="paging">
-			<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-			<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-			<strong title="현재 페이지">1</strong>
-			<a href="#none">2</a>
-			<a href="#none">3</a>
-			<a href="#none">4</a>
-			<a href="#none">5</a>
-			<a href="#none" class="btn_pg_next">다음 페이지</a>
-			<a href="#none" class="btn_pg_last">마지막 페이지</a>
 		</div>
 	</section>
 	
 <!--  -->			
-	<div class="cont_top">
+	<div class="cont_top" style='margin-top:-40px;'>
 		<h2><i class="icon_bullet"></i>TBL_EXP_CODE</h2>
 	</div>
-	<section class="sec_wrap list" id="<@pageId>_code_section" style="height:calc(50% - 43px);">
+	<section class="sec_wrap list" id="<@pageId>_code_section" style="height:calc(50% - 0px);">
 		<!-- search area -->
 		<div class="search_area mt0">
 			<!-- 멀티 선택 -->
@@ -596,7 +586,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
             </div>
 		</div>
 		<!-- 테이블 -->
-		<div class="tbl01 col tbl_scroll" style="max-height:206px;">
+		<div class="tbl01 col tbl_scroll" style="max-height:306px;">
 			<div class="tbl01 col tbl_head">
 			<table>
 				<caption>TBL_EXP_CODE</caption>
@@ -655,7 +645,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			
 				<tbody  id="codeList">
 				</tbody>
-<script type="text/x-jsrender" id="codeList_template">	
+				<script type="text/x-jsrender" id="codeList_template">	
 				{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}">
 					<td><input type='checkbox' id="<@pageId>_ck_cd_{{:#index}}" value='{{:GRP_CODE_ID}}||{{:CODE_ID}}'></td>
@@ -666,7 +656,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
  					<td id='CODE_DESC'		value='{{:CODE_DESC}}' 		style="text-align:left">{{:CODE_DESC}}</td>
  					<td id='USE_YN'			value='{{:USE_YN}}' 		>{{:USE_YN}}</td>
  					<td id='DEL_YN'			value='{{:DEL_YN}}' 		>{{:DEL_YN}}</td>
- 					<td id='SORT_ORDER'		value='{{:SORT_ORDER}}'		>{{:SORT_ORDER}}</td>
+ 					<td id='SORT_ORDER'		value='{{:T_SORT_ORDER}}'	>{{:T_SORT_ORDER}}</td>
  					<td id='UPDATE_USER' 	value='{{:UPDATE_USER}}'	>{{:UPDATE_USER}}</td>
  					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
  					<td id='NEXT_SORT_ORDER'value='{{:NEXT_SORT_ORDER}}'>
@@ -675,26 +665,14 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					</td>
 				</tr>
 				{{/for}} 
-</script>
-<script type="text/x-jsrender" id="codeList_noData_template">	
+				</script>
+				<script type="text/x-jsrender" id="codeList_noData_template">	
 				<tr>	
 					<td colspan=13>자료가 없습니다.</td>	
 				</tr>
-</script>
+				</script>
 			</table>
 			</div>
-		</div>
-		<!-- paging -->
-		<div class="paging">
-			<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-			<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-			<strong title="현재 페이지">1</strong>
-			<a href="#none">2</a>
-			<a href="#none">3</a>
-			<a href="#none">4</a>
-			<a href="#none">5</a>
-			<a href="#none" class="btn_pg_next">다음 페이지</a>
-			<a href="#none" class="btn_pg_last">마지막 페이지</a>
 		</div>
 	</section>			
 	<div id="<@pageId>_uploadExcelResult"/></div>	
