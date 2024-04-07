@@ -519,3 +519,87 @@ function _lineRateChart(container, categories, series  ) {
 			series : series
         });
     }
+function _barLineChart(container, categories, series  ) {
+	
+       const chart =  $("#"+container).highcharts({
+            chart: {
+				type : 'line',
+                zoomType: 'xy',
+                margin: [50, 0, 40, 45],
+            },
+            credits: { enabled: false },
+            title: {
+                text: '',
+                align: 'left'
+            },
+            subtitle: {
+                text: '',
+                align: 'left'
+            },
+            xAxis: [{
+                labels: {
+                    style: {
+                        color: '#545454',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                lineColor: '#dddddd', /* x축 라인색 */
+                categories: categories,
+                crosshair: true
+            }],
+            yAxis: [{
+                labels: {
+                    format: '{value}%',
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                title: {
+                    text: ''
+                }
+            }, { // Secondary yAxis
+                title: {
+                    text: '',
+                    style: {}
+                },
+                labels: {
+                    format: ' '
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            legend: {
+                align: 'right',
+                x: 0,
+                verticalAlign: 'top',
+                y: 0,
+                itemStyle: {
+                    color: '#545454',
+                    fontFamily: 'Noto Sans KR',
+                    fontSize: '11px'
+                },
+                symbolRadius: 0,
+                symbolWidth: 10,
+                symbolHeight: 10,
+                x:  0,
+                y: -2,
+            },
+            plotOptions: {
+                line: {
+                    marker: {
+                        enabled: true
+                    },
+		            dataLabels: {
+		                enabled: true
+		            },
+		            enableMouseTracking: false
+                }
+            },
+			series : series
+        });
+    }
