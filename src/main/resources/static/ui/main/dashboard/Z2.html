@@ -155,10 +155,11 @@ var <@pageId> = {
 			}
 			*/
 			if(gubun=='ValuationStock'){
+				//debugger;
 				//년도별 기업가치 예상 추이
   				<@pageId>.createChart( "<@pageId>_valuationStock_chart" 
-									, _yearValuationStockArray , [{  name: '기업가치',type: 'column',	data: getTotalStockValuation,tooltip: {valueSuffix:'원'}
-													},{  name: '1주당 주식가액',type: 'spline',	data: getPricePerStock,tooltip: {valueSuffix:'원'}}
+									, _yearValuationStockArray , [{  name: '기업가치',type: 'column', yAxis: 1,	data: getTotalStockValuation, tooltip: {valueSuffix:'만원'}
+													},{  name: '1주당 주식가액',type: 'line',	data: getPricePerStock, tooltip: {valueSuffix:'만원'}}
 													]);
 			} 
 			/*

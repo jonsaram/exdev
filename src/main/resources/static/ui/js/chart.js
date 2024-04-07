@@ -523,11 +523,8 @@ function _barLineChart(container, categories, series  ) {
 	
        const chart =  $("#"+container).highcharts({
             chart: {
-				type : 'line',
-                zoomType: 'xy',
-                margin: [50, 0, 40, 45],
+                zoomType: 'xy'
             },
-            credits: { enabled: false },
             title: {
                 text: '',
                 align: 'left'
@@ -548,52 +545,47 @@ function _barLineChart(container, categories, series  ) {
                 categories: categories,
                 crosshair: true
             }],
-            yAxis: [{
-                labels: {
-                    format: '{value}',
-                    style: {
-                        color: '#8A8C92',
-                        fontFamily: 'Noto Sans KR',
-                        fontSize: '11px'
-                    }
-                },
-                title: {
-                    text: ''
-                }
-            }, { // Secondary yAxis
-                title: {
-                    text: '1주당 주식가액',
-                    style: {}
-                },
-                labels: {
-                    format: '{value}',
-                    style: {
-	                    color: '#8A8C92',
-                        fontFamily: 'Noto Sans KR',
-                        fontSize: '11px'
-					}
-                },
-                opposite: true
-            }],
+		    yAxis: [{ // Primary yAxis
+		        labels: {
+		            format: '{value} 만원',
+		            style: {
+		                color: Highcharts.getOptions().colors[1]
+		            }
+		        },
+		        title: {
+		            text: '1주당 주식가액',
+		            style: {
+		                color: Highcharts.getOptions().colors[1]
+		            }
+		        }
+		    }, { // Secondary yAxis
+		        title: {
+		            text: '기업가치',
+		            style: {
+		                color: Highcharts.getOptions().colors[0]
+		            }
+		        },
+		        labels: {
+		            format: '{value} 만원',
+		            style: {
+		                color: Highcharts.getOptions().colors[0]
+		            }
+		        },
+		        opposite: true
+		    }],
             tooltip: {
                 shared: true
             },
-            legend: {
-                align: 'right',
-                x: 0,
-                verticalAlign: 'top',
-                y: 0,
-                itemStyle: {
-                    color: '#545454',
-                    fontFamily: 'Noto Sans KR',
-                    fontSize: '11px'
-                },
-                symbolRadius: 0,
-                symbolWidth: 10,
-                symbolHeight: 10,
-                x:  0,
-                y: -2,
-            },
+		    legend: {
+		        align: 'left',
+		        x: 80,
+		        verticalAlign: 'top',
+		        y: 60,
+		        floating: true,
+		        backgroundColor:
+		            Highcharts.defaultOptions.legend.backgroundColor || // theme
+		            'rgba(255,255,255,0.25)'
+		    },
             plotOptions: {
                 line: {
                     marker: {
@@ -603,7 +595,16 @@ function _barLineChart(container, categories, series  ) {
 		                enabled: true
 		            },
 		            enableMouseTracking: false
-                }
+                },
+                column: {
+                    marker: {
+                        enabled: true
+                    },
+		            dataLabels: {
+		                enabled: true
+		            },
+		            enableMouseTracking: false
+                },
             },
 			series : series
         });
