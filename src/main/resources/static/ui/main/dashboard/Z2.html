@@ -17,7 +17,7 @@ var <@pageId> = {
 				return requestParm;
 				
 		}
-		,createChart 		: (container, categories, series)=>_lineRateChart(container, categories, series)
+		,createChart 		: (container, categories, series)=>_barLineChart(container, categories, series)
 		,showObject : (obj, loc) => {
 			var keys = Object.keys(obj);
 		    for (var i=0; i<keys.length; i++) {
@@ -37,89 +37,71 @@ var <@pageId> = {
 			var parm = {
 				queryGroup : [
 					{
-						 queryId 			: "financialanalysis.getBuyerDetail"
-						,requestParm		: pmt
-					}
-					,
-					{
 						 queryId 			: "financialanalysis.getBasis01"
 						,requestParm		: pmt
 					}
 					,
 					{
-						 queryId 			: "financialanalysis.getBasis02"
-						,requestParm	: pmt
-					}
-					,
-					{
-						 queryId 			: "financialanalysis.getFinAnalExecutive"
-						,requestParm	: pmt
-					}
-
-					,
-					{
-						 queryId 			: "financialanalysis.getFinAnalRate"
-						,requestParm	: pmt
-					}
-					,
-					{
-						 queryId 			: "financialanalysis.getFinAnalResult"
-						,requestParm	: pmt
-					}
-					,
-					{
-						 queryId 			: "financialanalysis.getFinAnalStatusDtl"
-						,requestParm	: pmt
-					}
-					,
-					{
-						 queryId 			: "financialanalysis.getFinAnalYear"
-						,requestParm	: pmt
-					}
-					,
-					{
 						 queryId 			: "financialanalysis.getFinAnalStockholder"
-						,requestParm	: pmt
+						,requestParm		: pmt
+					}
+					,
+					{
+						 queryId 			: "valuation.getValuationStock"
+						,requestParm		: pmt
 					}
 				]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
-				<@pageId>.showObject(resultData.data['financialanalysis.getBuyerDetail'][0],'');
 				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');				
-				<@pageId>.showList("<@pageId>_getBasis02", resultData.data['financialanalysis.getBasis02']);				
 				<@pageId>.showList("<@pageId>_getFinAnalStockholder", resultData.data['financialanalysis.getFinAnalStockholder']);
-				<@pageId>.showList("<@pageId>_getFinAnalExecutive", resultData.data['financialanalysis.getFinAnalExecutive']);
-				<@pageId>.showList("<@pageId>_getFinAnalRate01", resultData.data['financialanalysis.getFinAnalRate']);
-				<@pageId>.showList("<@pageId>_getFinAnalRate02", resultData.data['financialanalysis.getFinAnalRate']);
-				<@pageId>.showList("<@pageId>_getFinAnalRate03", resultData.data['financialanalysis.getFinAnalRate']);
-				<@pageId>.showList("<@pageId>_getFinAnalRate04", resultData.data['financialanalysis.getFinAnalRate']);
-				<@pageId>.showObject(resultData.data['financialanalysis.getFinAnalYear'][0],'');
-				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl01", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl02", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl03", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl04", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl06", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				//<@pageId>.showList("<@pageId>_getValuationStock", resultData.data['valuation.getValuationStock']);
+				//<@pageId>.showList("<@pageId>_getFinAnalExecutive", resultData.data['financialanalysis.getFinAnalExecutive']);
+				//<@pageId>.showList("<@pageId>_getFinAnalRate01", resultData.data['financialanalysis.getFinAnalRate']);
+				//<@pageId>.showList("<@pageId>_getFinAnalRate02", resultData.data['financialanalysis.getFinAnalRate']);
+				//<@pageId>.showList("<@pageId>_getFinAnalRate03", resultData.data['financialanalysis.getFinAnalRate']);
+				//<@pageId>.showList("<@pageId>_getFinAnalRate04", resultData.data['financialanalysis.getFinAnalRate']);
+				//<@pageId>.showObject(resultData.data['financialanalysis.getFinAnalYear'][0],'');
+				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl01", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl02", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl03", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl04", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl06", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				
-				<@pageId>.setChart('Sales',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.setChart('Personal',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.setChart('Hire',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.setChart('ValuationStock',resultData.data['valuation.getValuationStock']);
+				//<@pageId>.setChart('Personal',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				//<@pageId>.setChart('Hire',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				
+				//<@pageId>.setChart('InputLaborForce',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				//<@pageId>.setChart('LaborCostPerPerson',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				//<@pageId>.setChart('SaleAmountPerPerson',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				
 			});
 		 }
-		,setChart : (gubun, yearData, chartData) =>{
-			const _3yearArray = [yearData.YEAR1, yearData.YEAR2, yearData.YEAR3];
-			const getCostOfSalesRate = [];
+		,setChart : (gubun, chartData) =>{
+			const _yearValuationStockArray = [];	// 년도별
+			const getPricePerStock = [];			// 년도별 1주당 주식가액
+			const getTotalStockValuation = [];		// 년도별 기업가치
+			/*
 			const getCostOfPersonalRate = [];
 			const getCostOfHireRate = [];
+			const getInputLaborForce = [];
+			const getTotalLaborCost = [];
+			const getLaborCostPerPerson = [];
+			const getTotalSaleAmount = [];
+			const getSaleAmountPerPerson = [];
+			*/
 			//debugger;
+			//YEAR, PRICE_PER_STOCK, TOTAL_STOCK, VALUATION
 			$.each(chartData, function(index, item){
-				if(gubun=='Sales'){
-					if(item.ITEM_NAME == '(매출원가/매출액)'){
-						getCostOfSalesRate.push(parseFloat(item.YEAR1.replace(',','')));
-						getCostOfSalesRate.push(parseFloat(item.YEAR2.replace(',','')));
-						getCostOfSalesRate.push(parseFloat(item.YEAR3.replace(',','')));
-					}
-				} else if(gubun=='Personal'){
+				if(gubun=='ValuationStock'){
+					_yearValuationStockArray.push(item.YEAR);
+					getPricePerStock.push(item.PRICE_PER_STOCK);
+					getTotalStockValuation.push(item.VALUATION);
+				} 
+				/*
+				else if(gubun=='Personal'){
 					if(item.ITEM_NAME == '(인건비/매출액)'){
 						getCostOfPersonalRate.push(parseFloat(item.YEAR1.replace(',','')));
 						getCostOfPersonalRate.push(parseFloat(item.YEAR2.replace(',','')));
@@ -131,14 +113,56 @@ var <@pageId> = {
 						getCostOfHireRate.push(parseFloat(item.YEAR2.replace(',','')));
 						getCostOfHireRate.push(parseFloat(item.YEAR3.replace(',','')));
 					}
-				}
+				} else if(gubun=='InputLaborForce'){
+					if(item.ITEM_NAME == '상시근로자수'){
+						getInputLaborForce.push(parseFloat(item.YEAR1.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR2.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR3.replace(',','')));
+					}
+				}else if(gubun=='LaborCostPerPerson'){
+					if(item.ITEM_NAME == '인건비 합계'){
+						getTotalLaborCost.push(parseFloat(item.YEAR1.replace(',','')));
+						getTotalLaborCost.push(parseFloat(item.YEAR2.replace(',','')));
+						getTotalLaborCost.push(parseFloat(item.YEAR3.replace(',','')));
+					}else if(item.ITEM_NAME == '상시근로자수'){
+						getInputLaborForce.push(parseFloat(item.YEAR1.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR2.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR3.replace(',','')));
+					}
+				}else if(gubun=='SaleAmountPerPerson'){
+					if(item.ITEM_NAME == '매출액'){
+						getTotalSaleAmount.push(parseFloat(item.YEAR1.replace(',','')));
+						getTotalSaleAmount.push(parseFloat(item.YEAR2.replace(',','')));
+						getTotalSaleAmount.push(parseFloat(item.YEAR3.replace(',','')));
+					}else if(item.ITEM_NAME == '상시근로자수'){
+						getInputLaborForce.push(parseFloat(item.YEAR1.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR2.replace(',','')));
+						getInputLaborForce.push(parseFloat(item.YEAR3.replace(',','')));
+					}
+				}*/
 			})
-			if(gubun=='Sales'){
-				//매출원가 비중
-  				<@pageId>.createChart( "<@pageId>_costOfSalesRate_chart" 
-									, _3yearArray , [{  name: '매출원가 비중(%)',type: 'line',	data: getCostOfSalesRate,tooltip: {valueSuffix:'%'}}
+			/*
+			if(gubun=='LaborCostPerPerson'){
+				//debugger;
+				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[0]/getInputLaborForce[0]));
+				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[1]/getInputLaborForce[1]));
+				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[2]/getInputLaborForce[2]));
+			}else if(gubun=='SaleAmountPerPerson'){
+				//debugger;
+				getSaleAmountPerPerson.push(Math.round(getTotalSaleAmount[0]/getInputLaborForce[0]));
+				getSaleAmountPerPerson.push(Math.round(getTotalSaleAmount[1]/getInputLaborForce[1]));
+				getSaleAmountPerPerson.push(Math.round(getTotalSaleAmount[2]/getInputLaborForce[2]));
+			}
+			*/
+			if(gubun=='ValuationStock'){
+				//년도별 기업가치 예상 추이
+  				<@pageId>.createChart( "<@pageId>_valuationStock_chart" 
+									, _yearValuationStockArray , [{  name: '기업가치',type: 'column',	data: getTotalStockValuation,tooltip: {valueSuffix:'원'}
+													},{  name: '1주당 주식가액',type: 'spline',	data: getPricePerStock,tooltip: {valueSuffix:'원'}}
 													]);
-			} else if(gubun=='Personal'){
+			} 
+			/*
+			else if(gubun=='Personal'){
 				//인건비 비중
   				<@pageId>.createChart( "<@pageId>_costOfPersonalRate_chart" 
 									, _3yearArray , [{  name: '인건비 비중(%)',type: 'line',	data: getCostOfPersonalRate,tooltip: {valueSuffix:'%'}}
@@ -148,7 +172,23 @@ var <@pageId> = {
   				<@pageId>.createChart( "<@pageId>_costOfHireRate_chart" 
 									, _3yearArray , [{  name: '임차료 비중(%)',type: 'line',	data: getCostOfHireRate,tooltip: {valueSuffix:'%'}}
 													]);
+			} else if(gubun=='InputLaborForce'){
+				//투입노동력
+  				<@pageId>.createChart( "<@pageId>_inputLaborForce_chart" 
+									, _3yearArray , [{  name: '투입노동력(명)',type: 'line',	data: getInputLaborForce,tooltip: {valueSuffix:'명'}}
+													]);
+			} else if(gubun=='LaborCostPerPerson'){				
+				//인당 평균 인건비
+  				<@pageId>.createChart( "<@pageId>_laborCostPerPerson_chart" 
+									, _3yearArray , [{  name: '인당 평균 인건비(천원)',type: 'line',	data: getLaborCostPerPerson,tooltip: {valueSuffix:'천원'}}
+													]);
+			}else if(gubun=='SaleAmountPerPerson'){				
+				//인당 평균 매출액
+  				<@pageId>.createChart( "<@pageId>_SaleAmountPerPerson_chart" 
+									, _3yearArray , [{  name: '인당 평균 매출액(천원)',type: 'line',	data: getSaleAmountPerPerson,tooltip: {valueSuffix:'천원'}}
+													]);
 			}
+			*/
 		}
 		,goPage : (pageId,rowId) => {
 
@@ -298,15 +338,14 @@ var <@pageId> = {
 
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function(parm) {
-	//dalert(parm.BUYER_ID);
-	//<@pageId>.selectQueryGroup(parm);
+	dalert(parm.BUYER_ID);
+	<@pageId>.selectQueryGroup(parm);
 });
 	
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
 C_HM.onReturn("<@pageId>", function(pageId, data) {
 
 });
-
 
 
 </script>
@@ -463,7 +502,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									</li>
 									<li>
 										<div class="cont_valuation_tit point_color">자본금</div>
-										<div class="cont_valuation">3억원</div>
+										<div class="cont_valuation" id="<@pageId>_CAPITAL"></div>
 									</li>
 								</ul>
 								<ul>
@@ -472,7 +511,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									</li>
 									<li>
 										<div class="cont_valuation_tit point_color">주식수</div>
-										<div class="cont_valuation">60,000주</div>
+										<div class="cont_valuation" id="<@pageId>_STOCK"></div>
 									</li>
 								</ul>
 								<ul>
@@ -481,7 +520,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									</li>
 									<li>
 										<div class="cont_valuation_tit point_color">1주의 금액(액면가)</div>
-										<div class="cont_valuation">5,000원</div>
+										<div class="cont_valuation" id="<@pageId>_ONE_STOCK_PRICE"></div>
 									</li>
 								</ul>
 							</div>
@@ -524,31 +563,23 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 													<th>관계</th>
 												</tr>
 											</thead>
-											<tbody>
+											<tbody id="<@pageId>_getFinAnalStockholder">
+											</tbody>
+											<script type="text/x-jsrender" id="<@pageId>_getFinAnalStockholder_template">
+												{{for list}}
 												<tr>
-													<td>이성욱</td>
-													<td>49%</td>
-													<td>-</td>
-													<td>본인</td>
+													<td>{{:STOCKHOLDER_NM}}</td>
+													<td>{{:SHARE_RATIO}}</td>
+													<td>{{:VALUE_OF_SHARES_HELD}}</td>
+													<td>{{:OWNER_RELATIONSHIP}}</td>
 												</tr>
-												<tr>
-													<td>신승환</td>
-													<td>25%</td>
-													<td>-</td>
-													<td>본인</td>
+												{{/for}}
+											</script>
+											<script type="text/x-jsrender" id="<@pageId>_getFinAnalStockholder_noData_template">
+												<tr>	
+													<td colspan=4>자료가 없습니다.</td>	
 												</tr>
-												<tr>
-													<td>안용규</td>
-													<td>6%</td>
-													<td>-</td>
-													<td>본인</td>
-												</tr>
-												<tr>
-													<td>배상수</td>
-													<td>20%</td>
-													<td>-</td>
-													<td>본인</td>
-												</tr>
+											</script>
 											</tbody>
 										</table>
 									</div>
@@ -556,12 +587,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							</div>
 
 							<div class="com_cont_stit">연도별 기업가치 예상 추이</div>
-							<figure class="highcharts-figure2 mt45">
-								<!-- 예제 이미지 -->
-								<img src="../img/img_chart01.png" style="width:100%;height:360px;display:block;">
-								<!-- 아래 차트 넣기 -->
-						    	<!-- <div class="lineBarChart01" style="width:100%;height:360px; margin:0 auto"></div> -->
-							</figure>
+								<figure class="highcharts-figure2 mt45">
+							    	<div class="chart8" id="<@pageId>_valuationStock_chart" style="width:100%; height:360px;display:block;"></div>
+								</figure>
 							<div class="info_txt v2">※ 위 비상장주식가치평가는 재무제표를 기준으로 상증세법상 보충적 평가방법에 의해 약식평가한 것입니다.</div>
 
 						</div>

@@ -550,7 +550,7 @@ function _barLineChart(container, categories, series  ) {
             }],
             yAxis: [{
                 labels: {
-                    format: '{value}%',
+                    format: '{value}',
                     style: {
                         color: '#8A8C92',
                         fontFamily: 'Noto Sans KR',
@@ -562,11 +562,16 @@ function _barLineChart(container, categories, series  ) {
                 }
             }, { // Secondary yAxis
                 title: {
-                    text: '',
+                    text: '1주당 주식가액',
                     style: {}
                 },
                 labels: {
-                    format: ' '
+                    format: '{value}',
+                    style: {
+	                    color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+					}
                 },
                 opposite: true
             }],
