@@ -1,25 +1,93 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@compId> = {
-
+		 contractInfo : {}
+		,cmmtList	  : []
+		,loadCmmtList : function() {
+			var parm = {
+				 queryId 		: "contract.getWorkCmmtList"
+				,requestParm	: <@compId>.contractInfo
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				var rparm = {
+					 targetId 		: "cmmtList"
+					,list			: resultData.data
+				}
+				C_COM.renderHtml("<@compId>", rparm);
+				
+				<@compId>.cmmtList = resultData.data
+			});  
+			 
+		 }
+		,registCmmt : function() {
+			let parm = {
+				 title1 : "진행 사항 등록"	
+				,title2 : "진행 사항"
+			}
+			C_POP.open('popup_common_inputOnelinePopup', parm, function(retData) {
+				if(isValid(retData.msg)) {
+					// cmmt 등록
+					<@compId>.registCmmtProcess(retData.msg);
+					
+				}
+			});
+		 }
+		,registCmmtProcess : function(cmmt) {
+			let parm = {
+				 queryId 		: "contract.registWorkCmmt"
+				,requestParm	: {
+					 WORK_CMMT_ID	: C_COM.makeUniqueId()
+					,CONTRACT_ID 	: '<@contractInfo.CONTRACT_ID>'
+					,CMMT			: cmmt
+				 }
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				<@compId>.loadCmmtList();
+			});  
+			
+		 }
+		,deleteCmmt : function(idx) {
+			let cmmtInfo = <@compId>.cmmtList[idx];
+			
+			C_POP.confirm(`'${cmmtInfo.CMMT}' 항목을 삭제 하시겠습니까?`, function() {
+				let parm = {
+					 queryId 		: "contract.deleteWorkCmmt"
+					,requestParm	: cmmtInfo
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					<@compId>.loadCmmtList();
+				});  
+			});
+			
+		 }
 	}
 	// Component Load가 완료된후 실행 된다.
 	C_COMP.onLoadComp("<@compId>", function(data) {
 		
+		<@compId>.contractInfo =  data.contractInfo;
+		
+		<@compId>.loadCmmtList();
+	
 	});
 </script>
 <div>
 	<div class="cont_top clearFix">
 		<h4 class="fl lh24">- 진행 사항</h4>
 		<div class="fr inlineBlock_wrap">
-			<a href="#modal-ex01" class="btn small">등록</a>
+			<a href="javascript:<@compId>.registCmmt()" class="btn small">등록</a>
 		</div>
 	</div>
 	<div class="approver_list_wrap person mb15">
-		<ul class="approver_list">
-			<li><span class="txt"><span>02-05 11:15 </span><span>: 1차 고객 면담 완료</span></span><button class="pay_close">닫기</button></li>
-			<li><span class="txt"><span>02-04 14:23 </span><span>: 전화 상담 진행</span></span><button class="pay_close">닫기</button></li>
+		<ul class="approver_list" id="cmmtList">
 		</ul>
+		<script type="text/x-jsrender" id="cmmtList_template">
+			{{for list}}
+			<li><span class="txt"><span>{{:UPDATE_DATE}} </span><span>: {{:CMMT}}</span></span><button class="pay_close" onclick="<@compId>.deleteCmmt({{:#index}})">닫기</button></li>
+			{{/for}}
+		</script>
+		<script type="text/x-jsrender" id="cmmtList_noData_template">	
+			<li><span class="txt tc">등록된 내용이 없습니다.</span></li>
+		</script>
+		
 	</div>
-
 </div>

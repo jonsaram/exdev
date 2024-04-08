@@ -1,0 +1,36 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		 close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+		,save : function() {
+			let msg = $("#<@popupId>_msg").val();
+			<@popupId>.close({msg : msg});
+		 }
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+		$("#<@popupId>_msg").focus();
+	});
+</script>
+<div class="modal_wrap" id="modal-ex01">
+	<div class="modal" style="width:350px;height:200px;">
+		<div class="modal_header">
+			<strong class="tit"><@title1></strong>
+			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<dl class="info_wrap pay">
+				<dt><@title2></dt>
+				<dd><input id="<@popupId>_msg" type="text" value="" style="width:100%"></dd>
+			</dl>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select" onclick="<@popupId>.save()">등록</button>
+			<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
+		</div>
+	</div>
+</div>
+

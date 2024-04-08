@@ -507,6 +507,124 @@
 		ORDER BY UPDATE_DATE DESC		
 	</select>	
 
+	<select id="getWorkCmmtList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	contract.getWorkCmmtList
+			자문 진행 현황 / 진행 현황 리스트
+		*/
+		SELECT 
+			 WORK_CMMT_ID
+			,CONTRACT_ID
+			,CMMT
+			,TO_CHAR( UPDATE_DATE , 'MM-DD HH24:MI' ) AS UPDATE_DATE
+			
+		FROM 
+		 	TBL_EXP_WORK_CMMT  A
+		WHERE  1=1
+			AND	CONTRACT_ID = #{CONTRACT_ID}
+			AND	UPDATE_USER = #{sessionVo.userId}
+			AND	SP_CSTM_ID	= #{sessionVo.spCstmId}
+			AND DEL_YN		= 'N'
+		ORDER BY UPDATE_DATE DESC		
+	</select>	
+	<update id="registWorkCmmt">
+		/*	contract."registWorkCmmt"
+			자문 진행 현황 / 진행 현황 등록
+		*/
+		INSERT INTO TBL_EXP_WORK_CMMT (
+			 WORK_CMMT_ID
+			,CONTRACT_ID
+			,CMMT
+			,UPDATE_DATE
+			,UPDATE_USER
+			,SP_CSTM_ID
+		) VALUES (
+			 #{WORK_CMMT_ID	}
+			,#{CONTRACT_ID	}
+			,#{CMMT			}
+   			,sysdate
+   			,#{sessionVo.userId		}
+			,#{sessionVo.spCstmId	}
+		)
+	</update>
 
+	<update id="deleteWorkCmmt">
+		/*	contract."deleteWorkCmmt"
+			자문 진행 현황 / 진행 현황 삭제
+		*/
+		UPDATE 
+			TBL_EXP_WORK_CMMT 
+		SET 
+			DEL_YN = 'Y' 
+		WHERE 
+			WORK_CMMT_ID = #{WORK_CMMT_ID}
+	</update>
+	
+
+
+	<select id="getTodoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	contract.getTodoList
+			자문 진행 현황 / TODO 리스트
+		*/
+		SELECT 
+			 TODO_ID
+			,CONTRACT_ID
+			,TODO
+			,EXEC_CHECK
+			,TO_CHAR( UPDATE_DATE , 'MM-DD HH24:MI' ) AS UPDATE_DATE
+		FROM 
+		 	TBL_EXP_TODO  A
+		WHERE  1=1
+			AND	CONTRACT_ID = #{CONTRACT_ID}
+			AND	UPDATE_USER = #{sessionVo.userId}
+			AND	SP_CSTM_ID	= #{sessionVo.spCstmId}
+			AND DEL_YN		= 'N'
+		ORDER BY UPDATE_DATE DESC		
+	</select>	
+	<update id="registTodo">
+		/*	contract.registTodo
+			자문 진행 현황 / TODO 등록
+		*/
+		INSERT INTO TBL_EXP_TODO (
+			 TODO_ID
+			,CONTRACT_ID
+			,TODO
+			,EXEC_CHECK
+			,UPDATE_DATE
+			,UPDATE_USER
+			,SP_CSTM_ID
+		) VALUES (
+			 #{TODO_ID		}
+			,#{CONTRACT_ID	}
+			,#{TODO			}
+			,'N'
+   			,sysdate
+   			,#{sessionVo.userId		}
+			,#{sessionVo.spCstmId	}
+		)
+	</update>
+
+	<update id="deleteTodo">
+		/*	contract.deleteTodo
+			자문 진행 현황 / TODO 삭제
+		*/
+		UPDATE 
+			TBL_EXP_TODO 
+		SET 
+			DEL_YN = 'Y' 
+		WHERE 
+			TODO_ID = #{TODO_ID}
+	</update>
+
+	<update id="updateTodo">
+		/*	contract.updateTodo
+			자문 진행 현황 / TODO 실행 상태 변경
+		*/
+		UPDATE 
+			TBL_EXP_TODO 
+		SET 
+			EXEC_CHECK = #{EXEC_CHECK}
+		WHERE 
+			TODO_ID = #{TODO_ID}
+	</update>
 			
 </mapper>

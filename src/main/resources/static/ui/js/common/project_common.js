@@ -277,7 +277,9 @@ var C_COM = {
 		
 		C_COM.makeNumberTypeToInput("#" + pid + " #" + parm.targetId);
 		
-		C_COM.adjustTableScroll(pid);
+		C_COM.preInitTemplate(pid, parm.targetId);
+		
+		//C_COM.adjustTableScroll(pid);
 		
 //		$("#" + pid + " #" + parm.targetId + " input[type=number]").bind("change", function() {
 //			var v = addComma($(this).val());
@@ -408,8 +410,12 @@ var C_COM = {
 		$("#lnb_MenuList").hide();
 	 }
 	//Template 사용하는 모든페이지에 대해 초기화
-	,preInitTemplate : function(templateId) {
+	,preInitTemplate : function(templateId, secondTemplateId) {
 		var templateWebId = "#" + templateId + " ";
+		
+		if(isValid(secondTemplateId)) {
+			templateWebId = templateWebId + "#" + secondTemplateId + " ";
+		}
 
 	    /*====== 달력 =======*/
 	    $(function () {
@@ -1692,6 +1698,9 @@ var C_PAGING = {
 			
 			C_PAGING.onPageClickCallback[key](retParm);	
 		}
+		
+		C_COM.preInitTemplate(pageId, listDomId);
+		
 	}		
 }
 

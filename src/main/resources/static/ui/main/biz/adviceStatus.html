@@ -3,6 +3,37 @@
 	var <@pageId> = {
 		 projectList	: []
 		,cardListMap	: {}
+		,pageInit		: function() {
+			// 첫번째 SelectBox 세팅	    
+			let parm = {
+				 queryId 		: "advice.getMyCustomerList"
+				,requestParm	: {}
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				let codeList = C_COM.makeArrayTwoColumn(resultData.data, "BUYER_ID", "BUYER_NM");
+				var singleboxList = { 
+					 defaultItem 	: ["", "고객선택"]
+					,data 			: codeList
+				 	,targetId 		: "<@pageId>_customerSelectBox" 
+				}
+				C_UICOM.makeSelectBox(singleboxList, "single");
+			});
+			
+			// 두번째 SelectBox 세팅	    
+			let parm2 = {
+				 queryId 		: "advice.getConsultingList"
+				,requestParm	: {}
+			}
+			C_COM.requestQuery(parm2, function(resultData) {
+				let codeList = C_COM.makeArrayTwoColumn(resultData.data, "CONSULTING_ID", "CONSULTING_NM");
+				var singleboxList = { 
+					 defaultItem 	: ["", "상품선택"]
+					,data 			: codeList
+				 	,targetId 		: "<@pageId>_consultingSelectBox" 
+				}
+				C_UICOM.makeSelectBox(singleboxList, "single");
+			});
+		}
 		,loadCardList 	: function() {
 			
 			var parm = {
@@ -15,60 +46,70 @@
 				let cardListMap = {}
 				 
 				$.each(<@pageId>.projectList, function(){
-					if(isValid(cardListMap[this.PROCESS_STATE])) cardListMap[this.PROCESS_STATE] = [];
+					if(isEmpty(cardListMap[this.PROCESS_STATE])) cardListMap[this.PROCESS_STATE] = [];
 					cardListMap[this.PROCESS_STATE].push(this);
 				});
 
 				<@pageId>.cardListMap = cardListMap;
 				
-				
+				<@pageId>.renderCardList();
 				
 			});  
+		 }
+		,renderCardList : function() {
 
-			C_COMP.import("cstPss", "component_biz_compConsultingProcess", {}, function(data) {
-				alert("import page");
-				dalert(data);
+			<@pageId>.setCard("cardList0", ["PRE_CONTRACT"]				, "제안 진행 중"	);
+
+			<@pageId>.setCard("cardList1", ["CONTRACTING", "CONTRACTED"], "체결완료 및 실행");
+			
+			<@pageId>.setCard("cardList2", ["COMPLETED"]				, "실행 완료"		);
+			
+			$("#<@pageId> .upDownToggle").unbind("click");
+		    $("#<@pageId> .upDownToggle").bind("click", function(){
+		        $(this).children().toggleClass('down');
+		        $(this).parent().parent().next().toggleClass('upDown');
+		    });
+		 }
+		,setCard : function(targetId, contractState, cardTitle) {
+			
+			let list = [];
+			
+			$.each(contractState, function() {
+				let newlist = <@pageId>.cardListMap[this]
+				if(isEmpty(newlist)) return true;
+				list = $.merge(list, newlist);
 			});
-		}
+			
+			var parm = {
+				 targetId 		: targetId
+				,templateId		: "basecard"
+				,list			: list
+				,cardTitle		: cardTitle
+				,cardCnt		: list.length
+			}
+			C_COM.renderHtml("<@pageId>", parm);
+			
+			$.each(list, function(idx) {
+				let key0 = `${parm.targetId}_wk${idx}`;
+				C_COMP.import(key0, "component_biz_compConsultingProcess"	, {contractInfo : this}, function(data) {
+					dalert(data);
+				});
+				let key1 = `${parm.targetId}_sch${idx}`;
+				C_COMP.import(key1, "component_biz_compScheduleList"		, {contractInfo : this}, function(data) {
+					dalert(data);
+				});
+				let key2 = `${parm.targetId}_todo${idx}`;
+				C_COMP.import(key2, "component_biz_compTodoList"			, {contractInfo : this}, function(data) {
+					dalert(data);
+				});
+			});
+		 }
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
-		$("#<@pageId> .upDownToggle").unbind("click");
-	    $("#<@pageId> .upDownToggle").bind("click", function(){
-	        $(this).children().toggleClass('down');
-	        $(this).parent().parent().next().toggleClass('upDown');
-	    });
-	    
-		// 첫번째 SelectBox 세팅	    
-		let parm = {
-			 queryId 		: "advice.getMyCustomerList"
-			,requestParm	: {}
-		}
-		C_COM.requestQuery(parm, function(resultData) {
-			let codeList = C_COM.makeArrayTwoColumn(resultData.data, "BUYER_ID", "BUYER_NM");
-			var singleboxList = { 
-				 defaultItem 	: ["", "고객선택"]
-				,data 			: codeList
-			 	,targetId 		: "<@pageId>_customerSelectBox" 
-			}
-			C_UICOM.makeSelectBox(singleboxList, "single");
-		});
 		
-		// 두번째 SelectBox 세팅	    
-		let parm2 = {
-			 queryId 		: "advice.getConsultingList"
-			,requestParm	: {}
-		}
-		C_COM.requestQuery(parm2, function(resultData) {
-			let codeList = C_COM.makeArrayTwoColumn(resultData.data, "CONSULTING_ID", "CONSULTING_NM");
-			var singleboxList = { 
-				 defaultItem 	: ["", "상품선택"]
-				,data 			: codeList
-			 	,targetId 		: "<@pageId>_consultingSelectBox" 
-			}
-			C_UICOM.makeSelectBox(singleboxList, "single");
-		});
-		
+		<@pageId>.pageInit();
+
 		<@pageId>.loadCardList();
 		
 	});
@@ -100,7 +141,7 @@
 		</li>
 	</ul>
 	<div class="cont_top mt20 mb0 pr10 clearFix">
-		<h3 class="fl font16">프로젝트 결재 상신 리스트</h3>
+		<h3 class="fl font16">담당자 매칭 승인 대기</h3>
 		<div class="fr">결재 진행 중 <strong class="pointColr">2</strong> 건</div>
 	</div>
 	<div class="sec_scroll" style="height:calc(100% - 140px);">
@@ -113,93 +154,43 @@
 			</div>
 		</section>
 		<section class="sec_wrap">
-			<div class="cont_box col3 project_list">
-				<h3 class="tc">제안 진행 중</h3>
-
-				<!-- 엑스플랜 / 월자문 컨설팅 2 -->
-				<div class="cont_top mt15 clearFix">
-					<h4 class="fl">엑스플랜 / 월자문 컨설팅 2</h4>
-					<div class="fr inlineBlock_wrap">
-						<button class="btn small upDownToggle"><i class="up"></i></button>
-					</div>
-				</div>
-				<div class="cont_box">
-					<!-- 진행 사항 -->
-					<div id="cstPss">
-					</div>
-					<!-- Schedule -->
-					<div>
-						<div class="cont_top clearFix">
-							<h4 class="fl lh24">- Schedule</h4>
-							<div class="fr inlineBlock_wrap">
-								<a href="" class="btn small">등록</a>
-							</div>
-						</div>
-						<div class="approver_list_wrap person mb15">
-							<ul class="approver_list">
-								<li><span class="txt"><span>02-07 11:00 </span><span>: 2차 고객 면담</span></span><button class="pay_close">닫기</button></li>
-								<li><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span><button class="pay_close">닫기</button></li>
-								<li><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span><button class="pay_close">닫기</button></li>
-								<li><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span><button class="pay_close">닫기</button></li>
-							</ul>
-						</div>
-					</div>
-
-					<!-- TO-DO List -->
-					<div>					
-						<div class="cont_top clearFix">
-							<h4 class="fl lh24">- TO-DO List</h4>
-							<div class="fr inlineBlock_wrap">
-								<a href="#modal-ex02" class="btn small">등록</a>
-							</div>
-						</div>
-						<div class="approver_list_wrap person mb15">
-							<ul class="approver_list">
-								<li>
-									<input type="checkbox" name="customer" class="check_undo" id="custom01">
-									<label for="custom01"><span class="txt"><span>02-07 11:00 </span><span>: 2차 고객 면담</span></span></label>
-									<button class="pay_close">닫기</button>
-								</li>
-								<li>
-									<input type="checkbox" name="customer" class="check_undo" id="custom02">
-									<label for="custom02"><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span></label>
-									<button class="pay_close">닫기</button>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-
-				<!-- 유니테크 / 일회성 컨설팅 1 -->
-				<div class="cont_top mt15 clearFix">
-					<h4 class="fl">유니테크 / 일회성 컨설팅 1</h4>
-					<div class="fr inlineBlock_wrap">
-						<button class="btn small upDownToggle"><i class="up"></i></button>
-					</div>
-				</div>
-				<div class="cont_box">
-				</div>
-
+			<div class="cont_box col3 project_list" id="cardList0">
 			</div>
-			<div class="cont_box col3 project_list">
-				<h3 class="tc">체결 완료 및 실행</h3>
-				<div class="cont_top mt15 clearFix">
-					<h4 class="fl">엑스플랜 / 월자문 컨설팅 2</h4>
-					<div class="fr inlineBlock_wrap">
-						<button class="btn small upDownToggle"><i class="up"></i></button>
-					</div>
-				</div>
-				<div class="cont_box">
-				</div>
+			<div class="cont_box col3 project_list" id="cardList1">
 			</div>
-			<div class="cont_box col3 project_list">
-				<h3 class="tc">실행 완료</h3>
-				<div class="cont_top mt15 clearFix">
-				</div>
-				<div class="cont_box">
-					<div class="tc">등록된 카드가 없습니다.</div>
-				</div>
+			<div class="cont_box col3 project_list" id="cardList2">
 			</div>
 		</section>
 	</div>
+	<script type="text/x-jsrender" id="basecard_template">						
+		<h3 class="tc">{{:cardTitle}} <strong class="pointColr">{{:cardCnt}}</strong> 건</div></h3>
+		{{for list 	~targetId=targetId}}
+		<div class="cont_top mt15 clearFix">
+			<h4 class="fl">{{:BUYER_NM}} / {{:CONSULTING_NM}}</h4>
+			<div class="fr inlineBlock_wrap">
+				<button class="btn small upDownToggle"><i class="up"></i></button>
+			</div>
+		</div>
+		<div class="cont_box">
+			<!-- 진행 사항 -->
+			<div id="{{:~targetId}}_wk{{:#index}}">
+			</div>
+			<!-- Schedule -->
+			<div id="{{:~targetId}}_sch{{:#index}}">
+			</div>
+			<!-- TO-DO List -->
+			<div id="{{:~targetId}}_todo{{:#index}}">					
+			</div>
+		</div>
+		{{/for}}
+	</script>
+	<script type="text/x-jsrender" id="basecard_noData_template">	
+		<h3 class="tc">{{:cardTitle}} <strong class="pointColr">{{:cardCnt}}</strong> 건</div></h3>
+		<div class="cont_top mt15 clearFix">
+		</div>
+		<div class="cont_box">
+			<div class="tc">등록된 카드가 없습니다.</div>
+		</div>
+	</script>
+	
 </div>

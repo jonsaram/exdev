@@ -85,6 +85,7 @@
 					</ul>
 					<div class="tab_content">
 						<div id="tab1" class="display">
+							<!--// 매출현황 -->
 							<!-- search area -->
 							<div class="search_area plpr5">
 								<div class="fl">
@@ -181,11 +182,11 @@
 										</div>
 									</figure>
 									<!-- 테이블 -->
-									<div class="tbl01 col noScroll mt20">
+									<div class="tbl01 col noScroll small mt20">
 										<table>
 											<caption>표 캡션</caption>
 											<colgroup>
-												<col style="width:80px;"/>
+												<col style="width:50px;"/>
 												<col style="*"/>
 												<col style="width:150px;"/>
 											</colgroup>
@@ -226,7 +227,7 @@
 											<tfoot>
 												<tr>
 													<td></td>
-													<td class="tl">총합계</td>
+													<td class="tl">총 합계</td>
 													<td class="tr">3,217,247,597</td>
 												</tr>
 											</tfoot>
@@ -255,11 +256,11 @@
 										</div>
 									</figure>
 									<!-- 테이블 -->
-									<div class="tbl01 col noScroll mt20">
+									<div class="tbl01 col noScroll small mt20">
 										<table>
 											<caption>표 캡션</caption>
 											<colgroup>
-												<col style="width:80px;"/>
+												<col style="width:50px;"/>
 												<col style="*"/>
 												<col style="width:150px;"/>
 											</colgroup>
@@ -300,14 +301,14 @@
 											<tfoot>
 												<tr>
 													<td></td>
-													<td class="tl">총합계</td>
+													<td class="tl">총 합계</td>
 													<td class="tr">428,130,210</td>
 												</tr>
 											</tfoot>
 										</table>
 									</div>
 									<!-- paging -->
-									<div class="paging">
+									<div class="paging small">
 										<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
 										<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
 										<strong title="현재 페이지">1</strong>
@@ -329,11 +330,11 @@
 										</div>
 									</figure>
 									<!-- 테이블 -->
-									<div class="tbl01 col noScroll mt20">
+									<div class="tbl01 col noScroll small mt20">
 										<table>
 											<caption>표 캡션</caption>
 											<colgroup>
-												<col style="width:80px;"/>
+												<col style="width:50px;"/>
 												<col style="*"/>
 												<col style="width:150px;"/>
 											</colgroup>
@@ -374,14 +375,14 @@
 											<tfoot>
 												<tr>
 													<td></td>
-													<td class="tl">총합계</td>
+													<td class="tl">총 합계</td>
 													<td class="tr">3,217,247,597</td>
 												</tr>
 											</tfoot>
 										</table>
 									</div>
 									<!-- paging -->
-									<div class="paging">
+									<div class="paging small">
 										<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
 										<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
 										<strong title="현재 페이지">1</strong>
@@ -436,8 +437,10 @@
 									</figure>
 								</div>
 							</section>
+							<!-- 매출현황 //-->
 						</div>
 						<div id="tab2" class="display">
+							<!--// 일별 매출 달성률 -->
 							<!-- search area -->
 							<div class="search_area plpr5">
 								<div class="fl">
@@ -632,14 +635,1017 @@
 									</figure>
 								</div>
 							</section>
+							<!-- 일별 매출 달성률 //-->
 						</div>
 						<div id="tab3" class="display">
+							<!--// 주차별 매출 데이터 분석 -->
+							<!-- search area -->
+							<div class="search_area plpr5">
+								<div class="fl">
+									<!-- 지점명 선택 -->
+									<div class="select_box fl" style="width:170px">
+										<button type="button" class="btn radio"><span>지점명</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="name" id="name01" type="radio" value="">
+					                            <label for="name01">지점명<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="name" id="name02" type="radio" value="">
+					                            <label for="name02">지점명1<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="name" id="name03" type="radio" value="">
+					                            <label for="name03">지점명2<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+					                <!-- 월 선택 -->
+									<div class="select_box fl" style="width:150px">
+										<button type="button" class="btn radio"><span>2024년 03월</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="month" id="month01" type="radio" value="">
+					                            <label for="month01">2024년 01월<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="month" id="month02" type="radio" value="">
+					                            <label for="month02">2024년 02월<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="month" id="month03" type="radio" value="">
+					                            <label for="month03">2024년 03월<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+									<div class="calendar_wrap fl">
+										<input type="text" id="from" name="from" class="datepicker" style="width:114px">
+										<label for="to">~</label>
+										<input type="text" id="to" name="to" class="datepicker" style="width:114px">
+									</div>
+									<span class="tit01 fl lh33">권역</span>
+									<!-- 권역 선택 -->
+									<div class="select_box fl" style="width:150px">
+										<button type="button" class="btn radio"><span>전체</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="region" id="region01" type="radio" value="">
+					                            <label for="region01">전체<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="region" id="region02" type="radio" value="">
+					                            <label for="region02">권역1<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="region" id="region03" type="radio" value="">
+					                            <label for="region03">권역2<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+					                <span class="tit01 fl lh33">슈퍼바이저</span>
+					                <!-- 슈퍼바이저 선택 -->
+									<div class="select_box fl" style="width:150px">
+										<button type="button" class="btn radio"><span>전체</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="supervisor" id="supervisor01" type="radio" value="">
+					                            <label for="supervisor01">전체<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="supervisor" id="supervisor02" type="radio" value="">
+					                            <label for="supervisor02">슈퍼바이저1<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="supervisor" id="supervisor03" type="radio" value="">
+					                            <label for="supervisor03">슈퍼바이저2<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+					                <button class="btn select fl">검색</button>
+					            </div>
+							</div>
+
+							<section class="sec_wrap">
+								<div class="cont_box">
+									<h3>순매출액 비교</h3>
+									<figure class="highcharts-figure2">
+								    	<div class="nodata" style="height:137px;"></div>
+									</figure>
+								</div>
+							</section>
+							<div class="clearFix mt15">
+								<div class="w66 fl">
+									<section class="sec_wrap">
+										<div class="cont_box col2">
+											<h3>지난주차</h3>
+											<figure class="highcharts-figure2">
+										    	<div class="nodata2" style="height:345px"></div>
+											</figure>
+										</div>
+										<div class="cont_box col2">
+											<h3>이번주차</h3>
+											<figure class="highcharts-figure2">
+										    	<div class="nodata3" style="height:345px"></div>
+											</figure>
+										</div>
+									</section>
+								</div>
+								<div class="w33 fl">
+									<section class="sec_wrap ml-10">
+										<div class="cont_box">
+											<h3>테이블 수 증감률</h3>
+											<div class="nodata_txt" style="height:130px;">
+												No Data
+											</div>
+											<!-- <figure class="highcharts-figure2">
+										    	<div class="nodata3" style="height:137px;"></div>
+											</figure> -->
+										</div>
+									</section>
+									<section class="sec_wrap ml-10">
+										<div class="cont_box">
+											<h3>순매출액 증감률</h3>
+											<div class="nodata_txt" style="height:130px;">
+												No Data
+											</div>
+											<!-- <figure class="highcharts-figure2">
+										    	<div class="nodata3" style="height:137px;"></div>
+											</figure> -->
+										</div>
+									</section>
+								</div>
+							</div>
+							<!-- 주차별 매출 데이터 분석 //-->
 						</div>
 						<div id="tab4" class="display">
+							<!--// 매장별 매출 분석 -->
+							<!-- search area -->
+							<div class="search_area plpr5">
+								<div class="fl">
+									<!-- 지점명 선택 -->
+									<div class="select_box fl" style="width:170px">
+										<button type="button" class="btn radio"><span>지점명</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="name" id="name01" type="radio" value="">
+					                            <label for="name01">지점명<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="name" id="name02" type="radio" value="">
+					                            <label for="name02">지점명1<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="name" id="name03" type="radio" value="">
+					                            <label for="name03">지점명2<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+					                <!-- 월 선택 -->
+									<div class="select_box fl" style="width:150px">
+										<button type="button" class="btn radio"><span>2024년 03월</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="month" id="month01" type="radio" value="">
+					                            <label for="month01">2024년 01월<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="month" id="month02" type="radio" value="">
+					                            <label for="month02">2024년 02월<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="month" id="month03" type="radio" value="">
+					                            <label for="month03">2024년 03월<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+									<div class="calendar_wrap fl">
+										<input type="text" id="from" name="from" class="datepicker" style="width:114px">
+										<label for="to">~</label>
+										<input type="text" id="to" name="to" class="datepicker" style="width:114px">
+									</div>
+									<span class="tit01 fl lh33">권역</span>
+									<!-- 권역 선택 -->
+									<div class="select_box fl" style="width:150px">
+										<button type="button" class="btn radio"><span>전체</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="region" id="region01" type="radio" value="">
+					                            <label for="region01">전체<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="region" id="region02" type="radio" value="">
+					                            <label for="region02">권역1<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="region" id="region03" type="radio" value="">
+					                            <label for="region03">권역2<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+					                <span class="tit01 fl lh33">슈퍼바이저</span>
+					                <!-- 슈퍼바이저 선택 -->
+									<div class="select_box fl" style="width:150px">
+										<button type="button" class="btn radio"><span>전체</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="supervisor" id="supervisor01" type="radio" value="">
+					                            <label for="supervisor01">전체<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="supervisor" id="supervisor02" type="radio" value="">
+					                            <label for="supervisor02">슈퍼바이저1<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="supervisor" id="supervisor03" type="radio" value="">
+					                            <label for="supervisor03">슈퍼바이저2<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+					                <button class="btn select fl">검색</button>
+					            </div>
+							</div>
+
+							<section class="sec_wrap">
+								<div class="cont_box">
+									<h3>매출 비교 그래프</h3>
+									<figure class="highcharts-figure2">
+								    	<div class="chart02_01" style="width:100%;height:280px;margin:0 auto">
+								    		<!-- 임시 차트 이미지 -->
+											<img src="../img/img_chart_list11.png" style="width:100%;height:280px;">
+								    	</div>
+									</figure>
+								</div>
+							</section>
+
+							<section class="sec_wrap">
+								<div class="cont_box col2">
+									<h3>분류명별 매출액</h3>
+									<div class="clearFix">
+										<figure class="highcharts-figure2 fl mt20" style="width:45%">
+									    	<div class="chart02_01" style="width:100%;height:210px;margin:0 auto">
+									    		<!-- 임시 차트 이미지 -->
+												<img src="../img/img_chart_list13.png" style="width:100%;height:210px;">
+									    	</div>
+										</figure>
+										<div class="fl ml15" style="width:calc(55% - 15px)">
+											<!-- 테이블 -->
+											<div class="tbl01 col noScroll small">
+												<table>
+													<caption>표 캡션</caption>
+													<colgroup>
+														<col style="width:50px;"/>
+														<col style="*"/>
+														<col style="width:150px;"/>
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col"></th>
+															<th scope="col" class="tl">분류명</th>
+															<th scope="col" class="tr">총매출액</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td class="tl">1.</td>
+															<td class="tl">세트메뉴(뉴코)</td>
+															<td class="tr">1,289,903,400</td>
+														</tr>
+														<tr>
+															<td class="tl">2.</td>
+															<td class="tl">대실료(뉴코)</td>
+															<td class="tr">1,260,302,500</td>
+														</tr>
+														<tr>
+															<td class="tl">3.</td>
+															<td class="tl">주류(뉴코)</td>
+															<td class="tr">1,076,028,400</td>
+														</tr>
+														<tr>
+															<td class="tl">4.</td>
+															<td class="tl">스페셜안주(뉴코)</td>
+															<td class="tr">304,678,400</td>
+														</tr>
+														<tr>
+															<td class="tl">5.</td>
+															<td class="tl">튀김안주(뉴코)</td>
+															<td class="tr">228,636,600</td>
+														</tr>
+													</tbody>
+													<tfoot>
+														<tr>
+															<td></td>
+															<td class="tl">총 합계</td>
+															<td class="tr">5,062,829,100</td>
+														</tr>
+													</tfoot>
+												</table>
+											</div>
+											<!-- paging -->
+											<div class="paging small">
+												<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+												<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+												<strong title="현재 페이지">1</strong>
+												<a href="#none">2</a>
+												<a href="#none">3</a>
+												<a href="#none">4</a>
+												<a href="#none">5</a>
+												<a href="#none" class="btn_pg_next">다음 페이지</a>
+												<a href="#none" class="btn_pg_last">마지막 페이지</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="cont_box col2">
+									<h3>상세 메뉴 매출액</h3>
+									<div class="clearFix">
+										<figure class="highcharts-figure2 fl mt20" style="width:45%">
+									    	<div class="chart02_01" style="width:100%;height:210px;margin:0 auto">
+									    		<!-- 임시 차트 이미지 -->
+												<img src="../img/img_chart_list14.png" style="width:100%;height:210px;">
+									    	</div>
+										</figure>
+										<div class="fl ml15" style="width:calc(55% - 15px)">
+											<!-- 테이블 -->
+											<div class="tbl01 col noScroll small">
+												<table>
+													<caption>표 캡션</caption>
+													<colgroup>
+														<col style="width:50px;"/>
+														<col style="*"/>
+														<col style="width:150px;"/>
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col"></th>
+															<th scope="col" class="tl">메뉴명</th>
+															<th scope="col" class="tr">총매출액</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td class="tl">1.</td>
+															<td class="tl">NEWCO 4~5인코스</td>
+															<td class="tr">401,600,700</td>
+														</tr>
+														<tr>
+															<td class="tl">2.</td>
+															<td class="tl">참이슬</td>
+															<td class="tr">294,450,500</td>
+														</tr>
+														<tr>
+															<td class="tl">3.</td>
+															<td class="tl">NEWCO 2인코스</td>
+															<td class="tr">266,896,600</td>
+														</tr>
+														<tr>
+															<td class="tl">4.</td>
+															<td class="tl">스페셜모듬과일</td>
+															<td class="tr">257,513,500</td>
+														</tr>
+														<tr>
+															<td class="tl">5.</td>
+															<td class="tl">카스(500ml)</td>
+															<td class="tr">184,583,500</td>
+														</tr>
+													</tbody>
+													<tfoot>
+														<tr>
+															<td></td>
+															<td class="tl">총 합계</td>
+															<td class="tr">3,877,889,100</td>
+														</tr>
+													</tfoot>
+												</table>
+											</div>
+											<!-- paging -->
+											<div class="paging small">
+												<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+												<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+												<strong title="현재 페이지">1</strong>
+												<a href="#none">2</a>
+												<a href="#none">3</a>
+												<a href="#none">4</a>
+												<a href="#none">5</a>
+												<a href="#none" class="btn_pg_next">다음 페이지</a>
+												<a href="#none" class="btn_pg_last">마지막 페이지</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</section>
+
+							<section class="sec_wrap">
+								<div class="cont_box">
+									<h3>마진 비교 그래프</h3>
+									<figure class="highcharts-figure2">
+								    	<div class="chart02_01" style="width:100%;height:280px;margin:0 auto">
+								    		<!-- 임시 차트 이미지 -->
+											<img src="../img/img_chart_list12.png" style="width:100%;height:280px;">
+								    	</div>
+									</figure>
+								</div>
+							</section>
+
+							<section class="sec_wrap">
+								<div class="cont_box col2">
+									<h3>상세 메뉴 코스트 금액</h3>
+									<div class="clearFix">
+										<figure class="highcharts-figure2 fl mt20" style="width:45%">
+									    	<div class="chart02_01" style="width:100%;height:210px;margin:0 auto">
+									    		<!-- 임시 차트 이미지 -->
+												<img src="../img/img_chart_list15.png" style="width:100%;height:210px;">
+									    	</div>
+										</figure>
+										<div class="fl ml15" style="width:calc(55% - 15px)">
+											<!-- 테이블 -->
+											<div class="tbl01 col noScroll small">
+												<table>
+													<caption>표 캡션</caption>
+													<colgroup>
+														<col style="width:50px;"/>
+														<col style="*"/>
+														<col style="width:80px;"/>
+														<col style="width:150px;"/>
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col"></th>
+															<th scope="col" class="tl">메뉴명</th>
+															<th scope="col">코스트올</th>
+															<th scope="col" class="tr">코스트금액</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td class="tl">1.</td>
+															<td class="tl">참이슬</td>
+															<td>25.8%</td>
+															<td class="tr">75,963,229</td>
+														</tr>
+														<tr>
+															<td class="tl">2.</td>
+															<td class="tl">스페셜모듬과일</td>
+															<td>22.32%</td>
+															<td class="tr">57,472,366.99</td>
+														</tr>
+														<tr>
+															<td class="tl">3.</td>
+															<td class="tl">카스(500ml)</td>
+															<td>30.18%</td>
+															<td class="tr">55,710,656.36</td>
+														</tr>
+														<tr>
+															<td class="tl">4.</td>
+															<td class="tl">스페셜과일화채</td>
+															<td>26.21%</td>
+															<td class="tr">
+															23,024,288.05</td>
+														</tr>
+														<tr>
+															<td class="tl">5.</td>
+															<td class="tl">테라(500ml)</td>
+															<td>30.18%</td>
+															<td class="tr">21,804,794.18</td>
+														</tr>
+													</tbody>
+													<tfoot>
+														<tr>
+															<td></td>
+															<td class="tl">총 합계</td>
+															<td>28.04%</td>
+															<td class="tr">513,409,534...</td>
+														</tr>
+													</tfoot>
+												</table>
+											</div>
+											<!-- paging -->
+											<div class="paging small">
+												<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+												<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+												<strong title="현재 페이지">1</strong>
+												<a href="#none">2</a>
+												<a href="#none">3</a>
+												<a href="#none">4</a>
+												<a href="#none">5</a>
+												<a href="#none" class="btn_pg_next">다음 페이지</a>
+												<a href="#none" class="btn_pg_last">마지막 페이지</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="cont_box col2">
+									<h3>상세 메뉴 마진 금액</h3>
+									<div class="clearFix">
+										<figure class="highcharts-figure2 fl mt20" style="width:45%">
+									    	<div class="chart02_01" style="width:100%;height:210px;margin:0 auto">
+									    		<!-- 임시 차트 이미지 -->
+												<img src="../img/img_chart_list16.png" style="width:100%;height:210px;">
+									    	</div>
+										</figure>
+										<div class="fl ml15" style="width:calc(55% - 15px)">
+											<!-- 테이블 -->
+											<div class="tbl01 col noScroll small">
+												<table>
+													<caption>표 캡션</caption>
+													<colgroup>
+														<col style="width:50px;"/>
+														<col style="*"/>
+														<col style="width:150px;"/>
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col"></th>
+															<th scope="col" class="tl">메뉴명</th>
+															<th scope="col" class="tr">마진금액
+																<button class="inline" style="width:20px"><i class="icon_sorting"></i></button>
+																<!-- <button class="inline" style="width:20px"><i class="icon_sorting2"></i></button> -->
+															</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td class="tl">1.</td>
+															<td class="tl">참이슬</td>
+															<td class="tr">218,482,271</td>
+														</tr>
+														<tr>
+															<td class="tl">2.</td>
+															<td class="tl">스페셜모듬과일</td>
+															<td class="tr">200,040,133.01</td>
+														</tr>
+														<tr>
+															<td class="tl">3.</td>
+															<td class="tl">카스(500ml)</td>
+															<td class="tr">128,872,843.64</td>
+														</tr>
+														<tr>
+															<td class="tl">4.</td>
+															<td class="tl">진로이즈벡</td>
+															<td class="tr">65,617,936.18</td>
+														</tr>
+														<tr>
+															<td class="tl">5.</td>
+															<td class="tl">스페셜과일화채</td>
+															<td class="tr">64,831,911.95</td>
+														</tr>
+													</tbody>
+													<tfoot>
+														<tr>
+															<td></td>
+															<td class="tl">총 합계</td>
+															<td class="tr">1,999,430,165.3</td>
+														</tr>
+													</tfoot>
+												</table>
+											</div>
+											<!-- paging -->
+											<div class="paging small">
+												<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+												<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+												<strong title="현재 페이지">1</strong>
+												<a href="#none">2</a>
+												<a href="#none">3</a>
+												<a href="#none">4</a>
+												<a href="#none">5</a>
+												<a href="#none" class="btn_pg_next">다음 페이지</a>
+												<a href="#none" class="btn_pg_last">마지막 페이지</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</section>
+							<!-- 매장별 매출 분석 //-->
 						</div>
 						<div id="tab5" class="display">
+							<!--// 가맹점 리스트 및 현황 -->
+							<!-- search area -->
+							<div class="search_area plpr5">
+								<div class="fl">
+									<div class="calendar_wrap fl">
+										<input type="text" id="from" name="from" class="datepicker" style="width:114px">
+										<label for="to">~</label>
+										<input type="text" id="to" name="to" class="datepicker" style="width:114px">
+									</div>
+									<span class="tit01 fl lh33">권역</span>
+									<!-- 권역 선택 -->
+									<div class="select_box fl" style="width:150px">
+										<button type="button" class="btn radio"><span>전체</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="region" id="region01" type="radio" value="">
+					                            <label for="region01">전체<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="region" id="region02" type="radio" value="">
+					                            <label for="region02">권역1<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="region" id="region03" type="radio" value="">
+					                            <label for="region03">권역2<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+					                <span class="tit01 fl lh33">슈퍼바이저</span>
+					                <!-- 슈퍼바이저 선택 -->
+									<div class="select_box fl" style="width:150px">
+										<button type="button" class="btn radio"><span>전체</span></button>
+					                    <ul class="select_lst">
+					                        <li>
+					                            <input name="supervisor" id="supervisor01" type="radio" value="">
+					                            <label for="supervisor01">전체<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="supervisor" id="supervisor02" type="radio" value="">
+					                            <label for="supervisor02">슈퍼바이저1<i class="icon_check"></i></label>
+					                        </li>
+					                        <li>
+					                            <input name="supervisor" id="supervisor03" type="radio" value="">
+					                            <label for="supervisor03">슈퍼바이저2<i class="icon_check"></i></label>
+					                        </li>
+					                    </ul>
+					                </div>
+					                <button class="btn select fl">검색</button>
+					            </div>
+							</div>
+
+							<section class="sec_wrap pd0">
+								<div class="left_65">
+									<section class="sec_wrap">
+										<div class="cont_box">
+											<div class="price_wrap">
+												<div class="won_wrap">
+													<h3>가맹점수</h3>
+													<div class="percent_wrap">26</div>
+												</div>
+												<div class="won_wrap">
+													<h3>신규가매점</h3>
+													<div class="percent_wrap">데이터 없음</div>
+												</div>
+												<div class="won_wrap">
+													<h3>폐점가맹점</h3>
+													<div class="percent_wrap">0</div>
+												</div>
+											</div>
+										</div>
+									</section>
+									<section class="sec_wrap">
+										<div class="cont_box">
+											<figure class="highcharts-figure2">
+										    	<div class="chart02_01" style="width:100%;height:313px;margin:0 auto">
+										    		<!-- 임시 차트 이미지 -->
+													<img src="../img/img_chart_list17.png" style="width:100%;height:313px;">
+										    	</div>
+											</figure>
+										</div>
+									</section>
+								</div>
+								<div class="right_35">
+									<section class="sec_wrap">
+										<div class="cont_box pd0">
+											<figure class="highcharts-figure2">
+										    	<div class="chart02_02" style="width:100%;height:510px;margin:0 auto;border-radius:5px;">
+										    		<!-- 임시 차트 이미지 -->
+													<img src="../img/img_chart_list18.png" style="width:100%;height:510px;border-radius:5px;">
+										    	</div>
+											</figure>
+										</div>
+									</section>
+								</div>
+							</section>
+
+							<section class="sec_wrap">
+								<div class="cont_box">
+									<h3>가맹점 리스트</h3>
+									<!-- 테이블 -->
+									<div class="tbl01 col noScroll mt15">
+										<table>
+											<caption>표 캡션</caption>
+											<colgroup>
+												<col style="width:50px;"/>
+												<col style="width:16%;"/>
+												<col style="width:14%;" span="2" />
+												<col style="*"/>
+												<col style="width:14%;"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col"></th>
+													<th scope="col" class="tl">매장명3</th>
+													<th scope="col" class="tl">개업일</th>
+													<th scope="col" class="tl">폐점일</th>
+													<th scope="col" class="tl">주소</th>
+													<th scope="col" class="tl">가맹점주명</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="tl">1.</td>
+													<td class="tl">가락</td>
+													<td class="tl">2013.04.22</td>
+													<td class="tl">null</td>
+													<td class="tl">시구군</td>
+													<td class="tl">000</td>
+												</tr>
+												<tr>
+													<td class="tl">2.</td>
+													<td class="tl">경남대</td>
+													<td class="tl">2018.11.07</td>
+													<td class="tl">null</td>
+													<td class="tl">시구군</td>
+													<td class="tl">000</td>
+												</tr>
+												<tr>
+													<td class="tl">3.</td>
+													<td class="tl">경주</td>
+													<td class="tl">2018.11.22</td>
+													<td class="tl">null</td>
+													<td class="tl">시구군</td>
+													<td class="tl">000</td>
+												</tr>
+												<tr>
+													<td class="tl">4.</td>
+													<td class="tl">광안리</td>
+													<td class="tl">2019.02.27</td>
+													<td class="tl">null</td>
+													<td class="tl">시구군</td>
+													<td class="tl">000</td>
+												</tr>
+												<tr>
+													<td class="tl">5.</td>
+													<td class="tl">동래</td>
+													<td class="tl">2022.07.12</td>
+													<td class="tl">null</td>
+													<td class="tl">시구군</td>
+													<td class="tl">000</td>
+												</tr>
+												<tr>
+													<td class="tl">6.</td>
+													<td class="tl">동성로</td>
+													<td class="tl">2019.09.10</td>
+													<td class="tl">null</td>
+													<td class="tl">시구군</td>
+													<td class="tl">000</td>
+												</tr>
+												<tr>
+													<td class="tl">7.</td>
+													<td class="tl">동해천곡</td>
+													<td class="tl">2017.08.02</td>
+													<td class="tl">null</td>
+													<td class="tl">시구군</td>
+													<td class="tl">000</td>
+												</tr>
+												<tr>
+													<td class="tl">8.</td>
+													<td class="tl">마곡</td>
+													<td class="tl">2019.07.22</td>
+													<td class="tl">null</td>
+													<td class="tl">시구군</td>
+													<td class="tl">000</td>
+												</tr>
+												<tr>
+													<td class="tl">9.</td>
+													<td class="tl">부천송내</td>
+													<td class="tl">2017.09.11</td>
+													<td class="tl">null</td>
+													<td class="tl">시구군</td>
+													<td class="tl">000</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<!-- paging -->
+									<div class="paging">
+										<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+										<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+										<strong title="현재 페이지">1</strong>
+										<a href="#none">2</a>
+										<a href="#none">3</a>
+										<a href="#none">4</a>
+										<a href="#none">5</a>
+										<a href="#none" class="btn_pg_next">다음 페이지</a>
+										<a href="#none" class="btn_pg_last">마지막 페이지</a>
+									</div>
+								</div>
+							</section>
+							<!-- 가맹점 리스트 및 현황 //-->
 						</div>
 						<div id="tab6" class="display">
+							<!--// 재무제표 -->
+							<!-- search area -->
+							<div class="search_area plpr5">
+								<!-- 지점명 선택 -->
+								<div class="select_box fl" style="width:170px">
+									<button type="button" class="btn radio"><span>지점명</span></button>
+				                    <ul class="select_lst">
+				                        <li>
+				                            <input name="name" id="name01" type="radio" value="">
+				                            <label for="name01">지점명<i class="icon_check"></i></label>
+				                        </li>
+				                        <li>
+				                            <input name="name" id="name02" type="radio" value="">
+				                            <label for="name02">지점명1<i class="icon_check"></i></label>
+				                        </li>
+				                        <li>
+				                            <input name="name" id="name03" type="radio" value="">
+				                            <label for="name03">지점명2<i class="icon_check"></i></label>
+				                        </li>
+				                    </ul>
+				                </div>
+				                <!-- 월 선택 -->
+								<div class="select_box fl" style="width:150px">
+									<button type="button" class="btn radio"><span>2024년 03월</span></button>
+				                    <ul class="select_lst">
+				                        <li>
+				                            <input name="month" id="month01" type="radio" value="">
+				                            <label for="month01">2024년 01월<i class="icon_check"></i></label>
+				                        </li>
+				                        <li>
+				                            <input name="month" id="month02" type="radio" value="">
+				                            <label for="month02">2024년 02월<i class="icon_check"></i></label>
+				                        </li>
+				                        <li>
+				                            <input name="month" id="month03" type="radio" value="">
+				                            <label for="month03">2024년 03월<i class="icon_check"></i></label>
+				                        </li>
+				                    </ul>
+				                </div>
+				                <!-- 과목 -->
+								<div class="select_box fl" style="width:150px">
+									<button type="button" class="btn radio"><span>과목</span></button>
+				                    <ul class="select_lst">
+				                        <li>
+				                            <input name="subject" id="subject01" type="radio" value="">
+				                            <label for="subject01">매출총이익<i class="icon_check"></i></label>
+				                        </li>
+				                        <li>
+				                            <input name="subject" id="subject02" type="radio" value="">
+				                            <label for="subject02">매출총이익2<i class="icon_check"></i></label>
+				                        </li>
+				                        <li>
+				                            <input name="subject" id="subject02" type="radio" value="">
+				                            <label for="subject02">매출총이익3<i class="icon_check"></i></label>
+				                        </li>
+				                    </ul>
+				                </div>
+				                <button class="btn select fl">검색</button>
+							</div>
+
+							<section class="sec_wrap">
+								<div class="cont_box">
+									<h3>재무제표 리스트</h3>
+									<!-- 테이블 -->
+									<div class="tbl01 col noScroll mt15">
+										<table>
+											<caption>표 캡션</caption>
+											<colgroup>
+												<col style="width:50px;"/>
+												<col style="width:14%;"/>
+												<col style="width:16%;"/>
+												<col style="*"/>
+												<col style="width:14%;"/>
+												<col style="width:16%;"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col"></th>
+													<th scope="col" class="tl">월</th>
+													<th scope="col" class="tl">지점명</th>
+													<th scope="col" class="tl">과목</th>
+													<th scope="col">비율</th>
+													<th scope="col" class="tr">계</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="tl">1.</td>
+													<td class="tl">01월</td>
+													<td class="tl">화명</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>80%</td>
+													<td class="tr">32,422,475</td>
+												</tr>
+												<tr>
+													<td class="tl">2.</td>
+													<td class="tl">01월</td>
+													<td class="tl">경남대</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>79%</td>
+													<td class="tr">30,141,293</td>
+												</tr>
+												<tr>
+													<td class="tl">3.</td>
+													<td class="tl">02월</td>
+													<td class="tl">광안리</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>77%</td>
+													<td class="tr">28,030,483</td>
+												</tr>
+												<tr>
+													<td class="tl">4.</td>
+													<td class="tl">02월</td>
+													<td class="tl">정관</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>76%</td>
+													<td class="tr">20,049,863</td>
+												</tr>
+												<tr>
+													<td class="tl">5.</td>
+													<td class="tl">01월</td>
+													<td class="tl">동성로</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>76%</td>
+													<td class="tr">67,128,947</td>
+												</tr>
+												<tr>
+													<td class="tl">6.</td>
+													<td class="tl">01월</td>
+													<td class="tl">가락</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>75%</td>
+													<td class="tr">53,736,886</td>
+												</tr>
+												<tr>
+													<td class="tl">7.</td>
+													<td class="tl">총계</td>
+													<td class="tl">화명</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>75%</td>
+													<td class="tr">75,327,529</td>
+												</tr>
+												<tr>
+													<td class="tl">8.</td>
+													<td class="tl">02월</td>
+													<td class="tl">이천</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>75%</td>
+													<td class="tr">51,745,926</td>
+												</tr>
+												<tr>
+													<td class="tl">9.</td>
+													<td class="tl">02월</td>
+													<td class="tl">칠곡</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>75%</td>
+													<td class="tr">31,849,930</td>
+												</tr>
+												<tr>
+													<td class="tl">10.</td>
+													<td class="tl">02월</td>
+													<td class="tl">동해천곡</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>75%</td>
+													<td class="tr">31,849,930</td>
+												</tr>
+												<tr>
+													<td class="tl">11.</td>
+													<td class="tl">총계</td>
+													<td class="tl">가락</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>74%</td>
+													<td class="tr">61,849,930</td>
+												</tr>
+												<tr>
+													<td class="tl">12.</td>
+													<td class="tl">02월</td>
+													<td class="tl">전주우아</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>75%</td>
+													<td class="tr">148,660,535</td>
+												</tr>
+												<tr>
+													<td class="tl">13.</td>
+													<td class="tl">02월</td>
+													<td class="tl">가락</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>74%</td>
+													<td class="tr">36,228,094</td>
+												</tr>
+												<tr>
+													<td class="tl">14.</td>
+													<td class="tl">02월</td>
+													<td class="tl">양주고읍</td>
+													<td class="tl">Ⅲ.매출총이익</td>
+													<td>74%</td>
+													<td class="tr">50,423,120</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<!-- paging -->
+									<div class="paging ">
+										<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
+										<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
+										<strong title="현재 페이지">1</strong>
+										<a href="#none">2</a>
+										<a href="#none">3</a>
+										<a href="#none">4</a>
+										<a href="#none">5</a>
+										<a href="#none" class="btn_pg_next">다음 페이지</a>
+										<a href="#none" class="btn_pg_last">마지막 페이지</a>
+									</div>
+								</div>
+							</section>
+							<!-- 재무제표 //-->
 						</div>
 					</div>
 				</div>
