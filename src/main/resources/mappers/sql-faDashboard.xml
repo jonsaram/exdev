@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="faDashboard">
+
+	<cache />
+
+	<!--
+	FA 대시보드 
+	 -->	
+	<select id="getOrgSellingPirce" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	fa.getOrgSellingPirce
+			당월 순매출 조회 
+		*/
+		SELECT
+		SUM(INCOME) INCOME
+		,SUM(COST_PRICE) COST_PRICE
+		,SUM(INCOME) - SUM(COST_PRICE) AS ORG_SELLING_PRICE
+		FROM(
+			SELECT  
+			 CS.*
+			,R.* 
+			FROM TBL_EXP_RESULT R 
+			,TBL_EXP_COST CS
+			WHERE R.USE_YN='Y' AND TO_CHAR(R.RESULT_DATE ,'YYYY-MM' ) = '2024-04' 
+			AND R.USE_YN = CS.USE_YN 
+			AND R.CONTRACT_ID  = CS.CONTRACT_ID 
+			AND R.RESULT_ID  = CS.RESULT_ID 
+			
+		) 
+	</select>
+	
+	<select id="getCustomerCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	fa.getOrgSellingPirce
+			잠재고객 / 가맹수 조회 
+		*/
+		SELECT SUM(1)
+		,SUM(CASE WHEN  CUSTOMER_TYPE  = 'POTENTIAL_CUSTOMER' THEN 1 ELSE 0 END  ) AS POTENTIAL_CUSTOMER
+		,SUM(CASE WHEN  CUSTOMER_TYPE != 'POTENTIAL_CUSTOMER' THEN 1 ELSE 0 END  ) AS AFFILIATE_CNT
+		FROM (
+			SELECT NVL(C.BUYER_ID , 'POTENTIAL_CUSTOMER') AS CUSTOMER_TYPE
+			, B.*
+			FROM TBL_EXP_BUYER B
+			,TBL_EXP_CONTRACT C
+			WHERE B.USE_YN = 'Y' 
+			AND B.BUYER_ID = C.BUYER_ID(+)
+		)
+	</select>
+</mapper>

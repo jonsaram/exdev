@@ -4,6 +4,7 @@
 		  recvData : []
 		 ,OWNER_CD : "USER_FACE"
 		 ,RELOAD_IMG:'N'
+		 ,OLD_GRP_FILE_ID : ""
 		 ,USER_ID  : ""
 	 	 ,mode : ''
 	 	 ,BRANCH_DATA : {}
@@ -66,7 +67,12 @@
 		 ,close : function(returnData) {
 			 
 			if(isEmpty(returnData)) returnData = {};
-			C_POP.close(returnData);
+			
+            C_POP.confirm("입력한 정보로 저장 하시겠습니까?", function() {
+            	
+				C_POP.close(returnData);
+            });
+			
 		 }
 		 ,apply : () =>{
 			 
@@ -105,6 +111,10 @@
 			 
 		 }
 		 ,validation : () =>{
+			 
+			 if( isEmpty($("#<@popupId>_USER_ID").val()) ) {C_POP.alert("사원 ID를 입력하여 주십시오."); return false;}
+			 const dbUser = <@popupId>.redundCheck('validation');
+			 if( dbUser ){C_POP.alert("이미 존재하는 사원 ID입니다.\n다시입력하여 주십시오."); return false;}
 			 
 			 if( $("#<@popupId>USER_NM").val() 		== "" ) {C_POP.alert("이름을 입력하여 주십시오."); return false;}
 			 if( $("#<@popupId>PHONE_NUM").val() 	== "" ) {C_POP.alert("핸드폰번호를 입력하여 주십시오."); return false;}
@@ -153,8 +163,6 @@
 		}
 		
 		,setTitleHeight : () => {
-
-			<@popupId>.mode == "I" ? $("#<@popupId>_items #<@popupId>_USER_ID").val( <@popupId>.makeSabunCode() ) : '';
 
 			let title = <@popupId>.mode == "I" ? "신규 직원 추가" : "직원 정보 수정";
 	  	 	$(".tit").html( title );
@@ -355,9 +363,6 @@
 		,numberWithCommas : (x) => {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
-		,makeSabunCode : () => {
-			return Math.round(Math.random() * 100000000000 ) ;
-		 }
 		,selectImage : function() {
 			let parm = {
 				 GRP_FILE_ID	: <@popupId>.USER_ID
@@ -375,6 +380,26 @@
 				}
 			});
 		 }
+		,redundCheck : (validation) => {
+			
+			var parm = {
+					 queryId 		: "system.getUser"
+					,requestParm	: {USER_ID : $("#<@popupId>_USER_ID").val() }
+				}
+ 			const dbUser =  C_COM.requestQuery(parm) ;
+
+ 			if( dbUser.data.length == 1 ) {
+ 				
+	 			if ( validation ) return true;
+	 			else alert("중복된 아이디 입니다. ");
+ 			}else{
+ 				
+	 			if ( validation ) return false;
+	 			else alert("등록가능한 아이디 입니다. ");
+ 			} 
+ 			
+			
+		}
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
@@ -386,6 +411,8 @@
 		<@popupId>.mode = <@popupId>.recvData.mode;
 
 		if( <@popupId>.USER_ID ){
+			
+			<@popupId>.OLD_GRP_FILE_ID = <@popupId>.USER_ID ;
 			_getImageFile("<@popupId>_userImg",{GRP_FILE_ID:<@popupId>.USER_ID , OWNER_CD:<@popupId>.OWNER_CD });
 		}
 
@@ -422,8 +449,10 @@
 				</figure>
 				<ul class="info_wrap col2">
 					<li>
-						<label>사번코드</label>
-						<div class="info"><input type="text" id="<@popupId>_USER_ID" style="width:100%" disabled></div>
+						<label>사원 ID</label>
+						<div class="info"><input type="text" id="<@popupId>_USER_ID" style="width:53.6%">
+						<button class="btn" style="width:80px;" onclick="<@popupId>.redundCheck();">중복체크</button>
+						</div>
 					</li>
 					<li>
 						<label>이름</label>
@@ -474,8 +503,8 @@
 					<li class="w100 ml0">
 						<label>&nbsp;</label>
 						<div class="info">
-							<input type="text" class="fl"     id="<@popupId>_ADDR1" style="width:calc(70% - 2px)">
-							<input type="text" class="fl ml4" id="<@popupId>_ADDR2" style="width:calc(30% - 2px)">
+							<input type="text" class="fl"     id="<@popupId>_ADDR1" style="width:calc(50% - 2px)">
+							<input type="text" class="fl ml4" id="<@popupId>_ADDR2" style="width:calc(50% - 2px)">
 						</div>
 					</li>
 					<li>
