@@ -9,15 +9,8 @@
 	<!--
 	실적 관리 
 	 -->	
-	 
-	<select id="getResultList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	result.getResultList
-			실적 현황 리스트 조회 
-		*/
-	SELECT ROWNUM AS RN,
-		A.*
-	FROM(		
-			SELECT DISTINCT
+	<sql id="resultList">
+				SELECT DISTINCT
 			 C.TOTAL_COST 
 			,TO_CHAR( R.RESULT_DATE, 'YYYY-MM-DD') AS RESULT_DATE
 			,TO_CHAR( R.RESULT_DATE, 'YYYY-MM') AS RESULT_DATE_MONTH
@@ -89,7 +82,31 @@
 			AND P.DEL_YN		= 'N'
 			AND CM.USE_YN		= 'Y'
 			AND CM.DEL_YN		= 'N'
+			<if test=" GUBUN != null and GUBUN.equals('MNG') ">
 			ORDER BY R.UPDATE_DATE , <include refid="buisnessHierarchyOrderBy"/>
+			</if>
+			<if test=" GUBUN != null and GUBUN.equals('LIST') ">
+			ORDER BY REMAINING_SUM DESC 
+			</if>
+	</sql> 
+	<select id="getResultList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	result.getResultList
+			실적 현황 리스트 조회 
+		*/
+	SELECT ROWNUM AS RN,
+		A.*
+	FROM(		
+		<include refid="resultList"/>
+		) A
+	</select>
+		
+	<select id="getResultUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	result.getResultUserList
+			계약 실적 담당자 리스트 조회 
+		*/
+		SELECT DISTINCT USER_ID, USER_NM
+		FROM(		
+			<include refid="resultList"/>
 		) A
 	</select>	
 	 

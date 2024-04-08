@@ -479,6 +479,8 @@
 		<if test=" STATE != null and !STATE.equals('') ">
 		AND U.STATE = #{STATE}
 		</if>
+		AND U.USE_YN = 'Y'
+		AND U.DEL_YN = 'N'
 	</select>	
 	
 	<select id="getUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">

@@ -68,11 +68,7 @@
 			 
 			if(isEmpty(returnData)) returnData = {};
 			
-            C_POP.confirm("입력한 정보로 저장 하시겠습니까?", function() {
-            	
 				C_POP.close(returnData);
-            });
-			
 		 }
 		 ,apply : () =>{
 			 
@@ -107,23 +103,27 @@
 			 })			 
 			 
 			 returnData['RELOAD_IMG'] = <@popupId>.RELOAD_IMG;
-			 <@popupId>.close(returnData);
 			 
+			 C_POP.confirm("입력한 정보로 저장 하시겠습니까?", function() {
+			 	<@popupId>.close(returnData);
+	         });
 		 }
 		 ,validation : () =>{
-			 
+
 			 if( isEmpty($("#<@popupId>_USER_ID").val()) ) {C_POP.alert("사원 ID를 입력하여 주십시오."); return false;}
-			 const dbUser = <@popupId>.redundCheck('validation');
-			 if( dbUser ){C_POP.alert("이미 존재하는 사원 ID입니다.\n다시입력하여 주십시오."); return false;}
+			 if( <@popupId>.OLD_GRP_FILE_ID != $("#<@popupId>_USER_ID").val() ){
+				 
+				 const dbUser = <@popupId>.redundCheck('validation');
+				 if( dbUser ){C_POP.alert("이미 존재하는 사원 ID입니다.\n다시입력하여 주십시오."); return false;}
+			 }
 			 
-			 if( $("#<@popupId>USER_NM").val() 		== "" ) {C_POP.alert("이름을 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>PHONE_NUM").val() 	== "" ) {C_POP.alert("핸드폰번호를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>JUMIN").val() 		== "" ) {C_POP.alert("주민등록번호를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>REG_DATE").val() 	== "" ) {C_POP.alert("입사일을 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>E_MAIL").val() 		== "" ) {C_POP.alert("이메일을 입력하여 주십시오."); return false;}
-			 //if( $("#<@popupId>POST_NUM").val() 	== "" ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>ADDR1").val() 		== "" ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>ADDR2").val() 		== "" ) {C_POP.alert("상세주소를 입력하여 주십시오."); return false;}
+			 if( isEmpty($("#<@popupId>_USER_NM").val()) ) {C_POP.alert("이름을 입력하여 주십시오."); return false;}
+			 if( isEmpty($("#<@popupId>_PHONE_NUM").val()) ) {C_POP.alert("핸드폰번호를 입력하여 주십시오."); return false;}
+			 if( isEmpty($("#<@popupId>_JUMIN").val()) ) {C_POP.alert("주민등록번호를 입력하여 주십시오."); return false;}
+			 if( isEmpty($("#<@popupId>_REG_DATE").val()) ) {C_POP.alert("입사일을 입력하여 주십시오."); return false;}
+			 if( isEmpty($("#<@popupId>_E_MAIL").val()) ) {C_POP.alert("이메일을 입력하여 주십시오."); return false;}
+			 if( isEmpty($("#<@popupId>_ADDR1").val()) ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
+			 if( isEmpty($("#<@popupId>_ADDR2").val()) ) {C_POP.alert("상세주소를 입력하여 주십시오."); return false;}
 			 const phonePattern = /^01(?:0|1|[6-9])(?:\d{3}|\d{4})\d{4}$/;
 			 //if( !phonePattern.test($("#<@popupId>PHONE_NUM").val())){C_POP.alert("올바른 핸드폰번호를 입력하여 주십시오."); return false;}
 			 return true;

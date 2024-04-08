@@ -5,6 +5,7 @@ var <@pageId> = {
 		,selectedContract : {}
 		,selectedUser : {}
  		,excelParam : {}
+ 		,searchListParam : {}
 		,pageInit : () =>{
 			
 			const yearsArray = Array.from({ length: 4 }, (_, index) => {
@@ -22,20 +23,24 @@ var <@pageId> = {
 			var monthsArrayList = { data : monthsArray,targetId : "<@pageId>_months"}
 			C_UICOM.makeSelectBox(monthsArrayList, "single");
 			C_UICOM.setSingleBox("<@pageId>_months", ("0"+(dayjs().month() + 1) ).slice(-2));
-	
+
+			var selectUserList = { data	: [["--","--"]],targetId : "<@pageId>_selectUser"}
+			C_UICOM.makeSelectBox(selectUserList, "single");
+
 			<@pageId>.setHanler();
 		}
 		,searchList : () => {
 			
 			var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
-
+			const selectedUser = C_UICOM.getData("<@pageId>_selectUser");
 			const requestParm = {
-					 USER_ID : G_VAL.session.USER_ID
+					 USER_ID :selectedUser
 					,FROM_RESULT_DATE : contractDate + '-01'	
 					,TO_RESULT_DATE : dayjs(contractDate, "YYYY-MM").endOf('month').format('YYYY-MM-DD')
 					,CONTRACT_ID : <@pageId>.selectedContract["CONTRACT_ID"]
+					,GUBUN : 'LIST'
 			};
-			
+			<@pageId>.searchListParam = requestParm ;
 			var parm = {
 					 queryId 		: "result.getResultList"
 					,requestParm	: requestParm
@@ -67,24 +72,44 @@ var <@pageId> = {
 					
 					const contract_name = `${CONSULTING_NM} ( ${BUYER_NM} )`;
 					$("[name='<@pageId>_contract']").val(contract_name);
-					const user_name = `${USER_NM} ( ${USER_ID} )`;
-					$("[name='<@pageId>_user']").val(user_name);
+
+					var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
+
+					const requestParm = {
+							// USER_ID : user.trim()
+							FROM_RESULT_DATE : contractDate + '-01'	
+							,TO_RESULT_DATE : dayjs(contractDate, "YYYY-MM").endOf('month').format('YYYY-MM-DD')
+							,CONTRACT_ID : <@pageId>.selectedContract["CONTRACT_ID"]
+							,GUBUN : 'LIST'
+					};
+
+					var parm = {
+							 queryId 		: "result.getResultUserList"
+							,requestParm	: requestParm
+					}
+
+					C_COM.requestQuery(parm, function(resultData) {
+
+						if( resultData.data.length > 0){
+							
+							const users = resultData.data;
+							const items = users.map( item => [ item.USER_ID,item.USER_NM+"( "+item.USER_ID+" )" ] )
+							const selectUserList = { 
+								 data 			: items
+							 	,targetId 		: "<@pageId>_selectUser" 
+							}
+							C_UICOM.makeSelectBox(selectUserList, "single");
+
+							
+						}
+
+					});  
+
 				}
 				
 			});
 			
 		}		
-		,openSelectUser : () => {
-
-			_memberSearchPopup({gubun:'USER'},(retData)=>{
-				
-				<@pageId>.selectedUser = retData;
-				const placeHolder = ` ${<@pageId>.selectedUser.USER_NM} ( ${<@pageId>.selectedUser.USER_ID} )`;
-				$("[name='<@pageId>_user']").val(placeHolder)
-
-			})
-			
-		}
 		,setHanler : () => {
 			
 			$("#<@pageId>_search").click( () =>{
@@ -131,7 +156,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			</div>
 			<span class="tit01 fl lh33">담당자</span>
                <div class="search_inputWrap fl">
-				<input type="search" name="<@pageId>_user" style="width:200px;" disabled>
+				<!-- <input type="search" name="<@pageId>_user" style="width:200px;"> -->
+				<!-- <input type="search" id="USER" name="<@pageId>_user" placeholder="사원이름(사원ID)" style="width:200px;"><a  href="javascript:void(0);" onclick="<@pageId>.memberSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a> -->
+				<div id="<@pageId>_selectUser" style="width:200px"></div>
 			</div>
 			<button class="btn select fl" id="<@pageId>_search" >검색</button>
            </div>

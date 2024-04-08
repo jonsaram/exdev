@@ -82,16 +82,7 @@
 		</if>			
 		ORDER BY C.UPDATE_DATE DESC
 	</select>	
-	<select id="getContractList_totalCnt" resultType="Integer">
-		/* contract.getContractList_totalCnt  */
-		<include refid="common.totalWrapStart"/>
-		<include refid="getContractList_body"/>
-		<include refid="common.totalWrapEnd"/>
-	</select>
-	<select id="getContractList_paging" resultType="java.util.HashMap">
-		/* contract.getContractList_paging  */
-		<include refid="common.pagingWrapStart"/>
-		<include refid="getContractList_body"/>
+	<sql id='getContractList_param'>
 		<if test=" parm.CONTRACT_ID != null and !parm.CONTRACT_ID.equals('') ">
 		AND C.CONTRACT_ID = #{parm.CONTRACT_ID}
 		</if>
@@ -119,7 +110,20 @@
 				1=1
 			</if>        	
         	 )
-		</if>			
+		</if>		
+	</sql>	
+	<select id="getContractList_totalCnt" resultType="Integer">
+		/* contract.getContractList_totalCnt  */
+		<include refid="common.totalWrapStart"/>
+		<include refid="getContractList_body"/>
+		<include refid="getContractList_param"/>
+		<include refid="common.totalWrapEnd"/>
+	</select>
+	<select id="getContractList_paging" resultType="java.util.HashMap">
+		/* contract.getContractList_paging  */
+		<include refid="common.pagingWrapStart"/>
+		<include refid="getContractList_body"/>
+		<include refid="getContractList_param"/>
 		ORDER BY C.UPDATE_DATE DESC
 		<include refid="common.pagingWrapEnd"/>
 	</select>
