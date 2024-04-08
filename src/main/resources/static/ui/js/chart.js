@@ -435,7 +435,8 @@
 		
 		});
 	}
-function _lineRateChart(container, categories, series  ) {
+	
+	function _lineRateChart(container, categories, series  ) {
 	
        const chart =  $("#"+container).highcharts({
             chart: {
@@ -519,7 +520,8 @@ function _lineRateChart(container, categories, series  ) {
 			series : series
         });
     }
-function _barLineChart(container, categories, series  ) {
+
+	function _barLineChart(container, categories, series  ) {
 	
        const chart =  $("#"+container).highcharts({
             chart: {
@@ -609,3 +611,56 @@ function _barLineChart(container, categories, series  ) {
 			series : series
         });
     }
+
+	function _pieChart(container, series  ) {
+	
+		$("#"+container).highcharts({
+		    chart: {
+		        plotBackgroundColor: null,
+		        plotBorderWidth: 0,
+		        plotShadow: false,
+		        margin: [0, 0, 0, 0],
+		    },
+		    credits: {enabled: false},// 하이차트 워터마크 삭제
+		    title: {
+		        text: '',
+
+		    },
+		    tooltip: {
+		        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+		    },
+		    legend: {
+		        x:30,
+		        verticalAlign: 'bottom',
+		        y:5,
+		        itemStyle: {
+		            fontWeight:'bold',
+		            fontFamily: 'Noto Sans KR',
+		            fontSize: '14px'
+		        },
+		    },
+		    accessibility: {
+		        point: {
+		            valueSuffix: '%'
+		        }
+		    },
+		    plotOptions: {
+		        pie: {
+		            dataLabels: {
+		                enabled: false
+		            },
+		            startAngle: -140,
+		            endAngle: 220,
+		            center: ['50%', '50%'],
+		            size: '100%',
+		            borderRadius: 50,
+		            showInLegend: true
+		        },
+
+		    },
+		    colors: ['#3ba8c3', '#fff'],
+		    series: series
+		});
+	}
+	
+	

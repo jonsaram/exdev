@@ -232,6 +232,18 @@
 		AND	  USER_ID	 = #{USER_ID}
 	</delete>
 	
+	<update id="updateHrImg">
+		/*	hrInfo.updateFileImg
+			인사정보 직원 이미지 File 정보 수정
+		*/
+		UPDATE TBL_EXP_FILEMNG SET
+			GRP_FILE_ID = #{GRP_FILE_ID} 
+		WHERE 1=1
+			AND GRP_FILE_ID = #{OLD_GRP_FILE_ID}
+			AND OWNER_CD 	= 'USER_FACE'
+			AND DEL_YN 		= 'N' 
+   	</update>
+   	
 	<select id="getBaseBranchList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	hrInfo.getBaseBranchList
 			본부 리스트 조회 
