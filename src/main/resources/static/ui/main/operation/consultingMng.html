@@ -1,125 +1,125 @@
 <meta charset="utf-8">
 <script type="text/javascript">
-var <@pageId> = {
-	selectedItem : {}
-	,searchedList : {}
-	,pageInit : () => {
-		
-	}
-	,searchList : () => {
-		
-		const requestParm = { CONSULTING_ID:<@pageId>.selectedItem.CONSULTING_ID };
-		
-		var parm = {
-				 queryId 		: "operation.getConsultingItem"
-				,requestParm	: requestParm
+	var <@pageId> = {
+		selectedItem : {}
+		,searchedList : {}
+		,pageInit : () => {
+			
 		}
-
-		C_COM.requestQuery(parm, function(resultData) {
-						
-			const list = resultData.data;
-			const consultingType =  _.uniqBy(list, "CONSULTING_TYPE");
+		,searchList : () => {
 			
-			consultingType.forEach( item =>{
+			const requestParm = { CONSULTING_ID:<@pageId>.selectedItem.CONSULTING_ID };
 			
-				const byTypeList = list.filter( item2 => item2.CONSULTING_TYPE == item.CONSULTING_TYPE );
-				var rparm = {
-						 targetId 		: "<@pageId>_consulting_"+item.CONSULTING_TYPE
-						,list			: byTypeList
-				}
-			
-				<@pageId>.searchedList[item.CONSULTING_TYPE] = byTypeList;
-				C_COM.renderHtml("<@pageId>", rparm);
-
-			})
-
-			<@pageId>.setHandler();
-		});
-	}
-	,updateItem : (param) => {
-		const requestParm 	= param ? param : {} ;
-		
-		var parm ={
-					queryId 		: param.MODE == "I" ? "operation.updateConsultingItem" :  param.MODE == "D" ? "operation.deleteConsultingItem" :""
+			var parm = {
+					 queryId 		: "operation.getConsultingItem"
 					,requestParm	: requestParm
-		}
-
-
-		C_COM.requestQuery(parm, function(resultData) {
-
-			if( resultData.state == "S"){
-				<@pageId>.selectedItem =  {};
-				<@pageId>.searchList();
-				
-			}else{
-				C_POP.alert(resultData.msg)
 			}
-		});				
-	} 
-	,deleteItem : (delKey) => {
-		
-		var parm = {
+	
+			C_COM.requestQuery(parm, function(resultData) {
+							
+				const list = resultData.data;
+				const consultingType =  _.uniqBy(list, "CONSULTING_TYPE");
+				
+				consultingType.forEach( item =>{
+				
+					const byTypeList = list.filter( item2 => item2.CONSULTING_TYPE == item.CONSULTING_TYPE );
+					var rparm = {
+							 targetId 		: "<@pageId>_consulting_"+item.CONSULTING_TYPE
+							,list			: byTypeList
+					}
+				
+					<@pageId>.searchedList[item.CONSULTING_TYPE] = byTypeList;
+					C_COM.renderHtml("<@pageId>", rparm);
+	
+				})
+	
+				<@pageId>.setHandler();
+			});
+		}
+		,updateItem : (param) => {
+			const requestParm 	= param ? param : {} ;
+			
+			var parm ={
+				 queryId 		: in_array(param.MODE, ["I","U"]) ? "operation.updateConsultingItem" :  param.MODE == "D" ? "operation.deleteConsultingItem" :""
+				,requestParm	: requestParm
+			}
+	
+	
+			C_COM.requestQuery(parm, function(resultData) {
+	
+				if( resultData.state == "S"){
+					<@pageId>.selectedItem =  {};
+					<@pageId>.searchList();
+					
+				}else{
+					C_POP.alert(resultData.msg)
+				}
+			});				
+		} 
+		,deleteItem : (delKey) => {
+			
+			var parm = {
 				 queryId 		: "operation.deleteConsultingItem"
 				,requestParm	: delKey
-		}
-		C_COM.requestQuery(parm, function(resultData) {
-			
+			}
+			C_COM.requestQuery(parm, function(resultData) {
 				
-		});				
-	}
-	, deleteOne : (key) =>{
-		
-		const CONTRACT_ID	= key;
-		<@pageId>.deleteItem({CONTRACT_ID:CONTRACT_ID})
-		
-	}	
-	,setHandler : () => {
-		
-		$("[name^='<@pageId>_li_']").on('click', (e)=>{
-		    e.stopPropagation(); 
-		    e.preventDefault(); 
-
-		    const id	= $(e.target).parent().attr("name").replace("<@pageId>_li_", "");
-		    const type	= $(e.target).parent().parent().attr("id").replace("<@pageId>_consulting_", "");
-			<@pageId>.selectedItem = <@pageId>.searchedList[type][id];
-
+					
+			});				
+		}
+		, deleteOne : (key) =>{
+			
+			const CONTRACT_ID	= key;
+			<@pageId>.deleteItem({CONTRACT_ID:CONTRACT_ID})
+			
+		}	
+		,setHandler : () => {
+			
+			$("[name^='<@pageId>_li_']").on('click', (e)=>{
+			    e.stopPropagation(); 
+			    e.preventDefault(); 
+	
+			    const id	= $(e.target).parent().attr("name").replace("<@pageId>_li_", "");
+			    const type	= $(e.target).parent().parent().attr("id").replace("<@pageId>_consulting_", "");
+				<@pageId>.selectedItem = <@pageId>.searchedList[type][id];
+	
+				<@pageId>.openPopup();
+				
+			} )
+			
+		}
+		,addProduct : () => {
+			<@pageId>.selectedItem = {}
 			<@pageId>.openPopup();
 			
-		} )
-		
+		}
+		,openPopup : () => {
+			
+			const param = {};
+	
+	 		C_POP.open('popup_operation_consultingUpdatePopup', {	  mode:Object.keys(<@pageId>.selectedItem).length > 0 ? "U" : "I"
+	 												, param:param 
+	 												, selectedItem :<@pageId>.selectedItem }
+				, function(retData) {
+	
+					if(isValid(retData)){
+							<@pageId>.updateItem( retData ) ; 
+					}
+			});
+		}	
 	}
-	,addProduct : () => {
-		
-		<@pageId>.openPopup();
-		
-	}
-	,openPopup : () => {
-		
-		const param = {};
-
- 		C_POP.open('popup_operation_consultingUpdatePopup', {	  mode:Object.keys(<@pageId>.selectedItem).length > 0 ? "U" : "I"
- 												, param:param 
- 												, selectedItem :<@pageId>.selectedItem }
-			, function(retData) {
-
-				if(isValid(retData)){
-						<@pageId>.updateItem( retData ) ; 
-				}
-		});
-	}	
-}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
 		
 		<@pageId>.pageInit();
 		<@pageId>.setHandler();
 		<@pageId>.searchList();
-
+	
 		
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
-
+	
 	});
 </script>
 <div class="cont_wrap">

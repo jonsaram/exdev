@@ -26,15 +26,19 @@ var <@popupId> = {
 			let returnData = {};
 			 
 			returnData = {
-				MODE			:	gubun
+				 MODE			:	gubun
 				,CONSULTING_ID 	:	<@popupId>.CONSULTING_ID 
 				,CONSULTING_NM 	:	$("#<@popupId>_CONSULTING_NM").val()
 				,CONSULTING_TYPE:	C_UICOM.getData("<@popupId>_selectBoxId")
 				,CONSULTING_DESC:	$("#<@popupId>_CONSULTING_DESC").val()
-			 }
-			 
-			 <@popupId>.close(returnData);
-			 
+			}
+			
+			let str = "등록";
+			if		(gubun == "U") str = "수정";
+			else if	(gubun == "D") str = "삭제";
+			C_POP.confirm(`${str} 하시겠습니까?`, function() {
+				 <@popupId>.close(returnData);
+			});
 		 }
 		 ,validation : () =>{
 			 
@@ -158,7 +162,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				</ul>
 			</div>
 			<div class="modal_footer">
-				<button type="button" class="btn select" id="<@popupId>_regBtn" onclick="<@popupId>.apply('I')" >등록</button>
+				<button type="button" class="btn select" id="<@popupId>_regBtn" onclick="<@popupId>.apply('<@mode>')" >등록</button>
 				<button type="button" class="btn select" id="<@popupId>_delBtn" onclick="<@popupId>.apply('D')" >삭제</button>
 				<button type="button" class="btn close"  onclick="<@popupId>.close()" >취소</button>
 			</div>

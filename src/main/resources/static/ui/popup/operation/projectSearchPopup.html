@@ -1,0 +1,81 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		 close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+		let parm = {
+			 queryId       : "contract.getProjectList" 
+			,requestParm   : {}
+		}
+        C_COM.requestQuery(parm, function(resultData) {
+        	let rparm = {
+       			 targetId   : ""
+				,list       : resultData.data
+			}
+            
+			C_COM.renderHtml("<@popupId>", rparm);
+		});
+	});
+</script>
+<!-- 고객 선택 팝업 -->
+<div class="modal_wrap">
+	<div class="modal" style="width:440px;height:410px;">
+		<div class="modal_header">
+			<strong class="tit">프로젝트 선택</strong>
+			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<dl class="info_wrap pay">
+				<dt>프로젝트 검색</dt>
+				<dd>
+					<div class="search_inputWrap" style="width:100%">
+						<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+					</div>
+				</dd>
+			</dl>
+			<h4>프로젝트 리스트</h4>
+			<!-- 테이블 -->
+			<div class="tbl01 col">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:20%;"/>
+						<col style="width:40%;"/>
+						<col style="width:40%;"/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">고객ID</th>
+							<th scope="col">상품명</th>
+							<th scope="col">담당자</th>
+						</tr>
+					</thead>
+					<tbody id="projectList">
+					</tbody>
+					<script type="text/x-jsrender" id="projectList_template">						
+					{{for list}}
+						<tr class="select">
+							<td>1</td>
+							<td>A회사</td>
+							<td>부산 해운대구</td>
+						</tr>
+					{{/for}}
+					</script>
+					<script type="text/x-jsrender" id="projectList_noData_template">	
+						<tr>	
+							<td colspan=3>자료가 없습니다.</td>	
+						</tr>
+					</script>
+				</table>
+			</div>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+		</div>
+	</div>
+</div>
