@@ -210,14 +210,9 @@ function _getBranchSelectData ( callback ) {
 }
 
 function _getImageFile (targetId , obj ) {
-	/*
-    const $page = $("#"+pageId);
-    const $fileUploadDiv = $("<div></div>").attr("id", targetId);
-    $page.append($fileUploadDiv);
-	*/
 
 	// image upload component
-	C_COMP.import("fileuploadComp", "component_compFilemng",{hide : "Y"} , function(fileId) {alert("$###")});
+	C_COMP.import("fileuploadComp", "component_compFilemng",{hide : "Y"} , function(fileId) {});
 	C_COM.getFileId(obj["GRP_FILE_ID"], obj["OWNER_CD"], function(fileObjList) {
 		
 		if( fileObjList.length> 0){
