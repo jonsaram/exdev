@@ -76,6 +76,7 @@ var <@popupId> = {
 				$("#<@popupId>_regBtn").show();
 				$("#<@popupId>_delBtn").hide();
 				<@popupId>.CONSULTING_ID = C_COM.makeUniqueId();
+				C_UICOM.setSingleBox("<@popupId>_selectBoxId","<@activeTab>");
 				
 			}
 			
@@ -98,7 +99,7 @@ var <@popupId> = {
 			let requestParm = {
 					CONSULTING_ID : <@popupId>.CONSULTING_ID
 			}
-	debugger;		
+		
 	        let parm = {
                  queryId        : "operation.getConsultingItem"
                 ,requestParm    : requestParm

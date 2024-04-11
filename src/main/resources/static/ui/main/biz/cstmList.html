@@ -68,30 +68,58 @@ var <@pageId> = {
 	 		});			
 
 		}
-		,updateItem : (param) => {
-
-			const requestParm = param ? param : {} ;
-			if( !requestParm["BUYER_ID"] )
-				requestParm["BUYER_ID"] = C_COM.makeUniqueId();
-			
+		,updateExe : (requestParm) => {
 			var parm = {
-						queryGroup : [
-							 {
-								 queryId 		: "cstm.updateCstm"
-								,requestParm	: requestParm
-							 }
-						]
+					queryGroup : [
+						 {
+							 queryId 		: "cstm.updateCstm"
+							,requestParm	: requestParm
+						 }
+					]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
-
+	
 				if( resultData.state == "S"){
-
+	
 					<@pageId>.searchList();
 				
 				}else{
 					C_POP.alert(resultData.msg)
 				}
-			});				
+			});			
+		}
+		,updateItem : (param) => {
+
+			const requestParm = param ? param : {} ;
+			// ID 변경시 시리즈 변경
+ 			if( requestParm["ID_CHANGE"] ){
+ 				
+ 				var parm = {
+						queryGroup : [
+							 {
+								 queryId 		: "cstm.updateBuyerIdSeries"
+								,requestParm	: requestParm
+							 },
+							 {
+								 queryId 		: "cstm.updateCstmId"
+								,requestParm	: requestParm
+							 }
+						]
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+	
+					if( resultData.state == "S"){
+						<@pageId>.searchList();
+					}
+					
+				});	 				
+ 				
+ 			}else{
+ 				
+				<@pageId>.updateExe(requestParm);
+				
+ 			}
+				
 		} 
 		,deleteItem : (delKey) => {
 			
@@ -107,14 +135,23 @@ var <@pageId> = {
 				}				
 			});				
 		}
-		, deleteOne : (idx) =>{
-
+		, deleteRow : (idx) =>{
+			
 			let row = <@pageId>.searchedRows[idx];
 			if( row["CAN_DEL"]== "N"){
 				
 				C_POP.alert("계약관계가 있는 ["+row["BUYER_NM"]+" 고객정보]를 삭제할 수 없습니다. "); 
 				return false;
 			}
+			
+	    	C_POP.confirm('선택하신 고객정보를 삭제 하시겠습니까?', function() {
+	    		
+				<@pageId>.deleteOne(idx);
+	    	});
+		}
+		, deleteOne : (idx) =>{
+
+			let row = <@pageId>.searchedRows[idx];
     		const BUYER_ID 	= row["BUYER_ID"];
     		<@pageId>.deleteItem({BUYER_ID:BUYER_ID})
     		
@@ -165,6 +202,7 @@ var <@pageId> = {
 				if( isEmpty(row)==false ){param = row;mode="U"};
 			}
 			C_POP.open('popup_biz_cstmUpdatePopup', {param:param, mode:mode}, function(retData) {
+				
 				if(isValid(retData)){
 
 					<@pageId>.updateItem(retData);
@@ -300,7 +338,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td id='ADDR'			class='tl'>{{:ADDR}}</td>
 								<td id='HOW_GET_NM'		>{{:HOW_GET_NM}}</td>
 			 					<td><button onclick="javascript:<@pageId>.openPopup('{{:#index}}');"><i class="icon_pen"></i></button></td>
-								<td><button onclick="javascript:<@pageId>.deleteOne('{{:#index}}');"><i class="icon_trash"></i></button></td>
+								<td><button onclick="javascript:<@pageId>.deleteRow('{{:#index}}');"><i class="icon_trash"></i></button></td>
 							</tr>
 						{{/for}}
 						</script>

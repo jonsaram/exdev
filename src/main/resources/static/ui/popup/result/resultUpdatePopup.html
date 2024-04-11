@@ -58,6 +58,8 @@ var <@popupId> = {
  		 if( isEmpty(resultInfo["INCOME"]) 		) {C_POP.alert("입금액을 입력하여 주십시오."); return false;}
  		 if( isEmpty(resultInfo["INCOME_TYPE"]) ) {C_POP.alert("입금타입을 입력하여 주십시오."); return false;}
  		 
+ 		 if( <@popupId>.canAdd() == false 		) {C_POP.alert("비용이름, 비용설명, 비용 모두 입력해 주십시오."); return false;} 
+ 		 
  		 return true;
 
 	 }
@@ -251,10 +253,10 @@ var <@popupId> = {
 		$("#<@popupId>_paymentList").append(sumTemplate);
 		
 	}
-	,calcPayment : (income) => {
+	,calcPayment : (val) => {
 
 
-		const INCOME = Number(income);
+		const INCOME = Number(val);
 		let rateSum = 0;
 		let paymentSum = 0;
 
@@ -303,6 +305,12 @@ var <@popupId> = {
 		
 		$("#<@popupId>_addCost").on('click', () => {
 			
+			if( isEmpty($("#INCOME").val()) ){
+				alert("입금액을 먼저 입력하여 주십시오.")
+				return;
+			}
+			
+			
 			const $tr = $("[name='<@popupId>_tr_-1']");
 			if( $tr.length > 0)$tr.remove();
 			
@@ -316,17 +324,56 @@ var <@popupId> = {
 
 		        $(this).attr("value",$(this).nval()).val(_numberWithCommas($(this).nval()) );
 		        $(this).parent("td").attr("value",$(this).nval());
+		          
+		        const incomeMinusCostPrice = $('#<@popupId>_resultInfo #INCOME').nval() - <@popupId>.sumCostPrice();
+		    	<@popupId>.calcPayment(incomeMinusCostPrice);
 			})
 		})
 	
 	    $('#<@popupId>_resultInfo #INCOME').on('input',function(event){
 
 	        const val = $(this).nval();
-	    	<@popupId>.calcPayment(val);
+
+	        const remainingSum = $("#REMAINING_SUM").text().replace(/,/g, '');
+	        if( Number(remainingSum) - Number(val)  < 0  ){
+	        	alert( "잔금이하의 금액을 입금하여 주십시오. ");
+	        	$(this).val("0");
+	        	return;
+	        }
+	        debugger;
+	        const incomeMinusCostPrice = val - <@popupId>.sumCostPrice();
+	    	<@popupId>.calcPayment(incomeMinusCostPrice);
+	    	
 	        
 	    });
 		
 	} 	
+ 	, canAdd : () => {
+		
+		let bAdd = true;
+		let cnt 		= $("#<@popupId>_costList tr").length;
+		if( cnt > 0 ){
+			
+			$.each( $("#<@popupId>_costList tr") , function(idx,row) {
+				
+ 				$.each( $(row).children("td") , function(idx2,col) {
+
+ 					if( $(col).attr("id") == "COST_NM" 
+					|| $(col).attr("id") == "COST_DESC"
+ 					|| $(col).attr("id") == "COST_PRICE"){
+ 						debugger;
+ 						//$("td#COST_NM input").val()
+	 					if( isEmpty( $(col).children("input").val() ) ){
+							bAdd = false; 
+						}
+					}
+				})
+ 				
+			})
+		}
+		return bAdd;
+		
+	}
 	,setTitleHeight : (parentData) => {
 		
 		let title = parentData.mode == "I" ? "실적 등록" : "실적 정보 수정";
@@ -348,6 +395,19 @@ var <@popupId> = {
         
         <@popupId>.calcPayment(INCOME);
 	}
+	,sumCostPrice : () => {
+		
+		let sum = 0;
+debugger;		
+		$.each( $("#<@popupId>_costList tr") , function(idx,row) {
+			
+			sum += Number($(row).children("td[id='COST_PRICE']").attr("value") )
+				
+		})
+
+		return sum;
+	}
+		
 
 }
 // Popup Load가 완료된후 실행 된다.

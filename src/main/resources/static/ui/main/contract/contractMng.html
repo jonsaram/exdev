@@ -146,6 +146,13 @@ var <@pageId> = {
 				});					
 			});				
 		}
+		, deleteRow : (idx) =>{
+			
+	    	C_POP.confirm('선택하신 계약정보를 삭제 하시겠습니까?', function() {
+	    		
+				<@pageId>.deleteOne(idx);
+	    	});
+		}
 		, deleteOne : (index) =>{
 			
 			let row = <@pageId>.searchedRows[index];			
@@ -158,11 +165,6 @@ var <@pageId> = {
 			const selectedRow = <@pageId>.searchedRows[index];
 			<@pageId>.openPopup(selectedRow);
 		}
-		,delete : (index) =>{
-
-			const selectedRow = <@pageId>.searchedRows[index];
-			<@pageId>.deleteOne(selectedRow["CONTRACT_ID"]);
-		}
 		,setHandler : () => {
 
 			_chkHandler("<@pageId>",<@pageId>);
@@ -173,11 +175,13 @@ var <@pageId> = {
 
 		    })
 		    
-		    $("#<@pageId>_deleteBtn").click(function(){
+		    $("#<@pageId>_deleteBtn").off().on('click',() => {
 		    	
-		    	<@pageId>.checkedItems.forEach( index =>{
-					<@pageId>.deleteOne(index);
-		    	})
+		    	C_POP.confirm('선택하신 계약정보를 삭제 하시겠습니까?', function() {
+			    	<@pageId>.checkedItems.forEach( index =>{
+						<@pageId>.deleteOne(index);
+			    	})
+		    	});
 		    	
 		    })
 		    
@@ -208,7 +212,8 @@ var <@pageId> = {
 
 			selectedRow = selectedRow || {};	
 			let mode = isEmpty(selectedRow) ? "I" :"U";
-			C_POP.open('popup_contract_contractUpdatePopup', {param:selectedRow, mode:mode}
+			C_POP.open('popup_contract_contractUpdatePopup', {param:selectedRow, mode:mode , processState : selectedRow["PROCESS_STATE"]
+														   , processStateNm : selectedRow["PROCESS_STATE_NM"]}
 				, function(retData) {
 				
 					if(isValid(retData)){
@@ -340,7 +345,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td id='CONSULTING_NM'		class='tl'>{{:CONSULTING_NM}}</td>
 			 					<td 						class='tl'>
 									<button><i onclick="javascript:<@pageId>.modify('{{:#index}}')" class="icon_pen"  ></i></button></td>
-								<td><button><i onclick="javascript:<@pageId>.delete('{{:#index}}')" class="icon_trash"></i></button></td>
+								<td><button><i onclick="javascript:<@pageId>.deleteRow('{{:#index}}')" class="icon_trash"></i></button></td>
 							</tr>
 						{{/for}}
 						</script>

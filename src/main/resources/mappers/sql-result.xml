@@ -10,7 +10,7 @@
 	실적 관리 
 	 -->	
 	<sql id="resultList">
-				SELECT DISTINCT
+			SELECT DISTINCT
 			 C.TOTAL_COST 
 			,TO_CHAR( R.RESULT_DATE, 'YYYY-MM-DD') AS RESULT_DATE
 			,TO_CHAR( R.RESULT_DATE, 'YYYY-MM') AS RESULT_DATE_MONTH
@@ -78,8 +78,8 @@
 			</if>
 			AND R.USE_YN		= 'Y'
 			AND R.DEL_YN		= 'N'
-			AND P.USE_YN		= 'Y'
-			AND P.DEL_YN		= 'N'
+			AND ( P.USE_YN		= 'Y' OR P.USE_YN IS NULL ) 
+			AND ( P.DEL_YN		= 'N' OR P.DEL_YN IS NULL )
 			AND CM.USE_YN		= 'Y'
 			AND CM.DEL_YN		= 'N'
 			<if test=" GUBUN != null and GUBUN.equals('MNG') ">

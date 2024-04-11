@@ -3,6 +3,9 @@
 	var <@popupId> = {
 		 recvData : []	
 	 	 ,mode : ''
+	 	 ,OLD_BUYER_ID : ''
+	 	 ,ID_CHANGE : false
+	 	 ,ID_CHECKED : false
 	 	 ,BRANCH_DATA : {}
 		 ,hiarachySelData: []
 		 ,close : function(returnData) {
@@ -27,12 +30,31 @@
 				 	returnData[key] = val;
 			 })
 			 
-			 returnData["HOW_GET"] = C_UICOM.getData("<@popupId>_selectHowgetId") ;
+			 returnData["HOW_GET"] 		= C_UICOM.getData("<@popupId>_selectHowgetId") ;
+			 returnData["OLD_BUYER_ID"] = <@popupId>.OLD_BUYER_ID ;
+			 returnData["ID_CHANGE"] 	= <@popupId>.mode == "I"? false : <@popupId>.ID_CHANGE ;
+			 
 			 <@popupId>.close(returnData);
 			 
 		 }
 		 ,validation : () =>{
+
+			 if( <@popupId>.ID_CHANGE && <@popupId>.ID_CHECKED==false ) {C_POP.alert("중복체크 후 진행하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #BUYER_ID").val() 		== "" ) {C_POP.alert("고객ID를 입력하여 주십시오."); return false;}
 			 
+			 if( <@popupId>.OLD_BUYER_ID != $("#<@popupId>_items #BUYER_ID").val() ){
+				 
+				 if( <@popupId>.mode == "U"){
+					 
+					 C_POP.alert("고객 ID 변경시 모든 연관된 계약 및 실적 내에 \n고객 ID도 변경됩니다.");
+					 
+				 }else{
+					 
+					 const dbBuyer = <@popupId>.redundCheck('validation');
+					 if( dbBuyer ){C_POP.alert("이미 존재하는 고객 ID입니다.\n다시입력하여 주십시오."); return false;}
+				 }
+			 }
+			 if(<@popupId>.mode == "I" )
 			 if( $("#<@popupId>_items #BUYER_NM").val() 		== "" ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
 			 if( $("#<@popupId>_items #TEL").val() 				== "" ) {C_POP.alert("연락처를 입력하여 주십시오."); return false;}
 			 if( $("#<@popupId>_items #ADDR").val() 			== "" ) {C_POP.alert("본점주소를 입력하여 주십시오."); return false;}
@@ -41,7 +63,7 @@
 			 
 		 }
 		,pageInit : () => {
-			//G_VAL.COMMON_CODE_MAP
+
 			<@popupId>.setTitleHeight();
 			const selectTargetId = "<@popupId>_selectHowgetId" ;
 			var codeList = C_COM.getCodeList("HOW_GET");
@@ -66,10 +88,57 @@
 		}
 		,setTitleHeight : () => {
 			
- 			<@popupId>.mode == "I" ? $(".updateMode").hide() : $(".updateMode").show();
 			let title = <@popupId>.mode == "I" ? "고객 등록" : "고객 정보 수정";
 	  	 	$(".tit").html( title );
+	  	 	<@popupId>.mode == "U" ? $("#<@popupId>_apply").html("수정"):"";
 			
+		}
+		,redundCheck : (validation) => {
+			
+			var parm = {
+					 queryId 		: "cstm.getCstmList"
+					,requestParm	: {BUYER_ID : $("#<@popupId>_items #BUYER_ID").val() }
+				}
+ 			const dbBuyer =  C_COM.requestQuery(parm) ;
+
+ 			if( dbBuyer.data.length == 1 ) {
+ 				
+ 				<@popupId>.ID_CHECKED = false;
+ 				
+	 			if ( validation ) return true;
+	 			else alert("중복된 아이디 입니다. ");
+ 			}else{
+ 				
+ 				<@popupId>.ID_CHECKED = true;
+ 				
+	 			if ( validation ) return false;
+	 			else alert("등록가능한 아이디 입니다. ");
+ 			} 
+ 			
+			
+		}	
+		,setHandler : () => {
+			
+		    $("#<@popupId>_items #BUYER_ID").on('input',function(event){
+		    		
+			        const val = $(this).nval();
+			        
+					if( <@popupId>.OLD_BUYER_ID != val ){
+
+						<@popupId>.ID_CHANGE = true;
+						$("#<@popupId>_items #BUYER_ID").css("width","71%");
+						$("#<@popupId>_items #redundCheck").show();
+						<@popupId>.ID_CHECKED = false;	
+						
+					}else{
+						
+						<@popupId>.ID_CHANGE = false;
+						$("#<@popupId>_items #BUYER_ID").css("width","100%");
+						$("#<@popupId>_items #redundCheck").hide();
+						
+					}
+
+		    });
 		}
 	}
 	// Popup Load가 완료된후 실행 된다.
@@ -78,22 +147,37 @@
  		<@popupId>.recvData	= data;
 
 		<@popupId>.mode = <@popupId>.recvData.mode;
+		
+		if(<@popupId>.mode == "U"){
+
+			<@popupId>.OLD_BUYER_ID = <@popupId>.recvData.param["BUYER_ID"];
+			$("#<@popupId>_items #BUYER_ID").css("width","100%");
+			$("#<@popupId>_items #redundCheck").hide();
+		}
 		<@popupId>.pageInit();
+		
+		<@popupId>.setHandler();
+		
 	});
 </script>
 
 <div class="modal_wrap" id="modal-ex">
-	<div class="modal" style="width:450px;height:370px;">
+	<div class="modal" style="width:450px;height:420px;">
 		<div class="modal_header">
 			<strong class="tit">고객등록</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body" style="overflow:visible;" id="<@popupId>_items">
-			<input type="hidden" id="BUYER_ID">
 			<input type="hidden" id="USE_YN" value='Y'>
 			<input type="hidden" id="DEL_YN" value='N'>
 			<div class="clearFix mt15">
 				<ul class="info_wrap">
+					<li>
+						<label>고객ID</label>
+						<div class="info"><input type="text" id="BUYER_ID" style="width:71%">
+						<button class="btn" style="width:80px;" id="redundCheck" onclick="<@popupId>.redundCheck();">중복체크</button>
+						</div>
+					</li>
 					<li>
 						<label>고객명</label>
 						<div class="info"><input type="text" id="BUYER_NM" style="width:100%"></div>
@@ -119,8 +203,8 @@
 
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select" onclick="<@popupId>.apply()" >등록</button>
-			<button type="button" class="btn close"  onclick="<@popupId>.close()" >취소</button>
+			<button type="button" class="btn select" onclick="<@popupId>.apply()" id="<@popupId>_apply">등록</button>
+			<button type="button" class="btn close"  onclick="<@popupId>.close()" id="<@popupId>_cancel">취소</button>
 		</div>
 	</div>
 </div>

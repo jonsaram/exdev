@@ -96,10 +96,16 @@
 		,openPopup : () => {
 			
 			const param = {};
-	
-	 		C_POP.open('popup_operation_consultingUpdatePopup', {	  mode:Object.keys(<@pageId>.selectedItem).length > 0 ? "U" : "I"
-	 												, param:param 
-	 												, selectedItem :<@pageId>.selectedItem }
+			const tabId = $("#<@pageId>_consultingMngUL .active a").attr("id");
+			const activeTab	= 	tabId.indexOf("monthly")	> -1	? "MONTHLY" :
+								tabId.indexOf("onlyOnce")	> -1 	? "ONCE":
+								tabId.indexOf("cowork")		> -1	? "COWORK": '';       
+			
+	 		C_POP.open('popup_operation_consultingUpdatePopup', { mode			:Object.keys(<@pageId>.selectedItem).length > 0 ? "U" : "I"
+	 															, param			:param 
+	 															, selectedItem 	:<@pageId>.selectedItem 
+	 															, activeTab 	: activeTab
+	 															}
 				, function(retData) {
 	
 					if(isValid(retData)){
@@ -130,15 +136,15 @@
 			<section class="sec_wrap list" style="height:calc(100% - 43px);">
 				<!-- tap area -->
 				<div class="tab_wrap">
-					<ul>
-						<li class="active">
-							<a id="#<@pageId>_tab1">월자문 컨설팅</a></li>
-						<li><a id="#<@pageId>_tab2">일회성 컨설팅</a></li>
-						<li><a id="#<@pageId>_tab3">코웍 외주자문 컨설팅</a></li>
+					<ul id="<@pageId>_consultingMngUL">
+						<li class="active" >
+							<a id="#<@pageId>_monthly">월자문 컨설팅</a></li>
+						<li><a id="#<@pageId>_onlyOnce">일회성 컨설팅</a></li>
+						<li><a id="#<@pageId>_cowork">코웍 외주자문 컨설팅</a></li>
 					</ul>
 					<a href="javascript:<@pageId>.addProduct()" class="btn select small add">추가</a>
 					<div class="tab_content">
-						<div id="<@pageId>_tab1" class="display">
+						<div id="<@pageId>_monthly" class="display">
 							<ul class="listBtn" id="<@pageId>_consulting_MONTHLY">
 							</ul>
 							<script type="text/x-jsrender" id="<@pageId>_consulting_MONTHLY_template">	
@@ -149,7 +155,7 @@
 							{{/for}}
 							</script>
 						</div>
-						<div id="<@pageId>_tab2" class="display">
+						<div id="<@pageId>_onlyOnce" class="display">
 							<ul class="listBtn" id="<@pageId>_consulting_ONCE">
 							</ul>
 							<script type="text/x-jsrender" id="<@pageId>_consulting_ONCE_template">	
@@ -160,7 +166,7 @@
 							{{/for}}
 							</script>
 						</div>
-						<div id="<@pageId>_tab3" class="display">
+						<div id="<@pageId>_cowork" class="display">
 							<ul class="listBtn" id="<@pageId>_consulting_COWORK">
 							</ul>
 							<script type="text/x-jsrender" id="<@pageId>_consulting_COWORK_template">	

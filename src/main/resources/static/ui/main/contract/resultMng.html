@@ -74,15 +74,16 @@ var <@pageId> = {
     			
     		}
         	
- 			const trTemplate = $("#<@pageId>_resultList_total_template").render({ INCOME 			: _numberWithCommas(TOTAL_ROW["INCOME"])
- 																				, COST_PRICE 		: _numberWithCommas(TOTAL_ROW["COST_PRICE"])
- 																				, ORG_SELLING_PRICE : _numberWithCommas(TOTAL_ROW["ORG_SELLING_PRICE"])
- 																				, RATE 				: _numberWithCommas(TOTAL_ROW["RATE"] / resultIdCnt)
- 																				, PAYMENT 			: _numberWithCommas(TOTAL_ROW["PAYMENT"])
- 																				, REAL_PROFIT		: _numberWithCommas(TOTAL_ROW["REAL_PROFIT"])
- 																				});
-			$("#<@pageId>_resultList").append(trTemplate);
-
+    		if( <@pageId>.selectedList.length > 0){
+	 			const trTemplate = $("#<@pageId>_resultList_total_template").render({ INCOME 			: _numberWithCommas(TOTAL_ROW["INCOME"])
+	 																				, COST_PRICE 		: _numberWithCommas(TOTAL_ROW["COST_PRICE"])
+	 																				, ORG_SELLING_PRICE : _numberWithCommas(TOTAL_ROW["ORG_SELLING_PRICE"])
+	 																				, RATE 				: _numberWithCommas(TOTAL_ROW["RATE"] / resultIdCnt)
+	 																				, PAYMENT 			: _numberWithCommas(TOTAL_ROW["PAYMENT"])
+	 																				, REAL_PROFIT		: _numberWithCommas(TOTAL_ROW["REAL_PROFIT"])
+	 																				});
+				$("#<@pageId>_resultList").append(trTemplate);
+    		}
 			<@pageId>.setHandler();
 		});
 	}
@@ -173,20 +174,23 @@ var <@pageId> = {
 		
 	    $("#<@pageId>_regResult").off().on('click',function(){
 
-			const remainingSum = <@pageId>.contractItem.REMAINING_SUM;
+/* 			const remainingSum = <@pageId>.contractItem.REMAINING_SUM;
 			if( remainingSum == 0){
 				C_POP.alert('잔금완납되어 추가 실적을 등록할수 없습니다.');
 				return;
-			}
+			} */
 			<@pageId>.openUpdatePopup();
 
 	    })
 
-	    $("[id^='<@pageId>_delete_']").off().on('click',function(){
+ 	    $("[id='<@pageId>_delete']").off().on('click',function(){
+ 	    	
+ 	    	const key = $(this).attr("key");
+	    	C_POP.confirm('선택하신 계약정보를 삭제 하시겠습니까?', function() {
 
-	    	const key = $(this).attr("key");
-			<@pageId>.deleteOne(key);
-			
+				<@pageId>.deleteOne(key);
+
+			});
 	    })
 	    
 	}
@@ -382,7 +386,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 
 								<td >
 									{{if LAST_RESULT_ID != ""}}
-									<button id="<@pageId>_delete_{{:#index}}" key='{{:CONTRACT_ID}}||{{:RESULT_ID}}'>
+									<button id="<@pageId>_delete" key='{{:CONTRACT_ID}}||{{:RESULT_ID}}'>
 									<i class="icon_trash"></i>
 									</button>
 									{{/if}}

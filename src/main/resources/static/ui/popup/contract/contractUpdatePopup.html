@@ -72,7 +72,7 @@ var <@popupId> = {
 		 return true;
 		 
 	 }
-	,pageInit : (readonly) => {
+	,pageInit : () => {
 		
 		<@popupId>.setTitleHeight();
 		
@@ -100,6 +100,14 @@ var <@popupId> = {
 		}
 
 		
+		const processState = C_COM.getCodeList("PROCESS_STATE");
+		const exPreContract = processState.map( item => { return item[0] !='PRE_CONTRACT' ? item :'' });
+		C_UICOM.makeSelectBox({ 
+				 data 			: exPreContract
+			 	,targetId 		: "<@popupId>_selectProcessStatus" 
+		}, "single");
+		C_UICOM.setSingleBox("<@popupId>_selectProcessStatus" , "<@processState>");
+		
 		C_UICOM.makeSelectBox({ 
 			 defaultItem 	: ["--", "선택"]
 			,data : C_COM.getCodeList("CONTRACT_TYPE")
@@ -115,23 +123,44 @@ var <@popupId> = {
 			C_UICOM.setSingleBox("<@popupId>_selectConsultingClass", CONSULTING_CLASS);
 
 		
-		if( readonly){
+		if( "<@processState>" == "CONTRACTED"){
 			
-			setTimeout( ()=>{
-				$("#<@popupId>_BUYER").prop("disabled", true);
-				$("#<@popupId>_BUYER+a").remove()
-				$("#<@popupId>_USER").prop("disabled", true);
-				$("#<@popupId>_USER+a").remove()
-				$("#<@popupId>_TOTAL_COST").prop("disabled", true);
-				$("#<@popupId>_CONSULTING").prop("disabled", true);
-				$("#<@popupId>_CONSULTING+a").remove();
-				$("#<@popupId>_addCowork").remove();
-				$("#<@popupId>_addSalesMan").remove();
-				$("#<@popupId>_addSalesMan").remove();
-				$("#<@popupId>_coworkList button").remove();
-				$("#<@popupId>_salesManList button").remove();
-			},500)
+				<@popupId>.setDisableModeItems();
 		}
+		if( "<@processState>" == "COMPLETED"){
+
+				$("#<@popupId>_applyBtn").remove();
+				<@popupId>.setDisableModeItems();
+				setTimeout( ()=>{
+					$("#<@popupId>_addCowork").remove();
+					$("#<@popupId>_addSalesMan").remove();
+					$("#<@popupId>_addSalesMan").remove();
+					$("#<@popupId>_coworkList button").remove();
+					$("#<@popupId>_salesManList button").remove();
+					$("#<@popupId>_selectContractType").children().prop("disabled",true)
+					$("#<@popupId>_selectConsultingClass").children().prop("disabled",true)
+					$("#<@popupId> .ui-datepicker-trigger").remove();
+					$("#<@popupId> .datepicker").prop("disabled",true);
+					$("#<@popupId> input[type='text']").prop("disabled",true)
+					$("#<@popupId> button .icon_trash").remove()
+				},200)
+
+		}
+		
+		$("button[uid='<@popupId>_selectProcessStatus']").css("margin-left","-40px")
+	}
+	,setDisableModeItems : () => {
+		
+		$("#<@popupId>_BUYER").css("margin-top","7px").text($("#<@popupId><@popupId>_BUYER_val").val())
+		$("#<@popupId><@popupId>_BUYER_val+a").remove()
+		$("#<@popupId><@popupId>_BUYER_val").remove();
+		$("#<@popupId>_USER").css("margin-top","7px").text($("#<@popupId><@popupId>_USER_val").val())
+		$("#<@popupId><@popupId>_USER_val+a").remove()
+		$("#<@popupId><@popupId>_USER_val").remove();
+		$("#<@popupId>_CONSULTING").next().after("<div style='margin-top:7px'>" + $("#<@popupId>_CONSULTING").val() + "</div>");
+		$("#<@popupId>_CONSULTING+a").remove();
+		$("#<@popupId>_CONSULTING").remove();
+		
 	}
 	,savedContractMemberSearch : () => {
 		
@@ -220,13 +249,20 @@ var <@popupId> = {
 			}
 			const newUser  	= <@popupId>.updatingData["NEW_USER"];
 			if( newUser ){
-				const userId	= newUser["USER_ID"];
-				const userNm	= newUser["USER_NM"];
-				const recommId	= newUser["RECOMMENDER_ID"];
+				const 	userId	= newUser["USER_ID"];
+				const 	userNm	= newUser["USER_NM"];
+				const	recommId= newUser["RECOMMENDER_ID"];
 				if( userId){
 					$("#<@popupId>_USER").val(userNm+ " ("+userId+")");
 					$("#<@popupId>_CPY_USER_NM").text(userNm);
+
 					if( recommId )<@popupId>.selectSuggester(recommId);
+					else{
+						$("#<@popupId>_suggester td#ROLE_NM").attr("ROLE_NM", '').html("")
+						$("#<@popupId>_suggester td#USER_ID").attr("USER_ID", '').html("")
+						$("#<@popupId>_suggester td#USER_NM").attr("USER_NM", '').html("")
+						$("#<@popupId>_suggester td#GRADE_NM").attr("GRADE_NM", '').html("")
+					}
 				}
 			}
 		}
@@ -437,19 +473,16 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.buyerId 		= <@popupId>.updatingData?.BUYER_ID;
 	<@popupId>.consultingId= <@popupId>.updatingData?.CONSULTING_ID;
 	
-	<@popupId>.processState = <@popupId>.updatingData["PROCESS_STATE"] ;
-	if( <@popupId>.mode == "U" && <@popupId>.processState !='CONTRACTED' &&  <@popupId>.processState !='COMPLETED' ){
-		$("#<@popupId>_nextStateBtn").show();
-	}
-	
-	let readonly=false;
-	if( <@popupId>.mode == "U" && ( <@popupId>.processState =='CONTRACTED' ||  <@popupId>.processState =='COMPLETED' ) ){
-		readonly = true;
+	if( "<@mode>" == "U"){
+		
+		if( "<@processState>" == 'CONTRACTING'){
+			$("#<@popupId>_nextStateBtn").show();
+		}
 	}
 	
 	<@popupId>.setComponent();
 	
-	<@popupId>.pageInit(readonly);
+	<@popupId>.pageInit();
 	
 	<@popupId>.setHandler();
 });
@@ -470,6 +503,20 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					<div class="tab_content">
 						<div id="<@popupId>_tab1" class="display" style='display:block;'>
 							<ul class="info_wrap col2 pay">
+								
+								<li>
+									<label>계약 상태</label>
+									<div class="info">
+										<div class="search_inputWrap" style="width:45%;margin-top:7px;"><@processStateNm></div>
+										<div id="<@popupId>_selectProcessStatus" class="select_box" style="width:50%; float: right !important;">
+									</div>
+								</li>
+								
+								<li style="visibility: hidden;">
+									<label></label>
+									<div class="info"><input type="text" style="width:100%" disabled></div>
+								</li>
+
 								<li class="w100">
 									<label>고객선택</label>
 									<div class="info">
@@ -612,9 +659,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							</div>
 							<!-- 영업담당사원 등록  -->
 							<div class="search_area mt25">
-								<span class="tit02">영업담당사원 등록</span>
+								<span class="tit02">영업담당사원</span>
 								<div class="search_right">
-									<a class="btn small fr"  href="#" id="<@popupId>_addSalesMan">추가</a>
+									<!-- <a class="btn small fr"  href="#" id="<@popupId>_addSalesMan">추가</a> -->
 								</div>
 							</div>
 							<!-- 테이블 -->

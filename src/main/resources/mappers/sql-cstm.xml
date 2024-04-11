@@ -29,7 +29,9 @@
 		WHERE 1=1
 		AND B.USE_YN = 'Y'
 		AND B.DEL_YN = 'N'	
-		AND ( 
+	</sql>
+	<sql id="cstmParams">
+			AND ( 
 			<if test=" parm.BUYER_ID != null and !parm.BUYER_ID.equals('') ">
 				B.BUYER_ID like '%' || #{parm.BUYER_ID} || '%'
 			</if>
@@ -76,18 +78,23 @@
 			고객 리스트 조회 
 		*/
 		<include refid="getCstmList_body"/>
+		<if test=" BUYER_ID != null and !BUYER_ID.equals('') ">
+		  AND B.BUYER_ID like '%' || #{BUYER_ID} || '%'
+		</if>
         ORDER BY B.BUYER_NM
 	</select>	
 	<select id="getCstmList_totalCnt" resultType="Integer">
 		/* hrInfo.getCstmList_totalCnt  */
 		<include refid="common.totalWrapStart"/>
 		<include refid="getCstmList_body"/>
+		<include refid="cstmParams"/>
 		<include refid="common.totalWrapEnd"/>
 	</select>
 	<select id="getCstmList_paging" resultType="java.util.HashMap">
 		/* hrInfo.getCstmList_paging  */
 		<include refid="common.pagingWrapStart"/>
 		<include refid="getCstmList_body"/>
+		<include refid="cstmParams"/>
         ORDER BY CASE WHEN B.UPDATE_DATE > SYSDATE-1 THEN 0 ELSE 1 END ,B.BUYER_NM
 		<include refid="common.pagingWrapEnd"/>
 	</select>
@@ -141,5 +148,50 @@
 		,UPDATE_DATE = SYSDATE
 		WHERE BUYER_ID = #{BUYER_ID}  
 	</delete> 
+
 	
+	<update id="updateCstmId" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	cstm.updateCstmId
+			고객 ID 변경 시 Update
+		*/
+		UPDATE TBL_EXP_BUYER T
+		SET T.BUYER_ID			= #{BUYER_ID},
+		    T.BUYER_NM			= #{BUYER_NM},
+		    T.TEL 				= #{TEL},
+		    T.ADDR 				= #{BUYER_ID},
+		    T.COMPANY_REGNUM	= #{COMPANY_REGNUM},
+		    T.HOW_GET			= #{HOW_GET},
+		    T.UPDATE_USER		= #{sessionVo.userId},
+		    T.UPDATE_DATE		= SYSDATE
+		WHERE T.BUYER_ID		= #{OLD_BUYER_ID}
+	</update>
+	
+	<select id="updateBuyerIdSeries" statementType="CALLABLE" parameterType="java.util.HashMap" flushCache="true">
+	    <!-- cstm.updateBuyerIdSeries
+	         고객 ID 변경 SERIES
+	    -->
+	    { CALL
+		    DECLARE
+		        p_BUYER_ID		VARCHAR2(30);
+				p_OLD_BUYER_ID	VARCHAR2(30);
+		    BEGIN
+		    
+		        p_BUYER_ID 		:= #{BUYER_ID};
+		        p_OLD_BUYER_ID 	:= #{OLD_BUYER_ID};
+		    
+		        UPDATE TBL_EXP_BUYER
+		        SET BUYER_ID 		= p_BUYER_ID 
+				,	UPDATE_USER 	= #{sessionVo.userId}
+				,	UPDATE_DATE 	= SYSDATE
+		        WHERE BUYER_ID		= p_OLD_BUYER_ID
+		        ;
+		        
+		        UPDATE TBL_EXP_CONTRACT
+		        SET BUYER_ID 		= p_BUYER_ID
+		        WHERE BUYER_ID 		= p_OLD_BUYER_ID
+		        ;
+		        
+		    END
+	    }
+	</select>	
 </mapper>
