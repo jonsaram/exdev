@@ -95,6 +95,22 @@ var <@pageId> = {
 		const constInfo		= requestParm.costInfo		|| [];
 		const resultInfo	= requestParm.resultInfo;
 		
+		if( paymentInfo.length > 0){
+			
+			var parm = {
+					queryId 	: "contract.updateContractProcessState"
+				   ,requestParm	: {CONTRACT_ID : <@pageId>.contractItem.CONTRACT_ID , PROCESS_STATE : "CONTRACTED_RST"}
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+			
+	            if (resultData.state === 'S') {
+	
+	
+	            }
+			});				
+		}
+		
+		
 		paymentInfo.forEach( item => {
 				
 			var parm = {
