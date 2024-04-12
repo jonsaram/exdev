@@ -129,21 +129,21 @@ var <@popupId> = {
 		}
 		if( "<@processState>" == "COMPLETED"){
 
-				$("#<@popupId>_applyBtn").remove();
+				$("#<@popupId>_applyBtn").hide();
 				<@popupId>.setDisableModeItems();
 				setTimeout( ()=>{
-					$("#<@popupId>_addCowork").remove();
-					$("#<@popupId>_addSalesMan").remove();
-					$("#<@popupId>_addSalesMan").remove();
-					$("#<@popupId>_coworkList button").remove();
-					$("#<@popupId>_salesManList button").remove();
+					$("#<@popupId>_addCowork").hide();
+					$("#<@popupId>_addSalesMan").hide();
+					$("#<@popupId>_addSalesMan").hide();
+					$("#<@popupId>_coworkList button").hide();
+					$("#<@popupId>_salesManList button").hide();
 					$("#<@popupId>_selectContractType").children().prop("disabled",true)
 					$("#<@popupId>_selectConsultingClass").children().prop("disabled",true)
-					$("#<@popupId> .ui-datepicker-trigger").remove();
+					$("#<@popupId> .ui-datepicker-trigger").hide();
 					$("#<@popupId> .datepicker").prop("disabled",true);
 					$("#<@popupId> input[type='text']").prop("disabled",true)
-					$("#<@popupId> button .icon_trash").remove()
-				},200)
+					$("#<@popupId> button .icon_trash").hide()
+				},300)
 
 		}
 		
@@ -152,15 +152,17 @@ var <@popupId> = {
 	,setDisableModeItems : () => {
 		
 		$("#<@popupId>_BUYER").css("margin-top","7px").text($("#<@popupId><@popupId>_BUYER_val").val())
-		$("#<@popupId><@popupId>_BUYER_val+a").remove()
-		$("#<@popupId><@popupId>_BUYER_val").remove();
+		$("#<@popupId><@popupId>_BUYER_val+a").hide()
+		$("#<@popupId><@popupId>_BUYER_val").hide();
 		$("#<@popupId>_USER").css("margin-top","7px").text($("#<@popupId><@popupId>_USER_val").val())
-		$("#<@popupId><@popupId>_USER_val+a").remove()
-		$("#<@popupId><@popupId>_USER_val").remove();
+		$("#<@popupId><@popupId>_USER_val+a").hide()
+		$("#<@popupId><@popupId>_USER_val").hide();
 		$("#<@popupId>_CONSULTING").next().after("<div style='margin-top:7px'>" + $("#<@popupId>_CONSULTING").val() + "</div>");
-		$("#<@popupId>_CONSULTING+a").remove();
-		$("#<@popupId>_CONSULTING").remove();
-		
+		$("#<@popupId>_CONSULTING+a").hide();
+		$("#<@popupId>_CONSULTING").hide();
+		$("#<@popupId>_coworkList button>i.icon_trash").hide();
+
+		$("#<@popupId>_addCowork").hide();
 	}
 	,savedContractMemberSearch : () => {
 		
@@ -388,20 +390,24 @@ var <@popupId> = {
     }
 	,deleteMemeberRow : ( obj ) => {
 		
-		const trName = $(obj).closest("tr").attr("name").replace("overriding_","");
-		const userId = $(obj.parentNode.parentNode).find("#USER_ID").attr("value");
-		const relationType =  trName.toUpperCase();
-
- 		switch( relationType )
-		{
-			case "COWORK" :
-				<@popupId>.addCoworkRtnData		= <@popupId>.addCoworkRtnData.filter(member => member.USER_ID !== userId);
-				break;
-			case "SALES" :
-				<@popupId>.addSalseManRtnData 	= <@popupId>.addSalseManRtnData.filter(member => member.USER_ID !== userId);
-				break;
-			default:
-		}
+		C_POP.confirm('관련자 정보를 삭제하시겠습니까?', function() {
+			const trName = $(obj).closest("tr").attr("name").replace("overriding_","");
+			const userId = $(obj.parentNode.parentNode).find("#USER_ID").attr("value");
+			const relationType =  trName.toUpperCase();
+	
+	 		switch( relationType )
+			{
+				case "COWORK" :
+					<@popupId>.addCoworkRtnData		= <@popupId>.addCoworkRtnData.filter(member => member.USER_ID !== userId);
+					break;
+				case "SALES" :
+					<@popupId>.addSalseManRtnData 	= <@popupId>.addSalseManRtnData.filter(member => member.USER_ID !== userId);
+					break;
+				default:
+			}
+	 		
+	 		obj.parentNode.parentNode.remove();
+		});
 		
 	}
 	,nextState : () =>{
@@ -645,7 +651,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				 					<td id='USER_ID'		 value='{{:USER_ID}}'		>{{:USER_ID}}</td>
 				 					<td id='USER_NM'		 value='{{:USER_NM}}'		>{{:USER_NM}}</td>
 									<td id='GRADE'			 value='{{:GRADE}}'			>{{:GRADE}}</td>
-									<td><button onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove();"><i class="icon_trash"></i></button></td>
+									<td><button onClick="<@popupId>.deleteMemeberRow(this);"><i class="icon_trash"></i></button></td>
 							</tr>
 							{{/for}}
 							</script>
@@ -672,14 +678,14 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 										<col style="width:25%;"/>
 										<col style="width:25%;"/>
 										<col style="width:25%;"/>
-										<col style="width:20%;"/>
+										<!-- <col style="width:20%;"/> -->
 									</colgroup>
 									<thead>
 										<tr>
 											<th scope="col">사원ID</th>
 											<th scope="col">사원 이름</th>
 											<th scope="col">등급</th>
-											<th scope="col"><i class="icon_trash"></i></th>
+											<!-- <th scope="col"><i class="icon_trash"></i></th> -->
 										</tr>
 									</thead>
 								<tbody  id="<@popupId>_salesManList">
@@ -690,7 +696,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				 							<td id='USER_ID'		value='{{:USER_ID}}'		>{{:USER_ID}}</td>
 				 							<td id='USER_NM'		value='{{:USER_NM}}'		>{{:USER_NM}}</td>
 			 								<td id='GRADE'			value='{{:GRADE}}'			>{{:GRADE}}</td>
-			 								<td><button onClick="<@popupId>.deleteMemeberRow(this);this.parentNode.parentNode.remove()"><i class="icon_trash"></i></button></td>
 								</tr>
 								{{/for}}
 								</script>
