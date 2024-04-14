@@ -11,7 +11,7 @@ var <@popupId> = {
  	 ,buyerId:''
  	 ,consultingId:''
  	 ,processState:''
- 	 ,consultantUser:''
+ 	 ,consultantUser:{}
 	 ,close : function(returnData) {
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
@@ -45,12 +45,16 @@ var <@popupId> = {
 		 
 		 return returnData;
  	 }
-	 ,apply : (processState) =>{
+	 ,apply : (processState, approval) =>{
 
 		 const returnData = <@popupId>.makeReturnData(false);
 		 
 		 if( processState ) returnData["PROCESS_STATE"] = processState;
 		 else returnData["PROCESS_STATE"]	= <@popupId>.processState;
+		 
+		 if( approval ){
+			 returnData["APPROVAL"] = true;
+		 }
 		 
 		 <@popupId>.close(returnData);
 		 
@@ -68,7 +72,7 @@ var <@popupId> = {
 		 if( returnData["CONSULTING_CLASS"] == '--'  ) {C_POP.alert("컨설팅 분야를 선택하여 주십시오."); return false;}
 		 if( isEmpty(returnData["TAX_MNG"]) ) {C_POP.alert("세무담당을 입력하여 주십시오."); return false;}
 		 if( isEmpty(returnData["LABOR_MNG"]) ) {C_POP.alert("노무담당을 입력하여 주십시오."); return false;}
-		 if( <@popupId>.getContractMember().length == 0) {C_POP.alert("코웍 사원/영업사원을 등록하여 주십시오."); return false;}
+		 if( <@popupId>.getContractMember().length == 0) {C_POP.alert("코웍 사원을 등록하여 주십시오."); return false;}
 		 
 		 return true;
 		 
@@ -77,33 +81,115 @@ var <@popupId> = {
 		
 		<@popupId>.setTitleHeight();
 		
-		let CONTRACT_TYPE,CONSULTING_CLASS;
-		if( <@popupId>.mode == "U" ){
-			
-				Object.entries(<@popupId>.updatingData).forEach(([key, val]) => {
-				    $("#<@popupId>_" + key).val(val);
-				    if( key == "TOTAL_COST")$("#<@popupId>_TOTAL_COST").val(_numberWithCommas(val));
-				});				
-				
-				<@popupId>.savedContractMemberSearch();
-				
-				<@popupId>.memberSet('old');
-				
-				const consultingTypeNm	= <@popupId>.updatingData["CONSULTING_TYPE_NM"];
-				const consultingNm		= <@popupId>.updatingData["CONSULTING_NM"];
-				if( consultingNm ){
-					$("#<@popupId>_CONSULTING").val( `${consultingNm} ( ${consultingTypeNm} )`);
-					
-				}
+		$("#<@popupId>_CONSULTANT_NM").text(<@popupId>.consultantUser.NM);
+		
+		if( "<@processState>" == 'CONTRACTING'){
+			$("#<@popupId>_approvalBtn").text("체결 완료 결재 상신")
+			$("#<@popupId>_approvalBtn").show();
+		}
+		if( "<@processState>" == 'CONTRACTED'){
 
-				CONTRACT_TYPE		= <@popupId>.updatingData["CONTRACT_TYPE"];
-				CONSULTING_CLASS	= <@popupId>.updatingData["CONSULTING_CLASS"];
+			$("#<@popupId>_approvalBtn").text("실행 완료 결재 상신")
+			$("#<@popupId>_approvalBtn").show();
 		}
 
+		$("#<@popupId>_salesManList td#ROLE_NM" ).html(<@popupId>.updatingData.CONSULTANT_ROLE_NM);
+		$("#<@popupId>_salesManList td#USER_ID" ).html(<@popupId>.updatingData.USER_ID);
+		$("#<@popupId>_salesManList td#USER_NM" ).html(<@popupId>.updatingData.USER_NM);
+		$("#<@popupId>_salesManList td#GRADE_NM").html(<@popupId>.updatingData.CONSULTANT_GRADE_NM);
+		
+		let CONTRACT_TYPE,CONSULTING_CLASS;
+		
+		Object.entries(<@popupId>.updatingData).forEach(([key, val]) => {
+		    $("#<@popupId>_" + key).val(val);
+		    if( key == "TOTAL_COST")$("#<@popupId>_TOTAL_COST").val( addComma(val) );
+		});				
+		
+		<@popupId>.savedContractMemberSearch();
+		
+		<@popupId>.memberSet('old');
+		
+		const consultingTypeNm	= <@popupId>.updatingData["CONSULTING_TYPE_NM"];
+		const consultingNm		= <@popupId>.updatingData["CONSULTING_NM"];
+		
+		if( consultingNm ){
+			
+			$("#<@popupId>_CONSULTING").val( `${consultingNm} ( ${consultingTypeNm} )`);
+			
+		}
+
+		CONTRACT_TYPE		= <@popupId>.updatingData["CONTRACT_TYPE"];
+		CONSULTING_CLASS	= <@popupId>.updatingData["CONSULTING_CLASS"];
+
+		<@popupId>.setSelectBox(CONTRACT_TYPE,CONSULTING_CLASS);
+
+		<@popupId>.setByProcessState();
+		
+		//$("button[uid='<@popupId>_selectProcessStatus']").prop("disabled",true)
+	}
+	,setDisableModeItems : () => {
+		
+		$("#<@popupId>_BUYER").css("margin-top","7px").text($("#<@popupId><@popupId>_BUYER_val").val())
+		$("#<@popupId><@popupId>_BUYER_val+a").hide()
+		$("#<@popupId><@popupId>_BUYER_val").hide();
+		
+		$("#<@popupId>_USER").css("margin-top","7px").text($("#<@popupId><@popupId>_USER_val").val())
+		$("#<@popupId><@popupId>_USER_val+a").hide()
+		$("#<@popupId><@popupId>_USER_val").hide();
+		
+		$("#<@popupId>_CONSULTING").next().after("<div style='margin-top:7px'>" + $("#<@popupId>_CONSULTING").val() + "</div>");
+		$("#<@popupId>_CONSULTING+a").hide();
+		$("#<@popupId>_CONSULTING").hide();
+		
+	}
+	,setByProcessState : () => {
+
+		//if( "<@processState>" == "ON_CONTRACTED_APPR" || "<@processState>" == "CONTRACTED"){
+		if( "<@processState>".indexOf("CONTRACTED") > -1 ){
+
+			if( <@popupId>.resulting == "Y"){
+				
+				<@popupId>.setDisableModeItems();
+				
+				setTimeout( ()=>{
+					$("#<@popupId>_addCowork").hide();
+					$("#<@popupId> button .icon_trash").hide()
+					$("#<@popupId>_approvalBtn").show();
+				},300)
+				
+			}else{
+				
+				<@popupId>.setDisableModeItems();
+				
+			}
+			
+		}
+		
+		//if( "<@processState>" == "ON_COMPLETED_APPR" || "<@processState>" == "COMPLETED"){
+		if( "<@processState>".indexOf("COMPLETED") > -1 ){
+
+				<@popupId>.setDisableModeItems();
+				
+				setTimeout( ()=>{
+					$("#<@popupId>_applyBtn").hide();
+					$("#<@popupId>_addCowork").hide();
+					$("#<@popupId>_coworkList button").hide();
+					$("#<@popupId>_selectContractType").children().prop("disabled",true)
+					$("#<@popupId>_selectConsultingClass").children().prop("disabled",true)
+					$("#<@popupId> .ui-datepicker-trigger").hide();
+					$("#<@popupId> .datepicker").prop("disabled",true);
+					$("#<@popupId> input[type='text']").prop("disabled",true)
+					$("#<@popupId> button .icon_trash").hide()
+				},300)
+
+		}
+		
+	}
+	,setSelectBox : (CONTRACT_TYPE,CONSULTING_CLASS) => {
 		
 		const processState = C_COM.getCodeList("PROCESS_STATE");
 		const exPreContract = processState.map( item => { return item[0] !='PRE_CONTRACT' ? item :'' });
-		debugger;
+		
 		C_UICOM.makeSelectBox({ 
 				 data 			: exPreContract
 			 	,targetId 		: "<@popupId>_selectProcessStatus" 
@@ -123,54 +209,7 @@ var <@popupId> = {
  			,targetId : "<@popupId>_selectConsultingClass" }, "single");
 		if( CONSULTING_CLASS ) 
 			C_UICOM.setSingleBox("<@popupId>_selectConsultingClass", CONSULTING_CLASS);
-
 		
-		if( "<@processState>" == "CONTRACTED"){
-			
-			<@popupId>.setDisableModeItems();
-		}
-		if( "<@processState>" == "CONTRACTED_RST"){
-			
-			<@popupId>.setDisableModeItems();
-			$("#<@popupId>_addCowork").hide();
-			//$("#<@popupId>_coworkList button").hide();
-			setTimeout( ()=>{
-				$("#<@popupId> button .icon_trash").hide()
-			},300)
-		}
-		if( "<@processState>" == "COMPLETED"){
-
-				$("#<@popupId>_applyBtn").hide();
-				<@popupId>.setDisableModeItems();
-				setTimeout( ()=>{
-					$("#<@popupId>_addCowork").hide();
-					$("#<@popupId>_coworkList button").hide();
-					$("#<@popupId>_selectContractType").children().prop("disabled",true)
-					$("#<@popupId>_selectConsultingClass").children().prop("disabled",true)
-					$("#<@popupId> .ui-datepicker-trigger").hide();
-					$("#<@popupId> .datepicker").prop("disabled",true);
-					$("#<@popupId> input[type='text']").prop("disabled",true)
-					$("#<@popupId> button .icon_trash").hide()
-				},300)
-
-		}
-		
-		$("button[uid='<@popupId>_selectProcessStatus']").prop("disabled",true)
-	}
-	,setDisableModeItems : () => {
-		
-		$("#<@popupId>_BUYER").css("margin-top","7px").text($("#<@popupId><@popupId>_BUYER_val").val())
-		$("#<@popupId><@popupId>_BUYER_val+a").hide()
-		$("#<@popupId><@popupId>_BUYER_val").hide();
-		$("#<@popupId>_USER").css("margin-top","7px").text($("#<@popupId><@popupId>_USER_val").val())
-		$("#<@popupId><@popupId>_USER_val+a").hide()
-		$("#<@popupId><@popupId>_USER_val").hide();
-		$("#<@popupId>_CONSULTING").next().after("<div style='margin-top:7px'>" + $("#<@popupId>_CONSULTING").val() + "</div>");
-		$("#<@popupId>_CONSULTING+a").hide();
-		$("#<@popupId>_CONSULTING").hide();
-		$("#<@popupId>_coworkList button>i.icon_trash").hide();
-
-		$("#<@popupId>_addCowork").hide();
 	}
 	,savedContractMemberSearch : () => {
 		
@@ -182,10 +221,7 @@ var <@popupId> = {
 
 		C_COM.requestQuery(parm, function(resultData) {
 			
-			const USER 		= resultData.data.filter( member => member.RELATION_TYPE == 'EXECUTE');
 			<@popupId>.addCoworkRtnData	= resultData.data.filter( member => member.RELATION_TYPE == 'COWORK');
-			<@popupId>.addSalseManRtnData= resultData.data.filter( member => member.RELATION_TYPE == 'SALES');
-			<@popupId>.addSuggesterRtnData= resultData.data.filter( member => member.RELATION_TYPE == 'SUGGESTER');
 			
 			var rparm1 = {
 					 targetId 		: "<@popupId>_coworkList"
@@ -193,15 +229,9 @@ var <@popupId> = {
 			}
 			C_COM.renderHtml("<@popupId>", rparm1);
 			
-/* 			var rparm2 = {
-					 targetId 		: "<@popupId>_salesManList"
-					,list			: <@popupId>.addSalseManRtnData
-			}
-			C_COM.renderHtml("<@popupId>", rparm2); */
-			
 		});
 	}
-	,selectSuggester : (recommId) => {
+	,selectRecommender : (recommId) => {
 	
 		const requestParm = {};
 		
@@ -229,6 +259,7 @@ var <@popupId> = {
 	,setTitleHeight : () => {
 		
 		let title = <@popupId>.mode == "I" ? "계약 등록" : "계약 정보 수정";
+		if( "<@processState>".indexOf("COMPLETED") > -1 )title = "계약 정보";
   	 	$("#<@popupId> .tit").html( title );
 		
 	}
@@ -241,14 +272,15 @@ var <@popupId> = {
 			if( buyerId ){
 				$("#<@popupId>_BUYER").val(buyerNm+ " ("+buyerId+")");
 			}
+			
 			const userId	= <@popupId>.updatingData["USER_ID"];
 			const userNm	= <@popupId>.updatingData["USER_NM"];
 			const recommId	= <@popupId>.updatingData["RECOMMENDER_ID"]
 			if( userId ){
 				$("#<@popupId>_USER").val(userNm+ " ("+userId+")");
-				//$("#<@popupId>_CPY_USER_NM").text(userNm);
-				if( recommId )<@popupId>.selectSuggester(recommId);
+				if( recommId )<@popupId>.selectRecommender(recommId);
 			}
+			
 		}else{
 
 			const newBuyer  = <@popupId>.updatingData["NEW_BUYER"];
@@ -257,6 +289,7 @@ var <@popupId> = {
 				const buyerNm	= newBuyer["BUYER_NM"];
 				if( buyerId)$("#<@popupId>_BUYER").val(buyerNm+ " ("+buyerId+")");
 			}
+			
 			const newUser  	= <@popupId>.updatingData["NEW_USER"];
 			if( newUser ){
 				const 	userId	= newUser["USER_ID"];
@@ -264,15 +297,19 @@ var <@popupId> = {
 				const	recommId= newUser["RECOMMENDER_ID"];
 				if( userId){
 					$("#<@popupId>_USER").val(userNm+ " ("+userId+")");
-					//$("#<@popupId>_CPY_USER_NM").text(userNm);
 
-					if( recommId )<@popupId>.selectSuggester(recommId);
+					if( recommId )<@popupId>.selectRecommender(recommId);
 					else{
 						$("#<@popupId>_suggester td#ROLE_NM").attr("ROLE_NM", '').html("")
 						$("#<@popupId>_suggester td#USER_ID").attr("USER_ID", '').html("")
 						$("#<@popupId>_suggester td#USER_NM").attr("USER_NM", '').html("")
 						$("#<@popupId>_suggester td#GRADE_NM").attr("GRADE_NM", '').html("")
 					}
+					
+ 					$("#<@popupId>_salesManList td#ROLE_NM").html(newUser.ROLE_NM);
+					$("#<@popupId>_salesManList td#USER_ID").html(newUser.USER_ID);
+					$("#<@popupId>_salesManList td#USER_NM").html(newUser.USER_NM);
+					$("#<@popupId>_salesManList td#GRADE_NM").html(newUser.GRADE_NM);
 				}
 			}
 		}
@@ -297,6 +334,7 @@ var <@popupId> = {
 	,setHandler : () => {
 
 		$("#<@popupId>_addCowork").on('click', (event) => {
+			
 			event.preventDefault();
 			const CONTRACT_ID	= 	<@popupId>.updatingData["CONTRACT_ID"] ;
 			const USER_ID		=	<@popupId>.userId ;
@@ -317,31 +355,14 @@ var <@popupId> = {
 			});
 			
 		})
-		
-/* 		$("#<@popupId>_addSalesMan").on('click', (event) => {
-			event.preventDefault();
-			const CONTRACT_ID	= 	<@popupId>.updatingData["CONTRACT_ID"] ;
-			const USER_ID		=	<@popupId>.userId ;
-			const contractMember= 	<@popupId>.getContractMember(CONTRACT_ID, USER_ID);
-			
-			let param = {"ALL_MEMBERS": contractMember};
-			C_POP.open('popup_system_memberSearchPopup', {param:param, gubun:'SALES_MAN'}, function(retData) {
-				
-				if( isEmpty(retData) == false ){				
-					<@popupId>.addSalseManRtnData.push( retData );
-					var rparm = {
-							 targetId 		: "<@popupId>_salesManList"
-							,list			: <@popupId>.addSalseManRtnData
-					}
-				
-					C_COM.renderHtml("<@popupId>", rparm);
-				}
-			});
-			
-		}) */
-		
+		 		
 		$("a[name^='<@popupId>_tab']").on('click', (obj) =>{
+
+			const curClicked	= $(obj.target).attr("name").indexOf("tab1") > -1 ? true:false;				
+			const curtab1 		= $("#popup_contract_contractUpdatePopup_tab1").is(":visible");
 			
+			if( curClicked == curtab1)return;
+
 		    $('a[name^="<@popupId>_tab"]').parent().toggleClass('active');
 		    $('#<@popupId>_tab1, #<@popupId>_tab2').toggle();
 
@@ -398,6 +419,7 @@ var <@popupId> = {
 	,deleteMemeberRow : ( obj ) => {
 		
 		C_POP.confirm('관련자 정보를 삭제하시겠습니까?', function() {
+			
 			const trName = $(obj).closest("tr").attr("name").replace("overriding_","");
 			const userId = $(obj.parentNode.parentNode).find("#USER_ID").attr("value");
 			const relationType =  trName.toUpperCase();
@@ -407,9 +429,6 @@ var <@popupId> = {
 				case "COWORK" :
 					<@popupId>.addCoworkRtnData		= <@popupId>.addCoworkRtnData.filter(member => member.USER_ID !== userId);
 					break;
-				case "SALES" :
-					<@popupId>.addSalseManRtnData 	= <@popupId>.addSalseManRtnData.filter(member => member.USER_ID !== userId);
-					break;
 				default:
 			}
 	 		
@@ -417,34 +436,15 @@ var <@popupId> = {
 		});
 		
 	}
-	,nextState : () =>{
-		
-		C_POP.confirm('체결 완료 상태로 전환하시겠습니까?', function() {
+	,approval : () =>{
 
-			if( <@popupId>.makeReturnData(true) == null)return;
-			
-			<@popupId>.apply('CONTRACTED');
+		if( <@popupId>.makeReturnData(true) == null)return;
+		
+		const msg = "<@processState>" == 'CONTRACTING' ? "체결 완료" : "실행 완료";
+		C_POP.confirm(msg+' 결재 상신하시겠습니까?', function() {
+			<@popupId>.apply("<@processState>","APPROVAL");
 		});
 		
-	}
-	,checkCanNextState : (contractId) =>{
-		
-		var parm = {
-				 queryId 		: "contract.canNextState"
-				,requestParm	: {CONTRACT_ID : contractId}
-		}
-
-		C_COM.requestQuery(parm, function(resultData) {
-
-			if( resultData.data ){
-				
-				if( resultData.data[0].CAN_NEXT_STATE == "Y") {
-					$("#<@popupId>_nextStateBtn").show();
-				}
-				
-			}
-
-		});
 	}
 	,setComponent : () => {
 		
@@ -482,23 +482,15 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.recvData			= data;
 	<@popupId>.mode				= <@popupId>.recvData.mode;
 	<@popupId>.updatingData		= <@popupId>.recvData.param;
+	
+	//for TEST : <@popupId>.updatingData.RESULTING ="";
+	
+	<@popupId>.resulting		= <@popupId>.updatingData?.RESULTING; //$("#<@popupId>_peek").text(<@popupId>.resulting) ;
 	<@popupId>.userId 			= <@popupId>.updatingData?.USER_ID;
 	<@popupId>.buyerId 			= <@popupId>.updatingData?.BUYER_ID;
 	<@popupId>.consultingId		= <@popupId>.updatingData?.CONSULTING_ID;
 	<@popupId>.consultantUser	= {ID:<@popupId>.updatingData?.CONSULTANT_USER_ID, 
 								   NM:<@popupId>.updatingData?.CONSULTANT_USER_NM};
-	$("#<@popupId>_CPY_USER_NM").text(<@popupId>.consultantUser.NM);
-	if( "<@mode>" == "U"){
-		
-		if( "<@processState>" == 'CONTRACTING'){
-			$("#<@popupId>_nextStateBtn").show();
-		}
-	}
-
-	$("#<@popupId>_salesManList td#ROLE_NM").html(<@popupId>.updatingData.CONSULTANT_ROLE_NM);
-	$("#<@popupId>_salesManList td#USER_ID").html(<@popupId>.updatingData.USER_ID);
-	$("#<@popupId>_salesManList td#USER_NM").html(<@popupId>.updatingData.USER_NM);
-	$("#<@popupId>_salesManList td#GRADE_NM").html(<@popupId>.updatingData.CONSULTANT_GRADE_NM);
 	
 	<@popupId>.setComponent();
 	
@@ -527,9 +519,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<li>
 									<label>계약 상태</label>
 									<div class="info">
+										<div id="<@popupId>_peek"></div>
 										<!-- <div class="search_inputWrap" style="width:45%;margin-top:7px;"><@processStateNm></div> -->
-										<div id="<@popupId>_selectProcessStatus" class="select_box" style="width:100%; float: right !important;">
-									</div>
+										<div id="<@popupId>_selectProcessStatus" class="select_box" style="width:100%; float: right !important;"></div>
 								</li>
 								
 								<li style="visibility: hidden;">
@@ -630,7 +622,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<div id="<@popupId>_tab2" class="display" style="overflow:auto;">
 							<dl class="info_wrap pay mt0">
 								<dt class="mb0">담당 컨설턴트 :</dt>
-								<dd class="mb0" id="<@popupId>_CPY_USER_NM"></dd>
+								<dd class="mb0" id="<@popupId>_CONSULTANT_NM"></dd>
 							</dl>
 							<!-- 코웍 사원 등록  -->
 							<div class="search_area">
@@ -680,9 +672,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<!-- 영업담당사원 등록  -->
 							<div class="search_area mt25">
 								<span class="tit02">영업담당사원</span>
-								<div class="search_right">
-									<!-- <a class="btn small fr"  href="#" id="<@popupId>_addSalesMan">추가</a> -->
-								</div>
 							</div>
 							<!-- 테이블 -->
 							<div class="tbl01 col">
@@ -700,7 +689,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 											<th scope="col">사원ID</th>
 											<th scope="col">사원 이름</th>
 											<th scope="col">등급</th>
-											<!-- <th scope="col"><i class="icon_trash"></i></th> -->
 										</tr>
 									</thead>
 								<tbody  id="<@popupId>_salesManList">
@@ -746,13 +734,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</div>
 					</div>
 				</div>
-	</div> <!-- //modal_body -->
+		</div> <!-- //modal_body -->
 
 		<div class="modal_footer">
-			<button type="button" class="btn select" id="<@popupId>_nextStateBtn" onclick="<@popupId>.nextState()" style="display:none;">계약체결완료</button>
-			<button type="button" class="btn select" id="<@popupId>_applyBtn" onclick="<@popupId>.apply()" >저장</button>
-			<button type="button" class="btn close"  id="<@popupId>_closeBtn" onclick="<@popupId>.close()" >취소</button>
+			<button type="button" class="btn select" id="<@popupId>_approvalBtn" 	onclick="<@popupId>.approval()" style="display:none;">체결완료결재</button>
+			<button type="button" class="btn select" id="<@popupId>_applyBtn" 		onclick="<@popupId>.apply()" >저장</button>
+			<button type="button" class="btn close"  id="<@popupId>_closeBtn" 		onclick="<@popupId>.close()" >취소</button>
 		</div>
 	</div>
 </div>
-

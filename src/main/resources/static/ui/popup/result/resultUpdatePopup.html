@@ -3,6 +3,7 @@
 var <@popupId> = {
 	  recvData : []	
 	 ,CONTRACT_ID :''
+	 ,PROCESS_STATE:''
 	 ,RESULT_ID: '' 
 	 ,mode:''
 	 ,close : function(returnData) {
@@ -12,76 +13,87 @@ var <@popupId> = {
 	 }
 	 ,apply : () =>{
 
-		 const $inputs = $("#<@popupId>_items");
-		 const returnData = {	
-				 			costInfo	: <@popupId>.getJson($("#<@popupId>_costList")).map(tr => 
-											{ 
-												let newTr={};
- 												Object.keys( tr ) .forEach(key => {
+		const $inputs = $("#<@popupId>_items");
+		const returnData = 
+		{	
+			costInfo	:	<@popupId>.getJson($("#<@popupId>_costList")).map(tr => 
+							{ 
+								let newTr={};
+								Object.keys( tr ) .forEach(key => {
  													
-													    if ( key === "CONTRACT_ID") {
-													    		newTr[key] = <@popupId>.CONTRACT_ID;
-													    }else
-														if (key === "RESULT_ID") {
-														    	newTr[key] = <@popupId>.RESULT_ID;
-														}else
-														if (key === "COST_ID") {
-															
-															    newTr[key] =  <@popupId>.mode =="U" ? tr[key] : C_COM.makeUniqueId() ;
-														}else
-													    	newTr[key] = tr[key];
-										  		});
- 												
-												 return newTr;
-											})
-							, 	resultInfo	: {	 CONTRACT_ID: <@popupId>.CONTRACT_ID
-												,RESULT_ID 	: <@popupId>.RESULT_ID
-												,INCOME 	: $("#<@popupId>_resultInfo #INCOME").nval()
-												,RESULT_DATE: $("#<@popupId>_resultInfo #<@popupId>_RESULT_DATE").val()
-												,INCOME_TYPE: C_UICOM.getData("<@popupId>_selectIncomeType")
-												}
-							, 	paymentInfo	: <@popupId>.getJson($("#<@popupId>_paymentList"))
-							} 
+									if ( key === "CONTRACT_ID") {
+										newTr[key] = <@popupId>.CONTRACT_ID;
+									}else
+									if (key === "RESULT_ID") {
+										newTr[key] = <@popupId>.RESULT_ID;
+									}else
+									if (key === "COST_ID") {
+										newTr[key] =  "<@mode>" =="I" ? C_COM.makeUniqueId() : tr[key];
+									}else
+										newTr[key] = tr[key];
+									
+								});
+								return newTr;
+							})
+			,resultInfo	: 	{CONTRACT_ID: <@popupId>.CONTRACT_ID
+							,RESULT_ID 	: <@popupId>.RESULT_ID
+							,INCOME 	: $("#<@popupId>_resultInfo #INCOME").nval()
+							,RESULT_DATE: $("#<@popupId>_resultInfo #RESULT_DATE").val()
+							,INCOME_TYPE: C_UICOM.getData("<@popupId>_selectIncomeType")
+							}
+			,paymentInfo:	<@popupId>.getJson($("#<@popupId>_paymentList"))
+		} 
 
-		 if( !<@popupId>.validate(returnData) )return;
+		if( !<@popupId>.validate(returnData) )
+			return;
 		 
-		 <@popupId>.close( returnData ) ; 
+		<@popupId>.close( returnData ) ; 
 		 
 	 }
 	 ,validate : (returnData) => {
 
-		 const rateSum = $("#<@popupId>_paymentList #<@popupId>_RATE_SUM").text();
-		 if( rateSum > 100 ){C_POP.alert('수수료율(%)을 100% 이하로 수정하여 주십시오. ');return false;}
+		const resultInfo = returnData["resultInfo"];
+		if( isEmpty(resultInfo["RESULT_DATE"])	) {C_POP.alert("입금일을 입력하여 주십시오."	); return false;}
+		if( isEmpty(resultInfo["INCOME"])		) {C_POP.alert("입금액을 입력하여 주십시오."	); return false;}
+		if( isEmpty(resultInfo["INCOME_TYPE"])	) {C_POP.alert("입금타입을 입력하여 주십시오."	); return false;}
+ 		 
+		if( <@popupId>.canAdd() == false 		) {C_POP.alert("비용이름, 비용설명, 비용 모두 입력해 주십시오."); return false;} 
+
+		const errMsg 		="수수료 산출 항목의 수수료율을 모두 입력해 주십시오."; 
+		const paymentInfo 	= returnData["paymentInfo"];
+		let isError = false;
+		if( paymentInfo.length > 0){
+			paymentInfo.forEach( item => {
+				if( isEmpty(item["RATE"]) || isEmpty(item["PAYMENT"]) )isError=true;  
+			}) 			 
+		}else {C_POP.alert(errMsg); return false;} 
+		if( isError ){C_POP.alert(errMsg); return false;}
+ 		 
+		const rateSum = $("#<@popupId>_paymentList #<@popupId>_RATE_SUM").text().replace("%","");
+		if( rateSum > 100 ){C_POP.alert('총 수수료율(%)을 100% 이하로 수정하여 주십시오. ');return false;}
 		 
-		 const resultInfo = returnData["resultInfo"];
-		 if( isEmpty(resultInfo["RESULT_DATE"]) ) {C_POP.alert("입금일을 입력하여 주십시오."); return false;}
- 		 if( isEmpty(resultInfo["INCOME"]) 		) {C_POP.alert("입금액을 입력하여 주십시오."); return false;}
- 		 if( isEmpty(resultInfo["INCOME_TYPE"]) ) {C_POP.alert("입금타입을 입력하여 주십시오."); return false;}
- 		 
- 		 if( <@popupId>.canAdd() == false 		) {C_POP.alert("비용이름, 비용설명, 비용 모두 입력해 주십시오."); return false;} 
- 		 
- 		 return true;
+		return true;
 
 	 }
 	 ,getJson : ( list ) => {
 		 
-		 let jsonArray = [];
+		let jsonArray = [];
 
-   		 $.each( $(list).children("tr[name^='<@popupId>_tr_']") , (idx, tr) => {
-   			 
-			 let trObj = {};
- 			 $.each( $(tr).children("td"), (idx2, td) => {
+		$.each( $(list).children("tr[name^='<@popupId>_tr_']") , (idx, tr) => {
+
+			let trObj = {};
+			$.each( $(tr).children("td"), (idx2, td) => {
  				 
-				 const id 		=  	$(td).attr("id");
-				 const value 	=	$(td).attr("value") == "" ? $(td).children("input").val() : $(td).attr("value");
-  			 	 if(id)trObj[id]= 	value;
-			 })
+				const id 		=  	$(td).attr("id");
+				const value 	=	$(td).attr("value") == "" ? $(td).children("input").val() : $(td).attr("value");
+				if(id)trObj[id]= 	value;
+			})
 			 
-			 jsonArray .push( trObj);
+			jsonArray .push( trObj);
 			 
-		 })
+		})
 
-   		 return jsonArray.filter(obj => Object.keys(obj).length !== 0);
+		return jsonArray.filter(obj => Object.keys(obj).length !== 0);
 
 	 }
 	,pageInit : (parentData) => {
@@ -95,44 +107,70 @@ var <@popupId> = {
 		}
 		C_UICOM.makeSelectBox(singleboxList, "single");
 		
-		<@popupId>.RESULT_ID 		= C_COM.makeUniqueId();
-		<@popupId>.mode				= parentData.mode;
-		let resultDate				= dayjs().format("YYYY-MM-DD");
-		
-		if( parentData.mode == "U"){
+		//<@popupId>.RESULT_ID 		= C_COM.makeUniqueId();
 			
-			<@popupId>.RESULT_ID 	= parentData.param["RESULT_ID" 		] ;
-			resultDate				= parentData.param["RESULT_DATE"	] ;
+		$("#<@popupId>_contractInfo #TOTAL_COST"	).html( addComma(parentData.contractItem.TOTAL_COST)	);
+		$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( addComma(parentData.contractItem.REMAINING_SUM)	);
+		$("#<@popupId>_resultInfo	#RESULT_DATE"	).val ( dayjs().format("YYYY-MM-DD")					);
+				
+		if( "<@mode>" != "I"){
 			
-			<@popupId>.setCostList(parentData.param);
-			C_UICOM.setSingleBox("<@popupId>_selectIncomeType", "INTERMED_PAYMENT");
-			$("#<@popupId>_resultInfo #INCOME").val( _numberWithCommas( parentData.param["INCOME"])	);
-			
-		}
-		
-		$("#<@popupId>_contractInfo #TOTAL_COST"	).html( _numberWithCommas( parentData.contractItem.TOTAL_COST )		);
-		$("#<@popupId>_resultInfo	#<@popupId>_RESULT_DATE"	).val(resultDate) ;
-		
-		var parm = {
-				 queryId 	: "contract.getContractList"
-				,requestParm: {CONTRACT_ID : parentData.contractItem.CONTRACT_ID}
-		}
-		C_COM.requestQuery(parm, function(resultData) {
+			$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( addComma( parentData.resultItem["LAST_REMAINING_SUM"]));
+			//<@popupId>.RESULT_ID 	= parentData.resultItem["RESULT_ID" 		] ;
 
-			$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( _numberWithCommas( resultData.data[0].REMAINING_SUM )	);
-		});
+			$("#<@popupId>_resultInfo	#RESULT_DATE"	).val (parentData.resultItem["RESULT_DATE"	] );	
+			<@popupId>.setCostList();
+			C_UICOM.setSingleBox("<@popupId>_selectIncomeType", parentData.resultItem["INCOME_TYPE"]);
+
+			$("#<@popupId>_resultInfo #INCOME").val( addComma( parentData.resultItem["INCOME"])	);
+			$('#<@popupId>_resultInfo #INCOME').trigger('input');
+
+		}
 		
 		<@popupId>.selectTempPayment(parentData) ;
 		
+		if( "<@mode>" != "I"){
+			
+			const $paymentListTR =  $("#<@popupId>_paymentList tr");
+			let rateSum=0; 
+			let paymentSum=0;
+			let rowCnt = $paymentListTR.length;
+			
+			$.each( $paymentListTR.children("td[id='RATE'	]"), (idx, rate		)=> rateSum 	+= Number( $(rate	).attr('value') ));	
+			$.each( $paymentListTR.children("td[id='PAYMENT']"), (idx, payment	)=> paymentSum 	+= Number( $(payment).attr('value') ));
+			
+			rateSum = rateSum / rowCnt;
+			<@popupId>.setPaymentTotalRow(rateSum, paymentSum);
+			
+		}
+		
+		if( <@popupId>.PROCESS_STATE.indexOf("COMPLETE") > -1 ){
+			
+			$("#<@popupId>_apply").hide();
+			setTimeout( ()=>{
+				
+				$("#<@popupId>_costList button .icon_trash").hide();
+				$("#<@popupId>_addCost").hide();
+			},300)
+
+		}
+		
 	}
 	,costPriceInput :(obj) => {
-		
-        const val = $(obj).val();
-        $(obj).attr("value",val);
-        $(obj).parent("td").attr("value",_numberWithCommas(val));
+
+	    const val = $(obj).val().trim();
+	    const tdVal = $(obj).parent("td").attr("value");
+	    const check = isEmpty(tdVal) ? val: tdVal;
+	    if (/^\d+$/.test(check)) {
+	        const numVal = parseFloat(check);
+	        $(obj).attr("value", numVal);
+	        $(obj).parent("td").attr("value", numVal);
+	    }else{
+	    	$(obj).val('');
+	    }		
 		
 	}
-	,setCostList : (param) => {
+	,setCostList : () => {
 		
 		var parm = {
 				 queryId 		: "result.getCostList"
@@ -169,21 +207,8 @@ var <@popupId> = {
 										,list			: tempPayment
 			});
 
- 			if( data.mode == "I"){
-
-				<@popupId>.getPayId(data, tempPayment);
-			}else{
-
-				const $paymentListTR =  $("#<@popupId>_paymentList tr");
-				let rateSum=0; 
-				let paymentSum=0;
-				let rowCnt = $paymentListTR.length;
-				$.each( $paymentListTR.children("td[id='RATE']"), (idx, rate)=> rateSum += Number( $(rate).attr('value') ));	rateSum = rateSum / rowCnt;
-				$.each( $paymentListTR.children("td[id='PAYMENT']"), (idx, payment)=> paymentSum += Number( $(payment).attr('value') ));
-				
-				<@popupId>.setPaymentTotalRow(rateSum, paymentSum);
-
-			}
+			<@popupId>.getPayId(data, tempPayment);
+			
 		});
 		
 	}
@@ -208,15 +233,14 @@ var <@popupId> = {
 				C_COM.requestQuery(parm, function(resultData) {
 		
 					payInfoList.push( resultData.data[0]);
-					if( userIdListCnt <= (userIdIndex+1) ) <@popupId>.setRatePayment(data.mode, tempPayment,payInfoList)
+					if( userIdListCnt <= (userIdIndex+1) ) <@popupId>.setRatePayment( tempPayment,payInfoList)
 					userIdIndex++;
 				});
 				
 		})
 
-
  	}
-	,setRatePayment : (mode, tempPayment,payInfoList) => {
+	,setRatePayment : (tempPayment,payInfoList) => {
 		
 		let rateSum = 0;
 		let paymentSum = 0;
@@ -249,34 +273,40 @@ var <@popupId> = {
 	}
 	,setPaymentTotalRow : (rateSum, paymentSum) => {
 		
-		const sumTemplate = $("#<@popupId>_paymentList_sum_template").render({"RATE_SUM" : Number(rateSum).toFixed(2), "PAYMENT_SUM" :  Number(paymentSum).toFixed(2) });
+		const rs			= Number(rateSum).toFixed(2);
+		const RATE_SUM 		= rs.endsWith('.00') ? rs.slice(0, -3) : rs;
+		const ps			= Number(paymentSum).toFixed(2)
+		const PAYMENT_SUM	= ps.endsWith('.00') ? ps.slice(0, -3) : ps;
+		const sumTemplate 	= $("#<@popupId>_paymentList_sum_template").render({"RATE_SUM" : RATE_SUM, "PAYMENT_SUM" :  PAYMENT_SUM });
 		$("#<@popupId>_paymentList").append(sumTemplate);
 		
 	}
 	,calcPayment : (val) => {
 
-
-		const INCOME = Number(val);
+		const SUPPLY_COST = Number(val);
 		let rateSum = 0;
 		let paymentSum = 0;
-
+		
 		$.each( $("#<@popupId>_paymentList tr td[id='RATE']") , (idx,obj) => {
 
 			const objValue 			= Number($(obj).attr("value"));
-			
+		alert("BB "+objValue)	
 			if (typeof objValue === 'number' && !isNaN(objValue)){
 				
 				rateSum += objValue;
-				const payment = (objValue  * INCOME ) / 100; 
-				$(obj).siblings("#PAYMENT").attr("value",payment).html(_numberWithCommas(payment) );
+				const payment = (objValue  * SUPPLY_COST ) / 100; 
+				$(obj).siblings("#PAYMENT").attr("value",payment).html( addComma(payment) );
 				paymentSum +=payment;
 				
 			}				
 			
 		});
 		
-		$("#<@popupId>_paymentList #<@popupId>_RATE_SUM").text(Number(rateSum).toFixed(2));	
-		$("#<@popupId>_paymentList #<@popupId>_PAYMENT_SUM").text(_numberWithCommas(Number(paymentSum)));	
+		let rs			= Number(rateSum).toFixed(2);
+		const RATE_SUM	= rs.endsWith('.00') ? rs.slice(0, -3) : rs;
+		alert(RATE_SUM);
+		$("#<@popupId>_paymentList #<@popupId>_RATE_SUM").text(RATE_SUM+" %");	
+		$("#<@popupId>_paymentList #<@popupId>_PAYMENT_SUM").text( addComma(Number(paymentSum)));	
 
 	}
 	,deleteItem : (delKey,idx) => {
@@ -287,7 +317,8 @@ var <@popupId> = {
 		}
 		C_COM.requestQuery(parm, function(resultData) {
 			
-		});				
+		});	
+		
 	}
 	,deleteOne : (constId,idx) =>{
 			
@@ -297,9 +328,16 @@ var <@popupId> = {
 		<@popupId>.deleteItem({CONTRACT_ID:CONTRACT_ID,RESULT_ID:RESULT_ID,COST_ID:COST_ID},idx)
 			
 	}  
-	,deleteCostItem : (constId, idx) =>{
+	,deleteCostItem : (constId, idx, obj) =>{
 		
-		<@popupId>.deleteOne(constId, idx);
+    	C_POP.confirm('선택하신 비용을 삭제 하시겠습니까?', function() {
+
+    		$(obj).parent().parent().remove();
+    		$('#<@popupId>_resultInfo #INCOME').trigger('input');
+			<@popupId>.deleteOne(constId, idx);
+
+		});
+    	
 	}
 	,setHandler : () => {
 		
@@ -310,44 +348,54 @@ var <@popupId> = {
 				return;
 			}
 			
-			
 			const $tr = $("[name='<@popupId>_tr_-1']");
-			if( $tr.length > 0)$tr.remove();
+			if( $tr.length > 0)$tr.hide();
 			
 			let cnt 		= $("#<@popupId>_costList tr").length;
-			if ( !cnt)cnt 	= 0;
-			const COST_ID	= C_COM.makeUniqueId();
- 			const trTemplate = $("#<@popupId>_costList_add_template").render({cnt : cnt, COST_ID :  COST_ID, CONTRACT_ID : <@popupId>.CONTRACT_ID, RESULT_ID : <@popupId>.RESULT_ID  });
+			if ( !cnt )cnt 	= 0;
+
+ 			const trTemplate = $("#<@popupId>_costList_add_template").render({cnt : cnt, COST_ID :  C_COM.makeUniqueId() , CONTRACT_ID : <@popupId>.CONTRACT_ID, RESULT_ID : <@popupId>.RESULT_ID  });
 			$("#<@popupId>_costList").append(trTemplate);
 			
 		    $("#<@popupId>_costList tr td[id='COST_PRICE'] input[type='text']").off().on('input',function(key){
 
-		        $(this).attr("value",$(this).nval()).val(_numberWithCommas($(this).nval()) );
-		        $(this).parent("td").attr("value",$(this).nval());
+		    	const val = $(this).nval();
+		    	
+		        $(this).attr("value",val).val( addComma(val) );
+		        $(this).parent("td").attr("value",val);
 		          
-		        const incomeMinusCostPrice = $('#<@popupId>_resultInfo #INCOME').nval() - <@popupId>.sumCostPrice();
+		        const incomeMinusCostPrice = $('#<@popupId>_supplyCost').nval() - <@popupId>.sumSupplyCostPrice();
 		    	<@popupId>.calcPayment(incomeMinusCostPrice);
 			})
 		})
 	
-	    $('#<@popupId>_resultInfo #INCOME').on('input',function(event){
+		// 입금액이 입력되면 , 잔금 - 공급가를 계산.
+	    $('#<@popupId>_resultInfo #INCOME').on('input  focusout',function(event){
 
-	        const val = $(this).nval();
-
+	        const val 			= $(this).nval();
+			const supplytax		= <@popupId>.supply_tax_cal(val);
+			
+			$('#<@popupId>_supplyCost'	).val( supplytax.supplyCost	).html( addComma(supplytax.supplyCost	));
+			$('#<@popupId>_tax'			).val( supplytax.tax		).html( addComma(supplytax.tax			));
+			
 	        const remainingSum = $("#REMAINING_SUM").text().replace(/,/g, '');
-	        if( Number(remainingSum) - Number(val)  < 0  ){
-	        	alert( "잔금이하의 금액을 입금하여 주십시오. ");
+	        if( Number(remainingSum) - Number(supplytax.supplyCost)  < 0  ){
+
+
+	        	
 	        	$(this).val("0");
+	        	$('#<@popupId>_supplyCost , #<@popupId>_tax'	).val( "0"	).html("");
 	        	return;
 	        }
-	        debugger;
-	        const incomeMinusCostPrice = val - <@popupId>.sumCostPrice();
-	    	<@popupId>.calcPayment(incomeMinusCostPrice);
-	    	
+
+	        const incomeMinusCostPrice = Number(supplytax.supplyCost) - <@popupId>.sumSupplyCostPrice();
+	        setTimeout( ()=>{
+	        	<@popupId>.calcPayment(incomeMinusCostPrice);
+	        },300)
 	        
 	    });
 		
-	} 	
+	}
  	, canAdd : () => {
 		
 		let bAdd = true;
@@ -361,8 +409,7 @@ var <@popupId> = {
  					if( $(col).attr("id") == "COST_NM" 
 					|| $(col).attr("id") == "COST_DESC"
  					|| $(col).attr("id") == "COST_PRICE"){
- 						debugger;
- 						//$("td#COST_NM input").val()
+ 						
 	 					if( isEmpty( $(col).children("input").val() ) ){
 							bAdd = false; 
 						}
@@ -376,48 +423,73 @@ var <@popupId> = {
 	}
 	,setTitleHeight : (parentData) => {
 		
-		let title = parentData.mode == "I" ? "실적 등록" : "실적 정보 수정";
+		let title = "<@mode>" == "I" ? "실적 등록" : "실적 정보 수정";
+		if( parentData.contractItem.PROCESS_STATE.indexOf("COMPLETE") > -1 
+		||	"<@mode>" == "V") title = "실적 정보";
+		
   	 	$("#<@popupId> .tit").html( title );
 		
 	}
-	,coworkRateVal : (obj,event) =>{
+	,coworkRateValInput : (obj) =>{
 
         const val = Number($(obj).nval());
         if (isNaN(val)) {
         	$(obj).val('');
         	return;
         } 
-        const INCOME = Number($("#<@popupId>_resultInfo #INCOME").nval());
-        const payment = (Number(val) * INCOME) / 100;
+
+        const SUPPLY_COST = Number($("#<@popupId>_supplyCost").nval());
+        const payment = ( val * SUPPLY_COST) / 100;
         $(event.target).attr("value", val);
         $(event.target).parent("#RATE").attr("value", val);
-        $(event.target).parent().siblings("#PAYMENT").attr("value", payment).html(payment);
+
+        $(event.target).parent().siblings("#PAYMENT").attr("value", payment).html( addComma(payment) );
         
-        <@popupId>.calcPayment(INCOME);
+        const incomeMinusCostPrice = Number(SUPPLY_COST) - <@popupId>.sumSupplyCostPrice();
+    	<@popupId>.calcPayment(incomeMinusCostPrice);
 	}
-	,sumCostPrice : () => {
+	,sumSupplyCostPrice : () => {
 		
 		let sum = 0;
-debugger;		
+		
 		$.each( $("#<@popupId>_costList tr") , function(idx,row) {
 			
-			sum += Number($(row).children("td[id='COST_PRICE']").attr("value") )
-				
+			const COST_PRICE	= $(row).children("td[id='COST_PRICE']").attr("value");
+			
+			const supplytax 	= <@popupId>.supply_tax_cal( Number(COST_PRICE) ) ;
+			const nsupplyCost 	= $(row).children("td[id='COST_SUPP_PRICE']").val(	supplytax.supplyCost	).nval();
+			const ntax			= $(row).children("td[id='COST_TAX_PRICE']"	).val(	supplytax.tax			).nval();
+			
+			$(row).children("td[id='COST_SUPP_PRICE']"	).attr("value", nsupplyCost	).text(addComma(supplytax.supplyCost) ); 
+			$(row).children("td[id='COST_TAX_PRICE']"	).attr("value",ntax			).text(addComma(supplytax.tax));
+			
+			sum += Number(	nsupplyCost );
 		})
 
 		return sum;
 	}
+	, supply_tax_cal : (val) => {
 		
+		let sc	 			= (Number((Number( val ) / 11) * 10).toFixed(2));
+		let tx 				= (Number((Number( val ) / 11) * 1 ).toFixed(2));
+		const supplyCost 	= sc.endsWith('.00') ? sc.slice(0, -3) : sc;
+		const tax			= tx.endsWith('.00') ? tx.slice(0, -3) : tx;
+		
+		return { supplyCost : supplyCost , tax : tax };
+	}
 
 }
 // Popup Load가 완료된후 실행 된다.
 C_POP.onLoadPopup("<@popupId>", function(data) {
 
-	<@popupId>.recvData	= data;
-	<@popupId>.CONTRACT_ID = <@popupId>.recvData.contractItem.CONTRACT_ID; 
-	<@popupId>.pageInit(data);
-	
+	<@popupId>.recvData			= data;
+	<@popupId>.CONTRACT_ID 		= data.contractItem.CONTRACT_ID; 
+	<@popupId>.PROCESS_STATE 	= data.contractItem.PROCESS_STATE; 
+
+	<@popupId>.RESULT_ID 		= isEmpty(data.resultItem?.RESULT_ID) ? C_COM.makeUniqueId() : data.resultItem["RESULT_ID"];
 	<@popupId>.setHandler();
+	
+	<@popupId>.pageInit(data);
 
 });
 </script>
@@ -456,7 +528,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<label>입금일</label>
 						<div class="info">
 							<div class="calendar_wrap">
-								<input type="text" id="<@popupId>_RESULT_DATE" name="RESULT_DATE" class="datepicker" style="width:100%">
+								<input type="text" id="RESULT_DATE" name="RESULT_DATE" class="datepicker" style="width:100%">
 							</div>
 						</div>
 					</li>
@@ -470,6 +542,14 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<label>입금 TYPE</label>
 						<div class="info">
 							<div id="<@popupId>_selectIncomeType" style="width:189px"></div>
+						</div>
+						<label>공급가</label>
+						<div class="info">
+							<div id="<@popupId>_supplyCost" style="width:189px" disabled></div>
+						</div>
+						<label>부가세</label>
+						<div class="info">
+							<div id="<@popupId>_tax" style="width:189px" disabled></div>
 						</div>
 					</li>
 				</ul>
@@ -485,16 +565,20 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					<table>
 						<caption>표 캡션</caption>
 						<colgroup>
-							<col style="width:32%;"/>
-							<col style="width:32%;"/>
-							<col style="width:30%;"/>
-							<col style="width:6%;"/>
+							<col style="width:12%;"/>
+							<col style="width:12%;"/>
+							<col style="width:18%;"/>
+							<col style="width:18%;"/>
+							<col style="width:18%;"/>
+							<col style="width:8%;"/>
 						</colgroup>
 						<thead>
 							<tr>
 								<th scope="col">비용이름</th>
 								<th scope="col">비용설명</th>
 								<th scope="col">비용</th>
+								<th scope="col">공급가</th>
+								<th scope="col">TAX</th>
 								<th scope="col"><i class="icon_trash"></i></th>
 							</tr>
 						</thead>
@@ -504,9 +588,11 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					<table>
 						<caption>표 캡션</caption>
 						<colgroup>
-							<col style="width:32%;"/>
-							<col style="width:32%;"/>
-							<col style="width:28%;"/>
+							<col style="width:12%;"/>
+							<col style="width:12%;"/>
+							<col style="width:18%;"/>
+							<col style="width:18%;"/>
+							<col style="width:18%;"/>
 							<col style="width:8%;"/>
 						</colgroup>
 						<tbody  id="<@popupId>_costList">
@@ -514,13 +600,15 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<script type="text/x-jsrender" id="<@popupId>_costList_template">						
 							{{for list}}
 							<tr name="<@popupId>_tr_{{:#index}}">
-			 					<td id='COST_NM'			 value='{{:COST_NM}}'			><input type='text' style="width:100%" value="{{:COST_NM}}"/></td>
-								<td id='COST_DESC'			 value='{{:COST_DESC}}'			><input type='text' style="width:100%" value="{{:COST_DESC}}"/></td>
-								<td id='COST_PRICE'			 value='{{:COST_PRICE}}'		><input type='text' style="width:100%;text-align: right;" value="{{numb:COST_PRICE}}" oninput="<@popupId>.costPriceInput(this)" number/></td>
-								<td id='CONTRACT_ID'		 value=''			 style='display:none'></td>
-								<td id='RESULT_ID'			 value=''			 style='display:none'></td>
+			 					<td id='COST_NM'		 class="tl"	 value='{{:COST_NM}}'			><input type='text' style="width:100%" value="{{:COST_NM}}"/></td>
+								<td id='COST_DESC'		 class="tl"	 value='{{:COST_DESC}}'			><input type='text' style="width:100%" value="{{:COST_DESC}}"/></td>
+								<td id='COST_PRICE'		 class="tr"	 value='{{:COST_PRICE}}'		><input type='text' style="width:100%;text-align: right;" value="{{numb:COST_PRICE}}" oninput="<@popupId>.costPriceInput(this)" number/></td>
+								<td id='COST_SUPP_PRICE' class="tr"	 value='{{:COST_SUPP_PRICE}}'	>{{numb:COST_SUPP_PRICE}}</td>
+								<td id='COST_TAX_PRICE'	 class="tr"	 value='{{:COST_TAX_PRICE}}'	>{{numb:COST_TAX_PRICE}}</td>
+								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'	style='display:none'></td>
+								<td id='RESULT_ID'			value='{{:RESULT_ID}}'		style='display:none'></td>
 								<td id='COST_ID'			 value='{{:COST_ID}}' style='display:none'></td>				
-								<td><button onclick="javascript:<@popupId>.deleteCostItem('{{:COST_ID}}','{{:#index}}');this.parentNode.parentNode.remove()">
+								<td><button onclick="javascript:<@popupId>.deleteCostItem('{{:COST_ID}}','{{:#index}}',this);">
 									<i class="icon_trash"></i></button>
 								</td>
 							</tr>
@@ -529,18 +617,20 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</script>
 						<script type="text/x-jsrender" id="<@popupId>_costList_noData_template">	
 							<tr name="<@popupId>_tr_-1">	
-								<td colspan=4>자료가 없습니다.</td>	
+								<td colspan=6>자료가 없습니다.</td>	
 							</tr>
 						</script>
 						<script type="text/x-jsrender" id="<@popupId>_costList_add_template">	
 							<tr name="<@popupId>_tr_{{:cnt}}" value=''>
-								<td id='COST_NM'			value=''><input type='text' style="width:100%"/></td>
-								<td id='COST_DESC'			value=''><input type='text' style="width:100%"/></td>
-								<td id='COST_PRICE'  		><input type='text' style="width:100%;text-align: right;" oninput="<@popupId>.costPriceInput(this)"/></td>
+								<td id='COST_NM'		 class="tl" value=''><input type='text' style="width:100%"/></td>
+								<td id='COST_DESC'		 class="tl" value=''><input type='text' style="width:100%"/></td>
+								<td id='COST_PRICE'  	 class="tr"><input type='text' style="width:100%;text-align: right;" oninput="<@popupId>.costPriceInput(this)" number/></td>
+								<td id='COST_SUPP_PRICE' class="tr"></td>
+								<td id='COST_TAX_PRICE'  class="tr"></td>
 								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'	style='display:none'></td>
 								<td id='RESULT_ID'			value='{{:RESULT_ID}}'		style='display:none'></td>
 								<td id='COST_ID'			value='{{:COST_ID}}' 		style='display:none'></td>								
-								<td><button onclick="javascript:<@popupId>.deleteCostItem('{{:COST_ID}}','{{:#index}}');this.parentNode.parentNode.remove()">
+								<td><button onclick="javascript:<@popupId>.deleteCostItem('{{:COST_ID}}','{{:#index}}',this);">
 									<i class="icon_trash"></i></button>
 								</td>
 							</tr>
@@ -595,8 +685,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<td id='RELATION_TYPE_NM'	value='{{:RELATION_TYPE_NM}}'	class='tl'>{{:RELATION_TYPE_NM}}</td>
 								<td id='RATE'				value='{{:RATE}}' 				class='tr'>
 								{{if RELATION_TYPE == 'COWORK'}}
-									<Input name='coworkRate' type='text' value='{{:RATE}}' style='width:60px;' 
-												onkeyup='javascript:<@popupId>.coworkRateVal(this,event)' /> %
+									<Input name='coworkRate' type='text' style='width:60px;' 
+												value='{{:RATE}}'  
+												oninput='javascript:<@popupId>.coworkRateValInput(this)' /> %
 								{{else}}{{:RATE}} %
 								{{/if}}
 								</td>
@@ -626,8 +717,8 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				</div>
 			</div>
 			<div class="modal_footer">
-				<button type="button" class="btn select close" 	onclick="<@popupId>.apply()" >저장</button>
-				<button type="button" class="btn close"			onclick="<@popupId>.close()" >닫기</button>
+				<button type="button" class="btn select close" 	id="<@popupId>_apply" onclick="<@popupId>.apply()" >저장</button>
+				<button type="button" class="btn close"			id="<@popupId>_close" onclick="<@popupId>.close()" >닫기</button>
 			</div>
 		</div>
 </div>

@@ -50,6 +50,7 @@ var <@pageId> = {
 				TOTAL_ROW["PAYMENT"] 	+= Number(row["PAYMENT"]);
 				
 				LAST_RESULT_ID = !isEmpty(row["LAST_RESULT_ID"]) ? row["LAST_RESULT_ID"] :'';
+				
         	})
         	
         	resultData.data.forEach( (row,idx) => {
@@ -62,7 +63,6 @@ var <@pageId> = {
            			targetId   : "<@pageId>_resultList"
 					,list       : resultData.data
 			}
-            
 			C_COM.renderHtml("<@pageId>", rparm);
        	
         	mergeTableTD('<@pageId>_resultList', {startIdx : 14, endIdx : 16, startRowIdx : 1});
@@ -72,44 +72,30 @@ var <@pageId> = {
     			
     			<@pageId>.contractItem.REMAINING_SUM = Math.min( ...REMAINING_SUM_LIST );
     			
-    		}
+/*     		}
         	
-    		if( <@pageId>.selectedList.length > 0){
-	 			const trTemplate = $("#<@pageId>_resultList_total_template").render({ INCOME 			: _numberWithCommas(TOTAL_ROW["INCOME"])
-	 																				, COST_PRICE 		: _numberWithCommas(TOTAL_ROW["COST_PRICE"])
-	 																				, ORG_SELLING_PRICE : _numberWithCommas(TOTAL_ROW["ORG_SELLING_PRICE"])
-	 																				, RATE 				: _numberWithCommas(TOTAL_ROW["RATE"] / resultIdCnt)
-	 																				, PAYMENT 			: _numberWithCommas(TOTAL_ROW["PAYMENT"])
-	 																				, REAL_PROFIT		: _numberWithCommas(TOTAL_ROW["REAL_PROFIT"])
+    		if( <@pageId>.selectedList.length > 0){ */
+	 			const trTemplate = $("#<@pageId>_resultList_total_template").render({ INCOME 			: addComma(TOTAL_ROW["INCOME"])
+	 																				, COST_PRICE 		: addComma(TOTAL_ROW["COST_PRICE"])
+	 																				, ORG_SELLING_PRICE : addComma(TOTAL_ROW["ORG_SELLING_PRICE"])
+	 																				, RATE 				: (TOTAL_ROW["RATE"] / resultIdCnt)
+	 																				, PAYMENT 			: addComma(TOTAL_ROW["PAYMENT"])
+	 																				, REAL_PROFIT		: addComma(TOTAL_ROW["REAL_PROFIT"])
 	 																				});
 				$("#<@pageId>_resultList").append(trTemplate);
     		}
 			<@pageId>.setHandler();
+			
+			//$("#<@pageId> button .icon_trash").hide()
 		});
 	}
 	,updateItem : (param) => {
-		 
+				 
 		const requestParm = param ? param : {} ;
 
 		const paymentInfo 	= requestParm.paymentInfo 	|| [];
 		const constInfo		= requestParm.costInfo		|| [];
 		const resultInfo	= requestParm.resultInfo;
-		
-		if( paymentInfo.length > 0){
-			
-			var parm = {
-					queryId 	: "contract.updateContractProcessState"
-				   ,requestParm	: {CONTRACT_ID : <@pageId>.contractItem.CONTRACT_ID , PROCESS_STATE : "CONTRACTED_RST"}
-			}
-			C_COM.requestQuery(parm, function(resultData) {
-			
-	            if (resultData.state === 'S') {
-	
-	
-	            }
-			});				
-		}
-		
 		
 		paymentInfo.forEach( item => {
 				
@@ -129,7 +115,7 @@ var <@pageId> = {
 		
 		const constInfoLength = constInfo.length;
 		if( constInfoLength >  0){
-			
+		
     		constInfo.forEach( (item, index ) => {
 				
 				var parm = {
@@ -139,8 +125,8 @@ var <@pageId> = {
 				C_COM.requestQuery(parm, function(resultData) {
 					
 	                if (resultData.state === 'S') {
-	                	
-	                	if( constInfoLength >= (index+1) )
+	                		                	
+	                	if( constInfoLength <= (index+1) )
 	                		<@pageId>.updateResultItem(resultInfo);	
 	                }
 				});				
@@ -155,6 +141,7 @@ var <@pageId> = {
 				queryId 	: "result.updateResultItem"
 			   ,requestParm	: resultInfo
 			}
+	
 			C_COM.requestQuery(parm, function(resultData) {
 	            if (resultData.state === 'S') {
 
@@ -190,6 +177,14 @@ var <@pageId> = {
 		
 	    $("#<@pageId>_regResult").off().on('click',function(){
 
+	    	const contractId = <@pageId>.contractItem.CONTRACT_ID;
+	    	if( !contractId ){
+	    		
+				C_POP.alert('실적입력을 위해 해당 계약을 먼저 선택해 주십시오.');
+				return;
+	    		
+	    	}
+	    	
 /* 			const remainingSum = <@pageId>.contractItem.REMAINING_SUM;
 			if( remainingSum == 0){
 				C_POP.alert('잔금완납되어 추가 실적을 등록할수 없습니다.');
@@ -202,7 +197,7 @@ var <@pageId> = {
  	    $("[id='<@pageId>_delete']").off().on('click',function(){
  	    	
  	    	const key = $(this).attr("key");
-	    	C_POP.confirm('선택하신 계약정보를 삭제 하시겠습니까?', function() {
+	    	C_POP.confirm('선택하신 실적정보를 삭제 하시겠습니까?', function() {
 
 				<@pageId>.deleteOne(key);
 
@@ -226,16 +221,23 @@ var <@pageId> = {
 				C_COM.requestQuery(parm, function(resultData) {
 
 					<@pageId>.contractItem =  resultData.data[0];
-					const obj 				= resultData.data[0];
-					$("#<@pageId>_contractId").hide().text(<@pageId>.contractItem.CONTRACT_ID);	
-					Object.entries(obj).forEach( item =>{
+
+					$("#<@pageId>_contract").hide().text(<@pageId>.contractItem.CONTRACT_ID+" "+<@pageId>.contractItem.PROCESS_STATE);	
+					
+					Object.entries(<@pageId>.contractItem).forEach( item =>{
 						
 						const key	= item[0],value = item[1];
-						const val	= key == "TOTAL_COST" ? _numberWithCommas( value ) : value;
+						const val	= key == "TOTAL_COST" ? addComma( value ) : value;
 						$("#<@pageId>_items #"+ key).html(val);
 						
 					});
 					
+					if( <@pageId>.contractItem["PROCESS_STATE"].indexOf("COMPLETED") > -1 )
+					{
+						$("#<@pageId>_regResult").hide();
+					}else{
+						$("#<@pageId>_regResult").show();
+					}
 					<@pageId>.searchList();
 				});
 				
@@ -252,11 +254,21 @@ var <@pageId> = {
 		{
 			
 			param 	= <@pageId>.selectedList.find( row => row.RESULT_ID == RESULT_ID);
-			mode 	= "U";
+			
+			if( param.RESULT_ID !=  param.LAST_RESULT_ID){
+				
+				mode 	= "V";
+				
+			}else{
+				
+				mode 	= "U";
+				
+			}
+			
 		}
 
  		C_POP.open('popup_result_resultUpdatePopup', {	  mode:mode
- 												, param:param 
+ 												, resultItem:param 
  												, contractItem :<@pageId>.contractItem }
 			, function(retData) {
 
@@ -281,7 +293,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 <div class="cont_wrap">
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>실적 관리</h2>
-		<div id="<@pageId>_contractId"></div>
+		<div id="<@pageId>_contract"></div>
 	</div>
 
 	<section class="sec_wrap list" style="height:calc(100% - 43px);">
@@ -367,8 +379,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<th scope="col">사원이름</th>
 							<th scope="col">등급/직위</th>
 							<th scope="col">역할</th>
-							<th scope="col">수수료율</th>
-							<th scope="col">수수료</th>
+							<th scope="col">수수료율(%)</th>
+							<th scope="col">수수료(원)</th>
 							<th scope="col">순이익</th>
 						</tr>
 					</thead>
@@ -376,7 +388,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					</tbody>
 					<script type="text/x-jsrender" id="<@pageId>_resultList_template">
 						{{for list}}
-							<tr>
+							<tr name="<@pageId>_tr_{{:#index}}">
 								<td				>{{:RN}}					</td>
 								<td class="tr"	>{{numb:TOTAL_COST}}		</td>
 								<td				>{{:RESULT_DATE}}			</td>
@@ -393,11 +405,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td class="tr"	>{{numb:REAL_PROFIT}}<!--{{:RN}}--></td>
 
 			 					<td >
-									{{if LAST_RESULT_ID != ""}}
 									<button onclick="javascript:<@pageId>.openUpdatePopup('{{:RESULT_ID}}')">
 									<i class="icon_pen"></i>
 									</button>
-									{{/if}}
 								</td>
 
 								<td >

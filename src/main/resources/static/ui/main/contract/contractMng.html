@@ -345,7 +345,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td id='CONSULTING_NM'		class='tl'>{{:CONSULTING_NM}}</td>
 			 					<td 						class='tl'>
 									<button><i onclick="javascript:<@pageId>.modify('{{:#index}}')" class="icon_pen"  ></i></button></td>
-								<td><button><i onclick="javascript:<@pageId>.deleteRow('{{:#index}}')" class="icon_trash"></i></button></td>
+								<td>
+									{{if PROCESS_STATE != "COMPLETED"}}
+									<button><i onclick="javascript:<@pageId>.deleteRow('{{:#getIndex()}}')" class="icon_trash"></i></button>
+									{{/if}}
+								</td>
 							</tr>
 						{{/for}}
 						</script>
