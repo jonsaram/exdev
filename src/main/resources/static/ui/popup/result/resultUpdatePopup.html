@@ -6,6 +6,8 @@ var <@popupId> = {
 	 ,PROCESS_STATE:''
 	 ,RESULT_ID: '' 
 	 ,mode:''
+	 ,paymentList_DATA:[]
+	 ,costList_DATA:[]
 	 ,close : function(returnData) {
 
 		if(isEmpty(returnData)) returnData = {};
@@ -107,8 +109,6 @@ var <@popupId> = {
 		}
 		C_UICOM.makeSelectBox(singleboxList, "single");
 		
-		//<@popupId>.RESULT_ID 		= C_COM.makeUniqueId();
-			
 		$("#<@popupId>_contractInfo #TOTAL_COST"	).html( addComma(parentData.contractItem.TOTAL_COST)	);
 		$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( addComma(parentData.contractItem.REMAINING_SUM)	);
 		$("#<@popupId>_resultInfo	#RESULT_DATE"	).val ( dayjs().format("YYYY-MM-DD")					);
@@ -116,9 +116,8 @@ var <@popupId> = {
 		if( "<@mode>" != "I"){
 			
 			$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( addComma( parentData.resultItem["LAST_REMAINING_SUM"]));
-			//<@popupId>.RESULT_ID 	= parentData.resultItem["RESULT_ID" 		] ;
-
-			$("#<@popupId>_resultInfo	#RESULT_DATE"	).val (parentData.resultItem["RESULT_DATE"	] );	
+			$("#<@popupId>_resultInfo	#RESULT_DATE"	).val (parentData.resultItem["RESULT_DATE"	] );
+			
 			<@popupId>.setCostList();
 			C_UICOM.setSingleBox("<@popupId>_selectIncomeType", parentData.resultItem["INCOME_TYPE"]);
 
@@ -178,6 +177,7 @@ var <@popupId> = {
 		}
 		C_COM.requestQuery(parm, function(resultData) {
 
+			<@popupId>.costList_DATA = resultData.data;
 			var rparm = {
 					 targetId 		: "<@popupId>_costList"
 					,list			: resultData.data
@@ -201,7 +201,7 @@ var <@popupId> = {
 			
 			let tempPayment = resultData.data;
 			tempPayment.orderBy("PAYMENT_ID");	
-			
+			<@popupId>.paymentList_DATA = tempPayment;
 			C_COM.renderHtml("<@popupId>", {
 				 						 targetId 		: "<@popupId>_paymentList"
 										,list			: tempPayment
@@ -290,7 +290,7 @@ var <@popupId> = {
 		$.each( $("#<@popupId>_paymentList tr td[id='RATE']") , (idx,obj) => {
 
 			const objValue 			= Number($(obj).attr("value"));
-		alert("BB "+objValue)	
+
 			if (typeof objValue === 'number' && !isNaN(objValue)){
 				
 				rateSum += objValue;
@@ -304,9 +304,11 @@ var <@popupId> = {
 		
 		let rs			= Number(rateSum).toFixed(2);
 		const RATE_SUM	= rs.endsWith('.00') ? rs.slice(0, -3) : rs;
-		alert(RATE_SUM);
+		const ps			= Number(paymentSum).toFixed(2)
+		const PAYMENT_SUM	= ps.endsWith('.00') ? ps.slice(0, -3) : ps;
+console.log(PAYMENT_SUM);
 		$("#<@popupId>_paymentList #<@popupId>_RATE_SUM").text(RATE_SUM+" %");	
-		$("#<@popupId>_paymentList #<@popupId>_PAYMENT_SUM").text( addComma(Number(paymentSum)));	
+		$("#<@popupId>_paymentList #<@popupId>_PAYMENT_SUM").text( addComma(PAYMENT_SUM));	
 
 	}
 	,deleteItem : (delKey,idx) => {
