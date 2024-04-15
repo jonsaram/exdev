@@ -49,6 +49,7 @@
         /* approval.getApproval */
 	    SELECT  
 	    	 A.APPROVAL_ID											AS APPROVAL_ID   
+			,A.RELATION_ID											AS RELATION_ID   
 			,A.USER_ID   											AS USER_ID
 			,GET_USER_NM(A.USER_ID)									AS USER_NM
 			,A.TITLE												AS TITLE	         
@@ -73,6 +74,7 @@
         /* approval.getApproval */
 	    SELECT  
 	    	 A.APPROVAL_ID											AS APPROVAL_ID   
+			,A.RELATION_ID											AS RELATION_ID   
 			,A.USER_ID   											AS USER_ID
 			,GET_USER_NM(A.USER_ID)									AS USER_NM
 			,A.TITLE												AS TITLE	         
@@ -102,6 +104,7 @@
         /* approval.insertApproval */
         INSERT INTO TBL_EXP_APPROVAL (
 		    APPROVAL_ID   
+		   ,RELATION_ID   
 		   ,USER_ID       
 		   ,TITLE         
 		   ,CONTENTS 
@@ -115,6 +118,7 @@
         )
         VALUES(
 		    #{APPROVAL_ID		}   
+		   ,#{RELATION_ID		}   
 		   ,#{sessionVo.userId 	}
 		   ,#{TITLE         	}
 		   ,#{CONTENTS      	}

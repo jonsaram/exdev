@@ -61,7 +61,7 @@ public class ApprovalAfterService extends ExdevBaseService{
         // JSON 문자열을 Map으로 변환
         Map<String, Object> afterParmMap = objectMapper.readValue(AFTER_PARM, Map.class);
         
-        map.putAll(afterParmMap);
+        appInfo.putAll(afterParmMap);
         
 		String [] token = AFTER_SERVICE.split("\\.");
 		
@@ -88,7 +88,7 @@ public class ApprovalAfterService extends ExdevBaseService{
             targetMethod = ScheduleService.class.getMethod(methodId, Map.class);
         }
 			
-		Map resultObject = (Map)targetMethod.invoke(targetService, map);
+		Map resultObject = (Map)targetMethod.invoke(targetService, appInfo);
 		
 		return resultObject;
 	}
@@ -96,7 +96,7 @@ public class ApprovalAfterService extends ExdevBaseService{
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map updateProjectProcess(Map map) throws Exception {
 		
-		map.put("CONTRACT_ID", map.get("APPROVAL_ID"));
+		map.put("CONTRACT_ID", map.get("RELATION_ID"));
 		
         int result = commonDao.update("contract.updateProject", map);
 		

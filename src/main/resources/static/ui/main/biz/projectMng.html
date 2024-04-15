@@ -29,7 +29,6 @@
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 			});  
-				
 		 }
 		,modify	: function(index) {
 			let projectItem = <@pageId>.projectList[index];
@@ -45,7 +44,7 @@
 			let CONTRACT_ID = <@pageId>.projectList[idx].CONTRACT_ID;
 			
 	        let requestParm = {
-	        	 APPROVAL_ID 	: CONTRACT_ID
+	        	 RELATION_ID 	: CONTRACT_ID
 	        	,AFTER_SERVICE	: `ApprovalAfterService.updateProjectProcess`
 	        	,AFTER_PARM		: `{"PROCESS_STATE" : "CONTRACTING"}`
 	        	,TITLE			: `담당 컨설턴트 지정 결재 요청`

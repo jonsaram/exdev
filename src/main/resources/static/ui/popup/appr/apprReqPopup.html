@@ -2,6 +2,7 @@
 <script type="text/javascript">
     var <@popupId> = {
     	 APPROVAL_ID	: ""
+    	,RELATION_ID	: ""
     	,appMember 		: {}
     	,getAppMemberToList : function() {
     		let resultList = []
@@ -111,14 +112,15 @@
             }
             
             var approvalInfo = {
-            	 APPROVAL_ID 	: <@popupId>.APPROVAL_ID
-            	,TITLE 			: TITLE
+           		 APPROVAL_ID 	: <@popupId>.APPROVAL_ID
+               	,RELATION_ID 	: <@popupId>.RELATION_ID
+               	,TITLE 			: TITLE
             	,CONTENTS 		: CONTENTS
             	,AFTER_SERVICE 	: `<@AFTER_SERVICE>`
             	,AFTER_PARM 	: `<@AFTER_PARM>`
             	,STATE			: `ONGOING`		// 진행중
             }
-            dalert(approvalInfo);
+
 			var parm = {
 				queryGroup : [
 					 {
@@ -188,6 +190,8 @@
 		if(isValid(data.APPROVAL_ID))	<@popupId>.APPROVAL_ID = data.APPROVAL_ID;
 		else				    		<@popupId>.APPROVAL_ID = C_COM.makeUniqueId();// 결재 신규ID 생성
     	
+		<@popupId>.RELATION_ID = data.RELATION_ID;
+		
     	// 결재 Textarea Component Include
     	C_COMP.import("textEditorComp", "component_compTextEditor", {content:""}, function(data) {
             console.log(data.editorData);
