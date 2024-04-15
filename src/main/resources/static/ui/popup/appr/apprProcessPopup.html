@@ -18,43 +18,44 @@
 	        	}
 		        let lastParm = parm;
 		        if('<@LST_APPR>' == 'Y') {
-		        	let parmSnd2 = {
+		        	let parmSnd = {
 	                    queryId        : "approval.saveCompleteMainAppr"
 	                   ,requestParm    : {
 	                   	   	 APPROVAL_ID	: '<@APPROVAL_ID>'
 	                   	   	,STATE			: 'COMPLETE' 
 	                   	}
 		        	}
-		        	let parmSnd = {
-		                    queryId        : "approval.saveNoticeAppr"
-		                   ,requestParm    : {
-		                   	   	 APPROVAL_ID	: '<@APPROVAL_ID>'
-		                   	}
-			        	}
+		        	let parmThird = {
+	                    queryId        : "approval.saveNoticeAppr"
+	                   ,requestParm    : {
+	                   	   	 APPROVAL_ID	: '<@APPROVAL_ID>'
+	                   	}
+		        	}
 		        	lastParm = {
 		        		queryGroup : [
 		        			 parm
-		        			,{
-			                    queryId        : "approval.saveCompleteMainAppr"
-			                   ,requestParm    : {
-			                   	   	 APPROVAL_ID	: '<@APPROVAL_ID>'
-			                   	   	,STATE			: 'COMPLETE' 
-		                   	 	}
-		        			 }
-		        			,{
-			                    queryId        : "approval.saveNoticeAppr"
-			                   ,requestParm    : {
-			                   	   	 APPROVAL_ID	: '<@APPROVAL_ID>'
-		                   	 	}
-		        			 }
+		        			,parmSnd
+		        			,parmThird
 		        		]
 		        	}
 		        }
 		        
 				C_COM.requestQuery(lastParm, function(resultData) {
 					if( resultData.state == "S"){
-						C_POP.alert('결재가 완료 되었습니다.');
-						<@popupId>.close('reload');
+						// 결재 후처리 
+				        if('<@LST_APPR>' == 'Y') {
+				            var parm = {
+				                 serviceId              : "ApprovalService.approvalAfterProcess"
+				                ,requestParm            : {APPROVAL_ID : '<@APPROVAL_ID>'}
+				            }
+				            C_COM.requestService(parm, function(resultData) {
+								C_POP.alert('결재가 완료 되었습니다.');
+								<@popupId>.close('reload');
+				            });
+				        } else {
+							C_POP.alert('결재가 완료 되었습니다.');
+							<@popupId>.close('reload');
+				        }
 					}else{
 						alert(resultData.msg)
 					}

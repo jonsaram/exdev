@@ -1,6 +1,5 @@
 package exdev.com.service;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -9,6 +8,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
@@ -25,6 +26,9 @@ public class ApprovalService extends ExdevBaseService{
 	
 	@Autowired
 	private ExdevCommonDao commonDao;
+    
+	@Autowired
+	private ApprovalAfterService approvalAfterService;
     
 
     /** 
@@ -185,7 +189,11 @@ public class ApprovalService extends ExdevBaseService{
         
         return returnMap;
     }
+    public Map approvalAfterProcess(Map map ) throws Exception {
+    	
+    	return approvalAfterService.approvalAfterProcess(map);
+    }
 	
-	
+    
 	
 }

@@ -81,6 +81,8 @@
 			,GET_CODE_NM('APPROVAL_USER_PROC',A.STATE) 				AS STATE_NM       
 			,TO_CHAR( A.APPROVAL_DATE , 'YYYY-MM-DD HH24:MI:SS' ) 	AS APPROVAL_DATE
 			,TO_CHAR( A.COMPLETE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) 	AS COMPLETE_DATE
+			,A.AFTER_SERVICE										AS AFTER_SERVICE
+			,A.AFTER_PARM											AS AFTER_PARM
 		FROM  TBL_EXP_APPROVAL A
 		WHERE 1 = 1
 		<if test=" APPROVAL_ID != null and APPROVAL_ID != '' " >
@@ -105,6 +107,8 @@
 		   ,CONTENTS 
 		   ,STATE         
 		   ,APPROVAL_DATE 
+		   ,AFTER_SERVICE 
+		   ,AFTER_PARM   
 		   ,CREATE_USER   
 		   ,CREATE_DATE 
 		   ,SP_CSTM_ID    
@@ -116,6 +120,8 @@
 		   ,#{CONTENTS      	}
 		   ,#{STATE		      	}
 		   ,sysdate
+		   ,#{AFTER_SERVICE		}
+		   ,#{AFTER_PARM		}
            ,#{sessionVo.userId 	}
            ,sysdate
            ,#{sessionVo.spCstmId}

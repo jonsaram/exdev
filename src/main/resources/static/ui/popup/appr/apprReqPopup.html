@@ -114,8 +114,11 @@
             	 APPROVAL_ID 	: <@popupId>.APPROVAL_ID
             	,TITLE 			: TITLE
             	,CONTENTS 		: CONTENTS
-            	,STATE			: "ONGOING"		// 진행중
+            	,AFTER_SERVICE 	: `<@AFTER_SERVICE>`
+            	,AFTER_PARM 	: `<@AFTER_PARM>`
+            	,STATE			: `ONGOING`		// 진행중
             }
+            dalert(approvalInfo);
 			var parm = {
 				queryGroup : [
 					 {
@@ -141,7 +144,7 @@
     			C_COM.requestQuery(parm, function(resultData) {
     				if( resultData.state == "S"){
     					alert("결재 상신 되었습니다.");
-    					<@popupId>.close();
+    					<@popupId>.close({state : "S"});
     				}else{
     					alert(resultData.msg)
     				}
@@ -175,8 +178,9 @@
         	});
         	<@popupId>.loadAppMember();
          }
-        ,close : function() {
-            C_POP.close();
+        ,close : function(retData) {
+        	if(isEmpty(retData)) retData = {};
+            C_POP.close(retData);
          }
     }
     // Popup Load가 완료된후 실행 된다.
@@ -231,7 +235,7 @@
 			<div class="modal_body">
 				<dl class="info_wrap pay">
                     <dt>제목</dt>
-                    <dd><input type="text"  id='TITLE' name='TITLE' value='' style="width:100%"></dd>
+                    <dd><input type="text"  id='TITLE' name='TITLE' value='<@TITLE>' style="width:100%"></dd>
 					<dt>결재자 검색</dt>
 					<dd>
                         <div class="search_inputWrap" style="width:100%">

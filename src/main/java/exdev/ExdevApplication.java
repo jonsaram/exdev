@@ -2,6 +2,7 @@ package exdev;
 
 import javax.sql.DataSource;
 
+import org.apache.ibatis.session.LocalCacheScope;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -41,7 +42,14 @@ public class ExdevApplication extends SpringBootServletInitializer {
 		
 		Resource[] res = new PathMatchingResourcePatternResolver().getResources("classpath:mappers/sql-*.xml");
 		sessionFactory.setMapperLocations(res);
+
 		
+        // Mybatis 설정 추가
+        org.apache.ibatis.session.Configuration mybatisConfig = new org.apache.ibatis.session.Configuration();
+        mybatisConfig.setLocalCacheScope(LocalCacheScope.STATEMENT);
+		
+        sessionFactory.setConfiguration(mybatisConfig);
+        
 		return sessionFactory.getObject();
 	}
 	
@@ -49,5 +57,5 @@ public class ExdevApplication extends SpringBootServletInitializer {
 	public SqlSessionTemplate sqlSession(SqlSessionFactory sqlSessionFactory) throws Exception {
 		return new SqlSessionTemplate(sqlSessionFactory);
 	}	
-
+	
 }

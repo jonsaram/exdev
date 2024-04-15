@@ -44,11 +44,30 @@
 
 			let CONTRACT_ID = <@pageId>.projectList[idx].CONTRACT_ID;
 			
-			alert(CONTRACT_ID);
-			
-	        let requestParm = {APPROVAL_ID : CONTRACT_ID}
-	        C_POP.open('popup_appr_apprReqPopup', requestParm, function() {
-
+	        let requestParm = {
+	        	 APPROVAL_ID 	: CONTRACT_ID
+	        	,AFTER_SERVICE	: `ApprovalAfterService.updateProjectProcess`
+	        	,AFTER_PARM		: `{"PROCESS_STATE" : "CONTRACTING"}`
+	        	,TITLE			: `담당 컨설턴트 지정 결재 요청`
+	        }
+	        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
+				if(retData.state == "S") {
+					// 프로젝트 Update
+					var parm = {
+						 queryId 		: "contract.updateProject"
+						,requestParm	: {
+							 CONTRACT_ID 	: CONTRACT_ID
+				        	,PROCESS_STATE	: "ON_CONTRACTING_APPR"
+						}
+					}
+					C_COM.requestQuery(parm, function(resultData) {
+						if(resultData.state == "S") {
+							<@pageId>.loadData();							
+						} else {
+							C_POP.alert('결재상신 상태값 갱신 중 문제가 발생 했습니다.');
+						}
+					});  
+				}
 	        });
 		 }
 	}
@@ -84,10 +103,11 @@
 								<col style="width:40px;"/>
 								<col style="width:150px;"/>
 								<col style="width:150px;"/>
+								<col style="width:150px;"/>
 								<col style="width:*"/>
 								<col style="width:150px;"/>
 								<col style="width:200px;"/>
-								<col style="width:70px;"/>
+								<col style="width:150px;"/>
 								<col style="width:150px;"/>
 							</colgroup>
 							<thead>
@@ -95,6 +115,7 @@
 									<th scope="col">No.</th>
 									<th scope="col">고객명</th>
 									<th scope="col">영업담당자명</th>
+									<th scope="col">실행담당자명</th>
 									<th scope="col">상품명</th>
 									<th scope="col">상태</th>
 									<th scope="col">등록/수정일</th>
@@ -111,10 +132,11 @@
 								<col style="width:40px;"/>
 								<col style="width:150px;"/>
 								<col style="width:150px;"/>
+								<col style="width:150px;"/>
 								<col style="width:*"/>
 								<col style="width:150px;"/>
 								<col style="width:200px;"/>
-								<col style="width:70px;"/>
+								<col style="width:150px;"/>
 								<col style="width:150px;"/>
 							</colgroup>
 							<tbody id="<@pageId>_projectList">
@@ -125,12 +147,13 @@
 									<td>{{:#index + 1}}</td>
 									<td>{{:BUYER_NM}}</td>
 									<td>{{:USER_NM}}</td>
+									<td>{{:CONSULTANT_USER_NM}}</td>
 									<td>{{:CONSULTING_NM}}</td>
 									<td>{{:PROCESS_STATE_NM}}</td>
 									<td>{{:UPDATE_DATE}}{{:#index}}</td>
 									<td>
 									{{if APP_STATE_NM=="" ~index=#index}} 
-										<button type="button" class="btn fl tc" onclick="<@pageId>.approval({{:~index}})">결재</button>
+										<button type="button" class="btn fc tc" onclick="<@pageId>.approval({{:~index}})">담당자 지정 결재</button>
 									{{else}}
 										{{:APP_STATE_NM}}	
 									{{/if}}

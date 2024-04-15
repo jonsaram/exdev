@@ -179,6 +179,10 @@ public class FileService extends ExdevBaseService{
 		Map returnMap = new HashMap();
 		
 		String root 		= request.getSession().getServletContext().getRealPath("resources");
+//		String root 		= "D:/OCI/workspace/exdev/";
+//		String root 		= "/home/ubuntu/spring-boot";
+		
+		
         String path 		= root + File.separator + uploadPath;
         
 		File fileCheck = new File(path);

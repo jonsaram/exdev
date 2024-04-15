@@ -324,9 +324,12 @@ public class ExcelService  extends ExdevBaseService{
             		String columnType	= "X";
             		if(columnArry.length > 1) columnType = columnArry[1];
             		
+            		String value = (String)map.get(column);
+            		if(value == null) value = "";
+            		
             		infoMap.put("header"		, columnNm);
             		infoMap.put("columnType"	, columnType);
-            		infoMap.put("data"			, (String)map.get(column));
+            		infoMap.put("data"			, value);
             		setInfoList.add(infoMap);
             		
             		boolean keyCheck = false;
@@ -365,7 +368,7 @@ public class ExcelService  extends ExdevBaseService{
         } catch (Exception e) {
             System.out.println(e.getMessage());
             resultMap.put("msg"		,e.getMessage());
-            resultMap.put("stopIdx"	,(idx - 1));
+            resultMap.put("stopIdx"	,(idx - 3));
             resultMap.put("state","E");
 
             return resultMap;

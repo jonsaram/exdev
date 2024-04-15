@@ -468,15 +468,17 @@
 		)
 		WHEN MATCHED THEN
 			UPDATE SET
-				 T.USER_ID 			= #{USER_ID				}
-				,T.BUYER_ID 		= #{BUYER_ID			}
-				,T.CONSULTING_ID 	= #{CONSULTING_ID		}
-				,T.UPDATE_USER		= #{sessionVo.userId	}
-				,T.UPDATE_DATE		= SYSDATE
+				 T.USER_ID 				= #{USER_ID				}
+				,T.CONSULTANT_USER_ID 	= #{CONSULTANT_USER_ID	}
+				,T.BUYER_ID 			= #{BUYER_ID			}
+				,T.CONSULTING_ID 		= #{CONSULTING_ID		}
+				,T.UPDATE_USER			= #{sessionVo.userId	}
+				,T.UPDATE_DATE			= SYSDATE
 		WHEN NOT MATCHED THEN 
 			INSERT ( 
 				 CONTRACT_ID
 				,USER_ID
+				,CONSULTANT_USER_ID
 				,BUYER_ID
 				,CONSULTING_ID
 				,PROCESS_STATE
@@ -488,6 +490,7 @@
 			) VALUES ( 
 				 #{CONTRACT_ID			}
 				,#{USER_ID				}
+				,#{CONSULTANT_USER_ID	}
 				,#{BUYER_ID				}
 				,#{CONSULTING_ID		}
 				,'PRE_CONTRACT'
@@ -507,6 +510,8 @@
 			 CONTRACT_ID
 			,USER_ID
 			,GET_USER_NM(A.USER_ID) AS USER_NM
+			,CONSULTANT_USER_ID
+			,GET_USER_NM(A.CONSULTANT_USER_ID) AS CONSULTANT_USER_NM
 			,BUYER_ID
 			,(SELECT BUYER_NM FROM TBL_EXP_BUYER WHERE BUYER_ID = A.BUYER_ID) AS BUYER_NM
 			,CONSULTING_ID
@@ -518,10 +523,28 @@
 		FROM 
 		 	TBL_EXP_CONTRACT  A
 		WHERE  1=1
-			AND	UPDATE_USER = #{sessionVo.userId}
+			AND	(
+					UPDATE_USER 		= #{sessionVo.userId}
+				OR  USER_ID 			= #{sessionVo.userId}
+				OR  CONSULTANT_USER_ID 	= #{sessionVo.userId}
+			)
 			AND	SP_CSTM_ID	= #{sessionVo.spCstmId}
 		ORDER BY UPDATE_DATE DESC		
 	</select>	
+
+
+	<update id="updateProject">
+		/*	contract.updateProject
+			Project 상태값 Update
+		*/
+		
+		UPDATE TBL_EXP_CONTRACT
+			SET PROCESS_STATE = #{PROCESS_STATE}
+		WHERE 
+			CONTRACT_ID = #{CONTRACT_ID}
+	</update>
+
+
 
 	<select id="getWorkCmmtList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getWorkCmmtList
