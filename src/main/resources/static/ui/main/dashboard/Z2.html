@@ -18,6 +18,7 @@ var <@pageId> = {
 				
 		}
 		,createChart 		: (container, categories, series)=>_barLineChart(container, categories, series)
+		,create1Bar2LineChart : (container, categories, series)=>_1bar2LineChart(container, categories, series)
 		,showObject : (obj, loc) => {
 			var keys = Object.keys(obj);
 		    for (var i=0; i<keys.length; i++) {
@@ -50,11 +51,46 @@ var <@pageId> = {
 						 queryId 			: "valuation.getValuationStock"
 						,requestParm		: pmt
 					}
+					,
+					{
+						 queryId 			: "valuation.getValueForStdYear"
+						,requestParm		: pmt
+					}
+					,
+					{
+						 queryId 			: "valuation.getValueForYear"
+						,requestParm		: pmt
+					}
+					,
+					{
+						 queryId 			: "valuation.getValueForStdReductionYear"
+						,requestParm		: pmt
+					}
+					,
+					{
+						 queryId 			: "valuation.getValueForReductionYear"
+						,requestParm		: pmt
+					}
+					,
+					{
+						 queryId 			: "valuation.getValueTaxYear"
+						,requestParm		: pmt
+					}					
 				]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');				
 				<@pageId>.showList("<@pageId>_getFinAnalStockholder", resultData.data['financialanalysis.getFinAnalStockholder']);
+				<@pageId>.showList("<@pageId>_getFinAnalStockholder", resultData.data['financialanalysis.getFinAnalStockholder']);				
+				<@pageId>.setChart('ValuationStock',resultData.data['valuation.getValuationStock']);
+				<@pageId>.showList("<@pageId>_getValueForStdYear", resultData.data['valuation.getValueForStdYear']);
+				<@pageId>.showList("<@pageId>_getValueForYear", resultData.data['valuation.getValueForYear']);
+				<@pageId>.showList("<@pageId>_getValueForStdReductionYear", resultData.data['valuation.getValueForStdReductionYear']);
+				<@pageId>.showList("<@pageId>_getValueForReductionYear", resultData.data['valuation.getValueForReductionYear']);
+				<@pageId>.showList("<@pageId>_getValueTaxYear", resultData.data['valuation.getValueTaxYear']);
+				
+				<@pageId>.setChart('ValueTax',resultData.data['valuation.getValueTaxYear']);
+				
 				//<@pageId>.showList("<@pageId>_getValuationStock", resultData.data['valuation.getValuationStock']);
 				//<@pageId>.showList("<@pageId>_getFinAnalExecutive", resultData.data['financialanalysis.getFinAnalExecutive']);
 				//<@pageId>.showList("<@pageId>_getFinAnalRate01", resultData.data['financialanalysis.getFinAnalRate']);
@@ -68,8 +104,7 @@ var <@pageId> = {
 				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl04", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl06", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				
-				<@pageId>.setChart('ValuationStock',resultData.data['valuation.getValuationStock']);
+
 				//<@pageId>.setChart('Personal',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				//<@pageId>.setChart('Hire',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				
@@ -83,6 +118,10 @@ var <@pageId> = {
 			const _yearValuationStockArray = [];	// 년도별
 			const getPricePerStock = [];			// 년도별 1주당 주식가액
 			const getTotalStockValuation = [];		// 년도별 기업가치
+			const _yearValueTaxYearArray = [];		// 년도별
+			const getValuationTenpercent = [];		// 10% 지분가치
+			const getCapitalGainsTax = [];			// 양도소득세 부담률
+			const getGiftTax = [];					// 증여세 부담률
 			/*
 			const getCostOfPersonalRate = [];
 			const getCostOfHireRate = [];
@@ -99,7 +138,13 @@ var <@pageId> = {
 					_yearValuationStockArray.push(item.YEAR);
 					getPricePerStock.push(item.PRICE_PER_STOCK);
 					getTotalStockValuation.push(item.VALUATION);
-				} 
+				}else if(gubun=='ValueTax'){
+					_yearValueTaxYearArray.push(item.CHART_YEAR);					
+					getValuationTenpercent.push(item.CHART_VALUATION_TENPERCENT);
+					getCapitalGainsTax.push(item.CHART_CAPITAL_GAINS_TAX);
+					getGiftTax.push(item.CHART_GIFT_TAX);
+				}
+				
 				/*
 				else if(gubun=='Personal'){
 					if(item.ITEM_NAME == '(인건비/매출액)'){
@@ -160,6 +205,14 @@ var <@pageId> = {
   				<@pageId>.createChart( "<@pageId>_valuationStock_chart" 
 									, _yearValuationStockArray , [{  name: '기업가치',type: 'column', yAxis: 1,	data: getTotalStockValuation, tooltip: {valueSuffix:'만원'}
 													},{  name: '1주당 주식가액',type: 'line',	data: getPricePerStock, tooltip: {valueSuffix:'만원'}}
+													]);
+			}else if(gubun=='ValueTax'){
+				//debugger;
+				//주식 이동 시 양도소득세 및 증여세 예상 추이
+  				<@pageId>.create1Bar2LineChart( "<@pageId>_getValueTaxYear_chart" 
+									, _yearValueTaxYearArray , [{  name: '10%지분가치',type: 'column', yAxis: 1,	data: getValuationTenpercent, tooltip: {valueSuffix:'억원'}
+													},{  name: '증여세 부담률',type: 'line',	data: getGiftTax, tooltip: {valueSuffix:'%'}
+													},{  name: '양도소득세 부담률',type: 'line',	data: getCapitalGainsTax, tooltip: {valueSuffix:'%'}}
 													]);
 			} 
 			/*
@@ -867,196 +920,52 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<col style="width:10.5%;"/>
 										<col style="width:10.5%;"/>
 									</colgroup>
-									<thead>
-										<tr>
-											<th class="tl">사업년도</th>
-											<th>2022년</th>
-											<th>2023년</th>
-											<th>2026년</th>
-											<th>2028년</th>
-											<th>2030년</th>
-											<th>2033년</th>
-											<th>2038년</th>
-											<th>2043년</th>
-										</tr>
+									<thead id="<@pageId>_getValueForStdYear">
 									</thead>
-									<tbody>
-										<tr class="bg_skyblue">
-											<td class="tl">경기기간</td>
-											<td>기준년도</td>
-											<td>당해년도</td>
-											<td>3년 후</td>
-											<td>5년 후</td>
-											<td>7년 후</td>
-											<td>10년 후</td>
-											<td>15년 후</td>
-											<td>20년 후</td>
-										</tr>
-										<tr class="bg_skyblue">
-											<td class="tl">(대표이사 나이)</td>
-											<td>(46세)</td>
-											<td>(47세)</td>
-											<td>(50세)</td>
-											<td>(52세)</td>
-											<td>(54세)</td>
-											<td>(57세)</td>
-											<td>(62세)</td>
-											<td>(67세)</td>
-										</tr>
+						            <script type="text/x-jsrender" id="<@pageId>_getValueForStdYear_template">
+						 	        {{for list}}
 										<tr>
-											<td class="tl">자산</td>
-											<td class="tr">1,111,407</td>
-											<td class="tr">1,613,914</td>
-											<td class="tr">7,635,164</td>
-											<td class="tr">25,491,198</td>
-											<td class="tr">88,266,318</td>
-											<td class="tr">578,830,212</td>
-											<td class="tr">2,346,564,343</td>
-											<td class="tr">7,104,685,269</td>
+											<th class="tl">{{:ITEM_NAME}}</th>
+											<th>{{:YEAR01}}년</th>
+											<th>{{:YEAR02}}년</th>
+											<th>{{:YEAR03}}년</th>
+											<th>{{:YEAR04}}년</th>
+											<th>{{:YEAR05}}년</th>
+											<th>{{:YEAR06}}년</th>
+											<th>{{:YEAR07}}년</th>
+											<th>{{:YEAR08}}년</th>
 										</tr>
-										<tr>
-											<td class="tl">부채</td>
-											<td class="tr">1,452,610</td>
-											<td class="tr">1,452,610</td>
-											<td class="tr">1,452,610</td>
-											<td class="tr">1,452,610</td>
-											<td class="tr">1,452,610</td>
-											<td class="tr">1,452,610</td>
-											<td class="tr">1,452,610</td>
-											<td class="tr">1,452,610</td>
-										</tr>
-										<tr>
-											<td class="tl">자본(순자산)</td>
-											<td class="tr">(341,203)</td>
-											<td class="tr">161,304</td>
-											<td class="tr">6,182,554</td>
-											<td class="tr">24,038,588</td>
-											<td class="tr">86,813,708</td>
-											<td class="tr">577,377,602</td>
-											<td class="tr">2,345,111,733</td>
-											<td class="tr">7,103,232,659</td>
-										</tr>
-										<tr>
-											<td class="tl pl25">*미처분이익잉여금</td>
-											<td class="tr">(641,203)</td>
-											<td class="tr">(138,696)</td>
-											<td class="tr">5,882,554</td>
-											<td class="tr">23,738,588</td>
-											<td class="tr">86,513,708</td>
-											<td class="tr">577,077,602</td>
-											<td class="tr">2,344,811,733</td>
-											<td class="tr">7,102,932,659</td>
-										</tr>
-										<tr>
-											<td class="tl">매출액</td>
-											<td class="tr">2,330,467</td>
-											<td class="tr">4,369,626</td>
-											<td class="tr">28,803,685</td>
-											<td class="tr">101,262,953</td>
-											<td class="tr">356,002,571</td>
-											<td class="tr">2,346,696,633</td>
-											<td class="tr">6,316,485,135</td>
-											<td class="tr">17,001,764,901</td>
-										</tr>
-										<tr>
-											<td class="tl">당기순이익</td>
-											<td class="tr">267,761</td>
-											<td class="tr">502,507</td>
-											<td class="tr">3,312,424</td>
-											<td class="tr">11,645,240</td>
-											<td class="tr">40,940,296</td>
-											<td class="tr">269,870,113</td>
-											<td class="tr">505,318,811</td>
-											<td class="tr">1,360,141,192</td>
-										</tr>
-										<tr>
-											<td class="tl pl25">매출액증가율</td>
-											<td class="tr">87.5%</td>
-											<td class="tr">87.5%</td>
-											<td class="tr">87.5%</td>
-											<td class="tr">87.5%</td>
-											<td class="tr">87.5%</td>
-											<td class="tr">87.5%</td>
-											<td class="tr">21.9%</td>
-											<td class="tr">21.9%</td>
-										</tr>
-										<tr>
-											<td class="tl pl25">순이익률(%)</td>
-											<td class="tr">11.5%</td>
-											<td class="tr">11.5%</td>
-											<td class="tr">11.5%</td>
-											<td class="tr">11.5%</td>
-											<td class="tr">11.5%</td>
-											<td class="tr">11.5%</td>
-											<td class="tr">8.0%</td>
-											<td class="tr">8.0%</td>
-										</tr>
-										<tr>
-											<td class="tl">영업권 평가액</td>
-											<td class="tr">35,884</td>
-											<td class="tr">482,197</td>
-											<td class="tr">2,209,297</td>
-											<td class="tr">6,894,020</td>
-											<td class="tr">23,363,751</td>
-											<td class="tr">152,068,487</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-										</tr>
-										<tr>
-											<td class="tl">1주당 순손익가치</td>
-											<td class="tr">-</td>
-											<td class="tr">47,777원</td>
-											<td class="tr">400,353원</td>
-											<td class="tr">1,407,493원</td>
-											<td class="tr">4,948,216원</td>
-											<td class="tr">32,617,635원</td>
-											<td class="tr">74,585,818원</td>
-											<td class="tr">200,758,890원</td>
-										</tr>
-										<tr>
-											<td class="tl">1주당 순자산가치</td>
-											<td class="tr">-</td>
-											<td class="tr">10,725원</td>
-											<td class="tr">139,864원</td>
-											<td class="tr">515,543원</td>
-											<td class="tr">1,836,291원</td>
-											<td class="tr">12,157,435원</td>
-											<td class="tr">39,085,196원</td>
-											<td class="tr">118,387,211원</td>
-										</tr>
-										<tr class="bg_gray">
-											<td class="tl">1주당 주식가액<sup class="point_color">1)</sup></td>
-											<td class="tr">-</td>
-											<td class="tr">32,956원</td>
-											<td class="tr">296,157원</td>
-											<td class="tr">1,050,713원</td>
-											<td class="tr">3,703,446원</td>
-											<td class="tr">24,433,555원</td>
-											<td class="tr">60,358,569원</td>
-											<td class="tr">167,810,218원</td>
-										</tr>
-										<tr class="bg_gray">
-											<td class="tl">기업가치</td>
-											<td class="tr">-</td>
-											<td class="tr">19.77억</td>
-											<td class="tr">177.69억</td>
-											<td class="tr">630.43억</td>
-											<td class="tr">2222.07억</td>
-											<td class="tr">14660.13억</td>
-											<td class="tr">36231.34억</td>
-											<td class="tr">100686.13억</td>
-										</tr>
-										<tr class="bg_gray">
-											<td class="tl">기업가치 상승률</td>
-											<td class="tr">-</td>
-											<td class="tr">-100.0%</td>
-											<td class="tr">-100.0%</td>
-											<td class="tr">-100.0%</td>
-											<td class="tr">-100.0%</td>
-											<td class="tr">-100.0%</td>
-											<td class="tr">-100.0%</td>
-											<td class="tr">-100.0%</td>
-										</tr>
+						 	        {{/for}}
+						            </script>
+						            <script type="text/x-jsrender" id="<@pageId>_getValueForStdYear_noData_template">
+						 	        <tr>	
+						 	        	<td colspan=9>자료가 없습니다.</td>	
+						 	        </tr>
+						            </script>
+									</thead>
+						            <tbody id="<@pageId>_getValueForYear">
+						            </tbody>
+						            <script type="text/x-jsrender" id="<@pageId>_getValueForYear_template">
+						 	        {{for list}}
+                                       <tr {{if ITEM_NAME == '경과기간' || ITEM_NAME == '(대표이사 나이)'}}class="bg_skyblue"{{/if}}
+											{{if ITEM_NAME == '1주당 주식가액' || ITEM_NAME == '기업가치' || ITEM_NAME == '기업가치 상승률'}}class="bg_gray"{{/if}}>
+                                      	<td class="tl">{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR01}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR02}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR03}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR04}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR05}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR06}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR07}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR08}}</td>
+                                       </tr>
+						 	        {{/for}}
+						            </script>
+						            <script type="text/x-jsrender" id="<@pageId>_getValueForYear_noData_template">
+						 	        <tr>	
+						 	        	<td colspan=9>자료가 없습니다.</td>	
+						 	        </tr>
+						            </script>
 									</tbody>
 								</table>
 							</div>
@@ -1104,108 +1013,49 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<col style="width:12%;"/>
 										<col style="width:12%;"/>
 									</colgroup>
-									<thead>
-										<tr>
-											<th class="tl">사업년도</th>
-											<th>2023년</th>
-											<th>2025년</th>
-											<th>2028년</th>
-											<th>2030년</th>
-											<th>2033년</th>
-											<th>2036년</th>
-										</tr>
+									<thead id="<@pageId>_getValueForStdReductionYear">
 									</thead>
-									<tbody>
-										<tr class="bg_skyblue">
-											<td class="tl">경기기간</td>
-											<td>당해년도</td>
-											<td>2년 후</td>
-											<td>5년 후</td>
-											<td>7년 후</td>
-											<td>10년 후</td>
-											<td>13년 후</td>
-										</tr>
+						            <script type="text/x-jsrender" id="<@pageId>_getValueForStdReductionYear_template">
+						 	        {{for list}}
 										<tr>
-											<td class="tl">자본(순자산)</td>
-											<td class="tr">161,304</td>
-											<td class="tr">2,470,130</td>
-											<td class="tr">23,038,588</td>
-											<td class="tr">85,412,708</td>
-											<td class="tr">575,377,602</td>
-											<td class="tr">1,422,129,893</td>
+											<th class="tl">{{:ITEM_NAME}}</th>
+											<th>{{:YEAR01}}년</th>
+											<th>{{:YEAR02}}년</th>
+											<th>{{:YEAR03}}년</th>
+											<th>{{:YEAR04}}년</th>
+											<th>{{:YEAR05}}년</th>
+											<th>{{:YEAR06}}년</th>
 										</tr>
-										<tr class="color_skyblue">
-											<td class="tl pl25">(-)연단 배당금</td>
-											<td class="tr">-</td>
-											<td class="tr">200,000</td>
-											<td class="tr">200,000</td>
-											<td class="tr">200,000</td>
-											<td class="tr">200,000</td>
-											<td class="tr">200,000</td>
-										</tr>
-										<tr>
-											<td class="tl">당기순이익</td>
-											<td class="tr">502,507</td>
-											<td class="tr">1,766,626</td>
-											<td class="tr">11,645,240</td>
-											<td class="tr">40,940,296</td>
-											<td class="tr">269,870,113</td>
-											<td class="tr">333,534,460</td>
-										</tr>
-										<tr class="color_skyblue">
-											<td class="tl pl25">(-)대표이사 퇴직금</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-											<td class="tr">527,500</td>
-										</tr>
-										<tr>
-											<td class="tl">1주당 순손익가치</td>
-											<td class="tr">47,777원</td>
-											<td class="tr">213,522원</td>
-											<td class="tr">1,407,493원</td>
-											<td class="tr">4,948,216원</td>
-											<td class="tr">32,617,635원</td>
-											<td class="tr">50,149,700원</td>
-										</tr>
-										<tr>
-											<td class="tl">1주당 순자산가치</td>
-											<td class="tr">10,725원</td>
-											<td class="tr">66,522원</td>
-											<td class="tr">505,195원</td>
-											<td class="tr">1,821,803원</td>
-											<td class="tr">12,136,737원</td>
-											<td class="tr">24,222,522원</td>
-										</tr>
-										<tr class="bg_gray">
-											<td class="tl">플랜 적용 전 기업가치</td>
-											<td class="tr">19.8억원</td>
-											<td class="tr">93.7억원</td>
-											<td class="tr">630.4억원</td>
-											<td class="tr">2222.1억원</td>
-											<td class="tr">14660.1억원</td>
-											<td class="tr">23892.9억원</td>
-										</tr>
-										<tr class="bg_gray">
-											<td class="tl">배당 플랜 적용 후 기업가치</td>
-											<td class="tr">19.8억원</td>
-											<td class="tr">92.7억원</td>
-											<td class="tr">627.9억원</td>
-											<td class="tr">2218.6억원</td>
-											<td class="tr">14655.2억원</td>
-											<td class="tr">23886.4억원</td>
-										</tr>
-										<tr class="bg_gray">
-											<td class="tl">배당&퇴직금 플랜 적용 후 기업가치</td>
-											<td class="tr">19.8억원</td>
-											<td class="tr">92.7억원</td>
-											<td class="tr">627.9억원</td>
-											<td class="tr">2218.6억원</td>
-											<td class="tr">14655.2억원</td>
-											<td class="tr">23867.3억원</td>
-										</tr>
+						 	        {{/for}}
+						            </script>
+						            <script type="text/x-jsrender" id="<@pageId>_getValueForStdReductionYear_noData_template">
+						 	        <tr>	
+						 	        	<td colspan=7>자료가 없습니다.</td>	
+						 	        </tr>
+						            </script>
+									</thead>
+						            <tbody id="<@pageId>_getValueForReductionYear">
+						            </tbody>
+						            <script type="text/x-jsrender" id="<@pageId>_getValueForReductionYear_template">
+						 	        {{for list}}
+                                       <tr {{if ITEM_NAME == '경과기간'}}class="bg_skyblue"{{/if}}
+											{{if ITEM_NAME == '플랜 적용 전 기업가치' || ITEM_NAME == '배당 플랜 적용 후 기업가치' || ITEM_NAME == '배당&퇴직금 플랜 적용 후 기업가치'}}class="bg_gray"{{/if}}>
+                                      	<td {{if ITEM_NAME == '(-)연단 배당금' || ITEM_NAME == '(-)대표이사 퇴직금'}}class="tl pl25"{{else}}class="tl"{{/if}}>
+												{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
+						 	        	<td class="tr">{{:YEAR01}}</td>
+                                        <td class="tr">{{:YEAR02}}</td>
+                                        <td class="tr">{{:YEAR03}}</td>
+                                        <td class="tr">{{:YEAR04}}</td>
+                                        <td class="tr">{{:YEAR05}}</td>
+                                        <td class="tr">{{:YEAR06}}</td>
+                                       </tr>
+						 	        {{/for}}
+						            </script>
+						            <script type="text/x-jsrender" id="<@pageId>_getValueForReductionYear_noData_template">
+						 	        <tr>	
+						 	        	<td colspan=9>자료가 없습니다.</td>	
+						 	        </tr>
+						            </script>
 									</tbody>
 								</table>
 							</div>
@@ -1318,68 +1168,35 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 											<th>증여세</th>
 										</tr>
 									</thead>
-									<tbody>
-										<tr>
-											<td class="tl">2022년</td>
-											<td>46세</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-											<td class="tr bg_gray">-</td>
-											<td class="tr">-</td>
-											<td class="tr">-</td>
-										</tr>
-										<tr>
-											<td class="tl">2023년</td>
-											<td>47세</td>
-											<td class="tr">19.77억원</td>
-											<td class="tr">32,956원</td>
-											<td class="tr bg_gray">1.98억원</td>
-											<td class="tr">3,418만원</td>
-											<td class="tr">1,894만원</td>
-										</tr>
-										<tr>
-											<td class="tl">2026년</td>
-											<td>50세</td>
-											<td class="tr">177.69억원</td>
-											<td class="tr">296,157원</td>
-											<td class="tr bg_gray">17.77억원</td>
-											<td class="tr">43,879만원</td>
-											<td class="tr">51,485만원</td>
-										</tr>
-										<tr>
-											<td class="tl">2028년</td>
-											<td>52세</td>
-											<td class="tr">630.43억원</td>
-											<td class="tr">1,050,713원</td>
-											<td class="tr bg_gray">63.04억원</td>
-											<td class="tr">162,156만원</td>
-											<td class="tr">258,712만원</td>
-										</tr>
-										<tr>
-											<td class="tl">2030년</td>
-											<td>54세</td>
-											<td class="tr">2222.07억원</td>
-											<td class="tr">3,703,446원</td>
-											<td class="tr bg_gray">222.21억원</td>
-											<td class="tr">577,971만원</td>
-											<td class="tr">1,030,658만원</td>
-										</tr>
-										<tr>
-											<td class="tl">2033년</td>
-											<td>57세</td>
-											<td class="tr">14660.13억원</td>
-											<td class="tr">24,433,555원</td>
-											<td class="tr bg_gray">1466.01억원</td>
-											<td class="tr">3,827,416만원</td>
-											<td class="tr">7,063,120만원</td>
-										</tr>
+									<tbody id="<@pageId>_getValueTaxYear">
+						            </tbody>
+						            <script type="text/x-jsrender" id="<@pageId>_getValueTaxYear_template">
+						 	        {{for list}}
+                                       <tr>
+                                      	<td class="tl">{{:YEAR}}</td>
+						 	        	<td class="tr">{{:REP_AGE}}</td>
+                                        <td class="tr">{{:COMPANY_VALUATION}}</td>
+                                        <td class="tr">{{:PRICE_STOCK}}</td>
+                                        <td class="tr bg_gray">{{:VALUATION_TENPERCENT}}</td>
+                                        <td class="tr">{{:CAPITAL_GAINS_TAX}}</td>
+                                        <td class="tr">{{:GIFT_TAX}}</td>
+                                       </tr>
+						 	        {{/for}}
+						            </script>
+						            <script type="text/x-jsrender" id="<@pageId>_getValueTaxYear_noData_template">
+						 	        <tr>	
+						 	        	<td colspan=7>자료가 없습니다.</td>	
+						 	        </tr>
+						            </script>
 									</tbody>
 								</table>
 							</div>
 							<div class="com_cont_stit">주식 이동 시 양도소득세 및 증여세 예상 추이</div>
 							<figure class="highcharts-figure2 mt45">
 								<!-- 예제 이미지 -->
-								<img src="../img/img_chart02.png" style="width:100%;height:340px;display:block;">
+								<figure class="highcharts-figure2 mt45">
+							    	<div class="chart8" id="<@pageId>_getValueTaxYear_chart" style="width:100%; height:360px;display:block;"></div>
+								</figure>
 								<!-- 아래 차트 넣기 -->
 						    	<!-- <div class="lineBarChart01" style="width:100%;height:340px; margin:0 auto"></div> -->
 							</figure>

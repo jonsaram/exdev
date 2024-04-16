@@ -663,4 +663,95 @@
 		});
 	}
 	
+	function _1bar2LineChart(container, categories, series  ) {
+	
+       const chart =  $("#"+container).highcharts({
+            chart: {
+                zoomType: 'xy'
+            },
+            title: {
+                text: '',
+                align: 'left'
+            },
+            subtitle: {
+                text: '',
+                align: 'left'
+            },
+            xAxis: [{
+                labels: {
+                    style: {
+                        color: '#545454',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                lineColor: '#dddddd', /* x축 라인색 */
+                categories: categories,
+                crosshair: true
+            }],
+		    yAxis: [{ // Primary yAxis
+		        labels: {
+		            format: '{value} %',
+		            style: {
+		                color: Highcharts.getOptions().colors[1]
+		            }
+		        },
+		        title: {
+		            text: '부담률',
+		            style: {
+		                color: Highcharts.getOptions().colors[1]
+		            }
+		        }
+		    }, { // Secondary yAxis
+		        title: {
+		            text: '10%지분가치',
+		            style: {
+		                color: Highcharts.getOptions().colors[0]
+		            }
+		        },
+		        labels: {
+		            format: '{value} 억원',
+		            style: {
+		                color: Highcharts.getOptions().colors[0]
+		            }
+		        },
+		        opposite: true
+		    }],
+            tooltip: {
+                shared: true
+            },
+		    legend: {
+		        align: 'left',
+		        x: 80,
+		        verticalAlign: 'top',
+		        y: 60,
+		        floating: true,
+		        backgroundColor:
+		            Highcharts.defaultOptions.legend.backgroundColor || // theme
+		            'rgba(255,255,255,0.25)'
+		    },
+            plotOptions: {
+                line: {
+                    marker: {
+                        enabled: true
+                    },
+		            dataLabels: {
+		                enabled: true,
+						format:'{value}%'
+		            },
+		            enableMouseTracking: false
+                },
+                column: {
+                    marker: {
+                        enabled: true
+                    },
+		            dataLabels: {
+		                enabled: true
+		            },
+		            enableMouseTracking: false
+                },
+            },
+			series : series
+        });
+    }
 	

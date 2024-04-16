@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+
+<mapper namespace="valuation">
+
+	<cache />
+	
+	<!--
+	기업가치 년도별 추이
+	 -->
+	<select id="getValuationStock" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		SELECT   YEAR 
+		       , TO_NUMBER(PRICE_PER_STOCK)/10000 AS PRICE_PER_STOCK
+		       , TOTAL_STOCK
+		       , (PRICE_PER_STOCK*TOTAL_STOCK)/10000 AS VALUATION
+		  FROM TBL_EXP_VALUATION_STOCK
+		 WHERE BUYER_ID = #{BUYER_ID}
+		 ORDER BY YEAR
+	</select>
+	
+	<!--
+	미래 기업가치 시뮬레이션 기준년도
+	 -->
+	<select id="getValueForStdYear" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+			  SELECT '사업년도' AS ITEM_NAME, 0 AS ORDER_NO,
+				      MAX(DECODE(ROWNUM,'1',YEAR,NULL)) AS YEAR01,
+				      MAX(DECODE(ROWNUM,'2',YEAR,NULL)) AS YEAR02,
+					  MAX(DECODE(ROWNUM,'3',YEAR,NULL)) AS YEAR03,
+					  MAX(DECODE(ROWNUM,'4',YEAR,NULL)) AS YEAR04,
+					  MAX(DECODE(ROWNUM,'5',YEAR,NULL)) AS YEAR05,
+					  MAX(DECODE(ROWNUM,'6',YEAR,NULL)) AS YEAR06,
+					  MAX(DECODE(ROWNUM,'7',YEAR,NULL)) AS YEAR07,
+					  MAX(DECODE(ROWNUM,'8',YEAR,NULL)) AS YEAR08
+				 FROM (SELECT YEAR
+					     FROM TBL_EXP_VALUATION_EXPECT_YEAR
+					    WHERE BUYER_ID = #{BUYER_ID}
+					    GROUP BY YEAR
+						ORDER BY YEAR
+					  )
+	</select>
+	<!--
+	년도별 미래 기업가치 시뮬레이션
+	 -->
+	<select id="getValueForYear" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		      SELECT B.ITEM_NAME, B.ORDER_NO, A.DEPTH,
+		             MAX(DECODE(A.YEAR,C.YEAR01,AMOUNT,NULL)) AS YEAR01,
+		             MAX(DECODE(A.YEAR,C.YEAR02,AMOUNT,NULL)) AS YEAR02,
+		             MAX(DECODE(A.YEAR,C.YEAR03,AMOUNT,NULL)) AS YEAR03,
+		             MAX(DECODE(A.YEAR,C.YEAR04,AMOUNT,NULL)) AS YEAR04,
+		             MAX(DECODE(A.YEAR,C.YEAR05,AMOUNT,NULL)) AS YEAR05,
+		             MAX(DECODE(A.YEAR,C.YEAR06,AMOUNT,NULL)) AS YEAR06,
+		             MAX(DECODE(A.YEAR,C.YEAR07,AMOUNT,NULL)) AS YEAR07,
+		             MAX(DECODE(A.YEAR,C.YEAR08,AMOUNT,NULL)) AS YEAR08
+		        FROM TBL_EXP_VALUATION_EXPECT_YEAR A,		              
+					(SELECT DISTINCT ITEM_NAME, ORDER_NO 
+					   FROM TBL_EXP_VALUATION_EXPECT_YEAR
+					  WHERE BUYER_ID = #{BUYER_ID}) B,
+					(SELECT MAX(DECODE(ROWNUM,'1',YEAR,NULL)) AS YEAR01,
+							MAX(DECODE(ROWNUM,'2',YEAR,NULL)) AS YEAR02,
+							MAX(DECODE(ROWNUM,'3',YEAR,NULL)) AS YEAR03,
+							MAX(DECODE(ROWNUM,'4',YEAR,NULL)) AS YEAR04,
+							MAX(DECODE(ROWNUM,'5',YEAR,NULL)) AS YEAR05,
+							MAX(DECODE(ROWNUM,'6',YEAR,NULL)) AS YEAR06,
+							MAX(DECODE(ROWNUM,'7',YEAR,NULL)) AS YEAR07,
+					 	    MAX(DECODE(ROWNUM,'8',YEAR,NULL)) AS YEAR08
+					   FROM (SELECT YEAR
+							   FROM TBL_EXP_VALUATION_EXPECT_YEAR
+							  WHERE BUYER_ID = #{BUYER_ID}
+							  GROUP BY YEAR
+							  ORDER BY YEAR
+							)
+					) C
+			   WHERE A.BUYER_ID = #{BUYER_ID}
+			     AND A.ITEM_NAME = B.ITEM_NAME
+			   GROUP BY B.ITEM_NAME, B.ORDER_NO, A.DEPTH
+	</select>
+	
+	<!--
+	배당 및 퇴직금 플랜 적용 후 기업가치 변동 추이 기준년도
+	 -->
+	<select id="getValueForStdReductionYear" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+			  SELECT '사업년도' AS ITEM_NAME, 0 AS ORDER_NO,
+				      MAX(DECODE(ROWNUM,'1',YEAR,NULL)) AS YEAR01,
+				      MAX(DECODE(ROWNUM,'2',YEAR,NULL)) AS YEAR02,
+					  MAX(DECODE(ROWNUM,'3',YEAR,NULL)) AS YEAR03,
+					  MAX(DECODE(ROWNUM,'4',YEAR,NULL)) AS YEAR04,
+					  MAX(DECODE(ROWNUM,'5',YEAR,NULL)) AS YEAR05,
+					  MAX(DECODE(ROWNUM,'6',YEAR,NULL)) AS YEAR06
+				 FROM (SELECT YEAR
+					     FROM TBL_EXP_VALUATION_REDUCTION_YEAR
+					    WHERE BUYER_ID = #{BUYER_ID}
+					    GROUP BY YEAR
+						ORDER BY YEAR
+					  )
+	</select>
+	<!--
+	년도별 배당 및 퇴직금 플랜 적용 후 기업가치 변동 추이
+	 -->
+	<select id="getValueForReductionYear" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		      SELECT B.ITEM_NAME, B.ORDER_NO, A.DEPTH,
+		             MAX(DECODE(A.YEAR,C.YEAR01,AMOUNT,NULL)) AS YEAR01,
+		             MAX(DECODE(A.YEAR,C.YEAR02,AMOUNT,NULL)) AS YEAR02,
+		             MAX(DECODE(A.YEAR,C.YEAR03,AMOUNT,NULL)) AS YEAR03,
+		             MAX(DECODE(A.YEAR,C.YEAR04,AMOUNT,NULL)) AS YEAR04,
+		             MAX(DECODE(A.YEAR,C.YEAR05,AMOUNT,NULL)) AS YEAR05,
+		             MAX(DECODE(A.YEAR,C.YEAR06,AMOUNT,NULL)) AS YEAR06
+		        FROM TBL_EXP_VALUATION_REDUCTION_YEAR A,		              
+					(SELECT DISTINCT ITEM_NAME, ORDER_NO 
+					   FROM TBL_EXP_VALUATION_REDUCTION_YEAR
+					  WHERE BUYER_ID = #{BUYER_ID}) B,
+					(SELECT MAX(DECODE(ROWNUM,'1',YEAR,NULL)) AS YEAR01,
+							MAX(DECODE(ROWNUM,'2',YEAR,NULL)) AS YEAR02,
+							MAX(DECODE(ROWNUM,'3',YEAR,NULL)) AS YEAR03,
+							MAX(DECODE(ROWNUM,'4',YEAR,NULL)) AS YEAR04,
+							MAX(DECODE(ROWNUM,'5',YEAR,NULL)) AS YEAR05,
+							MAX(DECODE(ROWNUM,'6',YEAR,NULL)) AS YEAR06
+					   FROM (SELECT YEAR
+							   FROM TBL_EXP_VALUATION_REDUCTION_YEAR
+							  WHERE BUYER_ID = #{BUYER_ID}
+							  GROUP BY YEAR
+							  ORDER BY YEAR
+							)
+					) C
+			   WHERE A.BUYER_ID = #{BUYER_ID}
+			     AND A.ITEM_NAME = B.ITEM_NAME
+			   GROUP BY B.ITEM_NAME, B.ORDER_NO, A.DEPTH
+			   ORDER BY B.ORDER_NO
+	</select>
+	<!--
+	주식 이동 시 세금 비교
+	 -->
+	<select id="getValueTaxYear" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        SELECT   BUYER_ID
+		       , YEAR
+		       , CHART_YEAR
+		       , REP_AGE
+		       , COMPANY_VALUATION
+		       , PRICE_STOCK
+		       , VALUATION_TENPERCENT
+		       , CHART_VALUATION_TENPERCENT
+		       , CAPITAL_GAINS_TAX
+		       , ROUND(DECODE(CHART_VALUATION_TENPERCENT,0,0,(CHART_CAPITAL_GAINS_TAX/CHART_VALUATION_TENPERCENT/100)),1) AS CHART_CAPITAL_GAINS_TAX
+		       , GIFT_TAX
+		       , ROUND(DECODE(CHART_VALUATION_TENPERCENT,0,0,(CHART_GIFT_TAX/CHART_VALUATION_TENPERCENT/100)),1) AS CHART_GIFT_TAX
+		       , SP_CSTM_ID
+		       , UPDATE_USER
+		       , UPDATE_DATE
+		  FROM (SELECT   BUYER_ID
+				       , YEAR
+				       , REPLACE(YEAR,'년','') AS CHART_YEAR
+				       , REP_AGE
+				       , COMPANY_VALUATION
+				       , PRICE_STOCK
+				       , VALUATION_TENPERCENT
+				       , TO_NUMBER(DECODE(REPLACE(VALUATION_TENPERCENT,'억원',''),'-','0',NULL,0,REPLACE(VALUATION_TENPERCENT,'억원',''))) AS CHART_VALUATION_TENPERCENT
+				       , CAPITAL_GAINS_TAX
+				       , TO_NUMBER(DECODE(REPLACE(REPLACE(CAPITAL_GAINS_TAX,'만원',''),',',''),'-','0',NULL,0,REPLACE(REPLACE(CAPITAL_GAINS_TAX,'만원',''),',',''))) AS CHART_CAPITAL_GAINS_TAX
+				       , GIFT_TAX
+				       , TO_NUMBER(DECODE(REPLACE(REPLACE(GIFT_TAX,'만원',''),',',''),'-','0',NULL,0,REPLACE(REPLACE(GIFT_TAX,'만원',''),',',''))) AS CHART_GIFT_TAX
+				       , SP_CSTM_ID
+				       , UPDATE_USER
+				       , UPDATE_DATE
+			      FROM TBL_EXP_VALUATION_TAX_YEAR
+			     WHERE BUYER_ID = #{BUYER_ID})	      
+	     ORDER BY YEAR
+	</select>
+</mapper>
