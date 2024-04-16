@@ -26,7 +26,6 @@
             'https://code.highcharts.com/mapdata/countries/kr/kr-all.topo.json'
         ).then(response => response.json());
         
-        console.log("===============================");
         console.log(topology);
         
         const data = [
@@ -105,7 +104,7 @@
                 37.88496764674133,
                 127.7297595449055,
                 '°­¿øµµ',
-                22
+                254125
             ],
             [
                 'k12',
@@ -185,7 +184,16 @@
                 max: 15,
                 labels: {
                     format: '{value}'
-                }
+                },
+                stops: [
+                    [0,   '#A9A9F5'],
+                    [0.2, '#8181F7'],
+                    [0.4, '#5858FA'],
+                    [0.6, '#2E2EFE'],
+                    [0.8, '#0000FF'],
+                    [0.9, '#08088A'],
+                    [1,   '#08088A']
+                ]
             },
 
             legend: {

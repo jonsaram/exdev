@@ -325,7 +325,11 @@
         <if test=" startDate != null and startDate != '' and endDate != null and endDate != '' " >
             AND    OPENING_DAY BETWEEN TO_DATE( #{startDate}, 'YYYY-MM-DD') AND TO_DATE(#{endDate}, 'YYYY-MM-DD')
         </if>
-                
+        <if test=" region != null and region != '' ">
+            <if test=" !'ALL'.equals(region) ">
+               AND    REGION = #{region} 
+            </if>        
+        </if>        
         ORDER BY STORE_NM3 
     </select>
     
@@ -360,13 +364,13 @@
         FROM   TBL_EXP_STORE_INFO
         WHERE  1 = 1
         <if test=" parm.dateStart != null and parm.dateStart != '' and parm.dateEnd != null and parm.dateEnd != '' " >
-            AND    OPENING_DAY BETWEEN TO_DATE( #{parm.dateStart}, 'YYYY-MM-DD') AND TO_DATE(#{parm.dateEnd}, 'YYYY-MM-DD')
+            AND    OPENING_DAY BETWEEN TO_DATE( #{parm.dateStart}, 'YYYY-MM') AND TO_DATE(#{parm.dateEnd}, 'YYYY-MM')
         </if>
         <if test=" !'ALL'.equals(parm.region) ">
             AND    REGION = #{parm.region} 
         </if>
         <if test=" !'ALL'.equals(parm.supervisor) ">
-            AND    supervisor = #{parm.supervisor} 
+            AND    SUPERVISOR = #{parm.supervisor} 
         </if>
     </sql>  
     <select id="getStorePage" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -422,4 +426,89 @@
         WHERE  1 = 1
     </select>
     
+    <select id="getOpenCloseCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false"> 
+        SELECT 'OPEN'  AS TYPE, COUNT(1) AS CNT 
+        FROM   TBL_EXP_STORE_INFO 
+        WHERE  SP_CSTM_ID = #{spCstmId} 
+        AND    TO_CHAR( OPENING_DAY,  'YYYY-MM') = #{seartDate}
+        <if test=" !'ALL'.equals(region) ">
+            AND    REGION     = #{region} 
+        </if> 
+        <if test=" !'ALL'.equals(supervisor) ">
+            AND    SUPERVISOR = #{supervisor} 
+        </if> 
+        UNION ALL
+        SELECT 'CLOSE' AS TYPE, COUNT(1) AS CNT 
+        FROM   TBL_EXP_STORE_INFO 
+        WHERE  SP_CSTM_ID = #{spCstmId} 
+        AND    TO_CHAR( CLOSING_DATE, 'YYYY-MM') = #{seartDate} 
+        <if test=" !'ALL'.equals(region) ">
+            AND    REGION     = #{region} 
+        </if> 
+        <if test=" !'ALL'.equals(supervisor) ">
+            AND    SUPERVISOR = #{supervisor} 
+        </if>
+        UNION ALL 
+        SELECT 'ALL'   AS TYPE, COUNT(1) AS CNT 
+        FROM   TBL_EXP_STORE_INFO 
+        WHERE  SP_CSTM_ID = #{spCstmId} 
+        <if test=" !'ALL'.equals(region) ">
+            AND    REGION     = #{region} 
+        </if> 
+        <if test=" !'ALL'.equals(supervisor) ">
+            AND    SUPERVISOR = #{supervisor} 
+        </if>
+        AND    TO_CHAR( OPENING_DAY,  'YYYY-MM') <![CDATA[<=]]> #{seartDate} 
+        AND    CLOSING_DATE IS NULL
+    </select>
+    
+    <!--  -->
+    <select id="getOpenCloseCntSummary" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getOpenCloseCntSummary */
+		SELECT SUM(ALL_CNT)   AS ALL_CNT
+		      ,SUM(CLOSE_CNT) AS CLOSE_CNT
+		      ,SUM(ALL_CNT) - SUM(CLOSE_CNT) AS OPEN_CNT
+		FROM   (
+		        SELECT COUNT(1) AS ALL_CNT
+		             , 0        AS CLOSE_CNT
+		        FROM TBL_EXP_STORE_INFO 
+		        WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+		        <if test=" !'ALL'.equals(region) ">
+		            AND    REGION     = #{region} 
+		        </if> 
+		        <if test=" !'ALL'.equals(supervisor) ">
+		            AND    SUPERVISOR = #{supervisor} 
+		        </if>
+		        UNION ALL
+		        SELECT 0        AS ALL_CNT 
+		              ,COUNT(1) AS CLOSE_CNT 
+		        FROM TBL_EXP_STORE_INFO 
+		        WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+                <if test=" !'ALL'.equals(region) ">
+                    AND    REGION     = #{region} 
+                </if> 
+                <if test=" !'ALL'.equals(supervisor) ">
+                    AND    SUPERVISOR = #{supervisor} 
+                </if>
+		        AND CLOSING_DATE IS NOT NULL
+		        )
+    </select>
+    
+    <select id="getRegionCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getRegionCnt */
+        SELECT REGION
+		      ,NVL(REGION_NM,'없음') AS  REGION_NM
+		      ,CNT 
+		FROM   (
+		        SELECT REGION
+		              ,GET_CODE_NM('STORE_REGION', REGION)      AS REGION_NM
+		              ,COUNT(1) AS CNT 
+		        FROM TBL_EXP_STORE_INFO 
+		        WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+		        AND CLOSING_DATE IS  NULL
+		        GROUP BY REGION
+		        )
+		ORDER BY CNT DESC 
+    </select>
+        
 </mapper>

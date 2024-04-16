@@ -17,6 +17,7 @@ import exdev.com.ExdevCommonAPI;
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.service.ApprovalService;
+import exdev.com.service.DashboardService;
 import exdev.com.service.EmailService;
 import exdev.com.service.ExdevSampleService;
 import exdev.com.service.ScheduleService;
@@ -37,6 +38,9 @@ public class ExdevCommonService extends ExdevBaseService
 
     @Autowired
     private ScheduleService    scheduleService;
+    
+    @Autowired
+    private DashboardService    dashboardService;
 	
 	@Autowired
 	private ExdevCommonDao commonDao;
@@ -76,8 +80,12 @@ public class ExdevCommonService extends ExdevBaseService
         } else if("ScheduleService".equals(classId)) {
             targetService = scheduleService;
             targetMethod = ScheduleService.class.getMethod(methodId, Map.class);
+        } else if("DashboardService".equals(classId)) {
+            targetService = dashboardService;
+            targetMethod = DashboardService.class.getMethod(methodId, Map.class);
         }
 			
+		
 		Object resultObject = (Object)targetMethod.invoke(targetService, requestParm);
 		
 		resultInfo = makeResult(ExdevBaseService.REQUEST_SUCCESS, "", resultObject);
