@@ -306,7 +306,7 @@ var <@popupId> = {
 		const RATE_SUM	= rs.endsWith('.00') ? rs.slice(0, -3) : rs;
 		const ps			= Number(paymentSum).toFixed(2)
 		const PAYMENT_SUM	= ps.endsWith('.00') ? ps.slice(0, -3) : ps;
-console.log(PAYMENT_SUM);
+
 		$("#<@popupId>_paymentList #<@popupId>_RATE_SUM").text(RATE_SUM+" %");	
 		$("#<@popupId>_paymentList #<@popupId>_PAYMENT_SUM").text( addComma(PAYMENT_SUM));	
 
@@ -350,8 +350,8 @@ console.log(PAYMENT_SUM);
 				return;
 			}
 			
-			const $tr = $("[name='<@popupId>_tr_-1']");
-			if( $tr.length > 0)$tr.hide();
+			const $tr =$("#<@popupId>_costList tr[name='<@popupId>_tr_-1']");
+			$tr.is(":visible") ? $tr.hide() : '';
 			
 			let cnt 		= $("#<@popupId>_costList tr").length;
 			if ( !cnt )cnt 	= 0;
@@ -453,20 +453,26 @@ console.log(PAYMENT_SUM);
 	,sumSupplyCostPrice : () => {
 		
 		let sum = 0;
-		
-		$.each( $("#<@popupId>_costList tr") , function(idx,row) {
+
+		if( !$("#<@popupId>_costList tr[name='<@popupId>_tr_-1']").is(":visible") ){
 			
-			const COST_PRICE	= $(row).children("td[id='COST_PRICE']").attr("value");
+			$.each( $("#<@popupId>_costList tr") , function(idx,row) {
+				if( $(row).is(":visible") ) {
+					
+					const COST_PRICE	= $(row).children("td[id='COST_PRICE']").attr("value");
+					
+					const supplytax 	= <@popupId>.supply_tax_cal( Number(COST_PRICE) ) ;
+					const nsupplyCost 	= $(row).children("td[id='COST_SUPP_PRICE']").val(	supplytax.supplyCost	).nval();
+					const ntax			= $(row).children("td[id='COST_TAX_PRICE']"	).val(	supplytax.tax			).nval();
+					
+					$(row).children("td[id='COST_SUPP_PRICE']"	).attr("value", nsupplyCost	).text(addComma(supplytax.supplyCost) ); 
+					$(row).children("td[id='COST_TAX_PRICE']"	).attr("value",ntax			).text(addComma(supplytax.tax));
+					
+					sum += Number(	nsupplyCost );
+				}
+			})
 			
-			const supplytax 	= <@popupId>.supply_tax_cal( Number(COST_PRICE) ) ;
-			const nsupplyCost 	= $(row).children("td[id='COST_SUPP_PRICE']").val(	supplytax.supplyCost	).nval();
-			const ntax			= $(row).children("td[id='COST_TAX_PRICE']"	).val(	supplytax.tax			).nval();
-			
-			$(row).children("td[id='COST_SUPP_PRICE']"	).attr("value", nsupplyCost	).text(addComma(supplytax.supplyCost) ); 
-			$(row).children("td[id='COST_TAX_PRICE']"	).attr("value",ntax			).text(addComma(supplytax.tax));
-			
-			sum += Number(	nsupplyCost );
-		})
+		} 
 
 		return sum;
 	}
@@ -489,6 +495,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.PROCESS_STATE 	= data.contractItem.PROCESS_STATE; 
 
 	<@popupId>.RESULT_ID 		= isEmpty(data.resultItem?.RESULT_ID) ? C_COM.makeUniqueId() : data.resultItem["RESULT_ID"];
+	
 	<@popupId>.setHandler();
 	
 	<@popupId>.pageInit(data);

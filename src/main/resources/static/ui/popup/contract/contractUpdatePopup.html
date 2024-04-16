@@ -45,16 +45,15 @@ var <@popupId> = {
 		 
 		 return returnData;
  	 }
-	 ,apply : (processState, approval) =>{
+	 ,apply : (processState) =>{
 
 		 const returnData = <@popupId>.makeReturnData(false);
 		 
-		 if( processState ) returnData["PROCESS_STATE"] = processState;
-		 else returnData["PROCESS_STATE"]	= <@popupId>.processState;
-		 
-		 if( approval ){
+		 if( processState ){
+			 returnData["PROCESS_STATE"] = processState;
 			 returnData["APPROVAL"] = true;
 		 }
+		 else returnData["PROCESS_STATE"]	= <@popupId>.processState;
 		 
 		 <@popupId>.close(returnData);
 		 
@@ -83,15 +82,8 @@ var <@popupId> = {
 		
 		$("#<@popupId>_CONSULTANT_NM").text(<@popupId>.consultantUser.NM);
 		
-		if( "<@processState>" == 'CONTRACTING'){
-			$("#<@popupId>_approvalBtn").text("체결 완료 결재 상신")
-			$("#<@popupId>_approvalBtn").show();
-		}
-		if( "<@processState>" == 'CONTRACTED'){
-
-			$("#<@popupId>_approvalBtn").text("실행 완료 결재 상신")
-			$("#<@popupId>_approvalBtn").show();
-		}
+		"<@processState>" == 'CONTRACTING'	? $("#<@popupId>_approvalBtn").text("체결 완료 결재 상신").show(): "";
+		"<@processState>" == 'CONTRACTED'	? $("#<@popupId>_approvalBtn").text("실행 완료 결재 상신").show(): "";
 
 		$("#<@popupId>_salesManList td#ROLE_NM" ).html(<@popupId>.updatingData.CONSULTANT_ROLE_NM);
 		$("#<@popupId>_salesManList td#USER_ID" ).html(<@popupId>.updatingData.USER_ID);
@@ -154,7 +146,7 @@ var <@popupId> = {
 				setTimeout( ()=>{
 					$("#<@popupId>_addCowork").hide();
 					$("#<@popupId> button .icon_trash").hide()
-					$("#<@popupId>_approvalBtn").show();
+
 				},300)
 				
 			}else{
@@ -440,10 +432,35 @@ var <@popupId> = {
 
 		if( <@popupId>.makeReturnData(true) == null)return;
 		
-		const msg = "<@processState>" == 'CONTRACTING' ? "체결 완료" : "실행 완료";
-		C_POP.confirm(msg+' 결재 상신하시겠습니까?', function() {
-			<@popupId>.apply("<@processState>","APPROVAL");
-		});
+		let title 		= "<@processState>" == 'CONTRACTING' ? "계약 체결 완료 결재 요청" : "실행 완료 결재 요청";
+		let afterState 	= "<@processState>" == 'CONTRACTING' ? "CONTRACTED" : "COMPLETED";
+		
+		const CONTRACT_ID =<@popupId>.updatingData["CONTRACT_ID"];
+        let requestParm = {
+	        	 RELATION_ID 	: CONTRACT_ID
+	        	,AFTER_SERVICE	: `ApprovalAfterService.updateContractProcess`
+	        	,AFTER_PARM		: `{"PROCESS_STATE" : "${afterState}" }`
+	        	,TITLE			: title
+	        }
+	        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
+				if(retData.state == "S") {
+					// 프로젝트 Update
+					var parm = {
+						 queryId 		: "contract.updateProject"
+						,requestParm	: {
+							 CONTRACT_ID 	: CONTRACT_ID
+				        	,PROCESS_STATE	: `ON_${afterState}_APPR`
+						}
+					}
+					C_COM.requestQuery(parm, function(resultData) {
+						if(resultData.state == "S") {
+							<@popupId>.apply(`ON_${afterState}_APPR`);
+						} else {
+							C_POP.alert('결재상신 상태값 갱신 중 문제가 발생 했습니다.');
+						}
+					});  
+				}
+	        });
 		
 	}
 	,setComponent : () => {

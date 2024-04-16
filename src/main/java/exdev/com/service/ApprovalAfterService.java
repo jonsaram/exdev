@@ -103,5 +103,15 @@ public class ApprovalAfterService extends ExdevBaseService{
 		return map;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Map updateContractProcess(Map map) throws Exception {
+		
+		map.put("CONTRACT_ID", map.get("RELATION_ID"));
+		
+        int result = commonDao.update("contract.updateContractProcessState", map);
+		
+		return map;
+	}
+	
 	
 }
