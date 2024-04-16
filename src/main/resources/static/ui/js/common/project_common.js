@@ -135,7 +135,12 @@ var C_COM = {
 			// LoadingBar 사용 옵션 추가 20210219
 			
 			if(isValid(callback)) {
+				C_COM.showLoadingBar();
 				ajaxRequest(sendParm, function(resultData) {
+					setTimeout(function() {
+						C_COM.hideLoadingBar();	
+					}, 1000);
+					
 					if(resultData.state == "S") {
 						if(typeof callback == "function") callback(resultData);
 					} else {
@@ -188,7 +193,11 @@ var C_COM = {
 			}
 			
 			if(isValid(callback)) {
+				C_COM.showLoadingBar();
 				ajaxRequest(sendParm, function(resultData) {
+					setTimeout(function() {
+						C_COM.hideLoadingBar();	
+					}, 300);
 					if(resultData.state == "S") {
 						if(typeof callback == "function") callback(resultData);
 					} else if(resultData.state == "NO_SESSION"){
@@ -391,12 +400,6 @@ var C_COM = {
 	 }
 	,hideLoadingBar : function() {
 		$("#loadingBar").hide();
-	 }
-	,showUploadingBar : function() {
-		$("#uploadingBar").show();
-	 }
-	,hideUploadingBar : function() {
-		$("#uploadingBar").hide();
 	 }
 	,getCurrentTemplateId : function() {
 		var templateId = C_POP.getCurrentPopupId();
