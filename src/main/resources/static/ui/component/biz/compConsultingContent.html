@@ -1,0 +1,38 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@compId> = {
+		 contractInfo : {}
+		,loadConsultingContentList : function() {
+			var parm = {
+				 queryId 		: "contract.getConsultingContentList"
+				,requestParm	: <@compId>.contractInfo
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				if(isValid(resultData.data)) {
+					let content = resultData.data[0].CONSULTING_DESC;
+					content = content.replaceAll("\n", "<br/>");
+					$("#<@compId> #consultingContent").html(content);
+				}
+			});  
+		 }
+	}
+	// Component Load가 완료된후 실행 된다.
+	C_COMP.onLoadComp("<@compId>", function(data) {
+		
+		<@compId>.contractInfo =  data.contractInfo;
+		
+		<@compId>.loadConsultingContentList();
+	
+	});
+</script>
+<div>
+	<div class="cont_top clearFix">
+		<h4 class="fl lh24">- 컨설팅 진행사항</h4>
+	</div>
+	<div class="approver_list_wrap person mb15">
+		<ul class="approver_list" id="consultingContentList">
+			<li><span class="txt"><span id="consultingContent">
+			</span></span></li>
+		</ul>
+	</div>
+</div>
