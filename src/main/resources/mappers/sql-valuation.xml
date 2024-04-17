@@ -13,7 +13,7 @@
 		SELECT   YEAR 
 		       , TO_NUMBER(PRICE_PER_STOCK)/10000 AS PRICE_PER_STOCK
 		       , TOTAL_STOCK
-		       , (PRICE_PER_STOCK*TOTAL_STOCK)/10000 AS VALUATION
+		       , (PRICE_PER_STOCK*TOTAL_STOCK)/100000000 AS VALUATION
 		  FROM TBL_EXP_VALUATION_STOCK
 		 WHERE BUYER_ID = #{BUYER_ID}
 		 ORDER BY YEAR
@@ -164,5 +164,23 @@
 			      FROM TBL_EXP_VALUATION_TAX_YEAR
 			     WHERE BUYER_ID = #{BUYER_ID})	      
 	     ORDER BY YEAR
+	</select>
+	<!--
+	주식 이동 시 세금 비교
+	 -->
+	<select id="getValuationReference" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		<![CDATA[
+		SELECT   SEQ
+		       , GUBUN_NAME
+		       , REPLACE(ITEM01_DESC,CHR(10),'<br>') AS ITEM01_DESC
+		       , REPLACE(ITEM02_DESC,CHR(10),'<br>') AS ITEM02_DESC
+		       , REPLACE(ITEM03_DESC,CHR(10),'<br>') AS ITEM03_DESC
+		       , REPLACE(ITEM04_DESC,CHR(10),'<br>') AS ITEM04_DESC
+		       , SP_CSTM_ID
+		       , UPDATE_USER
+		       , UPDATE_DATE
+		FROM TBL_EXP_VALUATION_REFERENCE
+		ORDER BY SEQ
+		]]>
 	</select>
 </mapper>

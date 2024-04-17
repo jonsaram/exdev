@@ -568,7 +568,7 @@
 		            }
 		        },
 		        labels: {
-		            format: '{value} 만원',
+		            format: '{value} 억원',
 		            style: {
 		                color: Highcharts.getOptions().colors[0]
 		            }
@@ -736,8 +736,7 @@
                         enabled: true
                     },
 		            dataLabels: {
-		                enabled: true,
-						format:'{value}%'
+		                enabled: true
 		            },
 		            enableMouseTracking: false
                 },

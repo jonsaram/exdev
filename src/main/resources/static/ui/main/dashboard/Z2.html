@@ -75,7 +75,12 @@ var <@pageId> = {
 					{
 						 queryId 			: "valuation.getValueTaxYear"
 						,requestParm		: pmt
-					}					
+					}	
+					,
+					{
+						 queryId 			: "valuation.getValuationReference"
+						,requestParm		: pmt
+					}
 				]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
@@ -87,31 +92,13 @@ var <@pageId> = {
 				<@pageId>.showList("<@pageId>_getValueForYear", resultData.data['valuation.getValueForYear']);
 				<@pageId>.showList("<@pageId>_getValueForStdReductionYear", resultData.data['valuation.getValueForStdReductionYear']);
 				<@pageId>.showList("<@pageId>_getValueForReductionYear", resultData.data['valuation.getValueForReductionYear']);
-				<@pageId>.showList("<@pageId>_getValueTaxYear", resultData.data['valuation.getValueTaxYear']);
-				
+				<@pageId>.showList("<@pageId>_getValueTaxYear", resultData.data['valuation.getValueTaxYear']);				
 				<@pageId>.setChart('ValueTax',resultData.data['valuation.getValueTaxYear']);
-				
-				//<@pageId>.showList("<@pageId>_getValuationStock", resultData.data['valuation.getValuationStock']);
-				//<@pageId>.showList("<@pageId>_getFinAnalExecutive", resultData.data['financialanalysis.getFinAnalExecutive']);
-				//<@pageId>.showList("<@pageId>_getFinAnalRate01", resultData.data['financialanalysis.getFinAnalRate']);
-				//<@pageId>.showList("<@pageId>_getFinAnalRate02", resultData.data['financialanalysis.getFinAnalRate']);
-				//<@pageId>.showList("<@pageId>_getFinAnalRate03", resultData.data['financialanalysis.getFinAnalRate']);
-				//<@pageId>.showList("<@pageId>_getFinAnalRate04", resultData.data['financialanalysis.getFinAnalRate']);
-				//<@pageId>.showObject(resultData.data['financialanalysis.getFinAnalYear'][0],'');
-				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl01", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl02", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl03", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl04", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl06", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-
-				//<@pageId>.setChart('Personal',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				//<@pageId>.setChart('Hire',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				
-				//<@pageId>.setChart('InputLaborForce',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				//<@pageId>.setChart('LaborCostPerPerson',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				//<@pageId>.setChart('SaleAmountPerPerson',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				
+				<@pageId>.showList("<@pageId>_getValuationReference01", resultData.data['valuation.getValuationReference']);
+				<@pageId>.showList("<@pageId>_getValuationReference02", resultData.data['valuation.getValuationReference']);
+				<@pageId>.showList("<@pageId>_getValuationReference03", resultData.data['valuation.getValuationReference']);
+				<@pageId>.showList("<@pageId>_getValuationReference04", resultData.data['valuation.getValuationReference']);
+				<@pageId>.showList("<@pageId>_getValuationReference05", resultData.data['valuation.getValuationReference']);
 			});
 		 }
 		,setChart : (gubun, chartData) =>{
@@ -122,17 +109,7 @@ var <@pageId> = {
 			const getValuationTenpercent = [];		// 10% 지분가치
 			const getCapitalGainsTax = [];			// 양도소득세 부담률
 			const getGiftTax = [];					// 증여세 부담률
-			/*
-			const getCostOfPersonalRate = [];
-			const getCostOfHireRate = [];
-			const getInputLaborForce = [];
-			const getTotalLaborCost = [];
-			const getLaborCostPerPerson = [];
-			const getTotalSaleAmount = [];
-			const getSaleAmountPerPerson = [];
-			*/
-			//debugger;
-			//YEAR, PRICE_PER_STOCK, TOTAL_STOCK, VALUATION
+
 			$.each(chartData, function(index, item){
 				if(gubun=='ValuationStock'){
 					_yearValuationStockArray.push(item.YEAR);
@@ -144,61 +121,7 @@ var <@pageId> = {
 					getCapitalGainsTax.push(item.CHART_CAPITAL_GAINS_TAX);
 					getGiftTax.push(item.CHART_GIFT_TAX);
 				}
-				
-				/*
-				else if(gubun=='Personal'){
-					if(item.ITEM_NAME == '(인건비/매출액)'){
-						getCostOfPersonalRate.push(parseFloat(item.YEAR1.replace(',','')));
-						getCostOfPersonalRate.push(parseFloat(item.YEAR2.replace(',','')));
-						getCostOfPersonalRate.push(parseFloat(item.YEAR3.replace(',','')));
-					}
-				} else if(gubun=='Hire'){
-					if(item.ITEM_NAME == '(임차료/매출액)'){
-						getCostOfHireRate.push(parseFloat(item.YEAR1.replace(',','')));
-						getCostOfHireRate.push(parseFloat(item.YEAR2.replace(',','')));
-						getCostOfHireRate.push(parseFloat(item.YEAR3.replace(',','')));
-					}
-				} else if(gubun=='InputLaborForce'){
-					if(item.ITEM_NAME == '상시근로자수'){
-						getInputLaborForce.push(parseFloat(item.YEAR1.replace(',','')));
-						getInputLaborForce.push(parseFloat(item.YEAR2.replace(',','')));
-						getInputLaborForce.push(parseFloat(item.YEAR3.replace(',','')));
-					}
-				}else if(gubun=='LaborCostPerPerson'){
-					if(item.ITEM_NAME == '인건비 합계'){
-						getTotalLaborCost.push(parseFloat(item.YEAR1.replace(',','')));
-						getTotalLaborCost.push(parseFloat(item.YEAR2.replace(',','')));
-						getTotalLaborCost.push(parseFloat(item.YEAR3.replace(',','')));
-					}else if(item.ITEM_NAME == '상시근로자수'){
-						getInputLaborForce.push(parseFloat(item.YEAR1.replace(',','')));
-						getInputLaborForce.push(parseFloat(item.YEAR2.replace(',','')));
-						getInputLaborForce.push(parseFloat(item.YEAR3.replace(',','')));
-					}
-				}else if(gubun=='SaleAmountPerPerson'){
-					if(item.ITEM_NAME == '매출액'){
-						getTotalSaleAmount.push(parseFloat(item.YEAR1.replace(',','')));
-						getTotalSaleAmount.push(parseFloat(item.YEAR2.replace(',','')));
-						getTotalSaleAmount.push(parseFloat(item.YEAR3.replace(',','')));
-					}else if(item.ITEM_NAME == '상시근로자수'){
-						getInputLaborForce.push(parseFloat(item.YEAR1.replace(',','')));
-						getInputLaborForce.push(parseFloat(item.YEAR2.replace(',','')));
-						getInputLaborForce.push(parseFloat(item.YEAR3.replace(',','')));
-					}
-				}*/
 			})
-			/*
-			if(gubun=='LaborCostPerPerson'){
-				//debugger;
-				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[0]/getInputLaborForce[0]));
-				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[1]/getInputLaborForce[1]));
-				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[2]/getInputLaborForce[2]));
-			}else if(gubun=='SaleAmountPerPerson'){
-				//debugger;
-				getSaleAmountPerPerson.push(Math.round(getTotalSaleAmount[0]/getInputLaborForce[0]));
-				getSaleAmountPerPerson.push(Math.round(getTotalSaleAmount[1]/getInputLaborForce[1]));
-				getSaleAmountPerPerson.push(Math.round(getTotalSaleAmount[2]/getInputLaborForce[2]));
-			}
-			*/
 			if(gubun=='ValuationStock'){
 				//debugger;
 				//년도별 기업가치 예상 추이
@@ -215,34 +138,6 @@ var <@pageId> = {
 													},{  name: '양도소득세 부담률',type: 'line',	data: getCapitalGainsTax, tooltip: {valueSuffix:'%'}}
 													]);
 			} 
-			/*
-			else if(gubun=='Personal'){
-				//인건비 비중
-  				<@pageId>.createChart( "<@pageId>_costOfPersonalRate_chart" 
-									, _3yearArray , [{  name: '인건비 비중(%)',type: 'line',	data: getCostOfPersonalRate,tooltip: {valueSuffix:'%'}}
-													]);
-			} else if(gubun=='Hire'){
-				//임차료 비중
-  				<@pageId>.createChart( "<@pageId>_costOfHireRate_chart" 
-									, _3yearArray , [{  name: '임차료 비중(%)',type: 'line',	data: getCostOfHireRate,tooltip: {valueSuffix:'%'}}
-													]);
-			} else if(gubun=='InputLaborForce'){
-				//투입노동력
-  				<@pageId>.createChart( "<@pageId>_inputLaborForce_chart" 
-									, _3yearArray , [{  name: '투입노동력(명)',type: 'line',	data: getInputLaborForce,tooltip: {valueSuffix:'명'}}
-													]);
-			} else if(gubun=='LaborCostPerPerson'){				
-				//인당 평균 인건비
-  				<@pageId>.createChart( "<@pageId>_laborCostPerPerson_chart" 
-									, _3yearArray , [{  name: '인당 평균 인건비(천원)',type: 'line',	data: getLaborCostPerPerson,tooltip: {valueSuffix:'천원'}}
-													]);
-			}else if(gubun=='SaleAmountPerPerson'){				
-				//인당 평균 매출액
-  				<@pageId>.createChart( "<@pageId>_SaleAmountPerPerson_chart" 
-									, _3yearArray , [{  name: '인당 평균 매출액(천원)',type: 'line',	data: getSaleAmountPerPerson,tooltip: {valueSuffix:'천원'}}
-													]);
-			}
-			*/
 		}
 		,goPage : (pageId,rowId) => {
 
@@ -623,7 +518,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 												{{for list}}
 												<tr>
 													<td>{{:STOCKHOLDER_NM}}</td>
-													<td>{{:SHARE_RATIO}}</td>
+													<td>{{:SHARE_RATIO}}%</td>
 													<td>{{:VALUE_OF_SHARES_HELD}}</td>
 													<td>{{:OWNER_RELATIONSHIP}}</td>
 												</tr>
@@ -681,28 +576,26 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 											<th>비고</th>
 										</tr>
 									</thead>
-									<tbody>
-										<tr>
-											<td class="tl">1. 일반적인 경우</td>
-											<td>1주당 순손익가치x60% + 1주당 순자산가치X40%</td>
-											<td rowspan="2">
-												<div>*평가하한 적용</div>
-												<div>=Max(1주당 평가액, 순자산가치의 80%)</div>
-											</td>
-										</tr>
-										<tr>
-											<td class="tl">2. 부동산 평가액이 총자산의 50% 이상인 경우</td>
-											<td>1주당 순손익가치x50% + 1주당 순자산가치X60%</td>
-										</tr>
-										<tr>
-											<td class="tl">
-												3. 부동산 평가액이 총자산의 80% 이상인 경우<br>
-												&nbsp;&nbsp;&nbsp;(법인설립 후 3년 미만인 경우)
-											</td>
-											<td>1주당 순자산 가치로만 계산</td>
-											<td>영업권평가액 합산 제외</td>
-										</tr>
-									</tbody>
+									
+						            <tbody id="<@pageId>_getValuationReference05">
+						            </tbody>
+						            <script type="text/x-jsrender" id="<@pageId>_getValuationReference05_template">
+						 	        {{for list}}
+									  {{if GUBUN_NAME == '비상장주식보충적평가방법'}}
+                                       <tr>
+						 	        	<td class="tl">{{:ITEM01_DESC}}</td>
+                                        <td class="tc">{{:ITEM02_DESC}}</td>
+                                        <td class="tc">{{:ITEM03_DESC}}</td>
+                                       </tr>
+                                      {{/if}}
+						 	        {{/for}}
+						            </script>
+						            <script type="text/x-jsrender" id="<@pageId>_getValuationReference05_noData_template">
+						 	        <tr>	
+						 	        	<td colspan=3>자료가 없습니다.</td>	
+						 	        </tr>
+						            </script>
+								    </tbody>
 								</table>
 							</div>
 							<div class="clearFix">
@@ -1238,26 +1131,26 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 													<th colspan="2">비상장주식</th>
 													<th>세율</th>
 												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<td colspan="2" class="tl">대주주 이외</td>
-													<td class="bg_gray">10%</td>
-												</tr>
-												<tr>
-													<td rowspan="2" class="tl">대주주</td>
-													<td>과표 3억 이하</td>
-													<td class="bg_gray">20%</td>
-												</tr>
-												<tr>
-													<td>과표 3억 초과</td>
-													<td class="bg_gray">25%</td>
-												</tr>
-												<tr>
-													<td colspan="2" class="tl">단, 중견기업 대주주 1년 미만 보유</td>
-													<td class="bg_gray">30%</td>
-												</tr>
-											</tbody>
+											</thead>											
+						                    <tbody id="<@pageId>_getValuationReference01">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference01_template">
+						 	                {{for list}}
+											  {{if GUBUN_NAME == '주식양도소득세율'}}
+                                               <tr>
+						 	                	<td class="tl">{{:ITEM01_DESC}}</td>
+                                                <td class="tl">{{:ITEM02_DESC}}</td>
+                                                <td class="bg_gray">{{:ITEM03_DESC*100}}%</td>
+                                               </tr>
+                                              {{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference01_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=3>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+								            </tbody>
 										</table>
 									</div>
 									<div class="info_txt v2">※ 주식양도소득공제 연 250만원(해외주식 합산)</div>
@@ -1278,16 +1171,24 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 													<th>구분조건</th>
 												</tr>
 											</thead>
-											<tbody>
-												<tr>
-													<td class="tl">지분율<sup class="point_color">1)</sup></td>
-													<td class="tr">4%이상</td>
-												</tr>
-												<tr>
-													<td class="tl">또는 주식가치<sup class="point_color">2)</sup></td>
-													<td class="tr">10억원 이상</td>
-												</tr>
-											</tbody>
+						                    <tbody id="<@pageId>_getValuationReference03">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference03_template">
+						 	                {{for list}}
+											  {{if GUBUN_NAME == '대주주구분'}}
+                                               <tr>
+						 	                	<td class="tl">{{:ITEM01_DESC}}</td>
+                                                <td class="tr">{{:ITEM02_DESC}}</td>
+                                               </tr>
+                                              {{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference03_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=2>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+								            </tbody>
 										</table>
 									</div>
 									<div class="info_txt v2">주1) 언제라도 지분율 기준에 넘어가면 대주주에 해당</div>
@@ -1309,34 +1210,26 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 													<th>세율</th>
 													<th>누진공제액</th>
 												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<td class="tl">1억원 이하</td>
-													<td class="bg_gray">10%</td>
-													<td></td>
-												</tr>
-												<tr>
-													<td class="tl">1억원 초과 ~ 5억원 이하</td>
-													<td class="bg_gray">20%</td>
-													<td>1,000만원</td>
-												</tr>
-												<tr>
-													<td class="tl">5억원 초과 ~ 10억원 이하</td>
-													<td class="bg_gray">30%</td>
-													<td>6,000만원</td>
-												</tr>
-												<tr>
-													<td class="tl">10억원 초과 ~ 30억원 이하</td>
-													<td class="bg_gray">40%</td>
-													<td>1억 6,000만원</td>
-												</tr>
-												<tr>
-													<td class="tl">30억원 초과</td>
-													<td class="bg_gray">50%</td>
-													<td>4억 6,000만원</td>
-												</tr>
-											</tbody>
+											</thead>											
+						                    <tbody id="<@pageId>_getValuationReference02">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference02_template">
+						 	                {{for list}}
+											  {{if GUBUN_NAME == '상속·증여세율'}}
+                                               <tr>
+						 	                	<td class="tl">{{:ITEM01_DESC}}</td>
+                                                <td class="bg_gray">{{:ITEM02_DESC*100}}%</td>
+                                                <td class="tr">{{:ITEM03_DESC}}</td>
+                                               </tr>
+                                              {{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference02_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=3>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+								            </tbody>
 										</table>
 									</div>
 									<div class="info_txt v2">※ 세대생략시(조부→손자) 30% 할증과세, 신고세액공제 3%</div>
@@ -1354,29 +1247,25 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 													<th>구분</th>
 													<th>10년 단위 공제액</th>
 												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<td class="tl">배우자</td>
-													<td class="tr">6억원</td>
-												</tr>
-												<tr>
-													<td class="tl">직계비속(성인)</td>
-													<td class="tr">5,000만원</td>
-												</tr>
-												<tr>
-													<td class="tl">직계비속(미성년자)</td>
-													<td class="tr">2,000만원</td>
-												</tr>
-												<tr>
-													<td class="tl">직계존속</td>
-													<td class="tr">5,000만원</td>
-												</tr>
-												<tr>
-													<td class="tl">기타친족(사위,며느리 등)</td>
-													<td class="tr">1,000만원</td>
-												</tr>
-											</tbody>
+											</thead>											
+						                    <tbody id="<@pageId>_getValuationReference04">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference04_template">
+						 	                {{for list}}
+											  {{if GUBUN_NAME == '증여재산공제액'}}
+                                               <tr>
+						 	                	<td class="tl">{{:ITEM01_DESC}}</td>
+                                                <td class="tr">{{:ITEM02_DESC}}</td>
+                                               </tr>
+                                              {{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference04_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=2>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+								            </tbody>
 										</table>
 									</div>
 									<div class="info_txt v2">※ 수증자가 비거주자일 경우 공제 제외</div>
