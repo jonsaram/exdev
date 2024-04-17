@@ -183,21 +183,10 @@ public class ScheduleService extends ExdevBaseService{
      */
     public Map<String,Object>  saveSchedule(Map map ) throws Exception {
         
-        System.out.println("================================= saveSchedule =================================");
+        System.out.println("saveSchedule 1=========");
         
         int result = 0;
         
-        String date = (String)map.get("date");
-        String loopType = (String)map.get("loopType");
-        String limitDate = (String)map.get("limitDate");
-        String scheduleStartDate = (String)map.get("scheduleStartDate");
-        String scheduleEndDate = (String)map.get("scheduleEndDate");
-        String json = (String)map.get("users");
-        
-        
-        ObjectMapper mapper = new ObjectMapper();
-        List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
-
         ArrayList<String> scheduleIdArry = new ArrayList<>();
         scheduleIdArry = (ArrayList<String>)map.get("scheduleIdArry");
         
@@ -215,6 +204,9 @@ public class ScheduleService extends ExdevBaseService{
         }else {
             resultInfo = makeResult(ExdevBaseService.REQUEST_FAIL, "", null);
         }
+        
+        System.out.println("saveSchedule 2=========");
+        
         return resultInfo;
     }
     
@@ -230,7 +222,7 @@ public class ScheduleService extends ExdevBaseService{
      */
     public Map<String,Object>  saveScheduleAndShare(Map map ) throws Exception {
         
-        System.out.println("================================= saveSchedule =================================");
+        System.out.println("saveScheduleAndShare 1=========");
         
         int result = 0;
         
@@ -342,6 +334,7 @@ public class ScheduleService extends ExdevBaseService{
         }else {
             resultInfo = makeResult(ExdevBaseService.REQUEST_FAIL, "", null);
         }
+        System.out.println("saveScheduleAndShare 2=========");
         return resultInfo;
     }
     /** 

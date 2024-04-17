@@ -6,19 +6,23 @@
             ,supervisor : ''
             ,store : ''
             ,pageInit : () => {
-            	// 오늘날짜 세팅
-                /**/
-                let date = new Date();
-                let today = date.getFullYear() +
-                                  '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
-                                  '-' + ( (date.getDate()) <= 9 ? "0" + (date.getDate()) : (date.getDate()) );
-
+            	
+                const yearsArray = Array.from({ length: 6 }, (_, index) => {
+                      const year = 2020 + index;
+                      return [year.toString(), year + "년"];
+                });
+                var yearsArrayList = { data : yearsArray,targetId : "<@compId>_selectBoxYear"}
+                C_UICOM.makeSelectBox(yearsArrayList, "single");
+                C_UICOM.setSingleBox("<@compId>_selectBoxYear", dayjs().year());
                 
-                console.log("=== today["+today+"] ===>");
+                // 월
+                var monthList = C_COM.getCodeList("STORE_MONTH");
                 
-                
-                $('#<@compId>_dateStart').val(today);
-                $('#<@compId>_dateEnd').val(today);
+                var selectBoxMonthList = { 
+                     data : monthList
+                    ,targetId : "<@compId>_selectBoxMonth" 
+                }
+                C_UICOM.makeSelectBox(selectBoxMonthList, "single");
                 
                 // 권역
                 var regionList = C_COM.getCodeList("STORE_REGION");
@@ -253,6 +257,19 @@
             }//setChart211
             
             /* 목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    */
+            ,searchGoals : ( startDate, endDate ) => {
+            	console.log("=== searchGoals  1  ===");
+            	let goals1 = '11%';
+            	let goals2 = '22%';
+            	let goals3 = '33%';
+                
+            	$('#<@compId>_goals1').text(goals1);
+            	$('#<@compId>_goals2').text(goals2);
+            	$('#<@compId>_goals3').text(goals3);
+            }
+
+            
+            /* 목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    */
             ,searchChart11 : ( startDate, endDate ) => {
             	 console.log("=== searchList1  1  ===");
 
@@ -273,6 +290,7 @@
                  });
                 
             }
+
 
             ,setChart11 : (resultData) =>{
                 
@@ -295,49 +313,331 @@
                 
                 $('#<@compId>_chart11').highcharts({
 
-                	chart: {
-                        type: 'bar'
+                    chart: {
+                    	type: 'bar'
                     },
+
+
                     title: {
-                        text: '목표대비 달성률',
-                        align: 'left'
+                        text: '목표대비 달성률'
                     },
+
+
                     xAxis: {
-                        categories: ['수원영통점', '전주우이점', '부천송내점', '광안점', '정관점'],
-                        title: {
-                            text: null
-                        },
-                        gridLineWidth: 1,
-                        lineWidth: 0
+                    	categories: ['수원영통점', '전주우이점', '부천송내점', '광안점', '정관점'],
                     },
+
                     yAxis: {
-                        min: 0,
-                        labels: {
-                            overflow: 'justify'
-                        },
-                        gridLineWidth: 0
+                        title: {
+                            text: ''
+                        }
                     },
+
                     tooltip: {
-                        valueSuffix: ''
+                        valueSuffix: '%'
                     },
+
                     plotOptions: {
                         bar: {
                             borderRadius: '50%',
                             dataLabels: {
-                                enabled: true
+                                enabled: true,
+                                format: '{y}%'
                             },
                             groupPadding: 0.1
                         }
                     },
-                    credits: {
+
+                    legend: {
                         enabled: false
                     },
+
                     series: [{
+                        name: '',
                         data: [37.78, 36.98, 36.33, 36.14, 34.77]
                     }]
+
                 });
             }//setChart1
             /* 목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    */
+            
+            /* 목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    */
+            ,searchChart12 : ( startDate, endDate ) => {
+            
+                 console.log("=== searchChart12  1  ===");
+
+                 let requestParm = {};            
+                 requestParm["startDate"]   = startDate+"-01";
+                 requestParm["endDate"]     = endDate+"-01";           
+                 requestParm["region"]      = <@compId>.region ;
+                 requestParm["supervisor"]  = <@compId>.supervisor ;
+                 requestParm["spCstmId"]    = G_VAL.session.spCstmId ;
+
+                 let parm = {
+                      queryId        : "dashboardCorPerformance.getRegionCnt"
+                     ,requestParm    : requestParm
+                 }
+                 C_COM.requestQuery(parm, function(resultData) {
+                     
+                     <@compId>.setChart12( resultData );
+                 });
+                
+            }
+
+
+            ,setChart12 : (resultData) =>{
+                
+                console.log("=== setChart12");
+
+                //console.log("=== setChart21Data");
+                let ymdArry = [];
+                let openArry = [];
+                let closeArry = [];
+                let allArry = [];
+                /*
+                var j = 0;
+                for (var i=0; i< resultData.data.list.length; i++){                        
+                    ymdArry[i] = resultData.data.list[i].YYYYMM.replace('-', '.');
+                    openArry[i] = parseInt(resultData.data.list[i].OPEN);
+                    closeArry[i] = parseInt(resultData.data.list[i].CLOSE);
+                    allArry[i] = parseInt(resultData.data.list[i].ALL);
+                }
+                */
+                
+                $('#<@compId>_chart12').highcharts({
+
+                    chart: {
+                        type: 'bar'
+                    },
+
+
+                    title: {
+                        text: '목표대비 테이블 회전률'
+                    },
+
+
+                    xAxis: {
+                        categories: ['수원영통점', '전주우이점', '부천송내점', '광안점', '정관점'],
+                    },
+
+                    yAxis: {
+                        title: {
+                            text: ''
+                        }
+                    },
+
+                    tooltip: {
+                        valueSuffix: '%'
+                    },
+
+                    plotOptions: {
+                        bar: {
+                            borderRadius: '50%',
+                            dataLabels: {
+                                enabled: true,
+                                format: '{y}%'
+                            },
+                            groupPadding: 0.1
+                        }
+                    },
+
+                    legend: {
+                        enabled: false
+                    },
+
+                    series: [{
+                        name: '',
+                        data: [37.78, 36.98, 36.33, 36.14, 34.77]
+                    }]
+
+                });
+            }
+            /* 목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    */
+            
+            /* 전월대비 달성률    전월대비 달성률    전월대비 달성률    전월대비 달성률    전월대비 달성률    전월대비 달성률    전월대비 달성률    */
+            ,searchChart21 : ( startDate, endDate ) => {
+            
+                 console.log("=== searchChart21  1  ===");
+
+                 let requestParm = {};            
+                 requestParm["startDate"]   = startDate+"-01";
+                 requestParm["endDate"]     = endDate+"-01";           
+                 requestParm["region"]      = <@compId>.region ;
+                 requestParm["supervisor"]  = <@compId>.supervisor ;
+                 requestParm["spCstmId"]    = G_VAL.session.spCstmId ;
+
+                 let parm = {
+                      queryId        : "dashboardCorPerformance.getRegionCnt"
+                     ,requestParm    : requestParm
+                 }
+                 C_COM.requestQuery(parm, function(resultData) {
+                     
+                     <@compId>.setChart21( resultData );
+                 });
+                
+            }
+
+
+            ,setChart21 : (resultData) =>{
+                
+                console.log("=== setChart21");
+
+                //console.log("=== setChart21Data");
+                let ymdArry = [];
+                let openArry = [];
+                let closeArry = [];
+                let allArry = [];
+                /*
+                var j = 0;
+                for (var i=0; i< resultData.data.list.length; i++){                        
+                    ymdArry[i] = resultData.data.list[i].YYYYMM.replace('-', '.');
+                    openArry[i] = parseInt(resultData.data.list[i].OPEN);
+                    closeArry[i] = parseInt(resultData.data.list[i].CLOSE);
+                    allArry[i] = parseInt(resultData.data.list[i].ALL);
+                }
+                */
+                
+                $('#<@compId>_chart21').highcharts({
+
+                    chart: {
+                        type: 'bar'
+                    },
+
+
+                    title: {
+                        text: '전월대비 달성률'
+                    },
+
+
+                    xAxis: {
+                        categories: ['수원영통점', '전주우이점', '부천송내점', '광안점', '정관점'],
+                    },
+
+                    yAxis: {
+                        title: {
+                            text: ''
+                        }
+                    },
+
+                    tooltip: {
+                        valueSuffix: '%'
+                    },
+
+                    plotOptions: {
+                        bar: {
+                            borderRadius: '50%',
+                            dataLabels: {
+                                enabled: true,
+                                format: '{y}%'
+                            },
+                            groupPadding: 0.1
+                        }
+                    },
+
+                    legend: {
+                        enabled: false
+                    },
+
+                    series: [{
+                        name: '',
+                        data: [37.78, 36.98, 36.33, 36.14, 34.77]
+                    }]
+
+                });
+            }
+            /* 전월대비 달성률    전월대비 달성률    전월대비 달성률    전월대비 달성률    전월대비 달성률    전월대비 달성률    전월대비 달성률    */
+            
+            /* 전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    */
+            ,searchChart22 : ( startDate, endDate ) => {
+                 console.log("=== searchChart22  1  ===");
+
+                 let requestParm = {};            
+                 requestParm["startDate"]   = startDate+"-01";
+                 requestParm["endDate"]     = endDate+"-01";           
+                 requestParm["region"]      = <@compId>.region ;
+                 requestParm["supervisor"]  = <@compId>.supervisor ;
+                 requestParm["spCstmId"]    = G_VAL.session.spCstmId ;
+
+                 let parm = {
+                      queryId        : "dashboardCorPerformance.getRegionCnt"
+                     ,requestParm    : requestParm
+                 }
+                 C_COM.requestQuery(parm, function(resultData) {
+                     
+                     <@compId>.setChart22( resultData );
+                 });
+                
+            }
+
+
+            ,setChart22 : (resultData) =>{
+                
+                console.log("=== setChart22");
+
+                //console.log("=== setChart21Data");
+                let ymdArry = [];
+                let openArry = [];
+                let closeArry = [];
+                let allArry = [];
+                /*
+                var j = 0;
+                for (var i=0; i< resultData.data.list.length; i++){                        
+                    ymdArry[i] = resultData.data.list[i].YYYYMM.replace('-', '.');
+                    openArry[i] = parseInt(resultData.data.list[i].OPEN);
+                    closeArry[i] = parseInt(resultData.data.list[i].CLOSE);
+                    allArry[i] = parseInt(resultData.data.list[i].ALL);
+                }
+                */
+                
+                $('#<@compId>_chart22').highcharts({
+
+                    chart: {
+                        type: 'bar'
+                    },
+
+
+                    title: {
+                        text: '전월대비 달성률'
+                    },
+
+
+                    xAxis: {
+                        categories: ['수원영통점', '전주우이점', '부천송내점', '광안점', '정관점'],
+                    },
+
+                    yAxis: {
+                        title: {
+                            text: ''
+                        }
+                    },
+
+                    tooltip: {
+                        valueSuffix: '%'
+                    },
+
+                    plotOptions: {
+                        bar: {
+                            borderRadius: '50%',
+                            dataLabels: {
+                                enabled: true,
+                                format: '{y}%'
+                            },
+                            groupPadding: 0.1
+                        }
+                    },
+
+                    legend: {
+                        enabled: false
+                    },
+
+                    series: [{
+                        name: '',
+                        data: [37.78, 36.98, 36.33, 36.14, 34.77]
+                    }]
+
+                });
+            }
+            /* 전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    */
             
             ,setHandler : () => {
                 
@@ -347,11 +647,13 @@
                    
                     let startDate = "2024-04-16";
                     let endDate   = "2024-04-19";
+
+                    <@compId>.searchGoals( startDate, endDate );
                     
                     <@compId>.searchChart11( startDate, endDate );
-                    //<@compId>.search12( startDate, endDate );
-                    //<@compId>.search21( startDate, endDate );
-                    //<@compId>.search22( startDate, endDate );
+                    <@compId>.searchChart12( startDate, endDate );
+                    <@compId>.searchChart21( startDate, endDate );
+                    <@compId>.searchChart22( startDate, endDate );
                 })
             }
     }
@@ -368,13 +670,12 @@
     <!-- search area -->
     <div class="search_area plpr5">
         <div class="fl">
-            <!-- 시작년월 선택 -->
-            <div class="calendar_wrap fl" id="<@compId>_showDateStart" >
-                <input type="text" class="datepicker" id="<@compId>_dateStart" style="width:150px">
+            
+            <div class="select_box fl" style="width:132px">
+                <div id="<@compId>_selectBoxYear" style="width:132px"></div>
             </div>
-            <!-- 종료년월 선택 -->
-            <div class="calendar_wrap fl" id="<@compId>_showDateEnd" >
-                <input type="text" class="datepicker" id="<@compId>_dateEnd" style="width:150px">
+            <div class="select_box fl" style="width:132px">
+                <div id="<@compId>_selectBoxMonth" style="width:132px"></div>
             </div>
             <span class="tit01 fl lh33">권역</span>
             <!-- 권역 선택 -->
@@ -404,16 +705,16 @@
             <div class="goals_chart_wrap">
                 <div class="goalsChart_item">
                     <h3>달성률</h3>
-                    <div class="percent_wrap"><span class="num">33.73</span>%</div>
+                    <div class="percent_wrap" id="<@compId>_goals1">33.73%</div>
                 </div>
                 <div class="goalsChart_item">
                     <div class="percent_small_wrap">
                         <h3>테이블 회전률</h3>
-                        <div class="percent_wrap"><span class="num">28.10</span>%</div>
+                        <div class="percent_wrap" id="<@compId>_goals2"><span class="num">28.10</span>%</div>
                     </div>
                     <div class="percent_small_wrap">
                         <h3>전년 대비 성장률</h3>
-                        <div class="percent_wrap"><span class="num">79.36</span>%</div>
+                        <div class="percent_wrap" id="<@compId>_goals3"><span class="num">79.36</span>%</div>
                     </div>
                 </div>
                 <div class="goalsChart_item">
@@ -424,7 +725,7 @@
                 </div>
                 <div class="goalsChart_item">
                     <figure class="highcharts-figure2">
-                        <div class="chart03_02" id="<@compId>_chart12" style="width:100%;height:190px;margin:0 auto">
+                        <div class="chart03_02" id="<@compId>_chart12" style="width:100%;height:280px;margin:0 auto">
                         </div>
                     </figure>
                 </div>
@@ -449,13 +750,13 @@
                 </div>
                 <div class="goalsChart_item">
                     <figure class="highcharts-figure2">
-                        <div class="chart03_01" id="<@compId>_chart21" style="width:100%;height:190px;margin:0 auto">
+                        <div class="chart03_01" id="<@compId>_chart21" style="width:100%;height:280px;margin:0 auto">
                         </div>
                     </figure>
                 </div>
                 <div class="goalsChart_item">
                     <figure class="highcharts-figure2">
-                        <div class="chart03_02" id="<@compId>_chart22" style="width:100%;height:190px;margin:0 auto">
+                        <div class="chart03_02" id="<@compId>_chart22" style="width:100%;height:280px;margin:0 auto">
                         </div>
                     </figure>
                 </div>

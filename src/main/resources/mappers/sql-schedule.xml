@@ -33,8 +33,8 @@
         WITH SCHEDULE AS (
             SELECT SCHEDULE_ID
                   ,TO_CHAR(SCHEDULE_DATE ,'YYYY-MM-DD') AS SCHEDULE_DATE
-                  ,TO_DATE(TO_CHAR(SCHEDULE_DATE ,'YYYY-MM-DD')||START_TIME_HOUR||':'||START_TIME_MINUTE||':00', 'YYYY-MM-DD HH24:MI:SS') AS START_DATE
-                  ,TO_DATE(TO_CHAR(SCHEDULE_DATE ,'YYYY-MM-DD')||END_TIME_HOUR||':'||END_TIME_MINUTE||':00', 'YYYY-MM-DD HH24:MI:SS') AS END_DATE
+                  ,TO_DATE(TO_CHAR(SCHEDULE_DATE ,'YYYY-MM-DD')||LPAD(START_TIME_HOUR, 2, '0')||':'||START_TIME_MINUTE||':00', 'YYYY-MM-DD HH24:MI:SS') AS START_DATE
+                  ,TO_DATE(TO_CHAR(SCHEDULE_DATE ,'YYYY-MM-DD')||LPAD(END_TIME_HOUR, 2, '0')||':'||END_TIME_MINUTE||':00', 'YYYY-MM-DD HH24:MI:SS') AS END_DATE
             FROM   TBL_EXP_SCHEDULE
             WHERE  1 = 1
             AND    USER_ID    = #{sessionVo.userId}
@@ -175,9 +175,10 @@
              ,END_TIME_MINUTE   
              ,POSITION          
              ,SECRET_YN         
-             ,DESCRIPTION       
+             ,DESCRIPTION   
+             ,CONTRACT_ID        
              ,USER_ID     
-             ,SP_CSTM_ID      
+             ,SP_CSTM_ID     
         )
         VALUES(
               #{scheduleId}
@@ -194,6 +195,7 @@
              ,#{position}
              ,#{secretYn}
              ,#{description}
+             ,#{contractId}
              ,#{sessionVo.userId}
              ,#{sessionVo.spCstmId}
         )
@@ -227,16 +229,19 @@
                       ,B.ATTR2  AS TEXT_COLOR      
                       ,A.SCHEDULE_DATE   
                       ,TO_CHAR(A.SCHEDULE_DATE,'YYYY-MM-DD') AS SCHEDULE_DATE1 
-                      ,A.TIME_TYPE         
-                      ,A.START_TIME_HOUR   
+                      ,A.TIME_TYPE
+                      ,LPAD(A.START_TIME_HOUR , 2, '0')      AS START_TIME_HOUR
                       ,A.START_TIME_MINUTE 
-                      ,A.END_TIME_HOUR     
+                      ,LPAD(A.END_TIME_HOUR , 2, '0')        AS END_TIME_HOUR  
                       ,A.END_TIME_MINUTE   
                       ,A.POSITION          
                       ,A.SECRET_YN         
                       ,A.DESCRIPTION       
                       ,A.USER_ID 
                       ,A.SP_CSTM_ID
+                      ,A.CONTRACT_ID
+                      ,(SELECT BUYER_NM FROM TBL_EXP_BUYER WHERE BUYER_ID = D.BUYER_ID) AS BUYER_NM
+                      ,(SELECT CONSULTING_NM FROM TBL_EXP_CONSULTING WHERE CONSULTING_ID = D.CONSULTING_ID) AS CONSULTING_NM
                       ,C.LOOP_TYPE
                       ,C.SCHEDULE_GRP_ID
                       ,TO_CHAR(C.SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
@@ -261,6 +266,9 @@
                        JOIN TBL_EXP_SCHEDULE_MASTER C
                            ON  1 = 1
                            AND A.SCHEDULE_GRP_ID = C.SCHEDULE_GRP_ID
+                       LEFT OUTER JOIN TBL_EXP_CONTRACT D
+                           ON  1 = 1
+                           AND A.CONTRACT_ID = D.CONTRACT_ID
                 WHERE 1 = 1
                 <if test=" scheduleId != null and scheduleId != '' " >
                     AND    A.SCHEDULE_ID = #{scheduleId}
@@ -292,6 +300,8 @@
               ,SCHEDULE.SCHEDULE_GRP_ID
               ,SCHEDULE.SCHEDULE_START_DATE 
               ,SCHEDULE.SCHEDULE_END_DATE
+              ,SCHEDULE.CONTRACT_ID
+              ,SCHEDULE.BUYER_NM ||'/'||SCHEDULE.CONSULTING_NM AS CONTRACT_NM
         FROM   SCHEDULE
         WHERE  1 = 1
         AND   SCHEDULE.USER_ID    = #{sessionVo.userId}
@@ -320,6 +330,8 @@
               ,SCHEDULE.SCHEDULE_GRP_ID
               ,SCHEDULE.SCHEDULE_START_DATE 
               ,SCHEDULE.SCHEDULE_END_DATE
+              ,SCHEDULE.CONTRACT_ID
+              ,SCHEDULE.BUYER_NM ||'/'||SCHEDULE.CONSULTING_NM AS CONTRACT_NM
         FROM   TBL_EXP_SCHEDULE_SHARE A
                JOIN SCHEDULE
                  ON   1 = 1
@@ -344,10 +356,10 @@
                   ,CODE.ATTR2                       AS TEXT_COLOR    
                   ,SCHEDULE_DATE                    AS SCHEDULE_DATE   
                   ,TO_CHAR(SCHEDULE.SCHEDULE_DATE,'YYYY-MM-DD') AS SCHEDULE_DATE1
-                  ,SCHEDULE.TIME_TYPE               AS TIME_TYPE         
-                  ,SCHEDULE.START_TIME_HOUR         AS START_TIME_HOUR   
+                  ,SCHEDULE.TIME_TYPE               AS TIME_TYPE       
+                  ,LPAD(SCHEDULE.START_TIME_HOUR , 2, '0')         AS START_TIME_HOUR   
                   ,SCHEDULE.START_TIME_MINUTE       AS START_TIME_MINUTE 
-                  ,SCHEDULE.END_TIME_HOUR           AS END_TIME_HOUR     
+                  ,LPAD(SCHEDULE.END_TIME_HOUR , 2, '0')           AS END_TIME_HOUR     
                   ,SCHEDULE.END_TIME_MINUTE         AS END_TIME_MINUTE   
                   ,SCHEDULE.POSITION                AS POSITION          
                   ,SCHEDULE.SECRET_YN               AS SECRET_YN         
@@ -356,6 +368,8 @@
                   ,MASTER.SCHEDULE_GRP_ID           AS SCHEDULE_GRP_ID 
                   ,TO_CHAR(MASTER.SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
                   ,TO_CHAR(MASTER.SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE
+                  ,SCHEDULE.CONTRACT_ID
+                  ,(SELECT BUYER_NM FROM TBL_EXP_BUYER WHERE BUYER_ID = D.BUYER_ID) ||'/'|| (SELECT CONSULTING_NM FROM TBL_EXP_CONSULTING WHERE CONSULTING_ID = D.CONSULTING_ID)  AS CONTRACT_NM
             FROM  TBL_EXP_SCHEDULE SCHEDULE
                   JOIN (
                         SELECT A.GRP_CODE_ID
@@ -377,6 +391,9 @@
                   JOIN TBL_EXP_SCHEDULE_MASTER MASTER 
                        ON  1 = 1
                        AND SCHEDULE.SCHEDULE_GRP_ID = MASTER.SCHEDULE_GRP_ID
+                  LEFT OUTER JOIN TBL_EXP_CONTRACT D
+                       ON  1 = 1
+                       AND A.CONTRACT_ID = D.CONTRACT_ID     
             WHERE 1 = 1
             AND   SCHEDULE.SP_CSTM_ID = #{sessionVo.spCstmId}
             AND   SCHEDULE.USER_ID    IN
@@ -387,6 +404,156 @@
         </if>
     </select>
     
+    <select id="getScheduleList_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getScheduleList */
+        WITH SCHEDULE AS (
+                SELECT A.SCHEDULE_ID       
+                      ,A.TITLE             
+                      ,A.WORK_TYPE             
+                      ,A.ALL_APPLY_YN      
+                      ,B.ATTR1  AS WORK_COLOR     
+                      ,B.ATTR2  AS TEXT_COLOR      
+                      ,A.SCHEDULE_DATE   
+                      ,TO_CHAR(A.SCHEDULE_DATE,'YYYY-MM-DD') AS SCHEDULE_DATE1 
+                      ,A.TIME_TYPE         
+                      ,LPAD(A.START_TIME_HOUR , 2, '0')   AS START_TIME_HOUR
+                      ,A.START_TIME_MINUTE 
+                      ,LPAD(A.END_TIME_HOUR , 2, '0')       AS END_TIME_HOUR      
+                      ,A.END_TIME_MINUTE   
+                      ,A.POSITION          
+                      ,A.SECRET_YN         
+                      ,A.DESCRIPTION       
+                      ,A.USER_ID 
+                      ,A.SP_CSTM_ID
+                      ,A.CONTRACT_ID
+                      ,(SELECT BUYER_NM FROM TBL_EXP_BUYER WHERE BUYER_ID = D.BUYER_ID) AS BUYER_NM
+                      ,(SELECT CONSULTING_NM FROM TBL_EXP_CONSULTING WHERE CONSULTING_ID = D.CONSULTING_ID) AS CONSULTING_NM
+                      ,C.LOOP_TYPE
+                      ,C.SCHEDULE_GRP_ID
+                      ,TO_CHAR(C.SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
+                      ,TO_CHAR(C.SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE
+                FROM   TBL_EXP_SCHEDULE A
+                       JOIN (
+                            SELECT A.GRP_CODE_ID
+                                  ,B.CODE_ID
+                                  ,B.ATTR1
+                                  ,B.ATTR2
+                            FROM   TBL_EXP_GRPCODE A
+                                   JOIN TBL_EXP_CODE B
+                                       ON  1 = 1
+                                       AND B.DEL_YN = 'N'
+                                       AND A.GRP_CODE_ID =  B.GRP_CODE_ID
+                            WHERE  1 = 1
+                            AND    A.DEL_YN = 'N'
+                            AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
+                       ) B
+                           ON  1 = 1
+                           AND A.WORK_TYPE = B.CODE_ID
+                       JOIN TBL_EXP_SCHEDULE_MASTER C
+                           ON  1 = 1
+                           AND A.SCHEDULE_GRP_ID = C.SCHEDULE_GRP_ID
+                       LEFT OUTER JOIN TBL_EXP_CONTRACT D
+                           ON  1 = 1
+                           AND A.CONTRACT_ID = D.CONTRACT_ID
+                WHERE 1 = 1
+
+        )
+        SELECT SCHEDULE_ID  
+              ,SP_CSTM_ID
+              ,USER_ID     
+              ,TITLE             
+              ,SHARE_YN  
+              ,WORK_TYPE             
+              ,ALL_APPLY_YN      
+              ,WORK_COLOR     
+              ,TEXT_COLOR      
+              ,SCHEDULE_DATE   
+              ,SCHEDULE_DATE1 
+              ,TIME_TYPE         
+              ,START_TIME_HOUR   
+              ,START_TIME_MINUTE 
+              ,END_TIME_HOUR     
+              ,END_TIME_MINUTE   
+              ,POSITION          
+              ,SECRET_YN         
+              ,DESCRIPTION
+              ,LOOP_TYPE
+              ,SCHEDULE_GRP_ID
+              ,SCHEDULE_START_DATE 
+              ,SCHEDULE_END_DATE
+              ,CONTRACT_ID
+              ,CONTRACT_NM
+        FROM   (
+                SELECT SCHEDULE.SCHEDULE_ID  
+                      ,SCHEDULE.SP_CSTM_ID
+                      ,SCHEDULE.USER_ID     
+                      ,SCHEDULE.TITLE             
+                      ,'N'     AS SHARE_YN  
+                      ,SCHEDULE.WORK_TYPE             
+                      ,SCHEDULE.ALL_APPLY_YN      
+                      ,SCHEDULE.WORK_COLOR     
+                      ,SCHEDULE.TEXT_COLOR      
+                      ,SCHEDULE.SCHEDULE_DATE   
+                      ,SCHEDULE.SCHEDULE_DATE1 
+                      ,SCHEDULE.TIME_TYPE         
+                      ,SCHEDULE.START_TIME_HOUR   
+                      ,SCHEDULE.START_TIME_MINUTE 
+                      ,SCHEDULE.END_TIME_HOUR     
+                      ,SCHEDULE.END_TIME_MINUTE   
+                      ,SCHEDULE.POSITION          
+                      ,SCHEDULE.SECRET_YN         
+                      ,SCHEDULE.DESCRIPTION
+                      ,SCHEDULE.LOOP_TYPE
+                      ,SCHEDULE.SCHEDULE_GRP_ID
+                      ,SCHEDULE.SCHEDULE_START_DATE 
+                      ,SCHEDULE.SCHEDULE_END_DATE
+                      ,SCHEDULE.CONTRACT_ID
+                      ,SCHEDULE.BUYER_NM ||'/'||SCHEDULE.CONSULTING_NM AS CONTRACT_NM
+                FROM   SCHEDULE
+                WHERE  1 = 1
+                AND   SCHEDULE.USER_ID    = 'jonsaram'
+                AND   SCHEDULE.SP_CSTM_ID = 'starasset'
+                UNION 
+                SELECT SCHEDULE.SCHEDULE_ID
+                      ,SCHEDULE.SP_CSTM_ID
+                      ,SCHEDULE.USER_ID
+                      ,'['||GET_USER_NM(SCHEDULE.USER_ID)||']'||SCHEDULE.TITLE    AS TITLE 
+                      ,'Y'     AS SHARE_YN
+                      ,SCHEDULE.WORK_TYPE             
+                      ,SCHEDULE.ALL_APPLY_YN      
+                      ,SCHEDULE.WORK_COLOR     
+                      ,SCHEDULE.TEXT_COLOR      
+                      ,SCHEDULE.SCHEDULE_DATE   
+                      ,SCHEDULE.SCHEDULE_DATE1 
+                      ,SCHEDULE.TIME_TYPE         
+                      ,SCHEDULE.START_TIME_HOUR   
+                      ,SCHEDULE.START_TIME_MINUTE 
+                      ,SCHEDULE.END_TIME_HOUR     
+                      ,SCHEDULE.END_TIME_MINUTE   
+                      ,SCHEDULE.POSITION          
+                      ,SCHEDULE.SECRET_YN         
+                      ,SCHEDULE.DESCRIPTION   
+                      ,SCHEDULE.LOOP_TYPE
+                      ,SCHEDULE.SCHEDULE_GRP_ID
+                      ,SCHEDULE.SCHEDULE_START_DATE 
+                      ,SCHEDULE.SCHEDULE_END_DATE
+                      ,SCHEDULE.CONTRACT_ID
+                      ,SCHEDULE.BUYER_NM ||'/'||SCHEDULE.CONSULTING_NM AS CONTRACT_NM
+                FROM   TBL_EXP_SCHEDULE_SHARE A
+                       JOIN SCHEDULE
+                         ON   1 = 1
+                         AND  SCHEDULE.SECRET_YN = 'Y'
+                         AND  A.SCHEDULE_ID = SCHEDULE.SCHEDULE_ID
+                         AND  SCHEDULE.SP_CSTM_ID  = 'starasset'
+                         AND  SCHEDULE.USER_ID     != 'jonsaram'
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID  = 'starasset'
+                AND    A.USER_ID     = 'jonsaram'
+        ) A
+        ORDER BY SCHEDULE_START_DATE
+                ,START_TIME_HOUR 
+                ,START_TIME_MINUTE
+    </select>
     <select id="getScheduleList1" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.getScheduleList1 */
         SELECT A.SCHEDULE_ID     

@@ -96,11 +96,6 @@
             calendar.render();
          }
        
-       ,addEvent : function(obj) {
-           console.log('addEvent => ');
-           calendar.addEvent(obj)
-
-        }
        ,destroy : function() {
            C_COM.showLeftMenu();
         }
@@ -128,26 +123,24 @@
            }
             
            C_COM.requestQuery(parm, function(resultData) {
-               console.log("schedule.getScheduleList");
                
                for (var i=0; i<resultData.data.length; i++){
-                   // 오늘의 일정 count
-                   console.log("toDay ==>"+<@pageId>.toDay);
                    
                    let length = 24; // 표시할 글자수 기준
                    let title = resultData.data[i].TITLE;
+                   
                    if (title.length > length) {
                 	   title = title.substr(0, length - 2) + '...';
                    }
                    
                    var obj = new Object();
                    obj.id    = resultData.data[i].SCHEDULE_ID;
-                   obj.title = title;//resultData.data[i].TITLE;
+                   obj.title = title;
                    obj.start = resultData.data[i].SCHEDULE_DATE1+'T'+resultData.data[i].START_TIME_HOUR+':'+resultData.data[i].START_TIME_MINUTE+':00';
                    obj.end   = resultData.data[i].SCHEDULE_DATE1+'T'+resultData.data[i].END_TIME_HOUR+':'+resultData.data[i].END_TIME_MINUTE+':00';
                    obj.textColor = resultData.data[i].TEXT_COLOR;
                    obj.color = resultData.data[i].WORK_COLOR;
-                   
+
                    let shareYn = {};
                    shareYn["shareYn"]   = resultData.data[i].SHARE_YN;
                    obj.extendedProps = shareYn;
@@ -160,9 +153,7 @@
 
        ,getTodaySchedule : function( toDay ) {
            console.log("getTodaySchedule");
-           
-           console.log("toDay ==>"+toDay);
-           
+                      
            let requestParm = {};
            requestParm["scheduleDate"]  = toDay;
            requestParm["spCstmId"]      = "";
@@ -299,6 +290,7 @@
             }
         });
         
+        //오늘의 일정
         <@pageId>.getTodaySchedule(<@pageId>.toDay);
     });
     // History back으로 이동해왔을 경우 이루틴이 실행된다.
