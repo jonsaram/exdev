@@ -224,6 +224,40 @@ var <@pageId> = {
 			});
 			
 		}
+		,approval : (idx) =>{
+
+			const LIST 			= <@pageId>.searchedRows[idx];
+			const CONTRACT_ID	= LIST["CONTRACT_ID"];
+			let title 			= LIST["PROCESS_STATE"] ? "계약 체결 완료 결재 요청" : "실행 완료 결재 요청";
+			let afterState 		= LIST["PROCESS_STATE"] ? "CONTRACTED" : "COMPLETED";
+			
+	        let requestParm = {
+		        	 RELATION_ID 	: CONTRACT_ID
+		        	,AFTER_SERVICE	: `ApprovalAfterService.updateContractProcess`
+		        	,AFTER_PARM		: `{"PROCESS_STATE" : "${afterState}" }`
+		        	,TITLE			: title
+		        }
+		        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
+					if(retData.state == "S") {
+						// 프로젝트 Update
+						var parm = {
+							 queryId 		: "contract.updateProject"
+							,requestParm	: {
+								 CONTRACT_ID 	: CONTRACT_ID
+					        	,PROCESS_STATE	: `ON_${afterState}_APPR`
+							}
+						}
+						C_COM.requestQuery(parm, function(resultData) {
+							if(resultData.state == "S") {
+								// <@popupId>.apply(`ON_${afterState}_APPR`);
+							} else {
+								C_POP.alert('결재상신 상태값 갱신 중 문제가 발생 했습니다.');
+							}
+						});  
+					}
+		        });
+			
+		}
 }
 
 // Page Load가 완료된후 실행 된다.
@@ -275,16 +309,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<colgroup>
 								<col style="width:40px;"/>
 								<col style="width:40px;"/>
-								<col style="width:90px;">
+								<col style="width:70px;">
+								<col style="width:120px;"/>
+								<col style="width:90px;"/>
+								<col style="width:80px;"/>
+								<col style="width:80px;"/>
+								<col style="width:90px;"/>
+								<col style="width:80px;"/>
+								<col style="width:80px;"/>
+								<col style="width:90px;"/>
 								<col style="width:130px;"/>
-								<col style="width:100px;"/>
-								<col style="width:100px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:150px;"/>
+								<col style="width:80px;"/>
 								<col style="width:40px;" />
 								<col style="width:40px;" />
 						</colgroup>
@@ -302,6 +337,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<th scope="col">만료일</th>
 								<th scope="col">총계약금액</th>
 								<th scope="col">컨설팅명</th>
+								<th scope="col">결재</th>
 								<th scope="col"><i class="icon_pen"></i></th>
 								<th scope="col"><i class="icon_trash"></i></th>
 							</tr>
@@ -313,16 +349,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<colgroup>
 								<col style="width:40px;"/>
 								<col style="width:40px;"/>
-								<col style="width:90px;">
+								<col style="width:70px;">
+								<col style="width:120px;"/>
+								<col style="width:90px;"/>
+								<col style="width:80px;"/>
+								<col style="width:80px;"/>
+								<col style="width:90px;"/>
+								<col style="width:80px;"/>
+								<col style="width:80px;"/>
+								<col style="width:90px;"/>
 								<col style="width:130px;"/>
-								<col style="width:100px;"/>
-								<col style="width:100px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:90px;"/>
-								<col style="width:150px;"/>
+								<col style="width:80px;"/>
 								<col style="width:40px;" />
 								<col style="width:40px;" />
 						</colgroup>
@@ -343,6 +380,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td id='EXPIRE_DATE'		>{{:EXPIRE_DATE}}</td>
 								<td id='TOTAL_COST'			class='tr'>{{numb:TOTAL_COST}}</td>
 								<td id='CONSULTING_NM'		class='tl'>{{:CONSULTING_NM}}</td>
+								<td class='tl'>
+								{{if APP_STATE_NM=="N/A" ~index=#index}} 
+									<button type="button" class="btn fc tc" onclick="<@pageId>.approval({{:~index}})">결재</button>
+								{{else}}
+									{{:APP_STATE_NM}}	
+								{{/if}}
+								</td>
 			 					<td 						class='tl'>
 									<button><i onclick="javascript:<@pageId>.modify('{{:#index}}')" class="icon_pen"  ></i></button></td>
 								<td>
@@ -355,7 +399,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</script>
 						<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
 							<tr>	
-								<td colspan=14>자료가 없습니다.</td>	
+								<td colspan=15>자료가 없습니다.</td>	
 							</tr>
 						</script>
 					</table>
