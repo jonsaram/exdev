@@ -62,6 +62,7 @@ public class ApprovalAfterService extends ExdevBaseService{
         Map<String, Object> afterParmMap = objectMapper.readValue(AFTER_PARM, Map.class);
         
         appInfo.putAll(afterParmMap);
+        map.putAll(appInfo);
         
 		String [] token = AFTER_SERVICE.split("\\.");
 		
@@ -88,7 +89,7 @@ public class ApprovalAfterService extends ExdevBaseService{
             targetMethod = ScheduleService.class.getMethod(methodId, Map.class);
         }
 			
-		Map resultObject = (Map)targetMethod.invoke(targetService, appInfo);
+		Map resultObject = (Map)targetMethod.invoke(targetService, map);
 		
 		return resultObject;
 	}

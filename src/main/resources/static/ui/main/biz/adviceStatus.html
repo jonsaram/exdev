@@ -58,11 +58,11 @@
 		 }
 		,renderCardList : function() {
 
-			<@pageId>.setCard("cardList0", ["PRE_CONTRACT"]				, "제안 진행 중"	);
+			<@pageId>.setCard("cardList0", ["PRE_CONTRACT", "ON_CONTRACTING_APPR", "ON_CONTRACTED_APPR"], "제안 진행 중"	);
 
-			<@pageId>.setCard("cardList1", ["CONTRACTING", "CONTRACTED"], "체결완료 및 실행");
+			<@pageId>.setCard("cardList1", ["CONTRACTING", "CONTRACTED", "ON_COMPLETED_APPR"]			, "체결완료 및 실행");
 			
-			<@pageId>.setCard("cardList2", ["COMPLETED"]				, "실행 완료"		);
+			<@pageId>.setCard("cardList2", ["COMPLETED"]												, "실행 완료"		);
 			
 			$("#<@pageId> .upDownToggle").unbind("click");
 		    $("#<@pageId> .upDownToggle").bind("click", function(){
@@ -90,16 +90,20 @@
 			C_COM.renderHtml("<@pageId>", parm);
 			
 			$.each(list, function(idx) {
-				let key0 = `${parm.targetId}_wk${idx}`;
-				C_COMP.import(key0, "component_biz_compConsultingProcess"	, {contractInfo : this}, function(data) {
+				let key_cslist = `${parm.targetId}_cslist${idx}`;
+				C_COMP.import(key_cslist, "component_biz_compConsultingContent"	, {contractInfo : this}, function(data) {
 					dalert(data);
 				});
-				let key1 = `${parm.targetId}_sch${idx}`;
-				C_COMP.import(key1, "component_biz_compScheduleList"		, {contractInfo : this}, function(data) {
+				let key_sch = `${parm.targetId}_sch${idx}`;
+				C_COMP.import(key_sch, "component_biz_compScheduleList"			, {contractInfo : this}, function(data) {
 					dalert(data);
 				});
-				let key2 = `${parm.targetId}_todo${idx}`;
-				C_COMP.import(key2, "component_biz_compTodoList"			, {contractInfo : this}, function(data) {
+				let key_todo = `${parm.targetId}_todo${idx}`;
+				C_COMP.import(key_todo, "component_biz_compTodoList"			, {contractInfo : this}, function(data) {
+					dalert(data);
+				});
+				let key_wk = `${parm.targetId}_wk${idx}`;
+				C_COMP.import(key_wk, "component_biz_compConsultingProcess"		, {contractInfo : this}, function(data) {
 					dalert(data);
 				});
 			});
@@ -172,14 +176,17 @@
 			</div>
 		</div>
 		<div class="cont_box">
-			<!-- 진행 사항 -->
-			<div id="{{:~targetId}}_wk{{:#index}}">
+			<!-- 컨설팅 진행 목록 -->
+			<div id="{{:~targetId}}_cslist{{:#index}}">
 			</div>
 			<!-- Schedule -->
 			<div id="{{:~targetId}}_sch{{:#index}}">
 			</div>
 			<!-- TO-DO List -->
 			<div id="{{:~targetId}}_todo{{:#index}}">					
+			</div>
+			<!-- 메모하기 -->
+			<div id="{{:~targetId}}_wk{{:#index}}">
 			</div>
 		</div>
 		{{/for}}

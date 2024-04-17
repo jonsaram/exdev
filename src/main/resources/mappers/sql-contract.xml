@@ -684,5 +684,23 @@
 		WHERE 
 			TODO_ID = #{TODO_ID}
 	</update>
+
+
+	<select id="getConsultingContentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	contract.getConsultingContentList
+			자문 진행 현황 / 컨설팅 진행 현황 리스트
+		*/
+		SELECT 
+			 CONSULTING_ID
+			,CONSULTING_NM
+			,CONSULTING_TYPE
+			,CONSULTING_DESC			
+		FROM 
+		 	TBL_EXP_CONSULTING  A
+		WHERE  1=1
+			AND	CONSULTING_ID 	= #{CONSULTING_ID}
+	</select>	
+
+
 			
 </mapper>
