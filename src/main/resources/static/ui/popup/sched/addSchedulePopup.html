@@ -497,7 +497,18 @@
             
             return result;
                         
-        }
+         }
+        /* 위성열 / 프로젝트 선택 */
+    	,selectProject : function() {
+			C_POP.open('popup_operation_projectSearchPopup', {}, function(retData) {
+				if(isValid(retData)) {
+					let projectNm = `${retData.BUYER_NM}/${retData.CONSULTING_NM}`;
+					$("#<@popupId>_contractId").val(retData.CONTRACT_ID);
+					$("#<@popupId>_contractNm").val(projectNm);
+				}
+			});
+		 }
+    	
     }//var <@popupId>
     
     // Popup Load가 완료된후 실행 된다.
@@ -800,6 +811,16 @@
                     </dd>
                     <dt>위치</dt>
                     <dd><input type="text" id="<@popupId>_position" placeholder="위치 추가" style="width:100%"></dd>
+                    <dt>프로젝트</dt>
+                    <dd>
+						<div class="info">
+							<div class="search_inputWrap" style="width:100%">
+								<input type="hidden" id="<@popupId>_contractId">
+								<input type="search" placeholder="프로젝트선택" id="<@popupId>_contractNm">
+								<a href="javascript:void(0);" onclick="<@popupId>.selectProject();" class="search_btn"><i class="icon_search"></i></a>
+							</div>
+						</div>
+                    </dd>
                     <dt>참석자</dt>
                     <dd>
                         <div class="search_inputWrap w100">

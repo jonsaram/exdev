@@ -16,7 +16,26 @@
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				
+				let projectList = resultData.data;
+				
 				<@pageId>.projectList = resultData.data;
+				
+				$.each(projectList, function(idx) {
+					projectList[idx].SHOW_BTN = "Y";
+					if			(this.PROCESS_STATE == "PRE_CONTRACT") {
+						projectList[idx].APPR_BTN_TITLE = "담당자 지정 결재";
+					}
+					/*
+					else if	(this.PROCESS_STATE == "CONTRACTING") {
+						projectList[idx].APPR_BTN_TITLE = "계약 체결 결재";
+					}
+					*/
+					else {
+						projectList[idx].SHOW_BTN = "N";
+					}
+				});
+				
+				
 				
 				$.each(<@pageId>.projectList, function(idx) {
 					if(isEmpty(this.APP_STATE_NM)) <@pageId>.projectList[idx].APP_STATE_NM = "";
@@ -24,7 +43,7 @@
 				
 				var rparm = {
 						 targetId 		: "<@pageId>_projectList"
-						,list			: resultData.data
+						,list			: projectList
 						,targetTotalId	: "<@pageId>_totalCnt"
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
@@ -41,14 +60,33 @@
 		 }
 		,approval : function(idx) {
 
-			let CONTRACT_ID = <@pageId>.projectList[idx].CONTRACT_ID;
+			let CONTRACT_ID 	= <@pageId>.projectList[idx].CONTRACT_ID;
+			let PROCESS_STATE	= <@pageId>.projectList[idx].PROCESS_STATE;
 			
-	        let requestParm = {
-	        	 RELATION_ID 	: CONTRACT_ID
-	        	,AFTER_SERVICE	: `ApprovalAfterService.updateProjectProcess`
-	        	,AFTER_PARM		: `{"PROCESS_STATE" : "CONTRACTING"}`
-	        	,TITLE			: `담당 컨설턴트 지정 결재 요청`
+	        let requestParm = {};
+	        
+	        let apprProcessState = "";
+	        
+	        if(PROCESS_STATE == "PRE_CONTRACT") {
+		        requestParm = {
+		        	 RELATION_ID 	: CONTRACT_ID
+		        	,AFTER_SERVICE	: `ApprovalAfterService.updateProjectProcess`
+		        	,AFTER_PARM		: `{"PROCESS_STATE" : "CONTRACTING"}`				// 결재 완료 후 처리에서 Update상태값 (체결 대기)
+		        	,TITLE			: `담당 컨설턴트 지정 결재 요청`
+		        };
+		        apprProcessState = "ON_CONTRACTING_APPR";
 	        }
+/*
+	        else if(PROCESS_STATE == "CONTRACTING") {
+		        requestParm = {
+		        	 RELATION_ID 	: CONTRACT_ID
+		        	,AFTER_SERVICE	: `ApprovalAfterService.updateProjectProcess`
+		        	,AFTER_PARM		: `{"PROCESS_STATE" : "CONTRACTED"}`				// 결재 완료 후 처리에서 Update상태값 (계약 체결)
+		        	,TITLE			: `계약 체결 결재 요청`
+		        }
+		        apprProcessState = "ON_CONTRACTED_APPR";
+	        }
+*/	        
 	        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
 				if(retData.state == "S") {
 					// 프로젝트 Update
@@ -56,7 +94,7 @@
 						 queryId 		: "contract.updateProject"
 						,requestParm	: {
 							 CONTRACT_ID 	: CONTRACT_ID
-				        	,PROCESS_STATE	: "ON_CONTRACTING_APPR"
+				        	,PROCESS_STATE	: apprProcessState
 						}
 					}
 					C_COM.requestQuery(parm, function(resultData) {
@@ -151,8 +189,8 @@
 									<td>{{:PROCESS_STATE_NM}}</td>
 									<td>{{:UPDATE_DATE}}{{:#index}}</td>
 									<td>
-									{{if APP_STATE_NM=="" ~index=#index}} 
-										<button type="button" class="btn fc tc" onclick="<@pageId>.approval({{:~index}})">담당자 지정 결재</button>
+									{{if SHOW_BTN=="Y" ~index=#index}} 
+										<button type="button" class="btn fc tc" onclick="<@pageId>.approval({{:~index}})">{{:APPR_BTN_TITLE}}</button>
 									{{else}}
 										{{:APP_STATE_NM}}	
 									{{/if}}

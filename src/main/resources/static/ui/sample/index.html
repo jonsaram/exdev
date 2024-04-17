@@ -1,7 +1,11 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-
+		openProjectPopup : function() {
+			C_POP.open('popup_operation_projectSearchPopup', {}, function(retData) {
+				dalert(retData);
+			});
+		}
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -89,6 +93,9 @@
 	</section>	<br/>
     <section>
         <a href="javascript:C_PM.movePage('sample_callService')">sample_callService</a>
+	</section>	<br/>
+    <section>
+        <a href="javascript:<@pageId>.openProjectPopup()">open Project Popup</a>
 	</section>	<br/>
 
 	<!--
