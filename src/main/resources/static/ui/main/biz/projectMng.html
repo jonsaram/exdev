@@ -67,10 +67,6 @@
 			let CONTRACT_ID 	= <@pageId>.projectList[idx].CONTRACT_ID;
 			let PROCESS_STATE	= <@pageId>.projectList[idx].PROCESS_STATE;
 			
-			<@pageId>.saveWorkHistory(CONTRACT_ID);
-			return;
-			
-			
 	        let requestParm = {};
 	        
 	        let apprProcessState = "";
@@ -109,7 +105,7 @@
 						if(resultData.state == "S") {
 								
 							// work history 저장
-							<@pageId>.saveWorkHistory(CONTRACT_ID);
+							//<@pageId>.saveWorkHistory(CONTRACT_ID);
 							
 							<@pageId>.loadData();
 							
