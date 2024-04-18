@@ -81,7 +81,8 @@
 		    ,(SELECT BRANCH_NM FROM TBL_EXP_BRANCH C WHERE A.BRANCH_ID = C.BRANCH_ID) AS BRANCH_NM
 		    ,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD' ) UPDATE_DATE
 		FROM
-		    TBL_EXP_TEAM A
+			    TBL_EXP_TEAM A
+			AND SP_CSTM_ID 	= #{sessionVo.spCstmId}
 	</select>
 
 	<select id="getTeamMemberList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -104,6 +105,46 @@
 			TEAM_ID = #{TEAM_ID}  
    	</select>
 
+	<select id="getWorkHistoryList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		SELECT 
+		     WH_ID
+		    ,USER_ID
+		    ,WORK_CONTENT
+		    ,UPDATE_USER
+		    ,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+		    ,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD' 			) YYYYMMDD 
+		FROM
+			TBL_EXP_WORK_HISTORY
+		WHERE
+				USER_ID 	= #{USER_ID}
+			AND SP_CSTM_ID 	= #{sessionVo.spCstmId}
+		ORDER BY 	
+			UPDATE_DATE DESC	
+	</select>
 
-			
+
+	<update id="saveWorkHistory">
+		/*	operation.saveWorkHistory
+			WORK HISTORY 저장
+		*/
+        INSERT INTO TBL_EXP_WORK_HISTORY (
+			 WH_ID       
+			,USER_ID     
+			,WORK_CONTENT
+		    ,UPDATE_USER 
+		    ,UPDATE_DATE 
+		    ,SP_CSTM_ID  
+        )
+        VALUES(
+		    #{WH_ID       		}   
+		   ,#{USER_ID     		}   
+		   ,#{WORK_CONTENT		}
+           ,#{sessionVo.userId 	}
+           ,sysdate
+           ,#{sessionVo.spCstmId}
+        )   
+	</update>
+
+
+
 </mapper>

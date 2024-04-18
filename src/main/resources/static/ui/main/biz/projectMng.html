@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-		 projectList : []
+		 projectList 	: []
+		,projectMap 	: {}
 		,openProjectPopup : function() {
 			C_POP.open('popup_operation_projectRegistPopup', {}, function(retData) {
 				if(retData.reload == 'Y') {
@@ -19,6 +20,9 @@
 				let projectList = resultData.data;
 				
 				<@pageId>.projectList = resultData.data;
+				
+				<@pageId>.projectMap = arrayToMap(<@pageId>.projectList, "CONTRACT_ID");
+				
 				
 				$.each(projectList, function(idx) {
 					projectList[idx].SHOW_BTN = "Y";
@@ -63,6 +67,10 @@
 			let CONTRACT_ID 	= <@pageId>.projectList[idx].CONTRACT_ID;
 			let PROCESS_STATE	= <@pageId>.projectList[idx].PROCESS_STATE;
 			
+			<@pageId>.saveWorkHistory(CONTRACT_ID);
+			return;
+			
+			
 	        let requestParm = {};
 	        
 	        let apprProcessState = "";
@@ -99,13 +107,25 @@
 					}
 					C_COM.requestQuery(parm, function(resultData) {
 						if(resultData.state == "S") {
-							<@pageId>.loadData();							
+								
+							// work history 저장
+							<@pageId>.saveWorkHistory(CONTRACT_ID);
+							
+							<@pageId>.loadData();
+							
 						} else {
 							C_POP.alert('결재상신 상태값 갱신 중 문제가 발생 했습니다.');
 						}
 					});  
 				}
 	        });
+		 }
+		,saveWorkHistory : function(CONTRACT_ID) {
+			let projectInfo = <@pageId>.projectMap[CONTRACT_ID];
+			
+			let content = `<<${projectInfo.BUYER_NM}>> 고객 담당 컨설턴트 <<지정 결재 요청>>`;
+			
+			C_COM.saveWorkHistory(projectInfo.USER_ID, content);
 		 }
 	}
 	// Page Load가 완료된후 실행 된다.

@@ -269,7 +269,7 @@ var C_COM = {
 		}
 		var html = "";
 		var noDataTemplateCnt = $("#" + pid + " #" + parm.templateId + "_noData_template").length;
-		if( parm.list.length > 0 || noDataTemplateCnt == 0) html = $("#" + pid + " #" + parm.templateId + "_template"			).render(parm);
+		if( isValid(parm.data) || parm.list.length > 0 || noDataTemplateCnt == 0) html = $("#" + pid + " #" + parm.templateId + "_template"			).render(parm);
 		else {
 			if($("#" + pid + " #" + parm.templateId + "_noData_template"	).length > 0) {
 				html = $("#" + pid + " #" + parm.templateId + "_noData_template"	).render(parm);
@@ -696,6 +696,20 @@ var C_COM = {
 		});
 		return retList;
 		
+	 }
+	,saveWorkHistory : function(userId, content) {
+		var parm = {
+			 queryId 		: "operation.saveWorkHistory"
+			,requestParm	: {
+				 WH_ID			: C_COM.makeUniqueId()
+				,USER_ID 		: userId
+				,WORK_CONTENT	: content
+			}
+		}
+
+		C_COM.requestQuery(parm, function(resultData) {
+
+		});
 	 }
 }
 
@@ -1581,7 +1595,8 @@ var C_PAGING = {
 				if(idx == 0 && isValid(this.rownum)) return false;
 				parm.list[idx].rownum = idx + 1;
 			});
-		}
+		} else parm.list = []; 
+		
 		
 
 		var listDomId 	= parm.targetId;
