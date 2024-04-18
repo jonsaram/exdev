@@ -290,8 +290,10 @@
 .line table > thead > tr:nth-child(1) > th:last-child{border-right:0}
 .tbl01 > table > thead > tr > th:last-child > * {border-right:0 none;}
 .tbl01 > table > tfoot{position:sticky;bottom:0px;}
-.tbl01 > table > tfoot:before{content:'';position:absolute;top:-1px;width:100%;border-top:1px solid #bcbec1;}
-.tbl01 > table > tfoot:after{content:'';position:absolute;bottom:0;width:100%;border-bottom:1px solid #bcbec1;}
+.tbl01.row2 > table > tfoot:before{content:'';position:absolute;top:-1px;width:100%;border-top:1px solid #bcbec1;}
+.tbl01.row2 > table > tfoot:after{content:'';position:absolute;bottom:0;width:100%;border-bottom:1px solid #bcbec1;}
+.tbl01 > table > tfoot:before{content:'';position:absolute;top:0;width:100%;border-top:1px solid #bcbec1;}
+.tbl01 > table > tfoot:after{content:'';position:absolute;bottom:0;width:100%;}
 .tbl01.noScroll > table > tfoot{position:relative;}
 .tbl01.noScroll > table > tfoot:before{content:'';position:absolute;top:0;width:100%;border-top:0;}
 .tbl01 > table > tfoot > tr > *,
@@ -547,6 +549,10 @@
 .info_wrap > li:after{content:'';display:block;clear:both;}
 .info_wrap.col2 > li > label{float:left;width:100px;line-height:33px}
 .info_wrap.col2 > li .info{float:left;width:calc(100% - 100px)}
+.info_wrap.col3 > li{margin-bottom:10px;float:left;width:33.333%}
+.info_wrap.col3 > li .info{width:calc(100% - 80px);}
+.info_wrap.col3 > li > label{float:left;width:80px;line-height:33px}
+.info_wrap.col3 > li + li{margin-left:10px;width:calc(33.333% - 10px);}
 
 .icon_long_arrow_left{display:inline-block;margin:0 15px 3px 5px;width:8px;height:8px;border-top:2px solid #27187F;border-left: 2px solid #27187F;transform:rotate(-45deg);}
 .icon_long_arrow_left:after{content:"";display:block;width:2px;height:15px;background-color:#27187F;transform:rotate(-45deg) translate(5px, 1px);}
