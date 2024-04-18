@@ -292,7 +292,7 @@
 	<sql id="cmUsers"> 
 		SELECT DISTINCT CM.CONTRACT_ID, CM.USER_ID  
 		,U.USER_NM 
-		,DECODE( CM.RELATION_TYPE, 'EXECUTE','EXEC','SALES' ) AS EXEC_TYPE
+		,DECODE( CM.RELATION_TYPE, 'EXECUTE','EXEC','SUGGESTER','SUGGESTER','SALES' ) AS EXEC_TYPE
 		,GET_CODE_NM('RELATION_TYPE', CM.RELATION_TYPE) RELATION_TYPE_NM
 		,U.ROLE
 		,U.GRADE
@@ -444,6 +444,18 @@
 			AND P.SALES_TYPE  		= CMU.SALES_TYPE
 
            </when>
+           <when test="EXEC_TYPE != null and EXEC_TYPE.equals('SUGGESTER')">
+           
+			SELECT CMU.USER_ID, CMU.USER_NM, '100' AS PAY_ID , 5 AS RATE
+			FROM 
+			TBL_EXP_CONTRACT C
+			,CMU
+			WHERE C.CONTRACT_ID		= #{CONTRACT_ID}
+			AND CMU.RELATION_TYPE	= 'SUGGESTER'
+			AND CMU.USER_ID 		= #{USER_ID}
+           </when>
+            
+           
        </choose>
 	
 	</select>	

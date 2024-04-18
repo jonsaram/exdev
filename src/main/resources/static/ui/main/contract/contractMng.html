@@ -228,8 +228,8 @@ var <@pageId> = {
 
 			const LIST 			= <@pageId>.searchedRows[idx];
 			const CONTRACT_ID	= LIST["CONTRACT_ID"];
-			let title 			= LIST["PROCESS_STATE"] ? "계약 체결 완료 결재 요청" : "실행 완료 결재 요청";
-			let afterState 		= LIST["PROCESS_STATE"] ? "CONTRACTED" : "COMPLETED";
+			let title 			= LIST["PROCESS_STATE"] == 'CONTRACTING'  ? "계약 체결 완료 결재 요청" : "실행 완료 결재 요청";
+			let afterState 		= LIST["PROCESS_STATE"] == 'CONTRACTING'  ? "CONTRACTED" : "COMPLETED";
 			
 	        let requestParm = {
 		        	 RELATION_ID 	: CONTRACT_ID
@@ -249,7 +249,7 @@ var <@pageId> = {
 						}
 						C_COM.requestQuery(parm, function(resultData) {
 							if(resultData.state == "S") {
-								// <@popupId>.apply(`ON_${afterState}_APPR`);
+								<@pageId>.searchList();
 							} else {
 								C_POP.alert('결재상신 상태값 갱신 중 문제가 발생 했습니다.');
 							}
