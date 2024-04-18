@@ -78,9 +78,6 @@ var <@popupId> = {
 		
 		$("#<@popupId>_CONSULTANT_NM").text(<@popupId>.consultantUser.NM);
 		
-/* 		"<@processState>" == 'CONTRACTING'	? $("#<@popupId>_approvalBtn").text("체결 완료 결재 상신").show(): "";
-		"<@processState>" == 'CONTRACTED'	? $("#<@popupId>_approvalBtn").text("실행 완료 결재 상신").show(): ""; */
-
 		$("#<@popupId>_salesManList td#ROLE_NM" ).html(<@popupId>.updatingData.CONSULTANT_ROLE_NM);
 		$("#<@popupId>_salesManList td#USER_ID" ).html(<@popupId>.updatingData.USER_ID);
 		$("#<@popupId>_salesManList td#USER_NM" ).html(<@popupId>.updatingData.USER_NM);
@@ -401,7 +398,7 @@ var <@popupId> = {
 
             var obj = {
                 	'CONTRACT_ID'		:	CONTRACT_ID,
-                    'USER_ID'			: 	$cells.eq(0).attr('value'),
+                    'USER_ID'			: 	$cells.eq(1).html(),
                     'RELATION_TYPE'		:	'SALES',
                 };
 

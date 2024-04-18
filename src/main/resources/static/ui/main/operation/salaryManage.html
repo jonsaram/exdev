@@ -97,16 +97,20 @@ var <@pageId> = {
 				$("#<@pageId>_payUserName").text(selectedRow.USER_NM);
 				$("#<@pageId>_payDate").text(selectedRow.CALC_PAY_DATE);
 				
-				let sumTotalCost=0,sumIncome=0,sumPayment=0;
+				let sumTotalCost=0,sumIncome=0,sumPayment=0,sumTax=0,sumRealPay=0;
 				resultData.data.forEach(item=>{
 					sumTotalCost 	+=item.TOTAL_COST;
 					sumIncome		+=item.INCOME;
 					sumPayment		+=item.PAYMENT;
+					sumTax			+=item.TAX;
+					sumRealPay		+=item.REAL_PAY;
 				})
 
 				$("#<@pageId>_sumTotalCost").text(sumTotalCost.toLocaleString());
 				$("#<@pageId>_sumIncome").text(sumIncome.toLocaleString());
 				$("#<@pageId>_sumPayment").text(sumPayment.toLocaleString());
+				$("#<@pageId>_sumTax").text(sumTax.toLocaleString());
+				$("#<@pageId>_sumRealPay").text(sumRealPay.toLocaleString());
 			});			
 		}
 		,		
@@ -222,9 +226,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<caption>급여관리 리스트</caption>
 									<colgroup>
 										<col style="width:40px;"/>
-										<col style="width:120px;" span="4"/>
-										<col style="width:100px;" span="3"/>
-										<col style="width:100px;"/>
+										<col style="width:100px;" span="4"/>
+										<col style="width:80px;" span="5"/>
+										<col style="width:80px;"/>
 									</colgroup>
 									<thead>
 										<tr>
@@ -232,9 +236,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 											<th scope="col" colspan="3">계약정보</th>
 											<th scope="col" rowspan="2">실적/입금액</th>
 											<th scope="col" rowspan="2">입금일</th>
-											<th scope="col" rowspan="2">계약관례Type</th>
+											<th scope="col" rowspan="2">업무Type</th>
 											<th scope="col" rowspan="2">수수료율</th>
-											<th scope="col" rowspan="2">수수료</th>
+											<th scope="col" rowspan="2">수수료(세전)</th>
+											<th scope="col" rowspan="2">원천세(3.3%)</th>
+											<th scope="col" rowspan="2">급여(세후)</th>
 										</tr>
 										<tr>
 											<th scope="col">고객명</th>
@@ -257,12 +263,14 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<td id='RELATION_TYPE_NM' class="tc">{{:RELATION_TYPE_NM}}</td>
 										<td id='RATE'						>{{:RATE}}</td>
 										<td id='PAYMENT' class="tr"			>{{numb:PAYMENT}}</td>
+										<td class="tr">{{numb:TAX}}</td>
+										<td class="tr">{{numb:REAL_PAY}}</td>
 									</tr>
 								{{/for}}
 							</script>
 							<script type="text/x-jsrender" id="<@pageId>_paymentDetailList_noData_template">	
 								<tr>	
-									<td colspan=5>자료가 없습니다.</td>	
+									<td colspan=7>자료가 없습니다.</td>	
 								</tr>
 							</script>
 							<tfoot>
@@ -273,6 +281,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<td class="tr" id="<@pageId>_sumIncome"></td>
 									<td colspan="3"></td>
 									<td class="tr" id="<@pageId>_sumPayment"></td>
+									<td class="tr" id="<@pageId>_sumTax"></td>
+									<td class="tr" id="<@pageId>_sumRealPay"></td>
 								</tr>
 							</tfoot>
 
