@@ -47,15 +47,11 @@ var <@popupId> = {
  	 }
 	 ,apply : (processState) =>{
 
-		 const returnData = <@popupId>.makeReturnData(false);
+		const returnData = <@popupId>.makeReturnData(false);
 		 
-		 if( processState ){
-			 returnData["PROCESS_STATE"] = processState;
-			 returnData["APPROVAL"] = true;
-		 }
-		 else returnData["PROCESS_STATE"]	= <@popupId>.processState;
+		returnData["PROCESS_STATE"]	= <@popupId>.processState;
 		 
-		 <@popupId>.close(returnData);
+		<@popupId>.close(returnData);
 		 
 	 }
 	 ,validation : (returnData) =>{
@@ -82,8 +78,8 @@ var <@popupId> = {
 		
 		$("#<@popupId>_CONSULTANT_NM").text(<@popupId>.consultantUser.NM);
 		
-		"<@processState>" == 'CONTRACTING'	? $("#<@popupId>_approvalBtn").text("체결 완료 결재 상신").show(): "";
-		"<@processState>" == 'CONTRACTED'	? $("#<@popupId>_approvalBtn").text("실행 완료 결재 상신").show(): "";
+/* 		"<@processState>" == 'CONTRACTING'	? $("#<@popupId>_approvalBtn").text("체결 완료 결재 상신").show(): "";
+		"<@processState>" == 'CONTRACTED'	? $("#<@popupId>_approvalBtn").text("실행 완료 결재 상신").show(): ""; */
 
 		$("#<@popupId>_salesManList td#ROLE_NM" ).html(<@popupId>.updatingData.CONSULTANT_ROLE_NM);
 		$("#<@popupId>_salesManList td#USER_ID" ).html(<@popupId>.updatingData.USER_ID);
@@ -348,7 +344,7 @@ var <@popupId> = {
 			
 		})
 		 		
-		$("a[name^='<@popupId>_tab']").on('click', (obj) =>{
+/* 		$("a[name^='<@popupId>_tab']").on('click', (obj) =>{
 
 			const curClicked	= $(obj.target).attr("name").indexOf("tab1") > -1 ? true:false;				
 			const curtab1 		= $("#popup_contract_contractUpdatePopup_tab1").is(":visible");
@@ -358,7 +354,21 @@ var <@popupId> = {
 		    $('a[name^="<@popupId>_tab"]').parent().toggleClass('active');
 		    $('#<@popupId>_tab1, #<@popupId>_tab2').toggle();
 
-		})
+		}) */
+		
+		$("a[name^='<@popupId>_tab']").on('click', (obj) => {
+			
+		    const targetName = $(obj.target).attr("name");
+		    
+		    $("a[name^='<@popupId>_tab']").parent().removeClass('active');
+		    $('#<@popupId>_tab1, #<@popupId>_tab2').hide();
+
+		    $(obj.target).parent().addClass('active');
+		    $("#" + targetName).show();
+
+		    setTimeout(()=>{if( !$("#" + targetName).is(':visible') )$("#" + targetName).show();},10)
+		    
+		});		
 			 
 	} 
 	,getContractMember : (CONTRACT_ID, USER_ID) => {
@@ -367,7 +377,7 @@ var <@popupId> = {
 		
 		var obj = {
 				'CONTRACT_ID'		:	CONTRACT_ID,
-	            'USER_ID'			: 	$('#<@popupId>_salesManList tr #USER_ID').html(),
+	            'USER_ID'			: 	<@popupId>.consultantUser.ID,//$('#<@popupId>_salesManList tr #USER_ID').html(),
 	            'RELATION_TYPE'		:	'EXECUTE',
 		};
 		contractMember.push( obj );
@@ -426,41 +436,6 @@ var <@popupId> = {
 	 		
 	 		obj.parentNode.parentNode.remove();
 		});
-		
-	}
-	,approval : () =>{
-
-		if( <@popupId>.makeReturnData(true) == null)return;
-		
-		let title 		= "<@processState>" == 'CONTRACTING' ? "계약 체결 완료 결재 요청" : "실행 완료 결재 요청";
-		let afterState 	= "<@processState>" == 'CONTRACTING' ? "CONTRACTED" : "COMPLETED";
-		
-		const CONTRACT_ID =<@popupId>.updatingData["CONTRACT_ID"];
-        let requestParm = {
-	        	 RELATION_ID 	: CONTRACT_ID
-	        	,AFTER_SERVICE	: `ApprovalAfterService.updateContractProcess`
-	        	,AFTER_PARM		: `{"PROCESS_STATE" : "${afterState}" }`
-	        	,TITLE			: title
-	        }
-	        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
-				if(retData.state == "S") {
-					// 프로젝트 Update
-					var parm = {
-						 queryId 		: "contract.updateProject"
-						,requestParm	: {
-							 CONTRACT_ID 	: CONTRACT_ID
-				        	,PROCESS_STATE	: `ON_${afterState}_APPR`
-						}
-					}
-					C_COM.requestQuery(parm, function(resultData) {
-						if(resultData.state == "S") {
-							<@popupId>.apply(`ON_${afterState}_APPR`);
-						} else {
-							C_POP.alert('결재상신 상태값 갱신 중 문제가 발생 했습니다.');
-						}
-					});  
-				}
-	        });
 		
 	}
 	,setComponent : () => {
@@ -754,7 +729,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 		</div> <!-- //modal_body -->
 
 		<div class="modal_footer">
-			<button type="button" class="btn select" id="<@popupId>_approvalBtn" 	onclick="<@popupId>.approval()" style="display:none;">체결완료결재</button>
+			<!-- <button type="button" class="btn select" id="<@popupId>_approvalBtn" 	onclick="<@popupId>.approval()" style="display:none;">체결완료결재</button> -->
 			<button type="button" class="btn select" id="<@popupId>_applyBtn" 		onclick="<@popupId>.apply()" >저장</button>
 			<button type="button" class="btn close"  id="<@popupId>_closeBtn" 		onclick="<@popupId>.close()" >취소</button>
 		</div>

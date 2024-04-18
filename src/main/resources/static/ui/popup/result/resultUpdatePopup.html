@@ -171,9 +171,9 @@ var <@popupId> = {
 		C_COM.requestQuery(parm, function(resultData) {
 			
 			<@popupId>.setHandler();
-			
 			let tempPayment = resultData.data;
 			tempPayment.orderBy("PAYMENT_ID");	
+			
 			<@popupId>.paymentList_DATA = tempPayment;
 			C_COM.renderHtml("<@popupId>", {
 				 						 targetId 		: "<@popupId>_paymentList"
@@ -226,7 +226,7 @@ var <@popupId> = {
 				,requestParm: user
 			}
 			C_COM.requestQuery(parm, function(resultData) {
-			
+
 				payInfoList.push( resultData.data[0]);
 				if( userIdListCnt <= (userIdIndex+1) ){
 					const rateSum = <@popupId>.setRatePayment( payInfoList)
@@ -252,13 +252,17 @@ var <@popupId> = {
 			const tr		= `#<@popupId>_paymentList tr[value=${userId}]`;
 			const relationType = $(tr+" td[id='RELATION_TYPE']").attr("value");
 			
-			if( relationType != "COWORK" ){
-					
+			if( relationType != "COWORK" && relationType != "SUGGESTER"){
+				//EXEC 인 경우에 수수료율을 넣는다.	
 				$(tr+" td[id='RATE']").attr("value",rate).html(rate+" %");
 				
 			}else{
-					
+				// COWORK이나 SUGGESTER인 경우 input에 수수료율을 넣
 				$(tr+" td[id='RATE'][name='coworkRate']")?.attr("value","");
+				if( relationType == "SUGGESTER"){
+					$(tr+" td[id='RATE']").children("[name='suggesterRate']")?.attr("value",rate).html(rate+" %");
+					$(tr+" td[id='RATE']").children("[name='suggesterRate']").parent().attr("value",rate);
+				}
 			}
 			
 			$(tr+" td[id='PAY_ID']").attr("value",payId).html(payId);
@@ -286,14 +290,32 @@ var <@popupId> = {
 		let rateSum = 0;
 		let paymentSum = 0;
 		
-		$.each( $("#<@popupId>_paymentList tr td[id='RATE']") , (idx,obj) => {
+		const $rateColumns	= $("#<@popupId>_paymentList tr td[id='RATE']");
+		const $executeItem 	= $rateColumns.filter(function() {
+		    return $(this).siblings("#RELATION_TYPE").attr('value') == "EXECUTE";
+		})
+		
+		$.each( $rateColumns , (idx,obj) => {
+			
+			const rateVal	= Number($(obj).attr("value"));
 
-			const objValue 			= Number($(obj).attr("value"));
-
-			if (typeof objValue === 'number' && !isNaN(objValue)){
+			if (typeof rateVal === 'number' && !isNaN(rateVal)){
 				
-				rateSum += objValue;
-				const payment = (objValue  * SUPPLY_COST ) / 100; 
+				let payment = 0;
+
+				const executePayment = $executeItem.siblings("#PAYMENT").attr("value");
+				
+				if( $(obj).siblings("#RELATION_TYPE").attr("value") == "COWORK" && executePayment ){
+					
+					rateSum += rateVal;
+					payment = (executePayment * rateVal ) / 100; 
+					
+				}else{
+					
+					rateSum += rateVal;
+					payment = (rateVal  * SUPPLY_COST ) / 100; 
+				}
+				
 				$(obj).siblings("#PAYMENT").attr("value",payment).html( addComma(payment) );
 				paymentSum +=payment;
 				
@@ -697,12 +719,14 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<td id='GRADE'				value='{{:GRADE}}'	 class="tl"	>{{:GRADE}}</td>
 								<td id='RELATION_TYPE_NM'	value='{{:RELATION_TYPE_NM}}'	class='tl'>{{:RELATION_TYPE_NM}}</td>
 								<td id='RATE'				value='{{:RATE}}' 				class='tr'>
-								{{if RELATION_TYPE == 'COWORK'}}
-									<Input name='coworkRate' type='text' style='width:60px;' 
-												value='{{:RATE}}'  
-												oninput='javascript:<@popupId>.coworkRateValInput(this)' /> %
-								{{else}}{{:RATE}} %
-								{{/if}}
+    {{if RELATION_TYPE == 'COWORK'}}
+        <input name='coworkRate' type='text' style='width:60px;' value='{{:RATE}}' oninput='javascript:<@popupId>.coworkRateValInput(this)' />{{:RATE}} %
+    {{else RELATION_TYPE == 'SUGGESTER'}} 
+        <input name='suggesterRate' type='text' style='width:60px;' value='{{:RATE}}' oninput='javascript:<@popupId>.coworkRateValInput(this)' />{{:RATE}} %
+	{{else}}
+        {{:RATE}} %
+	
+    {{/if}}
 								</td>
 								<td id='PAYMENT'			value='{{:PAYMENT}}'  class="tr">{{numb:PAYMENT}}</td>
 								<td id='RELATION_TYPE'		value='{{:RELATION_TYPE}}'		style='display:none'>{{:RELATION_TYPE}}</td>
