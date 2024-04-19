@@ -99,6 +99,17 @@ var <@pageId> = {
 				<@pageId>.showList("<@pageId>_getValuationReference03", resultData.data['valuation.getValuationReference']);
 				<@pageId>.showList("<@pageId>_getValuationReference04", resultData.data['valuation.getValuationReference']);
 				<@pageId>.showList("<@pageId>_getValuationReference05", resultData.data['valuation.getValuationReference']);
+				
+				<@pageId>.showList("<@pageId>_getValuationReference06", resultData.data['valuation.getValuationReference']);
+				mergeTableColumn('<@pageId>_getValuationReference06');
+				
+				<@pageId>.showList("<@pageId>_getValuationReference07", resultData.data['valuation.getValuationReference']);
+				mergeTableTD('<@pageId>_getValuationReference07', {startIdx : 3, endIdx : 3, startRowIdx : 2});
+				<@pageId>.showList("<@pageId>_getValuationReference08", resultData.data['valuation.getValuationReference']);
+				mergeTableTD('<@pageId>_getValuationReference08', {startIdx : 3, endIdx : 3, startRowIdx : 2});
+				<@pageId>.showList("<@pageId>_getValuationReference09", resultData.data['valuation.getValuationReference']);
+				mergeTableTD('<@pageId>_getValuationReference09', {startIdx : 3, endIdx : 3, startRowIdx : 2});
+				
 			});
 		 }
 		,setChart : (gubun, chartData) =>{
@@ -451,7 +462,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									</li>
 									<li>
 										<div class="cont_valuation_tit point_color">자본금</div>
-										<div class="cont_valuation" id="<@pageId>_CAPITAL"></div>
+										<div class="cont_valuation" id="<@pageId>_CAPITAL"></div><div style="float:left">원</div>
 									</li>
 								</ul>
 								<ul>
@@ -612,39 +623,36 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 												<col style="width:23%;"/>
 												<col style="width:23%;"/>
 												<col style="width:23%;"/>
-											</colgroup>
-											<thead>
-												<tr>
-													<th>구분</th>
-													<th>2020년</th>
-													<th>2021년</th>
-													<th>2022년</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<td class="tl">주당순손익액</td>
-													<td class="tr">-7,550</td>
-													<td class="tr">-5,384</td>
-													<td class="tr">4,463</td>
-												</tr>
-												<tr>
-													<td class="tl">가중치</td>
-													<td class="tr">1</td>
-													<td class="tr">2</td>
-													<td class="tr">3</td>
-												</tr>
-												<tr>
-													<td class="tl">주당 순손익 가중평균액</td>
-													<td colspan="2" class="tr">주당 순손익 가중평균액</td>
-													<td class="tr">-</td>
-												</tr>
-												<tr class="bg_skyblue">
-													<td class="tl">1주당 순손익가치</td>
-													<td colspan="2" class="tr">순손익 가중평균액 ÷ 10%</td>
-													<td class="tr">-</td>
-												</tr>
-											</tbody>
+											</colgroup>											
+						                    <tbody id="<@pageId>_getValuationReference06">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference06_template">
+						 	                {{for list}}
+											  {{if GUBUN_NAME == '주당손익가치'}}
+												{{if ITEM01_DESC == '구분'}}
+                                               <tr>
+						 	                	<th>{{:ITEM01_DESC}}</th>
+                                                <th>{{:ITEM02_DESC}}</th>
+                                                <th>{{:ITEM03_DESC}}</th>
+                                                <th>{{:ITEM04_DESC}}</th>
+                                               </tr>
+												{{else}}
+                                               <tr>
+						 	                	<td class="tl">{{numb:ITEM01_DESC}}</td>
+                                                <td class="tr">{{numb:ITEM02_DESC}}</td>
+                                                <td class="tr">{{numb:ITEM03_DESC}}</td>
+                                                <td class="tr">{{numb:ITEM04_DESC}}</td>
+                                               </tr>
+												{{/if}}
+                                              {{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference06_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=4>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+								            </tbody>
 										</table>
 									</div>
 									<div class="com_cont_stit none2 mt45"><span class="step">STEP2-1</span>영업권 평가액
@@ -657,30 +665,34 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 												<col style="width:32%;"/>
 												<col style="width:30%;"/>
 												<col style="width:38%;"/>
-											</colgroup>
-											<thead>
-												<tr>
-													<th>구분</th>
-													<th>2020년</th>
-													<th>비고</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<td class="tl">순손익 가중평균액</td>
-													<td class="tr">-49,308,667</td>
-													<td rowspan="2">(순손익 가중평가액 x 50% - 순자산 x 10%) x 3.7908</td>
-												</tr>
-												<tr>
-													<td class="tl">순자산가액(자본)</td>
-													<td class="tr">-341,203,000</td>
-												</tr>
-												<tr class="bg_skyblue">
-													<td class="tl">영업권 평가액</td>
-													<td class="tr">35,883,586</td>
-													<td class="tr"></td>
-												</tr>
-											</tbody>
+											</colgroup>											
+						                    <tbody id="<@pageId>_getValuationReference07">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference07_template">
+						 	                {{for list}}
+											  {{if GUBUN_NAME == '영업권평가액'}}
+												{{if ITEM01_DESC == '구분'}}
+                                               <tr>
+						 	                	<th>{{:ITEM01_DESC}}</th>
+                                                <th>{{:ITEM02_DESC}}</th>
+                                                <th>{{:ITEM03_DESC}}</th>
+                                               </tr>
+												{{else}}
+                                               <tr {{if ITEM01_DESC == '영업권 평가액'}}class="bg_skyblue"{{/if}}>
+						 	                	<td class="tl">{{:ITEM01_DESC}}</td>
+                                                <td class="tr">{{numb:ITEM02_DESC}}</td>
+                                                <td class="tc">{{:ITEM03_DESC}}</td>
+                                               </tr>
+												{{/if}}
+                                              {{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference07_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=3>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+								            </tbody>
 										</table>
 									</div>
 								</div>
@@ -696,32 +708,33 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 												<col style="width:30%;"/>
 												<col style="width:38%;"/>
 											</colgroup>
-											<thead>
-												<tr>
-													<th>구분</th>
-													<th>2022년</th>
-													<th>비고</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<td class="tl">순자산가액</td>
-													<td class="tr">-341,203,000</td>
-													<td rowspan="3">(순자산가액+영업권평가액)÷발행주식수</td>
-												</tr>
-												<tr>
-													<td class="tl">영업권평가액</td>
-													<td class="tr">35,883,586</td>
-												</tr>
-												<tr>
-													<td class="tl">주식수(주)</td>
-													<td class="tr">60,000</td>
-												</tr>
-												<tr class="bg_skyblue">
-													<td class="tl">1주당 순자산가치</td>
-													<td colspan="2">-</td>
-												</tr>
-											</tbody>
+						                    <tbody id="<@pageId>_getValuationReference08">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference08_template">
+						 	                {{for list}}
+											  {{if GUBUN_NAME == '주당순자산가치'}}
+												{{if ITEM01_DESC == '구분'}}
+                                               <tr>
+						 	                	<th>{{:ITEM01_DESC}}</th>
+                                                <th>{{:ITEM02_DESC}}</th>
+                                                <th>{{:ITEM03_DESC}}</th>
+                                               </tr>
+												{{else}}
+                                               <tr {{if ITEM01_DESC == '1주당 순자산가치'}}class="bg_skyblue"{{/if}}>
+						 	                	<td class="tl">{{:ITEM01_DESC}}</td>
+                                                <td class="tr">{{numb:ITEM02_DESC}}</td>
+                                                <td class="tc">{{:ITEM03_DESC}}</td>
+                                               </tr>
+												{{/if}}
+                                              {{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference08_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=3>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+								            </tbody>
 										</table>
 									</div>
 									<div class="com_cont_stit none2 mt45"><span class="step active">STEP3</span>비상장주식 평가액(1주당 주식가액)
@@ -735,38 +748,33 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 												<col style="width:30%;"/>
 												<col style="width:30%;"/>
 											</colgroup>
-											<thead>
-												<tr>
-													<th>구분</th>
-													<th>2022년</th>
-													<th>가중치</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<td class="tl">1주당 순손익가치</td>
-													<td class="tr">-</td>
-													<td>60%</td>
-												</tr>
-												<tr>
-													<td class="tl">1주당 순자산가치</td>
-													<td class="tr">-</td>
-													<td>40%</td>
-												</tr>
-												<tr class="bg_skyblue">
-													<td class="tl">1주당 평가액(가중평균)</td>
-													<td class="tr">-</td>
-													<td rowspan="2">MAX(①,②)</td>
-												</tr>
-												<tr class="bg_skyblue">
-													<td class="tl">순자산가치의 80%(하한가액)</td>
-													<td class="tr">-4,549</td>
-												</tr>
-												<tr class="bg_indigoblue">
-													<td class="tl">1주당 평가액(최종)</td>
-													<td colspan="2">-</td>
-												</tr>
-											</tbody>
+						                    <tbody id="<@pageId>_getValuationReference09">
+						                    </tbody>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference09_template">
+						 	                {{for list}}
+											  {{if GUBUN_NAME == '비상장주식평가액'}}
+												{{if ITEM01_DESC == '구분'}}
+                                               <tr>
+						 	                	<th>{{:ITEM01_DESC}}</th>
+                                                <th>{{:ITEM02_DESC}}</th>
+                                                <th>{{:ITEM03_DESC}}</th>
+                                               </tr>
+												{{else}}
+                                               <tr {{if ITEM01_DESC == '1주당 평가액(최종)'}}class="bg_indigoblue"{{/if}}{{if ITEM01_DESC == '1주당 평가액(가중평균)' || ITEM01_DESC == '순자산가치의 80%(하한가액)'}}class="bg_skyblue"{{/if}}>
+						 	                	<td class="tl">{{:ITEM01_DESC}}</td>
+                                                <td class="tr">{{numb:ITEM02_DESC}}</td>
+                                                <td class="tc">{{:ITEM03_DESC}}</td>
+                                               </tr>
+												{{/if}}
+                                              {{/if}}
+						 	                {{/for}}
+						                    </script>
+						                    <script type="text/x-jsrender" id="<@pageId>_getValuationReference09_noData_template">
+						 	                <tr>	
+						 	                	<td colspan=3>자료가 없습니다.</td>	
+						 	                </tr>
+						                    </script>
+								            </tbody>
 										</table>
 									</div>
 								</div>
