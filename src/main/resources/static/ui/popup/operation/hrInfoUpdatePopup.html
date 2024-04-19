@@ -101,9 +101,11 @@
 					returnData[key] = val;
 				 }
 			 })			 
-			 
-			 returnData['RELOAD_IMG'] = <@popupId>.RELOAD_IMG;
-			 
+
+			 returnData['RELOAD_IMG']	= <@popupId>.RELOAD_IMG;
+			 returnData['USER_DESC']	= <@popupId>.recvData.param.USER_DESC;
+			 returnData['STATE']		= <@popupId>.recvData.param.STATE;
+
 			 C_POP.confirm("입력한 정보로 저장 하시겠습니까?", function() {
 			 	<@popupId>.close(returnData);
 	         });
@@ -437,16 +439,16 @@
 <div class="modal_wrap" id="modal-ex">
 	<div class="modal" style="width:750px;height:650px;">
 		<div class="modal_header">
-			<strong class="tit">신규 직원 추가</strong>
+			<strong class="tit">직원 추가</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body" style="overflow:visible;" id="<@popupId>_items">
-			<input type="hidden" id="<@popupId>_USER_DESC"/>
-			<input type="hidden" id="<@popupId>_STATE"/>
-			<div class="clearFix mt15">
-				<figure class="photo_wrap fl mr15" onclick="<@popupId>.selectImage()">
+			<div class="clearFix mt15" style="height:160px;">
+				<figure class="photo_wrap fl mr15" >
 					<img src="../img/icon_noimg.png" id="<@popupId>_userImg">
+					<button class="btn mt5 w100 small" onclick="<@popupId>.selectImage()">사진등록</button>
 				</figure>
+				
 				<ul class="info_wrap col2">
 					<li>
 						<label>사원 ID</label>

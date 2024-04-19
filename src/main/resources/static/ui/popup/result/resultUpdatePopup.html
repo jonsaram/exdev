@@ -253,11 +253,11 @@ var <@popupId> = {
 			const relationType = $(tr+" td[id='RELATION_TYPE']").attr("value");
 			
 			if( relationType != "COWORK" && relationType != "SUGGESTER"){
-				//EXEC 인 경우에 수수료율을 넣는다.	
+				//EXEC나 SALES 인 경우에 수수료율을 넣는다.	
 				$(tr+" td[id='RATE']").attr("value",rate).html(rate+" %");
 				
 			}else{
-				// COWORK이나 SUGGESTER인 경우 input에 수수료율을 넣
+				// COWORK이나 SUGGESTER인 경우 input에 수수료율을 넣는다.
 				$(tr+" td[id='RATE'][name='coworkRate']")?.attr("value","");
 				if( relationType == "SUGGESTER"){
 					$(tr+" td[id='RATE']").children("[name='suggesterRate']")?.attr("value",rate).html(rate+" %");
@@ -313,7 +313,8 @@ var <@popupId> = {
 				}else{
 					
 					rateSum += rateVal;
-					payment = (rateVal  * SUPPLY_COST ) / 100; 
+					payment = Number((rateVal  * SUPPLY_COST ) / 100).toFixed(2); 
+					payment = payment.endsWith('.00') ? payment.slice(0, -3) : payment;
 				}
 				
 				$(obj).siblings("#PAYMENT").attr("value",payment).html( addComma(payment) );
@@ -415,7 +416,14 @@ var <@popupId> = {
 		
 		$("#<@popupId>_costList tr td[id='COST_PRICE'] input[type='text']").off().on('input',function(key){
 
-		    const val = $(this).nval();
+		    let val = $(this).nval();
+		    if( val == ''){
+		    	
+		    	val	= 0;
+				$(this).parent().siblings("td[id='COST_SUPP_PRICE']").attr("val",val).html(val);
+				$(this).parent().siblings("td[id='COST_TAX_PRICE']" ).attr("val",val).html(val);
+		    }
+		    	
 			$(this).attr("value",val).val( addComma(val) );
 			$(this).parent("td").attr("value",val);
 
@@ -458,11 +466,15 @@ var <@popupId> = {
   	 	$("#<@popupId> .tit").html( title );
 		
 	}
-	,coworkRateValInput : (obj) =>{
+	,inputBoxRateVal : (obj) =>{
 
         const val = Number($(obj).nval());
         if (isNaN(val)) {
+        	
         	$(obj).val('');
+            $(event.target).attr("value", 0);
+            $(event.target).parent("#RATE").attr("value", 0);
+            $(event.target).parent().siblings("#PAYMENT").attr("value", 0).html( 0 );
         	return;
         } 
 
@@ -486,15 +498,16 @@ var <@popupId> = {
 				if( $(row).is(":visible") ) {
 					
 					const COST_PRICE	= $(row).children("td[id='COST_PRICE']").attr("value");
-					
-					const supplytax 	= <@popupId>.supply_tax_cal( Number(COST_PRICE) ) ;
-					const nsupplyCost 	= $(row).children("td[id='COST_SUPP_PRICE']").val(	supplytax.supplyCost	).nval();
-					const ntax			= $(row).children("td[id='COST_TAX_PRICE']"	).val(	supplytax.tax			).nval();
-					
-					$(row).children("td[id='COST_SUPP_PRICE']"	).attr("value", nsupplyCost	).text(addComma(supplytax.supplyCost) ); 
-					$(row).children("td[id='COST_TAX_PRICE']"	).attr("value",ntax			).text(addComma(supplytax.tax));
-					
-					sum += Number(	nsupplyCost );
+					if( Number(COST_PRICE) ){
+						const supplytax 	= <@popupId>.supply_tax_cal( Number(COST_PRICE) ) ;
+						const nsupplyCost 	= $(row).children("td[id='COST_SUPP_PRICE']").val(	supplytax.supplyCost	).nval();
+						const ntax			= $(row).children("td[id='COST_TAX_PRICE']"	).val(	supplytax.tax			).nval();
+						
+						$(row).children("td[id='COST_SUPP_PRICE']"	).attr("value", nsupplyCost	).text(addComma(supplytax.supplyCost) ); 
+						$(row).children("td[id='COST_TAX_PRICE']"	).attr("value",ntax			).text(addComma(supplytax.tax));
+						
+						sum += Number(	nsupplyCost );
+					}
 				}
 			})
 			
@@ -504,8 +517,8 @@ var <@popupId> = {
 	}
 	, supply_tax_cal : (val) => {
 		
-		let sc	 			= (Number((Number( val ) / 11) * 10).toFixed(2));
-		let tx 				= (Number((Number( val ) / 11) * 1 ).toFixed(2));
+		let sc	 			= !val ? '0' : (Number((Number( val ) / 11) * 10).toFixed(2));
+		let tx 				= !val ? '0' : (Number((Number( val ) / 11) * 1 ).toFixed(2));
 		const supplyCost 	= sc.endsWith('.00') ? sc.slice(0, -3) : sc;
 		const tax			= tx.endsWith('.00') ? tx.slice(0, -3) : tx;
 		
@@ -719,14 +732,13 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<td id='GRADE'				value='{{:GRADE}}'	 class="tl"	>{{:GRADE}}</td>
 								<td id='RELATION_TYPE_NM'	value='{{:RELATION_TYPE_NM}}'	class='tl'>{{:RELATION_TYPE_NM}}</td>
 								<td id='RATE'				value='{{:RATE}}' 				class='tr'>
-    {{if RELATION_TYPE == 'COWORK'}}
-        <input name='coworkRate' type='text' style='width:60px;' value='{{:RATE}}' oninput='javascript:<@popupId>.coworkRateValInput(this)' />{{:RATE}} %
-    {{else RELATION_TYPE == 'SUGGESTER'}} 
-        <input name='suggesterRate' type='text' style='width:60px;' value='{{:RATE}}' oninput='javascript:<@popupId>.coworkRateValInput(this)' />{{:RATE}} %
-	{{else}}
-        {{:RATE}} %
-	
-    {{/if}}
+    							{{if RELATION_TYPE == 'COWORK'}}
+        							<input name='coworkRate' 	type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.inputBoxRateVal(this)' />%
+    							{{else RELATION_TYPE == 'SUGGESTER'}} 
+        							<input name='suggesterRate' type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.inputBoxRateVal(this)' />%
+								{{else}}
+        							{{:RATE}} %
+							    {{/if}}
 								</td>
 								<td id='PAYMENT'			value='{{:PAYMENT}}'  class="tr">{{numb:PAYMENT}}</td>
 								<td id='RELATION_TYPE'		value='{{:RELATION_TYPE}}'		style='display:none'>{{:RELATION_TYPE}}</td>
