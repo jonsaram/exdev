@@ -510,5 +510,401 @@
 		        )
 		ORDER BY CNT DESC 
     </select>
-        
+
+    <select id="getGoalAchieveRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getGoalAchieveRatio */
+        SELECT  CASE #{month}  WHEN '01'  THEN ROUND( (B.AMOUNT/A.MONTH1) *100, 2) 
+                               WHEN '02'  THEN ROUND( (B.AMOUNT/A.MONTH2) *100, 2)
+                               WHEN '03'  THEN ROUND( (B.AMOUNT/A.MONTH3) *100, 2)
+                               WHEN '04'  THEN ROUND( (B.AMOUNT/A.MONTH4) *100, 2)
+                               WHEN '05'  THEN ROUND( (B.AMOUNT/A.MONTH5) *100, 2)
+                               WHEN '06'  THEN ROUND( (B.AMOUNT/A.MONTH6) *100, 2)
+                               WHEN '07'  THEN ROUND( (B.AMOUNT/A.MONTH7) *100, 2)
+                               WHEN '08'  THEN ROUND( (B.AMOUNT/A.MONTH8) *100, 2)
+                               WHEN '09'  THEN ROUND( (B.AMOUNT/A.MONTH9) *100, 2)
+                               WHEN '10'  THEN ROUND( (B.AMOUNT/A.MONTH10) *100, 2)
+                               WHEN '11'  THEN ROUND( (B.AMOUNT/A.MONTH11) *100, 2)
+                               WHEN '12'  THEN ROUND( (B.AMOUNT/A.MONTH12) *100, 2)
+                               ELSE 0
+                END AS ACHIEVE
+        FROM   (
+                /* 매장별 목표 매출*/
+                SELECT SUM(B.MONTH1)      AS MONTH1
+                      ,SUM(B.MONTH2)      AS MONTH2 
+                      ,SUM(B.MONTH3)      AS MONTH3 
+                      ,SUM(B.MONTH4)      AS MONTH4 
+                      ,SUM(B.MONTH5)      AS MONTH5 
+                      ,SUM(B.MONTH6)      AS MONTH6 
+                      ,SUM(B.MONTH7)      AS MONTH7 
+                      ,SUM(B.MONTH8)      AS MONTH8 
+                      ,SUM(B.MONTH9)      AS MONTH9 
+                      ,SUM(B.MONTH10)     AS MONTH10
+                      ,SUM(B.MONTH11)     AS MONTH11
+                      ,SUM(B.MONTH12)     AS MONTH12
+                FROM   TBL_EXP_STORE_INFO A
+                       JOIN TBL_EXP_STORE_SALES_GOAL B
+                           ON  1 = 1
+                           AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                           AND A.STORE_ID   = B.STORE_ID
+                           AND B.YEAR = #{year} 
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                <if test=" !'ALL'.equals(region) ">
+                    AND    A.REGION =  #{region} 
+                </if>
+                <if test=" !'ALL'.equals(store) ">
+                    AND    STORE_ID = #{store} 
+                </if>
+                <if test=" !'ALL'.equals(supervisor) ">
+                    AND    A.SUPERVISOR = #{supervisor} 
+                </if>
+                ) A
+               ,(
+                    SELECT SUM(B.AMOUNT) AS AMOUNT
+                    FROM   TBL_EXP_STORE_INFO A
+                           JOIN TBL_EXP_STORE_FINANCIAL B
+                             ON  1 = 1
+                             AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                             AND A.STORE_ID   = B.STORE_ID
+                             AND B.YEAR       = #{year}
+                             AND B.MONTH      = #{month} 
+                    AND    SUBJECT = 'SUBJECT_001'
+                    WHERE  1 = 1
+                    AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                    <if test=" !'ALL'.equals(region) ">
+                        AND    A.REGION =  #{region} 
+                    </if>
+                    <if test=" !'ALL'.equals(store) ">
+                        AND    A.STORE_ID = #{store} 
+                    </if>
+                    <if test=" !'ALL'.equals(supervisor) ">
+                      AND    A.SUPERVISOR = #{supervisor} 
+                    </if>
+                ) B
+    </select>
+
+    <select id="getTbRotationRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getTbRotationRatio */
+        SELECT ROUND( AVG(NVL(RECEIPT_CNT2, 0)) ,2)  AS TB_ROTATION_GOAL
+        FROM   (
+                SELECT A.SP_CSTM_ID
+                      ,A.STORE_ID
+                      ,A.TB_ROTATION
+                      ,A.TB_ROTATION_GOAL
+                      ,B.YEAR
+                      ,B.MONTH
+                      ,SUM(B.RECEIPT_CNT) AS RECEIPT_CNT
+                      ,ROUND(SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT),2) AS RECEIPT_CNT2
+                FROM   TBL_EXP_STORE_INFO  A/* 매장정보 */
+                       JOIN TBL_EXP_STORE_SALES B
+                         ON  1 = 1
+                         AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                         AND A.STORE_ID   = B.STORE_ID
+                         AND B.YEAR       = #{year}
+                         AND B.MONTH      = #{month} 
+                       JOIN (
+                                SELECT SP_CSTM_ID
+                                      ,STORE_ID
+                                      ,YEAR
+                                      ,MONTH
+                                      ,COUNT(1) DAY_CNT
+                                FROM   TBL_EXP_STORE_SALES
+                                WHERE  1 = 1
+                                AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                                AND    YEAR       = #{year}
+                                AND    MONTH      = #{month} 
+                                AND    RECEIPT_CNT IS NOT NULL
+                                AND    RECEIPT_CNT != 0
+                                GROUP BY SP_CSTM_ID
+                                        ,STORE_ID
+                                        ,YEAR
+                                        ,MONTH
+                            ) C
+                         ON  1 = 1
+                         AND B.SP_CSTM_ID = C.SP_CSTM_ID
+                         AND B.STORE_ID   = C.STORE_ID
+                         AND B.YEAR       = C.YEAR
+                         AND B.MONTH      = C.MONTH
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    A.TB_ROTATION IS NOT NULL
+                GROUP BY A.SP_CSTM_ID
+                        ,A.STORE_ID
+                        ,A.TB_ROTATION
+                        ,A.TB_ROTATION_GOAL
+                        ,B.YEAR
+                        ,B.MONTH
+                ORDER BY A.SP_CSTM_ID
+                        ,A.STORE_ID  
+                )
+    </select> 
+    
+    <select id="getGrowthRate" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getGrowthRate */
+        SELECT CASE WHEN MAX(A.AMOUNT1) != 0 AND MAX(A.AMOUNT2) !=  0 THEN ROUND((MAX(A.AMOUNT1)/MAX(A.AMOUNT2)) * 100,2)
+                    ELSE 0
+               END AS GROWTH_RATE
+        FROM   (
+                /* 조회년도 */
+                SELECT SUM(B.AMOUNT) AS AMOUNT1
+                      ,0             AS AMOUNT2
+                FROM   TBL_EXP_STORE_INFO A
+                       JOIN TBL_EXP_STORE_FINANCIAL B
+                         ON  1 = 1
+                         AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                         AND A.STORE_ID   = B.STORE_ID
+                         AND B.YEAR       = #{year}
+                         AND B.MONTH      = #{month} 
+                AND    SUBJECT = 'SUBJECT_001'
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                UNION ALL
+                /* 조회 전년도 */
+                SELECT 0             AS AMOUNT1
+                      ,SUM(B.AMOUNT) AS AMOUNT2
+                FROM   TBL_EXP_STORE_INFO A
+                       JOIN TBL_EXP_STORE_FINANCIAL B
+                         ON  1 = 1
+                         AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                         AND A.STORE_ID   = B.STORE_ID
+                         AND B.YEAR       = #{previousYear}
+                         AND B.MONTH      = #{month} 
+                AND    SUBJECT = 'SUBJECT_001'
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                ) A   
+    </select>    
+
+    <select id="getGoalAchieveRatioRank" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getGoalAchieveRatioRank */
+        SELECT A.SP_CSTM_ID
+              ,A.STORE_ID
+              ,A.STORE_NM3
+              ,A.YEAR
+              ,A.MONTH
+              ,A.GOLE_AMOUNT
+              ,A.AMOUNT
+              ,A.ACHIEVE_RATIO
+        FROM   (
+                SELECT A.SP_CSTM_ID
+                      ,A.STORE_ID
+                      ,A.STORE_NM3
+                      ,A.YEAR
+                      ,A.MONTH
+                      ,A.GOLE_AMOUNT
+                      ,B.AMOUNT
+                      ,ROUND( ((B.AMOUNT /  A.GOLE_AMOUNT) * 100) ,2) AS ACHIEVE_RATIO
+                FROM   (
+                            SELECT B.SP_CSTM_ID
+                                  ,B.STORE_ID
+                                  ,A.STORE_NM3
+                                  ,B.YEAR
+                                  ,#{month} AS MONTH
+                                  ,CASE #{month}  WHEN '01'  THEN B.MONTH1
+                                                  WHEN '02'  THEN B.MONTH2
+                                                  WHEN '03'  THEN B.MONTH3
+                                                  WHEN '04'  THEN B.MONTH4
+                                                  WHEN '05'  THEN B.MONTH5
+                                                  WHEN '06'  THEN B.MONTH6
+                                                  WHEN '07'  THEN B.MONTH7
+                                                  WHEN '08'  THEN B.MONTH8
+                                                  WHEN '09'  THEN B.MONTH9
+                                                  WHEN '10'  THEN B.MONTH10
+                                                  WHEN '11'  THEN B.MONTH11
+                                                  WHEN '12'  THEN B.MONTH12
+                                                  ELSE 0
+                                    END AS GOLE_AMOUNT
+                            FROM   TBL_EXP_STORE_INFO A
+                                   JOIN TBL_EXP_STORE_SALES_GOAL B
+                                       ON  1 = 1
+                                       AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                       AND A.STORE_ID   = B.STORE_ID
+                                       AND B.MONTH1     IS NOT NULL
+                                       AND B.YEAR       = #{year}
+                            WHERE  1 = 1
+                            AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                            <if test=" !'ALL'.equals(region) ">
+                                AND    A.REGION =  #{region} 
+                            </if>
+                            <if test=" !'ALL'.equals(store) ">
+                                AND    STORE_ID = #{store} 
+                            </if>
+                            <if test=" !'ALL'.equals(supervisor) ">
+                                AND    A.SUPERVISOR = #{supervisor} 
+                            </if>
+                        ) A
+                        JOIN (  
+                            SELECT B.SP_CSTM_ID
+                                  ,B.STORE_ID
+                                  ,A.STORE_NM3
+                                  ,B.YEAR
+                                  ,B.MONTH
+                                  ,B.AMOUNT AS AMOUNT
+                            FROM   TBL_EXP_STORE_INFO A
+                                   JOIN TBL_EXP_STORE_FINANCIAL B
+                                     ON  1 = 1
+                                     AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                     AND A.STORE_ID   = B.STORE_ID
+                                     AND B.AMOUNT     IS NOT NULL
+                                     AND B.YEAR       = #{year}
+                                     AND B.MONTH      = #{month} 
+
+                            AND    SUBJECT = 'SUBJECT_001'
+                            WHERE  1 = 1
+                            AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                            <if test=" !'ALL'.equals(region) ">
+                                AND    A.REGION =  #{region} 
+                            </if>
+                            <if test=" !'ALL'.equals(store) ">
+                                AND    STORE_ID = #{store} 
+                            </if>
+                            <if test=" !'ALL'.equals(supervisor) ">
+                                AND    A.SUPERVISOR = #{supervisor} 
+                            </if>
+                        ) B
+                        ON  1 = 1
+                        AND A.SP_CSTM_ID = B.SP_CSTM_ID   
+                        AND A.STORE_ID   = B.STORE_ID   
+                        AND A.YEAR       = B.YEAR     
+                        AND A.MONTH      = B.MONTH 
+               ) A
+        WHERE 1 = 1
+        ORDER BY A.ACHIEVE_RATIO DESC 
+    </select>        
+    
+    <select id="getTbRotationRatioRank" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getTbRotationRatioRank */
+                SELECT A.SP_CSTM_ID
+                      ,A.STORE_ID
+                      ,A.STORE_NM3 
+                      ,A.TB_ROTATION
+                      ,A.TB_ROTATION_GOAL
+                      ,B.YEAR
+                      ,B.MONTH
+                      ,ROUND((A.TB_ROTATION_GOAL/ROUND(SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT),2)) * 100,2)  AS TB_ROTATION_RATIO
+                FROM   TBL_EXP_STORE_INFO  A/* 매장정보 */
+                       JOIN TBL_EXP_STORE_SALES B
+                         ON  1 = 1
+                         AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                         AND A.STORE_ID   = B.STORE_ID
+                         AND B.YEAR       = #{year}
+                         AND B.MONTH      = #{month} 
+                       JOIN (
+                                SELECT SP_CSTM_ID
+                                      ,STORE_ID
+                                      ,YEAR
+                                      ,MONTH
+                                      ,COUNT(1) DAY_CNT
+                                FROM   TBL_EXP_STORE_SALES
+                                WHERE  1 = 1
+                                AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                                AND    YEAR       = #{year}
+                                AND    MONTH      = #{month} 
+                                AND    RECEIPT_CNT IS NOT NULL
+                                AND    RECEIPT_CNT != 0
+                                GROUP BY SP_CSTM_ID
+                                        ,STORE_ID
+                                        ,YEAR
+                                        ,MONTH
+                            ) C
+                         ON  1 = 1
+                         AND B.SP_CSTM_ID = C.SP_CSTM_ID
+                         AND B.STORE_ID   = C.STORE_ID
+                         AND B.YEAR       = C.YEAR
+                         AND B.MONTH      = C.MONTH
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    A.TB_ROTATION IS NOT NULL
+                <if test=" !'ALL'.equals(region) ">
+                    AND    A.REGION =  #{region} 
+                </if>
+                <if test=" !'ALL'.equals(store) ">
+                    AND    STORE_ID = #{store} 
+                </if>
+                <if test=" !'ALL'.equals(supervisor) ">
+                    AND    A.SUPERVISOR = #{supervisor} 
+                </if>
+                GROUP BY A.SP_CSTM_ID
+                        ,A.STORE_ID
+                        ,A.STORE_NM3
+                        ,A.TB_ROTATION
+                        ,A.TB_ROTATION_GOAL
+                        ,B.YEAR
+                        ,B.MONTH
+                ORDER BY ROUND((A.TB_ROTATION_GOAL/ROUND(SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT),2)) * 100,2) DESC
+    </select> 
+    
+    <select id="getPreMonthAchieveRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getPreMonthAchieveRatio */
+        SELECT A.SP_CSTM_ID
+              ,A.YEAR
+              ,A.MONTH
+              ,A.PRE_MONTH
+              ,SUM(AMOUNT)     AS AMOUNT
+              ,SUM(PRE_AMOUNT) AS PRE_AMOUNT
+              ,ROUND((SUM(AMOUNT)/SUM(PRE_AMOUNT)) * 100,2) AS PRE_MONTH_ACHIEVE_RATIO
+        FROM   (
+            SELECT B.SP_CSTM_ID
+                  ,B.STORE_ID
+                  ,A.STORE_NM3
+                  ,B.YEAR
+                  ,'02'     AS MONTH
+                  ,B.MONTH  AS PRE_MONTH
+                  ,0        AS AMOUNT
+                  ,B.AMOUNT AS PRE_AMOUNT
+            FROM   TBL_EXP_STORE_INFO A
+                   JOIN TBL_EXP_STORE_FINANCIAL B
+                     ON  1 = 1
+                     AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                     AND A.STORE_ID   = B.STORE_ID
+                     AND B.AMOUNT     IS NOT NULL
+                     AND B.YEAR       = #{prevYear}
+                     AND B.MONTH      = #{prevMonth}
+                     AND B.SUBJECT = 'SUBJECT_001'
+            WHERE  1 = 1
+            AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+            <if test=" !'ALL'.equals(region) ">
+                AND    A.REGION =  #{region} 
+            </if>
+            <if test=" !'ALL'.equals(store) ">
+                AND    STORE_ID = #{store} 
+            </if>
+            <if test=" !'ALL'.equals(supervisor) ">
+                AND    A.SUPERVISOR = #{supervisor} 
+            </if>
+            UNION ALL
+            SELECT B.SP_CSTM_ID
+                  ,B.STORE_ID
+                  ,A.STORE_NM3
+                  ,B.YEAR
+                  ,B.MONTH AS MONTH
+                  ,'01'    AS PRE_MONTH
+                  ,B.AMOUNT AS AMOUNT
+                  ,0        AS PRE_AMOUNT
+            FROM   TBL_EXP_STORE_INFO A
+                   JOIN TBL_EXP_STORE_FINANCIAL B
+                     ON  1 = 1
+                     AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                     AND A.STORE_ID   = B.STORE_ID
+                     AND B.AMOUNT     IS NOT NULL
+                     AND B.YEAR       = #{year} 
+                     AND B.MONTH      = #{month} 
+                     AND B.SUBJECT = 'SUBJECT_001'
+            WHERE  1 = 1
+            AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+            <if test=" !'ALL'.equals(region) ">
+                AND    A.REGION =  #{region} 
+            </if>
+            <if test=" !'ALL'.equals(store) ">
+                AND    STORE_ID = #{store} 
+            </if>
+            <if test=" !'ALL'.equals(supervisor) ">
+                AND    A.SUPERVISOR = #{supervisor} 
+            </if>
+            ) A
+        GROUP BY  A.SP_CSTM_ID
+                 ,A.YEAR
+                 ,A.MONTH
+                 ,A.PRE_MONTH  
+    </select> 
 </mapper>
