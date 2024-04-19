@@ -1138,6 +1138,14 @@ var C_UICOM = {
 
 		C_UICOM.listenerChangeFnMap[templateTargetId] = fn;
 	 }  
+	,removeChangeListener : function(targetId) {
+		
+		var templateId = C_COM.getCurrentTemplateId();
+
+		var templateTargetId = templateId + targetId;
+
+		C_UICOM.listenerChangeFnMap[templateTargetId] = undefined;
+	 }  
 	,init : function() {
 	    // 외부 링크
 	    $(document).bind('click', function(e) {
@@ -1267,6 +1275,9 @@ var C_UICOM = {
         $($open_ul).find("input[type=radio]").on("blur", function(){
             $( this ).parent().parent().prev().children().removeClass( "active" );
         });
+
+		// Change 리스너 초기화
+		C_UICOM.removeChangeListener(targetId);
 	 }
 	,setSingleBox : function(targetId, val) {
 		var templateId = C_COM.getCurrentTemplateId();
