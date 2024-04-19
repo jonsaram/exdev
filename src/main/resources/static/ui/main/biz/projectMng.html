@@ -67,6 +67,10 @@
 			let CONTRACT_ID 	= <@pageId>.projectList[idx].CONTRACT_ID;
 			let PROCESS_STATE	= <@pageId>.projectList[idx].PROCESS_STATE;
 			
+			<@pageId>.saveWorkHistory(CONTRACT_ID);
+			return;
+			
+			
 	        let requestParm = {};
 	        
 	        let apprProcessState = "";
@@ -105,7 +109,7 @@
 						if(resultData.state == "S") {
 								
 							// work history 저장
-							//<@pageId>.saveWorkHistory(CONTRACT_ID);
+							<@pageId>.saveWorkHistory(CONTRACT_ID);
 							
 							<@pageId>.loadData();
 							
@@ -119,7 +123,7 @@
 		,saveWorkHistory : function(CONTRACT_ID) {
 			let projectInfo = <@pageId>.projectMap[CONTRACT_ID];
 			
-			let content = `<<${projectInfo.BUYER_NM}>> 고객 담당 컨설턴트 <<지정 결재 요청>>`;
+			let content = `<1>${projectInfo.BUYER_NM}</> 고객 담당 컨설턴트 <2>지정 결재 요청</>`;
 			
 			C_COM.saveWorkHistory(projectInfo.USER_ID, content);
 		 }

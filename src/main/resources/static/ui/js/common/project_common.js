@@ -839,7 +839,7 @@ var C_PM = {
 	,preInitPage : function(pageId, targetDomId) {
 		C_COM.preInitTemplate(pageId);
 		
-		C_WIN.addListnerWindowResize(pageId, function() {
+		C_WIN.addListenerWindowResize(pageId, function() {
 			C_COM.adjustTableScroll(pageId);
 		});
 	 }
@@ -1096,7 +1096,7 @@ var C_POP = {
 var C_UICOM = {
 	 dataListMap : {} 	// selectBox 에서 선택한 내용 담기
 	,useSelectBoxIdList : {}
-	,listnerChangeFnMap	: {}
+	,listenerChangeFnMap	: {}
 	,getData : function(targetId){
 
 		var templateId = C_COM.getCurrentTemplateId();
@@ -1116,7 +1116,7 @@ var C_UICOM = {
 		
 		C_UICOM.dataListMap[templateTargetId] = valObj;	
 
-		let fn = C_UICOM.listnerChangeFnMap[templateTargetId];
+		let fn = C_UICOM.listenerChangeFnMap[templateTargetId];
 
 		if(isValid(fn)) {
 			if(isEmpty(preData) || typeof preData == "string") {
@@ -1130,13 +1130,13 @@ var C_UICOM = {
 		}
 	 }
 	// onchange 저장
-	,addChangeListner : function(targetId, fn) {
+	,addChangeListener : function(targetId, fn) {
 		
 		var templateId = C_COM.getCurrentTemplateId();
 
 		var templateTargetId = templateId + targetId;
 
-		C_UICOM.listnerChangeFnMap[templateTargetId] = fn;
+		C_UICOM.listenerChangeFnMap[templateTargetId] = fn;
 	 }  
 	,init : function() {
 	    // 외부 링크
@@ -2085,7 +2085,7 @@ $(function() {
 
 var C_WIN = {
 	 callbackMap: {}
-	,addListnerWindowResize : function(pageId, callback) {
+	,addListenerWindowResize : function(pageId, callback) {
 		C_WIN.callbackMap[pageId] = callback;
 	 }
 	,onWindowResize : function() {

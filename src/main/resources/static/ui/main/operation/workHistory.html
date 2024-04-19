@@ -1,0 +1,193 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@pageId> = {
+		 userInfo : {}
+		,selectUser : function() {
+			let param = {};
+
+			C_POP.open('popup_system_memberSearchPopup', {param : {}, gubun:"USER"}, function(retData) {
+				<@pageId>.userInfo = retData;
+				let parm = {
+					 targetId 	: "tableId"
+					,data		: retData
+				}
+				C_COM.renderHtml("<@pageId>", parm);
+				
+				C_COM.getFileId(retData.USER_ID, "USER_FACE", function(fileInfo) {
+					if(fileInfo.length > 0) {
+						let url = C_COM.getImageUrl(fileInfo[0].FILE_ID);
+						$("#<@pageId>_userFace img").attr("src", url);
+					} else {
+						$("#<@pageId>_userFace img").attr("src", "../img/icon_noimg.png");
+					}
+				});
+				
+				<@pageId>.loadWorkHistory();
+			});
+		 }
+		,loadWorkHistory : function() {
+				
+			
+			var parm = {
+				 queryId 		: "operation.getWorkHistoryList"
+				,requestParm	: <@pageId>.userInfo
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+
+				let allList 	= resultData.data;
+				
+				
+				
+				allList = [
+					{
+						"WH_ID": "18ef07828e910256",
+						"UPDATE_DATE": "2024-04-15 18:09:51",
+						"UPDATE_USER": "jonsaram",
+						"USER_ID": "jonsaram",
+						"WORK_CONTENT": "<1>산와 대부 주식회사</> 고객 담당 컨설턴트3 <2>지정 결재 요청</>",
+						"YYYYMMDD": "2024-04-15"
+					},
+					{
+						"WH_ID": "18ef07828e910256",
+						"UPDATE_DATE": "2024-04-19 09:29:51",
+						"UPDATE_USER": "jonsaram",
+						"USER_ID": "jonsaram",
+						"WORK_CONTENT": "<1>산와 대부 주식회사</> 고객 담당 컨설턴트2 <2>지정 결재 요청</>",
+						"YYYYMMDD": "2024-04-19"
+					},
+					{
+						"WH_ID": "18ef07828e910256",
+						"UPDATE_DATE": "2024-04-19 20:09:51",
+						"UPDATE_USER": "jonsaram",
+						"USER_ID": "jonsaram",
+						"WORK_CONTENT": "<1>산와 대부 주식회사</> 고객 담당 컨설턴트22 <2>지정 결재 요청</>",
+						"YYYYMMDD": "2024-04-19"
+					},
+					{
+						"WH_ID": "18ef07828e910256",
+						"UPDATE_DATE": "2024-04-20 18:09:51",
+						"UPDATE_USER": "jonsaram",
+						"USER_ID": "jonsaram",
+						"WORK_CONTENT": "<1>산와 대부 주식회사</> 고객 담당 컨설턴트1 <2>지정 결재 요청</>",
+						"YYYYMMDD": "2024-04-20"
+					}
+				]				
+				
+				
+				
+				
+				let dateList	= []
+				let dateMap		= {}
+				$.each(allList, function() {
+					let item = this;
+					
+					item.WORK_CONTENT = item.WORK_CONTENT.replaceAll(`<1>`, `<span class="custom">`	);
+					item.WORK_CONTENT = item.WORK_CONTENT.replaceAll(`<2>`, `<span class="state">`	);
+					item.WORK_CONTENT = item.WORK_CONTENT.replaceAll(`</>`, `</span>`				);
+
+					if(isEmpty(dateMap[this.YYYYMMDD])) {
+						dateMap[this.YYYYMMDD] = [];
+						dateList.push({ YYYYMMDD : this.YYYYMMDD });
+					}
+					dateMap[this.YYYYMMDD].push(this);
+				});
+				
+				dateList.orderBy("YYYYMMDD", "DESC");
+				
+				var parm = {
+					 targetId 		: "workHistoryList"
+					,list			: dateList
+					,dateMap		: dateMap
+				}
+				C_COM.renderHtml("<@pageId>", parm);
+			});
+		 }
+	}
+	// Page Load가 완료된후 실행 된다.
+	C_PM.onLoadPage("<@pageId>", function() {
+		C_COM.renderHtml("<@pageId>", {targetId 	: "tableId"});
+		
+		//<@pageId>.loadWorkHistory();
+	});
+	// History back으로 이동해왔을 경우 이루틴이 실행된다.
+	C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+	});
+</script>
+<div class="cont_wrap backWhite">
+	<div class="cont_top">
+		<h2><i class="icon_bullet"></i>작업 히스토리</h2>
+	</div>
+	<!-- search area -->
+	<div class="search_area plpr5">
+		<div class="fl">
+			<span class="tit01 fl lh33">사원 정보</span>
+			<a href="javascript:<@pageId>.selectUser()" class="btn fl">사원선택</a>
+			<div class="calendar_wrap fl">
+				<input type="text" id="from" name="from" class="datepicker" style="width:114px">
+				<label for="to">~</label>
+				<input type="text" id="to" name="to" class="datepicker" style="width:114px">
+			</div>
+               <input type="text" name="" class="fl">
+               <button class="btn select fl">검색</button>
+           </div>
+           <div class="search_right">
+			<button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>
+           </div>
+	</div>
+	<div class="sec_scroll" style="height:calc(100% - 96px);">
+		<section class="sec_wrap">
+			<div class="cont_box workHistory_info" id="tableId">
+			</div>
+			<script type="text/x-jsrender" id="tableId_template">	
+				<figure class="photo_wrap sm fl" id="<@pageId>_userFace">
+					<img src="">
+				</figure>
+				<ul class="info_wrap col2">
+					<li>
+						<label>사원 ID</label>
+						<div class="info">{{:data.USER_ID}}</div>
+					</li>
+					<li>
+						<label>사원명</label>
+						<div class="info">{{:data.USER_NM}}</div>
+					</li>
+					<li>
+						<label>소속</label>
+						<div class="info">{{:data.BRANCH_NM}}</div>
+					</li>
+					<li>
+						<label>등급</label>
+						<div class="info">{{:data.GRADE_NM}}</div>
+					</li>
+				</ul>
+			</script>
+			<script type="text/x-jsrender" id="tableId_noData_template">
+				<div class="tc">	
+					<span style="font-size:15px;font-weight:bold">사원을 선택 하세요.</span>
+				</div>
+			</script>
+				
+		</section>
+		<div class="mt15" id="workHistoryList">
+		</div>
+		<script type="text/x-jsrender" id="workHistoryList_template">
+		{{for list ~dateMap=dateMap}}						
+			<section class="sec_wrap">
+				<div class="cont_box work_history">
+					<h3>{{:YYYYMMDD}}</h3>
+					<ul class="info_wrap">
+					{{for ~dateMap[YYYYMMDD]}}
+						<li>
+							<label>{{:UPDATE_DATE}}</label>
+							<div class="info">{{:WORK_CONTENT}}</div>
+						</li>
+					{{/for}}
+					</ul>
+				</div>
+			</section>
+		{{/for}}
+		</script>
+	</div>
+</div>
