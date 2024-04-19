@@ -963,6 +963,8 @@ var C_POP = {
 
 		parm.popupId = popupId;
 		
+		parm.opener	 = C_COM.getCurrentTemplateId();
+		
 		C_POP.callbackMap[popupId] = callback;
 		
 		// Popup ID에 해당하는 Url의 html을 가져온다.
