@@ -111,7 +111,6 @@ var <@popupId> = {
 
 		<@popupId>.setByProcessState();
 		
-		//$("button[uid='<@popupId>_selectProcessStatus']").prop("disabled",true)
 	}
 	,setDisableModeItems : () => {
 		
@@ -130,7 +129,6 @@ var <@popupId> = {
 	}
 	,setByProcessState : () => {
 
-		//if( "<@processState>" == "ON_CONTRACTED_APPR" || "<@processState>" == "CONTRACTED"){
 		if( "<@processState>".indexOf("CONTRACTED") > -1 ){
 
 			if( <@popupId>.resulting == "Y"){
@@ -151,7 +149,6 @@ var <@popupId> = {
 			
 		}
 		
-		//if( "<@processState>" == "ON_COMPLETED_APPR" || "<@processState>" == "COMPLETED"){
 		if( "<@processState>".indexOf("COMPLETED") > -1 ){
 
 				<@popupId>.setDisableModeItems();
@@ -368,18 +365,6 @@ var <@popupId> = {
 			});
 			
 		})
-		 		
-/* 		$("a[name^='<@popupId>_tab']").on('click', (obj) =>{
-
-			const curClicked	= $(obj.target).attr("name").indexOf("tab1") > -1 ? true:false;				
-			const curtab1 		= $("#popup_contract_contractUpdatePopup_tab1").is(":visible");
-			
-			if( curClicked == curtab1)return;
-
-		    $('a[name^="<@popupId>_tab"]').parent().toggleClass('active');
-		    $('#<@popupId>_tab1, #<@popupId>_tab2').toggle();
-
-		}) */
 		
 		$("a[name^='<@popupId>_tab']").on('click', (obj) => {
 			
@@ -402,7 +387,7 @@ var <@popupId> = {
 		
 		var obj = {
 				'CONTRACT_ID'		:	CONTRACT_ID,
-	            'USER_ID'			: 	<@popupId>.consultantUser.ID,//$('#<@popupId>_salesManList tr #USER_ID').html(),
+	            'USER_ID'			: 	<@popupId>.consultantUser.ID,
 	            'RELATION_TYPE'		:	'EXECUTE',
 		};
 		contractMember.push( obj );
@@ -500,9 +485,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.mode				= <@popupId>.recvData.mode;
 	<@popupId>.updatingData		= <@popupId>.recvData.param;
 	
-	//for TEST : <@popupId>.updatingData.RESULTING ="";
-	
-	<@popupId>.resulting		= <@popupId>.updatingData?.RESULTING; //$("#<@popupId>_peek").text(<@popupId>.resulting) ;
+	<@popupId>.resulting		= <@popupId>.updatingData?.RESULTING;
 	<@popupId>.userId 			= <@popupId>.updatingData?.USER_ID;
 	<@popupId>.buyerId 			= <@popupId>.updatingData?.BUYER_ID;
 	<@popupId>.consultingId		= <@popupId>.updatingData?.CONSULTING_ID;

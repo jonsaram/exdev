@@ -71,7 +71,7 @@
 			AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
 			AND P.USER_ID 		= CM.USER_ID
 			AND P.USER_ID 		= U.USER_ID 
-			<if test=" USER_ID != null and !USER_ID.equals('') ">
+			<if test=" USER_ID != null and !USER_ID.equals('') and !USER_ID.equals('--') ">
 			AND U.USER_ID 		= #{USER_ID}
 			</if>
 			<if test=" FROM_RESULT_DATE != null and !FROM_RESULT_DATE.equals('') ">

@@ -126,7 +126,25 @@ var <@popupId> = {
 
 		}
 		
-		<@popupId>.selectResultPayment(parentData) ;
+		// 수수료 산출 후 view모드일 경우 disable
+		<@popupId>.selectResultPayment(parentData, () =>{
+			
+			if("<@mode>" == "V"){
+				
+				$("#<@popupId> #RESULT_DATE").prop("disabled", true);
+				$("#<@popupId>_selectIncomeType").attr("disabled", true).prop("disabled", true);
+				$("#<@popupId>_selectIncomeType button").prop("disabled", true);
+				$("#<@popupId> .icon_trash").remove();
+				$("#<@popupId>_addCost").remove();
+				$("#<@popupId> #INCOME").prop("disabled", true);
+				$("#<@popupId> #COST_NM input").prop("disabled", true);
+				$("#<@popupId> #COST_DESC input").prop("disabled", true);
+				$("#<@popupId> #COST_PRICE input").prop("disabled", true);
+				$("#<@popupId> [name='coworkRate']").prop("disabled", true);
+				$("#<@popupId> [name='suggesterRate']").prop("disabled", true);
+
+			}
+		}) ;
 		
 		if( <@popupId>.PROCESS_STATE.indexOf("COMPLETE") > -1 ){
 			
@@ -138,9 +156,9 @@ var <@popupId> = {
 			},300)
 
 		}
-		
+
 	}
-	,calOrgSellingPrice : () => {
+	,callOrgSellingPrice : () => {
 		
 		const supplytax				= <@popupId>.supply_tax_cal($('#<@popupId>_resultInfo #INCOME').nval());
         const incomeMinusCostPrice	= Number($('#<@popupId>_supplyCost').nval()) - <@popupId>.sumSupplyCostPrice();
@@ -168,12 +186,12 @@ var <@popupId> = {
 			C_COM.renderHtml("<@popupId>", rparm);
 			
 			//비용산출이 끝난 후에 순매출 다시 계산.
-			<@popupId>.calOrgSellingPrice();		
+			<@popupId>.callOrgSellingPrice();		
 			
 		});
 		
 	}	
-	,selectResultPayment : (data) =>{
+	,selectResultPayment : (data, callback) =>{
 		
 		var parm = {
 				 queryId 		: "result.selectTempPaymentItem"
@@ -229,6 +247,10 @@ var <@popupId> = {
 				$.each( $paymentListTR.children("td[id='PAYMENT']"), (idx, payment	)=> paymentSum 	+= Number( $(payment).attr('value') ));
 				
 				<@popupId>.setPaymentTotalRow(rateSum, paymentSum);
+				
+				if( callback ){
+					callback();
+				}
 				
 			}else{
 				
@@ -432,7 +454,7 @@ var <@popupId> = {
 	        	return;
 	        }
 	        
-			const incomeMinusCostPrice = <@popupId>.calOrgSellingPrice();
+			const incomeMinusCostPrice = <@popupId>.callOrgSellingPrice();
 			<@popupId>.calcPayment(incomeMinusCostPrice);
 	        
 			$(this).val( addComma(val));
@@ -454,7 +476,7 @@ var <@popupId> = {
 			$(this).attr("value",val).val( addComma(val) );
 			$(this).parent("td").attr("value",val);
 
-			const incomeMinusCostPrice = <@popupId>.calOrgSellingPrice();
+			const incomeMinusCostPrice = <@popupId>.callOrgSellingPrice();
 			<@popupId>.calcPayment(incomeMinusCostPrice);
 			
 		})
