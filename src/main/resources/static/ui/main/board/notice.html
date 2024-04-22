@@ -209,7 +209,7 @@ var <@pageId> = {
 			requestParm['BOARD_MST_ID'] = $("#BOARD_MST_ID").val();
 			<@pageId>.getSearchItems(requestParm);
 
-			C_POP.open('popup_createBoardPopup', requestParm, function(retData) {
+			C_POP.open('popup_board_createBoardPopup', requestParm, function(retData) {
 				if(retData.refresh == 'Y'){
 					<@pageId>.searchList();
 				}
@@ -361,8 +361,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
                                 <td id='BOARD_ID' 					value='{{:BOARD_ID}}' style='display:none'>{{:BOARD_ID}}</td>
  								<td id='index'	 					value='{{:#index+1}}'		>#{{:#index+1}}	</td>
  								<td id='BOARD_MST_NM' 				value='{{:BOARD_MST_NM}}'	>{{:BOARD_MST_NM}}</td>
- 								<td id='UPDATE_USER' 				value='{{:UPDATE_USER}}'	>{{:UPDATE_USER}}</td>
- 								<td id='TITLE'	 		class='tl' 	value='{{:TITLE}}'			><a href="javascript:<@pageId>.goPage('main_board_noticeview' , '{{:#index}}' );">{{:TITLE}}</a></td>
+ 								<td id='UPDATE_USER' 				value='{{:USER_NM}}'	>{{:USER_NM}}</td>
+ 								<td id='TITLE'	 		class='tl' 	value='{{:TITLE}}'			><a href="javascript:<@pageId>.goPage('main_board_companyBoardView' , '{{:#index}}' );">{{:TITLE}}</a></td>
  								<td id='UPDATE_DATE' 				value='{{:UPDATE_DATE}}'	>{{:UPDATE_DATE}}</td>
  								<td id='VIEW_CNT' 					value='{{:VIEW_CNT}}'		>{{:VIEW_CNT}}</td>
 							</tr>
