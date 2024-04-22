@@ -27,6 +27,7 @@ var <@pageId> = {
         	let RESULT_ID = '';
         	let resultIdCnt = 0;
 			let LAST_RESULT_ID = '';
+			let EXEC_RATE = 0;
         	resultData.data.forEach( (row,idx) => {
 
         		RESULT_ID = row["RESULT_ID"];
@@ -46,6 +47,13 @@ var <@pageId> = {
         		
         		REMAINING_SUM_LIST.push( row.REMAINING_SUM);
 
+        		const RELATION_TYPE 	= row.RELATION_TYPE;
+        		if( RELATION_TYPE =="EXECUTE"){
+        			EXEC_RATE	 = row["RATE"];
+        		}
+        		if( RELATION_TYPE =="COWORK"){
+        			row["RATE"]	= (row["RATE"] * EXEC_RATE) /100;
+        		}
         		TOTAL_ROW["RATE"] 		+= Number(row["RATE"]);
 				TOTAL_ROW["PAYMENT"] 	+= Number(row["PAYMENT"]);
 				
@@ -72,9 +80,9 @@ var <@pageId> = {
     			
     			<@pageId>.contractItem.REMAINING_SUM = Math.min( ...REMAINING_SUM_LIST );
     			
-/*     		}
-        	
-    		if( <@pageId>.selectedList.length > 0){ */
+				if( <@pageId>.contractItem.REMAINING_SUM == 0){
+					$("#<@pageId>_regResult").hide();
+				}
 	 			const trTemplate = $("#<@pageId>_resultList_total_template").render({ INCOME 			: addComma(TOTAL_ROW["INCOME"])
 	 																				, COST_PRICE 		: addComma(TOTAL_ROW["COST_PRICE"])
 	 																				, ORG_SELLING_PRICE : addComma(TOTAL_ROW["ORG_SELLING_PRICE"])
@@ -185,11 +193,6 @@ var <@pageId> = {
 	    		
 	    	}
 	    	
-/* 			const remainingSum = <@pageId>.contractItem.REMAINING_SUM;
-			if( remainingSum == 0){
-				C_POP.alert('잔금완납되어 추가 실적을 등록할수 없습니다.');
-				return;
-			} */
 			<@pageId>.openUpdatePopup();
 
 	    })

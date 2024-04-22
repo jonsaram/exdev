@@ -186,7 +186,13 @@ var <@popupId> = {
 			<@popupId>.changeProcessState(dataObj);
 			
 		});
-		
+		//비활성
+	  		$("#<@popupId>_selectProcessStatus").attr("disabled", true).prop("disabled", true);
+			$('#<@popupId>_selectProcessStatus button').prop("disabled", true);
+	 		$("#<@popupId>_selectProcessStatus").hide();
+	 		const text = exPreContract.filter( item => { item[1] == "<@processState>" });
+	 		$("#<@popupId>_processStatus").text( exPreContract.filter( item=> item[0] == "<@processState>")[0][1] ).show();
+	 		
 		C_UICOM.makeSelectBox({ 
 			 defaultItem 	: ["--", "선택"]
 			,data : C_COM.getCodeList("CONTRACT_TYPE")
@@ -530,7 +536,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								
 								<li>
 									<label>계약 상태</label>
-									<div class="info">
+									<div class="info" id="<@popupId>_processStatus"  style='margin-top:7px;'>
 										<div id="<@popupId>_peek"></div>
 										<div id="<@popupId>_selectProcessStatus" class="select_box" style="width:100%; float: right !important;"></div>
 								</li>

@@ -8,7 +8,7 @@ var <@pageId> = {
 		,pageInit : () =>{
 
 			const processState = C_COM.getCodeList("PROCESS_STATE");
-			const exPreContract = processState.map( item => { return item[0] !='PRE_CONTRACT' ? item :'' });
+			const exPreContract = processState.map( item => { return item[0] !='PRE_CONTRACT' && item[0] !='ON_CONTRACTING_APPR' ? item :'' });
 			C_UICOM.makeSelectBox({ 
 					 defaultItem 	: ["", "전체"]
 					,data 			: exPreContract

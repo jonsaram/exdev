@@ -140,6 +140,17 @@ var <@popupId> = {
 		}
 		
 	}
+	,calOrgSellingPrice : () => {
+		
+		const supplytax				= <@popupId>.supply_tax_cal($('#<@popupId>_resultInfo #INCOME').nval());
+        const incomeMinusCostPrice	= Number($('#<@popupId>_supplyCost').nval()) - <@popupId>.sumSupplyCostPrice();
+		$('#<@popupId>_real_supplyCost'	).html( addComma(supplytax.supplyCost			));
+		$('#<@popupId>_real_sumSupplCost').html(addComma(<@popupId>.sumSupplyCostPrice()));
+		$('#<@popupId>_real_sellingPrice').html(addComma(incomeMinusCostPrice			));
+		
+		return incomeMinusCostPrice;
+		
+	}
 	,setCostList : () => {
 		
 		var parm = {
@@ -155,6 +166,9 @@ var <@popupId> = {
 			}
 		
 			C_COM.renderHtml("<@popupId>", rparm);
+			
+			//비용산출이 끝난 후에 순매출 다시 계산.
+			<@popupId>.calOrgSellingPrice();		
 			
 		});
 		
@@ -194,8 +208,24 @@ var <@popupId> = {
 				let rateSum=0; 
 				let paymentSum=0;
 				let rowCnt = $paymentListTR.length;
+				const $rateColumns	= $("#<@popupId>_paymentList tr td[id='RATE']");
+				const $executeItem 	= $rateColumns.filter(function() {
+				    return $(this).siblings("#RELATION_TYPE").attr('value') == "EXECUTE";
+				})
 				
-				$.each( $paymentListTR.children("td[id='RATE'	]"), (idx, rate		)=> rateSum 	+= Number( $(rate	).attr('value') ));	
+				$.each( $paymentListTR.children("td[id='RATE'	]"), (idx, rate		)=> {
+
+					if( $(rate).parent().find("#RELATION_TYPE").attr("value") == "COWORK" ){
+								
+						const executeRate		= Number($executeItem.attr("value"));
+						rateSum 	+= Number( $(rate	).attr('value') ) * Number(executeRate) / 100
+							
+					}else{
+						
+						rateSum 	+= Number( $(rate	).attr('value') )
+					}
+					
+				});	
 				$.each( $paymentListTR.children("td[id='PAYMENT']"), (idx, payment	)=> paymentSum 	+= Number( $(payment).attr('value') ));
 				
 				<@popupId>.setPaymentTotalRow(rateSum, paymentSum);
@@ -253,15 +283,15 @@ var <@popupId> = {
 			const relationType = $(tr+" td[id='RELATION_TYPE']").attr("value");
 			
 			if( relationType != "COWORK" && relationType != "SUGGESTER"){
-				//EXEC나 SALES 인 경우에 수수료율을 넣는다.	
+				//EXEC나 SALES 인 경우 수수료율	
 				$(tr+" td[id='RATE']").attr("value",rate).html(rate+" %");
 				
 			}else{
 				// COWORK이나 SUGGESTER인 경우 input에 수수료율을 넣는다.
 				$(tr+" td[id='RATE'][name='coworkRate']")?.attr("value","");
 				if( relationType == "SUGGESTER"){
-					$(tr+" td[id='RATE']").children("[name='suggesterRate']")?.attr("value",rate).html(rate+" %");
-					$(tr+" td[id='RATE']").children("[name='suggesterRate']").parent().attr("value",rate);
+					$(tr+" td[id='RATE']").find("[name='suggesterRate']")?.attr("value",rate).html(rate+" %");
+					$(tr+" td[id='RATE']").find("[name='suggesterRate']").parent().attr("value",rate);
 				}
 			}
 			
@@ -275,13 +305,13 @@ var <@popupId> = {
 		
 	}
 	,setPaymentTotalRow : (rateSum, paymentSum) => {
-		
+
 		const rs			= Number(rateSum).toFixed(2);
-		const RATE_SUM 		= rs.endsWith('.00') ? rs.slice(0, -3) : rs;
+		const RATE_SUM 		= Number(rs.endsWith('.00') ? rs.slice(0, -3) : rs);
 		const ps			= Number(paymentSum).toFixed(2)
-		const PAYMENT_SUM	= ps.endsWith('.00') ? ps.slice(0, -3) : ps;
-		const sumTemplate 	= $("#<@popupId>_paymentList_sum_template").render({"RATE_SUM" : RATE_SUM, "PAYMENT_SUM" :  PAYMENT_SUM });
-		$("#<@popupId>_paymentList").append(sumTemplate);
+		const PAYMENT_SUM	= Number(ps.endsWith('.00') ? ps.slice(0, -3) : ps);
+		$("#<@popupId>_RATE_SUM").text(addComma(RATE_SUM)+"%")
+		$("#<@popupId>_PAYMENT_SUM").text(addComma(PAYMENT_SUM));
 		
 	}
 	,calcPayment : (val) => {
@@ -303,20 +333,22 @@ var <@popupId> = {
 				
 				let payment = 0;
 
-				const executePayment = $executeItem.siblings("#PAYMENT").attr("value");
+				const executeRate		= Number($executeItem.attr("value"));
+				const executePayment	= Number($executeItem.siblings("#PAYMENT"	).attr("value"));
+				const relationType		= $(obj).siblings("#RELATION_TYPE"	).attr("value");
 				
-				if( $(obj).siblings("#RELATION_TYPE").attr("value") == "COWORK" && executePayment ){
-					
-					rateSum += rateVal;
-					payment = (executePayment * rateVal ) / 100; 
+				if( relationType == "COWORK"){
+
+					rateSum += 	Number((executeRate * rateVal ) / 100);
+					payment = 	Number((executePayment * rateVal ) / 100).toFixed(2); 
 					
 				}else{
-					
-					rateSum += rateVal;
-					payment = Number((rateVal  * SUPPLY_COST ) / 100).toFixed(2); 
-					payment = payment.endsWith('.00') ? payment.slice(0, -3) : payment;
+
+					rateSum +=	rateVal;
+					payment =	Number((rateVal  * SUPPLY_COST ) / 100).toFixed(2); 
 				}
 				
+				payment = Number(payment.endsWith('.00') ? payment.slice(0, -3) : payment);
 				$(obj).siblings("#PAYMENT").attr("value",payment).html( addComma(payment) );
 				paymentSum +=payment;
 				
@@ -324,13 +356,7 @@ var <@popupId> = {
 			
 		});
 		
-		let rs			= Number(rateSum).toFixed(2);
-		const RATE_SUM	= rs.endsWith('.00') ? rs.slice(0, -3) : rs;
-		const ps			= Number(paymentSum).toFixed(2)
-		const PAYMENT_SUM	= ps.endsWith('.00') ? ps.slice(0, -3) : ps;
-
-		$("#<@popupId>_paymentList #<@popupId>_RATE_SUM").text(RATE_SUM+" %");	
-		$("#<@popupId>_paymentList #<@popupId>_PAYMENT_SUM").text( addComma(PAYMENT_SUM));	
+		<@popupId>.setPaymentTotalRow(rateSum, paymentSum);
 
 	}
 	,deleteItem : (delKey,idx) => {
@@ -393,8 +419,8 @@ var <@popupId> = {
 	        const val 			= $(this).nval();
 			const supplytax		= <@popupId>.supply_tax_cal(val);
 			
-			$('#<@popupId>_supplyCost'	).val( supplytax.supplyCost	).html( addComma(supplytax.supplyCost	));
-			$('#<@popupId>_tax'			).val( supplytax.tax		).html( addComma(supplytax.tax			));
+			$('#<@popupId>_supplyCost'		).val( supplytax.supplyCost	).html( addComma(supplytax.supplyCost	));
+			$('#<@popupId>_tax'				).val( supplytax.tax		).html( addComma(supplytax.tax			));
 			
 	        const remainingSum = $("#REMAINING_SUM").text().replace(/,/g, '');
 	        if( Number(remainingSum) - Number(supplytax.supplyCost)  < 0  ){
@@ -402,10 +428,11 @@ var <@popupId> = {
 	        	C_POP.alert("입금액이 잔금보다 큽니다."); 
 	        	$(this).val("0");
 	        	$('#<@popupId>_supplyCost , #<@popupId>_tax'	).val( "0"	).html("");
+	        	$('#<@popupId>_real_supplyCost , #<@popupId>_real_sumCost ,  #<@popupId>_real_supptax'	).html("");
 	        	return;
 	        }
-
-	        const incomeMinusCostPrice = Number(supplytax.supplyCost) - <@popupId>.sumSupplyCostPrice();
+	        
+			const incomeMinusCostPrice = <@popupId>.calOrgSellingPrice();
 			<@popupId>.calcPayment(incomeMinusCostPrice);
 	        
 			$(this).val( addComma(val));
@@ -427,10 +454,11 @@ var <@popupId> = {
 			$(this).attr("value",val).val( addComma(val) );
 			$(this).parent("td").attr("value",val);
 
-			const incomeMinusCostPrice = $('#<@popupId>_supplyCost').nval() - <@popupId>.sumSupplyCostPrice();
+			const incomeMinusCostPrice = <@popupId>.calOrgSellingPrice();
 			<@popupId>.calcPayment(incomeMinusCostPrice);
 			
 		})
+		
 	}
  	, canAdd : () => {
 		
@@ -466,7 +494,7 @@ var <@popupId> = {
   	 	$("#<@popupId> .tit").html( title );
 		
 	}
-	,inputBoxRateVal : (obj) =>{
+	,changeRateVal : (obj) =>{
 
         const val = Number($(obj).nval());
         if (isNaN(val)) {
@@ -487,6 +515,7 @@ var <@popupId> = {
         
         const incomeMinusCostPrice = Number(SUPPLY_COST) - <@popupId>.sumSupplyCostPrice();
     	<@popupId>.calcPayment(incomeMinusCostPrice);
+    	
 	}
 	,sumSupplyCostPrice : () => {
 		
@@ -497,14 +526,14 @@ var <@popupId> = {
 			$.each( $("#<@popupId>_costList tr") , function(idx,row) {
 				if( $(row).is(":visible") ) {
 					
-					const COST_PRICE	= $(row).children("td[id='COST_PRICE']").attr("value");
+					const COST_PRICE	= $(row).find("td[id='COST_PRICE']").attr("value");
 					if( Number(COST_PRICE) ){
 						const supplytax 	= <@popupId>.supply_tax_cal( Number(COST_PRICE) ) ;
-						const nsupplyCost 	= $(row).children("td[id='COST_SUPP_PRICE']").val(	supplytax.supplyCost	).nval();
-						const ntax			= $(row).children("td[id='COST_TAX_PRICE']"	).val(	supplytax.tax			).nval();
+						const nsupplyCost 	= $(row).find("td[id='COST_SUPP_PRICE']").val(	supplytax.supplyCost	).nval();
+						const ntax			= $(row).find("td[id='COST_TAX_PRICE']"	).val(	supplytax.tax			).nval();
 						
-						$(row).children("td[id='COST_SUPP_PRICE']"	).attr("value", nsupplyCost	).text(addComma(supplytax.supplyCost) ); 
-						$(row).children("td[id='COST_TAX_PRICE']"	).attr("value",ntax			).text(addComma(supplytax.tax));
+						$(row).find("td[id='COST_SUPP_PRICE']"	).attr("value",nsupplyCost	).text(addComma(supplytax.supplyCost) ); 
+						$(row).find("td[id='COST_TAX_PRICE']"	).attr("value",ntax			).text(addComma(supplytax.tax));
 						
 						sum += Number(	nsupplyCost );
 					}
@@ -514,6 +543,7 @@ var <@popupId> = {
 		} 
 
 		return sum;
+		
 	}
 	, supply_tax_cal : (val) => {
 		
@@ -523,6 +553,7 @@ var <@popupId> = {
 		const tax			= tx.endsWith('.00') ? tx.slice(0, -3) : tx;
 		
 		return { supplyCost : supplyCost , tax : tax };
+		
 	}
 
 }
@@ -543,35 +574,40 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 </script>
 <!-- 실적 등록 팝업 -->
 <div class="modal_wrap" id="<@popupId>_items">
-		<div class="modal" style="width:770px;height:860px;">
-			<div class="modal_header">
-				<strong class="tit">실적 등록/실적 정보 수정</strong>
-				<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+	<div class="modal" style="width:770px;height:860px;">
+		<div class="modal_header">
+			<strong class="tit">실적 등록/실적 정보 수정</strong>
+			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<h4><i class="icon_bullet"></i>계약 정보</h4>
+			<div class="tbl01 row" id="<@popupId>_contractInfo">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:100px;">
+						<col>
+						<col style="width:100px;">
+						<col>
+					</colgroup>
+					<tbody">
+						<tr>
+							<th scope="row">총계약금액</th>
+							<td id="TOTAL_COST"></td>
+							<th scope="row">잔금</th>
+							<td id="REMAINING_SUM"></td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
-			<div class="modal_body">
-				<h4><i class="icon_bullet"></i>계약 정보</h4>
-				<div class="tbl01 row" id="<@popupId>_contractInfo">
-					<table>
-						<caption>표 캡션</caption>
-						<colgroup>
-							<col style="width:100px;">
-							<col>
-							<col style="width:100px;">
-							<col>
-						</colgroup>
-						<tbody">
-							<tr>
-								<th scope="row">총계약금액</th>
-								<td id="TOTAL_COST"></td>
-								<th scope="row">잔금</th>
-								<td id="REMAINING_SUM"></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
 
-				<h4 class="mt20"><i class="icon_bullet"></i>입금 정보</h4>
-				<ul class="info_wrap col2"  id="<@popupId>_resultInfo">
+			<h4 class="mt20"><i class="icon_bullet"></i>입금 정보</h4>
+			<style type="text/css">
+				.info_wrap.col2 > li > label{width:80px}
+				.info_wrap.col2 > li .info{width:calc(100% - 80px);}
+			</style>
+			<div id="<@popupId>_resultInfo">
+				<ul class="info_wrap col2" >
 					<li>
 						<label>입금일</label>
 						<div class="info">
@@ -581,150 +617,162 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</div>
 					</li>
 					<li>
-						<label>입금액</label>
-						<div class="info">
-							<input type="text" id="INCOME" name="INCOME" style="width:100%" number>
-						</div>
-					</li>
-					<li>
 						<label>입금 TYPE</label>
 						<div class="info">
 							<div id="<@popupId>_selectIncomeType" style="width:189px"></div>
 						</div>
-						<label>공급가</label>
-						<div class="info">
-							<div id="<@popupId>_supplyCost" style="width:189px" disabled></div>
-						</div>
-						<label>부가세</label>
-						<div class="info">
-							<div id="<@popupId>_tax" style="width:189px" disabled></div>
-						</div>
 					</li>
 				</ul>
-				
-				<div class="search_area mt20">
-					<h4 class="mt15" style="display: inline-block;"><i class="icon_bullet"></i>비용 산출</h4>
-					<div class="fr" style="padding-top: 10px;">
-						<a href="javascript:void(0)" id="<@popupId>_addCost" class="btn fl">추가</a>
-					</div>
-				</div>
+				<h4 class="mt15"><i class="icon_bullet"></i>입금액 정보</h4>
 				<!-- 테이블 -->
-				<div class="tbl01 col" style="padding-right:8px;">
+				<div class="tbl01 col noScroll">
 					<table>
 						<caption>표 캡션</caption>
 						<colgroup>
-							<col style="width:12%;"/>
-							<col style="width:12%;"/>
-							<col style="width:18%;"/>
-							<col style="width:18%;"/>
-							<col style="width:18%;"/>
-							<col style="width:8%;"/>
+							<col style="width:34%;"/>
+							<col style="width:35%;"/>
+							<col style="width:31%;"/>
 						</colgroup>
 						<thead>
 							<tr>
-								<th scope="col">비용이름</th>
-								<th scope="col">비용설명</th>
-								<th scope="col">비용</th>
-								<th scope="col">공급가</th>
-								<th scope="col">TAX</th>
-								<th scope="col"><i class="icon_trash"></i></th>
+								<th scope="col">입금액</th>
+								<th scope="col">공급액</th>
+								<th scope="col">부가세</th>
 							</tr>
 						</thead>
-					</table>
-				</div>
-				<div class="tbl01 col" style="min-height:120px;max-height:120px;overflow-y: auto;">
-					<table>
-						<caption>표 캡션</caption>
-						<colgroup>
-							<col style="width:12%;"/>
-							<col style="width:12%;"/>
-							<col style="width:18%;"/>
-							<col style="width:18%;"/>
-							<col style="width:18%;"/>
-							<col style="width:8%;"/>
-						</colgroup>
-						<tbody  id="<@popupId>_costList">
+						<tbody>
+							<tr>
+								<td class='tr'><input type="text" id="INCOME" name="INCOME" style="width:100%" number></td>
+								<td class='tr'><div id="<@popupId>_supplyCost" style="width:189px" disabled></div></td>
+								<td class='tr'><div id="<@popupId>_tax" style="width:189px" disabled></td>
+							</tr>
 						</tbody>
-						<script type="text/x-jsrender" id="<@popupId>_costList_template">						
-							{{for list}}
-							<tr name="<@popupId>_tr_{{:#index}}">
-			 					<td id='COST_NM'		 class="tl"	 value='{{:COST_NM}}'			><input type='text' style="width:100%" value="{{:COST_NM}}"/></td>
-								<td id='COST_DESC'		 class="tl"	 value='{{:COST_DESC}}'			><input type='text' style="width:100%" value="{{:COST_DESC}}"/></td>
-								<td id='COST_PRICE'		 class="tr"	 value='{{:COST_PRICE}}'		><input type='text' style="width:100%;text-align: right;" value="{{numb:COST_PRICE}}"  number/></td>
-								<td id='COST_SUPP_PRICE' class="tr"	 value='{{:COST_SUPP_PRICE}}'	>{{numb:COST_SUPP_PRICE}}</td>
-								<td id='COST_TAX_PRICE'	 class="tr"	 value='{{:COST_TAX_PRICE}}'	>{{numb:COST_TAX_PRICE}}</td>
-								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'	style='display:none'></td>
-								<td id='RESULT_ID'			value='{{:RESULT_ID}}'		style='display:none'></td>
-								<td id='COST_ID'			 value='{{:COST_ID}}' style='display:none'></td>				
-								<td><button onclick="javascript:<@popupId>.deleteCostItem('{{:COST_ID}}','{{:#index}}',this);">
-									<i class="icon_trash"></i></button>
-								</td>
-							</tr>
-							{{/for}}
-							
-						</script>
-						<script type="text/x-jsrender" id="<@popupId>_costList_noData_template">	
-							<tr name="<@popupId>_tr_-1">	
-								<td colspan=6>자료가 없습니다.</td>	
-							</tr>
-						</script>
-						<script type="text/x-jsrender" id="<@popupId>_costList_add_template">	
-							<tr name="<@popupId>_tr_{{:cnt}}" value=''>
-								<td id='COST_NM'		 class="tl" value=''><input type='text' style="width:100%"/></td>
-								<td id='COST_DESC'		 class="tl" value=''><input type='text' style="width:100%"/></td>
-								<td id='COST_PRICE'  	 class="tr"><input type='text' style="width:100%;text-align: right;"  number/></td>
-								<td id='COST_SUPP_PRICE' class="tr"></td>
-								<td id='COST_TAX_PRICE'  class="tr"></td>
-								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'	style='display:none'></td>
-								<td id='RESULT_ID'			value='{{:RESULT_ID}}'		style='display:none'></td>
-								<td id='COST_ID'			value='{{:COST_ID}}' 		style='display:none'></td>								
-								<td><button onclick="javascript:<@popupId>.deleteCostItem('{{:COST_ID}}','{{:#index}}',this);">
-									<i class="icon_trash"></i></button>
-								</td>
-							</tr>
-						</script>
 					</table>
 				</div>
+			</div>	
+			<div class="search_area">
+				<span class="tit02"><i class="icon_bullet"></i>비용 산출</span>
+				<div class="search_right">
+					<a class="btn small fr" href="javascript:void(0)" id="<@popupId>_addCost" >추가</a>
+				</div>
+			</div>
+			<!-- 테이블 -->
+			<div class="tbl01 col tbl_scroll" style="height:121px">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:16%;"/>
+						<col style="width:20%;"/>
+						<col style="width:16%;"/>
+						<col style="width:16%;"/>
+						<col style="width:16%;"/>
+						<col style="width:16%;"/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">비용이름</th>
+							<th scope="col">비용설명</th>
+							<th scope="col">비용금액</th>
+							<th scope="col">공급액</th>
+							<th scope="col">부가세</th>
+							<th scope="col"><button><i class="icon_trash"></i></button></th>
+						</tr>
+					</thead>
+				<tbody  id="<@popupId>_costList">
+				</tbody>
+				<script type="text/x-jsrender" id="<@popupId>_costList_template">						
+					{{for list}}
+						<tr name="<@popupId>_tr_{{:#index}}">
+							<td id='COST_NM'		 class="tl"	 value='{{:COST_NM}}'			><input type='text' style="width:100%" value="{{:COST_NM}}"/></td>
+							<td id='COST_DESC'		 class="tl"	 value='{{:COST_DESC}}'			><input type='text' style="width:100%" value="{{:COST_DESC}}"/></td>
+							<td id='COST_PRICE'		 class="tr"	 value='{{:COST_PRICE}}'		><input type='text' style="width:100%;text-align: right;" value="{{numb:COST_PRICE}}"  number/></td>
+							<td id='COST_SUPP_PRICE' class="tr"	 value='{{:COST_SUPP_PRICE}}'	>{{numb:COST_SUPP_PRICE}}</td>
+							<td id='COST_TAX_PRICE'	 class="tr"	 value='{{:COST_TAX_PRICE}}'	>{{numb:COST_TAX_PRICE}}</td>
+							<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'	style='display:none'></td>
+							<td id='RESULT_ID'			value='{{:RESULT_ID}}'		style='display:none'></td>
+							<td id='COST_ID'			 value='{{:COST_ID}}' style='display:none'></td>				
+							<td><button onclick="javascript:<@popupId>.deleteCostItem('{{:COST_ID}}','{{:#index}}',this);">
+								<i class="icon_trash"></i></button>
+							</td>
+						</tr>
+					{{/for}}
+				</script>
+				<script type="text/x-jsrender" id="<@popupId>_costList_noData_template">	
+					<tr name="<@popupId>_tr_-1">	
+						<td colspan=6>자료가 없습니다.</td>	
+					</tr>
+				</script>
+				<script type="text/x-jsrender" id="<@popupId>_costList_add_template">	
+					<tr name="<@popupId>_tr_{{:cnt}}" value=''>
+						<td id='COST_NM'		 class="tl" value=''><input type='text' style="width:100%"/></td>
+						<td id='COST_DESC'		 class="tl" value=''><input type='text' style="width:100%"/></td>
+						<td id='COST_PRICE'  	 class="tr"><input type='text' style="width:100%;text-align: right;"  number/></td>
+						<td id='COST_SUPP_PRICE' class="tr"></td>
+						<td id='COST_TAX_PRICE'  class="tr"></td>
+						<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'	style='display:none'></td>
+						<td id='RESULT_ID'			value='{{:RESULT_ID}}'		style='display:none'></td>
+						<td id='COST_ID'			value='{{:COST_ID}}' 		style='display:none'></td>								
+						<td><button onclick="javascript:<@popupId>.deleteCostItem('{{:COST_ID}}','{{:#index}}',this);">
+							<i class="icon_trash"></i></button>
+						</td>
+					</tr>
+				</script>
+				</table>
+			</div>
 
-				<h4 class="mt15"><i class="icon_bullet"></i>수수료 산출</h4>
-				<!-- 테이블 -->
-				<div class="tbl01 col" style="padding-right:8px;">
-					<table>
-						<caption>표 캡션</caption>
-						<colgroup>
-							<col style="width:17%;"/>
-							<col style="width:19%;"/>
-							<col style="width:17%;"/>
-							<col style="width:17%;"/>
-							<col style="width:20%;"/>
-							<col style="width:30%;"/>
-						</colgroup>
-						<thead>
-							<tr>
-								<th scope="col">사원ID</th>
-								<th scope="col">사원이름</th>
-								<th scope="col">등급/직위</th>
-								<th scope="col">역할</th>
-								<th scope="col">수수료율(%)</th>
-								<th scope="col" class="tr">수수료(원)</th>
-							</tr>
-						</thead>
-					</table>
-				</div>
-				<div class="tbl01 col" style="max-height:190px;overflow:auto;">
-					<table>
-						<caption>표 캡션</caption>
-						<colgroup>
-							<col style="width:17%;"/>
-							<col style="width:21%;"/>
-							<col style="width:17%;"/>
-							<col style="width:15%;"/>
-							<col style="width:20%;"/>
-							<col style="width:30%;"/>
-						</colgroup>
-						<tbody  id="<@popupId>_paymentList">
-						</tbody>
-						<script type="text/x-jsrender" id="<@popupId>_paymentList_template">						
+			<h4 class="mt15"><i class="icon_bullet"></i>순매출</h4>
+			<!-- 테이블 -->
+			<div class="tbl01 col noScroll">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:34%;"/>
+						<col style="width:35%;"/>
+						<col style="width:31%;"/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">입금액 정보의 공급액①</th>
+							<th scope="col">비용 산출의 공급액 합계②</th>
+							<th scope="col">순매출 ① - ②</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><div id="<@popupId>_real_supplyCost" 	style="width:189px" disabled></td>
+							<td><div id="<@popupId>_real_sumSupplCost" 	style="width:189px" disabled></td>
+							<td><div id="<@popupId>_real_sellingPrice" 	style="width:189px" disabled></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<h4 class="mt15"><i class="icon_bullet"></i>수수료 산출</h4>
+			<!-- 테이블 -->
+			<div class="tbl01 col tbl_scroll mb15" style="height:254px">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:17%;"/>
+						<col style="width:19%;"/>
+						<col style="width:17%;"/>
+						<col style="width:17%;"/>
+						<col style="width:20%;"/>
+						<col style="width:30%;"/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">사원ID</th>
+							<th scope="col">사원이름</th>
+							<th scope="col">등급/직위</th>
+							<th scope="col">역할</th>
+							<th scope="col">수수료율(%)</th>
+							<th scope="col" class="tr">수수료(원)</th>
+						</tr>
+					</thead>
+					<tbody  id="<@popupId>_paymentList">
+					</tbody>
+					<script type="text/x-jsrender" id="<@popupId>_paymentList_template">						
 						{{for list}}
 							<tr name="<@popupId>_tr_{{:#index}}"                          	value='{{:USER_ID}}'>
 			 					<td id='USER_ID'			value='{{:USER_ID}}' class="tl"	>{{:USER_ID}}</td>
@@ -733,9 +781,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<td id='RELATION_TYPE_NM'	value='{{:RELATION_TYPE_NM}}'	class='tl'>{{:RELATION_TYPE_NM}}</td>
 								<td id='RATE'				value='{{:RATE}}' 				class='tr'>
     							{{if RELATION_TYPE == 'COWORK'}}
-        							<input name='coworkRate' 	type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.inputBoxRateVal(this)' />%
+        							<input name='coworkRate' 	type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
     							{{else RELATION_TYPE == 'SUGGESTER'}} 
-        							<input name='suggesterRate' type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.inputBoxRateVal(this)' />%
+        							<input name='suggesterRate' type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
 								{{else}}
         							{{:RATE}} %
 							    {{/if}}
@@ -749,25 +797,25 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<td id='EXEC_TYPE'			value='{{:EXEC_TYPE}}'			style='display:none'>{{:EXEC_TYPE}}</td>
 							</tr>
 						{{/for}}
-						</script>
-						<script type="text/x-jsrender" id="<@popupId>_paymentList_noData_template">	
-							<tr>	
-								<td colspan=13>자료가 없습니다.</td>	
-							</tr>
-						</script>
-						<script type="text/x-jsrender" id="<@popupId>_paymentList_sum_template">	
-							<tr id="<@popupId>_totalRow">
-								<td colspan="4">계</td>
-								<td id='<@popupId>_RATE_SUM'	class="tr"	>{{numb:RATE_SUM}} %</td>
-								<td id='<@popupId>_PAYMENT_SUM' class="tr"	>{{numb:PAYMENT_SUM}}</td>
-							</tr>
-						</script>						
-					</table>
-				</div>
-			</div>
-			<div class="modal_footer">
-				<button type="button" class="btn select close" 	id="<@popupId>_apply" onclick="<@popupId>.apply()" >저장</button>
-				<button type="button" class="btn close"			id="<@popupId>_close" onclick="<@popupId>.close()" >닫기</button>
+					</script>
+					<script type="text/x-jsrender" id="<@popupId>_paymentList_noData_template">	
+						<tr>	
+							<td colspan=13>자료가 없습니다.</td>	
+						</tr>
+					</script>
+					<tfoot>
+						<tr id="<@popupId>_totalRow">
+							<td colspan="4">계</td>
+							<td id='<@popupId>_RATE_SUM'	class="tr"	></td>
+							<td id='<@popupId>_PAYMENT_SUM' class="tr"	></td>
+						</tr>
+					</tfoot>
+				</table>
 			</div>
 		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select close" 	id="<@popupId>_apply" onclick="<@popupId>.apply()" >저장</button>
+			<button type="button" class="btn close"			id="<@popupId>_close" onclick="<@popupId>.close()" >닫기</button>
+		</div>
+	</div>
 </div>
