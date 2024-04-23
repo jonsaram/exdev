@@ -836,75 +836,423 @@
     
     <select id="getPreMonthAchieveRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getPreMonthAchieveRatio */
-        SELECT A.SP_CSTM_ID
-              ,A.YEAR
-              ,A.MONTH
-              ,A.PRE_MONTH
-              ,SUM(AMOUNT)     AS AMOUNT
-              ,SUM(PRE_AMOUNT) AS PRE_AMOUNT
-              ,ROUND((SUM(AMOUNT)/SUM(PRE_AMOUNT)) * 100,2) AS PRE_MONTH_ACHIEVE_RATIO
+        SELECT  SP_CSTM_ID
+               ,PRE_MONTH_ACHIEVE_RATIO
         FROM   (
-            SELECT B.SP_CSTM_ID
-                  ,B.STORE_ID
-                  ,A.STORE_NM3
-                  ,B.YEAR
-                  ,'02'     AS MONTH
-                  ,B.MONTH  AS PRE_MONTH
-                  ,0        AS AMOUNT
-                  ,B.AMOUNT AS PRE_AMOUNT
-            FROM   TBL_EXP_STORE_INFO A
-                   JOIN TBL_EXP_STORE_FINANCIAL B
-                     ON  1 = 1
-                     AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                     AND A.STORE_ID   = B.STORE_ID
-                     AND B.AMOUNT     IS NOT NULL
-                     AND B.YEAR       = #{prevYear}
-                     AND B.MONTH      = #{prevMonth}
-                     AND B.SUBJECT = 'SUBJECT_001'
-            WHERE  1 = 1
-            AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-            <if test=" !'ALL'.equals(region) ">
-                AND    A.REGION =  #{region} 
-            </if>
-            <if test=" !'ALL'.equals(store) ">
-                AND    STORE_ID = #{store} 
-            </if>
-            <if test=" !'ALL'.equals(supervisor) ">
-                AND    A.SUPERVISOR = #{supervisor} 
-            </if>
-            UNION ALL
-            SELECT B.SP_CSTM_ID
-                  ,B.STORE_ID
-                  ,A.STORE_NM3
-                  ,B.YEAR
-                  ,B.MONTH AS MONTH
-                  ,'01'    AS PRE_MONTH
-                  ,B.AMOUNT AS AMOUNT
-                  ,0        AS PRE_AMOUNT
-            FROM   TBL_EXP_STORE_INFO A
-                   JOIN TBL_EXP_STORE_FINANCIAL B
-                     ON  1 = 1
-                     AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                     AND A.STORE_ID   = B.STORE_ID
-                     AND B.AMOUNT     IS NOT NULL
-                     AND B.YEAR       = #{year} 
-                     AND B.MONTH      = #{month} 
-                     AND B.SUBJECT = 'SUBJECT_001'
-            WHERE  1 = 1
-            AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-            <if test=" !'ALL'.equals(region) ">
-                AND    A.REGION =  #{region} 
-            </if>
-            <if test=" !'ALL'.equals(store) ">
-                AND    STORE_ID = #{store} 
-            </if>
-            <if test=" !'ALL'.equals(supervisor) ">
-                AND    A.SUPERVISOR = #{supervisor} 
-            </if>
-            ) A
-        GROUP BY  A.SP_CSTM_ID
-                 ,A.YEAR
-                 ,A.MONTH
-                 ,A.PRE_MONTH  
+                    SELECT A.SP_CSTM_ID
+                          ,CASE WHEN SUM(A.PRE_AMOUNT) !=  0 THEN ROUND( (SUM(A.AMOUNT)/SUM(A.PRE_AMOUNT)) * 100 ,2)
+                                ELSE 0
+                           END AS PRE_MONTH_ACHIEVE_RATIO
+                    FROM   (
+                                /* 당월 */
+                                SELECT B.SP_CSTM_ID
+                                      ,B.STORE_ID
+                                      ,A.STORE_NM3
+                                      ,B.AMOUNT AS AMOUNT
+                                      ,0        AS PRE_AMOUNT
+                                FROM   TBL_EXP_STORE_INFO A
+                                       JOIN TBL_EXP_STORE_FINANCIAL B
+                                         ON  1 = 1
+                                         AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                         AND A.STORE_ID   = B.STORE_ID
+                                         AND B.AMOUNT     IS NOT NULL
+                                         AND B.YEAR       = #{year}
+                                         AND B.MONTH      = #{month} 
+                                         AND B.SUBJECT = 'SUBJECT_001'
+                                WHERE  1 = 1
+                                AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                                <if test=" !'ALL'.equals(region) ">
+                                    AND    A.REGION =  #{region} 
+                                </if>
+                                <if test=" !'ALL'.equals(store) ">
+                                    AND    A.STORE_ID = #{store} 
+                                </if>
+                                <if test=" !'ALL'.equals(supervisor) ">
+                                    AND    A.SUPERVISOR = #{supervisor} 
+                                </if> 
+                                UNION ALL
+                                /* 전월 */
+                                SELECT B.SP_CSTM_ID
+                                      ,B.STORE_ID
+                                      ,A.STORE_NM3
+                                      ,0        AS AMOUNT
+                                      ,B.AMOUNT AS PRE_AMOUNT
+                                FROM   TBL_EXP_STORE_INFO A
+                                       JOIN TBL_EXP_STORE_FINANCIAL B
+                                         ON  1 = 1
+                                         AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                         AND A.STORE_ID   = B.STORE_ID
+                                         AND B.AMOUNT     IS NOT NULL
+                                         AND B.YEAR       = #{prevYear}
+                                         AND B.MONTH      = #{prevMonth}
+                                         AND B.SUBJECT = 'SUBJECT_001'
+                                WHERE  1 = 1
+                                
+                                AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                                <if test=" !'ALL'.equals(region) ">
+                                    AND    A.REGION =  #{region} 
+                                </if>
+                                <if test=" !'ALL'.equals(store) ">
+                                    AND    A.STORE_ID = #{store} 
+                                </if>
+                                <if test=" !'ALL'.equals(supervisor) ">
+                                    AND    A.SUPERVISOR = #{supervisor} 
+                                </if> 
+                                ) A
+                    GROUP BY  A.SP_CSTM_ID
+               ) A
     </select> 
+
+    
+    <select id="getPreMonthAchieveRatioRank" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getPreMonthAchieveRatioRank */
+        SELECT A.STORE_ID
+              ,A.STORE_NM3
+              ,A.YEAR       
+              ,A.MONTH
+              ,A.PRE_MONTH_ACHIEV_RATIO
+        FROM   (
+                SELECT A.STORE_ID
+                      ,A.STORE_NM3
+                      ,A.YEAR       
+                      ,A.MONTH
+                      ,SUM(A.AMOUNT)     AS AMOUNT
+                      ,SUM(A.PRE_AMOUNT) AS PRE_AMOUNT
+                      ,CASE WHEN SUM(A.PRE_AMOUNT) !=  0 THEN ROUND( (SUM(A.AMOUNT)/SUM(A.PRE_AMOUNT)) * 100 ,2)
+                            ELSE 0
+                       END AS PRE_MONTH_ACHIEV_RATIO
+                FROM   (
+                /* 당월 */
+                SELECT A.STORE_ID
+                      ,A.STORE_NM3
+                      ,B.YEAR       
+                      ,B.MONTH
+                      ,SUM(B.AMOUNT) AS AMOUNT
+                      ,0             AS PRE_AMOUNT
+                FROM   TBL_EXP_STORE_INFO A
+                       JOIN TBL_EXP_STORE_FINANCIAL B
+                         ON  1 = 1
+                         AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                         AND A.STORE_ID   = B.STORE_ID
+                         AND B.YEAR       = #{year} 
+                         AND B.MONTH      = #{month}  
+                AND    SUBJECT = 'SUBJECT_001'
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+               <if test=" !'ALL'.equals(region) ">
+                   AND    A.REGION =  #{region} 
+               </if>
+               <if test=" !'ALL'.equals(store) ">
+                   AND    A.STORE_ID = #{store} 
+               </if>
+               <if test=" !'ALL'.equals(supervisor) ">
+                   AND    A.SUPERVISOR = #{supervisor} 
+               </if>
+                GROUP BY A.STORE_ID
+                        ,A.STORE_NM3
+                        ,B.YEAR
+                        ,B.MONTH
+                UNION ALL 
+                /* 전월 */
+                SELECT A.STORE_ID
+                      ,A.STORE_NM3
+                      ,B.YEAR     
+                      ,#{month}      AS MONTH
+                      ,0             AS AMOUNT
+                      ,SUM(B.AMOUNT) AS PRE_AMOUNT
+                FROM   TBL_EXP_STORE_INFO A
+                       JOIN TBL_EXP_STORE_FINANCIAL B
+                         ON  1 = 1
+                         AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                         AND A.STORE_ID   = B.STORE_ID
+                         AND B.YEAR       = #{prevYear}
+                         AND B.MONTH      = #{prevMonth}
+                AND    SUBJECT = 'SUBJECT_001'
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                <if test=" !'ALL'.equals(region) ">
+                    AND    A.REGION =  #{region} 
+                </if>
+                <if test=" !'ALL'.equals(store) ">
+                    AND    A.STORE_ID = #{store} 
+                </if>
+                <if test=" !'ALL'.equals(supervisor) ">
+                    AND    A.SUPERVISOR = #{supervisor} 
+                </if>
+                GROUP BY A.STORE_ID
+                        ,A.STORE_NM3
+                        ,B.YEAR
+                        ,B.MONTH
+                ) A
+                GROUP BY A.STORE_ID
+                        ,A.STORE_NM3
+                        ,A.YEAR
+                        ,A.MONTH      
+        ) A
+        ORDER BY A.PRE_MONTH_ACHIEV_RATIO DESC
+    </select> 
+    
+    <select id="getPreMonthTbRotationRatioRank" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+    /* dashboardCorPerformance.getPreMonthTbRotationRatioRank */
+    SELECT SP_CSTM_ID
+          ,STORE_ID
+          ,STORE_NM3
+          ,TB_ROTATION_RATIO
+    FROM   (
+        SELECT SP_CSTM_ID
+              ,STORE_ID
+              ,STORE_NM3
+              ,CASE WHEN SUM(PRE_RECEIPT_CNT) !=  0 THEN  ROUND(SUM(RECEIPT_CNT)/SUM(PRE_RECEIPT_CNT) *100,2)
+                    ELSE 0
+               END AS TB_ROTATION_RATIO
+        FROM  (
+                        /* 당월 */
+                        SELECT A.SP_CSTM_ID
+                              ,B.YEAR
+                              ,B.MONTH
+                              ,A.STORE_ID
+                              ,A.STORE_NM3 
+                              ,CASE WHEN MAX(C.DAY_CNT) !=  0 THEN ROUND((SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT) )  ,2)
+                                    ELSE 0
+                               END      AS RECEIPT_CNT
+                              ,0        AS PRE_RECEIPT_CNT
+                        FROM   TBL_EXP_STORE_INFO  A/* 매장정보 */
+                               JOIN TBL_EXP_STORE_SALES B
+                                 ON  1 = 1
+                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                 AND A.STORE_ID   = B.STORE_ID
+                                 AND B.YEAR       = #{year} 
+                                 AND B.MONTH      = #{month} 
+                               JOIN (
+                                        SELECT SP_CSTM_ID
+                                              ,STORE_ID
+                                              ,YEAR
+                                              ,MONTH
+                                              ,COUNT(1) DAY_CNT
+                                        FROM   TBL_EXP_STORE_SALES
+                                        WHERE  1 = 1
+                                        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                                        AND    YEAR       = #{year} 
+                                        AND    MONTH      = #{month} 
+                                        AND    RECEIPT_CNT IS NOT NULL
+                                        AND    RECEIPT_CNT != 0
+                                        GROUP BY SP_CSTM_ID
+                                                ,STORE_ID
+                                                ,YEAR
+                                                ,MONTH
+                                    ) C
+                                 ON  1 = 1
+                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
+                                 AND B.STORE_ID   = C.STORE_ID
+                                 AND B.YEAR       = C.YEAR
+                                 AND B.MONTH      = C.MONTH
+                        WHERE  1 = 1
+                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        <if test=" !'ALL'.equals(region) ">
+                            AND    A.REGION =  #{region} 
+                        </if>
+                        <if test=" !'ALL'.equals(store) ">
+                            AND    STORE_ID = #{store} 
+                        </if>
+                        <if test=" !'ALL'.equals(supervisor) ">
+                            AND    A.SUPERVISOR = #{supervisor} 
+                        </if>
+                        GROUP BY A.SP_CSTM_ID
+                                ,B.YEAR
+                                ,B.MONTH
+                                ,A.STORE_ID
+                                ,A.STORE_NM3
+                        UNION ALL
+                        /* 전월 */
+                        SELECT A.SP_CSTM_ID
+                              ,B.YEAR
+                              ,B.MONTH
+                              ,A.STORE_ID
+                              ,A.STORE_NM3 
+                              ,0        AS RECEIPT_CNT 
+                              ,CASE WHEN MAX(C.DAY_CNT) !=  0 THEN ROUND((SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT) )  ,2)
+                                    ELSE 0
+                               END       AS PRE_RECEIPT_CNT
+                        FROM   TBL_EXP_STORE_INFO  A/* 매장정보 */
+                               JOIN TBL_EXP_STORE_SALES B
+                                 ON  1 = 1
+                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                 AND A.STORE_ID   = B.STORE_ID
+                                 AND B.YEAR       = #{prevYear}
+                                 AND B.MONTH      = #{prevMonth}
+                               JOIN (
+                                        SELECT SP_CSTM_ID
+                                              ,STORE_ID
+                                              ,YEAR
+                                              ,MONTH
+                                              ,COUNT(1) DAY_CNT
+                                        FROM   TBL_EXP_STORE_SALES
+                                        WHERE  1 = 1
+                                        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                                        AND    YEAR       = #{prevYear}
+                                        AND    MONTH      = #{prevMonth}
+                                        AND    RECEIPT_CNT IS NOT NULL
+                                        AND    RECEIPT_CNT != 0
+                                        GROUP BY SP_CSTM_ID
+                                                ,STORE_ID
+                                                ,YEAR
+                                                ,MONTH
+                                    ) C
+                                 ON  1 = 1
+                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
+                                 AND B.STORE_ID   = C.STORE_ID
+                                 AND B.YEAR       = C.YEAR
+                                 AND B.MONTH      = C.MONTH
+                        WHERE  1 = 1
+                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        <if test=" !'ALL'.equals(region) ">
+                            AND    A.REGION =  #{region} 
+                        </if>
+                        <if test=" !'ALL'.equals(store) ">
+                            AND    STORE_ID = #{store} 
+                        </if>
+                        <if test=" !'ALL'.equals(supervisor) ">
+                            AND    A.SUPERVISOR = #{supervisor} 
+                        </if>
+                        GROUP BY A.SP_CSTM_ID
+                                ,B.YEAR
+                                ,B.MONTH
+                                ,A.STORE_ID
+                                ,A.STORE_NM3
+        )
+         GROUP BY SP_CSTM_ID
+              ,STORE_ID
+              ,STORE_NM3
+    )
+    ORDER BY TB_ROTATION_RATIO DESC
+    </select> 
+
+    <select id="getPreMonthTbRotationRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+    /* dashboardCorPerformance.getPreMonthTbRotationRatio */
+    SELECT SP_CSTM_ID
+          ,TB_ROTATION_RATIO
+    FROM   (
+        SELECT SP_CSTM_ID
+              ,CASE WHEN SUM(PRE_RECEIPT_CNT) !=  0 THEN  ROUND(SUM(RECEIPT_CNT)/SUM(PRE_RECEIPT_CNT) *100,2)
+                    ELSE 0
+               END AS TB_ROTATION_RATIO
+        FROM  (
+                        /* 당월 */
+                        SELECT A.SP_CSTM_ID
+                              ,B.YEAR
+                              ,B.MONTH
+                              ,A.STORE_ID
+                              ,A.STORE_NM3 
+                              ,CASE WHEN MAX(C.DAY_CNT) !=  0 THEN ROUND((SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT) )  ,2)
+                                    ELSE 0
+                               END      AS RECEIPT_CNT
+                              ,0        AS PRE_RECEIPT_CNT
+                        FROM   TBL_EXP_STORE_INFO  A/* 매장정보 */
+                               JOIN TBL_EXP_STORE_SALES B
+                                 ON  1 = 1
+                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                 AND A.STORE_ID   = B.STORE_ID
+                                 AND B.YEAR       = #{year} 
+                                 AND B.MONTH      = #{month} 
+                               JOIN (
+                                        SELECT SP_CSTM_ID
+                                              ,STORE_ID
+                                              ,YEAR
+                                              ,MONTH
+                                              ,COUNT(1) DAY_CNT
+                                        FROM   TBL_EXP_STORE_SALES
+                                        WHERE  1 = 1
+                                        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                                        AND    YEAR       = #{year} 
+                                        AND    MONTH      = #{month} 
+                                        AND    RECEIPT_CNT IS NOT NULL
+                                        AND    RECEIPT_CNT != 0
+                                        GROUP BY SP_CSTM_ID
+                                                ,STORE_ID
+                                                ,YEAR
+                                                ,MONTH
+                                    ) C
+                                 ON  1 = 1
+                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
+                                 AND B.STORE_ID   = C.STORE_ID
+                                 AND B.YEAR       = C.YEAR
+                                 AND B.MONTH      = C.MONTH
+                        WHERE  1 = 1
+                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        <if test=" !'ALL'.equals(region) ">
+                            AND    A.REGION =  #{region} 
+                        </if>
+                        <if test=" !'ALL'.equals(store) ">
+                            AND    STORE_ID = #{store} 
+                        </if>
+                        <if test=" !'ALL'.equals(supervisor) ">
+                            AND    A.SUPERVISOR = #{supervisor} 
+                        </if>
+                        GROUP BY A.SP_CSTM_ID
+                                ,B.YEAR
+                                ,B.MONTH
+                                ,A.STORE_ID
+                                ,A.STORE_NM3
+                        UNION ALL
+                        /* 전월 */
+                        SELECT A.SP_CSTM_ID
+                              ,B.YEAR
+                              ,B.MONTH
+                              ,A.STORE_ID
+                              ,A.STORE_NM3 
+                              ,0        AS RECEIPT_CNT 
+                              ,CASE WHEN MAX(C.DAY_CNT) !=  0 THEN ROUND((SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT) )  ,2)
+                                    ELSE 0
+                               END       AS PRE_RECEIPT_CNT
+                        FROM   TBL_EXP_STORE_INFO  A/* 매장정보 */
+                               JOIN TBL_EXP_STORE_SALES B
+                                 ON  1 = 1
+                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                 AND A.STORE_ID   = B.STORE_ID
+                                 AND B.YEAR       = #{prevYear}
+                                 AND B.MONTH      = #{prevMonth}
+                               JOIN (
+                                        SELECT SP_CSTM_ID
+                                              ,STORE_ID
+                                              ,YEAR
+                                              ,MONTH
+                                              ,COUNT(1) DAY_CNT
+                                        FROM   TBL_EXP_STORE_SALES
+                                        WHERE  1 = 1
+                                        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                                        AND    YEAR       = #{prevYear}
+                                        AND    MONTH      = #{prevMonth}
+                                        AND    RECEIPT_CNT IS NOT NULL
+                                        AND    RECEIPT_CNT != 0
+                                        GROUP BY SP_CSTM_ID
+                                                ,STORE_ID
+                                                ,YEAR
+                                                ,MONTH
+                                    ) C
+                                 ON  1 = 1
+                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
+                                 AND B.STORE_ID   = C.STORE_ID
+                                 AND B.YEAR       = C.YEAR
+                                 AND B.MONTH      = C.MONTH
+                        WHERE  1 = 1
+                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        <if test=" !'ALL'.equals(region) ">
+                            AND    A.REGION =  #{region} 
+                        </if>
+                        <if test=" !'ALL'.equals(store) ">
+                            AND    STORE_ID = #{store} 
+                        </if>
+                        <if test=" !'ALL'.equals(supervisor) ">
+                            AND    A.SUPERVISOR = #{supervisor} 
+                        </if>
+                        GROUP BY A.SP_CSTM_ID
+                                ,B.YEAR
+                                ,B.MONTH
+                                ,A.STORE_ID
+                                ,A.STORE_NM3
+        )
+         GROUP BY SP_CSTM_ID
+    )
+    </select>
+    
 </mapper>

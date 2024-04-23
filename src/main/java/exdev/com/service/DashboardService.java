@@ -31,6 +31,67 @@ public class DashboardService extends ExdevBaseService{
 	@Autowired
 	private ExdevCommonDao commonDao;
     
+	
+
+    /** 
+     * 내용        : 일별 매출 달성률(compPerformanceTab2.html)
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 04. 22 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Object salesAndGoalSales(Map map) throws Exception {
+
+        /*=====================================================*/
+        
+        String startYear = (String)map.get("startYear");
+        String startMonth = (String)map.get("startMonth");
+        String endYear = (String)map.get("endYear");
+        String endMonth = (String)map.get("endMonth");
+        
+        System.out.println("startYear["+startYear+"]   startMonth["+startMonth+"]   endYear["+endYear+"]   endMonth["+endMonth+"]   ");
+       
+        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        /*
+        for( int i =0; startDateNum < endDateNum; i++ ) {
+           
+            String addMonth  = DateUtil.AddDate(startDate, 0, i, 0);
+            startDateNum = Integer.parseInt(addMonth.replace("-", ""));
+            System.out.println("addMonth["+addMonth+"]    startDateNum["+startDateNum+"]    ");
+            System.out.println(addMonth.substring(0, 7));
+            
+            Map<String, String> searchMap = new HashMap<String, String>();
+            searchMap.put("spCstmId", spCstmId);
+            searchMap.put("seartDate", addMonth.substring(0, 7));
+            searchMap.put("region", region);
+            searchMap.put("supervisor", supervisor);
+        
+            Map<String, Object> addMap = new HashMap<String, Object>();
+            addMap.put("YYYYMM", addMonth.substring(0, 7));
+            
+            List<Map> resultList = commonDao.getList("dashboardCorPerformance.getOpenCloseCnt", searchMap);
+            for(Map resultMap : resultList) {
+                String type = (String)resultMap.get("TYPE");
+                String cnt  = String.valueOf(resultMap.get("CNT"));
+                
+                if( "OPEN".equals( type )) {
+                    addMap.put("OPEN", cnt);
+                }else if( "CLOSE".equals( type )) {
+                    addMap.put("CLOSE", cnt);
+                }else if( "ALL".equals( type )) { 
+                    addMap.put("ALL", cnt);
+                }
+            }
+            
+            list.add(addMap);
+        }
+        */
+        map.put("list", list);
+        System.out.println("DashboardService.getOpenCloseCnt 11");
+        return map;
+    }
     /** 
      * 내용        : 일정관리 수정(addSchedulePopup.html)
      *               일정관리(TBL_EXP_SCHEDULE)
