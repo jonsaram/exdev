@@ -147,9 +147,10 @@
           events: [
                   {
                     // Just an event
+                    id: 001,
                     title: 'Long Event',
-                    start: '2024-03-07',
-                    end: '2024-03-10',
+                    start: '2024-04-07',
+                    end: '2024-04-10',
                     className: 'scheduler_basic_event',
                     resourceEditable: true 
                   },
@@ -157,7 +158,7 @@
                     // Custom repeating event
                     id: 999,
                     title: 'Repeating Event',
-                    start: '2024-03-09T16:00:00',
+                    start: '2024-04-09T16:00:00',
                     className: 'scheduler_basic_event',
                     resourceEditable: true 
                   },
@@ -165,7 +166,7 @@
                     // Custom repeating event
                     id: 999,
                     title: 'Repeating Event',
-                    start: '2024-03-16T16:00:00',
+                    start: '2024-04-16T16:00:00',
                     className: 'scheduler_basic_event',
                     extendedProps: {
                         department: 'BioChemistry'
@@ -173,74 +174,42 @@
                   },
                   {
                     // Just an event
+                    id: 002,
                     title: 'Lunch',
-                    start: '2024-03-12T11:00:00',
+                    start: '2024-04-12T11:00:00',
                     className: 'scheduler_basic_event',
                     resourceEditable: true 
                   },
                   {
                     // Just an event
+                    id: 003,
                     title: 'Happy Hour',
-                    start: '2024-03-12T12:30:00',
+                    start: '2024-04-12T12:30:00',
                     className: 'scheduler_basic_event',
                     resourceEditable: true 
                   },
                   {
                     // Just an event
+                    id: 004,
                     title: 'Happy Hour',
-                    start: '2024-03-12T13:30:00',
-                    className: 'scheduler_basic_event',
-                    resourceEditable: true 
-                  },
-                  {
-                    // Just an event
-                    title: 'Happy Hour',
-                    start: '2024-03-12T14:30:00',
-                    className: 'scheduler_basic_event',
-                    resourceEditable: true 
-                  },
-                  {
-                    // Just an event
-                    title: 'Happy Hour',
-                    start: '2024-03-12T15:30:00',
-                    className: 'scheduler_basic_event',
-                    resourceEditable: true 
-                  },
-                  {
-                    // Just an event
-                    title: 'Happy Hour',
-                    start: '2024-03-12T16:30:00',
-                    className: 'scheduler_basic_event',
-                    resourceEditable: true 
-                  },
-                  {
-                    // Just an event
-                    title: 'Happy Hour',
-                    start: '2024-03-12T17:30:00',
-                    className: 'scheduler_basic_event',
-                    resourceEditable: true 
-                  },
-                  {
-                    // Just an event
-                    title: 'Happy Hour',
-                    start: '2024-03-12T18:30:00',
+                    start: '2024-04-12T13:30:00',
                     className: 'scheduler_basic_event',
                     resourceEditable: true 
                   },
                   {   
                     // Monthly event
-                    id: 111,
+                    id: 005,
                     title: 'Meeting1',
-                    start: '2024-03-26T00:00:00',
+                    start: '2024-04-26T00:00:00',
                     className: 'scheduler_basic_event',
                     resourceEditable: true, 
                     repeat: 1
                   },
                   {
                     // Annual avent
-                    id: 222,
-                    title: 'Birthday Party',
-                    start: '2024-03-04T07:00:00',
+                    id: 006,
+                    title: 'Party',
+                    start: '2024-04-04T07:00:00',
                     description: 'This is a cool event',
                     className: 'scheduler_basic_event',
                     resourceEditable: true, 
@@ -248,12 +217,36 @@
                   },
                   {
                     // Weekday event
+                    id: 007,
                     title: 'Click for Google',
                     url: 'http://google.com/',
-                    start: '2024-03-28',
+                    start: '2024-04-28',
                     className: 'scheduler_basic_event',
                     resourceEditable: true, 
                     dow: [1,5]
+                  },
+                  {
+                    groupId: '101', // recurrent events in this group move together
+                    id: 008,
+                    daysOfWeek: [ '0' ],
+                    title: '101',
+                    startTime: '10:45:00',
+                    endTime: '12:45:00',
+                    color: 'blue'
+                  },
+                  {
+                    id: 009,
+                    daysOfWeek: [ '1' ],
+                    startTime: '11:00:00',
+                    endTime: '11:30:00',
+                    color: 'red'
+                  },
+                  {
+                    id: 009,
+                    daysOfMonth: [ '1' ],
+                    startTime: '11:00:00',
+                    endTime: '11:30:00',
+                    color: 'red'
                   },
                 {
                   title  : 'event1',
@@ -270,6 +263,7 @@
                   allDay : false // will make the time show
                 }
               ],
+              editable: true,
         
           
         });//var calendar

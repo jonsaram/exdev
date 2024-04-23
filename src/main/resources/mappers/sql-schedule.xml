@@ -301,7 +301,9 @@
               ,SCHEDULE.SCHEDULE_START_DATE 
               ,SCHEDULE.SCHEDULE_END_DATE
               ,SCHEDULE.CONTRACT_ID
-              ,SCHEDULE.BUYER_NM ||'/'||SCHEDULE.CONSULTING_NM AS CONTRACT_NM
+              ,CASE WHEN SCHEDULE.BUYER_NM != NULL THEN SCHEDULE.BUYER_NM ||'/'||SCHEDULE.CONSULTING_NM
+                    ELSE NULL
+               END AS  CONTRACT_NM
         FROM   SCHEDULE
         WHERE  1 = 1
         AND   SCHEDULE.USER_ID    = #{sessionVo.userId}
@@ -331,7 +333,9 @@
               ,SCHEDULE.SCHEDULE_START_DATE 
               ,SCHEDULE.SCHEDULE_END_DATE
               ,SCHEDULE.CONTRACT_ID
-              ,SCHEDULE.BUYER_NM ||'/'||SCHEDULE.CONSULTING_NM AS CONTRACT_NM
+              ,CASE WHEN SCHEDULE.BUYER_NM != NULL THEN SCHEDULE.BUYER_NM ||'/'||SCHEDULE.CONSULTING_NM
+                    ELSE NULL
+               END AS  CONTRACT_NM
         FROM   TBL_EXP_SCHEDULE_SHARE A
                JOIN SCHEDULE
                  ON   1 = 1
@@ -405,7 +409,7 @@
     </select>
     
     <select id="getScheduleList_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /* schedule.getScheduleList */
+        /* schedule.getScheduleList_BAK" */
         WITH SCHEDULE AS (
                 SELECT A.SCHEDULE_ID       
                       ,A.TITLE             

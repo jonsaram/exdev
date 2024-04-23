@@ -17,13 +17,12 @@
            let requestParm = {};
            requestParm["today"]       = todayPop;
            
-            C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
+           C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                 
-                console.log("== popup_sched_addSchedulePopup ==");
-                let parm = {};
-                <@pageId>.getAllschedule(parm);
+               let parm = {};
+               <@pageId>.getAllschedule(parm);
                 
-            });
+           });
         }   
        ,init : function( value ) {
             
@@ -58,13 +57,16 @@
                 dayMaxEvents: true, // "more" 표시 전 최대 이벤트 갯수, true는 셀 높이에 의해 결정
                 dateClick: function(info) {
                     
-                    console.log('a day has been clicked!'+ info.dateStr);
-                    
                     let requestParm = {};
                     requestParm["today"]  = info.dateStr;
                     
                     C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                         console.log('eventClick  popup_addSchedulePopup =>');
+                        console.log('eventClick  popup_sched_dtlSchedulePopup obj.refresh =>'+obj.refresh);
+                        if( obj.refresh == 'Y' ){
+                            let parm = {};
+                            <@pageId>.getAllschedule(parm);
+                        }
                     })  
                   },
                 eventClick : function(obj) {
@@ -82,16 +84,23 @@
                    if( shareYn == 'Y' ){
                        
                        C_POP.open('popup_sched_dtlSchedulePopup', requestParm, function(obj) {
-                           console.log('eventClick  popup_sched_dtlSchedulePopup =>');
+                           if( obj.refresh == 'Y' ){
+                        	   let parm = {};
+                               <@pageId>.getAllschedule(parm);
+                           }
                        })
                    }else if( shareYn == 'N' ){
                        
                        C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
-                           console.log('eventClick  popup_addSchedulePopup =>');
+                           if( obj.refresh == 'Y' ){
+                               let parm = {};
+                               <@pageId>.getAllschedule(parm);
+                           }
                        })   
                    }
                    
-                }
+                },
+                
             });
             calendar.render();
          }
