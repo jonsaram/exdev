@@ -2,44 +2,56 @@
 <script type="text/javascript"> 
 var <@pageId> = {
 		 selectedCheck :{ "grpCodeList": [],"normalCodeList": [] }
-		,getItems : (loc) => {
-				const requestParm = {};
-				const updateItems = $("#"+loc+" input:not([type='radio'])");
-				
-				const valuesArray = updateItems.map(function() {
-				    return { name: this.name, value: ""+$(this).val() };
-				}).get();
-				
-				valuesArray.forEach(function(item) {
-					requestParm[item.name] = item.value;
-				});
-
-				return requestParm;
-				
-		}
-		,getSearchItems : () =>{
-			return <@pageId>.getItems("<@pageId>_searchItems")
+		,searchedRows : []
+		,getSearchItems : () => {
+			const SEARCH_TEXT = C_UICOM.getData("<@pageId>_selectSearchItem");
+			const searchText =  $("#<@pageId>_nmSearch").val();
+			debugger;
+			if( isEmpty(SEARCH_TEXT) && !isEmpty(searchText) ){				
+				C_POP.alert("항목 선택 후 조회하여 주십시오. ");
+				return ;
+			}
+			const requestParm = { SEARCH_TITLE : SEARCH_TEXT && SEARCH_TEXT.indexOf("SEARCH_TITLE") > -1 ? searchText : ''
+								, SEARCH_CONTENT : SEARCH_TEXT && SEARCH_TEXT.indexOf("SEARCH_CONTENT") > -1 ? searchText : ''
+								, SEARCH_WRITER : SEARCH_TEXT && SEARCH_TEXT.indexOf("SEARCH_WRITER") > -1 ? searchText : ''
+								, BOARD_MST_ID : $("#BOARD_MST_ID").val()
+								};
+			return requestParm;				
 		}
 		,searchObj : (queryId, targetId) => {
-			
+			var requestPara = <@pageId>.getSearchItems();
+			if(!isEmpty(requestPara)){
 				var parm = {
 						 queryId 		: queryId
-						,requestParm	: <@pageId>.getSearchItems()
+						,requestParm	: requestPara
 				}
 				C_COM.requestQuery(parm, function(resultData) {
-				
-					var rparm = {
-							 targetId 		: targetId
-							,list			: resultData.data
-						}
-					console.log(resultData.data);
-					C_COM.renderHtml("<@pageId>", rparm);
-
+			        var rparm = {
+		                targetId       : targetId
+		               ,list           : resultData.data
+		               ,listRange      : 3         // 리스트 범위
+		               ,pageRange      : 3         // Page 범위
+		               ,pagingDomId    : "pageDiv" // Page가 표시되는 Dom Id
+		               ,totalCntDomId  : "total1"
+		               ,onPageClickCallback : function(pageInfo) {
+		                   // pageInfo의 멤버 변수
+		                   // pageInfo = {
+		                   //       list  : ...    
+		                   //      ,pageIdx : ...
+		                   // }
+		                   dalert(pageInfo);
+		                }
+			        }
+			        C_PAGING.renderHtml("<@pageId>", rparm);
 				});
+			}
+			setTimeout( ()=>{				
+				_chkHandler("<@pageId>",<@pageId>);
+			},500);
 				
 		}
 		,searchList : () => {
-				<@pageId>.searchObj("board.getBoardList","<@pageId>_boardList");
+			<@pageId>.searchObj("board.getBoardList","<@pageId>_boardList");
 		}
 		,goPage : (pageId,rowId) => {
 
@@ -233,7 +245,7 @@ C_PM.onLoadPage("<@pageId>", function(parm) {
 		var searchCond = C_COM.getCodeList("BOARD_SEARCH_COND");
 		var multiboxSearchCondList = { 
 				 data : searchCond
-			 	,targetId : "searchCond" 
+			 	,targetId : "<@pageId>_selectSearchItem"
 			}
 		C_UICOM.makeSelectBox(multiboxSearchCondList, "multi");
 		
@@ -263,30 +275,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<!-- 멀티 선택 -->
 					<div class="fl">
 						<button type="button" class="btn fl"><i class="icon_trash"></i>삭제</button>
-						<div id="searchCond" class="dropdown fl" style="width:200px;">
-							<button type="button" class="btn arrow">
-								<span class="hida">Select</span>
-								<p class="multiSel"></p>
-							</button>
-						    <div class="mutliSelect">
-						        <ul>
-						            <li>
-						                <input type="checkbox" value="게시글 번호" id="mutli01"><label for="mutli01">게시글 번호</label>
-						    		</li>
-						            <li>
-						                <input type="checkbox" value="분류" id="mutli02"><label for="mutli02">분류</label>
-						    		</li>
-						            <li>
-						                <input type="checkbox" value="작성자" id="mutli03"><label for="mutli03">작성자</label>
-						    		</li>
-						            <li>
-						                <input type="checkbox" value="제목" id="mutli04"><label for="mutli04">제목</label>
-						    		</li>
-						        </ul>
-						    </div>
+						<div class="dropdown fl" id="<@pageId>_selectSearchItem"  style="width:150px;">
 						</div>
 						<div class="search_inputWrap">
-							<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+							<input type="search" id="<@pageId>_nmSearch" name=""><button class="search_btn" onClick="javascript:<@pageId>.searchList()"><i class="icon_search"></i></button>
 						</div>
 					</div>
 
@@ -328,7 +320,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							</colgroup>
 							<thead>
 								<tr>
-									<th scope="col"><input type="checkbox"></th>
+									<th scope="col"><input type="checkbox"  id="<@pageId>_ckAll"></th>
 									<th scope="col">게시글 번호</th>
 									<th scope="col">분류</th>
 									<th scope="col">작성자</th>
@@ -357,7 +349,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<script type="text/x-jsrender" id="<@pageId>_boardList_template">	
 							{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}">
-								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:BOARD_ID}}'></td>
+								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}"></td>
                                 <td id='BOARD_ID' 					value='{{:BOARD_ID}}' style='display:none'>{{:BOARD_ID}}</td>
  								<td id='index'	 					value='{{:#index+1}}'		>#{{:#index+1}}	</td>
  								<td id='BOARD_MST_NM' 				value='{{:BOARD_MST_NM}}'	>{{:BOARD_MST_NM}}</td>
@@ -370,24 +362,15 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					</script>
 					<script type="text/x-jsrender" id="<@pageId>_boardList_noData_template">
 							<tr>	
-								<td colspan=7>자료가 없습니다.</td>	
+								<td colspan=8>자료가 없습니다.</td>	
 							</tr>
 					</script>
 							</table>
 					</div>
 				</div>
 				<!-- paging -->
-				<div class="paging">
-					<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-					<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-					<strong title="현재 페이지">1</strong>
-					<a href="#none">2</a>
-					<a href="#none">3</a>
-					<a href="#none">4</a>
-					<a href="#none">5</a>
-					<a href="#none" class="btn_pg_next">다음 페이지</a>
-					<a href="#none" class="btn_pg_last">마지막 페이지</a>
-				</div>
+            	<div class="paging" id="pageDiv">
+            	</div>
 			</section>
 
 		</div>

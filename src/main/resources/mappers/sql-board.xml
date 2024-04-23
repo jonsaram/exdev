@@ -173,6 +173,42 @@
 		WHERE B.BOARD_MST_ID = M.BOARD_MST_ID
 		  AND M.BOARD_MST_ID = #{BOARD_MST_ID}
 		  AND M.SP_CSTM_ID = #{sessionVo.spCstmId}
+		  <choose>
+		  	<when test=" SEARCH_TITLE != null and SEARCH_TITLE != '' " >
+		  		<choose>
+		  			<when test=" SEARCH_CONTENT != null and SEARCH_CONTENT != '' " >
+		  				<choose>
+		  					<when test=" SEARCH_WRITER != null and SEARCH_WRITER != '' " >
+		  AND (B.TITLE LIKE '%'||#{SEARCH_TITLE}||'%' OR B.CONTENT LIKE '%'||#{SEARCH_CONTENT}||'%' OR (SELECT USER_NM FROM TBL_EXP_USER WHERE USER_ID = B.CREATE_USER AND SP_CSTM_ID = #{sessionVo.spCstmId}) LIKE '%'||#{SEARCH_WRITER}||'%')
+		  					</when>
+		  					<otherwise>
+		  AND (B.TITLE LIKE '%'||#{SEARCH_TITLE}||'%' OR B.CONTENT LIKE '%'||#{SEARCH_CONTENT}||'%')
+		  					</otherwise>
+		  				</choose>
+		  			</when>
+  					<otherwise>
+  		  AND (B.TITLE LIKE '%'||#{SEARCH_TITLE}||'%')
+  					</otherwise>
+		  		</choose>
+		  	</when>
+  			<when test=" SEARCH_CONTENT != null and SEARCH_CONTENT != '' " >
+  				<choose>
+  					<when test=" SEARCH_WRITER != null and SEARCH_WRITER != '' " >
+  		  AND (B.CONTENT LIKE '%'||#{SEARCH_CONTENT}||'%' OR (SELECT USER_NM FROM TBL_EXP_USER WHERE USER_ID = B.CREATE_USER AND SP_CSTM_ID = #{sessionVo.spCstmId}) LIKE '%'||#{SEARCH_WRITER}||'%')
+  					</when>
+  					<otherwise>
+  		  AND (B.CONTENT LIKE '%'||#{SEARCH_CONTENT}||'%')
+  					</otherwise>
+  				</choose>
+  			</when>
+  			<otherwise>
+  				<choose>
+  					<when test=" SEARCH_WRITER != null and SEARCH_WRITER != '' " >
+  		  AND ((SELECT USER_NM FROM TBL_EXP_USER WHERE USER_ID = B.CREATE_USER AND SP_CSTM_ID = #{sessionVo.spCstmId}) LIKE '%'||#{SEARCH_WRITER}||'%')
+  					</when>
+  				</choose>
+  			</otherwise>
+		  </choose>
 	</select>
 	
 	<select id="getBoardView" resultType="java.util.HashMap" flushCache="true"  useCache="false">
