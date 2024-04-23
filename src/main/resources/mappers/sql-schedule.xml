@@ -630,5 +630,30 @@
             AND    SCHEDULE_ID = #{scheduleId}
         </if>
     </select>
+
+    <select id="getScheduleListInContract" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		SELECT 
+			 SCHEDULE_ID
+			,SCHEDULE_GRP_ID
+			,TITLE
+			,WORK_TYPE
+			,ALL_APPLY_YN
+			,TO_CHAR(SCHEDULE_DATE ,'MM-DD HH24:MI') AS SCHEDULE_DATE
+			,TIME_TYPE
+			,START_TIME_HOUR
+			,START_TIME_MINUTE
+			,END_TIME_HOUR
+			,END_TIME_MINUTE
+			,POSITION
+			,SECRET_YN
+			,DESCRIPTION
+			,USER_ID
+			,SP_CSTM_ID
+			,CONTRACT_ID
+		FROM TBL_EXP_SCHEDULE
+		WHERE	
+			CONTRACT_ID = #{CONTRACT_ID}
+    </select>
+
     
 </mapper>

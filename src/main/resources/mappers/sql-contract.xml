@@ -483,7 +483,7 @@
 		WHEN MATCHED THEN
 			UPDATE SET
 				 T.USER_ID 				= #{USER_ID				}
-				,T.CONSULTANT_USER_ID 	= #{CONSULTANT_USER_ID	}
+				,T.CONSULTANT_USER_ID 	= '${CONSULTANT_USER_ID	}'
 				,T.BUYER_ID 			= #{BUYER_ID			}
 				,T.CONSULTING_ID 		= #{CONSULTING_ID		}
 				,T.UPDATE_USER			= #{sessionVo.userId	}
@@ -504,7 +504,7 @@
 			) VALUES ( 
 				 #{CONTRACT_ID			}
 				,#{USER_ID				}
-				,#{CONSULTANT_USER_ID	}
+				,'${CONSULTANT_USER_ID	}'
 				,#{BUYER_ID				}
 				,#{CONSULTING_ID		}
 				,'PRE_CONTRACT'
@@ -561,6 +561,7 @@
 				OR  USER_ID 			= #{sessionVo.userId}
 				OR  CONSULTANT_USER_ID 	= #{sessionVo.userId}
 			)
+			AND DEL_YN 		= 'N'
 			AND	SP_CSTM_ID	= #{sessionVo.spCstmId}
 		ORDER BY UPDATE_DATE DESC		
 	</select>	

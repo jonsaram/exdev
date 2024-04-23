@@ -1,26 +1,61 @@
 <meta charset="utf-8">
 <script type="text/javascript">
-	var <@compId> = {
-
+var <@compId> = {
+		 contractInfo : {}
+		,scheduleList	  : []
+		,loadScheduleList : function() {
+			var parm = {
+				 queryId 		: "schedule.getScheduleListInContract"
+				,requestParm	: <@compId>.contractInfo
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				var rparm = {
+					 targetId 		: "scheduleList"
+					,list			: resultData.data
+				}
+				C_COM.renderHtml("<@compId>", rparm);
+				
+				<@compId>.scheduleList = resultData.data
+			});  
+			 
+		  }
+         ,addSchedule: function() {
+            let requestParm = {};
+            
+            C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
+                console.log('eventClick  popup_addSchedulePopup =>');
+            })  
+          }
+		
 	}
 	// Component Load가 완료된후 실행 된다.
 	C_COMP.onLoadComp("<@compId>", function(data) {
 		
+		<@compId>.contractInfo =  data.contractInfo;
+		dalert(<@compId>.contractInfo );
+		<@compId>.loadScheduleList();
+	
 	});
 </script>
 <div>
 	<div class="cont_top clearFix">
 		<h4 class="fl lh24">- Schedule</h4>
 		<div class="fr inlineBlock_wrap">
-			<a href="" class="btn small">등록</a>
+			<a href="javascript:<@compId>.addSchedule()" class="btn small">등록</a>
 		</div>
 	</div>
 	<div class="approver_list_wrap person mb15">
-		<ul class="approver_list">
-			<li><span class="txt"><span>02-07 11:00 </span><span>: 2차 고객 면담</span></span><button class="pay_close">닫기</button></li>
-			<li><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span><button class="pay_close">닫기</button></li>
-			<li><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span><button class="pay_close">닫기</button></li>
-			<li><span class="txt"><span>02-04 14:23 </span><span>: 3차 고객 면담</span></span><button class="pay_close">닫기</button></li>
+		<ul class="approver_list" id="scheduleList">
 		</ul>
+		<script type="text/x-jsrender" id="scheduleList_template">
+			{{for list}}
+			<li>
+				<span class="txt"><span>{{:SCHEDULE_DATE}} </span><span>: {{:TITLE}}</span></span><button class="pay_close">닫기</button>
+			</li>
+			{{/for}}
+		</script>
+		<script type="text/x-jsrender" id="scheduleList_noData_template">	
+			<li><span class="txt tc">등록된 내용이 없습니다.</span></li>
+		</script>
 	</div>
 </div>

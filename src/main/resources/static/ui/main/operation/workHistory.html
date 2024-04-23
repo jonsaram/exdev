@@ -36,47 +36,6 @@
 			C_COM.requestQuery(parm, function(resultData) {
 
 				let allList 	= resultData.data;
-				
-				
-				
-				allList = [
-					{
-						"WH_ID": "18ef07828e910256",
-						"UPDATE_DATE": "2024-04-15 18:09:51",
-						"UPDATE_USER": "jonsaram",
-						"USER_ID": "jonsaram",
-						"WORK_CONTENT": "<1>산와 대부 주식회사</> 고객 담당 컨설턴트3 <2>지정 결재 요청</>",
-						"YYYYMMDD": "2024-04-15"
-					},
-					{
-						"WH_ID": "18ef07828e910256",
-						"UPDATE_DATE": "2024-04-19 09:29:51",
-						"UPDATE_USER": "jonsaram",
-						"USER_ID": "jonsaram",
-						"WORK_CONTENT": "<1>산와 대부 주식회사</> 고객 담당 컨설턴트2 <2>지정 결재 요청</>",
-						"YYYYMMDD": "2024-04-19"
-					},
-					{
-						"WH_ID": "18ef07828e910256",
-						"UPDATE_DATE": "2024-04-19 20:09:51",
-						"UPDATE_USER": "jonsaram",
-						"USER_ID": "jonsaram",
-						"WORK_CONTENT": "<1>산와 대부 주식회사</> 고객 담당 컨설턴트22 <2>지정 결재 요청</>",
-						"YYYYMMDD": "2024-04-19"
-					},
-					{
-						"WH_ID": "18ef07828e910256",
-						"UPDATE_DATE": "2024-04-20 18:09:51",
-						"UPDATE_USER": "jonsaram",
-						"USER_ID": "jonsaram",
-						"WORK_CONTENT": "<1>산와 대부 주식회사</> 고객 담당 컨설턴트1 <2>지정 결재 요청</>",
-						"YYYYMMDD": "2024-04-20"
-					}
-				]				
-				
-				
-				
-				
 				let dateList	= []
 				let dateMap		= {}
 				$.each(allList, function() {
@@ -185,6 +144,15 @@
 						</li>
 					{{/for}}
 					</ul>
+				</div>
+			</section>
+		{{/for}}
+		</script>
+		<script type="text/x-jsrender" id="workHistoryList_noData_template">
+		{{for list ~dateMap=dateMap}}						
+			<section class="sec_wrap">
+				<div class="cont_box work_history">
+					<h3>등록된 Data가 없습니다.</h3>
 				</div>
 			</section>
 		{{/for}}
