@@ -28,7 +28,7 @@
             
             var calendarEl = document.getElementById('<@pageId>_calendar');            
             
-            calendar = new FullCalendar.Calendar(calendarEl, {
+            <@pageId>.calendar = new FullCalendar.Calendar(calendarEl, {
                 height: '100%',
                 expandRows: true,
                 locale: 'ko', // 한국어 설정
@@ -102,7 +102,15 @@
                 },
                 
             });
-            calendar.render();
+            <@pageId>.calendar.render();
+            
+            $("#<@pageId> .fc-button-group button").bind("click", function() {
+            	let title = $(this).attr("title");
+            	dalert(title);
+            	let cd = <@pageId>.calendar.getCurrentData();
+            	dalert(cd.dateProfile.currentRange);
+            });
+            
          }
        
        ,destroy : function() {
@@ -111,7 +119,7 @@
        ,removeAllschedule : function() {
            console.log("removeAllschedule");
            
-           var eventSources = calendar.getEventSources();
+           var eventSources = <@pageId>.calendar.getEventSources();
            console.log('EventSources => ' + eventSources);
            var len = eventSources.length;
            for (var i = 0; i < len; i++) { 
@@ -119,7 +127,7 @@
                eventSources[i].remove(); 
            } 
            
-           calendar.removeAllEvents();
+           <@pageId>.calendar.removeAllEvents();
            
        }
        ,getAllschedule : function( requestParm ) {
@@ -154,7 +162,7 @@
                    shareYn["shareYn"]   = resultData.data[i].SHARE_YN;
                    obj.extendedProps = shareYn;
                    
-                   calendar.addEvent(obj);
+                   <@pageId>.calendar.addEvent(obj);
                     
                 }
             }); 
@@ -183,7 +191,7 @@
        
        ,setCalendar : function(dateString) {
            console.log(" dateString ==>"+dateString);
-           calendar.gotoDate( new Date(dateString) );
+           <@pageId>.calendar.gotoDate( new Date(dateString) );
            $('#<@pageId>_tableId').css('display', 'none');
        }
 
