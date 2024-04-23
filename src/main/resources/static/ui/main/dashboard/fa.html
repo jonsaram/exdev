@@ -76,11 +76,13 @@ var <@pageId> = {
 			$("#<@pageId>_fromDate").val(fromDate);
 			$("#<@pageId>_toDate").val(toDate);
 
+			<@pageId>.getScheduleList();
+		}
+		,getScheduleList : (SEARCH_DATA) => {
 			
-			//schedule
 			var parm = {
 				queryId 		: "faDashboard.getScheduleList"
-				,requestParm	: {}
+				,requestParm	: {SEARCH_DATA : SEARCH_DATA}
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				
@@ -90,6 +92,7 @@ var <@pageId> = {
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 			})
+
 		}
 		,searchMonthlyPayment : () =>{
 			
@@ -111,13 +114,14 @@ var <@pageId> = {
 				
 				$("#<@pageId>_curMonthOSP").text( `당월 수수료(${dayjs().format("YYYY.MM")})` );
 				$("#<@pageId>_curMonthOSP+.sales_wrap .big_won > .num"		).text( addComma(data.SUM_PAYMENT) );
-				$("#<@pageId>_curMonthOSP+.sales_wrap .small_won> .num").text( addComma( (targetPayment/12).toFixed(2) )+'억원' );
+				const monthlyTargetPayment = ((targetPayment/12)*100000000).toFixed(2);
+				$("#<@pageId>_curMonthOSP+.sales_wrap .small_won> .num").text( addComma( (targetPayment/12 ).toFixed(2)) +'억원' );
 				
 				$("#<@pageId>_curMonthOSP+.sales_wrap .potential  .num_wrap > .num"	).text( addComma(data.POTENTIAL_CUSTOMER) );
 				$("#<@pageId>_curMonthOSP+.sales_wrap .customer   .num_wrap > .num"	).text( addComma(data.AFFILIATE_CNT) );
 				
-				$("#<@pageId>_exec"	).text( addComma(data.EXEC_PAYMENT) );
-				$("#<@pageId>_sales").text( addComma(data.SALES_SUM_PAYMENT) );
+				$("#<@pageId>_exec	.num").text( addComma(data.EXEC_PAYMENT) );
+				$("#<@pageId>_sales .num").text( addComma(data.SALES_SUM_PAYMENT) );
 				
 				$("#<@pageId>_yearlyGoal").val( addComma(targetPayment) );	
 				
@@ -338,7 +342,17 @@ var <@pageId> = {
 				
 			});				
 			
+		} 		
+		,nameSearch : (e) => {
+			
+			 if (e.key === "Enter") {
+				 
+		        var SEARCH_DATA = event.target.value;
+
+		        <@pageId>.getScheduleList(SEARCH_DATA);
+			}
 		}
+
 }
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
@@ -454,32 +468,26 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<div class="clearFix">
 								<h3 class="fl lh33">예정 업무</h3>
 								<div class="search_inputWrap fr">
-									<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+									<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
 								</div>
 							</div>
-							<section class="sec_wrap pd0 mt15" id="<@pageId>_schedule">
-							</section>
+							
+							<div id="<@pageId>_schedule"></div>
 							<script type="text/x-jsrender" id="<@pageId>_schedule_template">
 							{{for list}}
+								{{if #index % 2 == 0 }}
+								<section class="sec_wrap pd0 mt15" >
+								{{/if}}
 								<div class="cont_box col2">
-									<h4>{{:BUYER}}</h4>
+									<h4>{{:TITLE}}</h4>
 									<div class="content">
-										{{if WORK_TYPE=="MEETING"}}
-										<i class="status meeting"></i>
-										{{else WORK_TYPE == 'SUGGESTER'}} 
-										<i class="status schedule"></i>
-										{{else WORK_TYPE == 'TEL_CONSUL'}} 
-										<i class="status tel_consul"></i>
-										{{else WORK_TYPE == 'SCHEDULE'}} 
-										<i class="status schedule"></i>
-										{{else WORK_TYPE == 'SEND_EMAIL'}} 
-										<i class="status send_email"></i>
-										{{else WORK_TYPE == 'SEMINAR'}} 
-										<i class="status seminar"></i>
-										{{else WORK_TYPE == 'other_work'}} 
-										<i class="status other_work"></i>
-										{{else}}
-										<i class="status meeting"></i>
+										{{if 	WORK_TYPE == 'MEETING'}}	<i class="status meeting"></i>
+										{{else 	WORK_TYPE == 'SUGGESTER'}} 	<i class="status schedule"></i>
+										{{else 	WORK_TYPE == 'TEL_CONSUL'}} <i class="status tel_consul"></i>
+										{{else 	WORK_TYPE == 'SCHEDULE'}} 	<i class="status schedule"></i>
+										{{else 	WORK_TYPE == 'SEND_EMAIL'}} <i class="status send_email"></i>
+										{{else 	WORK_TYPE == 'SEMINAR'}} 	<i class="status seminar"></i>
+										{{else 	WORK_TYPE == 'OTHER_WORK'}} <i class="status other_work"></i>
 										{{/if}}
 										<span>{{:WORK_TYPE_NM}}</span>
 										<dl>
@@ -494,6 +502,27 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<div class="note">{{:DESCRIPTION}}</div>
 									</div>
 								</div>
+								{{if #index+1 == LAST_DATA && #index % 2 == 0}}
+								<div class="cont_box col2">
+									<h4></h4>
+									<div class="content">
+										<span></span>
+										<dl>
+											<dt></dt>
+											<dd>
+												<span class="date"></span>
+												<span class="time"></span>
+											</dd>
+											<dt></dt>
+											<dd></dd>
+										</dl>
+										<div class="note"></div>
+									</div>
+								</div>
+								{{/if}}
+								{{if #index % 2 == 1 }}
+								</section>
+								{{/if}}
 							{{/for}}
 							</script>							
 						</div>

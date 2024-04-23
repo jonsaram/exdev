@@ -253,29 +253,44 @@
 		/*	faDashboard.getScheduleList
 			FA 대시보드 예정 업무 리스트
 		*/
-        SELECT 
-         DECODE( NVL(B.BUYER_NM, S.TITLE ), B.BUYER_NM ,<![CDATA['<strong>'||B.BUYER_NM || '</strong> 고객님']]> , S.TITLE)  AS TITLE
-        ,S.WORK_TYPE
-        ,GET_CODE_NM( 'SCHEDULE_WORK_TYPE', S.WORK_TYPE) AS WORK_TYPE_NM
-        ,TO_CHAR(S.SCHEDULE_DATE,'YYYY.MM.DD') 	AS SCHEDULE_DATE
-        ,S.START_TIME_HOUR 
-        ,S.START_TIME_MINUTE 
-        ,S.END_TIME_HOUR 
-        ,S.END_TIME_MINUTE 
-        ,S.START_TIME_HOUR||':'||S.START_TIME_MINUTE||' ~ '||S.END_TIME_HOUR||':'||S.END_TIME_MINUTE  AS SCHEDULE_TIME
-        ,POSITION
-        ,DESCRIPTION
-        ,B.BUYER_ID 
-        ,B.BUYER_NM
-        FROM TBL_EXP_SCHEDULE S
-        , TBL_EXP_CONTRACT C
-        , TBL_EXP_BUYER B
-       WHERE 1=1 
-       AND S.CONTRACT_ID  = C.CONTRACT_ID(+)
-       AND C.BUYER_ID = B.BUYER_ID (+)
-       AND S.SCHEDULE_DATE >= SYSDATE - 100
-       AND S.USER_ID = 'jonsaram' /* sessionVo.userId */
-       AND rownum <![CDATA[ < ]]>4
-       ORDER BY S.SCHEDULE_DATE		
+		SELECT *
+		FROM(
+	        SELECT 
+	         COUNT(*) OVER() LAST_DATA
+	        ,DECODE( NVL(B.BUYER_NM, S.TITLE ), B.BUYER_NM ,<![CDATA['<strong>'||B.BUYER_NM || '</strong> 고객님']]> , S.TITLE)  AS TITLE
+	        ,S.WORK_TYPE
+	        ,GET_CODE_NM( 'SCHEDULE_WORK_TYPE', S.WORK_TYPE) AS WORK_TYPE_NM
+	        ,TO_CHAR(S.SCHEDULE_DATE,'YYYY.MM.DD') 	AS SCHEDULE_DATE
+	        ,S.START_TIME_HOUR 
+	        ,S.START_TIME_MINUTE 
+	        ,S.END_TIME_HOUR 
+	        ,S.END_TIME_MINUTE 
+	        ,S.START_TIME_HOUR||':'||S.START_TIME_MINUTE||' ~ '||S.END_TIME_HOUR||':'||S.END_TIME_MINUTE  AS SCHEDULE_TIME
+	        ,POSITION
+	        ,DESCRIPTION
+	        ,B.BUYER_ID 
+	        ,B.BUYER_NM
+	        FROM TBL_EXP_SCHEDULE S
+	        , TBL_EXP_CONTRACT C
+	        , TBL_EXP_BUYER B
+	       WHERE 1=1 
+	       AND S.CONTRACT_ID  = C.CONTRACT_ID(+)
+	       AND C.BUYER_ID = B.BUYER_ID (+)
+	       AND S.SCHEDULE_DATE >= SYSDATE - 100 /* FOR TEST */
+	       AND S.USER_ID = 'jonsaram' /* sessionVo.userId */
+	       AND rownum <![CDATA[ < ]]>5
+	       ORDER BY S.SCHEDULE_DATE		
+       )
+       WHERE 1=1
+       <if test=" SEARCH_DATA != null and !SEARCH_DATA.equals('') ">
+       AND (
+       		TITLE 			like '%'|| #{SEARCH_DATA} ||'%'
+       	OR 	WORK_TYPE_NM 	like '%'|| #{SEARCH_DATA} ||'%'
+       	OR 	SCHEDULE_DATE 	like '%'|| #{SEARCH_DATA} ||'%'
+       	OR 	SCHEDULE_TIME 	like '%'|| #{SEARCH_DATA} ||'%'
+       	OR 	POSITION 		like '%'|| #{SEARCH_DATA} ||'%'
+       	OR 	DESCRIPTION 	like '%'|| #{SEARCH_DATA} ||'%' 
+       )
+       </if>
 	</select>	
 </mapper>
