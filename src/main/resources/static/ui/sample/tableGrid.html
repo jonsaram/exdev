@@ -8,22 +8,22 @@
 	C_PM.onLoadPage("<@pageId>", function(parm) {
 		var dataList = [
 			 { 
-				 ITEM1 : "1ROW 2COL"
-				,ITEM2 : "1ROW 2COL"
+				 ITEM1 : "1ROW 1COL"
+				,ITEM2 : "2ROW 2COL"
 				,ITEM3 : "1ROW 3COL"
 				,ITEM4 : "1ROW 4COL"
 			 }
 			,{
-				 ITEM1 : "1ROW 1COL"
-				,ITEM2 : "1ROW 2COL"
-				,ITEM3 : "1ROW 3COL"
+				 ITEM1 : "2ROW 2COL"
+				,ITEM2 : "2ROW 2COL"
+				,ITEM3 : "2ROW 2COL"
 				,ITEM4 : "2ROW 4COL"
 			 }
 			,{
-				 ITEM1 : "1ROW 1COL"
+				 ITEM1 : "3ROW 1COL"
 				,ITEM2 : "3ROW 2COL"
 				,ITEM3 : "3ROW 3COL"
-				,ITEM4 : "3ROW 3COL"
+				,ITEM4 : "3ROW 4COL"
 			 }
 			,{
 				 ITEM1 : "4ROW 1COL"
@@ -45,10 +45,10 @@
 		}
 		C_COM.renderHtml("<@pageId>", rparm);
 
-		mergeTableTD('tableId', {startIdx : 2, endIdx : 4, startRowIdx : 2});
-		
-		
 		mergeTableColumn('tableId');
+
+		mergeTableTD('tableId', {startIdx : 3, endIdx : 4, startRowIdx : 1});
+		
 
 		//mergeTableTD('tableId', {startIdx : 2, endIdx : 2, startRowIdx : 1});
 

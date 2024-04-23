@@ -1,0 +1,50 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@pageId> = {
+	}
+	// Page Load가 완료된후 실행 된다.
+	C_PM.onLoadPage("<@pageId>", function() {
+		
+        var calendarEl = document.getElementById('<@pageId>_calendar');            
+        
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+			initialView: 'dayGridMonth',
+			height: '100%',
+			expandRows: true,
+			locale: 'ko', // 한국어 설정
+			// slotMinTime: '08:00',
+			// slotMaxTime: '20:00',
+			headerToolbar: {
+			    // left: 'prev,next today',
+			    left: '',
+			    center: 'title',
+			    right: 'timeGridDay,timeGridWeek,dayGridMonth,prev,next'
+			    // right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+			},
+			events : function (timeInfo) {
+				/*
+				timeInfo : 	
+				{
+					"start": "2024-03-30T15:00:00.000Z",
+					"end": "2024-05-11T15:00:00.000Z",
+					"startStr": "2024-03-31T00:00:00+09:00",
+					"endStr": "2024-05-12T00:00:00+09:00",
+					"timeZone": "local"
+				}
+				*/
+				dlog(timeInfo);
+			}
+        	
+        });
+        debugger;
+        calendar.render();
+        
+	});
+	// History back으로 이동해왔을 경우 이루틴이 실행된다.
+	C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+	});
+</script>
+<div class="cont_wrap">
+	<div id='<@pageId>_calendar'></div>
+</div>
