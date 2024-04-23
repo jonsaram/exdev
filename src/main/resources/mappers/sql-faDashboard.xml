@@ -8,43 +8,274 @@
 
 	<!--
 	FA 대시보드 
-	 -->	
+	 --> 
 	<select id="getOrgSellingPirce" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	fa.getOrgSellingPirce
-			당월 순매출 조회 
-		*/
-		SELECT
-		SUM(INCOME) INCOME
-		,SUM(COST_PRICE) COST_PRICE
-		,SUM(INCOME) - SUM(COST_PRICE) AS ORG_SELLING_PRICE
-		FROM(
-			SELECT  
-			 CS.*
-			,R.* 
-			FROM TBL_EXP_RESULT R 
-			,TBL_EXP_COST CS
-			WHERE R.USE_YN='Y' AND TO_CHAR(R.RESULT_DATE ,'YYYY-MM' ) = '2024-04' 
-			AND R.USE_YN = CS.USE_YN 
-			AND R.CONTRACT_ID  = CS.CONTRACT_ID 
-			AND R.RESULT_ID  = CS.RESULT_ID 
-			
-		) 
-	</select>
-	
-	<select id="getCustomerCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	fa.getOrgSellingPirce
+		/*	faDashboard.getOrgSellingPirce
+			당월 수수료 , 실행수수료, 영업수수료, 연간 목표 수수료 조회 
 			잠재고객 / 가맹수 조회 
 		*/
-		SELECT SUM(1)
-		,SUM(CASE WHEN  CUSTOMER_TYPE  = 'POTENTIAL_CUSTOMER' THEN 1 ELSE 0 END  ) AS POTENTIAL_CUSTOMER
-		,SUM(CASE WHEN  CUSTOMER_TYPE != 'POTENTIAL_CUSTOMER' THEN 1 ELSE 0 END  ) AS AFFILIATE_CNT
-		FROM (
-			SELECT NVL(C.BUYER_ID , 'POTENTIAL_CUSTOMER') AS CUSTOMER_TYPE
-			, B.*
-			FROM TBL_EXP_BUYER B
-			,TBL_EXP_CONTRACT C
-			WHERE B.USE_YN = 'Y' 
-			AND B.BUYER_ID = C.BUYER_ID(+)
-		)
+		SELECT MAX(#{sessionVo.userId	}) 			AS USER_ID
+			, NVL(MAX( YEARLY_PAYMENT),0) 		AS YEARLY_PAYMENT
+			, NVL(MAX( SUM_PAYMENT),0) 		AS SUM_PAYMENT
+			, NVL(MAX( EXEC_SUM_PAYMENT),0) 	AS EXEC_PAYMENT
+			, NVL(MAX( SALES_SUM_PAYMENT),0) 	AS SALES_SUM_PAYMENT
+			, NVL(MAX( POTENTIAL_CUSTOMER),0)  AS POTENTIAL_CUSTOMER
+			, NVL(MAX( AFFILIATE_CNT),0) AS AFFILIATE_CNT
+			, NVL(MAX( TARGET_PAYMENT ),0) AS TARGET_PAYMENT
+		FROM(			
+			SELECT USER_ID ,YEARLY_PAYMENT, EXEC_SUM_PAYMENT, SALES_SUM_PAYMENT , SUM_PAYMENT 
+				,  	NULL AS POTENTIAL_CUSTOMER, NULL AS AFFILIATE_CNT	
+				,	NULL AS TARGET_PAYMENT
+			FROM (
+				SELECT USER_ID
+				, SUM(YEARLY_PAYMENT) 	AS YEARLY_PAYMENT
+				, SUM( EXEC_PAYMENT ) 	AS EXEC_SUM_PAYMENT
+				, SUM( SALES_PAYMENT ) 	AS SALES_SUM_PAYMENT
+				, SUM( PAYMENT) 		AS SUM_PAYMENT
+				FROM(
+				
+					SELECT DISTINCT C.USER_ID
+					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE} THEN P.PAYMENT ELSE 0 END AS YEARLY_PAYMENT /* 연간 수수료 */ 
+					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE} THEN DECODE( P.EXEC_TYPE,'EXEC', PAYMENT, 0) ELSE 0 END AS YEARLY_EXEC_PAYMENT 
+					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE} THEN DECODE( P.EXEC_TYPE,'EXEC', 0 ,PAYMENT) ELSE 0 END AS YEARLY_SALES_PAYMENT 
+					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{CUR_MONTH_DATE} THEN P.PAYMENT  ELSE 0 END AS PAYMENT /* 당월수수료 */
+					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{CUR_MONTH_DATE} THEN DECODE( P.EXEC_TYPE,'EXEC', PAYMENT, 0) ELSE 0 END AS  EXEC_PAYMENT /* 실행수수료 */
+					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{CUR_MONTH_DATE} THEN DECODE( P.EXEC_TYPE,'EXEC', 0 ,PAYMENT) ELSE 0 END AS  SALES_PAYMENT /* 영업수수료 */
+					FROM TBL_EXP_CONTRACT C , TBL_EXP_RESULT R , TBL_EXP_CONTRACT_MEMBER CM
+					,TBL_EXP_PAYMENT P
+					WHERE C.CONTRACT_ID = R.CONTRACT_ID AND C.CONTRACT_ID =CM.CONTRACT_ID 
+					AND C.USE_YN = 'Y' 	AND C.DEL_YN = 'N' 	AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+					AND CM.USE_YN = 'Y' AND CM.DEL_YN = 'N' AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
+					AND C.CONTRACT_ID = P.CONTRACT_ID 
+				)
+				GROUP BY USER_ID
+			)
+		/*	WHERE USER_ID = sessionVo.userId	 */	
+			
+			UNION ALL 
+			
+			SELECT	 NULL, NULL, NULL, NULL, NULL
+					,SUM(CASE WHEN  CUSTOMER_TYPE  = 'POTENTIAL_CUSTOMER' THEN 1 ELSE 0 END  ) AS POTENTIAL_CUSTOMER
+					,SUM(CASE WHEN  CUSTOMER_TYPE != 'POTENTIAL_CUSTOMER' THEN 1 ELSE 0 END  ) AS AFFILIATE_CNT
+					,NULL
+			FROM (
+					
+				SELECT NVL(C.BUYER_ID , 'POTENTIAL_CUSTOMER') AS CUSTOMER_TYPE
+				, B.*
+				FROM TBL_EXP_BUYER B ,TBL_EXP_CONTRACT C , TBL_EXP_RESULT R
+				WHERE B.USE_YN = 'Y' AND B.DEL_YN = 'N' AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+				AND C.CONTRACT_ID = R.CONTRACT_ID
+				AND TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{CUR_MONTH_DATE}  
+				AND	B.BUYER_ID = C.BUYER_ID(+)
+				
+				UNION ALL 
+				
+				SELECT NVL(C.BUYER_ID , 'POTENTIAL_CUSTOMER') AS CUSTOMER_TYPE
+				, B.*
+				FROM TBL_EXP_BUYER B ,TBL_EXP_CONTRACT C , TBL_EXP_RESULT R
+				WHERE B.USE_YN = 'Y' AND B.DEL_YN = 'N' AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+				AND C.CONTRACT_ID = R.CONTRACT_ID
+				AND TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{CUR_MONTH_DATE}  
+				AND B.BUYER_ID = C.BUYER_ID
+				AND 'PRE_CONTRACT' != C.PROCESS_STATE
+			)
+			
+			UNION ALL 
+			
+			SELECT NULL, NULL, NULL, NULL , NULL, NULL, NULL, TARGET_PAYMENT/100000000 AS TARGET_PAYMENT
+				FROM TBL_EXP_USER_CONFIG CF
+				WHERE	CF.SP_CSTM_ID 	= #{sessionVo.spCstmId}
+				AND		CF.USER_ID		= #{sessionVo.userId}
+				AND		CF.TARGET_YEAR	= #{CUR_YEAR_DATE} 		
+		)		
 	</select>
+	
+	<update id="updateTargetPayment" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	faDashboard.updateTargetPayment
+			FA 연간목표수수료
+		*/
+		MERGE INTO TBL_EXP_USER_CONFIG T
+		USING (
+		  SELECT #{sessionVo.spCstmId}	AS SP_CSTM_ID
+		  ,		 #{sessionVo.userId} 	AS USER_ID
+		  ,		 #{TARGET_YEAR} 		AS TARGET_YEAR
+		  ,		 #{TARGET_PAYMENT} 		AS TARGET_PAYMENT
+		  FROM DUAL
+		) S
+		ON (
+			 	T.SP_CSTM_ID	= S.SP_CSTM_ID 
+			AND T.USER_ID		= S.USER_ID 
+			AND T.TARGET_YEAR	= S.TARGET_YEAR 
+		)
+		WHEN MATCHED THEN
+			UPDATE SET
+				 T.TARGET_PAYMENT = TARGET_PAYMENT
+		WHEN NOT MATCHED THEN 
+			INSERT ( 
+				 SP_CSTM_ID
+				,USER_ID
+				,TARGET_YEAR
+				,TARGET_PAYMENT
+			) VALUES ( 
+				 S.SP_CSTM_ID
+				,S.USER_ID
+				,S.TARGET_YEAR
+				,S.TARGET_PAYMENT
+			)
+	</update>	
+	
+	<select id="getPaymentByMonth" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	faDashboard.getPaymentByMonth
+			월별 수수료 조회 
+			( 실행 수수료 , 영업 수수료 )
+		*/
+		WITH MONTHS AS (
+		  SELECT DISTINCT  TO_CHAR(TO_DATE( #{CUR_YEAR_DATE}||'-01-01', 'YYYY-MM-DD') + LEVEL - 1, 'YYYY-MM') AS month
+		  FROM dual
+		  CONNECT BY LEVEL <![CDATA[<=]]>  ADD_MONTHS(TO_DATE(#{CUR_YEAR_DATE}||'-01-01', 'YYYY-MM-DD'), 12) - TO_DATE(#{CUR_YEAR_DATE}||'-01-01', 'YYYY-MM-DD')
+		)
+		
+		SELECT B.MONTH
+		, NVL(A.SUM_PAYMENT,0)	 		AS SUM_PAYMENT
+		, NVL(A.SUM_EXEC_PAYMENT,0) 	AS SUM_EXEC_PAYMENT
+		, NVL(A.SUM_SALES_PAYMENT,0) 	AS SUM_SALES_PAYMENT
+		, NVL(A.SUM_CUSTOMER,0)			AS SUM_COSTOMER
+		FROM(
+			SELECT 
+				TO_CHAR(RESULT_DATE,'YYYY-MM') AS MONTH
+				,SUM(PAYMENT) AS SUM_PAYMENT
+				,SUM(EXEC_PAYMENT) AS SUM_EXEC_PAYMENT
+				,SUM(SALES_PAYMENT) AS SUM_SALES_PAYMENT
+				,null AS SUM_CUSTOMER
+			FROM(					
+						SELECT DISTINCT C.USER_ID
+						,R.RESULT_DATE
+						,P.PAYMENT /* 당월수수료 */
+						,DECODE( P.EXEC_TYPE,'EXEC', PAYMENT, 0) AS  EXEC_PAYMENT /* 실행수수료 */
+						,DECODE( P.EXEC_TYPE,'EXEC', 0 ,PAYMENT) AS  SALES_PAYMENT /* 영업수수료 */						
+						FROM TBL_EXP_CONTRACT C , TBL_EXP_RESULT R , TBL_EXP_CONTRACT_MEMBER CM
+						,TBL_EXP_PAYMENT P
+						WHERE C.CONTRACT_ID = R.CONTRACT_ID AND C.CONTRACT_ID =CM.CONTRACT_ID 
+						AND C.USE_YN = 'Y' 	AND C.DEL_YN = 'N' 	AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+						AND CM.USE_YN = 'Y' AND CM.DEL_YN = 'N' AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
+						AND C.CONTRACT_ID = P.CONTRACT_ID 
+						
+						AND C.USER_ID = '5754852770' /* sessionVo.userId */
+						
+						AND TO_CHAR(R.RESULT_DATE, 'YYYY') = #{CUR_YEAR_DATE}
+			)
+			GROUP BY TO_CHAR( RESULT_DATE,'YYYY-MM')
+			
+			UNION ALL 
+			
+			SELECT TO_CHAR(CONTRACT_DATE,'YYYY-MM') AS MONTH  
+					,NULL,NULL,NULL
+					,COUNT( CUSTOMER ) AS SUM_CUSTOMER
+			FROM(
+						SELECT DISTINCT C.BUYER_ID AS CUSTOMER, B.BUYER_NM ,C.CONTRACT_DATE 
+						FROM TBL_EXP_BUYER B ,TBL_EXP_CONTRACT C , TBL_EXP_RESULT R
+						WHERE B.USE_YN = 'Y' AND B.DEL_YN = 'N' AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+						AND C.CONTRACT_ID = R.CONTRACT_ID
+						AND TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE}
+						AND B.BUYER_ID = C.BUYER_ID
+						AND 'PRE_CONTRACT' != C.PROCESS_STATE
+			)
+			GROUP BY TO_CHAR(CONTRACT_DATE,'YYYY-MM')
+		) A
+		,MONTHS B 
+		WHERE A.MONTH(+) = B.MONTH 
+		ORDER BY B.MONTH	
+	</select>
+
+	<select id="getTodoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	faDashboard.getTodoList
+			FA 대시보드 TODO 리스트
+		*/
+		SELECT 
+			 TODO_ID
+			,TODO
+			,EXEC_CHECK
+			,TO_CHAR( UPDATE_DATE , 'MM-DD HH24:MI' ) AS UPDATE_DATE
+		FROM 
+		 	TBL_EXP_TODO_FA  A
+		WHERE  1=1
+			AND	UPDATE_USER = #{sessionVo.userId}
+			AND	SP_CSTM_ID	= #{sessionVo.spCstmId}
+			AND DEL_YN		= 'N'
+		ORDER BY UPDATE_DATE DESC		
+	</select>	
+	<update id="registTodo">
+		/*	faDashboard.registTodo
+			FA 대시보드 TODO 등록
+		*/
+		INSERT INTO TBL_EXP_TODO_FA (
+			 TODO_ID
+			,TODO
+			,EXEC_CHECK
+			,UPDATE_DATE
+			,UPDATE_USER
+			,SP_CSTM_ID
+		) VALUES (
+			 #{TODO_ID		}
+			,#{TODO			}
+			,'N'
+   			,sysdate
+   			,#{sessionVo.userId		}
+			,#{sessionVo.spCstmId	}
+		)
+	</update>
+
+	<update id="deleteTodo">
+		/*	faDashboard.deleteTodo
+			FA 대시보드 TODO 삭제
+		*/
+		UPDATE 
+			TBL_EXP_TODO_FA 
+		SET 
+			DEL_YN = 'Y' 
+		WHERE 
+			TODO_ID = #{TODO_ID}
+	</update>
+
+	<update id="updateTodo">
+		/*	contract.updateTodo
+			자FA 대시보드 TODO 실행 상태 변경
+		*/
+		UPDATE 
+			TBL_EXP_TODO_FA 
+		SET 
+			EXEC_CHECK = #{EXEC_CHECK}
+		WHERE 
+			TODO_ID = #{TODO_ID}
+	</update>	
+
+	<select id="getScheduleList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	faDashboard.getScheduleList
+			FA 대시보드 예정 업무 리스트
+		*/
+        SELECT 
+         DECODE( NVL(B.BUYER_NM, S.TITLE ), B.BUYER_NM ,<![CDATA['<strong>'||B.BUYER_NM || '</strong> 고객님']]> , S.TITLE)  AS TITLE
+        ,S.WORK_TYPE
+        ,GET_CODE_NM( 'SCHEDULE_WORK_TYPE', S.WORK_TYPE) AS WORK_TYPE_NM
+        ,TO_CHAR(S.SCHEDULE_DATE,'YYYY.MM.DD') 	AS SCHEDULE_DATE
+        ,S.START_TIME_HOUR 
+        ,S.START_TIME_MINUTE 
+        ,S.END_TIME_HOUR 
+        ,S.END_TIME_MINUTE 
+        ,S.START_TIME_HOUR||':'||S.START_TIME_MINUTE||' ~ '||S.END_TIME_HOUR||':'||S.END_TIME_MINUTE  AS SCHEDULE_TIME
+        ,POSITION
+        ,DESCRIPTION
+        ,B.BUYER_ID 
+        ,B.BUYER_NM
+        FROM TBL_EXP_SCHEDULE S
+        , TBL_EXP_CONTRACT C
+        , TBL_EXP_BUYER B
+       WHERE 1=1 
+       AND S.CONTRACT_ID  = C.CONTRACT_ID(+)
+       AND C.BUYER_ID = B.BUYER_ID (+)
+       AND S.SCHEDULE_DATE >= SYSDATE - 100
+       AND S.USER_ID = 'jonsaram' /* sessionVo.userId */
+       AND rownum <![CDATA[ < ]]>4
+       ORDER BY S.SCHEDULE_DATE		
+	</select>	
 </mapper>

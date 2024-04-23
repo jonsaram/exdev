@@ -17,8 +17,36 @@
 	    return colorRange[randomIndex];
 	}
 
-    function _createChart(container, categories, series  ) {
+    function _createChart(container, categories, series, yAxis1, yAxis2 ) {
 	
+	   let yAxis1Obj =   {
+                labels: {
+                    format: '{value}억',
+                    style: {
+                        color: '#8A8C92',
+                        fontFamily: 'Noto Sans KR',
+                        fontSize: '11px'
+                    }
+                },
+                title: {
+                    text: ''
+                }
+            };
+	   if( yAxis1)yAxis1Obj = yAxis1;
+	   let yAxis2Obj =   { // Secondary yAxis
+                title: {
+                    text: '',
+                    style: {}
+                },
+                labels: {
+                    format: ' '
+                },
+                opposite: true
+            };
+	   if( yAxis2)yAxis2Obj = yAxis2;
+
+
+	debugger;
        const chart =  $("#"+container).highcharts({
             chart: {
                 zoomType: 'xy',
@@ -45,28 +73,7 @@
                 categories: categories,
                 crosshair: true
             }],
-            yAxis: [{
-                labels: {
-                    format: '{value}억',
-                    style: {
-                        color: '#8A8C92',
-                        fontFamily: 'Noto Sans KR',
-                        fontSize: '11px'
-                    }
-                },
-                title: {
-                    text: ''
-                }
-            }, { // Secondary yAxis
-                title: {
-                    text: '',
-                    style: {}
-                },
-                labels: {
-                    format: ' '
-                },
-                opposite: true
-            }],
+            yAxis: [yAxis1Obj, yAxis2Obj],
             tooltip: {
                 shared: true
             },

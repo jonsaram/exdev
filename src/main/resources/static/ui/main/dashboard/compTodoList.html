@@ -1,0 +1,117 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@compId> = {
+		 contractInfo : {}
+		,todoList	  : []
+		,loadTodoList : function() {
+			var parm = {
+				 queryId 		: "faDashboard.getTodoList"
+				,requestParm	: {}
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				$.each(resultData.data, function(idx) {
+					if(this.EXEC_CHECK == "Y") 	resultData.data[idx].execCheckStr = "checked";
+					else						resultData.data[idx].execCheckStr = "";
+				});
+
+				var rparm = {
+					 targetId 		: "todoList"
+					,list			: resultData.data
+				}
+				C_COM.renderHtml("<@compId>", rparm);
+				
+				<@compId>.todoList = resultData.data
+			});  
+			 
+		 }
+		,registTodo : function() {
+			let parm = {
+				 title1 : "TO-DO 등록"	
+				,title2 : "TO-DO"
+			}
+			C_POP.open('popup_common_inputOnelinePopup', parm, function(retData) {
+				if(isValid(retData.msg)) {
+					// todo 등록
+					<@compId>.registTodoProcess(retData.msg);
+				}
+			});
+			
+		}
+		,registTodoProcess : function(todoMsg) {
+			let parm = {
+				 queryId 		: "faDashboard.registTodo"
+				,requestParm	: {
+					 TODO_ID		: C_COM.makeUniqueId()
+					,TODO			: todoMsg
+				 }
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				<@compId>.loadTodoList();
+			});  
+			
+		 }
+		,deleteTodo : function(idx) {
+			let todoInfo = <@compId>.todoList[idx];
+			
+			C_POP.confirm(`'${todoInfo.TODO}' 항목을 삭제 하시겠습니까?`, function() {
+				let parm = {
+					 queryId 		: "faDashboard.deleteTodo"
+					,requestParm	: todoInfo
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					<@compId>.loadTodoList();
+				});  
+			});
+			
+		 }
+		,checkProcess : function(index) {
+			let execCheck = <@compId>.todoList[index].EXEC_CHECK;
+			if(execCheck == 'Y') 	execCheck = 'N';
+			else					execCheck = 'Y';
+			
+			<@compId>.todoList[index].EXEC_CHECK = execCheck;
+			
+			
+			// TODO 상태 Update
+			let parm = {
+				 queryId 		: "faDashboard.updateTodo"
+				,requestParm	: <@compId>.todoList[index]
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				<@compId>.loadTodoList();
+			});  
+			
+			
+		 }
+	
+	}
+	// Component Load가 완료된후 실행 된다.
+	C_COMP.onLoadComp("<@compId>", function(data) {
+
+		<@compId>.contractInfo =  data.contractInfo;
+		
+		<@compId>.loadTodoList();
+		
+	});
+</script>
+
+	<div class="cont_box">
+		<div class="clearFix">
+			<h3 class="fl lh33">To do list</h3>
+			<button type="button" class="btn select fr" onclick="javascript:<@compId>.registTodo()">추가하기</button>
+	</div>
+	<ul class="todoList_wrap"  id="todoList">
+	</ul>
+	<script type="text/x-jsrender" id="todoList_template">
+	{{for list}}
+	<li>
+		<input type="checkbox" name="customer" class="check_undo" id="ck_{{:TODO_ID}}" onclick="<@compId>.checkProcess({{:#index}})" {{:execCheckStr}}>
+		<label for="ck_{{:TODO_ID}}"><span class="txt"><span>{{:UPDATE_DATE}} </span><span>: {{:TODO}}</span></span></label>
+		<button class="pay_close" onclick="<@compId>.deleteTodo({{:#index}})">닫기</button>
+	</li>
+	{{/for}}
+	</script>
+	<script type="text/x-jsrender" id="todoList_noData_template">	
+	<li><span class="txt tc">등록된 내용이 없습니다.</span></li>
+	</script>							
