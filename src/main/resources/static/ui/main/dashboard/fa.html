@@ -2,9 +2,18 @@
 <script type="text/javascript">
 var <@pageId> = { 
 		searchedPayment : []
+		,YEARLY_TARGET_PAYMENT : 0
+		,chartObj1 : null
+		,chartObj2 : null
+		,barChartObj1 : null
+		,barChartObj2 : null
 		,pageInit  : () =>{
 
-			<@pageId>.searchMonthlyPayment();
+			//당월/ 실행/ 영업 수수료 , 연간목표 수수료 , 달성률
+			<@pageId>.searchMonthlyPayment(()=>{<@pageId>.pageInit2()});
+	
+		}
+		,pageInit2 : () => {
 			
 			const yearsArray = Array.from({ length: 4 }, (_, index) => {
 				  const year = 2022 + index;
@@ -14,10 +23,11 @@ var <@pageId> = {
 			for( var i=1 ; i< 3 ; i++){
 
 				const gubun = i;
-				var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"+i}
+				var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"+gubun}
 				C_UICOM.makeSelectBox(yearsArrayList, "single");
-				C_UICOM.setSingleBox("<@pageId>_years"+i, dayjs().year());
-				C_UICOM.addChangeListener("<@pageId>_years"+i, function(dataObj) {
+				C_UICOM.setSingleBox("<@pageId>_years"+gubun, dayjs().year());
+				C_UICOM.addChangeListener("<@pageId>_years"+gubun, function(dataObj) {
+
 					if(dataObj == "susuRyo")
 					{
 						<@pageId>.searchPaymentSumTrend(gubun)
@@ -76,7 +86,9 @@ var <@pageId> = {
 			$("#<@pageId>_fromDate").val(fromDate);
 			$("#<@pageId>_toDate").val(toDate);
 
-			<@pageId>.getScheduleList();
+			<@pageId>.getScheduleList();			
+			
+			
 		}
 		,getScheduleList : (SEARCH_DATA) => {
 			
@@ -94,7 +106,7 @@ var <@pageId> = {
 			})
 
 		}
-		,searchMonthlyPayment : () =>{
+		,searchMonthlyPayment : (callback) =>{
 			
 			let ACHIEVE_RATE = 0;
 			var parm = {
@@ -124,6 +136,8 @@ var <@pageId> = {
 				$("#<@pageId>_sales .num").text( addComma(data.SALES_SUM_PAYMENT) );
 				
 				$("#<@pageId>_yearlyGoal").val( addComma(targetPayment) );	
+				<@pageId>.YEARLY_TARGET_PAYMENT = targetPayment;
+				if(callback ) callback();
 				
 				//년간 달성률
 				const yearlyPayment = data.YEARLY_PAYMENT;
@@ -143,6 +157,7 @@ var <@pageId> = {
 		    	}] )
 
 			});
+			
 		} 
 		,searchPaymentSumTrend : (gubun) => {
 		
@@ -168,7 +183,7 @@ var <@pageId> = {
 
 				console.log(paymentTrend);
 				
-				Highcharts.chart("<@pageId>_transition_chart"+gubun, {
+				const chartObj = Highcharts.chart("<@pageId>_transition_chart"+gubun, {
 				    chart: {
 				        zoomType: 'xy'
 				    },
@@ -197,13 +212,14 @@ var <@pageId> = {
 				            }
 				        },
 				        plotLines: [{
-				            value: 300,
+				            value: <@pageId>.YEARLY_TARGET_PAYMENT,
 				            color: "#75ba75",
 				            width: 2,
 				            label: {
 				                text: '목표',
 				                align: 'right'
-				            }
+				            },
+				            id: 'plot-line-id'
 				        }]
 				    }, {
 				        title: {
@@ -254,80 +270,97 @@ var <@pageId> = {
 				    }]
 				});					
 				
+				if( gubun == 1)<@pageId>.chartObj1 = chartObj;
+				if( gubun == 2)<@pageId>.chartObj2 = chartObj;
 			})
 	
 			
 		}	
 		,searchBarChart : (chartName, gubun) => {
-			
-				let data = 	<@pageId>.searchedPayment.map( payment =>{
-					
-					if( chartName == "execBosu"		) return payment.SUM_EXEC_PAYMENT / 10000 ;
-					if( chartName == "salesBosu"	) return payment.SUM_SALES_PAYMENT / 10000;
-					if( chartName == "customerTrend") return payment.SUM_COSTOMER ;
 
-				})		
+			let data = 	<@pageId>.searchedPayment.map( payment =>{
 				
-				let yAxisText 	= "";
-				let unit		= "만원";
-				if( chartName == "execBosu"		)yAxisText = "실행 수수료 추이";
-				if( chartName == "salesBosu"	)yAxisText = "영업 수수료 추이";
-				if( chartName == "customerTrend"){ yAxisText = "자문 고객 추이";unit = "명" }
+				if( chartName == "execBosu"		) return payment.SUM_EXEC_PAYMENT / 10000 ;
+				if( chartName == "salesBosu"	) return payment.SUM_SALES_PAYMENT / 10000;
+				if( chartName == "customerTrend") return payment.SUM_COSTOMER ;
 			
-				Highcharts.chart('<@pageId>_transition_chart'+gubun, {
-				    chart: {
-				        type: 'column'
-				    },
-				    credits: {enabled: false},
-				    title: {
-				        text: '',
-				        align: 'left'
-				    },
-				    xAxis: {
-				        categories: ['1월', '2월', '3월', '4월', '5월', '6월','7월', '8월', '9월', '10월', '11월', '12월'],
-				        crosshair: true,
-				    },
-				    yAxis: {
-				        min: 0,
-				        title: {
-				            text: yAxisText
-				        },
-				        labels: {
-				            format: '{value} '+unit,
-				            style: {
-		                        color: '#8A8C92',
-		                        fontFamily: 'Noto Sans KR',
-		                        fontSize: '11px'
-		                    }
-				        },				    
+			})		
+			
+			let yAxisText 	= "";
+			let unit		= "만원";
+			if( chartName == "execBosu"		)yAxisText = "실행 수수료 추이";
+			if( chartName == "salesBosu"	)yAxisText = "영업 수수료 추이";
+			if( chartName == "customerTrend"){ yAxisText = "자문 고객 추이";unit = "명" }
 
-				    },
-				    tooltip: {
-				        valueSuffix: ' '+unit
-					},
-				    legend: {
-				        enabled: false
-				    },				    
-				    series: [
-				        {
-				            name: '',
-				            data: data
-				            
-				            
-				        } 
-				    ]
-				});	
+/* 			if( gubun == 1 && <@pageId>.barChartObj1 ){
+				<@pageId>.barChartObj1.update({
+			        series: [{
+			            data: data
+			        }]
+				});
+				return;
+			}
+			if( gubun == 2 && <@pageId>.barChartObj2 ){
+				
+			}
+ */			
+			const chartObj = Highcharts.chart('<@pageId>_transition_chart'+gubun, {
+			    chart: {
+			        type: 'column'
+			    },
+			    credits: {enabled: false},
+			    title: {
+			        text: '',
+			        align: 'left'
+			    },
+			    xAxis: {
+			        categories: ['1월', '2월', '3월', '4월', '5월', '6월','7월', '8월', '9월', '10월', '11월', '12월'],
+			        crosshair: true,
+			    },
+			    yAxis: {
+			        min: 0,
+			        title: {
+			            text: yAxisText
+			        },
+			        labels: {
+			            format: '{value} '+unit,
+			            style: {
+			                      color: '#8A8C92',
+			                      fontFamily: 'Noto Sans KR',
+			                      fontSize: '11px'
+			                  }
+			        },				    
+			
+			    },
+			    tooltip: {
+			        valueSuffix: ' '+unit
+				},
+			    legend: {
+			        enabled: false
+			    },				    
+			    series: [
+			        {
+			            name: '',
+			            data: data
+			        } 
+			    ]
+			});	
+			
+			if( gubun == 1)<@pageId>.barChartObj1 = chartObj;
+			if( gubun == 2)<@pageId>.barChartObj2 = chartObj;
 				
 		}
 		,changeGoalVal : (obj) => {
 			
 	        const val = Number($(obj).nval());
 	        $("#<@pageId>_curMonthOSP+.sales_wrap .small_won > .num"	).text( addComma(val * 100000000) );
+	        
 		}
 		,blurGoalVal : (obj) => {
 			
 			const val = Number($(obj).nval());
-			const targetPayment = val * 100000000 ;		
+			const targetPayment = val * 100000000 ;	
+			<@pageId>.YEARLY_TARGET_PAYMENT = targetPayment;
 			var parm = {
 				 queryId 		: "faDashboard.updateTargetPayment"
 				,requestParm	: {
@@ -339,10 +372,32 @@ var <@pageId> = {
 			C_COM.requestQuery(parm, function(resultData) {
 
 				<@pageId>.searchMonthlyPayment();
-				
+			
+				<@pageId>.updateYearyTargetPayment();
+
 			});				
 			
-		} 		
+		} 
+		,updateYearyTargetPayment : () => {
+			
+			const plotObj = {
+			        value: <@pageId>.YEARLY_TARGET_PAYMENT/100000000,
+			        color: "#75ba75",
+			        width: 2,
+			        label: {
+			            text: '목표',
+			            align: 'right'
+			        },
+			        id: 'plot-line-id'
+			    }				
+			<@pageId>.chartObj1.yAxis[0].removePlotLine('plot-line-id');
+			<@pageId>.chartObj1.yAxis[0].addPlotLine(plotObj);
+			<@pageId>.chartObj2.yAxis[0].removePlotLine('plot-line-id');
+			<@pageId>.chartObj2.yAxis[0].addPlotLine(plotObj);
+			<@pageId>.chartObj1.redraw();
+			<@pageId>.chartObj2.redraw();
+			
+		}
 		,nameSearch : (e) => {
 			
 			 if (e.key === "Enter") {

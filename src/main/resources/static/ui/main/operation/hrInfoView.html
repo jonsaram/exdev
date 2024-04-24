@@ -3,6 +3,8 @@
 	var <@pageId> = {
 		recvData : []	
 		,requestParm :{}
+		,educationList : []
+		,careerList : []
 		,backTo : () => {
 			
 			C_HM.historyBack();
@@ -113,6 +115,9 @@
 					C_COM.renderHtml("<@pageId>", rparm3);
 					C_COM.renderHtml("<@pageId>", rparm4);
 				
+					<@pageId>.educationList = rparm1.list;
+					<@pageId>.careerList 	= rparm2.list;
+					
 				}else{
 					C_POP.alert(resultData.msg)
 				}
@@ -125,9 +130,34 @@
 			}
 
 		}
+		,education : (clickedData) => {
+
+			const param = { recvData : <@pageId>.recvData , clickedData : clickedData}
+	 		C_POP.open('popup_operation_hrInfoEducationPopup',param, function(retData) {
+	 			<@pageId>.getHistories();
+			});
+		}
+		,modiEducationData : (index) => {
+			
+			const educationData = <@pageId>.educationList[index];
+			<@pageId>.education( educationData );
+		}
+		,career : (clickedData) => {
+
+			const param = { recvData : <@pageId>.recvData , clickedData : clickedData}
+	 		C_POP.open('popup_operation_hrInfoCareerPopup',param, function(retData) {
+	 			<@pageId>.getHistories();
+			});
+		}
+		,modiCareerData : (index) => {
+			
+			const careerData = <@pageId>.careerList[index];
+			<@pageId>.career( careerData );
+		}
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function(param) {
+
 		<@pageId>.recvData = param;
  		<@pageId>.pageInit( param );
  		<@pageId>.setHandler();
@@ -203,7 +233,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">학력</h3>
-							<!-- <button class="btn small select fr">추가</button> -->
+							<button class="btn small select fr" onclick="<@pageId>.education()">추가</button>
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -211,10 +241,10 @@
 								<caption>학력 리스트</caption>
 								<colgroup>
 									<col style="width:15%;"/>
-									<col style="width:20%;"/>
-									<col style="width:25%;"/>
-									<col style="width:25%;"/>
+									<col style="width:30%;"/>
+									<col style="width:30%;"/>
 									<col style="width:15%;"/>
+									<col style="width:10%;"/>
 								</colgroup>
 								<thead>
 									<tr>
@@ -229,12 +259,12 @@
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_educationList_template">	
 								{{for list}}
-									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
- 										<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
- 										<td id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
- 										<td id='SCHOOL_NAME'	value='{{:SCHOOL_NAME}}'	>{{:SCHOOL_NAME}}</td>
- 										<td id='MAJOR'			value='{{:MAJOR}}' 			>{{:MAJOR}}</td>
- 										<td id='GRADUATE_YN'	value='{{:GRADUATE_YN}}' 	>{{:GRADUATE_YN}}</td>
+									<tr name="<@pageId>_tr_{{:#index}}" onclick='<@pageId>.modiEducationData({{:#index}})'>
+ 										<td class='tl' 	id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
+ 										<td class='tl' 	id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
+ 										<td class='tl'	id='SCHOOL_NAME'	value='{{:SCHOOL_NAME}}'	>{{:SCHOOL_NAME}}</td>
+ 										<td class='tl' 	id='MAJOR'			value='{{:MAJOR}}' 			>{{:MAJOR}}</td>
+ 										<td class='tc' 	id='GRADUATE_YN'	value='{{:GRADUATE_YN}}' 	>{{:GRADUATE_YN}}</td>
 									</tr>
 								{{/for}}
 								</script>
@@ -250,7 +280,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">경력</h3>
-							<!-- <button class="btn small select fr">추가</button> -->
+							<button class="btn small select fr" onclick="<@pageId>.career()">추가</button>
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -258,10 +288,10 @@
 								<caption>경력 리스트</caption>
 								<colgroup>
 									<col style="width:15%;"/>
+									<col style="width:25%;"/>
 									<col style="width:20%;"/>
-									<col style="width:25%;"/>
-									<col style="width:25%;"/>
-									<col style="width:15%;"/>
+									<col style="width:20%;"/>
+									<col style="width:20%;"/>
 								</colgroup>
 								<thead>
 									<tr>
@@ -299,7 +329,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">직책 승급 스토리</h3>
-							<!-- <button class="btn small select fr">추가</button> -->
+							<button class="btn small select fr">추가</button>
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -339,7 +369,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">등급 승급 스토리</h3>
-							<!-- <button class="btn small select fr">추가</button> -->
+							<button class="btn small select fr">등급변경</button>
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
