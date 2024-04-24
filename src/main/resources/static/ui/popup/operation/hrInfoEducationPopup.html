@@ -5,12 +5,18 @@
 		clickedData : {},
 		pageInit : ()=>{
 
+			<@popupId>.setTitleHeight();
 			$("#<@popupId>_GUBUN").val(<@popupId>.clickedData.GUBUN)
 			$("#<@popupId>_START_PERIOD_DATE").val(<@popupId>.clickedData.START_PERIOD_DATE)
 			$("#<@popupId>_END_PERIOD_DATE").val(<@popupId>.clickedData.END_PERIOD_DATE)
 			$("#<@popupId>_SCHOOL_NAME").val(<@popupId>.clickedData.SCHOOL_NAME)
 			$("#<@popupId>_MAJOR").val(<@popupId>.clickedData.MAJOR)
 			$("[name='<@popupId>_GRADUATE_YN'][value='"+<@popupId>.clickedData.GRADUATE_YN+"']").prop("checked","true");
+			
+		}	
+		,setTitleHeight : () => {
+			
+	  	 	$("#<@popupId> .tit").html( "학력 정보 수정" );
 			
 		}
 		,delete : () => {
@@ -107,6 +113,8 @@
 		if(<@popupId>.clickedData){
 			
 			<@popupId>.pageInit();
+		}else{
+			$("#<@popupId>_delBtn").hide();
 		}
 	});
 </script>
@@ -168,7 +176,7 @@
 			</ul>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select" onclick="<@popupId>.delete()">삭제</button>
+			<button type="button" class="btn select" onclick="<@popupId>.delete()" id="<@popupId>_delBtn">삭제</button>
 			<button type="button" class="btn select" onclick="<@popupId>.save()">저장</button>
 			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
 		</div>

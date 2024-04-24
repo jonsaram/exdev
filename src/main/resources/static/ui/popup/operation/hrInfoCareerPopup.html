@@ -4,13 +4,19 @@
 		recvData : [],
 		clickedData : {},
 		pageInit : ()=>{
-
-			$("#<@popupId>_GUBUN").val(<@popupId>.clickedData.GUBUN)
-			$("#<@popupId>_START_PERIOD_DATE").val(<@popupId>.clickedData.START_PERIOD_DATE)
-			$("#<@popupId>_END_PERIOD_DATE").val(<@popupId>.clickedData.END_PERIOD_DATE)
-			$("#<@popupId>_DEPARTMENT").val(<@popupId>.clickedData.DEPARTMENT)
-			$("#<@popupId>_POSITION").val(<@popupId>.clickedData.POSITION)
-			$("#<@popupId>_BIZ_INFORM").val(<@popupId>.clickedData.BIZ_INFORM)
+			
+			<@popupId>.setTitleHeight();
+			$("#<@popupId>_GUBUN").val(<@popupId>.clickedData.GUBUN);
+			$("#<@popupId>_START_PERIOD_DATE").val(<@popupId>.clickedData.START_PERIOD_DATE);
+			$("#<@popupId>_END_PERIOD_DATE").val(<@popupId>.clickedData.END_PERIOD_DATE);
+			$("#<@popupId>_DEPARTMENT").val(<@popupId>.clickedData.DEPARTMENT);
+			$("#<@popupId>_POSITION").val(<@popupId>.clickedData.POSITION);
+			$("#<@popupId>_BIZ_INFORM").val(<@popupId>.clickedData.BIZ_INFORM);
+			
+		}	
+		,setTitleHeight : () => {
+			
+	  	 	$("#<@popupId> .tit").html( "경력 정보 수정" );
 			
 		}
 		,delete : () => {
@@ -107,6 +113,8 @@
 		if(<@popupId>.clickedData){
 			
 			<@popupId>.pageInit();
+		}else{
+			$("#<@popupId>_delBtn").hide();
 		}
 	});
 </script>
@@ -165,7 +173,7 @@
 			</ul>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select" onclick="<@popupId>.delete()">삭제</button>
+			<button type="button" class="btn select" onclick="<@popupId>.delete()" id="<@popupId>_delBtn">삭제</button>
 			<button type="button" class="btn select" onclick="<@popupId>.save()">저장</button>
 			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
 		</div>
