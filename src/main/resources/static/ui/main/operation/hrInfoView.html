@@ -5,6 +5,8 @@
 		,requestParm :{}
 		,educationList : []
 		,careerList : []
+		,positionList : []
+		,gradeList : []
 		,backTo : () => {
 			
 			C_HM.historyBack();
@@ -117,6 +119,8 @@
 				
 					<@pageId>.educationList = rparm1.list;
 					<@pageId>.careerList 	= rparm2.list;
+					<@pageId>.positionList 	= rparm3.list;
+					<@pageId>.gradeList 	= rparm4.list;
 					
 				}else{
 					C_POP.alert(resultData.msg)
@@ -153,6 +157,30 @@
 			
 			const careerData = <@pageId>.careerList[index];
 			<@pageId>.career( careerData );
+		}
+		,position : (clickedData) => {
+
+			const param = { recvData : <@pageId>.recvData , clickedData : clickedData}
+	 		C_POP.open('popup_operation_hrInfoPositionPopup',param, function(retData) {
+	 			<@pageId>.getHistories();
+			});
+		}
+		,modiPositionData : (index) => {
+			
+			const positionData = <@pageId>.positionList[index];
+			<@pageId>.position( positionData );
+		}
+		,grade : (clickedData) => {
+			debugger;
+			const param = { recvData : <@pageId>.recvData , clickedData : clickedData}
+	 		C_POP.open('popup_operation_hrInfoGradePopup',param, function(retData) {
+	 			<@pageId>.getHistories();
+			});
+		}
+		,modiGradeData : (index) => {
+			
+			const gradeData = <@pageId>.gradeList[index];
+			<@pageId>.grade( gradeData );
 		}
 	}
 	// Page Load가 완료된후 실행 된다.
@@ -306,7 +334,7 @@
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_careerList_template">	
 								{{for list}}
-									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+									<tr name="<@pageId>_tr_{{:#index}}"  onclick='<@pageId>.modiCareerData({{:#index}})'>
  										<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
  										<td id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
  										<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
@@ -329,7 +357,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">직책 승급 스토리</h3>
-							<button class="btn small select fr">추가</button>
+							<button class="btn small select fr" onclick="<@pageId>.position()">추가</button>
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -351,7 +379,7 @@
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_positionList_template">	
 								{{for list}}
-									<tr name="<@pageId>_tr_{{:#index}}">
+									<tr name="<@pageId>_tr_{{:#index}}" onclick='<@pageId>.modiPositionData({{:#index}})'>
  										<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
  										<td id='POSITION'		value='{{:POSITION}}'		>{{:POSITION}}</td>
  										<td id='PA_DATE'		value='{{:PA_DATE}}' 		>{{:PA_DATE}}</td>
@@ -369,7 +397,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">등급 승급 스토리</h3>
-							<button class="btn small select fr">등급변경</button>
+							<button class="btn small select fr" onclick="<@pageId>.grade()">등급변경</button>
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -389,7 +417,7 @@
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_gradeList_template">	
 								{{for list}}
-									<tr name="<@pageId>_tr_{{:#index}}">
+									<tr name="<@pageId>_tr_{{:#index}}" onclick='<@pageId>.modiGradeData({{:#index}})'>
  										<td id='GRADE_NM'		value='{{:GRADE_NM}}' 		>{{:GRADE_NM}}</td>
  										<td id='UPGRADE_DATE'	value='{{:UPGRADE_DATE}}' 	>{{:UPGRADE_DATE}}</td>
 									</tr>

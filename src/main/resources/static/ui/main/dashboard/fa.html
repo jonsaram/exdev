@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@pageId> = { 
-		searchedPayment : []
+		 searchedPayment : []
 		,YEARLY_TARGET_PAYMENT : 0
 		,chartObj1 : null
 		,chartObj2 : null
@@ -15,104 +15,74 @@ var <@pageId> = {
 		}
 		,pageInit2 : () => {
 			
-			const yearsArray = Array.from({ length: 4 }, (_, index) => {
-				  const year = 2022 + index;
-				  return [year.toString(), year + "년"];
-			});
-			
-			for( var i=1 ; i< 3 ; i++){
-
-				const gubun = i;
-				var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"+gubun}
-				C_UICOM.makeSelectBox(yearsArrayList, "single");
-				C_UICOM.setSingleBox("<@pageId>_years"+gubun, dayjs().year());
-				C_UICOM.addChangeListener("<@pageId>_years"+gubun, function(dataObj) {
-
-					if(dataObj == "susuRyo")
-					{
-						<@pageId>.searchPaymentSumTrend(gubun)
-						
-					}else{
-						<@pageId>.searchBarChart(dataObj,gubun)
-					}
-				});			
-
-			}
-
-			<@pageId>.searchPaymentSumTrend('1');
-			<@pageId>.searchPaymentSumTrend('2');
-			    
 			const transitionData = [
 				 ["susuRyo","수수료 합계 추이"]
 				,["execBosu","실행 수수료 추이"]
 				,["salesBosu","영업 수수료 추이"]
 				,["customerTrend","자문 고객 추이"]
 			]
-			var singleboxList = { 
-				  data 			: transitionData
-			 	,targetId 		: "<@pageId>_selectorChart1" 
-			}
-			C_UICOM.makeSelectBox(singleboxList, "single");
-			C_UICOM.addChangeListener("<@pageId>_selectorChart1", function(dataObj) {
-				
-				if(C_UICOM.getData("<@pageId>_selectorChart1") == "susuRyo")
-				{
-					<@pageId>.searchPaymentSumTrend('1')
-					
-				}else{
-					<@pageId>.searchBarChart(dataObj,'1')
-				}
-				
-			});
-			var singleboxList2 = { 
-				  data 			: transitionData
-			 	,targetId 		: "<@pageId>_selectorChart2" 
-			}
-			C_UICOM.makeSelectBox(singleboxList2, "single");
-			C_UICOM.addChangeListener("<@pageId>_selectorChart2", function(dataObj) {
-				
-				if(C_UICOM.getData("<@pageId>_selectorChart2") == "susuRyo")
-				{
-					<@pageId>.searchPaymentSumTrend('2')
-					
-				}else{
-					<@pageId>.searchBarChart(dataObj,'2')
-				}
-				
-			});
 
-			const toDate	= dayjs().format("YYYY-MM-DD");
-			const fromDate 	= dayjs().subtract(1, 'month').format("YYYY-MM-DD");
-			$("#<@pageId>_fromDate").val(fromDate);
-			$("#<@pageId>_toDate").val(toDate);
+			const yearsArray = _getYearDataList();
 
-			<@pageId>.getScheduleList();			
+			for( var i=1 ; i<= 2 ; i++){
+				
+				const gubun = i;
+				
+				var singleboxList 	= { data	: transitionData	,targetId	: "<@pageId>_selectorChart"+gubun}
+				C_UICOM.makeSelectBox(singleboxList	,	"single");
+				C_UICOM.addChangeListener("<@pageId>_selectorChart"+gubun, function(dataObj) {
+					
+					if(C_UICOM.getData("<@pageId>_selectorChart"+gubun) == "susuRyo")
+					{
+						<@pageId>.searchPaymentSumTrend(gubun)
+						
+					}else{
+						<@pageId>.searchBarChart(dataObj,gubun)
+					}
+					
+				});
+				
+				var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"+gubun}
+				C_UICOM.makeSelectBox(yearsArrayList, "single");
+				C_UICOM.setSingleBox("<@pageId>_years"+gubun, dayjs().year());
+				C_UICOM.addChangeListener("<@pageId>_years"+gubun, function(dataObj) {
+
+					const chart=C_UICOM.getData("<@pageId>_selectorChart"+gubun);
+					
+					if(chart == "susuRyo")	<@pageId>.searchPaymentSumTrend(gubun)
+					else					<@pageId>.searchBarChart(chart,gubun);
+					
+				});			
+
+				<@pageId>.searchPaymentSumTrend(gubun);
+			}			
 			
+			<@pageId>.getScheduleList();			
 			
 		}
 		,getScheduleList : (SEARCH_DATA) => {
 			
 			var parm = {
-				queryId 		: "faDashboard.getScheduleList"
+				 queryId 		: "faDashboard.getScheduleList"
 				,requestParm	: {SEARCH_DATA : SEARCH_DATA}
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				
 	        	let rparm = {
-	           			targetId   : "<@pageId>_schedule"
-						,list       : resultData.data
+					 targetId	: "<@pageId>_schedule"
+					,list		: resultData.data
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 			})
 
 		}
-		,searchMonthlyPayment : (callback) =>{
+		,searchMonthlyPayment	: (callback) =>{
 			
 			let ACHIEVE_RATE = 0;
 			var parm = {
-					 queryId 		: "faDashboard.getOrgSellingPirce"
-					,requestParm	: {
-										CUR_YEAR_DATE : dayjs().format("YYYY")	
+				 queryId 		: 	"faDashboard.getOrgSellingPirce"
+				,requestParm	: 	{
+										 CUR_YEAR_DATE	: dayjs().format("YYYY")	
 										,CUR_MONTH_DATE : dayjs().format("YYYY-MM")	
 									}
 			}
@@ -121,30 +91,31 @@ var <@pageId> = {
 
 				const data = resultData.data[0];
 				
-				//년간 목표 수수료
-				const targetPayment = data.TARGET_PAYMENT;
-				
 				$("#<@pageId>_curMonthOSP").text( `당월 수수료(${dayjs().format("YYYY.MM")})` );
-				$("#<@pageId>_curMonthOSP+.sales_wrap .big_won > .num"		).text( addComma(data.SUM_PAYMENT) );
-				const monthlyTargetPayment = ((targetPayment/12)*100000000).toFixed(2);
-				$("#<@pageId>_curMonthOSP+.sales_wrap .small_won> .num").text( addComma( (targetPayment/12 ).toFixed(2)) +'억원' );
 				
-				$("#<@pageId>_curMonthOSP+.sales_wrap .potential  .num_wrap > .num"	).text( addComma(data.POTENTIAL_CUSTOMER) );
-				$("#<@pageId>_curMonthOSP+.sales_wrap .customer   .num_wrap > .num"	).text( addComma(data.AFFILIATE_CNT) );
+				const targetPayment = data.TARGET_PAYMENT;
+				const curMonthOSP = "<@pageId>_curMonthOSP+.sales_wrap";
+				const monthlyTargetPayment = ( (targetPayment / _HUNDRED_MILLION)/12 ).toFixed(2);
 				
-				$("#<@pageId>_exec	.num").text( addComma(data.EXEC_PAYMENT) );
-				$("#<@pageId>_sales .num").text( addComma(data.SALES_SUM_PAYMENT) );
+				$("#"+curMonthOSP+" .big_won 	.num"	).text( addComma(data.SUM_PAYMENT) 				);
+				$("#"+curMonthOSP+" .small_won	.num"	).text( addComma(monthlyTargetPayment) +'억원' 	);
+				$("#"+curMonthOSP+" .potential  .num"	).text( addComma(data.POTENTIAL_CUSTOMER) 		);
+				$("#"+curMonthOSP+" .customer   .num"	).text( addComma(data.AFFILIATE_CNT) 			);
 				
-				$("#<@pageId>_yearlyGoal").val( addComma(targetPayment) );	
+				$("#<@pageId>_exec	.num"				).text( addComma(data.EXEC_PAYMENT) 			);
+				$("#<@pageId>_sales .num"				).text( addComma(data.SALES_SUM_PAYMENT) 		);
+				
+				$("#<@pageId>_yearlyGoal").val( addComma(targetPayment / _HUNDRED_MILLION) );	
+				
 				<@pageId>.YEARLY_TARGET_PAYMENT = targetPayment;
 				if(callback ) callback();
 				
 				//년간 달성률
 				const yearlyPayment = data.YEARLY_PAYMENT;
-				ACHIEVE_RATE = ( (yearlyPayment * 100) / (targetPayment * 100000000 ) ).toFixed(2);
+				ACHIEVE_RATE = ( (yearlyPayment * 100) / (targetPayment) ).toFixed(2);
 
-				$("#<@pageId>_faSection1 .piechart_wrap .percent > .num").text( addComma(ACHIEVE_RATE) );
-				$("#<@pageId>_faSection1 .piechart_wrap .won > .num").text( addComma(yearlyPayment) );
+				$("#<@pageId>_faSection1 .piechart_wrap .percent 	> .num").text( addComma(ACHIEVE_RATE) );
+				$("#<@pageId>_faSection1 .piechart_wrap .won 		> .num").text( addComma(yearlyPayment) );
 
 				_pieChart('<@pageId>_goalAcieveRate_chart' ,[{
 			        type: 'pie',
@@ -162,15 +133,15 @@ var <@pageId> = {
 		,searchPaymentSumTrend : (gubun) => {
 		
 			var parm = {
-					 queryId 		: "faDashboard.getPaymentByMonth"
-					,requestParm	: {CUR_YEAR_DATE : C_UICOM.getData("<@pageId>_years"+gubun)}
+				 queryId 		: "faDashboard.getPaymentByMonth"
+				,requestParm	: {CUR_YEAR_DATE : C_UICOM.getData("<@pageId>_years"+gubun)}
 			}
 
 			C_COM.requestQuery(parm, function(resultData) {
 				
-				<@pageId>.searchedPayment = resultData.data ;
+				<@pageId>.searchedPayment	= resultData.data ;
 				
-				const monthlyPayment 	= resultData.data ;
+				const monthlyPayment		= resultData.data ;
 				
 				const paymentTrend = [];
 				let cumulativePayment = 0;
@@ -181,8 +152,6 @@ var <@pageId> = {
 				    paymentTrend.push(cumulativePayment);
 				})
 
-				console.log(paymentTrend);
-				
 				const chartObj = Highcharts.chart("<@pageId>_transition_chart"+gubun, {
 				    chart: {
 				        zoomType: 'xy'
@@ -212,7 +181,7 @@ var <@pageId> = {
 				            }
 				        },
 				        plotLines: [{
-				            value: <@pageId>.YEARLY_TARGET_PAYMENT,
+							value: <@pageId>.YEARLY_TARGET_PAYMENT / _HUNDRED_MILLION,
 				            color: "#75ba75",
 				            width: 2,
 				            label: {
@@ -220,8 +189,9 @@ var <@pageId> = {
 				                align: 'right'
 				            },
 				            id: 'plot-line-id'
-				        }]
-				    }, {
+									}]
+				    	}
+				    	,{
 				        title: {
 				            text: '월별 수수료',
 				            style:{
@@ -273,93 +243,91 @@ var <@pageId> = {
 				if( gubun == 1)<@pageId>.chartObj1 = chartObj;
 				if( gubun == 2)<@pageId>.chartObj2 = chartObj;
 			})
-	
 			
 		}	
 		,searchBarChart : (chartName, gubun) => {
 
-			let data = 	<@pageId>.searchedPayment.map( payment =>{
-				
-				if( chartName == "execBosu"		) return payment.SUM_EXEC_PAYMENT / 10000 ;
-				if( chartName == "salesBosu"	) return payment.SUM_SALES_PAYMENT / 10000;
-				if( chartName == "customerTrend") return payment.SUM_COSTOMER ;
-			
-			})		
-			
-			let yAxisText 	= "";
-			let unit		= "만원";
-			if( chartName == "execBosu"		)yAxisText = "실행 수수료 추이";
-			if( chartName == "salesBosu"	)yAxisText = "영업 수수료 추이";
-			if( chartName == "customerTrend"){ yAxisText = "자문 고객 추이";unit = "명" }
+			const CN = chartName;
+			var parm = {
+					 queryId 		: "faDashboard.getPaymentByMonth"
+					,requestParm	: {CUR_YEAR_DATE : C_UICOM.getData("<@pageId>_years"+gubun)}
+			}
 
-/* 			if( gubun == 1 && <@pageId>.barChartObj1 ){
-				<@pageId>.barChartObj1.update({
-			        series: [{
-			            data: data
-			        }]
-				});
-				return;
-			}
-			if( gubun == 2 && <@pageId>.barChartObj2 ){
+			C_COM.requestQuery(parm, function(resultData) {
 				
-			}
- */			
-			const chartObj = Highcharts.chart('<@pageId>_transition_chart'+gubun, {
-			    chart: {
-			        type: 'column'
-			    },
-			    credits: {enabled: false},
-			    title: {
-			        text: '',
-			        align: 'left'
-			    },
-			    xAxis: {
-			        categories: ['1월', '2월', '3월', '4월', '5월', '6월','7월', '8월', '9월', '10월', '11월', '12월'],
-			        crosshair: true,
-			    },
-			    yAxis: {
-			        min: 0,
-			        title: {
-			            text: yAxisText
-			        },
-			        labels: {
-			            format: '{value} '+unit,
-			            style: {
-			                      color: '#8A8C92',
-			                      fontFamily: 'Noto Sans KR',
-			                      fontSize: '11px'
-			                  }
-			        },				    
-			
-			    },
-			    tooltip: {
-			        valueSuffix: ' '+unit
-				},
-			    legend: {
-			        enabled: false
-			    },				    
-			    series: [
-			        {
-			            name: '',
-			            data: data
-			        } 
-			    ]
-			});	
-			
-			if( gubun == 1)<@pageId>.barChartObj1 = chartObj;
-			if( gubun == 2)<@pageId>.barChartObj2 = chartObj;
+				<@pageId>.searchedPayment = resultData.data ;
+				
+				let data = 	<@pageId>.searchedPayment.map( payment =>{
+					
+					if( CN == "execBosu"		) return isEmpty(payment.SUM_EXEC_PAYMENT) ? 0 : payment.SUM_EXEC_PAYMENT / 10000 ;
+					if( CN == "salesBosu"	) return isEmpty(payment.SUM_SALES_PAYMENT) ? 0 : payment.SUM_SALES_PAYMENT / 10000;
+					if( CN == "customerTrend") return isEmpty(payment.SUM_COSTOMER) ? 0 : payment.SUM_COSTOMER ;
+				
+				})		
+
+				let yAxisText 	= "";
+				let unit		= "만원";
+				if( CN == "execBosu"	)	yAxisText = "실행 수수료 추이";
+				if( CN == "salesBosu"	)	yAxisText = "영업 수수료 추이";
+				if( CN == "customerTrend"){ yAxisText = "자문 고객 추이";unit = "명" }
+
+				const chartObj = Highcharts.chart('<@pageId>_transition_chart'+gubun, {
+				    chart: {
+				        type: 'column'
+				    },
+				    credits: {enabled: false},
+				    title: {
+				        text: '',
+				        align: 'left'
+				    },
+				    xAxis: {
+				        categories: ['1월', '2월', '3월', '4월', '5월', '6월',	'7월', '8월', '9월', '10월', '11월', '12월'],
+				        crosshair: true,
+				    },
+				    yAxis: {
+				        min: 0,
+				        title: {
+				            text: yAxisText
+				        },
+				        labels: {
+				            format: '{value} '+unit,
+				            style: {
+				                      color: '#8A8C92',
+				                      fontFamily: 'Noto Sans KR',
+				                      fontSize: '11px'
+				                  }
+				        },				    
+				    },
+				    tooltip: {
+				        valueSuffix: ' '+unit
+					},
+				    legend: {
+				        enabled: false
+				    },				    
+				    series: [
+				        {
+				            name: '',
+				            data: data
+				        } 
+				    ]
+				});	
+				
+				if( gubun == 1)<@pageId>.barChartObj1 = chartObj;
+				if( gubun == 2)<@pageId>.barChartObj2 = chartObj;	
+				
+			});
 				
 		}
 		,changeGoalVal : (obj) => {
 			
 	        const val = Number($(obj).nval());
-	        $("#<@pageId>_curMonthOSP+.sales_wrap .small_won > .num"	).text( addComma(val * 100000000) );
+	        $("#<@pageId>_curMonthOSP+.sales_wrap .small_won > .num"	).text( addComma(val * _HUNDRED_MILLION) );
 	        
 		}
 		,blurGoalVal : (obj) => {
 			
 			const val = Number($(obj).nval());
-			const targetPayment = val * 100000000 ;	
+			const targetPayment = val * _HUNDRED_MILLION ;	
 			<@pageId>.YEARLY_TARGET_PAYMENT = targetPayment;
 			var parm = {
 				 queryId 		: "faDashboard.updateTargetPayment"
@@ -381,7 +349,7 @@ var <@pageId> = {
 		,updateYearyTargetPayment : () => {
 			
 			const plotObj = {
-			        value: <@pageId>.YEARLY_TARGET_PAYMENT/100000000,
+			        value: <@pageId>.YEARLY_TARGET_PAYMENT / _HUNDRED_MILLION,
 			        color: "#75ba75",
 			        width: 2,
 			        label: {
@@ -389,7 +357,8 @@ var <@pageId> = {
 			            align: 'right'
 			        },
 			        id: 'plot-line-id'
-			    }				
+			}
+			
 			<@pageId>.chartObj1.yAxis[0].removePlotLine('plot-line-id');
 			<@pageId>.chartObj1.yAxis[0].addPlotLine(plotObj);
 			<@pageId>.chartObj2.yAxis[0].removePlotLine('plot-line-id');
@@ -416,7 +385,6 @@ C_PM.onLoadPage("<@pageId>", function() {
 		
 		C_COMP.import("<@pageId>_toDoList", "main_dashboard_compTodoList", {}, function(data) {
 		});
-
 		
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -479,7 +447,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<div class="cont_box right">
 							<div class="piechart_wrap">
 								<div class="percent"><span class="num">58.43</span>%</div>
-								<div class="won"><span class="num"></span>억원</div>
+								<div class="won"><span class="num"></span>원</div>
 							</div>
 							<figure>
 								<div class="chart" id="<@pageId>_goalAcieveRate_chart"  style="height:230px"></div>
@@ -586,6 +554,5 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					</section>
 				</div>
 			</section>
-
 		</div>
 	</div>
