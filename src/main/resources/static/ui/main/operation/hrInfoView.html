@@ -3,6 +3,10 @@
 	var <@pageId> = {
 		recvData : []	
 		,requestParm :{}
+		,educationList : []
+		,careerList : []
+		,positionList : []
+		,gradeList : []
 		,backTo : () => {
 			
 			C_HM.historyBack();
@@ -49,11 +53,28 @@
 
 					<@pageId>.recvData = <@pageId>.requestParm;
 					<@pageId>.setParamOnThisPage( <@pageId>.requestParm );
+					<@pageId>.setUserAuth(<@pageId>.requestParm);
+					
+					
 
 				}else{
 					C_POP.alert(resultData.msg)
 				}
 			});				
+		}		
+		,setUserAuth : (requestParm) => {
+			if( isEmpty(requestParm?.ROLE_ID) ){
+				requestParm["ROLE_ID"] = 'USER';
+			}
+			//사용자 추가 시 자동으로 실행.
+			let parm = {
+	                queryId        : "system.setUserAuthSeries"
+	               ,requestParm    : requestParm
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+			});			
+			
 		} 		
 		,openPopup : () => {
 			
@@ -113,6 +134,11 @@
 					C_COM.renderHtml("<@pageId>", rparm3);
 					C_COM.renderHtml("<@pageId>", rparm4);
 				
+					<@pageId>.educationList = rparm1.list;
+					<@pageId>.careerList 	= rparm2.list;
+					<@pageId>.positionList 	= rparm3.list;
+					<@pageId>.gradeList 	= rparm4.list;
+					
 				}else{
 					C_POP.alert(resultData.msg)
 				}
@@ -125,9 +151,58 @@
 			}
 
 		}
+		,education : (clickedData) => {
+
+			const param = { recvData : <@pageId>.recvData , clickedData : clickedData}
+	 		C_POP.open('popup_operation_hrInfoEducationPopup',param, function(retData) {
+	 			<@pageId>.getHistories();
+			});
+		}
+		,modiEducationData : (index) => {
+			
+			const educationData = <@pageId>.educationList[index];
+			<@pageId>.education( educationData );
+		}
+		,career : (clickedData) => {
+
+			const param = { recvData : <@pageId>.recvData , clickedData : clickedData}
+	 		C_POP.open('popup_operation_hrInfoCareerPopup',param, function(retData) {
+	 			<@pageId>.getHistories();
+			});
+		}
+		,modiCareerData : (index) => {
+			
+			const careerData = <@pageId>.careerList[index];
+			<@pageId>.career( careerData );
+		}
+		,position : (clickedData) => {
+
+			const param = { recvData : <@pageId>.recvData , clickedData : clickedData}
+	 		C_POP.open('popup_operation_hrInfoPositionPopup',param, function(retData) {
+	 			<@pageId>.getHistories();
+			});
+		}
+		,modiPositionData : (index) => {
+			
+			const positionData = <@pageId>.positionList[index];
+			<@pageId>.position( positionData );
+		}
+		,grade : (clickedData) => {
+			debugger;
+			const param = { recvData : <@pageId>.recvData , clickedData : clickedData}
+	 		C_POP.open('popup_operation_hrInfoGradePopup',param, function(retData) {
+	 			<@pageId>.getHistories();
+			});
+		}
+		,modiGradeData : (index) => {
+			
+			const gradeData = <@pageId>.gradeList[index];
+			<@pageId>.grade( gradeData );
+		}
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function(param) {
+
 		<@pageId>.recvData = param;
  		<@pageId>.pageInit( param );
  		<@pageId>.setHandler();
@@ -203,7 +278,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">학력</h3>
-							<!-- <button class="btn small select fr">추가</button> -->
+							<button class="btn small select fr" onclick="<@pageId>.education()">추가</button>
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -211,10 +286,10 @@
 								<caption>학력 리스트</caption>
 								<colgroup>
 									<col style="width:15%;"/>
-									<col style="width:20%;"/>
-									<col style="width:25%;"/>
-									<col style="width:25%;"/>
+									<col style="width:30%;"/>
+									<col style="width:30%;"/>
 									<col style="width:15%;"/>
+									<col style="width:10%;"/>
 								</colgroup>
 								<thead>
 									<tr>
@@ -229,12 +304,12 @@
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_educationList_template">	
 								{{for list}}
-									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
- 										<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
- 										<td id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
- 										<td id='SCHOOL_NAME'	value='{{:SCHOOL_NAME}}'	>{{:SCHOOL_NAME}}</td>
- 										<td id='MAJOR'			value='{{:MAJOR}}' 			>{{:MAJOR}}</td>
- 										<td id='GRADUATE_YN'	value='{{:GRADUATE_YN}}' 	>{{:GRADUATE_YN}}</td>
+									<tr name="<@pageId>_tr_{{:#index}}" onclick='<@pageId>.modiEducationData({{:#index}})'>
+ 										<td class='tl' 	id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
+ 										<td class='tl' 	id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
+ 										<td class='tl'	id='SCHOOL_NAME'	value='{{:SCHOOL_NAME}}'	>{{:SCHOOL_NAME}}</td>
+ 										<td class='tl' 	id='MAJOR'			value='{{:MAJOR}}' 			>{{:MAJOR}}</td>
+ 										<td class='tc' 	id='GRADUATE_YN'	value='{{:GRADUATE_YN}}' 	>{{:GRADUATE_YN}}</td>
 									</tr>
 								{{/for}}
 								</script>
@@ -250,7 +325,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">경력</h3>
-							<!-- <button class="btn small select fr">추가</button> -->
+							<button class="btn small select fr" onclick="<@pageId>.career()">추가</button>
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -258,10 +333,10 @@
 								<caption>경력 리스트</caption>
 								<colgroup>
 									<col style="width:15%;"/>
+									<col style="width:25%;"/>
 									<col style="width:20%;"/>
-									<col style="width:25%;"/>
-									<col style="width:25%;"/>
-									<col style="width:15%;"/>
+									<col style="width:20%;"/>
+									<col style="width:20%;"/>
 								</colgroup>
 								<thead>
 									<tr>
@@ -276,7 +351,7 @@
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_careerList_template">	
 								{{for list}}
-									<tr name="<@pageId>_tr_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+									<tr name="<@pageId>_tr_{{:#index}}"  onclick='<@pageId>.modiCareerData({{:#index}})'>
  										<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
  										<td id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
  										<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
@@ -299,7 +374,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">직책 승급 스토리</h3>
-							<!-- <button class="btn small select fr">추가</button> -->
+							<button class="btn small select fr" onclick="<@pageId>.position()">추가</button>
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -321,7 +396,7 @@
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_positionList_template">	
 								{{for list}}
-									<tr name="<@pageId>_tr_{{:#index}}">
+									<tr name="<@pageId>_tr_{{:#index}}" onclick='<@pageId>.modiPositionData({{:#index}})'>
  										<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
  										<td id='POSITION'		value='{{:POSITION}}'		>{{:POSITION}}</td>
  										<td id='PA_DATE'		value='{{:PA_DATE}}' 		>{{:PA_DATE}}</td>
@@ -339,7 +414,7 @@
 					<div class="cont_box col2">
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">등급 승급 스토리</h3>
-							<!-- <button class="btn small select fr">추가</button> -->
+							<button class="btn small select fr" onclick="<@pageId>.grade()">등급변경</button>
 						</div>
 						<!-- 테이블 -->
 						<div class="tbl01 col">
@@ -359,7 +434,7 @@
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_gradeList_template">	
 								{{for list}}
-									<tr name="<@pageId>_tr_{{:#index}}">
+									<tr name="<@pageId>_tr_{{:#index}}" onclick='<@pageId>.modiGradeData({{:#index}})'>
  										<td id='GRADE_NM'		value='{{:GRADE_NM}}' 		>{{:GRADE_NM}}</td>
  										<td id='UPGRADE_DATE'	value='{{:UPGRADE_DATE}}' 	>{{:UPGRADE_DATE}}</td>
 									</tr>

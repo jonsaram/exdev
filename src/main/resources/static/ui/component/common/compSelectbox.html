@@ -1,0 +1,30 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@compId> = {
+		getValue : function() {
+			return $("#<@compId> #selectBox option:selected").val();
+		}
+	}
+	// Component Load가 완료된후 실행 된다.
+	C_COMP.onLoadComp("<@compId>", function(list) {
+		var rlist = [];
+		$.each(list, function() {
+			rlist.push({"CD":this[0], "NM":this[1]});
+		});
+		var rparm = {
+			 targetId 		: "selectBox"
+			,list			: rlist
+		}
+		C_COM.renderHtml("<@compId>", rparm);
+	});
+</script>
+<div>
+<select id="selectBox">
+</select>
+<script type="text/x-jsrender" id="selectBox_template">
+{{for list}}
+	<option value="{{:CD}}">{{:NM}}</option>
+{{/for}}
+</script>	
+
+</div>

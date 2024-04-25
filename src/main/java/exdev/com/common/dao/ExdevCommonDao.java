@@ -21,15 +21,27 @@ public class ExdevCommonDao {
 		return sqlMainSession.selectList(queryId, obj);
 	}
 	public Object getObject(String queryId, Object obj) throws Exception {
+		System.out.println("=================================================");
+		System.out.println("Request Query Id: " + queryId);
+		System.out.println("=================================================");
 		return sqlMainSession.selectOne(queryId, obj);
 	}
 	public int update(String queryId, Object obj) throws Exception {
+		System.out.println("=================================================");
+		System.out.println("Request Query Id : " + queryId);
+		System.out.println("=================================================");
 		return sqlMainSession.update(queryId, obj);
 	}
 	public int insert(String queryId, Object obj) throws Exception {
+		System.out.println("=================================================");
+		System.out.println("Request Query Id : " + queryId);
+		System.out.println("=================================================");
 		return sqlMainSession.insert(queryId, obj);
 	}
     public int delete(String queryId, Object obj) throws Exception {
+		System.out.println("=================================================");
+		System.out.println("Request Query Id : " + queryId);
+		System.out.println("=================================================");
         return sqlMainSession.delete(queryId, obj);
     }
 }

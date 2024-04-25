@@ -95,9 +95,15 @@
 		    END AS HAS_CHILD
 		FROM TBL_EXP_MENU T
 		,TBL_EXP_MENU P
+		,(	SELECT * FROM TBL_EXP_ROLEMENU RM WHERE 
+			RM.ROLE_ID IN (
+			SELECT ROLE_ID FROM TBL_EXP_AUTH WHERE USER_ID = #{sessionVo.userId}
+			)
+		 ) RM		
 		WHERE 1 = 1 
 		AND T.SP_CSTM_ID = P.SP_CSTM_ID(+)
 		AND T.PARENT_MENU_ID = P.MENU_ID(+)
+		AND T.MENU_ID = RM.MENU_ID
 		<if test=" MENU_NM != null and !MENU_NM.equals('') ">
 		AND T.MENU_NM like '%' || #{MENU_NM} || '%'
 		</if>
@@ -432,6 +438,45 @@
    			VALUES (S.SP_CSTM_ID, S.ROLE_ID, S.ROLE_NM, S.ROLE_DESC, S.USE_YN, S.DEL_YN, S.SORT_ORDER, S.UPDATE_USER, S.UPDATE_DATE )
 	</update>
 	
+	<select id="setRoleMenuSeries" statementType="CALLABLE" parameterType="java.util.HashMap" flushCache="true">
+	    <!-- system.setRoleMenuSeries
+	         권한 추가 시 실행
+	         권한 * 메뉴를 해당 TBL_EXP_ROLEMENU 테이블에 자동 입력
+	    -->
+	    { CALL
+		    DECLARE
+		    
+		        p_ROLE_ID	VARCHAR2(30);
+        		v_count     NUMBER;
+		        
+		    BEGIN
+		    
+		        p_ROLE_ID	:= #{ROLE_ID};
+		    
+		        SELECT COUNT(*)
+		        INTO v_count
+		        FROM TBL_EXP_ROLEMENU
+		        WHERE ROLE_ID = p_ROLE_ID;
+		    
+		    	IF v_count = 0 THEN
+		    	
+					INSERT INTO TBL_EXP_ROLEMENU
+					SELECT SP_CSTM_ID, ROLE_ID, MENU_ID, AUTH_TYPE
+					FROM(
+						SELECT DISTINCT R.SP_CSTM_ID, R.ROLE_ID, M.MENU_ID, 'R' AS AUTH_TYPE, M.SORT_ORDER
+						FROM TBL_EXP_ROLE R,
+						TBL_EXP_MENU M
+						WHERE R.ROLE_ID		=	p_ROLE_ID 
+						AND R.SP_CSTM_ID 	= 	M.SP_CSTM_ID
+						ORDER BY M.SORT_ORDER 
+					);
+					
+					COMMIT;
+					
+        		END IF;
+		    END
+	    }
+	</select>	
 	<delete id="deleteRole" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	system.deleteRole
 			Role 삭제
@@ -644,6 +689,9 @@
 		<if test=" ROLE_ID != null and !ROLE_ID.equals('') ">
 		AND R.ROLE_ID = #{ROLE_ID}
 		</if>
+		<if test=" MENU_DEPTH != null and !MENU_DEPTH.equals('') ">
+		AND M.MENU_DEPTH = #{MENU_DEPTH}
+		</if>
         
         ORDER BY M.SORT_ORDER,R.SORT_ORDER,RM.AUTH_TYPE
 	</select>
@@ -652,34 +700,92 @@
 		/*	system.updateRoleMenuMap
 			권한 매핑 Auth  저장
 		*/
-		MERGE INTO TBL_EXP_ROLEMENU T
-		USING (
-		  SELECT #{sessionVo.spCstmId} 	AS SP_CSTM_ID
-				,#{ROLE_ID} 	AS ROLE_ID
-				,#{MENU_ID} 	AS MENU_ID
-				,#{AUTH_TYPE}	AS AUTH_TYPE
-		  FROM dual
-		) S
-		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
-		AND T.ROLE_ID 		= S.ROLE_ID
-		AND T.MENU_ID 		= S.MENU_ID
-		)
-		WHEN MATCHED THEN
-		  UPDATE SET
-		    T.AUTH_TYPE		= S.AUTH_TYPE
-		WHEN NOT MATCHED THEN 
-    		INSERT (  SP_CSTM_ID,   ROLE_ID,   MENU_ID,	  AUTH_TYPE)
-   			VALUES (S.SP_CSTM_ID, S.ROLE_ID, S.MENU_ID, S.AUTH_TYPE)
+	    { CALL
+		    DECLARE
+		    
+		        p_MENU_DEPTH	VARCHAR2(30);
+		        
+		    BEGIN
+		    
+		        p_MENU_DEPTH	:= #{MENU_DEPTH};
+		    
+		    	IF p_MENU_DEPTH = 0 THEN
+		    	
+			    	UPDATE TBL_EXP_ROLEMENU RM
+			    	SET AUTH_TYPE	 = #{AUTH_TYPE}
+					WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+					AND	  ROLE_ID	 = #{ROLE_ID}
+					AND	  MENU_ID	 IN ( 
+							SELECT MENU_ID 
+							FROM  TBL_EXP_MENU M WHERE  
+							M.PARENT_MENU_ID = #{MENU_ID} 
+					);
+		    	
+		    	END IF;
+		    
+				MERGE INTO TBL_EXP_ROLEMENU T
+				USING (
+				  SELECT #{sessionVo.spCstmId} 	AS SP_CSTM_ID
+						,#{ROLE_ID} 	AS ROLE_ID
+						,#{MENU_ID} 	AS MENU_ID
+						,#{AUTH_TYPE}	AS AUTH_TYPE
+				  FROM dual
+				) S
+				ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+				AND T.ROLE_ID 		= S.ROLE_ID
+				AND T.MENU_ID 		= S.MENU_ID
+				)
+				WHEN MATCHED THEN
+				  UPDATE SET
+				    T.AUTH_TYPE		= S.AUTH_TYPE
+				WHEN NOT MATCHED THEN 
+		    		INSERT (  SP_CSTM_ID,   ROLE_ID,   MENU_ID,	  AUTH_TYPE)
+		   			VALUES (S.SP_CSTM_ID, S.ROLE_ID, S.MENU_ID, S.AUTH_TYPE)
+				;
+				
+				COMMIT;
+				
+			 END
+	    }		
+		
 	</update>
 	
 	<delete id="deleteRoleMenuMap" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	system.deleteRoleMenuMap
-			권한매핑 Auth 삭제
+			권한매핑 Auth 삭제 ( MENU_DEPT 0일때 해당 하위 모두 삭제)
 		*/
-		DELETE FROM TBL_EXP_ROLEMENU 
-		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
-		AND	  ROLE_ID	 = #{ROLE_ID}
-		AND	  MENU_ID	 = #{MENU_ID}
+	    { CALL
+		    DECLARE
+		    
+		        p_MENU_DEPTH	VARCHAR2(30);
+		        
+		    BEGIN
+		    
+		        p_MENU_DEPTH	:= #{MENU_DEPTH};
+		    
+		    	IF p_MENU_DEPTH = 0 THEN
+		    	
+			    	DELETE FROM TBL_EXP_ROLEMENU RM
+					WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+					AND	  ROLE_ID	 = #{ROLE_ID}
+					AND	  MENU_ID	 IN ( 
+							SELECT MENU_ID 
+							FROM  TBL_EXP_MENU M WHERE  
+							M.PARENT_MENU_ID = #{MENU_ID} 
+					);
+		    	
+		    	END IF;
+		    
+				DELETE FROM TBL_EXP_ROLEMENU 
+				WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+				AND	  ROLE_ID	 = #{ROLE_ID}
+				AND	  MENU_ID	 = #{MENU_ID} 
+				;
+				
+				COMMIT;
+				
+			 END
+	    }		
 	</delete>
 
 
@@ -800,6 +906,44 @@
 			AND USER_PW = #{userPw}
 	</select>
 
+	<select id="getEtcUserInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getEtcUserInfo
+			기타 User 정보 조회 
+		*/
+		SELECT
+		     SP_CSTM_ID
+		    ,USER_ID
+		    ,USER_NM
+		    ,USER_DESC
+		    ,E_MAIL
+		    ,PHONE_NUM
+		    ,BRANCH_ID
+		    ,(SELECT BRANCH_NM FROM TBL_EXP_BRANCH B WHERE A.BRANCH_ID = B.BRANCH_ID AND SP_CSTM_ID = #{sessionVo.spCstmId} )	AS BRANCH_NM
+		    ,"ROLE"
+		    ,GRADE
+		    ,GET_CODE_NM('GRADE', GRADE)																						AS GRADE_NM
+		    ,STATE
+		    ,REG_DATE
+		    ,JUMIN
+		    ,POST_NUM
+		    ,ADDR1
+		    ,ADDR2
+		    ,UPDATE_USER
+		    ,UPDATE_DATE
+		    ,SURETY_INSURANCE
+		    ,GENDER
+		    ,SALES_TYPE
+		    ,USE_YN
+		    ,DEL_YN
+		    ,RECOMMENDER_ID
+		FROM
+		    TBL_EXP_USER A		
+		WHERE
+				USER_ID 	= #{sessionVo.userId	}
+			AND SP_CSTM_ID 	= #{sessionVo.spCstmId	}
+	</select>
+
+
 
 	<select id="searchUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	system.searchUserList
@@ -840,5 +984,46 @@
 			
 	</select>
 
-
+	<select id="setUserAuthSeries" statementType="CALLABLE" parameterType="java.util.HashMap" flushCache="true">
+	    <!-- system.setUserAuthSeries
+	         사용자 추가 시 자동으로 실행
+	    -->
+	    { CALL
+		    DECLARE
+		    
+		        p_USER_ID	VARCHAR2(30);
+		        
+		    BEGIN
+		    
+		        p_USER_ID	:= #{USER_ID};
+		    
+				MERGE INTO TBL_EXP_AUTH T
+				USING (
+				  SELECT #{sessionVo.spCstmId} 	AS SP_CSTM_ID
+						,#{USER_ID} 			AS USER_ID
+						<if test="ROLE_ID == null">
+						,'USER'					AS ROLE_ID
+						</if>
+						<if test=" ROLE_ID != null and ROLE_ID != '' " >
+						,#{ROLE_ID} 			AS ROLE_ID
+						</if>
+						,'system'				AS UPDATE_USER
+						,SYSDATE				AS UPDATE_DATE
+				  FROM dual
+				) S
+				ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+				AND T.USER_ID 		= S.USER_ID
+				)
+				WHEN MATCHED THEN
+				  UPDATE SET
+				    T.ROLE_ID		= S.ROLE_ID,
+				    T.UPDATE_USER	= S.UPDATE_USER,
+				    T.UPDATE_DATE	= S.UPDATE_DATE
+				WHEN NOT MATCHED THEN 
+		    		INSERT (  SP_CSTM_ID,   USER_ID,   ROLE_ID,   UPDATE_USER,	  UPDATE_DATE)
+		   			VALUES (S.SP_CSTM_ID, S.USER_ID, S.ROLE_ID, S.UPDATE_USER,  S.UPDATE_DATE)
+				;
+		    END
+	    }
+	</select>
 </mapper>

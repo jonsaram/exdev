@@ -1,6 +1,7 @@
 var G_VAL = {
-	 SP_CSTM_ID : ""
-	,COMMON_CODE_MAP : {}
+	 SP_CSTM_ID 		: ""
+	,COMMON_CODE_MAP 	: {}
+	,session			: {}
 }
 
 var C_COM = {
@@ -395,11 +396,19 @@ var C_COM = {
 		C_POP.alert('본문이 클립보드에 복사되었습니다.\n엑셀에 붙여넣기 하여 사용하세요.');
 		$("#excelCopyTmpTable").html("");
 	 }
+	,loadingDepth : 0
 	,showLoadingBar : function() {
 		$("#loadingBar").show();
+		C_COM.loadingDepth++;
+		dlog(C_COM.loadingDepth);
 	 }
 	,hideLoadingBar : function() {
-		$("#loadingBar").hide();
+		C_COM.loadingDepth--;
+		dlog(C_COM.loadingDepth);
+		if(C_COM.loadingDepth < 1) {
+			C_COM.loadingDepth = 0;
+			$("#loadingBar").hide();
+		}
 	 }
 	,getCurrentTemplateId : function() {
 		var templateId = C_POP.getCurrentPopupId();
@@ -612,7 +621,8 @@ var C_COM = {
 
 	    const formData = new FormData();
 	    formData.append('file', file);
-
+		
+		C_COM.showLoadingBar();
 	    $.ajax({
 	        url: '/commonExcelUpload.do',
 	        type: 'POST',
@@ -620,12 +630,14 @@ var C_COM = {
 	        contentType: false,
 	        processData: false,
 	        success: function(response) {
+				C_COM.hideLoadingBar();
 				if(typeof C_COM.excelUploadCallbackFn == "function" ) C_COM.excelUploadCallbackFn(response);
 				else {
 					C_POP.alert('Excel Upload에 성공 하였습니다.');	
 				}
 			}
 	        ,error: function(error) {
+				C_COM.hideLoadingBar();
 				if(typeof C_COM.excelUploadCallbackFn == "function" ) C_COM.excelUploadCallbackFn(error);
 				else {
 					C_POP.alert('Excel Upload에 실패 하였습니다.');	

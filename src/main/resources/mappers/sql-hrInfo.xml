@@ -315,7 +315,7 @@
 		SELECT
 		SP_CSTM_ID
 		,USER_ID
-		,TO_CHAR(START_PERIOD_DATE,'YYYY-MM') || ' ~ ' || TO_CHAR(END_PERIOD_DATE,'YYYY-MM') AS PERIOD_DATE 
+		,TO_CHAR(START_PERIOD_DATE,'YYYY-MM-DD') || ' ~ ' || TO_CHAR(END_PERIOD_DATE,'YYYY-MM-DD') AS PERIOD_DATE 
 		,TO_CHAR(START_PERIOD_DATE,'YYYY-MM-DD') AS START_PERIOD_DATE
 		,GUBUN
 		,SCHOOL_NAME
@@ -326,8 +326,54 @@
 		WHERE 1=1
 		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND USER_ID = #{USER_ID}
+		ORDER BY START_PERIOD_DATE DESC
 	</select>
 	
+	<update id="updateEducationHist">
+		/*	hrInfo.updateEducationHist
+			학력 리스트 저장
+		*/
+		MERGE INTO TBL_EXP_EDUCATION_HIST T
+		USING (
+		
+		  SELECT #{sessionVo.spCstmId}						AS SP_CSTM_ID,
+		  		 #{USER_ID}									AS USER_ID,
+		         #{GUBUN}									AS GUBUN,
+		         TO_DATE(#{START_PERIOD_DATE},'YYYY-MM-DD') AS START_PERIOD_DATE,
+		         TO_DATE(#{END_PERIOD_DATE},'YYYY-MM-DD')   AS END_PERIOD_DATE,
+		         #{SCHOOL_NAME} 							AS SCHOOL_NAME,
+		         #{MAJOR} 									AS MAJOR,
+		         #{GRADUATE_YN} 							AS GRADUATE_YN
+		  FROM dual
+		  
+		) S
+		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+		AND T.USER_ID 		= S.USER_ID
+		AND T.START_PERIOD_DATE = S.START_PERIOD_DATE
+		AND T.END_PERIOD_DATE 	= S.END_PERIOD_DATE
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.GUBUN 				= S.GUBUN, 
+		    T.SCHOOL_NAME 			= S.SCHOOL_NAME,
+		    T.MAJOR 				= S.MAJOR,
+		    T.GRADUATE_YN 			= S.GRADUATE_YN 
+		WHEN NOT MATCHED THEN 
+    		INSERT (  SP_CSTM_ID,   USER_ID,   GUBUN,   START_PERIOD_DATE,   END_PERIOD_DATE,	SCHOOL_NAME,	  MAJOR,	  GRADUATE_YN)
+   			VALUES (S.SP_CSTM_ID, S.USER_ID, S.GUBUN, S.START_PERIOD_DATE, S.END_PERIOD_DATE, S.SCHOOL_NAME,	S.MAJOR,	S.GRADUATE_YN)
+   	</update>	
+   	
+	<delete id="deleteEducationHist" flushCache="true">
+		/*	hrInfo.deleteEducationHist
+			학력 리스트 삭제 
+		*/
+	 	DELETE FROM TBL_EXP_EDUCATION_HIST T
+	 	WHERE T.SP_CSTM_ID		= #{sessionVo.spCstmId}
+		AND T.USER_ID 			= #{USER_ID}
+		AND T.START_PERIOD_DATE = TO_DATE(#{START_PERIOD_DATE},'YYYY-MM-DD')
+		AND T.END_PERIOD_DATE 	= TO_DATE(#{END_PERIOD_DATE},'YYYY-MM-DD')
+	</delete>
+   	
 	<select id="getCareerHistList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	hrInfo.getCareerHistList
 			경력 리스트 조회 
@@ -335,7 +381,7 @@
 		SELECT 
 		SP_CSTM_ID
 		,USER_ID
-		,TO_CHAR(START_PERIOD_DATE,'YYYY-MM') || ' ~ ' || TO_CHAR(END_PERIOD_DATE,'YYYY-MM') AS PERIOD_DATE 
+		,TO_CHAR(START_PERIOD_DATE,'YYYY-MM-DD') || ' ~ ' || TO_CHAR(END_PERIOD_DATE,'YYYY-MM-DD	') AS PERIOD_DATE 
 		,TO_CHAR(START_PERIOD_DATE,'YYYY-MM-DD') AS START_PERIOD_DATE
 		,GUBUN
 		,DEPARTMENT
@@ -346,7 +392,53 @@
 		WHERE 1=1
 		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND USER_ID = #{USER_ID}
+		ORDER BY START_PERIOD_DATE DESC
 	</select>
+	
+	<update id="updateCareerHist">
+		/*	hrInfo.updateCareerHist
+			경력 리스트 저장
+		*/
+		MERGE INTO TBL_EXP_CAREER_HIST T
+		USING (
+		
+		  SELECT #{sessionVo.spCstmId}						AS SP_CSTM_ID,
+		  		 #{USER_ID}									AS USER_ID,
+		         #{GUBUN}									AS GUBUN,
+		         TO_DATE(#{START_PERIOD_DATE},'YYYY-MM-DD') AS START_PERIOD_DATE,
+		         TO_DATE(#{END_PERIOD_DATE},'YYYY-MM-DD')   AS END_PERIOD_DATE,
+		         #{DEPARTMENT} 							AS DEPARTMENT,
+		         #{POSITION} 									AS POSITION,
+		         #{BIZ_INFORM} 							AS BIZ_INFORM
+		  FROM dual
+		  
+		) S
+		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+		AND T.USER_ID 		= S.USER_ID
+		AND T.START_PERIOD_DATE = S.START_PERIOD_DATE
+		AND T.END_PERIOD_DATE 	= S.END_PERIOD_DATE
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.GUBUN 				= S.GUBUN, 
+		    T.DEPARTMENT 			= S.DEPARTMENT,
+		    T.POSITION 				= S.POSITION,
+		    T.BIZ_INFORM 			= S.BIZ_INFORM 
+		WHEN NOT MATCHED THEN 
+    		INSERT (  SP_CSTM_ID,   USER_ID,   GUBUN,   START_PERIOD_DATE,   END_PERIOD_DATE,	DEPARTMENT,	  POSITION,	  BIZ_INFORM)
+   			VALUES (S.SP_CSTM_ID, S.USER_ID, S.GUBUN, S.START_PERIOD_DATE, S.END_PERIOD_DATE, S.DEPARTMENT,	S.POSITION,	S.BIZ_INFORM)
+   	</update>	
+   	
+	<delete id="deleteCareerHist" flushCache="true">
+		/*	hrInfo.deleteCareerHist
+			경력 리스트 삭제 
+		*/
+	 	DELETE FROM TBL_EXP_CAREER_HIST T
+	 	WHERE T.SP_CSTM_ID		= #{sessionVo.spCstmId}
+		AND T.USER_ID 			= #{USER_ID}
+		AND T.START_PERIOD_DATE = TO_DATE(#{START_PERIOD_DATE},'YYYY-MM-DD')
+		AND T.END_PERIOD_DATE 	= TO_DATE(#{END_PERIOD_DATE},'YYYY-MM-DD')
+	</delete>
 	
 	<select id="getPositionHistList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	hrInfo.getPositionHistList
@@ -362,7 +454,47 @@
 		WHERE 1=1
 		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND USER_ID = #{USER_ID}
+		ORDER BY PERSONAL_APPOINTMENT_DATE DESC
 	</select>
+	
+	<update id="updatePositionHist">
+		/*	hrInfo.updatePositionHist
+			직책 승급 리스트 저장
+		*/
+		MERGE INTO TBL_EXP_POSITION_HIST T
+		USING (
+		
+		  SELECT #{sessionVo.spCstmId}						AS SP_CSTM_ID,
+		  		 #{USER_ID}									AS USER_ID,
+		         #{DEPARTMENT} 								AS DEPARTMENT,
+		         #{POSITION} 								AS POSITION,
+		         TO_DATE(#{PERSONAL_APPOINTMENT_DATE},'YYYY-MM-DD')   AS PERSONAL_APPOINTMENT_DATE
+		  FROM dual
+		  
+		) S
+		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+		AND T.USER_ID 		= S.USER_ID
+		AND T.DEPARTMENT 	= S.DEPARTMENT
+		AND T.POSITION 		= S.POSITION
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.PERSONAL_APPOINTMENT_DATE 			= S.PERSONAL_APPOINTMENT_DATE 
+		WHEN NOT MATCHED THEN 
+    		INSERT (   SP_CSTM_ID,    USER_ID,	  DEPARTMENT,	POSITION,	PERSONAL_APPOINTMENT_DATE)
+   			VALUES ( S.SP_CSTM_ID,  S.USER_ID,	S.DEPARTMENT, S.POSITION, S.PERSONAL_APPOINTMENT_DATE)
+   	</update>	
+   	
+	<delete id="deletePositionHist" flushCache="true">
+		/*	hrInfo.deletePositionHist
+			직책 승급 삭제 
+		*/
+	 	DELETE FROM TBL_EXP_POSITION_HIST T
+	 	WHERE T.SP_CSTM_ID	= #{sessionVo.spCstmId}
+		AND T.USER_ID		= #{USER_ID}
+		AND T.DEPARTMENT	= #{DEPARTMENT}
+		AND T.POSITION		= #{POSITION}
+	</delete>
 	
 	<select id="getGradeHistList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	hrInfo.getGradeHistList
@@ -378,7 +510,42 @@
 		WHERE 1=1
 		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND USER_ID = #{USER_ID}
-		ORDER BY DECODE( GRADE, 'S-MASTER' , 0 , 'MASTER' , 1 , 'FA' , 2, 3)
+		ORDER BY DECODE( GRADE, 'S-MASTER' , 0 , 'MASTER' , 1 , 'FA' , 2, 3) DESC
 	</select>
 	
+	<update id="updateGradeHist">
+		/*	hrInfo.updateGradeHist
+			등급 승급 리스트 저장
+		*/
+		MERGE INTO TBL_EXP_GRADE_HIST T
+		USING (
+		
+		  SELECT #{sessionVo.spCstmId}						AS SP_CSTM_ID,
+		  		 #{USER_ID}									AS USER_ID,
+		         TO_DATE(#{UPGRADE_DATE},'YYYY-MM-DD')   	AS UPGRADE_DATE,
+		         #{GRADE} 									AS GRADE
+		  FROM dual
+		  
+		) S
+		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+		AND T.USER_ID 		= S.USER_ID
+		AND T.GRADE 		= S.GRADE 
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.UPGRADE_DATE			= S.UPGRADE_DATE 
+		WHEN NOT MATCHED THEN 
+    		INSERT (   SP_CSTM_ID,    USER_ID,	  UPGRADE_DATE,	  GRADE)
+   			VALUES ( S.SP_CSTM_ID,  S.USER_ID,	S.UPGRADE_DATE, S.GRADE)
+   	</update>	
+   	
+	<delete id="deleteGradeHist" flushCache="true">
+		/*	hrInfo.deleteGradeHist
+			등급 승급 삭제 
+		*/
+	 	DELETE FROM TBL_EXP_GRADE_HIST T
+	 	WHERE T.SP_CSTM_ID	= #{sessionVo.spCstmId}
+		AND T.USER_ID		= #{USER_ID}
+		AND T.GRADE			= #{GRADE} 
+	</delete>
 </mapper>

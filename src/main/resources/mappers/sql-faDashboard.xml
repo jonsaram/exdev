@@ -82,7 +82,7 @@
 			
 			UNION ALL 
 			
-			SELECT NULL, NULL, NULL, NULL , NULL, NULL, NULL, TARGET_PAYMENT/100000000 AS TARGET_PAYMENT
+			SELECT NULL, NULL, NULL, NULL , NULL, NULL, NULL, TARGET_PAYMENT
 				FROM TBL_EXP_USER_CONFIG CF
 				WHERE	CF.SP_CSTM_ID 	= #{sessionVo.spCstmId}
 				AND		CF.USER_ID		= #{sessionVo.userId}
@@ -126,7 +126,7 @@
 	
 	<select id="getPaymentByMonth" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	faDashboard.getPaymentByMonth
-			월별 수수료 조회 
+			월별 수수료 조회 ( 수수료 합계 추이 구하기 위함 )
 			( 실행 수수료 , 영업 수수료 )
 		*/
 		WITH MONTHS AS (
@@ -136,10 +136,10 @@
 		)
 		
 		SELECT B.MONTH
-		, NVL(A.SUM_PAYMENT,0)	 		AS SUM_PAYMENT
-		, NVL(A.SUM_EXEC_PAYMENT,0) 	AS SUM_EXEC_PAYMENT
-		, NVL(A.SUM_SALES_PAYMENT,0) 	AS SUM_SALES_PAYMENT
-		, NVL(A.SUM_CUSTOMER,0)			AS SUM_COSTOMER
+		, NVL(MAX(A.SUM_PAYMENT),0)	 		AS SUM_PAYMENT
+		, NVL(MAX(A.SUM_EXEC_PAYMENT),0) 	AS SUM_EXEC_PAYMENT
+		, NVL(MAX(A.SUM_SALES_PAYMENT),0) 	AS SUM_SALES_PAYMENT
+		, NVL(MAX(A.SUM_CUSTOMER),0)		AS SUM_COSTOMER
 		FROM(
 			SELECT 
 				TO_CHAR(RESULT_DATE,'YYYY-MM') AS MONTH
@@ -153,11 +153,11 @@
 						,P.PAYMENT /* 당월수수료 */
 						,DECODE( P.EXEC_TYPE,'EXEC', PAYMENT, 0) AS  EXEC_PAYMENT /* 실행수수료 */
 						,DECODE( P.EXEC_TYPE,'EXEC', 0 ,PAYMENT) AS  SALES_PAYMENT /* 영업수수료 */						
-						FROM TBL_EXP_CONTRACT C , TBL_EXP_RESULT R , TBL_EXP_CONTRACT_MEMBER CM
+						FROM TBL_EXP_CONTRACT C , TBL_EXP_RESULT R
 						,TBL_EXP_PAYMENT P
-						WHERE C.CONTRACT_ID = R.CONTRACT_ID AND C.CONTRACT_ID =CM.CONTRACT_ID 
+						WHERE C.CONTRACT_ID = R.CONTRACT_ID 
 						AND C.USE_YN = 'Y' 	AND C.DEL_YN = 'N' 	AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
-						AND CM.USE_YN = 'Y' AND CM.DEL_YN = 'N' AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
+						AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
 						AND C.CONTRACT_ID = P.CONTRACT_ID 
 						
 						AND C.USER_ID = '5754852770' /* sessionVo.userId */
@@ -184,6 +184,7 @@
 		) A
 		,MONTHS B 
 		WHERE A.MONTH(+) = B.MONTH 
+		GROUP BY B.MONTH
 		ORDER BY B.MONTH	
 	</select>
 
@@ -253,29 +254,44 @@
 		/*	faDashboard.getScheduleList
 			FA 대시보드 예정 업무 리스트
 		*/
-        SELECT 
-         DECODE( NVL(B.BUYER_NM, S.TITLE ), B.BUYER_NM ,<![CDATA['<strong>'||B.BUYER_NM || '</strong> 고객님']]> , S.TITLE)  AS TITLE
-        ,S.WORK_TYPE
-        ,GET_CODE_NM( 'SCHEDULE_WORK_TYPE', S.WORK_TYPE) AS WORK_TYPE_NM
-        ,TO_CHAR(S.SCHEDULE_DATE,'YYYY.MM.DD') 	AS SCHEDULE_DATE
-        ,S.START_TIME_HOUR 
-        ,S.START_TIME_MINUTE 
-        ,S.END_TIME_HOUR 
-        ,S.END_TIME_MINUTE 
-        ,S.START_TIME_HOUR||':'||S.START_TIME_MINUTE||' ~ '||S.END_TIME_HOUR||':'||S.END_TIME_MINUTE  AS SCHEDULE_TIME
-        ,POSITION
-        ,DESCRIPTION
-        ,B.BUYER_ID 
-        ,B.BUYER_NM
-        FROM TBL_EXP_SCHEDULE S
-        , TBL_EXP_CONTRACT C
-        , TBL_EXP_BUYER B
-       WHERE 1=1 
-       AND S.CONTRACT_ID  = C.CONTRACT_ID(+)
-       AND C.BUYER_ID = B.BUYER_ID (+)
-       AND S.SCHEDULE_DATE >= SYSDATE - 100
-       AND S.USER_ID = 'jonsaram' /* sessionVo.userId */
-       AND rownum <![CDATA[ < ]]>4
-       ORDER BY S.SCHEDULE_DATE		
+		SELECT *
+		FROM(
+	        SELECT 
+	         COUNT(*) OVER() LAST_DATA
+	        ,DECODE( NVL(B.BUYER_NM, S.TITLE ), B.BUYER_NM ,<![CDATA['<strong>'||B.BUYER_NM || '</strong> 고객님']]> , S.TITLE)  AS TITLE
+	        ,S.WORK_TYPE
+	        ,GET_CODE_NM( 'SCHEDULE_WORK_TYPE', S.WORK_TYPE) AS WORK_TYPE_NM
+	        ,TO_CHAR(S.SCHEDULE_DATE,'YYYY.MM.DD') 	AS SCHEDULE_DATE
+	        ,S.START_TIME_HOUR 
+	        ,S.START_TIME_MINUTE 
+	        ,S.END_TIME_HOUR 
+	        ,S.END_TIME_MINUTE 
+	        ,S.START_TIME_HOUR||':'||S.START_TIME_MINUTE||' ~ '||S.END_TIME_HOUR||':'||S.END_TIME_MINUTE  AS SCHEDULE_TIME
+	        ,POSITION
+	        ,DESCRIPTION
+	        ,B.BUYER_ID 
+	        ,B.BUYER_NM
+	        FROM TBL_EXP_SCHEDULE S
+	        , TBL_EXP_CONTRACT C
+	        , TBL_EXP_BUYER B
+	       WHERE 1=1 
+	       AND S.CONTRACT_ID  = C.CONTRACT_ID(+)
+	       AND C.BUYER_ID = B.BUYER_ID (+)
+	       AND S.SCHEDULE_DATE >= SYSDATE - 100 /* FOR TEST */
+	       AND S.USER_ID = 'jonsaram' /* sessionVo.userId */
+	       AND rownum <![CDATA[ < ]]>5
+	       ORDER BY S.SCHEDULE_DATE		
+       )
+       WHERE 1=1
+       <if test=" SEARCH_DATA != null and !SEARCH_DATA.equals('') ">
+       AND (
+       		TITLE 			like '%'|| #{SEARCH_DATA} ||'%'
+       	OR 	WORK_TYPE_NM 	like '%'|| #{SEARCH_DATA} ||'%'
+       	OR 	SCHEDULE_DATE 	like '%'|| #{SEARCH_DATA} ||'%'
+       	OR 	SCHEDULE_TIME 	like '%'|| #{SEARCH_DATA} ||'%'
+       	OR 	POSITION 		like '%'|| #{SEARCH_DATA} ||'%'
+       	OR 	DESCRIPTION 	like '%'|| #{SEARCH_DATA} ||'%' 
+       )
+       </if>
 	</select>	
 </mapper>

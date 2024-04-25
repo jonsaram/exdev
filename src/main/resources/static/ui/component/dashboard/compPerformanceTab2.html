@@ -699,24 +699,48 @@
 
                 console.log("=== searchChart31   ===");
 
+                
+                
+                console.log("=== startDate   ==="+startYear+startMonth+"-01");
+                console.log("=== endDate   ==="+startYear+startMonth+"-01");
+                
+                let yearStart = Number(startYear);
+                let yearEnd   = Number(endYear);
+                let yearDiffe = yearEnd - yearStart+1;
+                
+                var yearList = new Array();
+                
+                if( yearDiffe == 0 ){
+                	yearList[0] = yearStart;
+                }else{
+                    for (var i=0; i< yearDiffe; i++){
+                    	yearList[i] = yearStart + i;
+                    }	
+                }
+                
                 let requestParm = {};            
                 requestParm["startYear"]   = startYear;
                 requestParm["startMonth"]  = startMonth;           
                 requestParm["endYear"]     = endYear ;
                 requestParm["endMonth"]    = endMonth ;
-                
+                requestParm["startDate"]   = startYear+"-"+startMonth+"-01";
+                requestParm["endDate"]     = endYear+"-"+endMonth+"-01";
+                requestParm["yearList"]    = yearList;
 
-                var parm = {
-                     serviceId              : "DashboardService.salesAndGoalSales"
-                    ,requestParm            : requestParm
+                console.log("== startDate ==>"+startYear+"-"+startMonth+"-01");
+                console.log("== endDate ==>"+endYear+"-"+endMonth+"-01");
+                
+                /**/
+                let parm = {
+                     queryId        : "dashboardCorPerformance.SalesAndGoalSalesChartList"
+                    ,requestParm    : requestParm
                 }
-                C_COM.requestService(parm, function(resultData) {
+                C_COM.requestQuery(parm, function(resultData) {
+                    
                     <@compId>.setChart31( resultData );
                 });
                 
-                
             }
-
             ,setChart31 : (resultData) =>{
 
                 let categoriesList = [];
@@ -725,8 +749,8 @@
                 
                 for (var i=0; i< resultData.data.length; i++){
                     categoriesList[i] = resultData.data[i].STORE_NM3;
-                    salesList[i]      = resultData.data[i].AMOUNT;
-                    goalSalesList[i]  = resultData.data[i].GOLE_AMOUNT;
+                    salesList[i]      = resultData.data[i].SALES_MONTH;
+                    goalSalesList[i]  = resultData.data[i].GOAL_MONTH;
                 }
                 
                 $("#<@compId>_chart31").highcharts({
@@ -735,7 +759,7 @@
                             type: 'column'
                         },
                         title: {
-                            text: '2023-01-01 ~ 2023-08-31',
+                            text: '',
                             align: 'left'
                         },
                         subtitle: {
@@ -805,7 +829,7 @@
                 requestParm["supervisor"] = supervisor ;
                 
                 var parm = {
-                        queryId  : "dashboardCorPerformance.SalesAndGoalSales"
+                        queryId  : "dashboardCorPerformance.SalesAndGoalSales1"
                        ,requestParm   : requestParm
                 }
                 
@@ -881,7 +905,7 @@
                 
                 $("#<@compId>_searchBtn1").click( () =>{
                     console.log(" _searchBtn 클릭");
-                    /*
+                    /**/
                     let year        = C_UICOM.getData("<@compId>_selectBoxYear");
                     let month       = C_UICOM.getData('<@compId>_selectBoxMonth');
                     let region      = C_UICOM.getData('<@compId>_selectBoxRegion');
@@ -895,7 +919,7 @@
                     <@compId>.searchPreMonth( year, month, region, store, supervisor );
                     <@compId>.searchChart21( year, month, region, store, supervisor );
                     <@compId>.searchChart22( year, month, region, store, supervisor );
-                    */
+                    
                     
                 })
                 

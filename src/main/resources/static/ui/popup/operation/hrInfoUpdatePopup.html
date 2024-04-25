@@ -103,8 +103,8 @@
 			 })			 
 
 			 returnData['RELOAD_IMG']	= <@popupId>.RELOAD_IMG;
-			 returnData['USER_DESC']	= <@popupId>.recvData.param.USER_DESC;
-			 returnData['STATE']		= <@popupId>.recvData.param.STATE;
+			 returnData['STATE']		= 'INUSE';//<@popupId>.recvData.param.STATE;
+			 
 
 			 C_POP.confirm("입력한 정보로 저장 하시겠습니까?", function() {
 			 	<@popupId>.close(returnData);
@@ -366,6 +366,10 @@
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 		,selectImage : function() {
+			if( isEmpty(<@popupId>.USER_ID) ) {
+				C_POP.alert("사원 ID 를 저장하기 전 사진을 등록할 수 없습니다.");
+				return;
+			}
 			let parm = {
 				 GRP_FILE_ID	: <@popupId>.USER_ID
 				,OWNER_CD 		: <@popupId>.OWNER_CD
@@ -492,8 +496,8 @@
 						<div class="info"><input type="text" id="<@popupId>_E_MAIL" style="width:100%"></div>
 					</li>
 					<li>
-						<label>&nbsp;</label>
-						<div class="info">&nbsp;</div>
+						<label>DESC</label>
+						<div class="info"><input type="text" id="<@popupId>_USER_DESC" style="width:100%"></div>
 					</li>
 					<li class="w100">
 						<label>주소</label>

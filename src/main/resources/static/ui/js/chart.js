@@ -46,7 +46,6 @@
 	   if( yAxis2)yAxis2Obj = yAxis2;
 
 
-	debugger;
        const chart =  $("#"+container).highcharts({
             chart: {
                 zoomType: 'xy',
@@ -275,7 +274,7 @@
 	}
 
 	function _lineAndColumnChart(target, param){
-		
+debugger;		
 			const thisYearSales = param.thisYearSales;
 			const growthRate = param.growthRate;
 			
@@ -362,7 +361,7 @@
 	}
 
 	function _lineWithLabelsChart (target, param) {
-	
+	debugger;
 		const series = param.series ;
 		Highcharts.chart(target, {
 			chart :{

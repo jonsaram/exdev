@@ -47,6 +47,11 @@
 			});
 				
 		 }
+		,addTeam : function() {
+			C_POP.open('popup_operation_addTeamPopup', {}, function(retData) {
+				dalert(retData);
+			});
+		 }
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -76,7 +81,7 @@
 			<div class="fl h100 mr15" style="width:calc(50% - 25px);">
 				<div class="cont_top clearFix">
 					<h3 class="fl font16 lh33">팀목록</h3>
-					<button class="btn select fl">추가</button>
+					<button class="btn select fl" onclick="<@pageId>.addTeam()">추가</button>
 					<div class="fr"><strong class="total">Total: <span class="pointColr" id="totalCnt"></span></strong></div>
 				</div>
 

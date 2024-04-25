@@ -183,7 +183,7 @@ var <@pageId> = {
   			const sellingThisYear		=  resultData.data["rstMgn.getSellingDetailList"	];
   			const sellingLastYear		=  resultData.data["rstMgn.getSellingDetailList_1"	];
 			const thisYear 				= _.maxBy(_.uniqBy(sellingThisYear,"YEAR"). map( item=> {return { 'YEAR' : item.YEAR }} ),"YEAR").YEAR;
-			const lastYear 				= _.minBy(_.uniqBy(sellingLastYear,"YEAR"). map( item=> {return { 'YEAR' : item.YEAR }} ),"YEAR").YEAR;
+			const lastYear 				= ""+Number(thisYear) - 1;
   			
  		    const CONSULTING_THIS		=  sellingThisYear.map( item => {  return { [item.CONSULTING_NM]: item.ORG_SELLING_PRICE };} )
 														  .map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});

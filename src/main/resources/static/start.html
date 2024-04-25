@@ -57,6 +57,10 @@
 			G_VAL.session.userNm  	= userInfo.USER_NM 		;
 			G_VAL.session.grade		= userInfo.GRADE 		;
 			G_VAL.session.email		= userInfo.E_MAIL 		;
+			
+			
+			
+			
 		}
 		
 		
@@ -66,6 +70,13 @@
 			
 			$("#loginUserNm").html(userInfo.USER_NM);
 			
+			var parm = {
+				 queryId 		: "system.getEtcUserInfo"
+				,requestParm	: {}
+			}	
+			C_COM.requestQuery(parm, function(resultData) {
+				G_VAL.session.etcUserInfo = resultData.data[0];
+			});
 		});	
 		
 		var sessionInfo = {}
@@ -247,7 +258,7 @@
 				<a href="#" class="alarm">알림</a>
 				<a href="#" class="user_login"><span id="loginUserNm">이희성</span></a>
 				<ul class="user_menu">
-					<li><a href="#"><i class="icon_admin"></i>관리자 페이지</a></li>
+					<li><a href="#"><i class="icon_admin"></i>내정보 보기</a></li>
 					<li><a href="#"><i class="icon_pwEdit"></i>비밀번호 변경</a></li>
 					<li><a href="javascript:logout()"><i class="icon_logout"></i>로그아웃</a></li>
 				</ul>
