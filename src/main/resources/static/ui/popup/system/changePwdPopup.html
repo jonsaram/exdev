@@ -1,0 +1,142 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		  recvData : []
+		 ,USER_ID  : ""
+		 ,pageInit : () =>{
+			
+			 const userInfo = <@popupId>.recvData;
+			 
+			 $("#<@popupId>_USER").val(`${userInfo.USER_ID}( ${userInfo.USER_NM} )`)
+		 
+		 }		 
+		 ,close : function(returnData) {
+			 
+			if(isEmpty(returnData)) 
+				returnData = {};
+			
+			C_POP.close(returnData);
+			
+		 }
+		 ,apply : () =>{
+			 
+			if( <@popupId>.validation() == false){
+				 return;
+			}
+			
+			const userInfo = <@popupId>.recvData;
+			let returnData = {...userInfo };
+			returnData["NEW_PWD"] = $("#<@popupId>_NEW_PWD").val();
+			 
+			C_POP.confirm("입력한 비밀번호로 수정 하시겠습니까?", function() {
+				<@popupId>.close(returnData);
+			});
+		 }
+		 ,validation : () =>{
+			 
+			 const userInfo = <@popupId>.recvData;
+			 const curPwd = $("#<@popupId>_CURRENT_PWD").val();
+			 const newPwd = $("#<@popupId>_NEW_PWD").val();
+			 const cfmPwd = $("#<@popupId>_CONFIRM_PWD").val();
+			 
+			 if( isEmpty(curPwd) ) {C_POP.alert("현재 비밀번호를 입력하여 주십시오."	); return false;}
+			 if( isEmpty(newPwd) ) {C_POP.alert("신규 비밀번호를 입력하여 주십시오."	); return false;}
+			 if( isEmpty(cfmPwd) ) {C_POP.alert("확인용 비밀번호를 입력하여 주십시오."	); return false;}
+			 if( curPwd != userInfo.CURRENT_PWD ) {C_POP.alert("현재 사용중인 비밀번호가 아닙니다."	); return false;}
+			 if( newPwd != cfmPwd){C_POP.alert("신규 및 확인용 비밀번호를 동일하게 입력하여 주십시오."); return false;}
+			 
+			 const passwordRegex = /^(?=.*\d)(?=.*[a-zA-Z])(?=.*[\W_]).{8,}$/;
+			 console.log(passwordRegex.test(newPwd));
+			 console.log("newPwd:", newPwd.trim());
+			 console.log("passwordRegex:", passwordRegex);
+			 console.log("test result:", passwordRegex.test(newPwd.trim()));
+
+			 if (!passwordRegex.test(newPwd)) {
+				 C_POP.alert("비밀번호는 숫자, 문자, 특수문자를 포함하여 8자 이상이어야 합니다.");
+				 return false;
+			 }
+			 
+			 return true;
+			 
+		 }
+		 ,showPwd : (obj, gubun) =>{
+			 
+			 let PWD_ID		="<@popupId>_"+gubun;
+			 const val = $(obj).siblings("#"+PWD_ID+"_PWD").val();
+			 $(obj).siblings("#"+PWD_ID+"_PWD_SHOW").val(val).show();
+			 $(obj).siblings("#"+PWD_ID+"_PWD").hide();
+			 setTimeout( ()=>{
+				 $(obj).siblings("#"+PWD_ID+"_PWD_SHOW").hide();
+				 $(obj).siblings("#"+PWD_ID+"_PWD").show();
+			 },2000)			 
+			 
+		 }
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+
+		<@popupId>.recvData	= data.param;
+
+		<@popupId>.pageInit();
+		
+		if( "<@firstChange>" == "Y"){
+			
+			$("#<@popupId> .btn_close").hide();
+			$("#<@popupId>_closeBtn").hide();
+		}
+		
+	});
+</script>
+
+<style>
+.number {
+	text-align: right;
+}
+</style>
+<div class="modal_wrap" id="modal-ex">
+	<div class="modal" style="width:450px;height:360px;">
+		<div class="modal_header">
+			<strong class="tit">비밀번호 변경</strong>
+			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body" style="overflow:visible;" id="<@popupId>_items">
+			<div class="clearFix mt15" style="height:160px;">
+				<ul class="info_wrap col1">
+					<li>
+						<label>사원 ID (사원명)</label>
+						<div class="info"><input type="text" id="<@popupId>_USER" style="width:100%" disabled>
+						</div>
+					</li>
+					<li>
+						<label>현재 비밀번호</label>
+						<div class="info"><input type="password" id="<@popupId>_CURRENT_PWD" style="width:71%;height:33px;line-height: 33px;border: 1px solid #DADADA;border-radius: 4px;padding-left:15px;">
+										  <input type="text" id="<@popupId>_CURRENT_PWD_SHOW" style="width:71%;display:none">
+										  <button class="btn" style="width:80px;" onclick="<@popupId>.showPwd(this,'CURRENT');">비번보기</button>
+						</div>
+					</li>
+ 					<li>
+						<label>신규 비밀번호</label>
+						<div class="info"><input type="password" id="<@popupId>_NEW_PWD" style="width:71%;height:33px;line-height: 33px;border: 1px solid #DADADA;border-radius: 4px;padding-left:15px;">
+									      <input type="text" id="<@popupId>_NEW_PWD_SHOW" style="width:71%;display:none">
+										  <button class="btn" style="width:80px;" onclick="<@popupId>.showPwd(this,'NEW');">비번보기</button>
+						
+						</div>
+					</li>
+					<li>
+						<label>비밀번호 확인</label>
+						<div class="info"><input type="password" id="<@popupId>_CONFIRM_PWD" style="width:71%;height:33px;line-height: 33px;border: 1px solid #DADADA;border-radius: 4px;padding-left:15px;">
+									      <input type="text" id="<@popupId>_CONFIRM_PWD_SHOW" style="width:71%;display:none">
+										  <button class="btn" style="width:80px;" onclick="<@popupId>.showPwd(this,'CONFIRM');">비번보기</button>
+						
+						</div>
+						 
+					</li>
+					<span style="font-size: 12px; color: #888;display: inline-block;margin-top:7px;">◉ 비밀번호는 숫자, 문자, 특수문자를 포함하여 8자 이상이어야 합니다.</span>
+				</ul>
+			</div>
+			<div class="modal_footer">
+				<button type="button" class="btn select" onclick="<@popupId>.apply()" >저장</button>
+				<button type="button" class="btn close"  onclick="<@popupId>.close()" id="<@popupId>_closeBtn">취소</button>
+			</div>
+		</div>
+</div>

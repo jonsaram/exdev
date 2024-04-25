@@ -277,7 +277,11 @@
 			<script type="text/x-jsrender" id="<@pageId>_menuRoleList_template">	
 			{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}">
+					{{if AUTH_TYPE_DESC == '권한없음' }}
+					<td></td>
+					{{else}}
 					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" ></td>
+					{{/if}}
 					<td id='ROLE_ID'		class="tl" >{{:ROLE_ID			}}</td>
 					<td id='ROLE_NM'		class="tl" >{{:ROLE_NM			}}</td>
 					<td id='ROLE_DESC'		class="tl" >{{:ROLE_DESC		}}</td>
@@ -286,8 +290,16 @@
 					<td id='MENU_DEPTH'		class="tc" >{{:MENU_DEPTH		}}</td>	
 					<td id='MENU_DESC'		class="tl" >{{:MENU_DESC		}}</td>
 					<td id='AUTH_TYPE_DESC'	class="tl" >{{:AUTH_TYPE_DESC	}}</td>
+					{{if AUTH_TYPE_DESC == '권한없음' }}
+					<td class="tl" ><button></button></td>
+					{{else}}
 					<td class="tl" ><button onclick="<@pageId>.modify({{:#index}})"><i class="icon_pen"></i></button></td>
+					{{/if}}
+					{{if AUTH_TYPE_DESC == '권한없음' }}
+					<td class="tl" ><button></button></td>
+					{{else}}
 					<td class="tl" ><button onclick="<@pageId>.delete({{:#index}})"><i class="icon_trash"></i></button></td>
+					{{/if}}
 				</tr>
 			{{/for}}
 			</script>

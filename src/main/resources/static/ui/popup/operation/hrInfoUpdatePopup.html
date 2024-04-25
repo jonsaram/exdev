@@ -167,7 +167,7 @@
 		,setTitleHeight : () => {
 
 			let title = <@popupId>.mode == "I" ? "신규 직원 추가" : "직원 정보 수정";
-	  	 	$(".tit").html( title );
+	  	 	$("#<@popupId> .tit").html( title );
 
 		}
 		,setHandler : () => {
@@ -204,7 +204,7 @@
 				
 			})
 			
-			$(".number").on( 'input', (e) => {
+			$("#<@popupId> .number").on( 'input', (e) => {
 
 	            let inputValue = event.target.value.replace(/[^\d,]/g, '');
 	            inputValue = <@popupId>.numberWithCommas(parseInt(inputValue.replace(/,/g, '')));
@@ -212,7 +212,7 @@
 	            event.target.value = inputValue;
 			})
 			
-			$(".info #JUMIN").on('focusout', (e) => {
+			$("#<@popupId> .info #JUMIN").on('focusout', (e) => {
 				
 				const alertmsg = '올바른 주민번호를 입력하여 주십시오.';
 			    let regNumber = $(e.target).val().replace(/-/g, '');
@@ -250,7 +250,7 @@
 
 			});
 			
-			$(".info #E_MAIL").on('focusout', (e) => {
+			$("#<@popupId> .info #E_MAIL").on('focusout', (e) => {
 				
 			    let eMailAddress = $(e.target).val();
 			    let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -432,6 +432,16 @@
 		_getBranchSelectData(<@popupId>.pageInit);
 		
 		<@popupId>.setHandler();
+		
+		if("<@myInfo>"=="Y"){
+			
+			$("#<@popupId>_applyBtn").hide();
+			$("#<@popupId>_userImg+button").hide();
+			$("#<@popupId>_USER_ID+button").hide();
+			$("#<@popupId>_USER_ID").css("width","100%");
+			$("#<@popupId> .tit").html( "내정보 보기" );
+			
+		}
 	});
 </script>
 
@@ -589,7 +599,7 @@
 			<div id="fileuploadComp"></div>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select" onclick="<@popupId>.apply()" >저장</button>
+			<button type="button" class="btn select" onclick="<@popupId>.apply()" id="<@popupId>_applyBtn">저장</button>
 			<button type="button" class="btn close"  onclick="<@popupId>.close()" >취소</button>
 		</div>
 	</div>

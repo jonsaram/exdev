@@ -617,7 +617,16 @@
 		AND	  USER_ID	 = #{USER_ID}
 	</delete>
 	
-	
+	<update id="updateUserPwd" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	system.updateUserPwd
+			로그인 비밀번호 수정
+		*/
+		UPDATE TBL_EXP_USER
+		SET USER_PW = #{NEW_PWD}
+		WHERE SP_CSTM_ID 	= #{sessionVo.spCstmId} 
+		AND	  USER_ID	 	= #{USER_ID}
+		AND   USER_PW		= #{CURRENT_PWD}		
+	</update>	
 	<!--
 	권한매핑 관리 ( 사용자 - 권한 )
 	 -->	
@@ -677,7 +686,7 @@
 	        ,NVL(RM.MENU_ID, M.MENU_ID) AS MENU_ID
 	        ,M.MENU_NM, M.MENU_DEPTH,M.MENU_DESC
 	        ,RM.AUTH_TYPE
-        	,DECODE( RM.AUTH_TYPE ,'A','Read/Write' ,'R','Read','') AS AUTH_TYPE_DESC
+        	,DECODE( RM.AUTH_TYPE ,'A','Read/Write' ,'R','Read','권한없음') AS AUTH_TYPE_DESC
 	        ,M.SORT_ORDER
 	     FROM TBL_EXP_MENU M
          ,TBL_EXP_ROLEMENU RM
@@ -899,6 +908,7 @@
 		    ,USE_YN
 		    ,DEL_YN
 		    ,RECOMMENDER_ID
+		    ,DECODE( USER_PW ,'1234','Y','N') MUST_CHANGE
 		FROM
 		    TBL_EXP_USER		
 		WHERE
