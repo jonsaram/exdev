@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@popupId> = {
-		  recvData : []
+		  paMap : G_VAL.PAGE_AUTH_MAP["<@opener>"]
+		 ,recvData : []
 		 ,OWNER_CD : "USER_FACE"
 		 ,RELOAD_IMG:'N'
 		 ,OLD_GRP_FILE_ID : ""
@@ -14,6 +15,17 @@
 			<@popupId>.BRANCH_DATA = BRANCH_DATA;
 			<@popupId>.setTitleHeight();
 
+			var parm = {
+					 queryId 		: "system.getRoleList"
+					,requestParm	: {DEL_YN :'N'}
+			}	
+			C_COM.requestQuery(parm, function(resultData) {
+				const data = resultData.data.map( row => {return [row.ROLE_ID,row.ROLE_NM]});				
+				C_UICOM.makeSelectBox({ 
+					 		 data : data
+					 		,targetId : "<@popupId>_selectSysRole" }, "single");
+			});
+	
 			C_UICOM.makeSelectBox({ 
 				 		 data : C_COM.getCodeList("GENDER")
 				 		,targetId : "<@popupId>_selectGender" }, "single");
@@ -103,7 +115,8 @@
 			 })			 
 
 			 returnData['RELOAD_IMG']	= <@popupId>.RELOAD_IMG;
-			 returnData['STATE']		= 'INUSE';//<@popupId>.recvData.param.STATE;
+			 returnData['STATE']		= 'INUSE';
+			 returnData['ROLE_ID']		= C_UICOM.getData("<@popupId>_selectSysRole");
 			 
 
 			 C_POP.confirm("입력한 정보로 저장 하시겠습니까?", function() {
@@ -442,6 +455,10 @@
 			$("#<@popupId> .tit").html( "내정보 보기" );
 			
 		}
+		
+		if( <@popupId>.paMap["ROLE_ID"] =="SYSTEM" ||<@popupId>.paMap["ROLE_ID"] =="MANAGER" ){
+			$("#<@popupId>_selectSysRoleLi").show();
+		}else $("#<@popupId>_selectSysRoleLi").hide(); 
 	});
 </script>
 
@@ -451,7 +468,7 @@
 }
 </style>
 <div class="modal_wrap" id="modal-ex">
-	<div class="modal" style="width:750px;height:650px;">
+	<div class="modal" style="width:750px;height:700px;">
 		<div class="modal_header">
 			<strong class="tit">직원 추가</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
@@ -505,9 +522,12 @@
 						<label>이메일</label>
 						<div class="info"><input type="text" id="<@popupId>_E_MAIL" style="width:100%"></div>
 					</li>
-					<li>
-						<label>DESC</label>
-						<div class="info"><input type="text" id="<@popupId>_USER_DESC" style="width:100%"></div>
+					<li id="<@popupId>_selectSysRoleLi"  style='display:none'>
+						<label>시스템 ROLE</label>
+						<div class="info">							
+							<div id="<@popupId>_selectSysRole" class="select_box" style="width:100%">
+			                </div>
+						</div>
 					</li>
 					<li class="w100">
 						<label>주소</label>
@@ -594,6 +614,14 @@
 			                </div>
 						</div>
 					</li>
+					<li class="w100">
+						<label>DESC</label>
+						<div class="info">
+							<input type="text" id="<@popupId>_USER_DESC" style="width:100%">
+						</div>
+					</li>
+					
+					
 				</ul>
 			</section>
 			<div id="fileuploadComp"></div>

@@ -77,6 +77,15 @@
 			C_COM.requestQuery(parm, function(resultData) {
 				G_VAL.session.etcUserInfo = resultData.data[0];
 			});
+
+			var parm = {
+				 queryId 		: "system.getMenuAuthTypeList"
+				,requestParm	: userInfo
+			}	
+			C_COM.requestQuery(parm, function(resultData) {
+				G_VAL.PAGE_AUTH_MAP = Object.fromEntries(resultData.data.map( menu => {return [menu.PAGE_ID , menu]}))
+			});
+			
 		});	
 		
 		var sessionInfo = {}

@@ -477,6 +477,7 @@
 						TBL_EXP_MENU M
 						WHERE R.ROLE_ID		=	p_ROLE_ID 
 						AND R.SP_CSTM_ID 	= 	M.SP_CSTM_ID
+						AND R.USE_YN = 'Y'  AND R.DEL_YN = 'N'
 						ORDER BY M.SORT_ORDER 
 					);
 					
@@ -637,6 +638,7 @@
 		AND	  USER_ID	 	= #{USER_ID}
 		AND   USER_PW		= #{CURRENT_PWD}		
 	</update>	
+	
 	<!--
 	권한매핑 관리 ( 사용자 - 권한 )
 	 -->	
@@ -784,7 +786,8 @@
 		    
 		    	IF p_MENU_DEPTH = 0 THEN
 		    	
-			    	DELETE FROM TBL_EXP_ROLEMENU RM
+			    	UPDATE TBL_EXP_ROLEMENU RM
+			    	SET RM.AUTH_TYPE = NULL
 					WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
 					AND	  ROLE_ID	 = #{ROLE_ID}
 					AND	  MENU_ID	 IN ( 
@@ -795,7 +798,8 @@
 		    	
 		    	END IF;
 		    
-				DELETE FROM TBL_EXP_ROLEMENU 
+				UPDATE TBL_EXP_ROLEMENU 
+				SET AUTH_TYPE = NULL
 				WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
 				AND	  ROLE_ID	 = #{ROLE_ID}
 				AND	  MENU_ID	 = #{MENU_ID} 
@@ -807,8 +811,41 @@
 	    }		
 	</delete>
 
-
-
+	<select id="getMenuAuthTypeList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getMenuAuthTypeList
+			사용자의 메뉴별 권한 리스트
+		*/
+		SELECT 
+		SP_CSTM_ID
+		,USER_ID
+		,ROLE_ID
+		,ROLE_NM
+		,MENU_ID
+		,PAGE_ID
+		,AUTH_TYPE
+		FROM(
+			SELECT 
+			AU.SP_CSTM_ID
+			,AU.USER_ID
+			,AU.ROLE_ID
+			,RM.MENU_ID
+			,RM.AUTH_TYPE
+			,R.ROLE_NM
+			,M.PAGE_ID
+			FROM TBL_EXP_USER U
+			,TBL_EXP_AUTH AU
+			,TBL_EXP_ROLEMENU RM
+			,TBL_EXP_MENU M
+			,TBL_EXP_ROLE R
+			WHERE U.SP_CSTM_ID 	= #{sessionVo.spCstmId} 
+			AND U.USER_ID 		= #{sessionVo.userId} 
+			AND U.USER_ID 		= AU.USER_ID
+			AND AU.ROLE_ID 		= RM.ROLE_ID 
+			AND AU.ROLE_ID 		= R.ROLE_ID
+			AND RM.MENU_ID 		= M.MENU_ID
+		)
+	</select>
+	
 	<select id="getExcelUploadTableList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	system.getExcelUploadTableList
 			엑셀 업로드 대상 Table List 
