@@ -1,37 +1,58 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-			 checkedItems : []
-	 		 ,searchedData : []
-			 ,excelParam : {}
-			 ,pageInit : () =>{
+		checkedItems : []
+		,searchedData : []
+		,excelParam : {}
+		,pageInit : () =>{
 					
-				 	let singleboxList = {}
-					const requestParm = {};
-					var parm = {
-							 queryId 		: "system.getRoleList"
-							,requestParm	: requestParm
+				let singleboxList = {}
+				const requestParm = {};
+				var parm = {
+						 queryId 		: "system.getRoleList"
+						,requestParm	: requestParm
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					
+					const data = resultData.data;
+					const ROLE_DATA = data.map( item => [item.ROLE_ID, item.ROLE_NM]);  
+					
+					singleboxList = { 
+						 data : ROLE_DATA
+					 	,targetId : "<@pageId>_selectRoleId" 
 					}
-					C_COM.requestQuery(parm, function(resultData) {
+					C_UICOM.makeSelectBox(singleboxList, "single");	
+					C_UICOM.addChangeListener("<@pageId>_selectRoleId", function(dataObj) {
 						
-						const data = resultData.data;
-						const ROLE_DATA = data.map( item => [item.ROLE_ID, item.ROLE_NM]);  
-
-						singleboxList = { 
-							 data : ROLE_DATA
-						 	,targetId : "<@pageId>_selectRoleId" 
-						}
+						<@pageId>.searchList();
 						
-						C_UICOM.makeSelectBox(singleboxList, "single");		
-					});	
+					});
+					const menuDepthData = [
+						["","ALL"],
+						["0","Menu Depth 0"],
+						["1","Menu Depth 1"]
+					]					
+					const dethList = { 
+							 data : menuDepthData
+						 	,targetId : "<@pageId>_selectDepth" 
+					}
+					C_UICOM.makeSelectBox(dethList, "single");	
+					C_UICOM.addChangeListener("<@pageId>_selectDepth", function(dataObj) {
+							
+						<@pageId>.searchList();
+							
+					});
+					
+				});	
 				
-			 }
-			,searchList : () => {
+		}
+		,searchList : () => {
 				var selectRoleId = C_UICOM.getData("<@pageId>_selectRoleId");
+				var selectMenuDe = C_UICOM.getData("<@pageId>_selectDepth");
 				
 				if(!selectRoleId )selectRoleId ="SYSTEM";
 				
-				const requestParm = { ROLE_ID : selectRoleId };
+				const requestParm = { ROLE_ID : selectRoleId , MENU_DEPTH :selectMenuDe };
 				var parm = {
 						 queryId 		: "system.getRoleMenuMapList"
 						,requestParm	: requestParm
@@ -52,8 +73,8 @@
 					<@pageId>.setHandler();
 				});
 				
-			}
-			,updateItem : (param) => {
+		}
+		,updateItem : (param) => {
 	
 				const requestParm = param ? param : {} ;
 				requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
@@ -72,22 +93,26 @@
 						console.log("Item 저장 성공");
 					}				
 				});
-			}  
-			,deleteItem : (delKey) => {
-				
-				var parm = {
-						 queryId 		: "system.deleteRoleMenuMap"
-						,requestParm	: {"SP_CSTM_ID":delKey.SP_CSTM_ID
-										  ,"ROLE_ID":delKey.ROLE_ID}
-				}
-				C_COM.requestQuery(parm, function(resultData) {
-					if( resultData.state == 'S'){
-						<@pageId>.searchList();
-						console.log("Item 삭제 성공")
-					}				
-				});				
+		}  
+		,deleteItem : (delKey) => {
+	
+			var parm = {
+					 queryId 		: "system.deleteRoleMenuMap"
+					,requestParm	: {"SP_CSTM_ID":delKey.SP_CSTM_ID
+									  ,"ROLE_ID":delKey.ROLE_ID
+									  ,"MENU_ID":delKey.MENU_ID
+									  ,"MENU_DEPTH":delKey.MENU_DEPTH
+									  }
 			}
-			,openPopup : (selectedItem) => {
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				if( resultData.state == 'S'){
+					<@pageId>.searchList();
+					console.log("Item 삭제 성공")
+				}				
+			});				
+		}
+		,openPopup : (selectedItem) => {
 				
 				let mode = "I";
 				if( selectedItem)mode="U";
@@ -98,60 +123,66 @@
 					}
 				});
 				
-			}
-			, deleteOne : (checkedItem) =>{
+		}
+		, deleteOne : (checkedItem) =>{
 				
 	    		const SP_CSTM_ID 	= checkedItem.SP_CSTM_ID;
 	    		const ROLE_ID 		= checkedItem.ROLE_ID;
-	    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,ROLE_ID:ROLE_ID})
+	    		const MENU_ID 		= checkedItem.MENU_ID;
+	    		const MENU_DEPTH	= checkedItem.MENU_DEPTH;
+	    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,ROLE_ID:ROLE_ID,MENU_ID:MENU_ID, MENU_DEPTH : MENU_DEPTH})
 	    		
-			}
-			,setHandler : () => {
-			    
+		}
+		,setHandler : () => {
+
 				_chkHandler("<@pageId>",<@pageId>);
 			    
-  			    $("#<@pageId>_deleteBtn").click(function(){
-			    	
-			    	<@pageId>.checkedItems.forEach( key =>{
-			    		
-			    		
-			    		const checkedItem = <@pageId>.searchedData[key]
-						<@pageId>.deleteOne(checkedItem);
-			    	})
-			    	
+				$("#<@pageId>_deleteBtn").click(function(){
+
+					C_POP.confirm("선택하신 ROLE MENU를 삭제 하시겠습니까?", function() {
+
+						<@pageId>.checkedItems.forEach( key =>{
+							const checkedItem = <@pageId>.searchedData[key]
+							<@pageId>.deleteOne(checkedItem);
+						})
+					});
+					
 			    }) 
 			    
 			    $("#<@pageId>_excelDownload").click(function(){
 
 			    	<@pageId>.excelDownload("TBL_EXP_ROLEMENU");
+			    	
 			    })
 			    
 			    $("#<@pageId>_search").click( () =>{
+			    	
 			    	<@pageId>.searchList();
+			    	
 			    })
 			    
-			}
-	 		,excelDownload : (title) => {
+		}
+		,excelDownload : (title) => {
 				
  		    	const $hds = $("#<@pageId>_headingColName th");
 		    	const $tds = $("[name='<@pageId>_tr_0'] td");
 		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,title);  
 
-			}
-	 		,modify : (index) =>{
+		}
+		,modify : (index) =>{
 
 	 			const checkedItem = <@pageId>.searchedData[index];
 				<@pageId>.openPopup(checkedItem);
 				
-	 		}
-	 		,delete : (index) =>{
+		}
+		,delete : (index) =>{
 	 			
 	 			C_POP.confirm('선택하신 ROLE MENU를 삭제 하시겠습니까?', function() {
 		 			const checkedItem = <@pageId>.searchedData[index];
 					<@pageId>.deleteOne(checkedItem);
 	 			});
 				
-	 		}
+		}
 	}
 
 	// Page Load가 완료된후 실행 된다.
@@ -178,10 +209,12 @@
 		<div class="search_area mt0">
 			<div class="fl">
 				<button type="button" class="btn fl" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
-				<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
 		
 				<div class="search_inputWrap">
 					<div  class="select_box fl" id="<@pageId>_selectRoleId" style="width:200px;margin-left:10px;"></div>
+				</div>
+				<div class="search_inputWrap">
+					<div  class="select_box fl" id="<@pageId>_selectDepth" style="width:200px;margin-left:10px;"></div>
 				</div>
 			</div>
 		

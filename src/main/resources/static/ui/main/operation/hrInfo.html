@@ -166,6 +166,9 @@ var <@pageId> = {
 		}
 		,setUserAuth : (requestParm) => {
 			
+			if( isEmpty(requestParm?.ROLE_ID) ){
+				requestParm["ROLE_ID"] = 'USER';
+			}		
 			//사용자 추가 시 자동으로 실행.
 			let parm = {
 	                queryId        : "system.setUserAuthSeries"

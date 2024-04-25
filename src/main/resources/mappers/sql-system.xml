@@ -457,14 +457,16 @@
 					INSERT INTO TBL_EXP_ROLEMENU
 					SELECT SP_CSTM_ID, ROLE_ID, MENU_ID, AUTH_TYPE
 					FROM(
-						SELECT DISTINCT R.SP_CSTM_ID, R.ROLE_ID, M.MENU_ID, 'A' AS AUTH_TYPE, M.SORT_ORDER
+						SELECT DISTINCT R.SP_CSTM_ID, R.ROLE_ID, M.MENU_ID, 'R' AS AUTH_TYPE, M.SORT_ORDER
 						FROM TBL_EXP_ROLE R,
 						TBL_EXP_MENU M
 						WHERE R.ROLE_ID		=	p_ROLE_ID 
 						AND R.SP_CSTM_ID 	= 	M.SP_CSTM_ID
 						ORDER BY M.SORT_ORDER 
 					);
-				
+					
+					COMMIT;
+					
         		END IF;
 		    END
 	    }
@@ -681,6 +683,9 @@
 		<if test=" ROLE_ID != null and !ROLE_ID.equals('') ">
 		AND R.ROLE_ID = #{ROLE_ID}
 		</if>
+		<if test=" MENU_DEPTH != null and !MENU_DEPTH.equals('') ">
+		AND M.MENU_DEPTH = #{MENU_DEPTH}
+		</if>
         
         ORDER BY M.SORT_ORDER,R.SORT_ORDER,RM.AUTH_TYPE
 	</select>
@@ -689,34 +694,92 @@
 		/*	system.updateRoleMenuMap
 			권한 매핑 Auth  저장
 		*/
-		MERGE INTO TBL_EXP_ROLEMENU T
-		USING (
-		  SELECT #{sessionVo.spCstmId} 	AS SP_CSTM_ID
-				,#{ROLE_ID} 	AS ROLE_ID
-				,#{MENU_ID} 	AS MENU_ID
-				,#{AUTH_TYPE}	AS AUTH_TYPE
-		  FROM dual
-		) S
-		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
-		AND T.ROLE_ID 		= S.ROLE_ID
-		AND T.MENU_ID 		= S.MENU_ID
-		)
-		WHEN MATCHED THEN
-		  UPDATE SET
-		    T.AUTH_TYPE		= S.AUTH_TYPE
-		WHEN NOT MATCHED THEN 
-    		INSERT (  SP_CSTM_ID,   ROLE_ID,   MENU_ID,	  AUTH_TYPE)
-   			VALUES (S.SP_CSTM_ID, S.ROLE_ID, S.MENU_ID, S.AUTH_TYPE)
+	    { CALL
+		    DECLARE
+		    
+		        p_MENU_DEPTH	VARCHAR2(30);
+		        
+		    BEGIN
+		    
+		        p_MENU_DEPTH	:= #{MENU_DEPTH};
+		    
+		    	IF p_MENU_DEPTH = 0 THEN
+		    	
+			    	UPDATE TBL_EXP_ROLEMENU RM
+			    	SET AUTH_TYPE	 = #{AUTH_TYPE}
+					WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+					AND	  ROLE_ID	 = #{ROLE_ID}
+					AND	  MENU_ID	 IN ( 
+							SELECT MENU_ID 
+							FROM  TBL_EXP_MENU M WHERE  
+							M.PARENT_MENU_ID = #{MENU_ID} 
+					);
+		    	
+		    	END IF;
+		    
+				MERGE INTO TBL_EXP_ROLEMENU T
+				USING (
+				  SELECT #{sessionVo.spCstmId} 	AS SP_CSTM_ID
+						,#{ROLE_ID} 	AS ROLE_ID
+						,#{MENU_ID} 	AS MENU_ID
+						,#{AUTH_TYPE}	AS AUTH_TYPE
+				  FROM dual
+				) S
+				ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+				AND T.ROLE_ID 		= S.ROLE_ID
+				AND T.MENU_ID 		= S.MENU_ID
+				)
+				WHEN MATCHED THEN
+				  UPDATE SET
+				    T.AUTH_TYPE		= S.AUTH_TYPE
+				WHEN NOT MATCHED THEN 
+		    		INSERT (  SP_CSTM_ID,   ROLE_ID,   MENU_ID,	  AUTH_TYPE)
+		   			VALUES (S.SP_CSTM_ID, S.ROLE_ID, S.MENU_ID, S.AUTH_TYPE)
+				;
+				
+				COMMIT;
+				
+			 END
+	    }		
+		
 	</update>
 	
 	<delete id="deleteRoleMenuMap" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	system.deleteRoleMenuMap
-			권한매핑 Auth 삭제
+			권한매핑 Auth 삭제 ( MENU_DEPT 0일때 해당 하위 모두 삭제)
 		*/
-		DELETE FROM TBL_EXP_ROLEMENU 
-		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
-		AND	  ROLE_ID	 = #{ROLE_ID}
-		AND	  MENU_ID	 = #{MENU_ID}
+	    { CALL
+		    DECLARE
+		    
+		        p_MENU_DEPTH	VARCHAR2(30);
+		        
+		    BEGIN
+		    
+		        p_MENU_DEPTH	:= #{MENU_DEPTH};
+		    
+		    	IF p_MENU_DEPTH = 0 THEN
+		    	
+			    	DELETE FROM TBL_EXP_ROLEMENU RM
+					WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+					AND	  ROLE_ID	 = #{ROLE_ID}
+					AND	  MENU_ID	 IN ( 
+							SELECT MENU_ID 
+							FROM  TBL_EXP_MENU M WHERE  
+							M.PARENT_MENU_ID = #{MENU_ID} 
+					);
+		    	
+		    	END IF;
+		    
+				DELETE FROM TBL_EXP_ROLEMENU 
+				WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+				AND	  ROLE_ID	 = #{ROLE_ID}
+				AND	  MENU_ID	 = #{MENU_ID} 
+				;
+				
+				COMMIT;
+				
+			 END
+	    }		
 	</delete>
 
 
@@ -894,10 +957,10 @@
 				USING (
 				  SELECT #{sessionVo.spCstmId} 	AS SP_CSTM_ID
 						,#{USER_ID} 			AS USER_ID
-						<if test="ROLE_ID =null ">
+						<if test="ROLE_ID == null">
 						,'USER'					AS ROLE_ID
 						</if>
-						<if test='!ROLE_ID !=null '>
+						<if test=" ROLE_ID != null and ROLE_ID != '' " >
 						,#{ROLE_ID} 			AS ROLE_ID
 						</if>
 						,'system'				AS UPDATE_USER
