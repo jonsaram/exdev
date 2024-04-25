@@ -1,4 +1,16 @@
 
+const _HUNDRED_MILLION = 100000000 ;
+
+function _getYearDataList () {
+	
+	const yearsArray =  Array.from({ length: 4 }, (_, index) => {
+				  const year = 2022 + index;
+				  return [year.toString(), year + "년"];
+	});
+	
+	return yearsArray ;
+}
+
 function _setSearchListCnt (targetId) {
 	
     var singleboxList = { 
