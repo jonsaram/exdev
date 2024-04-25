@@ -186,6 +186,154 @@
         ORDER BY A.SP_CSTM_ID
                 ,A.STORE_ID
     </select>
+        <select id="SalesAndGoalSalesChartList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.SalesAndGoalSalesChartList */
+        SELECT A.SP_CSTM_ID
+              ,A.STORE_ID
+              ,A.STORE_NM3
+              ,SUM(A.GOAL_MONTH)  AS GOAL_MONTH
+              ,SUM(A.SALES_MONTH) AS SALES_MONTH
+        FROM   (
+                SELECT A.SP_CSTM_ID
+                      ,A.STORE_ID
+                      ,B.STORE_NM3
+                      ,A.YEAR
+                      ,A.MONTH
+                      ,A.YYYY_MM_DD
+                      ,A.GOAL_MONTH
+                      ,A.SALES_MONTH
+                FROM   (
+                        WITH STORE AS (
+                                       SELECT  A.SP_CSTM_ID    
+                                              ,A.STORE_ID      
+                                              ,A.YEAR          
+                                              ,NVL(A.MONTH1, 0) AS GOAL_MONTH1
+                                              ,B.MONTH01        AS SALES_MONTH1
+                                              ,NVL(A.MONTH2 ,0) AS GOAL_MONTH2
+                                              ,B.MONTH02        AS SALES_MONTH2 
+                                              ,NVL(A.MONTH3 ,0) AS GOAL_MONTH3
+                                              ,B.MONTH03        AS SALES_MONTH3 
+                                              ,NVL(A.MONTH4 ,0) AS GOAL_MONTH4
+                                              ,B.MONTH04        AS SALES_MONTH4 
+                                              ,NVL(A.MONTH5 ,0) AS GOAL_MONTH5
+                                              ,B.MONTH05        AS SALES_MONTH5 
+                                              ,NVL(A.MONTH6 ,0) AS GOAL_MONTH6
+                                              ,B.MONTH06        AS SALES_MONTH6 
+                                              ,NVL(A.MONTH7 ,0) AS GOAL_MONTH7
+                                              ,B.MONTH07        AS SALES_MONTH7 
+                                              ,NVL(A.MONTH8 ,0) AS GOAL_MONTH8
+                                              ,B.MONTH08        AS SALES_MONTH8 
+                                              ,NVL(A.MONTH9 ,0) AS GOAL_MONTH9
+                                              ,B.MONTH09        AS SALES_MONTH9 
+                                              ,NVL(A.MONTH10,0) AS GOAL_MONTH10
+                                              ,B.MONTH10        AS SALES_MONTH10
+                                              ,NVL(A.MONTH11,0) AS GOAL_MONTH11
+                                              ,B.MONTH11        AS SALES_MONTH11
+                                              ,NVL(A.MONTH12,0) AS GOAL_MONTH12
+                                              ,B.MONTH12        AS SALES_MONTH12
+                                       FROM   TBL_EXP_STORE_SALES_GOAL A
+                                              JOIN (
+                                                       SELECT SP_CSTM_ID
+                                                             ,STORE_ID
+                                                             ,YEAR
+                                                             ,SUM(MONTH01) AS MONTH01
+                                                             ,SUM(MONTH02) AS MONTH02
+                                                             ,SUM(MONTH03) AS MONTH03
+                                                             ,SUM(MONTH04) AS MONTH04
+                                                             ,SUM(MONTH05) AS MONTH05
+                                                             ,SUM(MONTH06) AS MONTH06
+                                                             ,SUM(MONTH07) AS MONTH07
+                                                             ,SUM(MONTH08) AS MONTH08
+                                                             ,SUM(MONTH09) AS MONTH09
+                                                             ,SUM(MONTH10) AS MONTH10
+                                                             ,SUM(MONTH11) AS MONTH11
+                                                             ,SUM(MONTH12) AS MONTH12
+                                                       FROM   (
+                                                                   SELECT  SP_CSTM_ID    
+                                                                          ,STORE_ID      
+                                                                          ,YEAR
+                                                                          ,MONTH
+                                                                          ,CASE MONTH WHEN '01'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH01
+                                                                          ,CASE MONTH WHEN '02'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH02
+                                                                          ,CASE MONTH WHEN '03'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH03
+                                                                          ,CASE MONTH WHEN '04'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH04
+                                                                          ,CASE MONTH WHEN '05'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH05
+                                                                          ,CASE MONTH WHEN '06'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH06
+                                                                          ,CASE MONTH WHEN '07'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH07
+                                                                          ,CASE MONTH WHEN '08'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH08
+                                                                          ,CASE MONTH WHEN '09'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH09
+                                                                          ,CASE MONTH WHEN '10'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH10
+                                                                          ,CASE MONTH WHEN '11'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH11
+                                                                          ,CASE MONTH WHEN '12'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH12
+                                                                   FROM   TBL_EXP_STORE_FINANCIAL
+                                                                   WHERE  1 = 1
+                                                                   AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                                                                   AND    YEAR IN 
+														            <foreach collection="yearList" item="year" index="index" open="(" separator="," close=")">
+														                    #{year}
+														            </foreach>
+                                                                   AND    SUBJECT = 'SUBJECT_001'
+                                                              )
+                                                       GROUP BY SP_CSTM_ID    
+                                                               ,STORE_ID
+                                                               ,YEAR
+                                                   ) B
+                                                ON  1 = 1
+                                                AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                                AND A.STORE_ID   = B.STORE_ID
+                                                AND A.YEAR       = B.YEAR
+                                       WHERE  1 = 1
+                                       AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                                       AND    A.YEAR IN
+                                       <foreach collection="yearList" item="year" index="index" open="(" separator="," close=")">
+                                           #{year}
+                                       </foreach>
+                                       ORDER BY A.SP_CSTM_ID    
+                                               ,A.STORE_ID      
+                                               ,A.YEAR 
+                        )
+                        SELECT A.SP_CSTM_ID
+                              ,A.STORE_ID
+                              ,TO_CHAR(A.YEAR)        AS YEAR
+                              ,TO_CHAR(A.MONTH, '09') AS MONTH
+                              ,TO_DATE(TO_CHAR(A.YEAR)||'-'||TO_CHAR(A.MONTH, '09')||'-'||'01', 'YYYY-MM-DD') AS YYYY_MM_DD
+                              ,A.GOAL_MONTH
+                              ,A.SALES_MONTH
+                        FROM   (
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  1  AS MONTH, STORE.GOAL_MONTH1  AS  GOAL_MONTH,  STORE.SALES_MONTH1  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  2  AS MONTH, STORE.GOAL_MONTH2  AS  GOAL_MONTH,  STORE.SALES_MONTH2  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  3  AS MONTH, STORE.GOAL_MONTH3  AS  GOAL_MONTH,  STORE.SALES_MONTH3  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  4  AS MONTH, STORE.GOAL_MONTH4  AS  GOAL_MONTH,  STORE.SALES_MONTH4  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  5  AS MONTH, STORE.GOAL_MONTH5  AS  GOAL_MONTH,  STORE.SALES_MONTH5  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  6  AS MONTH, STORE.GOAL_MONTH6  AS  GOAL_MONTH,  STORE.SALES_MONTH6  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  7  AS MONTH, STORE.GOAL_MONTH7  AS  GOAL_MONTH,  STORE.SALES_MONTH7  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  8  AS MONTH, STORE.GOAL_MONTH8  AS  GOAL_MONTH,  STORE.SALES_MONTH8  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  9  AS MONTH, STORE.GOAL_MONTH9  AS  GOAL_MONTH,  STORE.SALES_MONTH9  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  10 AS MONTH, STORE.GOAL_MONTH10 AS  GOAL_MONTH,  STORE.SALES_MONTH10 AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  11 AS MONTH, STORE.GOAL_MONTH11 AS  GOAL_MONTH,  STORE.SALES_MONTH11 AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  12 AS MONTH, STORE.GOAL_MONTH12 AS  GOAL_MONTH,  STORE.SALES_MONTH12 AS SALES_MONTH FROM STORE
+                               ) A
+                        ORDER BY SP_CSTM_ID, STORE_ID,YEAR, MONTH
+                       ) A
+                       JOIN TBL_EXP_STORE_INFO B
+                         ON  1 = 1
+                         AND A.SP_CSTM_ID  = B.SP_CSTM_ID
+                         AND A.STORE_ID    = B.STORE_ID
+                WHERE  1 = 1
+                AND    A.YYYY_MM_DD BETWEEN TO_DATE( #{startDate} , 'YYYY-MM-DD') AND TO_DATE( #{endDate} , 'YYYY-MM-DD')
+                ORDER BY A.SP_CSTM_ID
+                        ,A.STORE_ID
+                        ,B.STORE_NM3
+                        ,A.YEAR
+                        ,A.MONTH
+                        ,A.GOAL_MONTH
+                        ,A.SALES_MONTH
+               ) A
+        GROUP BY A.SP_CSTM_ID
+                ,A.STORE_ID     
+                ,A.STORE_NM3  
+        ORDER BY SALES_MONTH DESC    
+    </select>    
     
     <select id="getComparisonPreMonth" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getComparisonPreMonth */
@@ -1253,6 +1401,116 @@
         )
          GROUP BY SP_CSTM_ID
     )
+    </select>
+    
+    <select id="getWeekList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+	    /* dashboardCorPerformance.getWeekList */
+		WITH ISO AS(    
+		SELECT TO_CHAR(WEEK_START, 'YYYY-MM-DD') AS WEEK_START        
+		      ,TO_CHAR(WEEK_END, 'YYYY-MM-DD')   AS WEEK_END        
+		      ,TO_CHAR(WEEK_START, 'WW')         AS WEEK_OF_YEAR_ISO        
+		      ,TO_CHAR(WEEK_START, 'W')          AS WEEK_OF_MONTH    
+		FROM   (        
+		          SELECT    TRUNC(START_DT + LEVEL, 'D') WEEK_START            
+		                   ,TRUNC(START_DT + LEVEL, 'D') + 6 WEEK_END        
+		          FROM     (            
+		                      SELECT  TO_DATE( #{weekStart} , 'YYYYMMDD') - 1 START_DT                
+		                             ,TO_DATE( #{weekEnd} , 'YYYYMMDD') END_DT            
+		                      FROM DUAL        
+		                    )        
+		          CONNECT BY LEVEL <![CDATA[ <= ]]> END_DT - START_DT    
+		       )    
+		GROUP BY WEEK_START, WEEK_END    
+		ORDER BY WEEK_START
+		)
+		SELECT  ROWNUM AS WEEK_OF_YEAR
+		        ,A.WEEK_START 
+		        ,A.WEEK_END 
+		        ,A.WEEK_START||' ~ '||A.WEEK_END AS START_END
+		        ,A.WEEK_OF_YEAR_ISO 
+		        ,A.WEEK_OF_MONTH 
+		FROM ISO A     
+    </select>
+    
+    <select id="getSalesByWeek" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getSalesByWeek */
+        WITH BASE_TB AS(    
+                    SELECT A.SP_CSTM_ID
+                          ,A.STORE_ID
+                          ,A.STORE_NM3
+                          ,TO_CHAR(B.YEAR) AS YEAR 
+                          ,TO_CHAR(B.MONTH) AS MONTH
+                          ,TO_CHAR(LPAD(B.DAY, 2, '0')) AS DAY 
+                          ,TO_DATE(TO_CHAR(B.YEAR)||TO_CHAR(B.MONTH)||TO_CHAR(LPAD(B.DAY, 2, '0')), 'YYYYMMDD') AS STR_DATE
+                          ,B.NET_SALES
+                          ,B.RECEIPT_CNT
+                    FROM   TBL_EXP_STORE_INFO A
+                           JOIN TBL_EXP_STORE_SALES B
+                             ON  1 = 1
+                             AND A.SP_CSTM_ID  = B.SP_CSTM_ID
+                             AND A.STORE_ID    = B.STORE_ID
+                    WHERE  1 = 1
+                    AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                    AND    A.STORE_ID = #{storeId}
+                    ORDER BY A.SP_CSTM_ID
+                            ,A.STORE_ID
+                            ,B.YEAR
+                            ,B.MONTH
+                            ,B.DAY
+                   )
+        SELECT A.SP_CSTM_ID
+              ,A.STORE_ID
+              ,A.STORE_NM3
+              ,A.STR_DATE     
+              ,TO_CHAR(TO_DATE(A.STR_DATE     , 'YYYY-MM-DD HH24:MI:SS') -7, 'YYYY-MM-DD')  AS PRE_STR_DATE
+              ,A.NET_SALES      
+              ,A.RECEIPT_CNT    
+              ,A.PRE_NET_SALES  
+              ,A.PRE_RECEIPT_CNT
+        FROM   (
+                SELECT A.SP_CSTM_ID
+                      ,A.STORE_ID
+                      ,A.STORE_NM3
+                      ,A.STR_DATE             AS STR_DATE
+                      ,SUM(A.NET_SALES)       AS NET_SALES
+                      ,SUM(A.RECEIPT_CNT)     AS RECEIPT_CNT
+                      ,SUM(A.PRE_NET_SALES)   AS PRE_NET_SALES
+                      ,SUM(A.PRE_RECEIPT_CNT) AS PRE_RECEIPT_CNT
+                FROM   (
+                        /*조회 주차*/
+                        SELECT  BASE_TB.SP_CSTM_ID
+                               ,BASE_TB.STORE_ID
+                               ,BASE_TB.STORE_NM3
+                               ,TO_CHAR(BASE_TB.STR_DATE,'YYYY-MM-DD') AS STR_DATE
+                               ,NET_SALES   AS NET_SALES
+                               ,RECEIPT_CNT AS RECEIPT_CNT
+                               ,0           AS PRE_NET_SALES
+                               ,0           AS PRE_RECEIPT_CNT
+                        FROM    BASE_TB
+                        WHERE   1 = 1
+                        AND     BASE_TB.STR_DATE BETWEEN TO_DATE( #{dateStart} , 'YYYY-MM-DD') AND TO_DATE( #{dateEnd} , 'YYYY-MM-DD')
+                        UNION ALL
+                        /*조회 전주차*/
+                        SELECT  BASE_TB.SP_CSTM_ID
+                               ,BASE_TB.STORE_ID
+                               ,BASE_TB.STORE_NM3
+                               ,TO_CHAR(STR_DATE+7,'YYYY-MM-DD') AS STR_DATE
+                               ,0           AS NET_SALES
+                               ,0           AS RECEIPT_CNT
+                               ,NET_SALES   AS PRE_NET_SALES
+                               ,RECEIPT_CNT AS PRE_RECEIPT_CNT
+                        FROM    BASE_TB
+                        WHERE   1 = 1
+                        AND     BASE_TB.STR_DATE BETWEEN TO_DATE( #{startDatePre} , 'YYYY-MM-DD') AND TO_DATE( #{endDatePre} , 'YYYY-MM-DD')
+                        ) A
+                GROUP BY A.SP_CSTM_ID
+                        ,A.STORE_ID
+                        ,A.STORE_NM3
+                        ,A.STR_DATE         
+                ORDER BY A.SP_CSTM_ID
+                        ,A.STORE_ID
+                        ,A.STR_DATE    
+               ) A  
     </select>
     
 </mapper>
