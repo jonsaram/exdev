@@ -510,7 +510,7 @@
 		WHERE 1=1
 		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND USER_ID = #{USER_ID}
-		ORDER BY DECODE( GRADE, 'S-MASTER' , 0 , 'MASTER' , 1 , 'FA' , 2, 3)
+		ORDER BY DECODE( GRADE, 'S-MASTER' , 0 , 'MASTER' , 1 , 'FA' , 2, 3) DESC
 	</select>
 	
 	<update id="updateGradeHist">

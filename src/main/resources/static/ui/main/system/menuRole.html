@@ -1,45 +1,69 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
-			 checkedItems : []
-			 ,excelParam : {}
-			 ,pageInit : () =>{
+		checkedItems : []
+		,searchedData : []
+		,excelParam : {}
+		,pageInit : () =>{
 					
-				 	let singleboxList = {}
-					const requestParm = {};
-					var parm = {
-							 queryId 		: "system.getRoleList"
-							,requestParm	: requestParm
+				let singleboxList = {}
+				const requestParm = {};
+				var parm = {
+						 queryId 		: "system.getRoleList"
+						,requestParm	: requestParm
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					
+					const data = resultData.data;
+					const ROLE_DATA = data.map( item => [item.ROLE_ID, item.ROLE_NM]);  
+					
+					singleboxList = { 
+						 data : ROLE_DATA
+					 	,targetId : "<@pageId>_selectRoleId" 
 					}
-					C_COM.requestQuery(parm, function(resultData) {
+					C_UICOM.makeSelectBox(singleboxList, "single");	
+					C_UICOM.addChangeListener("<@pageId>_selectRoleId", function(dataObj) {
 						
-						const data = resultData.data;
-						const ROLE_DATA = data.map( item => [item.ROLE_ID, item.ROLE_NM]);  
-
-						singleboxList = { 
-							 data : ROLE_DATA
-						 	,targetId : "<@pageId>_selectRoleId" 
-						}
+						<@pageId>.searchList();
 						
-						C_UICOM.makeSelectBox(singleboxList, "single");		
-					});	
+					});
+					const menuDepthData = [
+						["","ALL"],
+						["0","Menu Depth 0"],
+						["1","Menu Depth 1"]
+					]					
+					const dethList = { 
+							 data : menuDepthData
+						 	,targetId : "<@pageId>_selectDepth" 
+					}
+					C_UICOM.makeSelectBox(dethList, "single");	
+					C_UICOM.addChangeListener("<@pageId>_selectDepth", function(dataObj) {
+							
+						<@pageId>.searchList();
+							
+					});
+					
+				});	
 				
-			 }
-			,searchList : () => {
+		}
+		,searchList : () => {
 				var selectRoleId = C_UICOM.getData("<@pageId>_selectRoleId");
+				var selectMenuDe = C_UICOM.getData("<@pageId>_selectDepth");
 				
 				if(!selectRoleId )selectRoleId ="SYSTEM";
 				
-				const requestParm = { ROLE_ID : selectRoleId };
+				const requestParm = { ROLE_ID : selectRoleId , MENU_DEPTH :selectMenuDe };
 				var parm = {
 						 queryId 		: "system.getRoleMenuMapList"
 						,requestParm	: requestParm
 				}
-				<@pageId>.excelParam = parm;
+				<@pageId>.excelParam 	= parm;
 				C_COM.requestQuery(parm, function(resultData) {
 				
+					<@pageId>.searchedData	= resultData.data;
+					
 					var rparm = {
-							 targetId 		: "menuRoleList"
+							 targetId 		: "<@pageId>_menuRoleList"
 							,list			: resultData.data
 					}
 					
@@ -49,8 +73,8 @@
 					<@pageId>.setHandler();
 				});
 				
-			}
-			,updateItem : (param) => {
+		}
+		,updateItem : (param) => {
 	
 				const requestParm = param ? param : {} ;
 				requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
@@ -69,96 +93,96 @@
 						console.log("Item 저장 성공");
 					}				
 				});
-			}  
-			,deleteItem : (delKey) => {
-				
-				var parm = {
-						 queryId 		: "system.deleteRoleMenuMap"
-						,requestParm	: {"SP_CSTM_ID":delKey.SP_CSTM_ID
-										  ,"ROLE_ID":delKey.ROLE_ID}
-				}
-				C_COM.requestQuery(parm, function(resultData) {
-					if( resultData.state == 'S'){
-						<@pageId>.searchList();
-						console.log("Item 삭제 성공")
-					}				
-				});				
+		}  
+		,deleteItem : (delKey) => {
+	
+			var parm = {
+					 queryId 		: "system.deleteRoleMenuMap"
+					,requestParm	: {"SP_CSTM_ID":delKey.SP_CSTM_ID
+									  ,"ROLE_ID":delKey.ROLE_ID
+									  ,"MENU_ID":delKey.MENU_ID
+									  ,"MENU_DEPTH":delKey.MENU_DEPTH
+									  }
 			}
-			,openPopup : ($tds) => {
-				let param = [];	
-				$.each( $tds , function(){
-					console.log(""+this)
-					const key = $(this).attr("id");
-					const val = $(this).attr("value");
-					param.push( { "key": key, "val": val } );
-					
-				})
+			C_COM.requestQuery(parm, function(resultData) {
 				
-				C_POP.open('popup_system_menuRoleUpdatePopup', {param:param}, function(retData) {
+				if( resultData.state == 'S'){
+					<@pageId>.searchList();
+					console.log("Item 삭제 성공")
+				}				
+			});				
+		}
+		,openPopup : (selectedItem) => {
+				
+				let mode = "I";
+				if( selectedItem)mode="U";
+				C_POP.open('popup_system_menuRoleUpdatePopup', {param:selectedItem,mode:mode}, function(retData) {
 					
 					if(isValid(retData)){
-
 						<@pageId>.updateItem(retData);
 					}
 				});
 				
-			}
-			, deleteOne : (key) =>{
+		}
+		, deleteOne : (checkedItem) =>{
 				
-	    		const SP_CSTM_ID 	= key.split("||")[0];
-	    		const ROLE_ID 		= key.split("||")[1];
-	    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,ROLE_ID:ROLE_ID})
+	    		const SP_CSTM_ID 	= checkedItem.SP_CSTM_ID;
+	    		const ROLE_ID 		= checkedItem.ROLE_ID;
+	    		const MENU_ID 		= checkedItem.MENU_ID;
+	    		const MENU_DEPTH	= checkedItem.MENU_DEPTH;
+	    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,ROLE_ID:ROLE_ID,MENU_ID:MENU_ID, MENU_DEPTH : MENU_DEPTH})
 	    		
-			}
-			,setHandler : () => {
-			    
+		}
+		,setHandler : () => {
+
 				_chkHandler("<@pageId>",<@pageId>);
 			    
-			    $("#<@pageId>_insert").click(function(){
-			    	
-					<@pageId>.openPopup();
+				$("#<@pageId>_deleteBtn").click(function(){
 
-			    })
-			    
-			    $("#<@pageId>_delete").click(function(){
-			    	
-			    	<@pageId>.checkedItems.forEach( key =>{
-						<@pageId>.deleteOne(key);
-			    	})
-			    	
-			    })
+					C_POP.confirm("선택하신 ROLE MENU를 삭제 하시겠습니까?", function() {
+
+						<@pageId>.checkedItems.forEach( key =>{
+							const checkedItem = <@pageId>.searchedData[key]
+							<@pageId>.deleteOne(checkedItem);
+						})
+					});
+					
+			    }) 
 			    
 			    $("#<@pageId>_excelDownload").click(function(){
 
 			    	<@pageId>.excelDownload("TBL_EXP_ROLEMENU");
-			    })
-			    
-			    $("[id^='<@pageId>_modify_']").click(function(){
 			    	
-			    	const index = $(this).attr("index");
-			    	const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
-					<@pageId>.openPopup($tds);
-					
-			    })
-			    
-			    $("[id^='<@pageId>_delete_']").click(function(){
-
-			    	const key = $(this).attr("key");
-					<@pageId>.deleteOne(key);
 			    })
 			    
 			    $("#<@pageId>_search").click( () =>{
+			    	
 			    	<@pageId>.searchList();
+			    	
 			    })
 			    
-			}
-	 		,excelDownload : (title) => {
+		}
+		,excelDownload : (title) => {
 				
  		    	const $hds = $("#<@pageId>_headingColName th");
 		    	const $tds = $("[name='<@pageId>_tr_0'] td");
 		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,title);  
 
-			}
+		}
+		,modify : (index) =>{
+
+	 			const checkedItem = <@pageId>.searchedData[index];
+				<@pageId>.openPopup(checkedItem);
+				
+		}
+		,delete : (index) =>{
+	 			
+	 			C_POP.confirm('선택하신 ROLE MENU를 삭제 하시겠습니까?', function() {
+		 			const checkedItem = <@pageId>.searchedData[index];
+					<@pageId>.deleteOne(checkedItem);
+	 			});
+				
+		}
 	}
 
 	// Page Load가 완료된후 실행 된다.
@@ -176,120 +200,104 @@
 <div class="cont_wrap">
 
 
-			<div class="cont_top">
-				<h2><i class="icon_bullet"></i>TBL_EXP_ROLEMENU</h2>
-			</div>
-			<section class="sec_wrap list" style="height:calc(100% - 43px);">
-				<!-- search area -->
-				<div class="search_area mt0">
-					<!-- 멀티 선택 -->
-					<div class="fl">
-						<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
-						<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
-
-						<div class="search_inputWrap">
-							<div  class="select_box fl" id="<@pageId>_selectRoleId" style="width:200px;margin-left:10px;"></div>
-						</div>
-					</div>
-
-					<div class="search_right">
-						<!-- <button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button> -->
-						<button type="button" class="btn fl"  id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
-						<!-- 싱글 선택 -->
-						<!-- <input type=button value="읽기" onclick="<@pageId>.getSingleBoxData()"/> -->
-		            </div>
-				</div>
-				<!-- 테이블 -->
-				<div class="tbl01 col tbl_scroll" style="max-height:506px;">
-					<div class="tbl01 col tbl_head">
-					<table>
-						<caption>TBL_EXP_ROLEMENU</caption>
-						<colgroup>
-							<col style="width:40px;"/>
-							<col style="width:80px;">
-							<col style="width:100px;"/>
-							<col style="width:80px;"/>
-							<col style="width:110px;"/>
-							<col style="width:80px;"/>
-							<col style="width:100px;"/>
-							<col style="width:100px;"/>
-							<col style="width:100px;"/>
-							<col style="width:40px;"/>
-							<col style="width:40px;"/>
-						</colgroup>
-						<thead>
-							<tr id="<@pageId>_headingColName">
-								<th scope="col"><input type="checkbox" id="<@pageId>_ckAll"></th>
-								<th scope="col">ROLE_ID</th>
-								<th scope="col">ROLE_NM</th>
-								<th scope="col">ROLE_DESC</th>
-								<th scope="col">MENU_ID</th>
-								<th scope="col">MENU_NM</th>
-								<th scope="col">MENU_DEPTH</th>
-								<th scope="col">MENU_DESC</th>
-								<th scope="col">AUTH_TYPE</th>
-								<th scope="col"><i class="icon_pen"></i></th>
-								<th scope="col"><i class="icon_trash"></i></th>
-							</tr>
-						</thead>
-			</table>
-		</div>
+	<div class="cont_top">
+		<h2><i class="icon_bullet"></i>TBL_EXP_ROLEMENU</h2>
+	</div>
+	<section class="sec_wrap list" style="height:calc(100% - 43px);">
+	
+		<!-- search area -->
+		<div class="search_area mt0">
+			<div class="fl">
+				<button type="button" class="btn fl" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
 		
-<!--  -->					
-					<div class="tbl01 col tbl_body_scroll">
-						<table>
-							<colgroup>
-							<col style="width:40px;"/>
-							<col style="width:80px;">
-							<col style="width:100px;"/>
-							<col style="width:80px;"/>
-							<col style="width:110px;"/>
-							<col style="width:80px;"/>
-							<col style="width:100px;"/>
-							<col style="width:100px;"/>
-							<col style="width:100px;"/>
-							<col style="width:40px;"/>
-							<col style="width:40px;"/>
-							</colgroup>		
-						<tbody  id="menuRoleList">
-						</tbody>
-<script type="text/x-jsrender" id="menuRoleList_template">	
-				{{for list}}
-				<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}||{{:ROLE_ID}}||{{:MENU_ID}}'>
-					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:ROLE_ID}}||{{:MENU_ID}}'></td>
- 					<td id='ROLE_ID'		value='{{:ROLE_ID}}'		>{{:ROLE_ID}}</td>
- 					<td id='ROLE_NM'		value='{{:ROLE_NM}}'		>{{:ROLE_NM}}</td>
- 					<td id='ROLE_DESC'		value='{{:ROLE_DESC}}' 		>{{:ROLE_DESC}}</td>
- 					<td id='MENU_ID'		value='{{:MENU_ID}}'		style="text-align:left">{{:MENU_ID}}</td>
- 					<td id='MENU_NM' 		value='{{:MENU_NM}}'		style="text-align:left">{{:MENU_NM}}</td>
- 					<td id='MENU_DEPTH'		value='{{:MENU_DEPTH}}' 	style="text-align:center">{{:MENU_DEPTH}}</td>
- 					<td id='MENU_DESC'		value='{{:MENU_DESC}}' 		style="text-align:left">{{:MENU_DESC}}</td>
- 					<td id='AUTH_TYPE_DESC'	value='{{:AUTH_TYPE_DESC}}'	>{{:AUTH_TYPE_DESC}}</td>
- 					<td id='AUTH_TYPE'		value='{{:AUTH_TYPE}}' 		style='display:none'></td>
- 					<td><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
-					<td><button id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:ROLE_ID}}||{{:MENU_ID}}'><i class="icon_trash"></i></button></td>
-				</tr>
-				{{/for}}
-</script>
-<script type="text/x-jsrender" id="menuRoleList_noData_template">	
-				<tr>	
-					<td colspan=10>자료가 없습니다.</td>	
-				</tr>
-</script>
-					</table>
+				<div class="search_inputWrap">
+					<div  class="select_box fl" id="<@pageId>_selectRoleId" style="width:200px;margin-left:10px;"></div>
 				</div>
+				<div class="search_inputWrap">
+					<div  class="select_box fl" id="<@pageId>_selectDepth" style="width:200px;margin-left:10px;"></div>
+				</div>
+			</div>
+		
+			<div class="search_right">
+				<button type="button" class="btn fl"  id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
+			</div>
 		</div>
-				<!-- paging -->
-				<div class="paging">
-					<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-					<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-					<strong title="현재 페이지">1</strong>
-					<a href="#none">2</a>
-					<a href="#none">3</a>
-					<a href="#none">4</a>
-					<a href="#none">5</a>
-					<a href="#none" class="btn_pg_next">다음 페이지</a>
-					<a href="#none" class="btn_pg_last">마지막 페이지</a>
-				</div>
-			</section>
+		<!-- 테이블 -->
+		<div class="tbl01 col tbl_scroll" style="max-height:506px;">
+			<div class="tbl01 col tbl_head">
+			<table>
+			<caption>TBL_EXP_ROLEMENU</caption>
+			<colgroup>
+				<col style="width:40px;"/>
+				<col style="width:80px;">
+				<col style="width:100px;"/>
+				<col style="width:80px;"/>
+				<col style="width:110px;"/>
+				<col style="width:80px;"/>
+				<col style="width:100px;"/>
+				<col style="width:100px;"/>
+				<col style="width:100px;"/>
+				<col style="width:40px;"/>
+				<col style="width:40px;"/>
+			</colgroup>
+			<thead>
+				<tr id="<@pageId>_headingColName">
+					<th scope="col"><input type="checkbox" id="<@pageId>_ckAll"></th>
+					<th scope="col">ROLE_ID</th>
+					<th scope="col">ROLE_NM</th>
+					<th scope="col">ROLE_DESC</th>
+					<th scope="col">MENU_ID</th>
+					<th scope="col">MENU_NM</th>
+					<th scope="col">MENU_DEPTH</th>
+					<th scope="col">MENU_DESC</th>
+					<th scope="col">AUTH_TYPE</th>
+					<th scope="col"><i class="icon_pen"></i></th>
+					<th scope="col"><i class="icon_trash"></i></th>
+				</tr>
+			</thead>
+			</table>
+			</div>
+			<div class="tbl01 col tbl_body_scroll">
+			<table>
+			<colgroup>
+				<col style="width:40px;"/>
+				<col style="width:80px;">
+				<col style="width:100px;"/>
+				<col style="width:80px;"/>
+				<col style="width:110px;"/>
+				<col style="width:80px;"/>
+				<col style="width:100px;"/>
+				<col style="width:100px;"/>
+				<col style="width:100px;"/>
+				<col style="width:40px;"/>
+				<col style="width:40px;"/>
+			</colgroup>		
+			<tbody  id="<@pageId>_menuRoleList">
+			</tbody>
+			<script type="text/x-jsrender" id="<@pageId>_menuRoleList_template">	
+			{{for list}}
+				<tr name="<@pageId>_tr_{{:#index}}">
+					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" ></td>
+					<td id='ROLE_ID'		class="tl" >{{:ROLE_ID			}}</td>
+					<td id='ROLE_NM'		class="tl" >{{:ROLE_NM			}}</td>
+					<td id='ROLE_DESC'		class="tl" >{{:ROLE_DESC		}}</td>
+					<td id='MENU_ID'		class="tl" >{{:MENU_ID			}}</td>
+					<td id='MENU_NM' 		class="tl" >{{:MENU_NM			}}</td>
+					<td id='MENU_DEPTH'		class="tc" >{{:MENU_DEPTH		}}</td>	
+					<td id='MENU_DESC'		class="tl" >{{:MENU_DESC		}}</td>
+					<td id='AUTH_TYPE_DESC'	class="tl" >{{:AUTH_TYPE_DESC	}}</td>
+					<td class="tl" ><button onclick="<@pageId>.modify({{:#index}})"><i class="icon_pen"></i></button></td>
+					<td class="tl" ><button onclick="<@pageId>.delete({{:#index}})"><i class="icon_trash"></i></button></td>
+				</tr>
+			{{/for}}
+			</script>
+			<script type="text/x-jsrender" id="<@pageId>_menuRoleList_noData_template">	
+				<tr>	
+					<td colspan=11>자료가 없습니다.</td>	
+				</tr>
+			</script>
+			</table>
+			</div>
+		</div>
+	</section>
 </div>

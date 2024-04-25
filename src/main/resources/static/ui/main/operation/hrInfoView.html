@@ -53,11 +53,28 @@
 
 					<@pageId>.recvData = <@pageId>.requestParm;
 					<@pageId>.setParamOnThisPage( <@pageId>.requestParm );
+					<@pageId>.setUserAuth(<@pageId>.requestParm);
+					
+					
 
 				}else{
 					C_POP.alert(resultData.msg)
 				}
 			});				
+		}		
+		,setUserAuth : (requestParm) => {
+			if( isEmpty(requestParm?.ROLE_ID) ){
+				requestParm["ROLE_ID"] = 'USER';
+			}
+			//사용자 추가 시 자동으로 실행.
+			let parm = {
+	                queryId        : "system.setUserAuthSeries"
+	               ,requestParm    : requestParm
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+			});			
+			
 		} 		
 		,openPopup : () => {
 			

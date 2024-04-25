@@ -5,8 +5,14 @@
 		clickedData : {},
 		pageInit : ()=>{
 
+			<@popupId>.setTitleHeight();
 			C_UICOM.setSingleBox("<@popupId>_GRADE", <@popupId>.clickedData.GRADE)
 			$("#<@popupId>_UPGRADE_DATE").val(<@popupId>.clickedData.UPGRADE_DATE)
+			
+		}
+		,setTitleHeight : () => {
+			
+	  	 	$("#<@popupId> .tit").html( "등급 승급 정보 수정" );
 			
 		}
 		,delete : () => {
@@ -94,13 +100,17 @@
 		if(<@popupId>.clickedData){
 
 			<@popupId>.pageInit();
+			
+		}else{
+			
+			$("#<@popupId>_delBtn").hide();
 		}
 	});
 </script>
 <div class="modal_wrap" id="modal-ex2">
 	<div class="modal" style="width:400px;height:350px;">
 		<div class="modal_header">
-			<strong class="tit">직책 승급 등록</strong>
+			<strong class="tit">등급 승급 등록</strong>
 			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 		</div>
 		
@@ -127,7 +137,7 @@
 			</ul>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select" onclick="<@popupId>.delete()">삭제</button>
+			<button type="button" class="btn select" onclick="<@popupId>.delete()" id="<@popupId>_delBtn">삭제</button>
 			<button type="button" class="btn select" onclick="<@popupId>.save()">저장</button>
 			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
 		</div>
