@@ -67,10 +67,6 @@
 			let CONTRACT_ID 	= <@pageId>.projectList[idx].CONTRACT_ID;
 			let PROCESS_STATE	= <@pageId>.projectList[idx].PROCESS_STATE;
 			
-			<@pageId>.saveWorkHistory(CONTRACT_ID);
-			return;
-			
-			
 	        let requestParm = {};
 	        
 	        let apprProcessState = "";
@@ -94,7 +90,8 @@
 		        }
 		        apprProcessState = "ON_CONTRACTED_APPR";
 	        }
-*/	        
+	        
+	        
 	        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
 				if(retData.state == "S") {
 					// 프로젝트 Update
@@ -119,6 +116,14 @@
 					});  
 				}
 	        });
+
+*/	        
+			
+		 }
+		,makeTeamMember : function(idx) {
+			C_POP.open('popup_operation_projectTeamMemberPopup', {}, function(retData) {
+				
+			});
 		 }
 		,saveWorkHistory : function(CONTRACT_ID) {
 			let projectInfo = <@pageId>.projectMap[CONTRACT_ID];
@@ -210,7 +215,7 @@
 									<td>{{:UPDATE_DATE}}{{:#index}}</td>
 									<td>
 									{{if SHOW_BTN=="Y" ~index=#index}} 
-										<button type="button" class="btn fc tc" onclick="<@pageId>.approval({{:~index}})">{{:APPR_BTN_TITLE}}</button>
+										<button type="button" class="btn fc tc" onclick="<@pageId>.makeTeamMember({{:~index}})">{{:APPR_BTN_TITLE}}</button>
 									{{else}}
 										{{:APP_STATE_NM}}	
 									{{/if}}

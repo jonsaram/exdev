@@ -906,6 +906,44 @@
 			AND USER_PW = #{userPw}
 	</select>
 
+	<select id="getEtcUserInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getEtcUserInfo
+			기타 User 정보 조회 
+		*/
+		SELECT
+		     SP_CSTM_ID
+		    ,USER_ID
+		    ,USER_NM
+		    ,USER_DESC
+		    ,E_MAIL
+		    ,PHONE_NUM
+		    ,BRANCH_ID
+		    ,(SELECT BRANCH_NM FROM TBL_EXP_BRANCH B WHERE A.BRANCH_ID = B.BRANCH_ID AND SP_CSTM_ID = #{sessionVo.spCstmId} )	AS BRANCH_NM
+		    ,"ROLE"
+		    ,GRADE
+		    ,GET_CODE_NM('GRADE', GRADE)																						AS GRADE_NM
+		    ,STATE
+		    ,REG_DATE
+		    ,JUMIN
+		    ,POST_NUM
+		    ,ADDR1
+		    ,ADDR2
+		    ,UPDATE_USER
+		    ,UPDATE_DATE
+		    ,SURETY_INSURANCE
+		    ,GENDER
+		    ,SALES_TYPE
+		    ,USE_YN
+		    ,DEL_YN
+		    ,RECOMMENDER_ID
+		FROM
+		    TBL_EXP_USER A		
+		WHERE
+				USER_ID 	= #{sessionVo.userId	}
+			AND SP_CSTM_ID 	= #{sessionVo.spCstmId	}
+	</select>
+
+
 
 	<select id="searchUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	system.searchUserList

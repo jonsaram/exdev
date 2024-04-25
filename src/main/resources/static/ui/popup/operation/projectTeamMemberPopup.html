@@ -1,0 +1,177 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		 salesMember 	: {}
+		,etcMemberMap	: {}
+		,userRoleList 	: [["EXEC","실행"],["COWORK","코웍"]]
+		,addMember : function() {
+	    	_memberSearchPopup( {gubun:'USER'} , (retData)=>{
+	    		
+	    		if(isEmpty(retData)) return;
+	    		
+	    		if(isValid(<@popupId>.etcMemberMap[retData.USER_ID])) {
+	    			C_POP.alert('이미 등록 되어있는 Member입니다.');
+	    			return;
+	    		}
+	    		
+	    		<@popupId>.etcMemberMap[retData.USER_ID] = retData;
+	    		
+	    		let index = $("#<@popupId> #projectMember tr").length + 1;
+	    		
+	    		var rparm = {
+    				 targetId 		: "projectMember"
+    				,data			: retData
+    				,index			: index
+    				,append			: "Y"
+    			}
+    			C_COM.renderHtml("<@popupId>", rparm);
+
+	    		// import SelectBox Component
+	    		C_COMP.import(`selectBox_${retData.USER_ID}`, "component_common_compSelectbox", <@popupId>.userRoleList, function(data) {
+	    			
+	    		});
+	    	
+	    	});
+		 }
+		,deleteMember : function(USER_ID, USER_NM) {
+			C_POP.confirm(`${USER_NM}(${USER_ID}) 항목을 삭제 하시겠습니까?`, function() {
+				$(`#<@popupId> #tr_${USER_ID}`).remove();
+				delete <@popupId>.etcMemberMap[USER_ID];
+			});
+		 }
+		,approval : function() {
+			
+			let execCheck = "N";
+			let idx = 0;
+			$.each(<@popupId>.etcMemberMap, function(key, obj) {
+				debugger;
+				idx++;
+				let role = <@popupId>[`selectBox_${key}`].getValue();
+				if(role == "EXEC" && execCheck == "Y") {
+					execCheck = "E";
+					return false;
+				}
+				if(role == "EXEC" && execCheck == "N") {
+					execCheck = "Y";
+				}
+				<@popupId>.etcMemberMap[key]["ROLE"] = role;
+			});
+			if			(idx 		== 0) 	{
+				C_POP.alert('프로젝트 팀원을 추가하세요.'				);
+			} else if	(execCheck 	== "E") {
+				C_POP.alert('실행 컨설턴트는 1명만 지정 할 수 있습니다.');
+			} else if	(execCheck 	== "N") {
+				C_POP.alert('실행 컨설턴트를 지정 하세요.'				);
+			} else {
+				// 성공
+				let teamMemberList = [<@popupId>.salesMember];
+				$.each(<@popupId>.etcMemberMap, function(key, obj) {
+					teamMemberList.push(obj);
+				});
+				<@popupId>.close(teamMemberList);
+			}
+		 }
+		,close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+		
+		// 상신자 영업 등록
+		let userInfo = G_VAL.session.etcUserInfo;
+		
+		var rparm = {
+			 targetId 		: "projectMember"
+			,templateId		: "salesMember"
+			,data			: userInfo
+		}
+		C_COM.renderHtml("<@popupId>", rparm);
+		
+		<@popupId>.salesMember = userInfo;
+		
+	});
+</script>
+<div class="modal_wrap" id="modal-ex01">
+	<div class="modal" style="width:600px;height:500px;">
+		<div class="modal_header">
+			<strong class="tit">프로젝트팀 구성</strong>
+			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<div class="search_area mt10">
+				<div class="fl">
+					<span class="tit01 fl lh33 tl">프로젝트명</span>
+					<input type="text" name="" class="fl" value="cccc">
+	            </div>
+			</div>
+			<div class="cont_top clearFix mt20">
+				<h3 class="fl font16 lh33 mtb0">프로젝트팀 구성원</h3>
+				<a href="javascript:<@popupId>.addMember()" class="btn select fl">추가</a>
+			</div>
+			<div class="tbl01 col">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:45px;" />
+						<col style="width:100px;"/>
+						<col style="width:80px;"/>
+						<col style="width:110px;"/>
+						<col style="width:80px" />
+						<col style="width:45px" />
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">No</th>
+							<th scope="col">팀원 ID</th>
+							<th scope="col">팀원명</th>
+							<th scope="col">역할</th>
+							<th scope="col">등급</th>
+							<th scope="col">관리</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div class="tbl01 col" style="max-height:169px;overflow-y:auto;">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:45px;" />
+						<col style="width:100px;"/>
+						<col style="width:80px;"/>
+						<col style="width:110px;"/>
+						<col style="width:80px" />
+						<col style="width:45px" />
+					</colgroup>
+					<tbody id="projectMember">
+					</tbody>
+					<script type="text/x-jsrender" id="projectMember_template">	
+						<tr id="tr_{{:data.USER_ID}}">
+							<td>{{:index}}</td>
+							<td>{{:data.USER_ID}}</td>
+							<td>{{:data.USER_NM}}</td>
+							<td><div id="selectBox_{{:data.USER_ID}}"></div></td>
+							<td>{{:data.GRADE_NM}}</td>
+							<td><a href="javascript:<@popupId>.deleteMember('{{:data.USER_ID}}','{{:data.USER_NM}}')"><i class="icon_trash"></i></a></td>
+						</tr>
+					</script>					
+					<script type="text/x-jsrender" id="salesMember_template">	
+						<tr>
+							<td>1</td>
+							<td>{{:data.USER_ID}}</td>
+							<td>{{:data.USER_NM}}</td>
+							<td>영업</td>
+							<td>{{:data.GRADE_NM}}</td>
+							<td></td>
+						</tr>
+					</script>					
+				</table>
+			</div>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select" onclick="<@popupId>.approval()">결재상신</button>
+			<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
+		</div>
+	</div>
+</div>
