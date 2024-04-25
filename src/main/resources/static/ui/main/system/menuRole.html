@@ -90,7 +90,6 @@
 					
 					if( resultData.state == 'S'){
 						<@pageId>.searchList();
-						console.log("Item 저장 성공");
 					}				
 				});
 		}  
@@ -108,7 +107,6 @@
 				
 				if( resultData.state == 'S'){
 					<@pageId>.searchList();
-					console.log("Item 삭제 성공")
 				}				
 			});				
 		}
@@ -137,9 +135,9 @@
 
 				_chkHandler("<@pageId>",<@pageId>);
 			    
-				$("#<@pageId>_deleteBtn").click(function(){
+				$("#<@pageId>_deleteBtn").off().on('click',function(){
 
-					C_POP.confirm("선택하신 ROLE MENU를 삭제 하시겠습니까?", function() {
+					C_POP.confirm("선택하신 MENU의 권한을 삭제 하시겠습니까?", function() {
 
 						<@pageId>.checkedItems.forEach( key =>{
 							const checkedItem = <@pageId>.searchedData[key]
@@ -149,13 +147,42 @@
 					
 			    }) 
 			    
-			    $("#<@pageId>_excelDownload").click(function(){
+				$("#<@pageId>_resetBtn").off().on('click',function(){
+					var selectRoleId = C_UICOM.getData("<@pageId>_selectRoleId");
+					C_POP.confirm("선택하신 "+selectRoleId+"의 메뉴들의 권한을 초기화(Read) 하시겠습니까?", function() {
+					
+						var parm = {
+								 queryId 		: "system.deleteRoleMenu"
+								,requestParm	: {ROLE_ID : selectRoleId}
+						}
+						C_COM.requestQuery(parm, function(resultData) {
+							
+							if( resultData.state == 'S'){
+								var parm = {
+										 queryId 		: "system.setRoleMenuSeries"
+										,requestParm	: {ROLE_ID : selectRoleId}
+								}
+								C_COM.requestQuery(parm, function(resultData) {
+									
+									if( resultData.state == 'S'){
+										<@pageId>.searchList();
+										C_POP.alert('선택하신 권한의 메뉴를 Read권한으로 초기화 하였습니다.');
+									}				
+								});
+							}				
+						});
+							
+					});
+				
+				}) 
+			    
+			    $("#<@pageId>_excelDownload").off().on('click',function(){
 
 			    	<@pageId>.excelDownload("TBL_EXP_ROLEMENU");
 			    	
 			    })
 			    
-			    $("#<@pageId>_search").click( () =>{
+			    $("#<@pageId>_search").off().on('click', () =>{
 			    	
 			    	<@pageId>.searchList();
 			    	
@@ -176,9 +203,10 @@
 				
 		}
 		,delete : (index) =>{
-	 			
+
+	 			const idx = index;
 	 			C_POP.confirm('선택하신 ROLE MENU를 삭제 하시겠습니까?', function() {
-		 			const checkedItem = <@pageId>.searchedData[index];
+		 			const checkedItem = <@pageId>.searchedData[idx];
 					<@pageId>.deleteOne(checkedItem);
 	 			});
 				
@@ -216,6 +244,9 @@
 				<div class="search_inputWrap">
 					<div  class="select_box fl" id="<@pageId>_selectDepth" style="width:200px;margin-left:10px;"></div>
 				</div>
+
+				<button type="button" class="btn fr" id="<@pageId>_resetBtn" style="width:105px;margin-left:10px;"><i style='margin:-3px 5px 0 0;content:"";display:inline-block;width:14px;height:14px;vertical-align:middle;background:url(../img/icon_reset.png);'></i>권한초기화</button>
+				
 			</div>
 		
 			<div class="search_right">
@@ -290,15 +321,15 @@
 					<td id='MENU_DEPTH'		class="tc" >{{:MENU_DEPTH		}}</td>	
 					<td id='MENU_DESC'		class="tl" >{{:MENU_DESC		}}</td>
 					<td id='AUTH_TYPE_DESC'	class="tl" >{{:AUTH_TYPE_DESC	}}</td>
-					{{if AUTH_TYPE_DESC == '권한없음' }}
+					{{if AUTH_TYPE_DESC == "권한없음"  ~index=#index}}
 					<td class="tl" ><button></button></td>
 					{{else}}
-					<td class="tl" ><button onclick="<@pageId>.modify({{:#index}})"><i class="icon_pen"></i></button></td>
+					<td class="tl" ><button onclick="<@pageId>.modify('{{:#getIndex()}}')"><i class="icon_pen"></i></button></td>
 					{{/if}}
-					{{if AUTH_TYPE_DESC == '권한없음' }}
+					{{if AUTH_TYPE_DESC == "권한없음" ~index=#index}}
 					<td class="tl" ><button></button></td>
 					{{else}}
-					<td class="tl" ><button onclick="<@pageId>.delete({{:#index}})"><i class="icon_trash"></i></button></td>
+					<td class="tl" ><button onclick="<@pageId>.delete('{{:#getIndex()}}')"><i class="icon_trash"></i></button></td>
 					{{/if}}
 				</tr>
 			{{/for}}

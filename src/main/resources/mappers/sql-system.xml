@@ -437,7 +437,16 @@
     		INSERT (  SP_CSTM_ID,   ROLE_ID,   ROLE_NM,   ROLE_DESC,   USE_YN,   DEL_YN,   SORT_ORDER,   UPDATE_USER,   UPDATE_DATE )
    			VALUES (S.SP_CSTM_ID, S.ROLE_ID, S.ROLE_NM, S.ROLE_DESC, S.USE_YN, S.DEL_YN, S.SORT_ORDER, S.UPDATE_USER, S.UPDATE_DATE )
 	</update>
-	
+
+	<delete id="deleteRoleMenu" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	system.deleteRoleMenu
+			Role 삭제
+		*/
+		DELETE FROM TBL_EXP_ROLEMENU 
+		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+		AND	  ROLE_ID	 = #{ROLE_ID}
+	</delete>
+		
 	<select id="setRoleMenuSeries" statementType="CALLABLE" parameterType="java.util.HashMap" flushCache="true">
 	    <!-- system.setRoleMenuSeries
 	         권한 추가 시 실행
@@ -477,6 +486,7 @@
 		    END
 	    }
 	</select>	
+	
 	<delete id="deleteRole" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	system.deleteRole
 			Role 삭제
@@ -914,6 +924,8 @@
 		WHERE
 				USER_ID = #{userId}
 			AND USER_PW = #{userPw}
+			AND USE_YN	= 'Y'
+			AND DEL_YN	= 'N'
 	</select>
 
 	<select id="getEtcUserInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -951,6 +963,8 @@
 		WHERE
 				USER_ID 	= #{sessionVo.userId	}
 			AND SP_CSTM_ID 	= #{sessionVo.spCstmId	}
+			AND USE_YN	= 'Y'
+			AND DEL_YN	= 'N'
 	</select>
 
 
