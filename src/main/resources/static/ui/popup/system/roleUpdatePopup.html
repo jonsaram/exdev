@@ -37,21 +37,19 @@
 				 }
 		}		
 		,pageInit : () => {
-			
-			<@popupId>.mode = (<@popupId>.recvData.param).length > 0 ? "UPDATE":"INSERT";
-			
+
 			const param = <@popupId>.recvData.param;
 
-	 		if( param.length > 0 ){
+	 		if( isEmpty(param) == false ){
 	 			
-	 			param.forEach( item =>{
-	 				
-	 				$("#<@popupId>_items #"+item.key).val(item.val);
+	 			Object.entries(param).forEach( item =>{
+
+	 				$("#<@popupId>_items #"+item[0]).val(item[1]);
 	 				
 	 			});
 	 			
-	  			const useYnVal = param.find(item => item.key === "USE_YN")?.val;
-	 			const delYnVal = param.find(item => item.key === "DEL_YN")?.val;
+	  			const useYnVal = param.USE_YN;
+	 			const delYnVal = param.DEL_YN;
 				<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
 				<@popupId>.fnRadioCheckValue("DEL_YN",delYnVal);
 				
@@ -65,7 +63,7 @@
 			let mode;
 			let modalHeight;
 
-			if( <@popupId>.mode == "INSERT"){
+			if( "<@mode>" == "I"){
 				
 				mode = "ROLE 등록";$(".updateMode").hide();
 				modalHeight = "450px";
@@ -84,8 +82,6 @@
 
 			
 		}
-		,setHandler : () => {
-		}
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
@@ -93,7 +89,7 @@
 		<@popupId>.recvData = data;
 		
 		<@popupId>.pageInit();
-		<@popupId>.setHandler();
+		
 	});
 </script>
 

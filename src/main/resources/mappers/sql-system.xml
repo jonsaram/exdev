@@ -432,6 +432,43 @@
    			VALUES (S.SP_CSTM_ID, S.ROLE_ID, S.ROLE_NM, S.ROLE_DESC, S.USE_YN, S.DEL_YN, S.SORT_ORDER, S.UPDATE_USER, S.UPDATE_DATE )
 	</update>
 	
+	<select id="setRoleMenuSeries" statementType="CALLABLE" parameterType="java.util.HashMap" flushCache="true">
+	    <!-- system.setRoleMenuSeries
+	         권한 추가 시 실행
+	         권한 * 메뉴를 해당 TBL_EXP_ROLEMENU 테이블에 자동 입력
+	    -->
+	    { CALL
+		    DECLARE
+		    
+		        p_ROLE_ID	VARCHAR2(30);
+        		v_count     NUMBER;
+		        
+		    BEGIN
+		    
+		        p_ROLE_ID	:= #{ROLE_ID};
+		    
+		        SELECT COUNT(*)
+		        INTO v_count
+		        FROM TBL_EXP_ROLEMENU
+		        WHERE ROLE_ID = p_ROLE_ID;
+		    
+		    	IF v_count = 0 THEN
+		    	
+					INSERT INTO TBL_EXP_ROLEMENU
+					SELECT SP_CSTM_ID, ROLE_ID, MENU_ID, AUTH_TYPE
+					FROM(
+						SELECT DISTINCT R.SP_CSTM_ID, R.ROLE_ID, M.MENU_ID, 'A' AS AUTH_TYPE, M.SORT_ORDER
+						FROM TBL_EXP_ROLE R,
+						TBL_EXP_MENU M
+						WHERE R.ROLE_ID		=	p_ROLE_ID 
+						AND R.SP_CSTM_ID 	= 	M.SP_CSTM_ID
+						ORDER BY M.SORT_ORDER 
+					);
+				
+        		END IF;
+		    END
+	    }
+	</select>	
 	<delete id="deleteRole" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	system.deleteRole
 			Role 삭제
@@ -840,5 +877,46 @@
 			
 	</select>
 
-
+	<select id="setUserAuthSeries" statementType="CALLABLE" parameterType="java.util.HashMap" flushCache="true">
+	    <!-- system.setUserAuthSeries
+	         사용자 추가 시 자동으로 실행
+	    -->
+	    { CALL
+		    DECLARE
+		    
+		        p_USER_ID	VARCHAR2(30);
+		        
+		    BEGIN
+		    
+		        p_USER_ID	:= #{USER_ID};
+		    
+				MERGE INTO TBL_EXP_AUTH T
+				USING (
+				  SELECT #{sessionVo.spCstmId} 	AS SP_CSTM_ID
+						,#{USER_ID} 			AS USER_ID
+						<if test="ROLE_ID =null ">
+						,'USER'					AS ROLE_ID
+						</if>
+						<if test='!ROLE_ID !=null '>
+						,#{ROLE_ID} 			AS ROLE_ID
+						</if>
+						,'system'				AS UPDATE_USER
+						,SYSDATE				AS UPDATE_DATE
+				  FROM dual
+				) S
+				ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+				AND T.USER_ID 		= S.USER_ID
+				)
+				WHEN MATCHED THEN
+				  UPDATE SET
+				    T.ROLE_ID		= S.ROLE_ID,
+				    T.UPDATE_USER	= S.UPDATE_USER,
+				    T.UPDATE_DATE	= S.UPDATE_DATE
+				WHEN NOT MATCHED THEN 
+		    		INSERT (  SP_CSTM_ID,   USER_ID,   ROLE_ID,   UPDATE_USER,	  UPDATE_DATE)
+		   			VALUES (S.SP_CSTM_ID, S.USER_ID, S.ROLE_ID, S.UPDATE_USER,  S.UPDATE_DATE)
+				;
+		    END
+	    }
+	</select>
 </mapper>

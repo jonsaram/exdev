@@ -2,6 +2,7 @@
 <script type="text/javascript">
 	var <@pageId> = {
 			 checkedItems : []
+			 ,searchedData : []
 			 ,excelParam : {}
 			 ,pageInit : () =>{
 				 
@@ -28,6 +29,7 @@
 				<@pageId>.excelParam = parm;
 				C_COM.requestQuery(parm, function(resultData) {
 				
+					<@pageId>.searchedData = resultData.data;
 					var rparm = {
 							 targetId 		: "userRoleList"
 							,list			: resultData.data
@@ -55,9 +57,21 @@
 					
 					if( resultData.state == 'S'){
 						<@pageId>.searchList();
-						console.log("Item 저장 성공");
+						
+						<@pageId>.setRoleMenu(requestParm);
 					}				
 				});
+			}
+			,setRoleMenu : (requestParm) => {
+				
+				//권한 추가 시 실행
+				let parm = {
+		                queryId        : "system.setRoleMenuSeries"
+		               ,requestParm    : requestParm
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+				});			
+				
 			}  
 			,deleteItem : (delKey) => {
 				
@@ -73,18 +87,11 @@
 					}				
 				});				
 			}
-			,openPopup : ($tds) => {
+			,openPopup : (selectedItem) => {
 
-				let param = [];	
-				$.each( $tds , function(){
-					console.log(""+this)
-					const key = $(this).attr("id");
-					const val = $(this).attr("value");
-					param.push( { "key": key, "val": val } );
-					
-				})
-				
-				C_POP.open('popup_system_roleUpdatePopup', {param:param}, function(retData) {
+				let mode = "I";
+				if( selectedItem)mode="U";
+				C_POP.open('popup_system_roleUpdatePopup', {param:selectedItem,mode:mode}, function(retData) {
 					
 					if(isValid(retData)){
 						<@pageId>.updateItem(retData);
@@ -92,10 +99,10 @@
 				});
 				
 			}
-			, deleteOne : (key) =>{
+			, deleteOne : (checkedRow) =>{
 				
-	    		const SP_CSTM_ID 	= key.split("||")[0];
-	    		const ROLE_ID 		= key.split("||")[1];
+	    		const SP_CSTM_ID 	= checkedRow.SP_CSTM_ID;
+	    		const ROLE_ID 		= checkedRow.ROLE_ID;
 	    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,ROLE_ID:ROLE_ID})
 	    		
 			}
@@ -112,7 +119,9 @@
 			    $("#<@pageId>_delete").click(function(){
 			    	
 			    	<@pageId>.checkedItems.forEach( key =>{
-						<@pageId>.deleteOne(key);
+			    		
+			    		const checkedRow = <@pageId>.searchedData[key];
+						<@pageId>.deleteOne(checkedRow);
 			    	})
 			    	
 			    })
@@ -124,22 +133,8 @@
 			    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"TB_EXP_ROLE");  
 			    	
 			    })
-			    
-			    $("[id^='<@pageId>_modify_']").click(function(){
-			    	
-			    	const index = $(this).attr("index");
-					const $tds = $("[name='<@pageId>_tr_"+index+"'] td");
-					<@pageId>.openPopup($tds);
-					
-			    })
-			    
-			    $("[id^='<@pageId>_delete_']").click(function(){
 
-			    	const key = $(this).attr("key");
-					<@pageId>.deleteOne(key);
-			    })
-			    
-				$("#<@pageId>_search").click( () =>{
+			    $("#<@pageId>_search").click( () =>{
 			    	<@pageId>.searchList();
 			    })
 			    
@@ -150,6 +145,17 @@
 		    	const $tds = $("[name='<@pageId>_tr_0'] td");
 		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,title);  
 			}
+	 		,modify : (index) =>{
+			
+				const checkedItem = <@pageId>.searchedData[index];
+				<@pageId>.openPopup(checkedItem);
+	 		}
+	 		,delete : (index) =>{
+	 			
+	 			const checkedItem = <@pageId>.searchedData[index];
+				<@pageId>.deleteOne(checkedItem);
+				
+	 		}
 	 		
 	}
 
@@ -246,18 +252,18 @@
 						</tbody>
 <script type="text/x-jsrender" id="userRoleList_template">	
 				{{for list}}
-				<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}||{{:ROLE_ID}}'>
-					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:ROLE_ID}}'></td>
- 					<td id='ROLE_ID'		value='{{:ROLE_ID}}'		style="text-align:left">{{:ROLE_ID}}</td>
- 					<td id='ROLE_NM'		value='{{:ROLE_NM}}'		style="text-align:left">{{:ROLE_NM}}</td>
- 					<td id='ROLE_DESC'		value='{{:ROLE_DESC}}' 		style="text-align:left">{{:ROLE_DESC}}</td>
- 					<td id='USE_YN'			value='{{:USE_YN}}'			>{{:USE_YN}}</td>
- 					<td id='DEL_YN' 		value='{{:DEL_YN}}'			>{{:DEL_YN}}</td>
- 					<td id='SORT_ORDER'		value='{{:SORT_ORDER}}' 	>{{:SORT_ORDER}}</td>
- 					<td id='UPDATE_USER'	value='{{:UPDATE_USER}}' 	>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
- 					<td><button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
-					<td><button id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:ROLE_ID}}'><i class="icon_trash"></i></button></td>
+				<tr name="<@pageId>_tr_{{:#index}}">
+					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}"></td>
+ 					<td id='ROLE_ID'	 class="tl">{{:ROLE_ID}}</td>
+ 					<td id='ROLE_NM'	 class="tl">{{:ROLE_NM}}</td>
+ 					<td id='ROLE_DESC'	 class="tl">{{:ROLE_DESC}}</td>
+ 					<td id='USE_YN'		 class="tc">{{:USE_YN}}</td>
+ 					<td id='DEL_YN' 	 class="tc">{{:DEL_YN}}</td>
+ 					<td id='SORT_ORDER'	 class="tl">{{:SORT_ORDER}}</td>
+ 					<td id='UPDATE_USER' class="tl">{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE' class="tl">{{:UPDATE_DATE}}</td>
+ 					<td><button onclick="<@pageId>.modify({{:#index}})"><i class="icon_pen"></i></button></td>
+					<td><button onclick="<@pageId>.delete({{:#index}})"><i class="icon_trash"></i></button></td>
 				</tr>
 				{{/for}}
 </script>
@@ -270,7 +276,7 @@
 					</div>
 				</div>
 				<!-- paging -->
-				<div class="paging">
+<!-- 				<div class="paging">
 					<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
 					<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
 					<strong title="현재 페이지">1</strong>
@@ -280,6 +286,6 @@
 					<a href="#none">5</a>
 					<a href="#none" class="btn_pg_next">다음 페이지</a>
 					<a href="#none" class="btn_pg_last">마지막 페이지</a>
-				</div>
+				</div> -->
 			</section>
 </div>
