@@ -95,9 +95,15 @@
 		    END AS HAS_CHILD
 		FROM TBL_EXP_MENU T
 		,TBL_EXP_MENU P
+		,(	SELECT * FROM TBL_EXP_ROLEMENU RM WHERE 
+			RM.ROLE_ID IN (
+			SELECT ROLE_ID FROM TBL_EXP_AUTH WHERE USER_ID = #{sessionVo.userId}
+			)
+		 ) RM		
 		WHERE 1 = 1 
 		AND T.SP_CSTM_ID = P.SP_CSTM_ID(+)
 		AND T.PARENT_MENU_ID = P.MENU_ID(+)
+		AND T.MENU_ID = RM.MENU_ID
 		<if test=" MENU_NM != null and !MENU_NM.equals('') ">
 		AND T.MENU_NM like '%' || #{MENU_NM} || '%'
 		</if>
