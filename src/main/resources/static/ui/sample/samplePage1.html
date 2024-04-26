@@ -23,7 +23,8 @@
 		,updateQuery : function() {
 			var parm = {
 				 queryId 			: "Sample.updateSample"
-				,requestParmList	: [{parm : "XXX"}]
+				,requestParm		: {T_CLM : "YYY"}
+				,requestParmList	: [{T_CLM : "XXX"}]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				dalert(resultData);
@@ -181,7 +182,7 @@
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
 
-		//$( "#abc" ).datepicker( "option", "weekHeader", "W" );
+		dalert(C_COM.getCodeMap("TEAM_USER_ROLE"));
 
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.

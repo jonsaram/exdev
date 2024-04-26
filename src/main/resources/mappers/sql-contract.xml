@@ -716,6 +716,46 @@
 			AND	CONSULTING_ID 	= #{CONSULTING_ID}
 	</select>	
 
+	<update id="insertTeam">
+		/*	contract.insertTeam
+			팀 생성
+		*/
+		INSERT INTO TBL_EXP_TEAM (
+			 CONTRACT_ID
+			,ALLOWED
+			,UPDATE_DATE
+			,UPDATE_USER
+			,SP_CSTM_ID
+		) VALUES (
+			 #{CONTRACT_ID}
+			,'N'
+   			,sysdate
+   			,#{sessionVo.userId		}
+			,#{sessionVo.spCstmId	}
+		)
+	</update>
 
+	<update id="insertTeamMember">
+		/*	contract.insertTeamMember
+			팀 멤버 등록
+		*/
+		INSERT INTO TBL_EXP_TEAM_MEMBER (
+		     CONTRACT_ID
+		    ,USER_ID
+		    ,TEAM_USER_ROLE
+		    ,HEADER_YN
+			,UPDATE_DATE
+			,UPDATE_USER
+			,SP_CSTM_ID
+		) VALUES (
+			 #{CONTRACT_ID   }
+			,#{USER_ID       }
+			,#{TEAM_USER_ROLE}
+			,'${HEADER_YN     }'
+   			,sysdate
+   			,#{sessionVo.userId		}
+			,#{sessionVo.spCstmId	}
+		)
+	</update>
 			
 </mapper>

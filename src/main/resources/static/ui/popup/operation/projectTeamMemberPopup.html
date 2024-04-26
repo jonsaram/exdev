@@ -23,14 +23,18 @@
     				,data			: retData
     				,index			: index
     				,append			: "Y"
+    				,checked		: ""
     			}
+	    		
+	    		if(index == 2) rparm.checked = "checked";
+	    		
+	    		
     			C_COM.renderHtml("<@popupId>", rparm);
 
 	    		// import SelectBox Component
 	    		C_COMP.import(`selectBox_${retData.USER_ID}`, "component_common_compSelectbox", <@popupId>.userRoleList, function(data) {
 	    			
 	    		});
-	    	
 	    	});
 		 }
 		,deleteMember : function(USER_ID, USER_NM) {
@@ -44,8 +48,9 @@
 			let execCheck = "N";
 			let idx = 0;
 			$.each(<@popupId>.etcMemberMap, function(key, obj) {
-				debugger;
+
 				idx++;
+
 				let role = <@popupId>[`selectBox_${key}`].getValue();
 				if(role == "EXEC" && execCheck == "Y") {
 					execCheck = "E";
@@ -54,10 +59,16 @@
 				if(role == "EXEC" && execCheck == "N") {
 					execCheck = "Y";
 				}
-				<@popupId>.etcMemberMap[key]["ROLE"] = role;
+				<@popupId>.etcMemberMap[key]["TEAM_USER_ROLE"] = role;
 			});
+			
+			// 팀장 세팅
+			let headerUserId = $("#<@popupId> input[name=headerCheck]:checked").val();
+			
+			<@popupId>.etcMemberMap[headerUserId]["HEADER_YN"] = "Y";
+			
 			if			(idx 		== 0) 	{
-				C_POP.alert('프로젝트 팀원을 추가하세요.'				);
+				C_POP.alert('프로젝트 담당자을 추가하세요.'				);
 			} else if	(execCheck 	== "E") {
 				C_POP.alert('실행 컨설턴트는 1명만 지정 할 수 있습니다.');
 			} else if	(execCheck 	== "N") {
@@ -70,6 +81,11 @@
 				});
 				<@popupId>.close(teamMemberList);
 			}
+		 }
+		,setHeader : function(USER_ID) {
+			$("#<@popupId> input[name=headerCheck]").prop("checked", false);
+			$(`#<@popupId> #headerCheck_${USER_ID}`).prop("checked", true);
+			
 		 }
 		,close : function(returnData) {
 			if(isEmpty(returnData)) returnData = {};
@@ -90,13 +106,14 @@
 		C_COM.renderHtml("<@popupId>", rparm);
 		
 		<@popupId>.salesMember = userInfo;
+		<@popupId>.salesMember["TEAM_USER_ROLE"] = "SALES";
 		
 	});
 </script>
 <div class="modal_wrap" id="modal-ex01">
 	<div class="modal" style="width:600px;height:500px;">
 		<div class="modal_header">
-			<strong class="tit">프로젝트팀 구성</strong>
+			<strong class="tit">프로젝트 담당자 구성</strong>
 			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body">
@@ -107,7 +124,7 @@
 	            </div>
 			</div>
 			<div class="cont_top clearFix mt20">
-				<h3 class="fl font16 lh33 mtb0">프로젝트팀 구성원</h3>
+				<h3 class="fl font16 lh33 mtb0">프로젝트 담당자 구성원</h3>
 				<a href="javascript:<@popupId>.addMember()" class="btn select fl">추가</a>
 			</div>
 			<div class="tbl01 col">
@@ -115,19 +132,21 @@
 					<caption>표 캡션</caption>
 					<colgroup>
 						<col style="width:45px;" />
-						<col style="width:100px;"/>
+						<col style="width:80px;"/>
 						<col style="width:80px;"/>
 						<col style="width:110px;"/>
 						<col style="width:80px" />
+						<col style="width:60px" />
 						<col style="width:45px" />
 					</colgroup>
 					<thead>
 						<tr>
 							<th scope="col">No</th>
-							<th scope="col">팀원 ID</th>
-							<th scope="col">팀원명</th>
+							<th scope="col">담당자ID</th>
+							<th scope="col">담당자명</th>
 							<th scope="col">역할</th>
 							<th scope="col">등급</th>
+							<th scope="col">팀장</th>
 							<th scope="col">관리</th>
 						</tr>
 					</thead>
@@ -138,10 +157,11 @@
 					<caption>표 캡션</caption>
 					<colgroup>
 						<col style="width:45px;" />
-						<col style="width:100px;"/>
+						<col style="width:80px;"/>
 						<col style="width:80px;"/>
 						<col style="width:110px;"/>
 						<col style="width:80px" />
+						<col style="width:60px" />
 						<col style="width:45px" />
 					</colgroup>
 					<tbody id="projectMember">
@@ -153,6 +173,7 @@
 							<td>{{:data.USER_NM}}</td>
 							<td><div id="selectBox_{{:data.USER_ID}}"></div></td>
 							<td>{{:data.GRADE_NM}}</td>
+							<td><input name="headerCheck" id="headerCheck_{{:data.USER_ID}}" value="{{:data.USER_ID}}" type="checkbox" onclick="<@popupId>.setHeader('{{:data.USER_ID}}')" {{:checked}}/></td>
 							<td><a href="javascript:<@popupId>.deleteMember('{{:data.USER_ID}}','{{:data.USER_NM}}')"><i class="icon_trash"></i></a></td>
 						</tr>
 					</script>					
@@ -163,6 +184,7 @@
 							<td>{{:data.USER_NM}}</td>
 							<td>영업</td>
 							<td>{{:data.GRADE_NM}}</td>
+							<td></td>
 							<td></td>
 						</tr>
 					</script>					

@@ -193,8 +193,8 @@
 		<@popupId>.RELATION_ID = data.RELATION_ID;
 		
     	// 결재 Textarea Component Include
-    	C_COMP.import("textEditorComp", "component_compTextEditor", {content:""}, function(data) {
-            console.log(data.editorData);
+    	
+    	C_COMP.import("textEditorComp", "component_compTextEditor", {content:data.CONTENT}, function(data) {
             <@popupId>.editorData = data.editorData;
         });
         

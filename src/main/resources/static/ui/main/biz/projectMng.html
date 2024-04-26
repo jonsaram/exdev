@@ -3,6 +3,7 @@
 	var <@pageId> = {
 		 projectList 	: []
 		,projectMap 	: {}
+		,teamMemberList	: []
 		,openProjectPopup : function() {
 			C_POP.open('popup_operation_projectRegistPopup', {}, function(retData) {
 				if(retData.reload == 'Y') {
@@ -62,7 +63,7 @@
 				}
 			});
 		 }
-		,approval : function(idx) {
+		,approval : function(idx, appContent) {
 
 			let CONTRACT_ID 	= <@pageId>.projectList[idx].CONTRACT_ID;
 			let PROCESS_STATE	= <@pageId>.projectList[idx].PROCESS_STATE;
@@ -76,7 +77,8 @@
 		        	 RELATION_ID 	: CONTRACT_ID
 		        	,AFTER_SERVICE	: `ApprovalAfterService.updateProjectProcess`
 		        	,AFTER_PARM		: `{"PROCESS_STATE" : "CONTRACTING"}`				// 결재 완료 후 처리에서 Update상태값 (체결 대기)
-		        	,TITLE			: `담당 컨설턴트 지정 결재 요청`
+		        	,TITLE			: `프로젝트 담당자 지정 결재 요청`
+		        	,CONTENT		: appContent
 		        };
 		        apprProcessState = "ON_CONTRACTING_APPR";
 	        }
@@ -90,17 +92,34 @@
 		        }
 		        apprProcessState = "ON_CONTRACTED_APPR";
 	        }
-	        
+*/	        
 	        
 	        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
 				if(retData.state == "S") {
 					// 프로젝트 Update
 					var parm = {
-						 queryId 		: "contract.updateProject"
-						,requestParm	: {
-							 CONTRACT_ID 	: CONTRACT_ID
-				        	,PROCESS_STATE	: apprProcessState
-						}
+						queryGroup : [
+							 {
+								 queryId 		: "contract.updateProject"
+								,requestParm	: {
+									 CONTRACT_ID 	: CONTRACT_ID
+						        	,PROCESS_STATE	: apprProcessState
+								}
+							 },
+							 {
+								 queryId 		: "contract.insertTeam"
+								,requestParm	: {
+									 CONTRACT_ID 	: CONTRACT_ID
+								}
+							 },
+							 {
+								 queryId 		: "contract.insertTeamMember"
+								,requestParmList: <@pageId>.teamMemberList
+								,requestParm	: {
+									CONTRACT_ID 	: CONTRACT_ID									
+								 }
+							 }
+						]
 					}
 					C_COM.requestQuery(parm, function(resultData) {
 						if(resultData.state == "S") {
@@ -116,19 +135,42 @@
 					});  
 				}
 	        });
-
-*/	        
-			
 		 }
 		,makeTeamMember : function(idx) {
 			C_POP.open('popup_operation_projectTeamMemberPopup', {}, function(retData) {
 				
+				if(isEmpty(retData)) return;
+				
+				let projectInfo = <@pageId>.projectList[idx];
+				
+				<@pageId>.teamMemberList = retData;
+				
+				let appContent   = `* 고객명 : ${projectInfo.BUYER_NM}\n`;
+				appContent 		+= `* 상품명 : ${projectInfo.CONSULTING_NM}\n\n`;
+				appContent 		+= `* 프로젝트 담당자\n\n`;
+				
+				let roleMap = C_COM.getCodeMap("TEAM_USER_ROLE");
+				
+				$.each(retData, function(idx) {
+					if(idx == 0) {
+						appContent += `영업 컨설턴트 : ${this.USER_ID} / ${this.USER_NM} / ${this.GRADE_NM} \n`;	
+					} else {
+						
+						let headerStr = "";
+						if(this.HEADER_YN == "Y") headerStr = ' / 팀장';
+
+						appContent += `${roleMap[this.TEAM_USER_ROLE]} 컨설턴트 : ${this.USER_ID} / ${this.USER_NM} / ${this.GRADE_NM} ${headerStr}\n`;
+						
+					}
+				});
+				appContent 		+= `\n\n위와 같이 프로젝트 담당자 지정에 대해 결재를 요청 합니다.\n`;
+				<@pageId>.approval(idx, appContent);
 			});
 		 }
 		,saveWorkHistory : function(CONTRACT_ID) {
 			let projectInfo = <@pageId>.projectMap[CONTRACT_ID];
 			
-			let content = `<1>${projectInfo.BUYER_NM}</> 고객 담당 컨설턴트 <2>지정 결재 요청</>`;
+			let content = `<1>${projectInfo.BUYER_NM} / ${projectInfo.CONSULTING_NM}</> 프로젝트 담당자 <2>지정 결재 요청</>`;
 			
 			C_COM.saveWorkHistory(projectInfo.USER_ID, content);
 		 }

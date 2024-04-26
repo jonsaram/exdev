@@ -105,8 +105,16 @@ public class ExdevCommonService extends ExdevBaseService
 		// Data Update에만 사용한다.
 		if(requestParmList != null) {
 			for (Map requestParm : requestParmList) {
+				
+				Map	requestCommonParm = (Map)map.get("requestParm"); 
+				
 				// Session이 필요하다면 여기서 넣어준다.
 				requestParm.put("sessionVo", session.getAttribute(ExdevConstants.SESSION_ID));
+				
+				if(ExdevCommonAPI.isValid(requestCommonParm)) {
+					requestCommonParm.putAll(requestParm);
+					requestParm = requestCommonParm;
+				}
 				
 				Integer i = commonDao.update(queryId, requestParm);
 				
@@ -143,10 +151,18 @@ public class ExdevCommonService extends ExdevBaseService
 			
 			// Data Update에만 사용한다.
 			if(requestParmList != null) {
+
 				for (Map requestParm : requestParmList) {
 					
+					Map	requestCommonParm = (Map)qmap.get("requestParm"); 
+
 					// Session이 필요하다면 여기서 넣어준다.
 					requestParm.put("sessionVo", session.getAttribute(ExdevConstants.SESSION_ID));
+					
+					if(ExdevCommonAPI.isValid(requestCommonParm)) {
+						requestCommonParm.putAll(requestParm);
+						requestParm = requestCommonParm;
+					}
 					
 					Integer i = commonDao.update(queryId, requestParm);
 					
@@ -220,8 +236,6 @@ public class ExdevCommonService extends ExdevBaseService
 		
 		return map;
 	}
-	
-	
 
 	//	@Scheduled(cron = "* * * * * ?") // 매월 15일 오전 10시 15분에 실행
 //	public void batchClearRealTimeTable() {
