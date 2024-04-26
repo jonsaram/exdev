@@ -70,4 +70,13 @@ public class ExdevSessionController {
 		return userInfo;
 	}
 
+	@RequestMapping("logout.do")
+	public @ResponseBody Map logout(HttpSession session) {
+
+	    session.invalidate();
+	    
+	    Map<String, String> result = new HashMap<>();
+	    result.put("status", "S");
+	    return result;
+	}	
 }

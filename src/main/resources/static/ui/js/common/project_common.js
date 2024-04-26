@@ -2,6 +2,7 @@ var G_VAL = {
 	 SP_CSTM_ID 		: ""
 	,COMMON_CODE_MAP 	: {}
 	,session			: {}
+	,PAGE_AUTH_MAP		: {}
 }
 
 var C_COM = {

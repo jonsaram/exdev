@@ -24,7 +24,6 @@
 	<script type="text/javascript" 	src="./ui/js/common/function_common.js"		></script>
 	<script type="text/javascript" 	src="./ui/js/common/project_common.js"		></script>
     <script type="text/javascript" src="./ui/js/common.js" 						></script>
-<!--     <script type="text/javascript" src="./ui/js/menu.js"   						></script>  -->
     <script type="text/javascript" src="./ui/js/excel.js"  						></script>
     <script type="text/javascript" src="./ui/js/chart.js"  						></script>
     <script type="text/javascript" src="./ui/js/lodash.js" 						></script>
@@ -58,6 +57,7 @@
 			G_VAL.session.grade		= userInfo.GRADE 		;
 			G_VAL.session.email		= userInfo.E_MAIL 		;
 			
+			changePwd("Y");
 			
 			
 			
@@ -77,6 +77,15 @@
 			C_COM.requestQuery(parm, function(resultData) {
 				G_VAL.session.etcUserInfo = resultData.data[0];
 			});
+
+			var parm = {
+				 queryId 		: "system.getMenuAuthTypeList"
+				,requestParm	: userInfo
+			}	
+			C_COM.requestQuery(parm, function(resultData) {
+				G_VAL.PAGE_AUTH_MAP = Object.fromEntries(resultData.data.map( menu => {return [menu.PAGE_ID , menu]}))
+			});
+			
 		});	
 		
 		var sessionInfo = {}
@@ -201,6 +210,82 @@
 				C_MENU.moveSubMenu		(subIndex				);
 			 }
 		} 
+
+		function logout() {
+			
+			var sendParm = {
+					 targetUrl 	: _WEB_ROOT_URL + "/logout.do"
+					,data		: {}
+			}
+			let logoutResult = ajaxRequest(sendParm);
+			if( logoutResult.status == "S"){
+				
+				G_VAL = {
+						 SP_CSTM_ID : ""
+						,COMMON_CODE_MAP : {}
+				}
+				C_POP.alert('정상적으로 로그아웃되었습니다.');
+				location.replace(_WEB_ROOT_URL + "/login.html");
+			} 
+			
+		}
+
+		function privateInfo() {
+			
+			const sendParm = {
+					targetUrl	: _WEB_ROOT_URL + "/requestQuery.do"
+					,data		: {	queryId:"hrInfo.getHrInfoList"
+									,requestParm : {parm:{IS_MULTI_SEARCH:"N",USER_ID:G_VAL.session.userId}}
+								}
+			}		
+			ajaxRequest(sendParm,function(resultData){
+				let param = resultData.data[0];	
+				C_POP.open('popup_operation_hrInfoUpdatePopup', {param:param, mode:"U" ,myInfo:"Y"}, function(retData) {
+				});
+			});			
+			
+		}
+
+		function changePwd(check) {
+			
+			const sendParm = {
+					targetUrl	: _WEB_ROOT_URL + "/requestQuery.do"
+					,data		: {	queryId:"hrInfo.getHrInfoList"
+									,requestParm : {parm:{IS_MULTI_SEARCH:"N",USER_ID:G_VAL.session.userId}}
+								}
+			}		
+			ajaxRequest(sendParm,function(resultData){
+				let param = resultData.data[0];
+				
+				if(check == "Y"){
+					if( param.MUST_CHANGE == "Y"){
+						
+						C_POP.alert('비밀번호 변경 후 시스템을 사용할 수 있습니다.');
+					}else{
+						return;
+					}
+				}
+				
+				C_POP.open('popup_system_changePwdPopup', {param:param, mode:"U", firstChange:check}, function(retData) {
+					
+					if(isValid(retData)){
+						var parm = {targetUrl 	: _WEB_ROOT_URL + "/requestQuery.do"
+									,data		: {	queryId:"system.updateUserPwd"
+												,	requestParm : retData
+												}
+						}			
+						ajaxRequest(parm,function(resultData){
+								
+								if(resultData.state == "S"){
+									C_POP.alert('비밀번호가 변경되었습니다.\n변경된 비밀번호로 다시 로그인해 주세요.');
+									location.replace(_WEB_ROOT_URL + "/login.html");
+								}
+						});	
+					}
+				});
+			});			
+			
+		}
 		
 	</script>
 	
@@ -258,8 +343,8 @@
 				<a href="#" class="alarm">알림</a>
 				<a href="#" class="user_login"><span id="loginUserNm">이희성</span></a>
 				<ul class="user_menu">
-					<li><a href="#"><i class="icon_admin"></i>내정보 보기</a></li>
-					<li><a href="#"><i class="icon_pwEdit"></i>비밀번호 변경</a></li>
+					<li><a href="javascript:privateInfo()"><i class="icon_admin"></i>내정보 보기</a></li>
+					<li><a href="javascript:changePwd()"><i class="icon_pwEdit"></i>비밀번호 변경</a></li>
 					<li><a href="javascript:logout()"><i class="icon_logout"></i>로그아웃</a></li>
 				</ul>
 			</div>
