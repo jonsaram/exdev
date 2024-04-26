@@ -5,13 +5,13 @@ var <@pageId> = {
 		
 		 mainCategoryItem: ''
 		,excelParam : {}
-		,categoryChart		: ()=> <@pageId>.mainCategoryChart()
 		,treemapChart 		: (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
 		,comparisonChart 	: (target, param)=>_comparisonChart(target, param)
 		,lineAndColumnChart : (target, param)=>_lineAndColumnChart(target, param)
 		,lineWithLabelsChart: (target, param)=>_lineWithLabelsChart(target, param)
 		,createChart 		: (container, categories, series)=>_createChart(container, categories, series)
 		,pageInit  : () =>{
+			
 			const toDate	= dayjs().format("YYYY-MM-DD");
 			const fromDate 	= dayjs().subtract(1, 'month').format("YYYY-MM-DD");
 			$("#<@pageId>_fromDate").val(fromDate);
@@ -40,12 +40,16 @@ var <@pageId> = {
 		,chartInit : () =>{
 			
 			//월자문 순매출 , 1회성 순매출 , 외주자문 순매출
-			var parm = {
+ 			var parm = {
 				queryGroup : [{queryId	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONTRACT_TYPE : "MONTHLY"}}
 							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONTRACT_TYPE : "ONLY_ONE"}}
 							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONTRACT_TYPE : "PARTNER"}}
 							 ]
 			}
+/* 			var parm = {
+					 queryId 		: "rstMgn.getOrgSellingPriceList"
+					,requestParm	: {}
+			} */
 			C_COM.requestQuery(parm, function(resultData) {
 
 				<@pageId>.setChart(resultData )
@@ -53,8 +57,8 @@ var <@pageId> = {
 			
  			//순매출 성장률 , 지사별 순매출(전년도 추가) , 상세별 순매출(전년도 막대그래프 2개)   
  			var parm2 = {
-					queryGroup : [{queryId	: "rstMgn.getSellingGrowthRateList"	,requestParm	: {CONTRACT_TYPE : "MONTHLY"}}
-								 ,{queryId 	: "rstMgn.getSellingBranchList"		,requestParm	: {}}
+					queryGroup : [{queryId	: "rstMgn.getSellingGrowthRateList"	,requestParm	: {CONTRACT_TYPE : "MONTHLY"} },
+								  {queryId 	: "rstMgn.getSellingBranchList"		,requestParm	: {}}
 								 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: {}}
 								 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: {LAST_YEAR:"Y"}}
 								 ]
@@ -97,7 +101,7 @@ var <@pageId> = {
 			const sellingPriceListPARTNER_DATA		=  resultData.data["rstMgn.getOrgSellingPriceList_2"];
 			
 			const getOrgSellingPriceListMONTHLY		=  sellingPriceListMONTHLY_DATA.map( (item,idx) =>   item.ORG_SELLING_PRICE );
-			const getOrgSellingPriceListOnly_ONE	=  sellingPriceListONLY_ONE_DATA.map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			const getOrgSellingPriceListOnly_ONE	=  sellingPriceListONLY_ONE_DATA.map((item,idx) =>   item.ORG_SELLING_PRICE );
 			const getOrgSellingPriceListPARTNER		=  sellingPriceListPARTNER_DATA.map( (item,idx) =>   item.ORG_SELLING_PRICE );
 		    
 			const thisYear 							= _.maxBy(_.uniqBy(sellingPriceListMONTHLY_DATA,"MONTH"). map( item=> {return { 'MONTH' : item.MONTH }} ),"MONTH").MONTH.slice(0,4);
@@ -408,7 +412,7 @@ var <@pageId> = {
 					,requestParm	: {parm:requestParm}
 			}
 			<@pageId>.excelParam = parm;
-			// 페이징 처리 초기화
+
 			C_PAGING.create({
 	 			 pageId				: "<@pageId>"
 	 			,listDomId			: "<@pageId>_contractList"
@@ -417,16 +421,13 @@ var <@pageId> = {
 	 			,queryId			: "rstMgn.getContractList"
 				,listRange			: 5
 				,pageRange			: 10
-				// <@pageId>.setSearchParm function에서 반환하는 json object값을 Query Parameter로 사용한다.
 	 			,parmFn				: function() {
 	 				let parm = requestParm
 	 				return 	parm;
 	 			 }
-				// 페이지를 클릭 했을때 처리가 필요하면 아래에 정의 함
 				,onPageClickCallback: function(data) {
 
 				 }
-				// 검색해온 List를 수정한다.
 				,makeListFn			: function(list) {
 					<@pageId>.setHandler();
 				 }
@@ -441,7 +442,8 @@ C_PM.onLoadPage("<@pageId>", function() {
 
 	<@pageId>.pageInit();
 
-	<@pageId>.categoryChart();
+	<@pageId>.mainCategoryChart();
+	
 	setTimeout( ()=>{<@pageId>.contractList();},500)
 	setTimeout( ()=>{<@pageId>.chartInit();},700)
 	

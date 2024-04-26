@@ -182,7 +182,7 @@ var <@pageId> = {
 			
 			var parm = {
 					 queryId 		: "hrInfo.deleteHrInfo"
-					,requestParm	: delKey
+					,requestParmList: delKey
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				if( resultData.state == 'S'){
@@ -192,31 +192,34 @@ var <@pageId> = {
 				}				
 			});				
 		}
-		, deleteOne : (idx) =>{
-			
-			const checkedRow = <@pageId>.searchedData[idx];
-			if( checkedRow["CAN_DEL"]== "N"){
-				
-				C_POP.alert("계약관계가 있는 ["+checkedRow["USER_NM"]+" 인사정보]를 삭제할 수 없습니다. "); 
-				return false;
-			}
-			const USER_ID =  checkedRow["USER_ID"];
-    		<@pageId>.deleteItem({USER_ID:USER_ID})
-    		
-		}
 		,setHandler : () => {
 			
 			<@pageId>.chkHandler();
 		    
-		    $("#<@pageId>_delete").click(function(){
+		    $("#<@pageId>_deleteBtn").click(function(){
 		    	
+		    	let skip = false;
+		    	let deleteArr = [];
 		    	C_POP.confirm('선택하신 인사정보를 삭제 하시겠습니까?', function() {
 
 			    	<@pageId>.checkedItems.forEach( idx =>{
 
-						<@pageId>.deleteOne(idx);
-
-			    	})
+						const checkedRow = <@pageId>.searchedData[idx];
+						if( checkedRow["CAN_DEL"]== "N"){
+							
+							C_POP.alert("계약관계가 있는 ["+checkedRow["USER_NM"]+" 인사정보]는 삭제할 수 없습니다. "); 
+							skip = true;
+						}
+						if( skip )return;
+						
+						const USER_ID =  checkedRow["USER_ID"];
+						deleteArr.push( {USER_ID:USER_ID});
+						
+			    	});
+			    	
+		    		if( deleteArr.length > 0)
+		    		<@pageId>.deleteItem(deleteArr);
+		    		
 		    	});
 		    })
 		    
@@ -338,7 +341,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<div id="<@pageId>_selectBranch" column = "BRANCH_ID" class="select_box" style="width:125px;"></div>
 			
 					<button type="button" class="btn select fr" id="<@pageId>_searchBtn" style='margin-left:8px;'>조회</button>
-					<button type="button" class="btn fr" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
+					<button type="button" class="btn fr" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
 					
 				</div>
 	

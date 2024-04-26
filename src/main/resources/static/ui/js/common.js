@@ -1,6 +1,27 @@
 
 const _HUNDRED_MILLION = 100000000 ;
 
+function _yearSelectBox (yearObj) {
+	
+	var yearsArrayList = { data	: _getYearDataList (),targetId : yearObj}
+	C_UICOM.makeSelectBox(yearsArrayList, "single");
+	C_UICOM.setSingleBox(yearObj, dayjs().year());
+
+}
+
+function _monthSelectBox (yearObj) {
+	
+	const monthsArray = Array.from({ length: 12 }, (_, index) => {
+		  const months = ("0"+(1 + index) ).slice(-2);
+		  return [months.toString(), months + "월"];
+	});
+
+	var monthsArrayList = { data : monthsArray,targetId : yearObj}
+	C_UICOM.makeSelectBox(monthsArrayList, "single");
+	C_UICOM.setSingleBox(yearObj, ("0"+(dayjs().month() + 1) ).slice(-2));
+
+}
+
 function _getYearDataList () {
 	
 	const yearsArray =  Array.from({ length: 4 }, (_, index) => {

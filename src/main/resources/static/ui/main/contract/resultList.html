@@ -6,43 +6,33 @@ var <@pageId> = {
 		,selectedUser : {}
  		,excelParam : {}
  		,searchListParam : {}
+ 		,CONTRACT_ID : {}
 		,pageInit : () =>{
 			
-			const yearsArray = Array.from({ length: 4 }, (_, index) => {
-				  const year = 2022 + index;
-				  return [year.toString(), year + "년"];
-			});
-			const monthsArray = Array.from({ length: 12 }, (_, index) => {
-				  const months = ("0"+(1 + index) ).slice(-2);
-				  return [months.toString(), months + "월"];
-			});
-
-			var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"}
-			C_UICOM.makeSelectBox(yearsArrayList, "single");
-			C_UICOM.setSingleBox("<@pageId>_years", dayjs().year());
-			var monthsArrayList = { data : monthsArray,targetId : "<@pageId>_months"}
-			C_UICOM.makeSelectBox(monthsArrayList, "single");
-			C_UICOM.setSingleBox("<@pageId>_months", ("0"+(dayjs().month() + 1) ).slice(-2));
+			_yearSelectBox("<@pageId>_years");
+			_monthSelectBox("<@pageId>_months");
 
 			var selectUserList = { data	: [["--","--"]],targetId : "<@pageId>_selectUser"}
 			C_UICOM.makeSelectBox(selectUserList, "single");
 
 			<@pageId>.setHanler();
+			
 		}
 		,searchList : () => {
 			
 			var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
-			const selectedUser = C_UICOM.getData("<@pageId>_selectUser");
+			
 			const requestParm = {
-					 USER_ID :selectedUser
-					,FROM_RESULT_DATE : contractDate + '-01'	
-					,TO_RESULT_DATE : dayjs(contractDate, "YYYY-MM").endOf('month').format('YYYY-MM-DD')
-					,CONTRACT_ID : <@pageId>.selectedContract["CONTRACT_ID"]
-					,GUBUN : 'LIST'
+					RESULT_DATE_YM 	: contractDate	
+					,CONTRACT_ID	: <@pageId>.CONTRACT_ID
 			};
+			
+			if( isEmpty($("[name='<@pageId>_contract']" ).val()) ){
+				requestParm.CONTRACT_ID ='';
+			} 
 			<@pageId>.searchListParam = requestParm ;
 			var parm = {
-					 queryId 		: "result.getResultList"
+					 queryId 		: "result.getResultDataList"
 					,requestParm	: requestParm
 			}
 
@@ -54,6 +44,10 @@ var <@pageId> = {
 						,targetTotalId	: "<@pageId>_totalCnt"
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
+				
+	        	mergeTableTD('<@pageId>_resultList', {startIdx : 8, endIdx : 8, startRowIdx : 1});;
+	        	mergeTableTD('<@pageId>_resultList', {startIdx : 2, endIdx : 6, startRowIdx : 1});
+
 			});  
 		}
 		,openSelectContract : () => {
@@ -63,8 +57,9 @@ var <@pageId> = {
 			C_POP.open('popup_contract_contractSearchPopup', {YEAR_PERIOD:'1'}, function(retData) {
 
 				if(isValid(retData)){
-					
+
 					<@pageId>.selectedContract = retData;
+					<@pageId>.CONTRACT_ID = retData["CONTRACT_ID"];
 					const BUYER_NM 		=	retData["BUYER_NM"];
 					const CONSULTING_NM	=	retData["CONSULTING_NM"];
 					const USER_ID		=	retData["USER_ID"];
@@ -72,39 +67,7 @@ var <@pageId> = {
 					
 					const contract_name = `${CONSULTING_NM} ( ${BUYER_NM} )`;
 					$("[name='<@pageId>_contract']").val(contract_name);
-
-					var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
-
-					const requestParm = {
-							// USER_ID : user.trim()
-							FROM_RESULT_DATE : contractDate + '-01'	
-							,TO_RESULT_DATE : dayjs(contractDate, "YYYY-MM").endOf('month').format('YYYY-MM-DD')
-							,CONTRACT_ID : <@pageId>.selectedContract["CONTRACT_ID"]
-							,GUBUN : 'LIST'
-					};
-
-					var parm = {
-							 queryId 		: "result.getResultUserList"
-							,requestParm	: requestParm
-					}
-
-					C_COM.requestQuery(parm, function(resultData) {
-
-						if( resultData.data.length > 0){
-							
-							const users = resultData.data;
-							const items = users.map( item => [ item.USER_ID,item.USER_NM+"( "+item.USER_ID+" )" ] )
-							const selectUserList = { 
-								 data 			: items
-							 	,targetId 		: "<@pageId>_selectUser" 
-							}
-							C_UICOM.makeSelectBox(selectUserList, "single");
-
-							
-						}
-
-					});  
-
+					
 				}
 				
 			});
@@ -114,11 +77,6 @@ var <@pageId> = {
 			
 			$("#<@pageId>_search").click( () =>{
 			
-				const CONTRACT_ID =<@pageId>.selectedContract?.CONTRACT_ID;
-				if( isEmpty( CONTRACT_ID )){
-					alert('계약을 먼저 선택하여 주십시오. ');
-					return;
-				}
 				<@pageId>.searchList();
 
 		    })
@@ -152,14 +110,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
                </div>
                <span class="tit01 fl lh33">계약선택</span>
                <div class="search_inputWrap fl">
-				<input type="search" name="<@pageId>_contract" style="width:300px;" onclick="javascript:<@pageId>.openSelectContract();"><button class="search_btn"><i class="icon_search"></i></button>
+<!-- 				<input type="search" name="<@pageId>_contract" style="width:300px;" onclick="<@pageId>.openSelectContract();" placeholder="컨설팅명(고객명)" readonly ><a  href="javascript:void(0);" onclick="<@pageId>.openSelectContract();" class="search_btn"><i class="icon_search"></i></a> -->
+				<input type="search" name="<@pageId>_contract" style="width:300px;" onclick="<@pageId>.openSelectContract();" placeholder="컨설팅명(고객명)" ><a  href="javascript:void(0);" onclick="<@pageId>.openSelectContract();" class="search_btn"><i class="icon_search"></i></a>
 			</div>
-			<span class="tit01 fl lh33">담당자</span>
+<!-- 			<span class="tit01 fl lh33">담당자</span>
                <div class="search_inputWrap fl">
-				<!-- <input type="search" name="<@pageId>_user" style="width:200px;"> -->
-				<!-- <input type="search" id="USER" name="<@pageId>_user" placeholder="사원이름(사원ID)" style="width:200px;"><a  href="javascript:void(0);" onclick="<@pageId>.memberSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a> -->
 				<div id="<@pageId>_selectUser" style="width:200px"></div>
-			</div>
+			</div> -->
 			<button class="btn select fl" id="<@pageId>_search" >검색</button>
            </div>
            <div class="search_right">
@@ -197,8 +154,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<script type="text/x-jsrender" id="<@pageId>_resultList_template">						
 			{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}">
-					<td>{{:RN}}</td>
-					<td class="tc">{{:UPDATE_DATE_MONTH}}</td>
+					<td {{:RESULT_ID}}>{{:RN}}</td>
+					<td class="tc">{{:RESULT_DATE_YM}}</td>
 					<td class="tl">{{:BUYER_NM}}</td>
 					<td class="tl">{{:CONSULTING_NM}}</td>
 					<td class="tl">{{:USER_NM}}</td>
@@ -206,7 +163,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<td class="tr">{{numb:REMAINING_SUM}}</td>
 					<td class="tr">{{:RESULT_DATE}}</td>
 					<td class="tr">{{numb:INCOME}}</td>
-					<td class="tr">{{numb:PAYMENT}}</td>
+					<td class="tr">{{numb:SUM_COST_PRICE}}</td>
 					<td class="tr">{{numb:ORG_SELLING_PRICE}}</td>
 				</tr>
 			{{/for}}

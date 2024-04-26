@@ -128,13 +128,13 @@ var <@pageId> = {
 			
 			var parm = {
 					 queryId 		: "contract.deleteContract"
-					,requestParm	: delKey
+					,requestParmList: delKey
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				
 				var parm = {
 						 queryId 		: "contract.deleteContractMember"
-						,requestParm	: delKey
+						,requestParmList: delKey
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 					
@@ -150,15 +150,10 @@ var <@pageId> = {
 			
 	    	C_POP.confirm('선택하신 계약정보를 삭제 하시겠습니까?', function() {
 	    		
-				<@pageId>.deleteOne(idx);
+				let row = <@pageId>.searchedRows[idx];			
+	    		const CONTRACT_ID	= row["CONTRACT_ID"];
+	    		<@pageId>.deleteItem([{CONTRACT_ID:CONTRACT_ID}])
 	    	});
-		}
-		, deleteOne : (index) =>{
-			
-			let row = <@pageId>.searchedRows[index];			
-    		const CONTRACT_ID	= row["CONTRACT_ID"];
-    		<@pageId>.deleteItem({CONTRACT_ID:CONTRACT_ID})
-    		
 		}
 		,modify : (index) =>{
 			
@@ -177,10 +172,19 @@ var <@pageId> = {
 		    
 		    $("#<@pageId>_deleteBtn").off().on('click',() => {
 		    	
+		    	let deleteArr = [];
 		    	C_POP.confirm('선택하신 계약정보를 삭제 하시겠습니까?', function() {
-			    	<@pageId>.checkedItems.forEach( index =>{
-						<@pageId>.deleteOne(index);
-			    	})
+
+		    		<@pageId>.checkedItems.forEach( index =>{
+		    			
+						const checkedRow = <@pageId>.searchedData[idx];
+						const CONTRACT_ID =  checkedRow["CONTRACT_ID"];
+						deleteArr.push( {CONTRACT_ID:CONTRACT_ID});
+
+			    	});
+			    	
+		    		if( deleteArr.length > 0)
+		    		<@pageId>.deleteItem(deleteArr);
 		    	});
 		    	
 		    })
@@ -391,7 +395,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
 						{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}">
-								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
+								<td {{:CONTRACT_ID}}><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
 			 					<td id='ROWIDX'				class='tc' >{{:ROWIDX}}</td>
 			 					<td id='BUYER_ID'			class='tl' >{{:BUYER_ID}}</td>
 			 					<td id='BUYER_NM'			class='tl' >{{:BUYER_NM}}</a></td>
