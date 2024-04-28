@@ -2,6 +2,7 @@
 <script type="text/javascript"> 
 var <@pageId> = {
 		 selectedCheck :{ "grpCodeList": [],"normalCodeList": [] }
+		//,checkedItems : []
 		,searchedRows : []
 		,getSearchItems : () => {
 			const SEARCH_TEXT = C_UICOM.getData("<@pageId>_selectSearchItem");
@@ -71,113 +72,36 @@ var <@pageId> = {
 			C_PM.movePage( pageId.trim(), jsonObject );
 			
 		}
-		,updateCode : (loc, queryId) => {
-
-				var parm = {
-						 queryId 		: queryId
-						,requestParm	: <@pageId>.getItems(loc)
-				}
-				C_COM.requestQuery(parm, function(resultData) {
-					
-					if( resultData.state == 'S'){
-						<@pageId>.searchList();
-						console.log("코드 저장 성공");
-					}				
-				});
-				
-		}  
-		,deleteCode : (queryId, requestParm) => {
-				
-				var parm = {
-						 queryId 		: queryId
-						,requestParm	: requestParm
-				}
-
-				C_COM.requestQuery(parm, function(resultData) {
-					if( resultData.state == 'S'){
-						<@pageId>.searchList();
-						console.log("코드 삭제 성공")
-					}				
-				});		
-				
-		}  
 		,setHandler : () => {
-			//chat room row click
-	        $("#chatRoomList").on('click', 'tr', function () {
-	            let requestParm = {}
-	            const rowId = $(this)[0].id;
-	            if (rowId) {
-	            	$($("#chatRoomList>#"+rowId+" td")).each( (idx,td) => {
-        				const name 	= td.getAttribute("id");
-        				const value = td.getAttribute("value");
-        				requestParm[name] = value;
-						$("[name='"+name+"']").val(value);
-	            	})
-	            }
-    			<@pageId>.enterChatRoomPopup(requestParm);
-
-	        })
-
-
    			$('#<@pageId>_search').on('click', function (e) {
    				<@pageId>.searchList();
    			})
    				
-   			$('button[name="<@pageId>_insert"]').on('click', function (e) {
-   				const loc = $(this).siblings(".item-box").attr("id");
-   				const grp = loc.indexOf("grp") > -1 ? "GRP_" : "" ;
-   					
-   				<@pageId>.itemReset(loc,true,grp);
-   			})
-   				
-   			$('button[name="<@pageId>_save"]').on('click', function (e) {
-
-   				const loc =$(this).parents(".item-box").attr("id"); 
-   				const queryId = loc.indexOf("grp") > -1 ? "system.updateGrpCode" :  "system.updateCode" ;
-   				<@pageId>.updateCode(loc, queryId);
-   			})
-   				
    			$('button[name="<@pageId>_delete"]').on('click', function (e) {
-   				
-   				const loc = $(this).siblings(".item-box").attr("id");
-   					
-   				if(<@pageId>.validation(loc,"deleteCode")  == false)return;
-   					
-   				const queryId	= loc.indexOf("grp") > -1 ? "system.deleteGrpCode" : "system.deleteCode" ;
-   				let		keyObj 	= loc.indexOf("grp") > -1 ? {"GRP_CODE_ID":""} : {"GRP_CODE_ID":"","CODE_ID":""} ;
-				const gubun 	= loc.indexOf("grp") > -1 ? "grpCodeList" : "normalCodeList" ;
-   		 		<@pageId>.selectedCheck[gubun].forEach( item =>{
+   				var checkedItems = [];
+   				$('input:checkbox[name=checkList]').each(function (index) {
+   					if($(this).is(":checked")==true){
+   						checkedItems.push({BOARD_ID:$(this).val(),BOARD_MST_ID:$("#BOARD_MST_ID").val()});
+   				    }
+   				});
+   				if(checkedItems.length>0){
+			    	C_POP.confirm('선택하신 게시물을 삭제 하시겠습니까?', function() {
+		    			var parm = {
+		    				 queryId 			: "board.deleteBoard"
+		    				,requestParmList	: checkedItems
+		    			}
+		    			C_COM.requestQuery(parm, function(resultData) {
+							if( resultData.state == 'S'){
+								<@pageId>.searchList();
+								dalert("게시물이 삭제되었습니다.");
+							}
+		    			});
+			    	});
+   				}else{
+   					dalert('삭제하실 게시물을 선택하여 주십시요');
+   				}
 
-   		 			let grpCodeId 	= "";
-   					let codeId 		= "";	
-		 			if( loc.indexOf("grp") == -1 ){
-   		 					
-		 				grpCodeId	= item.split("||")[0];
-   		 				codeId 		= item.split("||")[1];
-	   					keyObj["GRP_CODE_ID"] = grpCodeId;
-	   					keyObj["CODE_ID"] = codeId;
-	   		 				
-   		 			}else{
-   		 					
-	   					keyObj["GRP_CODE_ID"] = item;
-   		 			}
-   						<@pageId>.deleteCode(queryId, keyObj);
-   		 		});
    			}) 
-   				
-   			$('button[name="<@pageId>_reset"]').on('click', function(e){
-
-   				const loc =$(this).parents(".item-box").attr("id");
-   				const grp = loc.indexOf("grp") > -1 ? "GRP_" : "" ;
-   				<@pageId>.itemReset(loc,true,grp);
-   			})
-   				
-   			$("button[name='<@pageId>_close']").on('click', function(e){
-
-   				const loc =$(this).parents(".item-box").attr("id");
-   				<@pageId>.itemReset(loc,false);
-   			}) 
-   				
 		}
 		
  		,setEachColumnValue : (loc, arr ,grp) => {
@@ -250,12 +174,12 @@ C_PM.onLoadPage("<@pageId>", function(parm) {
 		C_UICOM.makeSelectBox(multiboxSearchCondList, "multi");
 		
 		<@pageId>.searchList();
-		
+		<@pageId>.setHandler();
 });
 	
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
 C_HM.onReturn("<@pageId>", function(pageId, data) {
-
+	<@pageId>.searchList();
 });
 
 
@@ -274,7 +198,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<input type="hidden" id="BOARD_MST_ID" name="BOARD_MST_ID">
 					<!-- 멀티 선택 -->
 					<div class="fl">
-						<button type="button" class="btn fl"><i class="icon_trash"></i>삭제</button>
+						<button type="button" name="<@pageId>_delete" class="btn fl"><i class="icon_trash"></i>삭제</button>
 						<div class="dropdown fl" id="<@pageId>_selectSearchItem"  style="width:150px;">
 						</div>
 						<div class="search_inputWrap">
@@ -320,7 +244,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							</colgroup>
 							<thead>
 								<tr>
-									<th scope="col"><input type="checkbox"  id="<@pageId>_ckAll"></th>
+									<th scope="col"><input type="checkbox" id="<@pageId>_ckAll"></th>
 									<th scope="col">게시글 번호</th>
 									<th scope="col">분류</th>
 									<th scope="col">작성자</th>
@@ -349,7 +273,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<script type="text/x-jsrender" id="<@pageId>_boardList_template">	
 							{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}">
-								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}"></td>
+								<td><input type='checkbox' 			id="<@pageId>_ck_{{:#index}}" name="checkList"	value="{{:BOARD_ID}}"></td>
                                 <td id='BOARD_ID' 					value='{{:BOARD_ID}}' style='display:none'>{{:BOARD_ID}}</td>
  								<td id='index'	 					value='{{:#index+1}}'		>#{{:#index+1}}	</td>
  								<td id='BOARD_MST_NM' 				value='{{:BOARD_MST_NM}}'	>{{:BOARD_MST_NM}}</td>

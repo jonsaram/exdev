@@ -92,6 +92,7 @@
 			UPDATE_USER = #{USER_ID},
 			UPDATE_DATE = SYSDATE
 		WHERE BOARD_MST_ID = #{BOARD_MST_ID}
+		  AND SP_CSTM_ID = #{sessionVo.spCstmId}
 	</update>
 
 	<select id="getBoardAddList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -108,6 +109,7 @@
 				BOARD_ID
 		FROM TBL_EXP_BOARD_ADD
 		WHERE BOARD_ID = #{BOARD_ID}
+		  AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		ORDER BY UPDATE_DATE DESC
 	</select>
 
@@ -121,6 +123,7 @@
 										UPDATE_DATE,
 										CREATE_USER,
 										CREATE_DATE,
+										SP_CSTM_ID,
 										BOARD_ID)
 								VALUES( #{BOARD_ADD_ID},
 										#{ADD_CONTENT},
@@ -128,6 +131,7 @@
 										SYSDATE,
 										#{sessionVo.userId},
 										SYSDATE,
+										#{sessionVo.spCstmId},
 										#{BOARD_ID})
 	</insert>
 	
@@ -141,6 +145,7 @@
 			UPDATE_DATE = SYSDATE
 		WHERE BOARD_ADD_ID = #{BOARD_ADD_ID}
 		  AND BOARD_ID = #{BOARD_ID}
+		  AND SP_CSTM_ID = #{sessionVo.spCstmId}
 	</update>
 	
 	<delete id="deleteBoardAdd" parameterType="java.util.HashMap"  flushCache="true" >
@@ -149,6 +154,8 @@
 		*/
 		DELETE TBL_EXP_BOARD_ADD
 		WHERE BOARD_ADD_ID = #{BOARD_ADD_ID}
+		  AND BOARD_ID = #{BOARD_ID}
+		  AND SP_CSTM_ID = #{sessionVo.spCstmId}
 	</delete>
 
 
@@ -158,7 +165,7 @@
 		*/
 		SELECT 	B.BOARD_ID,
 				B.TITLE,
-				DBMS_LOB.SUBSTR(B.CONTENT,DBMS_LOB.GETLENGTH(B.CONTENT),1) AS CONTENT,
+				DBMS_LOB.SUBSTR(B.CONTENT,2*1024,1) AS CONTENT,
 				M.BOARD_MST_ID,
 				M.BOARD_MST_NM,
 				M.BOARD_MST_DESC,
@@ -217,7 +224,8 @@
 		*/
 		SELECT 	B.BOARD_ID,
 				B.TITLE,
-				DBMS_LOB.SUBSTR(B.CONTENT,DBMS_LOB.GETLENGTH(B.CONTENT),1) AS CONTENT,
+				/*DBMS_LOB.SUBSTR(B.CONTENT,DBMS_LOB.GETLENGTH(B.CONTENT),1) AS CONTENT,*/
+				DBMS_LOB.SUBSTR(B.CONTENT,2*1024,1) AS CONTENT,
 				M.BOARD_MST_ID,
 				M.BOARD_MST_NM,
 				M.BOARD_MST_DESC,
@@ -226,7 +234,8 @@
 				TO_CHAR( B.UPDATE_DATE , 'YYYY-MM-DD' ) UPDATE_DATE,
 				B.CREATE_USER,
 				TO_CHAR( B.CREATE_DATE , 'YYYY-MM-DD' ) CREATE_DATE,
-				NVL(B.VIEW_CNT,0) AS VIEW_CNT
+				NVL(B.VIEW_CNT,0) AS VIEW_CNT,
+				(SELECT COUNT(1) FROM TBL_EXP_BOARD_ADD WHERE BOARD_ID = B.BOARD_ID) AS REP_CNT
 		FROM TBL_EXP_BOARD B,
 		     TBL_EXP_BOARD_MST M
 		WHERE B.BOARD_MST_ID = M.BOARD_MST_ID
@@ -247,6 +256,7 @@
 									CREATE_USER,
 									UPDATE_DATE,
 									CREATE_DATE,
+									SP_CSTM_ID,
 									VIEW_CNT)
 							VALUES( #{BOARD_ID},
 									#{TITLE},
@@ -256,8 +266,20 @@
 									#{sessionVo.userId},
 									SYSDATE,
 									SYSDATE,
+									#{sessionVo.spCstmId},
 									0)
 	</insert>
+
+	<update id="updateBoardCount" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	board.updateBoardCount
+			게시판 수정 
+		*/
+		UPDATE TBL_EXP_BOARD
+		SET	VIEW_CNT = VIEW_CNT+1
+		WHERE BOARD_ID = #{BOARD_ID}
+		AND BOARD_MST_ID = #{BOARD_MST_ID}
+		AND SP_CSTM_ID = #{sessionVo.spCstmId}
+	</update>
 
 	<update id="updateBoard" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	board.updateBoard
@@ -265,11 +287,12 @@
 		*/
 		UPDATE TBL_EXP_BOARD
 		SET	TITLE = #{TITLE},
-			CONTENTS = #{CONTENTS},
-			UPDATE_USER = #{USER_ID},
+			CONTENT = NVL(#{CONTENT:CLOB},EMPTY_CLOB()),
+			UPDATE_USER = #{sessionVo.userId},
 			UPDATE_DATE = SYSDATE
 		WHERE BOARD_ID = #{BOARD_ID}
 		AND BOARD_MST_ID = #{BOARD_MST_ID}
+		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 	</update>
 
 	<delete id="deleteBoard" parameterType="java.util.HashMap"  flushCache="true" >
@@ -279,6 +302,7 @@
 		DELETE TBL_EXP_BOARD
 		WHERE BOARD_ID = #{BOARD_ID}
 		AND BOARD_MST_ID = #{BOARD_MST_ID}
+		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 	</delete>
 
 </mapper>
