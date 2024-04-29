@@ -16,6 +16,10 @@
 		,C.USER_ID 									AS USER_ID
 		,U.USER_NM				 					AS USER_NM /* 담당자*/
 		,U.USER_NM || '( ' || C.USER_ID || ' )'  	AS "USER"
+		,NVL(U.ROLE,'-')							AS ROLE
+		,NVL(Get_CODE_NM('USER_ROLE',U.ROLE),'-')	AS ROLE_NM
+		,NVL(U.GRADE,'-')							AS GRADE
+		,NVL(Get_CODE_NM('GRADE',U.GRADE),'-')		AS GRADE_NM
 		,C.CONTRACT_TYPE
 		,GET_CODE_NM('CONTRACT_TYPE', C.CONTRACT_TYPE)	AS CONTRACT_TYPE_NM
 		,TO_CHAR( C.CONTRACT_DATE , 'YYYY-MM-DD' ) 	AS CONTRACT_DATE 
@@ -36,12 +40,10 @@
 			,C.TOTAL_COST) AS REMAINING_SUM
 		,U.RECOMMENDER_ID
 		,GET_CODE_NM('USER_ID', U.RECOMMENDER_ID)		AS RECOMMENDER_NM 
-		,C.CONSULTANT_USER_ID 
-		,GET_USER_NM(C.CONSULTANT_USER_ID)	AS CONSULTANT_USER_NM
-		,U2.ROLE
-		,GET_CODE_NM('USER_ROLE',U2.ROLE) AS CONSULTANT_ROLE_NM 
-		,U2.GRADE
-		,GET_CODE_NM('GRADE',U2.GRADE) AS CONSULTANT_GRADE_NM 
+		,TM_U.USER_ID AS CONSULTANT_USER_ID 
+		,GET_USER_NM(TM_U.USER_ID)	AS CONSULTANT_USER_NM
+		,NVL(Get_CODE_NM('USER_ROLE',TM_U.ROLE),'-')  AS CONSULTANT_ROLE_NM	
+		,NVL(Get_CODE_NM('GRADE',TM_U.GRADE),'-')  AS CONSULTANT_GRADE_NM	
 		,NVL(( SELECT 'Y' FROM TBL_EXP_RESULT I 
 		   WHERE I.CONTRACT_ID = C.CONTRACT_ID AND I.USE_YN = 'Y' 
 		     AND I.DEL_YN = 'N' AND ROWNUM=1 ),'N') AS RESULTING
@@ -55,23 +57,25 @@
 					SELECT GET_CODE_NM('APPROVAL_USER_PROC', B.STATE) 
 					FROM TBL_EXP_APPROVAL B 
 					WHERE C.CONTRACT_ID = B.RELATION_ID
-					ORDER BY UPDATE_DATE DESC FETCH FIRST 1 ROW ONLY
+					ORDER BY APPROVAL_DATE DESC FETCH FIRST 1 ROW ONLY
 				)
 		  END 	AS APP_STATE_NM
 		FROM TBL_EXP_CONTRACT C
 		,TBL_EXP_BUYER B
 		,TBL_EXP_CONSULTING CT
 		,TBL_EXP_USER U
-		,TBL_EXP_USER U2
+		,TBL_EXP_TEAM_MEMBER TM
+		,TBL_EXP_USER TM_U
 		WHERE C.BUYER_ID = B.BUYER_ID(+)
 		AND C.USE_YN = 'Y' 		AND C.DEL_YN = 'N'
 		AND U.USE_YN = 'Y'      AND U.DEL_YN = 'N'
-		AND U2.USE_YN = 'Y'     AND U2.DEL_YN = 'N'
 		AND C.CONSULTING_ID = CT.CONSULTING_ID		
 		AND C.USER_ID = U.USER_ID
-		AND C.CONSULTANT_USER_ID = U2.USER_ID
 		AND C.PROCESS_STATE != 'PRE_CONTRACT' 
 		AND C.PROCESS_STATE != 'ON_CONTRACTING_APPR' 
+		AND C.CONTRACT_ID = TM.CONTRACT_ID
+		AND TM.TEAM_USER_ROLE = 'EXEC'
+		AND TM.USER_ID	=TM_U.USER_ID
 	</sql>	
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getContractList
@@ -295,6 +299,45 @@
     				)
 	</update>
 	
+	<update id="updateContractMemberFromTeam" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	contract.updateContractMemberFromTeam
+			계약 관련자 옮겨옴
+		*/
+		MERGE INTO TBL_EXP_CONTRACT_MEMBER T
+		USING (
+				SELECT CONTRACT_ID , USER_ID , DECODE( TEAM_USER_ROLE, 'EXEC','EXECUTE', TEAM_USER_ROLE) AS RELATION_TYPE
+				FROM TBL_EXP_TEAM_MEMBER 
+				WHERE CONTRACT_ID = #{CONTRACT_ID}
+				UNION ALL
+				SELECT #{CONTRACT_ID} , USER_ID, 'SUGGESTER'
+				FROM TBL_EXP_USER 
+				WHERE USER_ID = (
+					SELECT RECOMMENDER_ID
+					FROM TBL_EXP_USER
+					WHERE USER_ID IN (
+					
+						SELECT USER_ID 
+						FROM TBL_EXP_TEAM_MEMBER
+						WHERE CONTRACT_ID = #{CONTRACT_ID}
+						AND TEAM_USER_ROLE = 'EXEC'
+					
+					)
+				)
+		) S
+		ON (T.CONTRACT_ID	= S.CONTRACT_ID 
+		AND	T.USER_ID		= S.USER_ID 
+		AND	T.RELATION_TYPE	= S.RELATION_TYPE 
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		         T.UPDATE_USER 		= #{sessionVo.userId	},
+		         T.UPDATE_DATE		= SYSDATE
+		WHEN NOT MATCHED THEN 
+     		INSERT (  CONTRACT_ID, USER_ID, RELATION_TYPE, USE_YN, DEL_YN, UPDATE_USER, UPDATE_DATE )
+   			VALUES (  S.CONTRACT_ID, S.USER_ID, S.RELATION_TYPE,'Y', 'N', #{sessionVo.userId	}, SYSDATE)		
+		
+	</update>	
+	
 	<select id="canNextState" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.canNextState
 			진행상태 변경가능 확인 ( from 체결 진행중 to 체결 완료 ) 
@@ -354,8 +397,7 @@
 		, U.GRADE
 		, GET_CODE_NM ( 'GRADE', U.GRADE) AS GRADE_NM
 		, CM.RELATION_TYPE
-		, CM.BUSINESS_HIERARCHY
-		, GET_CODE_NM('BUSINESS_HIERARCHY',CM.BUSINESS_HIERARCHY  ) AS POSITION
+		, NULL AS POSITION
 		, CM.USE_YN
 		, CM.DEL_YN
 		, CM.UPDATE_USER
@@ -375,12 +417,7 @@
 		    WHEN 'SALES' 		THEN '3'
 		    WHEN 'OVERRIDING'	THEN '4'
 		    WHEN 'SUGGESTER'	THEN '5'
-	    END ,
-	    CASE CM.BUSINESS_HIERARCHY
-		    WHEN 'MAIN_HEADER'		THEN '1'
-		    WHEN 'LOCAL_HEADER' 	THEN '2'
-		    WHEN 'DEPT_HEADER' 		THEN '3' 
-	    END
+	    END 
 	</select>	
 
 	<update id="updateContractMember" parameterType="java.util.HashMap"  flushCache="true" >
@@ -392,7 +429,6 @@
 		  SELECT #{CONTRACT_ID}		AS CONTRACT_ID,
 		         #{USER_ID} 		AS USER_ID,
 		         #{RELATION_TYPE} 	AS RELATION_TYPE,
-		         ''					AS BUSINESS_HIERARCHY,
 		         'Y'	 			AS USE_YN,
 		         'N' 				AS DEL_YN,
 		         #{sessionVo.userId}	AS UPDATE_USER
@@ -404,14 +440,13 @@
 		WHEN MATCHED THEN
 		  UPDATE SET
 		         T.RELATION_TYPE 			= S.RELATION_TYPE,
-		         T.BUSINESS_HIERARCHY 		= S.BUSINESS_HIERARCHY,
 		         T.USE_YN					= S.USE_YN,
 		         T.DEL_YN					= S.DEL_YN,
 		         T.UPDATE_USER				= S.UPDATE_USER,
 		         T.UPDATE_DATE				= SYSDATE
 		WHEN NOT MATCHED THEN 
-    		INSERT (    CONTRACT_ID,   USER_ID,   RELATION_TYPE,   BUSINESS_HIERARCHY, USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
-   			VALUES (  S.CONTRACT_ID, S.USER_ID, S.RELATION_TYPE, S.BUSINESS_HIERARCHY, 'Y'	 , 	 'N'   , S.UPDATE_USER, SYSDATE)
+    		INSERT (    CONTRACT_ID,   USER_ID,   RELATION_TYPE,  USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
+   			VALUES (  S.CONTRACT_ID, S.USER_ID, S.RELATION_TYPE,  'Y'	 , 	 'N'   , S.UPDATE_USER, SYSDATE)
 	</update>
 	
 	<delete id="deleteContractMember" parameterType="java.util.HashMap"  flushCache="true" >
@@ -483,7 +518,6 @@
 		WHEN MATCHED THEN
 			UPDATE SET
 				 T.USER_ID 				= #{USER_ID				}
-				,T.CONSULTANT_USER_ID 	= '${CONSULTANT_USER_ID	}'
 				,T.BUYER_ID 			= #{BUYER_ID			}
 				,T.CONSULTING_ID 		= #{CONSULTING_ID		}
 				,T.UPDATE_USER			= #{sessionVo.userId	}
@@ -492,7 +526,6 @@
 			INSERT ( 
 				 CONTRACT_ID
 				,USER_ID
-				,CONSULTANT_USER_ID
 				,BUYER_ID
 				,CONSULTING_ID
 				,PROCESS_STATE
@@ -504,7 +537,6 @@
 			) VALUES ( 
 				 #{CONTRACT_ID			}
 				,#{USER_ID				}
-				,'${CONSULTANT_USER_ID	}'
 				,#{BUYER_ID				}
 				,#{CONSULTING_ID		}
 				,'PRE_CONTRACT'
@@ -540,30 +572,35 @@
 				AND A.CREATE_DATE = B.CREATE_DATE
 		)
 		SELECT 
-			 CONTRACT_ID
-			,USER_ID
+			 A.CONTRACT_ID
+			,A.USER_ID
 			,GET_USER_NM(A.USER_ID) AS USER_NM
-			,CONSULTANT_USER_ID
-			,GET_USER_NM(A.CONSULTANT_USER_ID) AS CONSULTANT_USER_NM
-			,BUYER_ID
+			,B.USER_ID AS CONSULTANT_USER_ID
+			,GET_USER_NM(B.USER_ID) AS CONSULTANT_USER_NM
+			,A.BUYER_ID
 			,(SELECT BUYER_NM FROM TBL_EXP_BUYER WHERE BUYER_ID = A.BUYER_ID) AS BUYER_NM
-			,CONSULTING_ID
+			,A.CONSULTING_ID
 			,(SELECT CONSULTING_NM FROM TBL_EXP_CONSULTING WHERE CONSULTING_ID = A.CONSULTING_ID) AS CONSULTING_NM
-			,PROCESS_STATE
+			,A.PROCESS_STATE
 			,GET_CODE_NM('PROCESS_STATE', PROCESS_STATE) AS PROCESS_STATE_NM
 			,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) AS UPDATE_DATE
 			,(SELECT GET_CODE_NM('APPROVAL_USER_PROC', B.STATE) FROM LRAPR B WHERE A.CONTRACT_ID = B.RELATION_ID) AS APP_STATE_NM
 		FROM 
-		 	TBL_EXP_CONTRACT  A
+		 	  TBL_EXP_CONTRACT  	A
+		 	 ,TBL_EXP_TEAM_MEMBER 	B
 		WHERE  1=1
+			AND B.CONTRACT_ID(+)    = A.CONTRACT_ID
+			AND B.TEAM_USER_ROLE(+) = 'EXEC'
 			AND	(
-					UPDATE_USER 		= #{sessionVo.userId}
-				OR  USER_ID 			= #{sessionVo.userId}
-				OR  CONSULTANT_USER_ID 	= #{sessionVo.userId}
+					A.UPDATE_USER 		= #{sessionVo.userId}
+				OR  A.USER_ID 			= #{sessionVo.userId}
+				OR  B.USER_ID 			= #{sessionVo.userId}
 			)
 			AND DEL_YN 		= 'N'
-			AND	SP_CSTM_ID	= #{sessionVo.spCstmId}
-		ORDER BY UPDATE_DATE DESC		
+			AND	A.SP_CSTM_ID	= #{sessionVo.spCstmId}
+		ORDER BY UPDATE_DATE DESC				
+		
+				
 	</select>	
 
 
@@ -757,5 +794,15 @@
 			,#{sessionVo.spCstmId	}
 		)
 	</update>
+
+	<update id="updateTeamState" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	contract.updateTeamState
+			계약 관련 팀 상태 승인으로 변경
+		*/
+		UPDATE TBL_EXP_TEAM
+		SET ALLOWED= 'Y'
+		WHERE CONTRACT_ID	 = #{CONTRACT_ID}
+	</update>
+
 			
 </mapper>
