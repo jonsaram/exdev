@@ -155,26 +155,29 @@ var <@pageId> = {
 
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function(parm) {
-		$("#BOARD_MST_ID").val(parm.BOARD_MST_ID);
-		
-		// Code List 읽어오기
-		var searchListCnt = C_COM.getCodeList("SEARCH_LIST_CNT");		
-		var singleboxSearchList = { 
-			 data : searchListCnt
-		 	,targetId : "searchListCnt" 
+	let menuInfo = C_MENU.getCurrentMenuInfo();
+	$("#MENU_TITLE").text(menuInfo.MENU_NM);
+	
+	$("#BOARD_MST_ID").val(parm.BOARD_MST_ID);
+	
+	// Code List 읽어오기
+	var searchListCnt = C_COM.getCodeList("SEARCH_LIST_CNT");		
+	var singleboxSearchList = { 
+		 data : searchListCnt
+	 	,targetId : "searchListCnt" 
+	}
+	C_UICOM.makeSelectBox(singleboxSearchList, "single");
+	
+	// Code List 읽어오기
+	var searchCond = C_COM.getCodeList("BOARD_SEARCH_COND");
+	var multiboxSearchCondList = { 
+			 data : searchCond
+		 	,targetId : "<@pageId>_selectSearchItem"
 		}
-		C_UICOM.makeSelectBox(singleboxSearchList, "single");
-		
-		// Code List 읽어오기
-		var searchCond = C_COM.getCodeList("BOARD_SEARCH_COND");
-		var multiboxSearchCondList = { 
-				 data : searchCond
-			 	,targetId : "<@pageId>_selectSearchItem"
-			}
-		C_UICOM.makeSelectBox(multiboxSearchCondList, "multi");
-		
-		<@pageId>.searchList();
-		<@pageId>.setHandler();
+	C_UICOM.makeSelectBox(multiboxSearchCondList, "multi");
+	
+	<@pageId>.searchList();
+	<@pageId>.setHandler();
 });
 	
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -189,7 +192,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 </head>
 		<div class="cont_wrap">
 			<div class="cont_top">
-				<h2><i class="icon_bullet"></i>공지사항</h2>
+				<h2><i class="icon_bullet"></i><span id="MENU_TITLE"></span></h2>
 			</div>
 
 			<section class="sec_wrap list" style="height:calc(100% - 43px);" id="<@pageId>_searchItems">
