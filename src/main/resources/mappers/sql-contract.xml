@@ -299,6 +299,45 @@
     				)
 	</update>
 	
+	<update id="updateContractMemberFromTeam" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	contract.updateContractMemberFromTeam
+			계약 관련자 옮겨옴
+		*/
+		MERGE INTO TBL_EXP_CONTRACT_MEMBER T
+		USING (
+				SELECT CONTRACT_ID , USER_ID , TEAM_USER_ROLE AS RELATION_TYPE
+				FROM TBL_EXP_TEAM_MEMBER 
+				WHERE CONTRACT_ID = #{CONTRACT_ID}
+				UNION ALL
+				SELECT #{CONTRACT_ID} , USER_ID, 'SUGGESTER'
+				FROM TBL_EXP_USER 
+				WHERE USER_ID = (
+					SELECT RECOMMENDER_ID
+					FROM TBL_EXP_USER
+					WHERE USER_ID IN (
+					
+						SELECT USER_ID 
+						FROM TBL_EXP_TEAM_MEMBER
+						WHERE CONTRACT_ID = #{CONTRACT_ID}
+						AND TEAM_USER_ROLE = 'EXEC'
+					
+					)
+				)
+		) S
+		ON (T.CONTRACT_ID	= S.CONTRACT_ID 
+		AND	T.USER_ID		= S.USER_ID 
+		AND	T.RELATION_TYPE	= S.RELATION_TYPE 
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		         T.UPDATE_USER 		= #{sessionVo.userId	},
+		         T.UPDATE_DATE		= SYSDATE
+		WHEN NOT MATCHED THEN 
+     		INSERT (  CONTRACT_ID, USER_ID, RELATION_TYPE, USE_YN, DEL_YN, UPDATE_USER, UPDATE_DATE )
+   			VALUES (  S.CONTRACT_ID, S.USER_ID, S.RELATION_TYPE,'Y', 'N', #{sessionVo.userId	}, SYSDATE)		
+		
+	</update>	
+	
 	<select id="canNextState" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.canNextState
 			진행상태 변경가능 확인 ( from 체결 진행중 to 체결 완료 ) 
@@ -358,8 +397,7 @@
 		, U.GRADE
 		, GET_CODE_NM ( 'GRADE', U.GRADE) AS GRADE_NM
 		, CM.RELATION_TYPE
-		, CM.BUSINESS_HIERARCHY
-		, GET_CODE_NM('BUSINESS_HIERARCHY',CM.BUSINESS_HIERARCHY  ) AS POSITION
+		, NULL AS POSITION
 		, CM.USE_YN
 		, CM.DEL_YN
 		, CM.UPDATE_USER
@@ -379,12 +417,7 @@
 		    WHEN 'SALES' 		THEN '3'
 		    WHEN 'OVERRIDING'	THEN '4'
 		    WHEN 'SUGGESTER'	THEN '5'
-	    END ,
-	    CASE CM.BUSINESS_HIERARCHY
-		    WHEN 'MAIN_HEADER'		THEN '1'
-		    WHEN 'LOCAL_HEADER' 	THEN '2'
-		    WHEN 'DEPT_HEADER' 		THEN '3' 
-	    END
+	    END 
 	</select>	
 
 	<update id="updateContractMember" parameterType="java.util.HashMap"  flushCache="true" >
