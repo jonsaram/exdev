@@ -96,12 +96,14 @@
 	});
 </script>
 <div>
-	<div class="cont_top">
-		<div class="clearFix">
-		<h3 class="fl lh33">TO-DO List</h4>
-			<button type="button"  onclick="javascript:<@compId>.registTodo()" class="btn select fr">추가하기</button>
+	<div class="cont_top clearFix">
+		<h4 class="fl lh24">- TO-DO List</h4>
+		<div class="fr inlineBlock_wrap">
+			<a href="javascript:<@compId>.registTodo()" class="btn small">등록</a>
 		</div>
-		<ul class="todoList_wrap" id="todoList">
+	</div>
+	<div class="approver_list_wrap person mb15">
+		<ul class="approver_list" id="todoList">
 		</ul>
 		<script type="text/x-jsrender" id="todoList_template">
 			{{for list}}

@@ -416,11 +416,9 @@ var C_COM = {
 	,showLoadingBar : function() {
 		$("#loadingBar").show();
 		C_COM.loadingDepth++;
-		dlog(C_COM.loadingDepth);
 	 }
 	,hideLoadingBar : function() {
 		C_COM.loadingDepth--;
-		dlog(C_COM.loadingDepth);
 		if(C_COM.loadingDepth < 1) {
 			C_COM.loadingDepth = 0;
 			$("#loadingBar").hide();

@@ -47,9 +47,9 @@
 				});
 				
 				var rparm = {
-						 targetId 		: "<@pageId>_projectList"
-						,list			: projectList
-						,targetTotalId	: "<@pageId>_totalCnt"
+					 targetId 		: "<@pageId>_projectList"
+					,list			: projectList
+					,targetTotalId	: "<@pageId>_totalCnt"
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 			});  
@@ -184,98 +184,108 @@
 
 	});
 </script>
-		<div class="cont_wrap backWhite">
-			<div class="cont_top">
-				<h2><i class="icon_bullet"></i>프로젝트 관리</h2>
-			</div>
-			<section class="sec_wrap list" style="height:calc(100% - 43px);">
-				<!-- search area -->
-				<div class="search_area mt0">
-					<div class="fl">
-						<button class="btn select fl" onclick="<@pageId>.openProjectPopup()">프로젝트 추가</button>
-		            </div>
-		            <div class="search_right">
-						<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
-		            </div>
-				</div>
-				<!-- 테이블 -->
-				<div class="tbl01 col tbl_scroll" style="max-height:506px;">
-					<div class="tbl01 col tbl_head">
-						<table>
-							<caption>프로젝트 리스트</caption>
-							<colgroup>
-								<col style="width:40px;"/>
-								<col style="width:150px;"/>
-								<col style="width:150px;"/>
-								<col style="width:150px;"/>
-								<col style="width:*"/>
-								<col style="width:150px;"/>
-								<col style="width:200px;"/>
-								<col style="width:150px;"/>
-								<col style="width:150px;"/>
-							</colgroup>
-							<thead>
-								<tr>
-									<th scope="col">No.</th>
-									<th scope="col">고객명</th>
-									<th scope="col">영업담당자명</th>
-									<th scope="col">실행담당자명</th>
-									<th scope="col">상품명</th>
-									<th scope="col">상태</th>
-									<th scope="col">등록/수정일</th>
-									<th scope="col">결재</th>
-									<th scope="col"><i class="icon_pen"></i> &nbsp;&nbsp; <i class="icon_trash"></i></th>
-								</tr>
-							</thead>
-						</table>
-					</div>
-					<div class="tbl01 col tbl_body_scroll">
-						<table>
-							<caption>프로젝트 리스트 Body</caption>
-							<colgroup>
-								<col style="width:40px;"/>
-								<col style="width:150px;"/>
-								<col style="width:150px;"/>
-								<col style="width:150px;"/>
-								<col style="width:*"/>
-								<col style="width:150px;"/>
-								<col style="width:200px;"/>
-								<col style="width:150px;"/>
-								<col style="width:150px;"/>
-							</colgroup>
-							<tbody id="<@pageId>_projectList">
-							</tbody>
-							<script type="text/x-jsrender" id="<@pageId>_projectList_template">						
-								{{for list}}
-								<tr>
-									<td>{{:#index + 1}}</td>
-									<td>{{:BUYER_NM}}</td>
-									<td>{{:USER_NM}}</td>
-									<td>{{:CONSULTANT_USER_NM}}</td>
-									<td>{{:CONSULTING_NM}}</td>
-									<td>{{:PROCESS_STATE_NM}}</td>
-									<td>{{:UPDATE_DATE}}{{:#index}}</td>
-									<td>
-									{{if SHOW_BTN=="Y" ~index=#index}} 
-										<button type="button" class="btn fc tc" onclick="<@pageId>.makeTeamMember({{:~index}})">{{:APPR_BTN_TITLE}}</button>
-									{{else}}
-										{{:APP_STATE_NM}}	
-									{{/if}}
-									</td>
-									<td>
-										<button onclick="<@pageId>.modify({{:#index}})"><i class="icon_pen"		></i></button>	&nbsp; 
-										<button onclick="<@pageId>.delete({{:#index}})"><i class="icon_trash"	></i></button>
-									</td>
-								</tr>
-								{{/for}}
-							</script>
-							<script type="text/x-jsrender" id="<@pageId>_projectList_noData_template">	
-								<tr>	
-									<td colspan=9>자료가 없습니다.</td>	
-								</tr>
-							</script>
-						</table>
-					</div>
-				</div>
-			</section>
+
+
+<div class="cont_wrap">
+	<div class="cont_top">
+		<h2><i class="icon_bullet"></i>프로젝트 관리</h2>
+	</div>
+
+	<section class="sec_wrap list" style="height:calc(100% - 43px);">
+		<!-- search area -->
+		<div class="search_area mt0">
+			<div class="fl">
+				<a href="javascript;" class="btn fl" onclick="<@pageId>.openProjectPopup()">프로젝트 등록</a>
+				<!-- 실글 선택 -->
+				<div class="select_box fl" style="width:132px">
+					<button type="button" class="btn radio"><span>고객명</span></button>
+                </div>
+                <input type="text" name="" class="fl">
+                <button class="btn select fl">검색</button>
+            </div>
+            <div class="search_right">
+				<button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>
+				<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
+            </div>
 		</div>
+		<!-- 테이블 -->
+		<div class="tbl01 col tbl_scroll" style="max-height:506px;">
+			<div class="tbl01 col tbl_head">
+				<table>
+					<caption>프로젝트 리스트</caption>
+					<colgroup>
+						<col style="width:40px;"/>
+						<col style="width:150px;"/>
+						<col style="width:150px;"/>
+						<col style="width:150px;"/>
+						<col style="width:*"/>
+						<col style="width:150px;"/>
+						<col style="width:200px;"/>
+						<col style="width:150px;"/>
+						<col style="width:150px;"/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">No.</th>
+							<th scope="col">고객명</th>
+							<th scope="col">영업담당자명</th>
+							<th scope="col">실행담당자명</th>
+							<th scope="col">상품명</th>
+							<th scope="col">상태</th>
+							<th scope="col">등록/수정일</th>
+							<th scope="col">결재</th>
+							<th scope="col"><i class="icon_pen"></i> &nbsp;&nbsp; <i class="icon_trash"></i></th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div class="tbl01 col tbl_body_scroll">
+				<table>
+					<caption>프로젝트 리스트 Body</caption>
+					<colgroup>
+						<col style="width:40px;"/>
+						<col style="width:150px;"/>
+						<col style="width:150px;"/>
+						<col style="width:150px;"/>
+						<col style="width:*"/>
+						<col style="width:150px;"/>
+						<col style="width:200px;"/>
+						<col style="width:150px;"/>
+						<col style="width:150px;"/>
+					</colgroup>
+					<tbody id="<@pageId>_projectList">
+					</tbody>
+					<script type="text/x-jsrender" id="<@pageId>_projectList_template">						
+						{{for list}}
+						<tr>
+							<td>{{:#index + 1}}</td>
+							<td>{{:BUYER_NM}}</td>
+							<td>{{:USER_NM}}</td>
+							<td>{{:CONSULTANT_USER_NM}}</td>
+							<td>{{:CONSULTING_NM}}</td>
+							<td>{{:PROCESS_STATE_NM}}</td>
+							<td>{{:UPDATE_DATE}}{{:#index}}</td>
+							<td>
+							{{if SHOW_BTN=="Y" ~index=#index}} 
+								<button type="button" class="btn fc tc" onclick="<@pageId>.makeTeamMember({{:~index}})">{{:APPR_BTN_TITLE}}</button>
+							{{else}}
+								{{:APP_STATE_NM}}	
+							{{/if}}
+							</td>
+							<td>
+								<button onclick="<@pageId>.modify({{:#index}})"><i class="icon_pen"		></i></button>	&nbsp; 
+								<button onclick="<@pageId>.delete({{:#index}})"><i class="icon_trash"	></i></button>
+							</td>
+						</tr>
+						{{/for}}
+					</script>
+					<script type="text/x-jsrender" id="<@pageId>_projectList_noData_template">	
+						<tr>	
+							<td colspan=9>자료가 없습니다.</td>	
+						</tr>
+					</script>
+				</table>
+			</div>
+		</div>
+	</section>
+</div>
