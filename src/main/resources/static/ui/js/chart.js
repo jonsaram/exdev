@@ -17,90 +17,91 @@
 	    return colorRange[randomIndex];
 	}
 
-    function _createChart(container, categories, series, yAxis1, yAxis2 ) {
+	/* 월자문 순매출 , 1회성 순매출 , 외주자문 순매출 */
+    function _createChart(container, categories, series, yAxis1, yAxis2, unit ) {
 	
-	   let yAxis1Obj =   {
-                labels: {
-                    format: '{value}억',
-                    style: {
-                        color: '#8A8C92',
-                        fontFamily: 'Noto Sans KR',
-                        fontSize: '11px'
-                    }
-                },
-                title: {
-                    text: ''
-                }
-            };
-	   if( yAxis1)yAxis1Obj = yAxis1;
-	   let yAxis2Obj =   { // Secondary yAxis
-                title: {
-                    text: '',
-                    style: {}
-                },
-                labels: {
-                    format: ' '
-                },
-                opposite: true
-            };
-	   if( yAxis2)yAxis2Obj = yAxis2;
+		let yAxis1Obj =   {
+			labels: {
+				format: '{value}'+unit,
+				style: {
+				    color: '#8A8C92',
+				    fontFamily: 'Noto Sans KR',
+				    fontSize: '11px'
+				}
+			},
+			title: {
+			    text: ''
+			}
+		};
+	   	if( yAxis1)yAxis1Obj = yAxis1;
+		let yAxis2Obj =   { // Secondary yAxis
+			title: {
+			    text: '',
+			    style: {}
+			},
+			labels: {
+			    format: ' '
+			},
+			opposite: true
+		};
+	   	if( yAxis2)yAxis2Obj = yAxis2;
 
 
-       const chart =  $("#"+container).highcharts({
-            chart: {
-                zoomType: 'xy',
-                margin: [50, 0, 40, 45],
-            },
-            credits: { enabled: false },
-            title: {
-                text: '',
-                align: 'left'
-            },
-            subtitle: {
-                text: '',
-                align: 'left'
-            },
-            xAxis: [{
-                labels: {
-                    style: {
-                        color: '#8A8C92',
-                        fontFamily: 'Noto Sans KR',
-                        fontSize: '11px'
-                    }
-                },
-                lineColor: '#DADADA', /* x축 라인색 */
-                categories: categories,
-                crosshair: true
-            }],
-            yAxis: [yAxis1Obj, yAxis2Obj],
-            tooltip: {
-                shared: true
-            },
-            legend: {
-                align: 'right',
-                x: 0,
-                verticalAlign: 'top',
-                y: 0,
-                itemStyle: {
-                    color: '#8A8C92',
-                    fontFamily: 'Noto Sans KR',
-                    fontSize: '11px'
-                },
-                symbolRadius: 0,
-                symbolWidth: 10,
-                symbolHeight: 10,
-                x:  0,
-                y: -2,
-            },
-            plotOptions: {
-                line: {
-                    marker: {
-                        enabled: false
-                    }
-                }
-            },
+		const chart =  $("#"+container).highcharts({
+			chart: {
+			    zoomType: 'xy',
+			    margin: [50, 0, 40, 45],
+			},
+			credits: { enabled: false },
+			title: {
+			    text: '',
+			    align: 'left'
+			},
+			subtitle: {
+			    text: '',
+			    align: 'left'
+			},
+			xAxis: [{
+			    labels: {
+			        style: {
+			            color: '#8A8C92',
+			            fontFamily: 'Noto Sans KR',
+			            fontSize: '11px'
+			        }
+			    },
+			    lineColor: '#DADADA', /* x축 라인색 */
+			    categories: categories,
+			    crosshair: true
+			}],
+		    yAxis: [yAxis1Obj, yAxis2Obj],
+		    tooltip: {
+		        shared: true
+		    },
+		    legend: {
+		        align: 'right',
+		        x: 0,
+		        verticalAlign: 'top',
+		        y: 0,
+		        itemStyle: {
+		            color: '#8A8C92',
+		            fontFamily: 'Noto Sans KR',
+		            fontSize: '11px'
+		        },
+		        symbolRadius: 0,
+		        symbolWidth: 10,
+		        symbolHeight: 10,
+		        x:  0,
+		        y: -2,
+		    },
+		    plotOptions: {
+		        line: {
+		            marker: {
+		                enabled: false
+		            }
+		        }
+		    },
 			series : series
-        });
+		});
     }
  
 	function _treemapChart(target, colorAxis, treemapData, func){
@@ -274,11 +275,11 @@
 	}
 
 	function _lineAndColumnChart(target, param){
-debugger;		
-			const thisYearSales = param.thisYearSales;
-			const growthRate = param.growthRate;
-			
-			Highcharts.chart(target, {
+	
+		const thisYearSales = param.thisYearSales;
+		const growthRate = param.growthRate;
+		
+		Highcharts.chart(target, {
 		    chart: {
 		        zoomType: 'xy'
 		    },
@@ -330,11 +331,11 @@ debugger;
 		        x: 130,
 		        verticalAlign: 'top',
 		        y: 0,
-                itemStyle: {
-                    color: '#8A8C92',
-                    fontFamily: 'Noto Sans KR',
-                    fontSize: '11px'
-                },
+		        itemStyle: {
+		            color: '#8A8C92',
+		            fontFamily: 'Noto Sans KR',
+		            fontSize: '11px'
+		        },
 		        floating: false,
 		        backgroundColor:
 		            Highcharts.defaultOptions.legend.backgroundColor || // theme

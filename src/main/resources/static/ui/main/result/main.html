@@ -9,7 +9,7 @@ var <@pageId> = {
 		,comparisonChart 	: (target, param)=>_comparisonChart(target, param)
 		,lineAndColumnChart : (target, param)=>_lineAndColumnChart(target, param)
 		,lineWithLabelsChart: (target, param)=>_lineWithLabelsChart(target, param)
-		,createChart 		: (container, categories, series)=>_createChart(container, categories, series)
+		,createChart 		: (container, categories, series, unit)=>_createChart(container, categories, series, null,null,unit)
 		,pageInit  : () =>{
 			
 			const toDate	= dayjs().format("YYYY-MM-DD");
@@ -55,7 +55,7 @@ var <@pageId> = {
 				<@pageId>.setChart(resultData )
 			});
 			
- 			//순매출 성장률 , 지사별 순매출(전년도 추가) , 상세별 순매출(전년도 막대그래프 2개)   
+   			//순매출 성장률 , 지사별 순매출(전년도 추가) , 상세별 순매출(전년도 막대그래프 2개)   
  			var parm2 = {
 					queryGroup : [{queryId	: "rstMgn.getSellingGrowthRateList"	,requestParm	: {CONTRACT_TYPE : "MONTHLY"} },
 								  {queryId 	: "rstMgn.getSellingBranchList"		,requestParm	: {}}
@@ -100,9 +100,9 @@ var <@pageId> = {
 			const sellingPriceListONLY_ONE_DATA		=  resultData.data["rstMgn.getOrgSellingPriceList_1"];  
 			const sellingPriceListPARTNER_DATA		=  resultData.data["rstMgn.getOrgSellingPriceList_2"];
 			
-			const getOrgSellingPriceListMONTHLY		=  sellingPriceListMONTHLY_DATA.map( (item,idx) =>   item.ORG_SELLING_PRICE );
-			const getOrgSellingPriceListOnly_ONE	=  sellingPriceListONLY_ONE_DATA.map((item,idx) =>   item.ORG_SELLING_PRICE );
-			const getOrgSellingPriceListPARTNER		=  sellingPriceListPARTNER_DATA.map( (item,idx) =>   item.ORG_SELLING_PRICE );
+			const getOrgSellingPriceListMONTHLY		=  sellingPriceListMONTHLY_DATA.map( (item,idx) =>   item.ORG_SELLING_PRICE / 100000000 );
+			const getOrgSellingPriceListOnly_ONE	=  sellingPriceListONLY_ONE_DATA.map((item,idx) =>   item.ORG_SELLING_PRICE / 100000000 );
+			const getOrgSellingPriceListPARTNER		=  sellingPriceListPARTNER_DATA.map( (item,idx) =>   item.ORG_SELLING_PRICE / 100000000 );
 		    
 			const thisYear 							= _.maxBy(_.uniqBy(sellingPriceListMONTHLY_DATA,"MONTH"). map( item=> {return { 'MONTH' : item.MONTH }} ),"MONTH").MONTH.slice(0,4);
 			const lastYear 							= _.minBy(_.uniqBy(sellingPriceListMONTHLY_DATA,"MONTH"). map( item=> {return { 'MONTH' : item.MONTH }} ),"MONTH").MONTH.slice(0,4);
@@ -110,20 +110,20 @@ var <@pageId> = {
 			const categoriesList 	= [  _monthArray,_monthArray,_monthArray ];
 			const seriesList		= [
 										[
-										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListMONTHLY.slice(12),tooltip: {valueSuffix: '억'},yAxis: 0}
 										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
 										[
-										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'},yAxis: 0}
 										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
 										[
-										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListPARTNER.slice(12),tooltip: {valueSuffix: '억'},yAxis: 1}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListPARTNER.slice(12),tooltip: {valueSuffix: '억'},yAxis: 0}
 										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListPARTNER.slice(0,12),tooltip: {valueSuffix:'억'}}
 										],
 									 ];
 
-			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] ) );
+			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx],'억원' ) );
 
 			
 			let sum = getOrgSellingPriceListMONTHLY.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
@@ -231,9 +231,9 @@ var <@pageId> = {
 		,setChart3 : (resultData) =>{
 			
 			//FA 월자문 수수료 , FA 1회성 수수료 , FA 외주자문 수수료
-  			const getFaPayListMONTHLY	=  resultData.data["rstMgn.getFaPayList"	].map( (item,idx) =>   item.TOTAL_PAYMENT );
-			const getFaPayListOnly_ONE	=  resultData.data["rstMgn.getFaPayList_1"	].map( (item,idx) =>   item.TOTAL_PAYMENT );
-			const getFaPayListPARTNER	=  resultData.data["rstMgn.getFaPayList_2"	].map( (item,idx) =>   item.TOTAL_PAYMENT );
+  			const getFaPayListMONTHLY	=  resultData.data["rstMgn.getFaPayList"	].map( (item,idx) =>   item.TOTAL_PAYMENT / 100000000 );
+			const getFaPayListOnly_ONE	=  resultData.data["rstMgn.getFaPayList_1"	].map( (item,idx) =>   item.TOTAL_PAYMENT / 100000000 );
+			const getFaPayListPARTNER	=  resultData.data["rstMgn.getFaPayList_2"	].map( (item,idx) =>   item.TOTAL_PAYMENT / 100000000 );
 
 			const containerList 	= [	"<@pageId>_FA_Monthly_PAY_chart","<@pageId>_FA_Once_PAY_chart","<@pageId>_FA_Partner_PAY_chart"];
 			const categoriesList 	= [  _monthArray,_monthArray,_monthArray];
@@ -252,7 +252,7 @@ var <@pageId> = {
 										],
 									 ];
 
-			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] ) );
+			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] ,'억원') );
 	
 			let sum = getFaPayListMONTHLY.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 			$("#<@pageId>_FA_Monthly_PAY").text(sum.toLocaleString() + "원") ;
@@ -271,7 +271,7 @@ var <@pageId> = {
 			<@pageId>.createChart( "<@pageId>_monthlyContractCnt_chart" 
 									, _monthArray , [{  name: '2024년',type: 'column',	data: getContractCnt.slice(  12),tooltip: {valueSuffix:'건'} ,yAxis	: 1}
 													,{  name: '2023년',type: 'line',	data: getContractCnt.slice(0,12),tooltip: {valueSuffix:'건'}}
-													]);
+													],'건');
 			
 			//FA 매출순위
   			const sellingFAListThis		=  resultData.data["rstMgn.getFASellingOrder"];
@@ -364,8 +364,9 @@ var <@pageId> = {
 																				case "COWORK"	:menuId='MN_RST_CWK';pageId='main_result_coworkConsulting';break;
 																				default:
 																			}
-																			
-																			getMenuPage(menuId,pageId);
+																			const menuIdx = C_MENU.subMenuList.findIndex( menu=> menu.MENU_ID == menuId);
+																			C_MENU.moveSubMenu(menuIdx)
+																			C_MENU.moveMenu(menuId)
 																	   });
 				<@pageId>.subCategoryTreemap();
 			});
@@ -505,7 +506,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
-									<col style="width:55px;"/>
 									<col style="width:60px;"/>
 									<col style="width:11%;"/>
 									<col style="width:11%;"/>
@@ -518,12 +518,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<th scope="col">NO.</th>
 										<th scope="col">년</th>
 										<th scope="col">월</th>
-										<th scope="col">팀</th>
 										<th scope="col">유입<br>경로</th>
 										<th scope="col">구분</th>
 										<th scope="col">담당자</th>
 										<th scope="col">사업자 등록번호</th>
-										<th scope="col">거래처</th>
+										<th scope="col">고객명</th>
 										<th scope="col">컨설팅명</th>
 										<th scope="col">총 계액금액</th>
 										<th scope="col">입금액</th>
@@ -537,7 +536,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			 							<td id='ROWIDX'				>{{:ROWIDX}}</td>
 			 							<td id='CONTRACT_YEAR'		>{{:CONTRACT_YEAR}}</td>
 			 							<td id='CONTRACT_MONTH'		>{{:CONTRACT_MONTH}}</td>
-			 							<td id='TEAM_NM'			>{{:TEAM_NM}}</td>
 			 							<td id='HOW_GET_NM'			>{{:HOW_GET_NM}}</td>
 			 							<td id='CONTRACT_TYPE_NM'	>{{:CONTRACT_TYPE_NM}}</td>
 			 							<td id='USER_NM'			>{{:USER_NM}}</td>
@@ -551,7 +549,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								</script>
 								<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
 									<tr>	
-										<td colspan=12>자료가 없습니다.</td>	
+										<td colspan=11>자료가 없습니다.</td>	
 									</tr>
 								</script>								
 							</table>

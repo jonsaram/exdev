@@ -54,7 +54,7 @@
 		, C.USER_ID
 		, GET_USER_NM(C.USER_ID) USER_NM
 		, U.SALES_TYPE
-		, '' AS TEAM_NM /* 팀이름은 없음. */
+		, '' AS TEAM_NM
 		, GET_CODE_NM('SALES_TYPE', U.SALES_TYPE ) SALES_TYPE_NM
 		, C.CONTACT_DATE
 		, TO_CHAR( C.CONTRACT_DATE , 'YYYY' ) AS CONTRACT_YEAR
@@ -80,25 +80,21 @@
 		, GET_CODE_NM( 'HOW_GET', B.HOW_GET ) HOW_GET_NM
 		, CS.CONSULTING_TYPE 
 		, CS.CONSULTING_NM
-		, (SELECT SUM ( RE.INCOME  ) 
+		, NVL((SELECT SUM ( RE.INCOME  ) 
 			FROM TBL_EXP_RESULT RE 
 			WHERE  C.CONTRACT_ID = RE.CONTRACT_ID AND RE.USE_YN ='Y' AND RE.DEL_YN = 'N' 
-		  ) AS TOT_INCOME
+		  ),0) AS TOT_INCOME
 		,RANK() OVER (ORDER BY (SELECT SUM(RE.INCOME) FROM TBL_EXP_RESULT RE WHERE C.CONTRACT_ID = RE.CONTRACT_ID AND RE.USE_YN ='Y' AND RE.DEL_YN = 'N' ) ) AS RANK
 		FROM TBL_EXP_CONTRACT C
 		,TBL_EXP_BUYER B
 		,TBL_EXP_CONSULTING CS
 		,TBL_EXP_USER U
-/*		,TBL_EXP_TEAM_MEMBER TM
-		,TBL_EXP_TEAM TEAM */
 		WHERE 1=1
 		AND C.BUYER_ID		= B.BUYER_ID 
 		AND C.USE_YN 		= 'Y' AND C.DEL_YN ='N'
 		AND C.CONSULTING_ID	= CS.CONSULTING_ID  
 		AND B.USE_YN 		= 'Y' AND B.DEL_YN ='N'
 		AND C.USER_ID 		= U.USER_ID AND U.USE_YN = 'Y' AND U.DEL_YN = 'N'
-	/*  AND C.CONTRACT_ID 	= TM.CONTRACT_ID
-		AND TM.CONTRACT_ID	= TEAM.CONTRACT_ID(+) 지울것  */
 		AND GET_CODE_NM( 'HOW_GET', B.HOW_GET ) IS NOT NULL
 		<if test=" parm.CONSULTING_ID != null and !parm.CONSULTING_ID.equals('')">
 		AND CS.CONSULTING_ID = #{parm.CONSULTING_ID}
@@ -111,7 +107,8 @@
 		</if>		
 		<if test=" parm.TO_CONTRACT_DATE != null and !parm.TO_CONTRACT_DATE.equals('')">
 		AND C.CONTRACT_DATE <![CDATA[<=]]> TO_DATE( #{parm.TO_CONTRACT_DATE} , 'YYYY-MM-DD')
-		</if>			
+		</if>
+		AND C.PROCESS_STATE !='PRE_CONTRACT'			
 	</sql>	
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getContractList
@@ -289,7 +286,7 @@
 			, SUM(ORG_SELLING_PRICE)			AS ORG_SELLING_PRICE
 			FROM
 			TBL_EXP_CONTRACT C
-			,<include refid="getResultDataDuringTwoYears"/> R
+			,(<include refid="getResultDataDuringTwoYears"/>) R
 			WHERE 	C.CONTRACT_TYPE	= 'MONTHLY'
 			AND		C.CONTRACT_ID	= R.CONTRACT_ID 
 			AND (	C.PROCESS_STATE = 'CONTRACTED'
