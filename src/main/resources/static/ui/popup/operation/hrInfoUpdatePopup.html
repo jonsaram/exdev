@@ -60,6 +60,7 @@
 					if( $("#<@popupId>_" + key).length > 0 ){
 						
 					    $("#<@popupId>_" + key).val(value);
+						
 					}else{
 
 					    <@popupId>.setSingleBox(key,value);
@@ -83,47 +84,49 @@
 				C_POP.close(returnData);
 		 }
 		 ,apply : () =>{
-			 
-			 if( <@popupId>.validation() == false){
-				 return;
-			 }
 
-			 let returnData = {};
-			 const $inputs = $("#<@popupId>_items input");
-			 $.each( $inputs, function(){
+			 <@popupId>.validation( ()=>{
+			 
+				 let returnData = {};
+				 const $inputs = $("#<@popupId>_items input");
+				 $.each( $inputs, function(){
+					 
+					 let key = $(this).attr("id").replace("<@popupId>_","");
+					 let val = $(this).val();
+					 
+					 if(key){
+											 
+					 	returnData[key] = val;
+					 }
+				 })
 				 
-				 let key = $(this).attr("id").replace("<@popupId>_","");
-				 let val = $(this).val();
+				 returnData['ADDR'] = returnData['ADDR1'] +" "+ returnData['ADDR2'];
+
+				 const $selects = $("#<@popupId>_items [id^='<@popupId>_select']");
+				 $.each( $selects, function(){
+					 let id  = $(this).attr("id");
+					 let key = $(this).attr("column");
+					 if(key){
+						key 	 = key.indexOf("<@popupId>_") > -1 ? key.replace("<@popupId>_","") : key;
+						let val = C_UICOM.getData(id);
+						returnData[key] = val;
+					 }
+				 })			 
+
+				 returnData['RELOAD_IMG']		= <@popupId>.RELOAD_IMG;
+				 returnData['STATE']			= 'INUSE';
+				 returnData['ROLE_ID']			= C_UICOM.getData("<@popupId>_selectSysRole");
+				 returnData['RECOMMENDER_ID']	= <@popupId>.recvData.param.RECOMMENDER_ID;
+				 returnData['RECOMMENDER_NM']	= <@popupId>.recvData.param.RECOMMENDER_NM;
 				 
-				 if(key){
-										 
-				 	returnData[key] = val;
-				 }
+
+				 C_POP.confirm("입력한 정보로 저장 하시겠습니까?", function() {
+				 	<@popupId>.close(returnData);
+		         });
+				 
 			 })
-			 
-			 returnData['ADDR'] = returnData['ADDR1'] +" "+ returnData['ADDR2'];
-
-			 const $selects = $("#<@popupId>_items [id^='<@popupId>_select']");
-			 $.each( $selects, function(){
-				 let id  = $(this).attr("id");
-				 let key = $(this).attr("column");
-				 if(key){
-					key 	 = key.indexOf("<@popupId>_") > -1 ? key.replace("<@popupId>_","") : key;
-					let val = C_UICOM.getData(id);
-					returnData[key] = val;
-				 }
-			 })			 
-
-			 returnData['RELOAD_IMG']	= <@popupId>.RELOAD_IMG;
-			 returnData['STATE']		= 'INUSE';
-			 returnData['ROLE_ID']		= C_UICOM.getData("<@popupId>_selectSysRole");
-			 
-
-			 C_POP.confirm("입력한 정보로 저장 하시겠습니까?", function() {
-			 	<@popupId>.close(returnData);
-	         });
 		 }
-		 ,validation : () =>{
+		 ,validation : (func) =>{
 
 			 if( isEmpty($("#<@popupId>_USER_ID").val()) ) {C_POP.alert("사원 ID를 입력하여 주십시오."); return false;}
 			 if( <@popupId>.OLD_GRP_FILE_ID != $("#<@popupId>_USER_ID").val() ){
@@ -132,16 +135,18 @@
 				 if( dbUser ){C_POP.alert("이미 존재하는 사원 ID입니다.\n다시입력하여 주십시오."); return false;}
 			 }
 			 
-			 if( isEmpty($("#<@popupId>_USER_NM").val()) ) {C_POP.alert("이름을 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_PHONE_NUM").val()) ) {C_POP.alert("핸드폰번호를 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_JUMIN").val()) ) {C_POP.alert("주민등록번호를 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_REG_DATE").val()) ) {C_POP.alert("입사일을 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_E_MAIL").val()) ) {C_POP.alert("이메일을 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_ADDR1").val()) ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_ADDR2").val()) ) {C_POP.alert("상세주소를 입력하여 주십시오."); return false;}
-			 const phonePattern = /^01(?:0|1|[6-9])(?:\d{3}|\d{4})\d{4}$/;
-			 //if( !phonePattern.test($("#<@popupId>PHONE_NUM").val())){C_POP.alert("올바른 핸드폰번호를 입력하여 주십시오."); return false;}
-			 return true;
+			if( isEmpty($("#<@popupId>_USER_NM").val()) ) {C_POP.alert("이름을 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_PHONE_NUM").val()) ) {C_POP.alert("핸드폰번호를 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_JUMIN").val()) ) {C_POP.alert("주민등록번호를 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_REG_DATE").val()) ) {C_POP.alert("입사일을 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_E_MAIL").val()) ) {C_POP.alert("이메일을 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_ADDR1").val()) ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_ADDR2").val()) ) {C_POP.alert("상세주소를 입력하여 주십시오."); return false;}
+			const userValid 	= <@popupId><@popupId>_RECOMMENDER.isValid;
+			if( !userValid 	|| isEmpty(<@popupId>.recvData.param.RECOMMENDER_ID) ) {C_POP.alert("추천인을 조회하여 입력하여 주십시오."); return false;}
+			
+			if(func)func();
+			return true;
 			 
 		 }
 		 ,fnRadioCheckValue : (name , pValue) => {
@@ -416,8 +421,40 @@
 	 			if ( validation ) return false;
 	 			else alert("등록가능한 아이디 입니다. ");
  			} 
- 			
 			
+		}
+		,setComponent : () => {
+			
+			let parm = {
+				 gubun 			: "USER"
+				,placeholder 	: "추천인이름(추천인ID)"
+				,defaultInfo	: {USER_ID : <@popupId>.recvData.param.RECOMMENDER_ID
+								,  USER_NM : <@popupId>.recvData.param.RECOMMENDER_NM
+								  }
+			}
+			C_COMP.import("<@popupId>_RECOMMENDER", "component_common_compSelectUser",parm , function(retData) {
+				
+				$("#<@popupId>_RECOMMEND_USER").val(`${retData.USER_NM}(${retData.USER_ID})`);
+				<@popupId>.recvData.param.RECOMMENDER_ID = retData.USER_ID;
+				<@popupId>.recvData.param.RECOMMENDER_NM = retData.USER_NM;
+				
+			});	
+		}
+		,setImage : () =>{
+			
+			if( <@popupId>.USER_ID ){
+				
+				<@popupId>.OLD_GRP_FILE_ID = <@popupId>.USER_ID ;
+				_getImageFile("<@popupId>_userImg",{GRP_FILE_ID:<@popupId>.USER_ID , OWNER_CD:<@popupId>.OWNER_CD });
+			}			
+		}
+		,setHiarachy : () =>{
+			<@popupId>.hiarachySelData = Object.entries(<@popupId>.recvData.param)
+			.filter(item => item[0].indexOf("BRANCH_ID") > -1)
+		    .reduce((acc, item) => {
+		        acc[item[0]] = item[1];
+		        return acc;
+		    }, {});			
 		}
 	}
 	// Popup Load가 완료된후 실행 된다.
@@ -429,18 +466,11 @@
 
 		<@popupId>.mode = <@popupId>.recvData.mode;
 
-		if( <@popupId>.USER_ID ){
-			
-			<@popupId>.OLD_GRP_FILE_ID = <@popupId>.USER_ID ;
-			_getImageFile("<@popupId>_userImg",{GRP_FILE_ID:<@popupId>.USER_ID , OWNER_CD:<@popupId>.OWNER_CD });
-		}
+		<@popupId>.setImage();
 
-		<@popupId>.hiarachySelData = Object.entries(<@popupId>.recvData.param)
-		.filter(item => item[0].indexOf("BRANCH_ID") > -1)
-	    .reduce((acc, item) => {
-	        acc[item[0]] = item[1];
-	        return acc;
-	    }, {});
+		<@popupId>.setHiarachy();
+		
+		<@popupId>.setComponent();
 		
 		_getBranchSelectData(<@popupId>.pageInit);
 		
@@ -455,11 +485,18 @@
 			$("#<@popupId> .tit").html( "내정보 보기" );
 			
 		}
-		
-		//if( <@popupId>.paMap["ROLE_ID"] =="SYSTEM" ||<@popupId>.paMap["ROLE_ID"] =="MANAGER" ){
-		//	$("#<@popupId>_selectSysRoleLi").show();
-		//}else 
-			$("#<@popupId>_selectSysRoleLi").hide(); 
+		debugger;
+
+ 		setTimeout( () =>{
+ 			
+			C_UICOM.setSingleBox("<@popupId>_selectSysRole", data.param.ROLE_ID || 'USER');
+/* 			if( <@popupId>.paMap["ROLE_ID"] =="SYSTEM" ||<@popupId>.paMap["ROLE_ID"] =="MANAGER" ){
+				$("#<@popupId>_selectSysRole button").prop('disabled',false);
+			}else {
+				$("#<@popupId>_selectSysRole button").prop('disabled',true); 
+			} */
+			
+		},100)
 	});
 </script>
 
@@ -523,10 +560,10 @@
 						<label>이메일</label>
 						<div class="info"><input type="text" id="<@popupId>_E_MAIL" style="width:100%"></div>
 					</li>
-					<li id="<@popupId>_selectSysRoleLi"  style='display:none'>
+					<li id="<@popupId>_selectSysRoleLi" disabled>
 						<label>시스템 ROLE</label>
 						<div class="info">							
-							<div id="<@popupId>_selectSysRole" class="select_box" style="width:100%">
+							<div id="<@popupId>_selectSysRole" class="select_box" style="width:100%" disabled>
 			                </div>
 						</div>
 					</li>
@@ -615,14 +652,19 @@
 			                </div>
 						</div>
 					</li>
-					<li class="w100">
+					<li>
+						<label>추천인</label>
+						<div class="info">
+							<div  id="<@popupId>_RECOMMENDER" class="search_inputWrap" style="width:100%">
+							</div>
+						</div>
+					</li>
+					<li>
 						<label>DESC</label>
 						<div class="info">
 							<input type="text" id="<@popupId>_USER_DESC" style="width:100%">
 						</div>
 					</li>
-					
-					
 				</ul>
 			</section>
 			<div id="fileuploadComp"></div>
