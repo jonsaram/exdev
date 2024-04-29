@@ -8,7 +8,9 @@
        ,calendar : ''
        ,toDay : ''
        ,addSchedulePopup : function() {    
-    
+
+            console.log("====== addSchedulePopup ======");
+           
             let date = new Date();
             let todayPop = date.getFullYear() +
                       '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
@@ -16,7 +18,6 @@
     
            let requestParm = {};
            requestParm["today"]       = todayPop;
-           
            C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                 
                let parm = {};
@@ -60,6 +61,8 @@
                     let requestParm = {};
                     requestParm["today"]  = info.dateStr;
                     
+                    console.log("====== dateClick ======");
+                    
                     C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                         console.log('eventClick  popup_addSchedulePopup =>');
                         console.log('eventClick  popup_sched_dtlSchedulePopup obj.refresh =>'+obj.refresh);
@@ -70,6 +73,9 @@
                     })  
                   },
                 eventClick : function(obj) {
+                    
+
+                    console.log("====== eventClick ======");
                     
                     let date = new Date();
                     let todayPop = date.getFullYear() +
@@ -108,7 +114,14 @@
             	let title = $(this).attr("title");
             	dalert(title);
             	let cd = <@pageId>.calendar.getCurrentData();
-            	dalert(cd.dateProfile.currentRange);
+            	//dalert(cd.dateProfile.currentRange);
+            	
+            	var start = cd.dateProfile.currentRange.start;
+            	var end   = cd.dateProfile.currentRange.end;
+            	
+            	console.log("kbntt start["+start+"]   end["+end+"]   ");
+            	
+            	
             });
             
          }
@@ -132,6 +145,15 @@
        }
        ,getAllschedule : function( requestParm ) {
            console.log("getAllschedule");
+           
+           let cd = <@pageId>.calendar.getCurrentData();
+           //dalert(cd.dateProfile.currentRange);
+           
+           var start = cd.dateProfile.currentRange.start;
+           var end   = cd.dateProfile.currentRange.end;
+           
+           console.log("kbntt start["+start+"]   end["+end+"]   ");
+           
            <@pageId>.removeAllschedule();
            
            let parm = {
@@ -291,9 +313,11 @@
     C_PM.onLoadPage("<@pageId>", function() {
         C_COM.hideLeftMenu();
         
-        <@pageId>.init("A");
+        <@pageId>.init();
+        
         let parm = {};
         <@pageId>.getAllschedule(parm);
+        /*
         <@pageId>.getTeamUser();
         
         let date = new Date();
@@ -306,9 +330,9 @@
                 <@pageId>.setCalendar(dateString);
             }
         });
-        
+        */
         //오늘의 일정
-        <@pageId>.getTodaySchedule(<@pageId>.toDay);
+        //<@pageId>.getTodaySchedule(<@pageId>.toDay);
     });
     // History back으로 이동해왔을 경우 이루틴이 실행된다.
     C_HM.onReturn("<@pageId>", function(pageId, data) {

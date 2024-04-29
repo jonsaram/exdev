@@ -162,6 +162,63 @@
     <insert id="insertSchedule" parameterType="map" >
         /* schedule.insertSchedule */
         INSERT INTO TBL_EXP_SCHEDULE (
+              SP_CSTM_ID             
+             ,SCHEDULE_ID            
+             ,SCHEDULE_GRP_ID        
+             ,LOOP_TYPE              
+             ,LOOP_TYPE_DTL_CD       
+             ,LOOP_TYPE_DTL_VAL      
+             ,SCHEDULE_LOOP_END_DATE 
+             ,TITLE                  
+             ,WORK_TYPE              
+             ,ALL_APPLY_YN           
+             ,TIME_TYPE              
+             ,SCHEDULE_START_DATE    
+             ,START_TIME_HOUR        
+             ,START_TIME_MINUTE      
+             ,SCHEDULE_END_DATE      
+             ,END_TIME_HOUR          
+             ,END_TIME_MINUTE        
+             ,CONTRACT_ID            
+             ,POSITION               
+             ,SECRET_YN              
+             ,DESCRIPTION            
+             ,USER_ID                
+             ,CREATE_USER            
+             ,CREATE_DATE         
+        )
+        VALUES(
+              #{sessionVo.spCstmId}                              
+             ,#{scheduleId}                                      
+             ,#{scheduleGrpId}                                   
+             ,#{loopType}                                        
+             ,#{loopTypeDtlCd}                                   
+             ,#{loopTypeDtlVal}         
+             ,(TO_DATE(#{loopLimitDate}, 'yyyy-mm-dd'))
+             ,#{title}                                           
+             ,#{workType}                                        
+             ,#{allApplyYn}                                      
+             ,#{timeType}                                        
+             ,(TO_DATE(#{scheduleStartDate}, 'yyyy-mm-dd'))
+             ,#{startTimeH}                                      
+             ,#{startTimeM}                                      
+             ,(TO_DATE(#{scheduleEndDate}, 'yyyy-mm-dd'))
+             ,#{endTimeH}                                        
+             ,#{startTimeM}                                      
+             ,#{contractId}                                      
+             ,#{position}                                        
+             ,#{secretYn}                                        
+             ,#{description}                                     
+             ,#{sessionVo.userId}                                
+             ,#{sessionVo.userId}                                
+             ,SYSDATE  
+        )
+    </insert>
+    
+    <!-- 일정 입력  이응규 -->
+    <insert id="insertSchedule_BAK" parameterType="map" >
+        /* schedule.insertSchedule */
+        INSERT INTO TBL_EXP_SCHEDULE (
               SCHEDULE_ID 
              ,SCHEDULE_GRP_ID     
              ,TITLE             
