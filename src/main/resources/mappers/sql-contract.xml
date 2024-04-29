@@ -487,7 +487,6 @@
 		WHEN MATCHED THEN
 			UPDATE SET
 				 T.USER_ID 				= #{USER_ID				}
-				,T.CONSULTANT_USER_ID 	= '${CONSULTANT_USER_ID	}'
 				,T.BUYER_ID 			= #{BUYER_ID			}
 				,T.CONSULTING_ID 		= #{CONSULTING_ID		}
 				,T.UPDATE_USER			= #{sessionVo.userId	}
@@ -496,7 +495,6 @@
 			INSERT ( 
 				 CONTRACT_ID
 				,USER_ID
-				,CONSULTANT_USER_ID
 				,BUYER_ID
 				,CONSULTING_ID
 				,PROCESS_STATE
@@ -508,7 +506,6 @@
 			) VALUES ( 
 				 #{CONTRACT_ID			}
 				,#{USER_ID				}
-				,'${CONSULTANT_USER_ID	}'
 				,#{BUYER_ID				}
 				,#{CONSULTING_ID		}
 				,'PRE_CONTRACT'
@@ -544,30 +541,35 @@
 				AND A.CREATE_DATE = B.CREATE_DATE
 		)
 		SELECT 
-			 CONTRACT_ID
-			,USER_ID
+			 A.CONTRACT_ID
+			,A.USER_ID
 			,GET_USER_NM(A.USER_ID) AS USER_NM
-			,CONSULTANT_USER_ID
-			,GET_USER_NM(A.CONSULTANT_USER_ID) AS CONSULTANT_USER_NM
-			,BUYER_ID
+			,B.USER_ID AS CONSULTANT_USER_ID
+			,GET_USER_NM(B.USER_ID) AS CONSULTANT_USER_NM
+			,A.BUYER_ID
 			,(SELECT BUYER_NM FROM TBL_EXP_BUYER WHERE BUYER_ID = A.BUYER_ID) AS BUYER_NM
-			,CONSULTING_ID
+			,A.CONSULTING_ID
 			,(SELECT CONSULTING_NM FROM TBL_EXP_CONSULTING WHERE CONSULTING_ID = A.CONSULTING_ID) AS CONSULTING_NM
-			,PROCESS_STATE
+			,A.PROCESS_STATE
 			,GET_CODE_NM('PROCESS_STATE', PROCESS_STATE) AS PROCESS_STATE_NM
 			,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) AS UPDATE_DATE
 			,(SELECT GET_CODE_NM('APPROVAL_USER_PROC', B.STATE) FROM LRAPR B WHERE A.CONTRACT_ID = B.RELATION_ID) AS APP_STATE_NM
 		FROM 
-		 	TBL_EXP_CONTRACT  A
+		 	  TBL_EXP_CONTRACT  	A
+		 	 ,TBL_EXP_TEAM_MEMBER 	B
 		WHERE  1=1
+			AND B.CONTRACT_ID(+)    = A.CONTRACT_ID
+			AND B.TEAM_USER_ROLE(+) = 'EXEC'
 			AND	(
-					UPDATE_USER 		= #{sessionVo.userId}
-				OR  USER_ID 			= #{sessionVo.userId}
-				OR  CONSULTANT_USER_ID 	= #{sessionVo.userId}
+					A.UPDATE_USER 		= #{sessionVo.userId}
+				OR  A.USER_ID 			= #{sessionVo.userId}
+				OR  B.USER_ID 			= #{sessionVo.userId}
 			)
 			AND DEL_YN 		= 'N'
-			AND	SP_CSTM_ID	= #{sessionVo.spCstmId}
-		ORDER BY UPDATE_DATE DESC		
+			AND	A.SP_CSTM_ID	= #{sessionVo.spCstmId}
+		ORDER BY UPDATE_DATE DESC				
+		
+				
 	</select>	
 
 
@@ -761,5 +763,15 @@
 			,#{sessionVo.spCstmId	}
 		)
 	</update>
+
+	<update id="updateTeamState" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	contract.updateTeamState
+			계약 관련 팀 상태 승인으로 변경
+		*/
+		UPDATE TBL_EXP_TEAM
+		SET ALLOWED= 'Y'
+		WHERE CONTRACT_ID	 = #{CONTRACT_ID}
+	</update>
+
 			
 </mapper>

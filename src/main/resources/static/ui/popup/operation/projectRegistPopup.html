@@ -4,7 +4,6 @@
 		 CONTRACT_ID 		: "" 	
 		,buyerInfo 			: {}
 		,userInfo			: {}	
-		,consultantUserInfo	: {}	
 		,consultingInfo		: {}	
 	 	,buyerSearchPopup : function(gubun) {
 	      	
@@ -26,18 +25,6 @@
 				$("#<@popupId>_USER").val(retData.USER_NM);
 			});
 		 }
-	 	,consultantUserSearchPopup : function(gubun) {
-	      	
-			let param = {};
-
-			C_POP.open('popup_system_memberSearchPopup', {param : {}, gubun:gubun}, function(retData) {
-				<@popupId>.consultantUserInfo = retData;
-				
-				<@popupId>.consultantUserInfo.CONSULTANT_USER_ID = retData.USER_ID;
-				
-				$("#<@popupId>_CONSULTANT_USER").val(retData.USER_NM);
-			});
-		 }
 		,consultingSearchPopup : () => {
 			let param = {searchText:""};
 	
@@ -52,7 +39,6 @@
 			let saveData = {
 				 CONTRACT_ID		: <@popupId>.CONTRACT_ID
 				,USER_ID 			: <@popupId>.userInfo			.USER_ID
-				,CONSULTANT_USER_ID	: <@popupId>.consultantUserInfo	.CONSULTANT_USER_ID
 				,BUYER_ID 			: <@popupId>.buyerInfo		.BUYER_ID
 				,CONSULTING_ID 		: <@popupId>.consultingInfo	.CONSULTING_ID
 			}
@@ -98,12 +84,10 @@
 			let projectItem = parm.projectItem;
 
 			<@popupId>.userInfo				.USER_ID 			= projectItem.USER_ID;
-			<@popupId>.consultantUserInfo	.CONSULTANT_USER_ID = projectItem.CONSULTANT_USER_ID;
 			<@popupId>.buyerInfo			.BUYER_ID 			= projectItem.BUYER_ID;
 			<@popupId>.consultingInfo		.CONSULTING_ID 		= projectItem.CONSULTING_ID;
 			
 			$("#<@popupId>_USER"			).val(projectItem.USER_NM				);
-			$("#<@popupId>_CONSULTANT_USER"	).val(projectItem.CONSULTANT_USER_NM	);
 			$("#<@popupId>_BUYER"			).val(projectItem.BUYER_NM				);
 			$("#<@popupId>_CONSULTING"		).val(projectItem.CONSULTING_NM			);
 			
@@ -136,15 +120,6 @@
 						<div class="search_inputWrap" style="width:100%">
 							<input type="search" id="<@popupId>_USER" placeholder="사원이름(사원ID)" onkeypress="<@popupId>.handleKeyPress(event)">
 							<a  href="javascript:void(0);" onclick="<@popupId>.userSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
-						</div>
-					</div>
-				</li>
-				<li class="w100">
-					<label>실행담당자</label>
-					<div class="info">
-						<div class="search_inputWrap" style="width:100%">
-							<input type="search" id="<@popupId>_CONSULTANT_USER" placeholder="사원이름(사원ID)" onkeypress="<@popupId>.handleKeyPress(event)">
-							<a  href="javascript:void(0);" onclick="<@popupId>.consultantUserSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
 						</div>
 					</div>
 				</li>

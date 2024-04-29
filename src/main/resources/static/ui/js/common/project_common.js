@@ -65,8 +65,23 @@ var C_COM = {
 		if(isEmpty(codeInfo)) {
 			return {};
 		}
-		
-		return codeInfo.codeMap[codeId];
+		if(isValid(codeId)) {
+			return codeInfo.codeMap[codeId];	
+		} else {
+			return codeInfo.codeMap;
+		}
+	 }  
+	,getCodeMap : function(grpCodeId) {
+		let codeMap = C_COM.getCodeAttr(grpCodeId);
+		if(isEmpty(codeMap)) {
+			return {}
+		} else {
+			let retMap = {};
+			$.each(codeMap, function(key, obj) {
+				retMap[key] = obj.CODE_NM
+			});
+			return retMap;
+		}
 	 }  
 	,addKeypressListener : function(pageId, callback) {
 		if(typeof callback != "function") {
