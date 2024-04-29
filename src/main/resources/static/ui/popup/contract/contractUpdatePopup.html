@@ -7,8 +7,6 @@ var <@popupId> = {
  	 ,addCoworkRtnData : []
  	 ,addSalseManRtnData : []
  	 ,addSuggesterRtnData : []
- 	 ,userId :''
- 	 ,buyerId:''
  	 ,consultingId:''
  	 ,processState:''
  	 ,consultantUser:{}
@@ -17,48 +15,53 @@ var <@popupId> = {
 		if(isEmpty(returnData)) returnData = {};
 		C_POP.close(returnData);
 	 }
- 	 ,makeReturnData : (validCheck) => {
+ 	 ,makeReturnData : () => {
  		 
-		 let returnData = {CONTRACT_ID : <@popupId>.updatingData["CONTRACT_ID"]};
-		 const $inputs = $("#<@popupId>_items input");
-		 $.each( $inputs, function(){
+		let returnData = {CONTRACT_ID : <@popupId>.updatingData["CONTRACT_ID"]};
+		const $inputs = $("#<@popupId>_items input");
+		$.each( $inputs, function(){
 
-			 if( $(this).attr("id")){
-				 let key = $(this).attr("id").replace("<@popupId>_","");
-				 let val = $(this).val();
+			if( $(this).attr("id")){
+				let key = $(this).attr("id").replace("<@popupId>_","");
+				let val = $(this).val();
 				 
-				 if(key)
-				 	returnData[key] = val;
-			 }
-		 })
-		 returnData["CONTRACT_TYPE"]	= C_UICOM.getData("<@popupId>_selectContractType");
-		 returnData["CONSULTING_CLASS"]	= C_UICOM.getData("<@popupId>_selectConsultingClass");
+				if(key)
+					returnData[key] = val;
+			}
+		})
+		returnData["CONTRACT_TYPE"]		= C_UICOM.getData("<@popupId>_selectContractType");
+		returnData["CONSULTING_CLASS"]	= C_UICOM.getData("<@popupId>_selectConsultingClass");
 		 
-		 returnData["USER_ID"]			= <@popupId>.userId;
-		 returnData["BUYER_ID"]			= <@popupId>.buyerId;
-		 returnData["CONSULTING_ID"]	= <@popupId>.consultingId;
+		returnData["USER_ID"]			= <@popupId>.updatingData["USER_ID"]
+		returnData["BUYER_ID"]			= <@popupId>.updatingData["BUYER_ID"]
+		returnData["CONSULTING_ID"]		= <@popupId>.consultingId;
 
-		 returnData["CONTRACT_MEMBER"]	= <@popupId>.getContractMember(returnData["CONTRACT_ID"],returnData["USER_ID"]);
+		returnData["CONTRACT_MEMBER"]	= <@popupId>.getContractMember(returnData["CONTRACT_ID"],returnData["USER_ID"]);
+		returnData["PROCESS_STATE"]		= <@popupId>.processState;
 		 
-		 if( validCheck && <@popupId>.validation(returnData) == false){
-			 return null;
-		 }
+		if( <@popupId>.validation(returnData) == false){
+			return null;
+		}
 		 
-		 return returnData;
+		return returnData;
+		
  	 }
-	 ,apply : (processState) =>{
+	 ,apply : () =>{
 
-		const returnData = <@popupId>.makeReturnData(false);
-		 
-		returnData["PROCESS_STATE"]	= <@popupId>.processState;
+		const returnData = <@popupId>.makeReturnData();
+		
+		if( returnData == null )return;
 		 
 		<@popupId>.close(returnData);
 		 
 	 }
 	 ,validation : (returnData) =>{
 	 
- 		 if( isEmpty(returnData["BUYER_ID"]) ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
- 		 if( isEmpty(returnData["USER_ID"]) ) {C_POP.alert("계약담당자를 입력하여 주십시오."); return false;}
+		 const buyerValid 	= <@popupId><@popupId>_BUYER.isValid;
+		 const userValid	= <@popupId><@popupId>_USER.isValid;
+
+ 		 if( !buyerValid 	|| isEmpty(returnData["BUYER_ID"]) ) {C_POP.alert("고객명을 조회하여 입력하여 주십시오."); return false;}
+ 		 if( !userValid		|| isEmpty(returnData["USER_ID"]) ) {C_POP.alert("계약담당자를 조회하여 입력하여 주십시오."); return false;}
 		 if( isEmpty(returnData["CONTACT_DATE"]) ) {C_POP.alert("상담일을 선택하여 주십시오."); return false;}
 		 if( isEmpty(returnData["CONTRACT_DATE"]) ) {C_POP.alert("자문계약일을 선택하여 주십시오."); return false;}
 		 if( isEmpty(returnData["EXPIRE_DATE"]) ) {C_POP.alert("만료일을 선택하여 주십시오."); return false;}
@@ -93,7 +96,7 @@ var <@popupId> = {
 		
 		<@popupId>.savedContractMemberSearch();
 		
-		<@popupId>.memberSet('old');
+		<@popupId>.memberSet();
 		
 		const consultingTypeNm	= <@popupId>.updatingData["CONSULTING_TYPE_NM"];
 		const consultingNm		= <@popupId>.updatingData["CONSULTING_NM"];
@@ -254,7 +257,6 @@ var <@popupId> = {
 
 			if( resultData.data ){
 				
-				<@popupId>.RECOMMENDER 	= resultData.data[0];
 				const recommender 		= resultData.data[0];
 				$("#<@popupId>_suggester td#ROLE_NM").attr("ROLE_NM", recommender.ROLE_NM).html(recommender.ROLE_NM)
 				$("#<@popupId>_suggester td#USER_ID").attr("USER_ID", recommender.USER_ID).html(recommender.USER_ID)
@@ -273,9 +275,8 @@ var <@popupId> = {
   	 	$("#<@popupId> .tit").html( title );
 		
 	}
-	,memberSet : (gubun) => {
+	,memberSet : () => {
 
-		if( gubun == 'old'){
 			
 			const buyerId	= <@popupId>.updatingData["BUYER_ID"];
 			const buyerNm	= <@popupId>.updatingData["BUYER_NM"];
@@ -290,39 +291,6 @@ var <@popupId> = {
 				$("#<@popupId>_USER").val(userNm+ " ("+userId+")");
 				if( recommId )<@popupId>.selectRecommender(recommId);
 			}
-			
-		}else{
-
-			const newBuyer  = <@popupId>.updatingData["NEW_BUYER"];
-			if( newBuyer ){
-				const buyerId	= newBuyer["BUYER_ID"];
-				const buyerNm	= newBuyer["BUYER_NM"];
-				if( buyerId)$("#<@popupId>_BUYER").val(buyerNm+ " ("+buyerId+")");
-			}
-			
-			const newUser  	= <@popupId>.updatingData["NEW_USER"];
-			if( newUser ){
-				const 	userId	= newUser["USER_ID"];
-				const 	userNm	= newUser["USER_NM"];
-				const	recommId= newUser["RECOMMENDER_ID"];
-				if( userId){
-					$("#<@popupId>_USER").val(userNm+ " ("+userId+")");
-
-					if( recommId )<@popupId>.selectRecommender(recommId);
-					else{
-						$("#<@popupId>_suggester td#ROLE_NM").attr("ROLE_NM", '').html("")
-						$("#<@popupId>_suggester td#USER_ID").attr("USER_ID", '').html("")
-						$("#<@popupId>_suggester td#USER_NM").attr("USER_NM", '').html("")
-						$("#<@popupId>_suggester td#GRADE_NM").attr("GRADE_NM", '').html("")
-					}
-					
- 					$("#<@popupId>_salesManList td#ROLE_NM").html(newUser.ROLE_NM);
-					$("#<@popupId>_salesManList td#USER_ID").html(newUser.USER_ID);
-					$("#<@popupId>_salesManList td#USER_NM").html(newUser.USER_NM);
-					$("#<@popupId>_salesManList td#GRADE_NM").html(newUser.GRADE_NM);
-				}
-			}
-		}
 
 	}
 	,consultingSearchPopup : () => {
@@ -343,7 +311,7 @@ var <@popupId> = {
 	}
 	,setHandler : () => {
 
-		$("#<@popupId>_addCowork").on('click', (event) => {
+/* 		$("#<@popupId>_addCowork").on('click', (event) => {
 			
 			event.preventDefault();
 			const CONTRACT_ID	= 	<@popupId>.updatingData["CONTRACT_ID"] ;
@@ -365,7 +333,7 @@ var <@popupId> = {
 			});
 			
 		})
-		
+ */		
 		$("a[name^='<@popupId>_tab']").on('click', (obj) => {
 			
 		    const targetName = $(obj.target).attr("name");
@@ -457,9 +425,9 @@ var <@popupId> = {
 		}
 		C_COMP.import("<@popupId>_BUYER", "component_common_compSelectUser",parm , function(retData) {
 
-			<@popupId>.updatingData["NEW_BUYER"]	= retData ;
-			<@popupId>.buyerId = retData["BUYER_ID"]
-			<@popupId>.memberSet('new');
+ 			<@popupId>.updatingData["BUYER_ID"] = retData["BUYER_ID"];
+ 			<@popupId>.updatingData["BUYER_NM"] = retData["BUYER_NM"];
+			<@popupId>.memberSet();
 			
 		});	
 
@@ -469,10 +437,20 @@ var <@popupId> = {
 			,defaultInfo	: <@popupId>.updatingData
 		}
 		C_COMP.import("<@popupId>_USER", "component_common_compSelectUser",parm2 , function(retData) {
+	
+			<@popupId>.updatingData["USER_ID"] 	= retData["USER_ID"];
+			<@popupId>.updatingData["USER_NM"] 	= retData["USER_NM"];
+			<@popupId>.updatingData["ROLE_NM"] 	= retData["ROLE_NM"];
+			<@popupId>.updatingData["GRADE_NM"] = retData["GRADE_NM"];
+			<@popupId>.updatingData["RECOMMENDER_ID"] 	= retData["RECOMMENDER_ID"];
 			
-			<@popupId>.updatingData["NEW_USER"]	= retData ;
-			<@popupId>.userId = retData["USER_ID"]
-			<@popupId>.memberSet('new');
+			$("#<@popupId>_salesManList td#ROLE_NM" ).html(retData["ROLE_NM"]);
+			$("#<@popupId>_salesManList td#USER_ID" ).html(retData["USER_ID"]);
+			$("#<@popupId>_salesManList td#USER_NM" ).html(retData["USER_NM"]);
+			$("#<@popupId>_salesManList td#GRADE_NM").html(retData["GRADE_NM"]);
+
+
+			<@popupId>.memberSet();			
 			
 		});	
 	}
@@ -486,8 +464,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.updatingData		= <@popupId>.recvData.param;
 	
 	<@popupId>.resulting		= <@popupId>.updatingData?.RESULTING;
-	<@popupId>.userId 			= <@popupId>.updatingData?.USER_ID;
-	<@popupId>.buyerId 			= <@popupId>.updatingData?.BUYER_ID;
 	<@popupId>.consultingId		= <@popupId>.updatingData?.CONSULTING_ID;
 	<@popupId>.consultantUser	= {ID:<@popupId>.updatingData?.CONSULTANT_USER_ID, 
 								   NM:<@popupId>.updatingData?.CONSULTANT_USER_NM};
