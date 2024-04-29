@@ -1,23 +1,33 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@compId> = {
-		 retData : {}	
+		 isValid : false
+		,retData : {}	
 		,memberSearchPopup : function() {
 			let value = $("#<@compId>_val").val();
+			value= value.split("(")[0].trim();
 	    	_memberSearchPopup( {autoRtn:true, gubun:'<@gubun>', searchText:value } , (retData)=>{
 	    		<@compId>.retData = retData;
 	    		<@compId>.setInput(retData);
 	    	});
 		 } 
 		,handleKeyPress : (event, gubun) => {
-		    if (event.key === 'Enter') {
-		    	const value = event.target.value;
-		    	_memberSearchPopup( {autoRtn:true, gubun:'<@gubun>', searchText:value } , (retData)=>{
-		    		<@compId>.retData = retData;
-		    		<@compId>.setInput(retData);
-		    	})
-		    }
-		 }
+			if (event.key === 'Enter') {
+				let value = event.target.value;
+				value= value.split("(")[0].trim();
+				_memberSearchPopup( {autoRtn:true, gubun:'<@gubun>', searchText:value } , (retData)=>{
+			   	
+			   		<@compId>.retData = retData;
+			   		<@compId>.setInput(retData);
+			   		<@compId>.isValid = true;
+			   	})
+			}else{
+			   	<@compId>.isValid = false;
+			}
+		}
+		,handleInput : (event) => {
+			<@compId>.isValid = false;
+		}
 		,setInput : (retData) => {
 			const itemId	= retData["<@gubun>_ID"];
 			const itemNm	= retData["<@gubun>_NM"];
@@ -36,11 +46,15 @@
 	C_COMP.onLoadComp("<@compId>", function(data) {
 		
 		if(isValid(data.defaultInfo)) {
-			<@compId>.setInput(data.defaultInfo);			
+			<@compId>.setInput(data.defaultInfo);
+			<@compId>.isValid = true;
 		}
 	});
 </script>
 <div>
-	<input type="search" id="<@compId>_val" placeholder="<@placeholder>" onkeypress="<@compId>.handleKeyPress(event)">
+	<input type="search" id="<@compId>_val" 
+		placeholder="<@placeholder>" 
+		onkeypress="<@compId>.handleKeyPress(event)" 
+		oninput="<@compId>.handleInput(event)">
 	<a href="javascript:void(0);" onclick="<@compId>.memberSearchPopup();" class="search_btn"><i class="icon_search"></i></a>
 </div>
