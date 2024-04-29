@@ -6,8 +6,10 @@
 				dalert(retData);
 			});
 		 }
-		,test : function() {
-			alert(1);
+		,openOneLinePopup : function() {
+			C_POP.open('popup_common_inputOnelinePopup', {title1 : "댓글수정", title2 : "댓글", msg : "abcde"}, function(retData) {
+				dalert(retData);
+			});
 		 }
 	}
 	// Page Load가 완료된후 실행 된다.
@@ -21,6 +23,9 @@
 </script>
 <div class="cont_wrap">
 	<!--section -->
+	<section>
+		<a href="javascript:<@pageId>.openOneLinePopup()">popup_common_inputOnelinePopup</a>
+	</section>	<br/>
 	<section>
 		<a href="javascript:C_PM.movePage('sample_importSelectbox')">sample_importSelectbox</a>
 	</section>	<br/>

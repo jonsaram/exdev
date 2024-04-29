@@ -101,6 +101,7 @@
 			,mainMenuList	: []
 			,subMenuListMap	: {}
 			,subMenuList	: []
+			,currentSubMenuId : ""
 			,initMenu : function() {
 				var parm = {
 					 queryId 		: "system.getMenuList"
@@ -198,6 +199,9 @@
 					eval(`parm = ${subMenu.PARAMETER}` );
 				}
 				C_PM.movePage(subMenu.PAGE_ID, parm);
+				
+				C_MENU.currentSubMenuId = subMenu.MENU_ID;
+				
 			 }
 			,moveMenu : function(subMenuId) {
 				let mainIndex	= C_MENU.allMenuMap[subMenuId].mainIndex;
@@ -207,6 +211,11 @@
 				C_MENU.moveMainMenu		(mainIndex				);
 				C_MENU.showSubMenuList	(mainIndex, subIndex	);
 				C_MENU.moveSubMenu		(subIndex				);
+				
+				
+			 }
+			,getCurrentMenuInfo : function() {
+				return C_MENU.allMenuMap[C_MENU.currentSubMenuId];
 			 }
 		} 
 
