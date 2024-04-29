@@ -194,14 +194,16 @@
 			 }
 			,moveSubMenu	: function(idx) {
 				let subMenu = C_MENU.subMenuList[idx];
+
+				C_MENU.currentSubMenuId = subMenu.MENU_ID;
+				
 				let parm = {};
 				if(isValid(subMenu.PARAMETER)) {
 					eval(`parm = ${subMenu.PARAMETER}` );
 				}
 				C_PM.movePage(subMenu.PAGE_ID, parm);
 				
-				C_MENU.currentSubMenuId = subMenu.MENU_ID;
-				
+				alert(C_MENU.allMenuMap[C_MENU.currentSubMenuId].MENU_NM);
 			 }
 			,moveMenu : function(subMenuId) {
 				let mainIndex	= C_MENU.allMenuMap[subMenuId].mainIndex;
