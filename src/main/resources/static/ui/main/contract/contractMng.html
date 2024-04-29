@@ -253,58 +253,56 @@ var <@pageId> = {
 					}
 			});
 			
-		}
+		} 
 		,approval : (idx) =>{
 
-			const LIST 			= <@pageId>.searchedRows[idx];
-			const CONTRACT_ID	= LIST["CONTRACT_ID"];
-
-			let title		= "";
-			let afterState	= "";
-			if( LIST["PROCESS_STATE"] == 'CONTRACTING' ){
-				
-				if( isEmpty(LIST["CONTRACT_DATE"]) || isEmpty(LIST["TOTAL_COST"]) ){
-					C_POP.alert("계약일,계약금액 입력 후 결재 할 수 있습니다. ");
-					return;
-				}
-				
-				title		= "계약 체결 완료 결재 요청";
-				afterState	= "CONTRACTED";
-			}
-			if( LIST["PROCESS_STATE"] == 'CONTRACTED' ){
-
-				if( isEmpty(LIST["CONTRACT_DATE"]) || isEmpty(LIST["CONTRACT_DATE"]) || isEmpty(LIST["CONTRACT_TYPE"]) ){
-				}
-				
-				title		= "실행 완료 결재 요청";
-				afterState	= "COMPLETED";
-			}
+			const selectedRow	= <@pageId>.searchedRows[idx];
 			
+			if( isEmpty(selectedRow["CONTRACT_DATE"]) || isEmpty(selectedRow["TOTAL_COST"]) ){
+				C_POP.alert("계약일,계약금액 입력 후 결재 할 수 있습니다. ");
+				return;
+			}			
+
+			let afterState	= "";
+			let title 		= "";
+			let appTitle	= "";
+			if( selectedRow["PROCESS_STATE"] == 'CONTRACTING' ){title	= "계약 체결 완료 결재 요청";afterState	= "CONTRACTED";}
+			if( selectedRow["PROCESS_STATE"] == 'CONTRACTED' ){title	= "실행 완료 결재 요청";afterState	= "COMPLETED";}
+			appTitle	= title.replace("요청","");
+			
+			let appContent   = `* 고객명 : ${selectedRow.BUYER}\t\t* 계약담당자 : ${selectedRow.USER}\t\t* 상품명 : ${selectedRow.CONSULTING_TYPE_NM}\n\n`;
+			appContent 		+= `* 상담일 : ${selectedRow.CONTACT_DATE}\t\t* 계약일 : ${selectedRow.CONTRACT_DATE}\t\t* EXPIRE_DATE : ${selectedRow.EXPIRE_DATE}\n\n`;
+			appContent 		+= `* 계약금액 : ${selectedRow.TOTAL_COST}\t\t* 계약구분 : ${selectedRow.CONTRACT_TYPE}\n\n`;
+			appContent 		+= `\n\n위와 같이 [${appTitle}]에 대한 결재를 요청 합니다.\n`;
+			
+			const CONTRACT_ID	= selectedRow["CONTRACT_ID"];
+
 			let requestParm = {
 		        	 RELATION_ID 	: CONTRACT_ID
 		        	,AFTER_SERVICE	: `ApprovalAfterService.updateContractProcess`
 		        	,AFTER_PARM		: `{"PROCESS_STATE" : "${afterState}" }`
 		        	,TITLE			: title
-		        }
-		        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
-					if(retData.state == "S") {
+		        	,CONTENT		: appContent
+			}
+	        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
+				if(retData.state == "S") {
 
-						var parm = {
-							 queryId 		: "contract.updateProject"
-							,requestParm	: {
-								 CONTRACT_ID 	: CONTRACT_ID
-					        	,PROCESS_STATE	: `ON_${afterState}_APPR`
-							}
+					var parm = {
+						 queryId 		: "contract.updateProject"
+						,requestParm	: {
+							 CONTRACT_ID 	: CONTRACT_ID
+				        	,PROCESS_STATE	: `ON_${afterState}_APPR`
 						}
-						C_COM.requestQuery(parm, function(resultData) {
-							if(resultData.state == "S") {
-								<@pageId>.searchList();
-							} else {
-								C_POP.alert('결재상신 상태값 갱신 중 문제가 발생 했습니다.');
-							}
-						});  
 					}
-		        });
+					C_COM.requestQuery(parm, function(resultData) {
+						if(resultData.state == "S") {
+							<@pageId>.searchList();
+						} else {
+							C_POP.alert('결재상신 상태값 갱신 중 문제가 발생 했습니다.');
+						}
+					});  
+				}
+	        });
 			
 		}
 }

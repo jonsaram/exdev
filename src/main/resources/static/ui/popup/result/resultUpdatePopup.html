@@ -142,7 +142,7 @@ var <@popupId> = {
 				$("#<@popupId> #COST_PRICE input").prop("disabled", true);
 				$("#<@popupId> [name='coworkRate']").prop("disabled", true);
 				$("#<@popupId> [name='suggesterRate']").prop("disabled", true);
-
+				$("#<@popupId> .ui-datepicker-trigger").remove();
 			}
 		}) ;
 		
@@ -188,9 +188,37 @@ var <@popupId> = {
 			//비용산출이 끝난 후에 순매출 다시 계산.
 			<@popupId>.callOrgSellingPrice();		
 			
+			<@popupId>.setCostTotalRow();
+
+			
 		});
 		
-	}	
+	}
+	,setCostTotalRow : (rateSum, paymentSum) => {
+
+		let costPriceSum = 0;
+		let costSuppleSum = 0;
+		let costTaxSum=0;
+		debugger;
+		$.each( <@popupId>.costList_DATA , function(idx,cost){
+			
+			costPriceSum += cost.COST_PRICE;
+			costSuppleSum+= cost.COST_SUPP_PRICE;
+			costTaxSum += cost.COST_TAX_PRICE;
+		});
+		
+		const cps			= Number(costPriceSum).toFixed(2);
+		const COST_PRICE	= Number(cps.endsWith('.00') ? cps.slice(0, -3) : cps);
+		const css			= Number(costSuppleSum).toFixed(2);
+		const COST_SUPPLE	= Number(css.endsWith('.00') ? css.slice(0, -3) : css);
+		const cts			= Number(costTaxSum).toFixed(2);
+		const COST_TAX		= Number(cts.endsWith('.00') ? cts.slice(0, -3) : cts);
+		$("#<@popupId>_COST_PRICE_SUM").text(addComma(COST_PRICE));
+		$("#<@popupId>_COST_SUPPLE_SUM").text(addComma(COST_SUPPLE));
+		$("#<@popupId>_COST_TAX_SUM").text(addComma(COST_TAX));
+		
+	}
+
 	,selectResultPayment : (data, callback) =>{
 		
 		var parm = {
@@ -336,9 +364,9 @@ var <@popupId> = {
 		$("#<@popupId>_PAYMENT_SUM").text(addComma(PAYMENT_SUM));
 		
 	}
-	,calcPayment : (val) => {
+	,calcPayment : (incomeMinusCostPrice) => {
+	//순매출 
 
-		const SUPPLY_COST = Number(val);
 		let rateSum = 0;
 		let paymentSum = 0;
 		
@@ -367,7 +395,9 @@ var <@popupId> = {
 				}else{
 
 					rateSum +=	rateVal;
-					payment =	Number((rateVal  * SUPPLY_COST ) / 100).toFixed(2); 
+					let real_sellingPrice = ($("#<@popupId>_real_sellingPrice").text()).replace(/,/g, "");
+					payment =	Number((rateVal  * Number(real_sellingPrice) ) / 100).toFixed(2);
+
 				}
 				
 				payment = Number(payment.endsWith('.00') ? payment.slice(0, -3) : payment);
@@ -460,6 +490,19 @@ var <@popupId> = {
 			$(this).val( addComma(val));
 	    });
 		
+		$("a[name^='<@popupId>_tab']").off().on('click', (obj) => {
+			
+		    const targetName = $(obj.target).attr("name");
+		    
+		    $("a[name^='<@popupId>_tab']").parent().removeClass('active');
+		    $('#<@popupId>_tab1, #<@popupId>_tab2').hide();
+
+		    $(obj.target).parent().addClass('active');
+		    $("#" + targetName).show();
+
+		    setTimeout(()=>{if( !$("#" + targetName).is(':visible') )$("#" + targetName).show();},10)
+		    
+		});			
 	}
 	,costPriceHandler : () =>{
 		
@@ -606,11 +649,11 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			<!-- tap area -->
 			<div class="tab_wrap mt15" style="height:calc(100% - 15px);">
 				<ul>
-					<li class="active"><a href="#tab1">입력정보1</a></li>
-					<li><a href="#tab2">입력정보2</a></li>
+					<li class="active"><a href="javascript:void(0)" name="<@popupId>_tab1">입력정보1</a></li>
+					<li><a href="javascript:void(0)" name="<@popupId>_tab2">입력정보2</a></li>
 				</ul>
 				<div class="tab_content">
-					<div id="tab1" class="display">
+					<div id="<@popupId>_tab1" class="display">
 						<h4><i class="icon_bullet"></i>계약 정보</h4>
 						<div class="tbl01 row" id="<@popupId>_contractInfo">
 							<table>
@@ -663,25 +706,25 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<li>
 								<label>공급액</label>
 								<div class="info">
-									<input type="text" id="<@popupId>_supplyCost" style="width:189px" disabled>
+									<input type="text" id="<@popupId>_supplyCost" style="width:100%" disabled>
 								</div>
 							</li>
 							<li>
 								<label>부가세</label>
 								<div class="info">
-									<input type="text" id="<@popupId>_tax" style="width:189px" disabled>
+									<input type="text" id="<@popupId>_tax" style="width:100%" disabled>
 								</div>
 							</li>
 						</ul>				
 						
 						<div class="search_area">
 							<span class="tit02"><i class="icon_bullet"></i>비용 산출</span>
-<!-- 							<div class="search_right">
-							<a class="btn small fr" href="#modal-ex03">추가</a>
-							</div> -->
+ 							<div class="search_right">
+							<a class="btn small fr" href="javascript:void(0)" id="<@popupId>_addCost" >추가</a>
+							</div>
 						</div>
 						<!-- 테이블 -->
-						<div class="tbl01 col tbl_scroll" style="height:121px">
+						<div class="tbl01 col tbl_scroll" style="height:171px">
 							<table>
 								<caption>표 캡션</caption>
 								<colgroup>
@@ -741,12 +784,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								</td>
 							</tr>
 							</script>
-							<tfoot>
-								<tr>
+ 							<tfoot>
+								<tr id="<@popupId>_costTotalRow"">
 									<td colspan="2">계</td>
-									<td class="tr">1,100,100</td>
-									<td class="tr">1,000,000</td>
-									<td class="tr">100,000</td>
+									<td id='<@popupId>_COST_PRICE_SUM'	class="tr"	></td>
+									<td id='<@popupId>_COST_SUPPLE_SUM' class="tr"	></td>
+									<td id='<@popupId>_COST_TAX_SUM' class="tr"	></td>
 									<td></td>
 								</tr>
 							</tfoot>				
@@ -754,7 +797,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</div>
 					</div><!--  /TAB1 DISPLAY -->
 				
-					<div id="tab2" class="display">
+					<div id="<@popupId>_tab2" class="display">
 						<h4 class="mt15"><i class="icon_bullet"></i>순매출</h4>
 						<!-- 테이블 -->
 						<div class="tbl01 col noScroll">
