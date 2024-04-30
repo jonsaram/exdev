@@ -44,6 +44,21 @@
 								 queryId 		: "hrInfo.updateSuretyInsurance"
 								,requestParm	: <@pageId>.requestParm
 							 } 
+	  						,{
+								 queryId 		: "hrInfo.updatePositionHist"
+								,requestParm	: { USER_ID		: <@pageId>.requestParm["USER_ID"]
+												,	DEPARTMENT 	: '-'
+												,	POSITION	: <@pageId>.requestParm["ROLE"] 
+												,PERSONAL_APPOINTMENT_DATE :  <@pageId>.requestParm["REG_DATE"]
+												}
+							 } 
+	  						,{
+								 queryId 		: "hrInfo.updateGradeHist"
+								,requestParm	:  { USER_ID		: <@pageId>.requestParm["USER_ID"]
+												,	GRADE			: <@pageId>.requestParm["GRADE"] 
+												,	UPGRADE_DATE 	: <@pageId>.requestParm["REG_DATE"]
+												}
+							 } 
 						]
 			}
 			C_COM.requestQuery(parm, function(resultData ) {
@@ -54,6 +69,7 @@
 					<@pageId>.recvData = <@pageId>.requestParm;
 					<@pageId>.setParamOnThisPage( <@pageId>.requestParm );
 					<@pageId>.setUserAuth(<@pageId>.requestParm);
+					<@pageId>.getHistories();
 					
 					
 
@@ -275,13 +291,14 @@
 			</div>
 			<div class="right">
 				<section class="sec_wrap">
-					<div class="cont_box col2">
+					<div class="cont_box col2" style='height:340px;'>
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">학력</h3>
 							<button class="btn small select fr" onclick="<@pageId>.education()">추가</button>
 						</div>
 						<!-- 테이블 -->
-						<div class="tbl01 col">
+						<div class="tbl01 col tbl_scroll" style="max-height:356px;">
+							<div class="tbl01 col tbl_head">
 							<table>
 								<caption>학력 리스트</caption>
 								<colgroup>
@@ -300,6 +317,18 @@
 										<th scope="col">졸업여부</th>
 									</tr>
 								</thead>
+								</table>
+								</div>
+
+							<div class="tbl01 col tbl_body_scroll">
+							<table>
+								<colgroup>
+									<col style="width:15%;"/>
+									<col style="width:30%;"/>
+									<col style="width:30%;"/>
+									<col style="width:15%;"/>
+									<col style="width:10%;"/>
+								</colgroup>
 								<tbody  id="<@pageId>_educationList">
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_educationList_template">	
@@ -320,15 +349,17 @@
 								</script>
 							</table>
 						</div>
+					</div>
 
 					</div>
-					<div class="cont_box col2">
+					<div class="cont_box col2" style='height:340px;'>
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">경력</h3>
 							<button class="btn small select fr" onclick="<@pageId>.career()">추가</button>
 						</div>
 						<!-- 테이블 -->
-						<div class="tbl01 col">
+						<div class="tbl01 col tbl_scroll" style="max-height:356px;">
+							<div class="tbl01 col tbl_head">
 							<table>
 								<caption>경력 리스트</caption>
 								<colgroup>
@@ -347,6 +378,18 @@
 										<th scope="col">업무내용</th>
 									</tr>
 								</thead>
+								</table>
+								</div>
+								
+							<div class="tbl01 col tbl_body_scroll">
+							<table>
+								<colgroup>
+									<col style="width:15%;"/>
+									<col style="width:25%;"/>
+									<col style="width:20%;"/>
+									<col style="width:20%;"/>
+									<col style="width:20%;"/>
+								</colgroup>
 								<tbody  id="<@pageId>_careerList">
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_careerList_template">	
@@ -371,13 +414,14 @@
 				</section>
 
 				<section class="sec_wrap">
-					<div class="cont_box col2">
+					<div class="cont_box col2" style='height:340px;'>
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">직책 승급 스토리</h3>
 							<button class="btn small select fr" onclick="<@pageId>.position()">추가</button>
 						</div>
 						<!-- 테이블 -->
-						<div class="tbl01 col">
+						<div class="tbl01 col tbl_scroll" style="max-height:356px;">
+							<div class="tbl01 col tbl_head">
 							<table>
 								<caption>직책 승급 리스트</caption>
 								<colgroup>
@@ -392,6 +436,16 @@
 										<th scope="col">발령일</th>
 									</tr>
 								</thead>
+								</table>
+								</div>
+								
+							<div class="tbl01 col tbl_body_scroll">
+							<table>
+								<colgroup>
+									<col style="width:39%;"/>
+									<col style="width:30%;"/>
+									<col style="width:30%;"/>
+								</colgroup>
 								<tbody  id="<@pageId>_positionList">
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_positionList_template">	
@@ -411,13 +465,16 @@
 							</table>
 						</div>
 					</div>
-					<div class="cont_box col2">
+					</div>
+					
+					<div class="cont_box col2" style='height:340px;'>
 						<div class="clearFix mb15">
 							<h3 class="fl lh24">등급 승급 스토리</h3>
 							<button class="btn small select fr" onclick="<@pageId>.grade()">등급변경</button>
 						</div>
 						<!-- 테이블 -->
-						<div class="tbl01 col">
+						<div class="tbl01 col tbl_scroll" style="max-height:356px;">
+							<div class="tbl01 col tbl_head">
 							<table>
 								<caption>등급 승급 스토리</caption>
 								<colgroup>
@@ -430,6 +487,15 @@
 										<th scope="col">승격일</th>
 									</tr>
 								</thead>
+								</table>
+								</div>
+								
+							<div class="tbl01 col tbl_body_scroll">
+							<table>
+								<colgroup>
+									<col style="width:50%;"/>
+									<col style="width:50%;"/>
+								</colgroup>
 								<tbody  id="<@pageId>_gradeList">
 								</tbody>
 								<script type="text/x-jsrender" id="<@pageId>_gradeList_template">	

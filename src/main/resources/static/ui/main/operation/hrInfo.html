@@ -149,6 +149,22 @@ var <@pageId> = {
 								 queryId 		: "hrInfo.updateSuretyInsurance"
 								,requestParm	: requestParm
 							 } 
+	  						,{
+								 queryId 		: "hrInfo.updatePositionHist"
+								,requestParm	: { USER_ID		: requestParm["USER_ID"]
+												,	DEPARTMENT 	: '-'
+												,	POSITION	: requestParm["ROLE"] 
+												,PERSONAL_APPOINTMENT_DATE : requestParm["REG_DATE"]
+												}
+							 } 
+	  						,{
+								 queryId 		: "hrInfo.updateGradeHist"
+								,requestParm	:  { USER_ID		: requestParm["USER_ID"]
+												,	GRADE			: requestParm["GRADE"] 
+												,	UPGRADE_DATE 	: requestParm["REG_DATE"]
+												}
+							 } 
+	  						
 						]
 			}
 			C_COM.requestQuery(parm, function(resultData) {

@@ -311,7 +311,7 @@ var <@popupId> = {
 	}
 	,setHandler : () => {
 
-/* 		$("#<@popupId>_addCowork").on('click', (event) => {
+ 		$("#<@popupId>_addCowork").on('click', (event) => {
 			
 			event.preventDefault();
 			const CONTRACT_ID	= 	<@popupId>.updatingData["CONTRACT_ID"] ;
@@ -333,7 +333,7 @@ var <@popupId> = {
 			});
 			
 		})
- */		
+		
 		$("a[name^='<@popupId>_tab']").on('click', (obj) => {
 			
 		    const targetName = $(obj.target).attr("name");
@@ -477,7 +477,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 });
 </script>
 <div class="modal_wrap">
-	<div class="modal" style="width:680px;height:720px;">
+	<div class="modal" style="width:680px;height:740px;">
 		<div class="modal_header">
 			<strong class="tit">계약 등록</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
@@ -604,7 +604,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<div class="search_area">
 								<span class="tit02">코웍 사원 등록</span>
 								<div class="search_right">
-									<a class="btn small fr" href="#" id="<@popupId>_addCowork">추가</a>
+									<a class="btn small fr" href="javascript:void(0);" id="<@popupId>_addCowork">추가</a>
 								</div>
 							</div>
 							<!-- 테이블 -->
