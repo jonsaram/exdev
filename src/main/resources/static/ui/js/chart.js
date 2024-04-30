@@ -362,7 +362,7 @@
 	}
 
 	function _lineWithLabelsChart (target, param) {
-	debugger;
+
 		const series = param.series ;
 		Highcharts.chart(target, {
 			chart :{
