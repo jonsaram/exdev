@@ -33,12 +33,13 @@
 			requestParm['CONTENT'] = <@popupId>.textEditorComp.getContent();
 			requestParm['BOARD_MST_ID'] = inParam.BOARD_MST_ID;
 			
+			
 			return requestParm;
 			
 		}
 		,setHandler : () => {
 			$('button[name="<@popupId>_save"]').on('click', function (e) {
-				const loc = $(".info_wrap").attr("id");
+				const loc = $('#<@popupId>_createItems').attr("id");
 				const queryId = "board.insertBoard";
 				<@popupId>.insertBoard(loc, queryId);
 			})
@@ -49,7 +50,7 @@
 					 queryId 		: queryId
 					,requestParm	: <@popupId>.getItems(loc)
 			}
-
+			debugger;
 			C_COM.requestQuery(parm, function(resultData) {
 				if( resultData.state == 'S'){
 					parm.requestParm["refresh"] = "Y";
@@ -87,11 +88,11 @@
 				<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 			</div>
 			<div class="modal_body">
-				<ul class="info_wrap col2 mt15" id="createItems">
+				<ul class="info_wrap col2 mt15" id="<@popupId>_createItems">
 					<li class="w100">
 						<label>제목</label>
 						<div class="info">
-							<input name="TITLE" type="text" style="width:100%">
+							<input id="TITLE" name="TITLE" type="text" style="width:100%">
 						</div>
 					</li>
 					<li class="w100 ml0">

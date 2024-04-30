@@ -124,15 +124,18 @@ var <@pageId> = {
 				});		
 				
 		}
-		,modify : (board_add_id, board_id) => {
-			const rparm = {};
-			C_POP.confirm('댓글을 수정 하시겠습니까?', function() {
-				rparm['BOARD_ADD_ID'] = board_add_id;
-				rparm['BOARD_ID'] = board_id;
-				rparm['ADD_CONTENT'] = $(`textarea[name="<@pageId>_${board_add_id}_rReply"]`).val();
-	 			
-	   			<@pageId>.updateReply(rparm, "board.updateBoardAdd");
+		,modifyReplyPopup : (board_add_id, board_id, msg) => {
+			C_POP.open('popup_common_inputOnelinePopup', {title1 : "댓글수정", title2 : "댓글", msg : msg}, function(retData) {
+				if(isValid(retData)) {
+					retData['BOARD_ADD_ID'] = board_add_id;
+					retData['BOARD_ID'] = board_id;
+					retData['ADD_CONTENT'] = retData.msg;
+					<@pageId>.modify(retData);					
+				}
 			});
+		 }
+		,modify : (rparm) => {
+   			<@pageId>.updateReply(rparm, "board.updateBoardAdd");
 		}
 		,deleteReply : (board_add_id, board_id) => {
 			const rparm = {};
@@ -345,7 +348,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<tr>
 									<td>
 										<button type="button" class="btn fr" name="<@pageId>_delete"><i class="icon_pen"></i>삭제</button>
-										<button type="button" class="btn fr" name="<@pageId>_modify"><i class="icon_trash"></i>수정</button>
+										<button type="button" class="btn fr" name="<@pageId>_modify" style="margin-right:8px!important"><i class="icon_trash"></i>수정</button>
 										<button type="button" class="btn fr" name="<@pageId>_boardList"><i class="icon_letter"></i>목록</button>
 									</td>
 								</tr>
@@ -373,13 +376,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						       				</div>
 						       				<script type="text/x-jsrender" id="<@pageId>_commentList_template">
 												{{for list}}
-												<div class="comment"><p>
-													<strong id="<@pageId>_UPDATE_USER">{{:USER_NM}}</strong>
-													<span id="<@pageId>_UPDATE_DATE">{{:UPDATE_DATE}}</span>
-													<textarea rows="2" style="width:calc(100% - 260px)" name="<@pageId>_{{:BOARD_ADD_ID}}_rReply">{{:ADD_CONTENT}}</textarea>
-														<button class="btn ml5" onClick="<@pageId>.modify('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}');">수정</button>
-														<button class="btn ml5" onClick="<@pageId>.deleteReply('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}');">삭제</button>
-												</p></div>
+												<div class="comment">
+												<table>
+													<tr>
+														<td width="100" align="center"><strong id="<@pageId>_UPDATE_USER">{{:USER_NM}}</strong></td>
+														<td width="100" align="center"><span id="<@pageId>_UPDATE_DATE">{{:UPDATE_DATE}}</span></td>
+														<td><span style="width:calc(100% - 260px)" name="<@pageId>_{{:BOARD_ADD_ID}}_rReply">{{:ADD_CONTENT}}</span></td>
+														<td width="60" align="center"><button class="btn ml5" onClick="<@pageId>.modifyReplyPopup('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}','{{:ADD_CONTENT}}');">수정</button></td>
+														<td width="60" align="center"><button class="btn ml5" onClick="<@pageId>.deleteReply('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}');">삭제</button></td>
+													<tr>
+												</table>
+												</div>
 												{{/for}}
 											</script>
 										</div>
