@@ -166,6 +166,8 @@ var <@pageId> = {
 
 		    })
 		    
+		    $("#<@pageId>_pagingChunk"	).off().on('change',() =><@pageId>.searchList());
+		    
 		    $("#<@pageId>_deleteBtn").off().on('click',function(){
 
 		    	C_POP.confirm('선택하신 고객정보를 삭제 하시겠습니까?', function() {
