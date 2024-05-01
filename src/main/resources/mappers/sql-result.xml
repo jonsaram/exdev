@@ -389,7 +389,7 @@
 		, A.USER_ID
 		, GET_USER_NM( A.USER_ID ) USER_NM
 		, #{RESULT_ID} AS RESULT_ID
-		, A.PAYMENT_ID
+		<!-- , A.PAYMENT_ID -->
 		, A.EXEC_TYPE
 		, CM.RELATION_TYPE
 		, GET_CODE_NM('RELATION_TYPE', CM.RELATION_TYPE ) AS RELATION_TYPE_NM
@@ -402,7 +402,7 @@
 				<include refid="cmUsers"/>
 			)
 			SELECT A.*
-			 ,ROW_NUMBER() OVER (ORDER BY <include refid="buisnessHierarchyOrderBy"/> ) AS PAYMENT_ID
+			 <!-- ,ROW_NUMBER() OVER (ORDER BY <include refid="buisnessHierarchyOrderBy"/> ) AS PAYMENT_ID -->
 			FROM(
 				SELECT CMU.CONTRACT_ID 
 				,CMU.USER_ID

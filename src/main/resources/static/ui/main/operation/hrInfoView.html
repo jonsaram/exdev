@@ -47,8 +47,8 @@
 	  						,{
 								 queryId 		: "hrInfo.updatePositionHist"
 								,requestParm	: { USER_ID		: <@pageId>.requestParm["USER_ID"]
-												,	DEPARTMENT 	: '-'
-												,	POSITION	: <@pageId>.requestParm["ROLE"] 
+												,	DEPARTMENT 	: <@pageId>.requestParm["DIVISION_ID"]
+												,	POSITION	: <@pageId>.requestParm["POSITION"] 
 												,PERSONAL_APPOINTMENT_DATE :  <@pageId>.requestParm["REG_DATE"]
 												}
 							 } 
@@ -425,9 +425,9 @@
 							<table>
 								<caption>직책 승급 리스트</caption>
 								<colgroup>
-									<col style="width:39%;"/>
-									<col style="width:30%;"/>
-									<col style="width:30%;"/>
+									<col style="width:29%;"/>
+									<col style="width:25%;"/>
+									<col style="width:20%;"/>
 								</colgroup>
 								<thead>
 									<tr>
@@ -442,9 +442,9 @@
 							<div class="tbl01 col tbl_body_scroll">
 							<table>
 								<colgroup>
-									<col style="width:39%;"/>
-									<col style="width:30%;"/>
-									<col style="width:30%;"/>
+									<col style="width:29%;"/>
+									<col style="width:25%;"/>
+									<col style="width:20%;"/>
 								</colgroup>
 								<tbody  id="<@pageId>_positionList">
 								</tbody>

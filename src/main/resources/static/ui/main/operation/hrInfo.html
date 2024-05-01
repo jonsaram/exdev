@@ -21,7 +21,7 @@ var <@pageId> = {
  			$("#"+baseBranchTarget).trigger('change');
  			
 		}
-		,selSearchList : function(id, sel_BRANCH_ID){
+/* 		,selSearchList : function(id, sel_BRANCH_ID){
 
 			let queryId = "";
 			let requestParm = {}
@@ -76,7 +76,7 @@ var <@pageId> = {
 				}
                 
             });
-        }
+        } */
 		,searchList : () => {
 
 			const searchVal = $("#<@pageId>_nmSearch").val();
@@ -152,8 +152,8 @@ var <@pageId> = {
 	  						,{
 								 queryId 		: "hrInfo.updatePositionHist"
 								,requestParm	: { USER_ID		: requestParm["USER_ID"]
-												,	DEPARTMENT 	: '-'
-												,	POSITION	: requestParm["ROLE"] 
+												,	DEPARTMENT 	: requestParm["DIVISION_ID"] 
+												,	POSITION	: requestParm["POSITION"] 
 												,PERSONAL_APPOINTMENT_DATE : requestParm["REG_DATE"]
 												}
 							 } 
@@ -255,7 +255,7 @@ var <@pageId> = {
 		    })
 		    
 		    $("#<@pageId>_pagingChunk"	).off().on('change',() =><@pageId>.searchList());
-		    
+/* 		    
 			$("[id^='<@pageId>_select']").on('change', (e) => {
 
 				const id = $(e.target).attr("id");
@@ -276,7 +276,7 @@ var <@pageId> = {
 				
 			})		    
 		    
-		}
+ */		}
 		,chkHandler : () => {
 
 			_chkHandler("<@pageId>",<@pageId>);
@@ -318,7 +318,6 @@ var <@pageId> = {
 	    	<@pageId>.checkedItems.sort((a,b) => Number(a)-Number(b) )
 	    	const newCheckItems = <@pageId>.checkedItems.map( item => { return Number(item) + offset;});
 	    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"직원 리스트", true, newCheckItems);  
-
 			
 		}
 }
@@ -351,11 +350,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<div class="search_inputWrap fl" style='width:100px;'>
 						<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
 					</div>
-					
+<!-- 					
 					<div id="<@pageId>_selectBaseBranch" column = "BASE_BRANCH_ID" class="select_box" style="width:85px;"></div>
 					<div id="<@pageId>_selectSpBranch" column = "SP_BRANCH_ID" class="select_box" style="width:115px;"></div>
 					<div id="<@pageId>_selectBranch" column = "BRANCH_ID" class="select_box" style="width:125px;"></div>
-			
+ -->			
 					<button type="button" class="btn select fr" id="<@pageId>_searchBtn" style='margin-left:8px;'>조회</button>
 					<button type="button" class="btn fr" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
 					
@@ -401,8 +400,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<th scope="col">본부</th>
 								<th scope="col">지사명</th>
 								<th scope="col">지점명</th>
-								<th scope="col">역할</th>
-								<th scope="col">등급</th>
+								<th scope="col">직책</th>
+								<th scope="col">직급</th>
 								<th scope="col">상태</th>
 								<th scope="col">보증보험<br>가입금액</th>
 								<th scope="col">보증보험<br>가입일</th>
@@ -447,7 +446,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td id='BASE_BRANCH_NM'	class='tc'>{{:BASE_BRANCH_NM}}</td>
 								<td id='SP_BRANCH_NM'	class='tl'>{{:SP_BRANCH_NM}}</td>
 								<td id='BRANCH_NM'		class='tl'>{{:BRANCH_NM}}</td>
-								<td id='ROLE_NM'		class='tl'>{{:ROLE_NM}}</td>
+								<td id='POSITION_NM'	class='tl'>{{:POSITION_NM}}</td>
 								<td id='GRADE_NM'		class='tc'>{{:GRADE_NM}}</td>
 								<td id='STATE_NM'		class='tc'>{{:STATE_NM}}</td>
 								<td id='AMOUNT'			class='tr'>{{:AMOUNT}}</td>

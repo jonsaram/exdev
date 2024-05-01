@@ -188,18 +188,21 @@ var <@popupId> = {
 			//비용산출이 끝난 후에 순매출 다시 계산.
 			<@popupId>.callOrgSellingPrice();		
 			
-			<@popupId>.setCostTotalRow();
-
+			if( <@popupId>.costList_DATA == 0){
+	 			const costlisttemplate = $("#<@popupId>_costList_noData_template").render({});
+	 			$("#<@pageId>_resultList").append(costlisttemplate);
+			} 
+			else <@popupId>.setCostTotalRow();
 			
 		});
 		
 	}
-	,setCostTotalRow : (rateSum, paymentSum) => {
+	,setCostTotalRow : () => {
 
 		let costPriceSum = 0;
 		let costSuppleSum = 0;
 		let costTaxSum=0;
-		debugger;
+
 		$.each( <@popupId>.costList_DATA , function(idx,cost){
 			
 			costPriceSum += cost.COST_PRICE;
@@ -474,7 +477,7 @@ var <@popupId> = {
 			$('#<@popupId>_supplyCost'		).val( supplytax.supplyCost	).html( addComma(supplytax.supplyCost	));
 			$('#<@popupId>_tax'				).val( supplytax.tax		).html( addComma(supplytax.tax			));
 			
-	        const remainingSum = $("#REMAINING_SUM").text().replace(/,/g, '');
+ 	        const remainingSum = $("#REMAINING_SUM").text().replace(/,/g, '');
 	        if( Number(remainingSum) - Number(supplytax.supplyCost)  < 0  ){
 	        	
 	        	C_POP.alert("입금액이 잔금보다 큽니다."); 
@@ -493,7 +496,6 @@ var <@popupId> = {
 		$("a[name^='<@popupId>_tab']").off().on('click', (obj) => {
 			
 		    const targetName = $(obj.target).attr("name");
-		    
 		    $("a[name^='<@popupId>_tab']").parent().removeClass('active');
 		    $('#<@popupId>_tab1, #<@popupId>_tab2').hide();
 
@@ -730,10 +732,10 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<colgroup>
 									<col style="width:16%;"/>
 									<col style="width:20%;"/>
+									<col style="width:21%;"/>
 									<col style="width:16%;"/>
 									<col style="width:16%;"/>
-									<col style="width:16%;"/>
-									<col style="width:16%;"/>
+									<col style="width:10%;"/>
 								</colgroup>
 								<thead>
 									<tr>
@@ -746,6 +748,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									</tr>
 								</thead>
 							<tbody  id="<@popupId>_costList">
+								<tr name="<@popupId>_tr_-1">	
+									<td colspan=6>자료가 없습니다.</td>	
+								</tr>
 							</tbody>
 							<script type="text/x-jsrender" id="<@popupId>_costList_template">						
 							{{for list}}
@@ -785,7 +790,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							</tr>
 							</script>
  							<tfoot>
-								<tr id="<@popupId>_costTotalRow"">
+								<tr id="<@popupId>_costTotalRow"" style='display:none'>
 									<td colspan="2">계</td>
 									<td id='<@popupId>_COST_PRICE_SUM'	class="tr"	></td>
 									<td id='<@popupId>_COST_SUPPLE_SUM' class="tr"	></td>
