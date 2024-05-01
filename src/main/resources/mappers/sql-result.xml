@@ -56,7 +56,13 @@
 				AND USE_YN = 'Y' AND DEL_YN = 'N'
 				GROUP BY CONTRACT_ID, RESULT_ID 
 			) CO
-			,TBL_EXP_PAYMENT P
+			,( SELECT CONTRACT_ID, USER_ID, RESULT_ID, PAYMENT, 
+				PAYMENT_ID, EXEC_TYPE, PAY_ID, RATE,
+				RELATION_TYPE AS P_RELATION_TYPE
+				FROM TBL_EXP_PAYMENT 
+				WHERE CONTRACT_ID =  #{CONTRACT_ID}
+				AND USE_YN = 'Y' AND DEL_YN = 'N'
+			) P
 			,TBL_EXP_CONTRACT_MEMBER CM
 			,TBL_EXP_USER U
 			,TBL_EXP_BUYER B
@@ -76,6 +82,7 @@
 			</if>
 			AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
 			AND P.USER_ID 		= CM.USER_ID
+			AND P.P_RELATION_TYPE = CM.RELATION_TYPE
 			AND P.USER_ID 		= U.USER_ID 
 			<if test=" USER_ID != null and !USER_ID.equals('') and !USER_ID.equals('--') ">
 			AND U.USER_ID 		= #{USER_ID}
@@ -86,8 +93,6 @@
 			</if>
 			AND R.USE_YN		= 'Y'
 			AND R.DEL_YN		= 'N'
-			AND ( P.USE_YN		= 'Y' OR P.USE_YN IS NULL ) 
-			AND ( P.DEL_YN		= 'N' OR P.DEL_YN IS NULL )
 			AND CM.USE_YN		= 'Y'
 			AND CM.DEL_YN		= 'N'
 			<if test=" GUBUN != null and GUBUN.equals('MNG') ">
@@ -389,7 +394,7 @@
 		, A.USER_ID
 		, GET_USER_NM( A.USER_ID ) USER_NM
 		, #{RESULT_ID} AS RESULT_ID
-		<!-- , A.PAYMENT_ID -->
+		, A.PAYMENT_ID
 		, A.EXEC_TYPE
 		, CM.RELATION_TYPE
 		, GET_CODE_NM('RELATION_TYPE', CM.RELATION_TYPE ) AS RELATION_TYPE_NM
@@ -402,7 +407,7 @@
 				<include refid="cmUsers"/>
 			)
 			SELECT A.*
-			 <!-- ,ROW_NUMBER() OVER (ORDER BY <include refid="buisnessHierarchyOrderBy"/> ) AS PAYMENT_ID -->
+			 ,ROW_NUMBER() OVER (ORDER BY <include refid="buisnessHierarchyOrderBy"/> ) AS PAYMENT_ID
 			FROM(
 				SELECT CMU.CONTRACT_ID 
 				,CMU.USER_ID
@@ -446,6 +451,8 @@
 		AND A.CONTRACT_ID	= #{CONTRACT_ID}
 		AND A.USER_ID		= CM.USER_ID
 		AND A.CONTRACT_ID   = CM.CONTRACT_ID 
+		AND A.RELATION_TYPE = CM.RELATION_TYPE
+		AND CM.RELATION_TYPE= P.RELATION_TYPE(+) 
 		AND A.USER_ID 		= U.USER_ID 
 		AND A.CONTRACT_ID 	= P.CONTRACT_ID(+)
 		AND #{RESULT_ID}	= P.RESULT_ID(+)
@@ -468,7 +475,7 @@
        <choose>
            <when test="EXEC_TYPE != null and EXEC_TYPE.equals('EXEC')">
            
-			SELECT CMU.USER_ID, CMU.USER_NM, P.EXEC_PAY_ID AS PAY_ID , P.RATE
+			SELECT CMU.USER_ID, CMU.USER_NM, P.EXEC_PAY_ID AS PAY_ID , P.RATE , 'EXECUTE' RELATION_TYPE
 			FROM TBL_EXP_EXEC_PAY  P
 			,TBL_EXP_CONTRACT C
 			,CMU
@@ -482,7 +489,7 @@
            <when test="EXEC_TYPE != null and EXEC_TYPE.equals('SALES')">
             
 			SELECT CMU.USER_ID, CMU.USER_NM, P.SALES_PAY_ID AS PAY_ID , 
-			DECODE( CMU.RELATION_TYPE, 'COWORK',NULL,  P.RATE ) RATE
+			DECODE( CMU.RELATION_TYPE, 'COWORK',NULL,  P.RATE ) RATE , #{RELATION_TYPE} RELATION_TYPE
 			FROM TBL_EXP_SALES_PAY P
 			,TBL_EXP_CONTRACT C
 			,CMU
@@ -496,7 +503,7 @@
            </when>
            <when test="EXEC_TYPE != null and EXEC_TYPE.equals('SUGGESTER')">
            
-			SELECT CMU.USER_ID, CMU.USER_NM, '100' AS PAY_ID , 5 AS RATE
+			SELECT CMU.USER_ID, CMU.USER_NM, '100' AS PAY_ID , 5 AS RATE , 'SUGGESTER' RELATION_TYPE
 			FROM 
 			TBL_EXP_CONTRACT C
 			,CMU
@@ -602,6 +609,7 @@
 		         TO_NUMBER(#{PAYMENT_ID})	AS PAYMENT_ID,
 		         #{PAYMENT} 				AS PAYMENT,
 		         #{EXEC_TYPE} 				AS EXEC_TYPE,
+		         #{RELATION_TYPE} 			AS RELATION_TYPE,
 		         TO_CHAR(#{PAY_ID})			AS PAY_ID,
 		         #{RATE} 					AS RATE,
 		         'Y'	 					AS USE_YN,
@@ -619,6 +627,7 @@
 		  UPDATE SET
 		         T.PAYMENT 			= S.PAYMENT,
 		         T.EXEC_TYPE 		= S.EXEC_TYPE,
+		         T.RELATION_TYPE 	= S.RELATION_TYPE,
 		         T.PAY_ID			= S.PAY_ID,
 		         T.RATE				= S.RATE,
 		         T.USE_YN			= S.USE_YN,
@@ -626,8 +635,8 @@
 		         T.UPDATE_USER		= S.UPDATE_USER,
 		         T.UPDATE_DATE		= SYSDATE
 		WHEN NOT MATCHED THEN 
-    		INSERT (  CONTRACT_ID,   USER_ID,   RESULT_ID,   PAYMENT,   PAYMENT_ID,   EXEC_TYPE,   PAY_ID,   RATE,   USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
-   			VALUES (S.CONTRACT_ID, S.USER_ID, S.RESULT_ID, S.PAYMENT, S.PAYMENT_ID, S.EXEC_TYPE, S.PAY_ID, S.RATE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, SYSDATE)
+    		INSERT (  CONTRACT_ID,   USER_ID,   RESULT_ID,   PAYMENT,   PAYMENT_ID,   EXEC_TYPE,  RELATION_TYPE,  PAY_ID,   RATE,   USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
+   			VALUES (S.CONTRACT_ID, S.USER_ID, S.RESULT_ID, S.PAYMENT, S.PAYMENT_ID, S.EXEC_TYPE,S.RELATION_TYPE,S.PAY_ID, S.RATE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, SYSDATE)
 	</update>
 	
 	<delete id="deletePaymentItem" parameterType="java.util.HashMap"  flushCache="true" >

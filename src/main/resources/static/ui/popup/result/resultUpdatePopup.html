@@ -327,12 +327,13 @@ var <@popupId> = {
 		let rateSum = 0;
 		let paymentSum = 0;
 		payInfoList.forEach( (payInfo,index) =>{
+
+			const userId 			= payInfo.USER_ID;
+			const userRelationType 	= payInfo.RELATION_TYPE;
+			const payId 			= payInfo.PAY_ID;
+			const rate 				= payInfo.RATE;		
 			
-			const userId 	= payInfo.USER_ID;
-			const payId 	= payInfo.PAY_ID;
-			const rate 		= payInfo.RATE;		
-			
-			const tr		= `#<@popupId>_paymentList tr[value=${userId}]`;
+			const tr		= `#<@popupId>_paymentList tr[value=${userId}${userRelationType}]`;
 			const relationType = $(tr+" td[id='RELATION_TYPE']").attr("value");
 			
 			if( relationType != "COWORK" && relationType != "SUGGESTER"){
@@ -474,8 +475,8 @@ var <@popupId> = {
 	        const val 			= $(this).nval();
 			const supplytax		= <@popupId>.supply_tax_cal(val);
 			
-			$('#<@popupId>_supplyCost'		).val( supplytax.supplyCost	).html( addComma(supplytax.supplyCost	));
-			$('#<@popupId>_tax'				).val( supplytax.tax		).html( addComma(supplytax.tax			));
+			$('#<@popupId>_supplyCost'		).val( addComma(supplytax.supplyCost)).attr("style","width:100%;text-align:right");
+			$('#<@popupId>_tax'				).val( addComma(supplytax.tax)		 ).attr("style","width:100%;text-align:right");
 			
  	        const remainingSum = $("#REMAINING_SUM").text().replace(/,/g, '');
 	        if( Number(remainingSum) - Number(supplytax.supplyCost)  < 0  ){
@@ -857,11 +858,11 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								</tbody>
 								<script type="text/x-jsrender" id="<@popupId>_paymentList_template">						
 								{{for list}}
-								<tr name="<@popupId>_tr_{{:#index}}"                          	value='{{:USER_ID}}'>
+								<tr name="<@popupId>_tr_{{:#index}}"                          	value='{{:USER_ID}}{{:RELATION_TYPE}}'>
 				 					<td id='USER_ID'			value='{{:USER_ID}}' class="tl"	>{{:USER_ID}}</td>
 									<td id='USER_NM'			value='{{:USER_NM}}' class="tl"	>{{:USER_NM}}</td>
 									<td id='GRADE'				value='{{:GRADE}}'	 class="tl"	>{{:GRADE}}</td>
-									<td id='RELATION_TYPE_NM'	value='{{:RELATION_TYPE_NM}}'	class='tl'>{{:RELATION_TYPE_NM}}</td>
+									<td id='RELATION_TYPE_NM'	value='{{:RELATION_TYPE_NM}}'	class='tc'>{{:RELATION_TYPE_NM}}</td>
 									<td id='RATE'				value='{{:RATE}}' 				class='tr'>
     								{{if RELATION_TYPE == 'COWORK'}}
 	        							<input name='coworkRate' 	type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
