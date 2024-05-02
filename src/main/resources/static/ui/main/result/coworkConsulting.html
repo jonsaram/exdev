@@ -84,7 +84,7 @@ var <@pageId> = {
 		,searchList : (requestParm, targetId) => {
 
 			var parm = {
-					 queryId 		: "rstMgn.getContractList"
+					 queryId 		: "cstm.getBuyerSellingList"
 					,requestParm	: {parm:requestParm}
 			}
 
@@ -222,26 +222,24 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
-									<col style="width:55px;"/>
 									<col style="width:60px;"/>
 									<col style="width:11%;"/>
 									<col style="width:11%;"/>
 									<col style="width:15%;"/>
-									<col style="width:9%;"/>
-									<col style="width:9%;"/>
+									<col style="width:10%;"/>
+									<col style="width:15%;"/>
 								</colgroup>
 								<thead>
 									<tr>
 										<th scope="col">년</th>
 										<th scope="col">월</th>
-										<th scope="col">팀</th>
 										<th scope="col">유입<br>경로</th>
 										<th scope="col">구분</th>
 										<th scope="col">담당자</th>
-										<th scope="col">사업자 등록번호</th>
+										<th scope="col">사업자<BR>등록번호</th>
 										<th scope="col">거래처</th>
 										<th scope="col">컨설팅명</th>
-										<th scope="col">총 계액금액</th>
+										<th scope="col">총<BR>계약금액</th>
 										<th scope="col">입금액</th>
 									</tr>
 								</thead>
@@ -252,7 +250,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<tr name="<@pageId>_tr_{{:#index}}" value='{{:CONTRACT_ID}}'>
 			 							<td>{{:CONTRACT_YEAR}}</td>
 			 							<td>{{:CONTRACT_MONTH}}</td>
-			 							<td>{{:TEAM_NM}}</td>
 			 							<td>{{:HOW_GET_NM}}</td>
 			 							<td>{{:CONTRACT_TYPE_NM}}</td>
 			 							<td>{{:USER_NM}}</td>
@@ -266,7 +263,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								</script>
 								<script type="text/x-jsrender" id="<@pageId>_contractList_noData_template">	
 									<tr>	
-										<td colspan=11>자료가 없습니다.</td>	
+										<td colspan=10>자료가 없습니다.</td>	
 									</tr>
 								</script>									
 							</table>
@@ -304,27 +301,25 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
-									<col style="width:55px;"/>
 									<col style="width:60px;"/>
 									<col style="width:11%;"/>
 									<col style="width:11%;"/>
 									<col style="width:15%;"/>
-									<col style="width:9%;"/>
-									<col style="width:9%;"/>
+									<col style="width:10%;"/>
+									<col style="width:15%;"/>
 								</colgroup>
 								<thead>
 									<tr id="<@pageId>_headingColName">
 										<th scope="col">NO.</th>
 										<th scope="col">년</th>
 										<th scope="col">월</th>
-										<th scope="col">팀</th>
 										<th scope="col">유입<br>경로</th>
 										<th scope="col">구분</th>
 										<th scope="col">담당자</th>
-										<th scope="col">사업자 등록번호</th>
+										<th scope="col">사업자<BR>등록번호</th>
 										<th scope="col">거래처</th>
 										<th scope="col">컨설팅명</th>
-										<th scope="col">총 계액금액</th>
+										<th scope="col">총<BR>계약금액</th>
 										<th scope="col">입금액</th>
 									</tr>
 								</thead>
@@ -336,7 +331,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			 							<td id='ROWIDX'				value='{{:ROWIDX}}'				>{{:ROWIDX}}</td>
 			 							<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
 			 							<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
-			 							<td id='TEAM_NM'			value='{{:TEAM_NM}}'			>{{:TEAM_NM}}</td>
 			 							<td id='HOW_GET_NM'			value='{{:HOW_GET_NM}}'			>{{:HOW_GET_NM}}</td>
 			 							<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
 			 							<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>

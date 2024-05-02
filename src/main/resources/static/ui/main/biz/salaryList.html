@@ -45,19 +45,33 @@ var <@pageId> = {
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 
-				let sumTotalCost=0,sumIncome=0,sumPayment=0,sumTax=0,sumRealPay=0;
+	        	mergeTableTD('<@pageId>_salaryList', {startIdx :2, endIdx :4, startRowIdx : 1});;
+
+				
+				let sumTotalCost=0, sumIncome=0;
+				$.each($("#<@pageId>_salaryList [name^='<@pageId>_tr'] td[id='TOTAL_COST']") , function(idx){
+					
+					sumTotalCost +=Number($(this).text().replace(/,/g, ''));
+				})
+					$.each($("#<@pageId>_salaryList [name^='<@pageId>_tr'] td[id='INCOME']") , function(idx){
+					
+						sumIncome +=Number($(this).text().replace(/,/g, ''));
+				})
+				
+				let sumPayment=0,sumTax=0,sumRealPay=0;
 				resultData.data.forEach(item=>{
-					sumTotalCost 	+=item.TOTAL_COST;
-					sumIncome		+=item.INCOME;
 					sumPayment		+=item.PAYMENT;
 					sumTax			+=item.TAX;
 					sumRealPay		+=item.REAL_PAY;
 				})
+
 				$("#<@pageId>_sumTotalCost").text(sumTotalCost.toLocaleString());
 				$("#<@pageId>_sumIncome").text(sumIncome.toLocaleString());
 				$("#<@pageId>_sumPayment").text(sumPayment.toLocaleString());
 				$("#<@pageId>_sumTax").text(sumTax.toLocaleString());
-				$("#<@pageId>_sumRealPay").text(sumRealPay.toLocaleString());
+				$("#<@pageId>_sumRealPay").text(sumRealPay.toLocaleString());				
+				
+				
 				<@pageId>.setHandler();
 			});
 		}
