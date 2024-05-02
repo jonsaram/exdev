@@ -127,11 +127,11 @@ var <@pageId> = {
 
 			
 			let sum = getOrgSellingPriceListMONTHLY.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_monthly_OrgSellingPrice").text(sum.toLocaleString() + "원") ;
+			$("#<@pageId>_monthly_OrgSellingPrice").text(sum.toLocaleString() + "억원") ;
 				sum = getOrgSellingPriceListOnly_ONE.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_once_OrgSellingPrice").text(sum.toLocaleString() + "원") ;
+			$("#<@pageId>_once_OrgSellingPrice").text(sum.toLocaleString() + "억원") ;
 				sum = getOrgSellingPriceListPARTNER.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_product_OrgSellingPrice").text(sum.toLocaleString() + "원") ;
+			$("#<@pageId>_product_OrgSellingPrice").text(sum.toLocaleString() + "억원") ;
 			
 			_setRemoveHighChartCredits();
 			
@@ -501,17 +501,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<table>
 								<caption>표 캡션</caption>
 								<colgroup>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
+									<col style="width:40px;"/>
+									<col style="width:40px;"/>
+									<col style="width:40px;"/>
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
 									<col style="width:60px;"/>
 									<col style="width:11%;"/>
 									<col style="width:11%;"/>
-									<col style="width:16%;"/>
-									<col style="width:9%;"/>
-									<col style="width:9%;"/>
+									<col style="width:15%;"/>
+									<col style="width:11%;"/>
+									<col style="width:12%;"/>
 								</colgroup>
 								<thead>
 									<tr id="<@pageId>_headingColName">
@@ -521,10 +521,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<th scope="col">유입<br>경로</th>
 										<th scope="col">구분</th>
 										<th scope="col">담당자</th>
-										<th scope="col">사업자 등록번호</th>
+										<th scope="col">사업자<br>등록번호</th>
 										<th scope="col">고객명</th>
 										<th scope="col">컨설팅명</th>
-										<th scope="col">총 계액금액</th>
+										<th scope="col">총<br>계약 금액</th>
 										<th scope="col">입금액</th>
 									</tr>
 								</thead>
@@ -538,12 +538,12 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			 							<td id='CONTRACT_MONTH'		>{{:CONTRACT_MONTH}}</td>
 			 							<td id='HOW_GET_NM'			>{{:HOW_GET_NM}}</td>
 			 							<td id='CONTRACT_TYPE_NM'	>{{:CONTRACT_TYPE_NM}}</td>
-			 							<td id='USER_NM'			>{{:USER_NM}}</td>
-										<td id='COMPANY_REGNUM' 	>{{:COMPANY_REGNUM}}</td>
-										<td id='BUYER_NM'			>{{:BUYER_NM}}</td>
-										<td id='CONSULTING_NM'		>{{:CONSULTING_NM}}</td>
- 										<td id='TOTAL_COST'			>{{numb:TOTAL_COST}}</td>
- 										<td id='TOT_INCOME'			>{{numb:TOT_INCOME}}</td>
+			 							<td id='USER_NM'	class='tl'>{{:USER_NM}}</td>
+										<td id='COMPANY_REGNUM'	class='tl'>{{:COMPANY_REGNUM}}</td>
+										<td id='BUYER_NM'		class='tl'>{{:BUYER_NM}}</td>
+										<td id='CONSULTING_NM'	class='tl'>{{:CONSULTING_NM}}</td>
+ 										<td id='TOTAL_COST'		class='tr'>{{numb:TOTAL_COST}}</td>
+ 										<td id='TOT_INCOME'		class='tr'>{{numb:TOT_INCOME}}</td>
 									</tr>
 								{{/for}}
 								</script>
@@ -563,21 +563,21 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<section class="sec_wrap">
 					<div class="cont_box col3" >
 						<h3>월자문 순매출</h3>
-						<div class="price" id="<@pageId>_monthly_OrgSellingPrice">원</div>
+						<div class="price" id="<@pageId>_monthly_OrgSellingPrice">억원</div>
 						<figure class="highcharts-figure">
 					    	<div class="chart" id="<@pageId>_monthlyOSP_chart" style="width:100%; height:280px; margin:55px auto"></div>
 						</figure>
 					</div>
 					<div class="cont_box col3">
 						<h3>1회성 순매출</h3>
-						<div class="price" id="<@pageId>_once_OrgSellingPrice">원</div>
+						<div class="price" id="<@pageId>_once_OrgSellingPrice">억원</div>
 						<figure class="highcharts-figure">
 					    	<div class="chart2" id="<@pageId>_onceOSP_chart" style="width:100%; height:280px; margin:55px auto"></div>
 						</figure>
 					</div>
 					<div class="cont_box col3">
 						<h3>외주자문 순매출</h3>
-						<div class="price"  id="<@pageId>_product_OrgSellingPrice">원</div>
+						<div class="price"  id="<@pageId>_product_OrgSellingPrice">억원</div>
 						<figure class="highcharts-figure">
 					    	<div class="chart3" id="<@pageId>_productOSP_chart" style="width:100%; height:280px; margin:55px auto"></div>
 						</figure>

@@ -49,7 +49,7 @@ var <@pageId> = {
 			}
 
 			C_COM.requestQuery(parm, function(resultData) {
-				
+
 				var rparm = {
 						 targetId 		: "<@pageId>_paymentCntList"
 						,list			: resultData.data
@@ -69,8 +69,13 @@ var <@pageId> = {
 					$("#<@pageId>_sumTotalCost").text("");
 					$("#<@pageId>_sumIncome").text("");
 					$("#<@pageId>_sumPayment").text("");
+					$("#<@pageId>_sumTax").text("");
+					$("#<@pageId>_sumRealPay").text("");
+					
+					$("#<@pageId>_payUserName").text("-");
+					$("#<@pageId>_payDate").text(C_UICOM.getData("<@pageId>_years")+"년 "+C_UICOM.getData("<@pageId>_months")+"월");
+					
 				}
-				
 				
 			});
 		}
@@ -94,13 +99,24 @@ var <@pageId> = {
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 				
+	        	mergeTableTD('<@pageId>_paymentDetailList', {startIdx : 2, endIdx : 4, startRowIdx : 1});
+
+
 				$("#<@pageId>_payUserName").text(selectedRow.USER_NM);
 				$("#<@pageId>_payDate").text(selectedRow.CALC_PAY_DATE);
+
+				let sumTotalCost=0, sumIncome=0;
+				$.each($("#<@pageId>_paymentDetailList [name^='<@pageId>_tr'] td[id='TOTAL_COST']") , function(idx){
+					
+					sumTotalCost +=Number($(this).text().replace(/,/g, ''));
+				})
+					$.each($("#<@pageId>_paymentDetailList [name^='<@pageId>_tr'] td[id='INCOME']") , function(idx){
+					
+						sumIncome +=Number($(this).text().replace(/,/g, ''));
+				})
 				
-				let sumTotalCost=0,sumIncome=0,sumPayment=0,sumTax=0,sumRealPay=0;
+				let sumPayment=0,sumTax=0,sumRealPay=0;
 				resultData.data.forEach(item=>{
-					sumTotalCost 	+=item.TOTAL_COST;
-					sumIncome		+=item.INCOME;
 					sumPayment		+=item.PAYMENT;
 					sumTax			+=item.TAX;
 					sumRealPay		+=item.REAL_PAY;
@@ -165,7 +181,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 		            </div>
 				</div>
 				<div class="clearFix mt15" style="height: calc(100% - 53px);">
-					<div class="fl h100 mr15" style="width:calc(35% - 15px);">
+					<div class="fl h100 mr15" style="width:calc(28% - 15px);">
 						<div class="cont_top clearFix">
 							<h3 class="fl font16">급여 내역 리스트</h3>
 							<div class="fr"><strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt"></span></strong></div>
@@ -177,15 +193,15 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<caption>급여 내역 리스트</caption>
 									<colgroup>
 										<col style="width:45px;"/>
-										<col style="width:120px;"/>
-										<col style="width:120px;"/>
-										<col style="width:120px;"/>
-										<col style="width:120px;"/>
+										<!-- <col style="width:100px;"/> -->
+										<col style="width:80px;"/>
+										<col style="width:80px;"/>
+										<col style="width:80px;"/>
 									</colgroup>
 									<thead>
 										<tr>
 											<th scope="col">No.</th>
-											<th scope="col">정산년월</th>
+										<!-- 	<th scope="col">정산년월</th> -->
 											<th scope="col">사원명</th>
 											<th scope="col">관련계약건수</th>
 											<th scope="col">수수료 합</th>
@@ -197,7 +213,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								{{for list}}
 									<tr name="<@pageId>_tr_{{:#index}}"  	onclick="javascript:<@pageId>.rowClick({{:#index}})">
 										<td id='RN'							>{{:RN}}</td>
-										<td id='CALC_PAY_DATE'				>{{:CALC_PAY_DATE}}</td>
+									<!-- 	<td id='CALC_PAY_DATE'				>{{:CALC_PAY_DATE}}</td> -->
 										<td id='USER_NM'					>{{:USER_NM}}</td>
 										<td id='CNT'			class="tr"	>{{numb:CNT}}</td>
 										<td id='TOTAL_PAYMENT'	class="tr"	>{{numb:TOTAL_PAYMENT}}</td>
@@ -206,13 +222,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							</script>
 							<script type="text/x-jsrender" id="<@pageId>_paymentCntList_noData_template">	
 								<tr>	
-									<td colspan=5>자료가 없습니다.</td>	
+									<td colspan=4>자료가 없습니다.</td>	
 								</tr>
 							</script>
 								</table>
 							</div>
 					</div>
-					<div class="fl h100 ml15" style="width:calc(65% - 15px);">
+					<div class="fl h100 ml15" style="width:calc(72% - 15px);">
 						<div class="cont_top clearFix">
 							<h3 class="fl font16">급여 상세</h3>
 							<div class="fr">
@@ -227,12 +243,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<colgroup>
 										<col style="width:40px;"/>
 										<col style="width:90px;"/>
-										<col style="width:100px;"/>
 										<col style="width:90px;"/>
-										<col style="width:100px;"/>
-										<col style="width:80px;"/>
-										<col style="width:70px;"/>
-										<col style="width:70px;"/>
+										<col style="width:90px;"/>
+										
+										<col style="width:90px;"/>
+										<col style="width:65px;"/>
+										<col style="width:65px;"/>
+										<col style="width:65px;"/>
 										<col style="width:90px;"/>
 										<col style="width:80px;"/>
 										<col style="width:80px;"/>
@@ -241,9 +258,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<tr>
 											<th scope="col" rowspan="2">No.</th>
 											<th scope="col" colspan="3">계약정보</th>
-											<th scope="col" rowspan="2">실적/입금액</th>
+											
+											<th scope="col" rowspan="2">실적<br>(입금액)</th>
 											<th scope="col" rowspan="2">입금일</th>
-											<th scope="col" rowspan="2">업무Type</th>
+											<th scope="col" rowspan="2">업무<br>Type</th>
 											<th scope="col" rowspan="2">수수료율</th>
 											<th scope="col" rowspan="2">수수료<br>(세전)</th>
 											<th scope="col" rowspan="2">원천세<br>(3.3%)</th>
@@ -262,7 +280,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								{{for list}}
 									<tr name="<@pageId>_tr_{{:#index}}"  	onclick="javascript:<@pageId>.rowClick(this)" index="{{:#index}}">
 										<td id='RN'							>{{:RN}}</td>
-										<td id='USER_NM'					>{{:USER_NM}}</td>
+										<td id='BUYER_NM'					>{{:BUYER_NM}}</td>
 										<td id='CONSULTING_NM'				>{{:CONSULTING_NM}}</td>
 										<td id='TOTAL_COST'	class="tr"		>{{numb:TOTAL_COST}}</td>
 										<td id='INCOME'		class="tr"		>{{numb:INCOME}}</td>

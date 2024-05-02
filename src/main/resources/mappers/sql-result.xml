@@ -36,6 +36,7 @@
 			,GET_CODE_NM( 'RELATION_TYPE', CM.RELATION_TYPE ) AS RELATION_TYPE_NM
 			,P.RATE
 			,P.PAYMENT
+			,P.PAYMENT_ID
 			,R.ORG_SELLING_PRICE
 			,TO_NUMBER(R.ORG_SELLING_PRICE) - TO_NUMBER( SUM(P.PAYMENT) OVER(PARTITION BY R.RESULT_ID ) ) AS REAL_PROFIT
 			,R.USE_YN
@@ -43,7 +44,7 @@
 			,R.UPDATE_USER
 			,R.UPDATE_DATE
 			,TO_CHAR( R.UPDATE_DATE, 'YYYY-MM') AS UPDATE_DATE_MONTH
-			,CASE WHEN ROW_NUMBER() OVER (ORDER BY R.UPDATE_DATE , <include refid="buisnessHierarchyOrderBy"/>) = COUNT(*) OVER () AND C.PROCESS_STATE != 'COMPLETED' THEN R.RESULT_ID END AS LAST_RESULT_ID
+			,CASE WHEN ROW_NUMBER() OVER (ORDER BY R.UPDATE_DATE , P.PAYMENT_ID) = COUNT(*) OVER () AND C.PROCESS_STATE != 'COMPLETED' THEN R.RESULT_ID END AS LAST_RESULT_ID
 			FROM TBL_EXP_RESULT R
 			,TBL_EXP_CONTRACT C
 			,(
@@ -99,7 +100,7 @@
 			ORDER BY R.UPDATE_DATE , <include refid="buisnessHierarchyOrderBy"/>
 			</if>
 			<if test=" GUBUN != null and GUBUN.equals('LIST') ">
-			ORDER BY REMAINING_SUM DESC  , <include refid="buisnessHierarchyOrderBy"/>
+			ORDER BY REMAINING_SUM DESC  , P.PAYMENT_ID
 			</if>
 	</sql> 
 	<select id="getResultList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -127,7 +128,7 @@
 		/*	result.getResultDataList
 			실적 현황 리스트 조회 
 		*/
-		SELECT ROW_NUMBER() OVER( ORDER BY RESULT_DATE , REMAINING_SUM DESC ) AS RN
+		SELECT ROW_NUMBER() OVER( ORDER BY UPDATE_DATE, RESULT_DATE , REMAINING_SUM DESC ) AS RN
 		,RESULT_ID
 		,RESULT_DATE_YM
 		,BUYER_NM
@@ -138,7 +139,8 @@
 		,RESULT_DATE
 		,INCOME
 		,SUM_COST_PRICE
-		,(INCOME - SUM_COST_PRICE) AS ORG_SELLING_PRICE
+		,ROUND((INCOME * 10/11 - SUM_COST_PRICE * 10/11),2) AS ORG_SELLING_PRICE
+		,UPDATE_DATE
 		FROM(
 		
 			SELECT R.CONTRACT_ID, R.RESULT_ID
@@ -154,6 +156,7 @@
 				WHERE I.CONTRACT_ID = C.CONTRACT_ID 
 				AND I.RESULT_ID = R.RESULT_ID AND I.USE_YN = 'Y' AND I.DEL_YN = 'N'
 			 ),0) SUM_COST_PRICE
+			 ,R.UPDATE_DATE
 			FROM TBL_EXP_CONTRACT C
 			,TBL_EXP_RESULT R
 			,TBL_EXP_TEAM_MEMBER TM 
@@ -168,7 +171,7 @@
 		<if test=" CONTRACT_ID != null and !CONTRACT_ID.equals('') ">  
 		AND CONTRACT_ID = #{CONTRACT_ID}
 		</if>		
-		ORDER BY RESULT_DATE , REMAINING_SUM DESC
+		ORDER BY UPDATE_DATE, RESULT_DATE , REMAINING_SUM DESC
 	</select>
 		 
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -318,8 +321,8 @@
 				           							WHERE 	CONTRACT_ID = p_CONTRACT_ID
 				           							AND 	USE_YN= 'Y' AND DEL_YN = 'N'
 				          						) 	,
-					T.ORG_SELLING_PRICE		= NVL(T.INCOME - 						  
-												NVL(( SELECT SUM(COST_PRICE) FROM TBL_EXP_COST
+					T.ORG_SELLING_PRICE		= NVL(T.INCOME * 10/11  - 						  
+												NVL(( SELECT SUM(COST_PRICE) * 10/11 FROM TBL_EXP_COST
 				           							WHERE CONTRACT_ID = p_CONTRACT_ID
 				           							AND   RESULT_ID	  = p_RESULT_ID
 				           							AND   USE_YN= 'Y' AND DEL_YN = 'N'
