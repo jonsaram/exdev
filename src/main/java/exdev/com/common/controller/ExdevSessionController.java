@@ -36,24 +36,51 @@ public class ExdevSessionController {
 			return map;
 		}
 		
-		String spCstmId = (String)userInfo.get("SP_CSTM_ID"	);
-		String userNm 	= (String)userInfo.get("USER_NM"	);
-		String userId 	= (String)userInfo.get("USER_ID"	);
-		String grade 	= (String)userInfo.get("GRADE"		);
-		String email	= (String)userInfo.get("EMAIL"		);
+		String spCstmId 	= (String)userInfo.get("SP_CSTM_ID"	);
+		String userNm 		= (String)userInfo.get("USER_NM"	);
+		String userId 		= (String)userInfo.get("USER_ID"	);
+		String grade 		= (String)userInfo.get("GRADE"		);
+		String email		= (String)userInfo.get("EMAIL"		);
 		
 		sessionVO.setSpCstmId	(spCstmId	);
 		sessionVO.setUserId		(userId		);
 		sessionVO.setUserNm		(userNm		);
 		sessionVO.setGrade		(grade		);
 		sessionVO.setEmail		(email		);
+		sessionVO.setLoginType	("USER"		);
 		
 		session.setAttribute(ExdevConstants.SESSION_ID, sessionVO);
 		
 		return userInfo;
 	}
 
+	@RequestMapping("setSessionForBuyer.do")
+	public @ResponseBody Map setSessionForBuyer(@RequestBody Map map, HttpSession session) throws Exception {
+		
+		SessionVO sessionVO = new SessionVO();
+		
+		Map userInfo = (Map)commonDao.getObject("system.getBuyerInfoForLogin", map);
+		
+		if(!ExdevCommonAPI.isValid(userInfo)) {
+			map.put("state", "E");
+			return map;
+		}
+		
+		String spCstmId 	= (String)userInfo.get("SP_CSTM_ID"	);
+		String userNm 		= (String)userInfo.get("BUYER_NM"	);
+		String userId 		= (String)userInfo.get("BUYER_ID"	);
+		
+		sessionVO.setSpCstmId	(spCstmId	);
+		sessionVO.setUserId		(userId		);
+		sessionVO.setUserNm		(userNm		);
+		sessionVO.setLoginType	("BUYER"	);
+		
+		session.setAttribute(ExdevConstants.SESSION_ID, sessionVO);
+		
+		return userInfo;
+	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping("getSession.do")
 	public @ResponseBody Map getSession(@RequestBody Map map, HttpSession session) throws Exception {
 		
@@ -61,15 +88,17 @@ public class ExdevSessionController {
 		
 		HashMap userInfo = new HashMap();
 
-		userInfo.put("SP_CSTM_ID"	,  sessionVO.getSpCstmId());
-		userInfo.put("USER_NM"		,  sessionVO.getUserNm	());
-		userInfo.put("USER_ID"		,  sessionVO.getUserId	());
-		userInfo.put("GRADE"		,  sessionVO.getGrade	());
-		userInfo.put("EMAIL"		,  sessionVO.getEmail	());
+		userInfo.put("SP_CSTM_ID"	,  sessionVO.getSpCstmId	());
+		userInfo.put("USER_NM"		,  sessionVO.getUserNm		());
+		userInfo.put("USER_ID"		,  sessionVO.getUserId		());
+		userInfo.put("GRADE"		,  sessionVO.getGrade		());
+		userInfo.put("EMAIL"		,  sessionVO.getEmail		());
+		userInfo.put("LOGIN_TYPE"	,  sessionVO.getLoginType	());
 		
 		return userInfo;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@RequestMapping("logout.do")
 	public @ResponseBody Map logout(HttpSession session) {
 

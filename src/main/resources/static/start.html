@@ -57,11 +57,25 @@
 			G_VAL.session.grade		= userInfo.GRADE 		;
 			G_VAL.session.email		= userInfo.E_MAIL 		;
 			
-			dwrite(userInfo);
-			
+			// 고객 로그인인경우
+			if(userInfo.LOGIN_TYPE == "BUYER") {
+				G_VAL.session.BUYER_ID = userInfo.USER_ID;
+				setBuyerSession(userInfo.USER_ID);
+			}
 			//changePwd("Y");
 		}
 		
+		function setBuyerSession(BUYER_ID) {
+			var parm = {
+				 queryId 		: "system.getBuyerInfo"
+				,requestParm	: {
+					BUYER_ID : BUYER_ID
+				}
+			}	
+			C_COM.requestQuery(parm, function(resultData) {
+				G_VAL.session.buyerInfo = resultData.data[0];
+			});
+		}
 		
 		$(function() {
 			// 시작 Page Id
@@ -106,7 +120,7 @@
 				var parm = {
 					 queryId 		: "system.getMenuList"
 					,requestParm	: {}
-				}	
+				}
 				C_COM.requestQuery(parm, function(resultData) {
 					let menuOrgList 	= resultData.data;
 					let mainMenuList 	= []
@@ -135,7 +149,7 @@
 						C_MENU.subMenuListMap[this.PARENT_MENU_ID].push(this);	
 					});
 					setTimeout(function() {
-						C_MENU.moveMenu("MN_DSH_FA");	
+						C_MENU.moveMenu(subMenuAllList[0].MENU_ID);	
 					}, 1000);
 					
 				});
@@ -181,16 +195,27 @@
 					,PARENT_MENU_NM	: PARENT_MENU_NM
 				}
 				C_COM.renderHtml("mainContainer", rparm);
+				
+				var rparm = {
+					 targetId 		: "subMenuList2"
+					,list			: subMenuList
+					,buyerInfo		: G_VAL.session.buyerInfo
+				}
+				C_COM.renderHtml("mainContainer", rparm);
 			 }
 			,moveMainMenu 	: function(mainMenuIdx) {
 				C_MENU.showSubMenuList(mainMenuIdx, 0);
 				C_MENU.moveSubMenu(0);
 				if(in_array(C_MENU.mainMenuList[mainMenuIdx].MENU_ID, ["MN_SCD", "MN_FDS"])) {
 					$("#subMenuList").hide();
+					$("#subMenuList2").hide();
+				} else if(in_array(C_MENU.mainMenuList[mainMenuIdx].MENU_ID, ["MN_DSH"])) {
+					$("#subMenuList").hide();
+					$("#subMenuList2").show();
 				} else {
 					$("#subMenuList").show();
+					$("#subMenuList2").hide();
 				}  
-				
 			 }
 			,moveSubMenu	: function(idx) {
 				let subMenu = C_MENU.subMenuList[idx];
@@ -373,6 +398,25 @@
 				</li>
 			</ul>
 		</script>
+		
+		<nav class="lnb company" id="subMenuList2" style="display:none">
+		</nav>
+		<script type="text/x-jsrender" id="subMenuList2_template">						
+			<button class="btn fold"><i class="icon_arrow"></i></button>
+			<img class="img_company" src="../img/icon_company.png">
+			<div class="tit_company">{{:buyerInfo.BUYER_NM}}</div>
+			<div class="cpmpa_wrap"><span class="compa">{{:buyerInfo.ADDR}}</span></div>
+			<ul>
+				<li>
+					<ul>
+					{{for list}}
+						<li class="{{:activeClass}}"><a href="javascript:C_MENU.moveSubMenu({{:#index}});">{{:MENU_NM}}</a></li>
+					{{/for}}
+					</ul>
+				</li>
+			</ul>
+		</script>
+		
 		<span id="bodyBlock">
 		</span>
 
