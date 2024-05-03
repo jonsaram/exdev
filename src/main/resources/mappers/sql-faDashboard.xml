@@ -35,20 +35,18 @@
 				FROM(
 				
 					SELECT DISTINCT C.USER_ID
-					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE} THEN P.PAYMENT ELSE 0 END 									AS YEARLY_PAYMENT /* 연간 수수료 */ 
-					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE} THEN DECODE( P.EXEC_TYPE,'EXEC', PAYMENT, 0) ELSE 0 END 	AS YEARLY_EXEC_PAYMENT 
-					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE} THEN DECODE( P.EXEC_TYPE,'EXEC', 0 ,PAYMENT) ELSE 0 END 	AS YEARLY_SALES_PAYMENT 
-					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{CUR_MONTH_DATE} THEN P.PAYMENT  ELSE 0 END 							AS PAYMENT /* 당월수수료 */
+					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE} THEN P.PAYMENT ELSE 0 END AS YEARLY_PAYMENT /* 연간 수수료 */ 
+					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE} THEN DECODE( P.EXEC_TYPE,'EXEC', PAYMENT, 0) ELSE 0 END AS YEARLY_EXEC_PAYMENT 
+					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE} THEN DECODE( P.EXEC_TYPE,'EXEC', 0 ,PAYMENT) ELSE 0 END AS YEARLY_SALES_PAYMENT 
+					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{CUR_MONTH_DATE} THEN P.PAYMENT  ELSE 0 END AS PAYMENT /* 당월수수료 */
 					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{CUR_MONTH_DATE} THEN DECODE( P.EXEC_TYPE,'EXEC', PAYMENT, 0) ELSE 0 END AS  EXEC_PAYMENT /* 실행수수료 */
 					,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{CUR_MONTH_DATE} THEN DECODE( P.EXEC_TYPE,'EXEC', 0 ,PAYMENT) ELSE 0 END AS  SALES_PAYMENT /* 영업수수료 */
 					FROM TBL_EXP_CONTRACT C , TBL_EXP_RESULT R , TBL_EXP_CONTRACT_MEMBER CM
 					,TBL_EXP_PAYMENT P
 					WHERE C.CONTRACT_ID = R.CONTRACT_ID AND C.CONTRACT_ID =CM.CONTRACT_ID 
-					AND P.RELATION_TYPE = CM.RELATION_TYPE
 					AND C.USE_YN = 'Y' 	AND C.DEL_YN = 'N' 	AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
 					AND CM.USE_YN = 'Y' AND CM.DEL_YN = 'N' AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
 					AND C.CONTRACT_ID = P.CONTRACT_ID 
-					AND TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE}
 				)
 				GROUP BY USER_ID
 			)
@@ -138,15 +136,10 @@
 		)
 		
 		SELECT B.MONTH
-		, ROUND(NVL(MAX(A.SUM_PAYMENT)/100000000,0),2)	 		AS SUM_PAYMENT
-		, ROUND(NVL(MAX(A.SUM_EXEC_PAYMENT)/100000000,0),2) 	AS SUM_EXEC_PAYMENT
-		, ROUND(NVL(MAX(A.SUM_SALES_PAYMENT)/100000000,0),2) 	AS SUM_SALES_PAYMENT
-		, NVL(MAX(A.SUM_CUSTOMER),0)							AS SUM_COSTOMER
-		, NVL((SELECT TARGET_PAYMENT FROM TBL_EXP_USER_CONFIG CF
-				WHERE	CF.SP_CSTM_ID 	= #{sessionVo.spCstmId}
-				AND		CF.USER_ID		= #{sessionVo.userId}
-				AND		CF.TARGET_YEAR	= #{CUR_YEAR_DATE} 	
-		 ),0) AS TARGET_PAYMENT
+		, NVL(MAX(A.SUM_PAYMENT),0)	 		AS SUM_PAYMENT
+		, NVL(MAX(A.SUM_EXEC_PAYMENT),0) 	AS SUM_EXEC_PAYMENT
+		, NVL(MAX(A.SUM_SALES_PAYMENT),0) 	AS SUM_SALES_PAYMENT
+		, NVL(MAX(A.SUM_CUSTOMER),0)		AS SUM_COSTOMER
 		FROM(
 			SELECT 
 				TO_CHAR(RESULT_DATE,'YYYY-MM') AS MONTH
@@ -159,7 +152,7 @@
 						,R.RESULT_DATE
 						,P.PAYMENT /* 당월수수료 */
 						,DECODE( P.EXEC_TYPE,'EXEC', PAYMENT, 0) AS  EXEC_PAYMENT /* 실행수수료 */
-						,DECODE( P.EXEC_TYPE,'EXEC', 0 ,PAYMENT) AS  SALES_PAYMENT /* 영업수수료 */		
+						,DECODE( P.EXEC_TYPE,'EXEC', 0 ,PAYMENT) AS  SALES_PAYMENT /* 영업수수료 */						
 						FROM TBL_EXP_CONTRACT C , TBL_EXP_RESULT R
 						,TBL_EXP_PAYMENT P
 						WHERE C.CONTRACT_ID = R.CONTRACT_ID 
@@ -167,7 +160,7 @@
 						AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
 						AND C.CONTRACT_ID = P.CONTRACT_ID 
 						
-						AND C.USER_ID = #{sessionVo.userId}
+						AND C.USER_ID = '5754852770' /* sessionVo.userId */
 						
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') = #{CUR_YEAR_DATE}
 			)
@@ -188,7 +181,6 @@
 						AND 'PRE_CONTRACT' != C.PROCESS_STATE
 			)
 			GROUP BY TO_CHAR(CONTRACT_DATE,'YYYY-MM')
-
 		) A
 		,MONTHS B 
 		WHERE A.MONTH(+) = B.MONTH 
@@ -287,7 +279,7 @@
 	       AND C.BUYER_ID = B.BUYER_ID (+)
 	       AND S.SCHEDULE_DATE >= SYSDATE - 100 /* FOR TEST */
 	       AND S.USER_ID = 'jonsaram' /* sessionVo.userId */
-	       AND rownum <![CDATA[ < ]]> 5
+	       AND rownum <![CDATA[ < ]]>5
 	       ORDER BY S.SCHEDULE_DATE		
        )
        WHERE 1=1
@@ -301,5 +293,187 @@
        	OR 	DESCRIPTION 	like '%'|| #{SEARCH_DATA} ||'%' 
        )
        </if>
-	</select>	
+	</select>
+	
+	<select id="getSubFolderList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	faDashboard.getSubFolderList
+			FA 대시보드 기업폴더관리 하위 폴더리스트 가져오기
+		*/
+		SELECT
+		     FOLDER_ID
+		    ,FOLDER_NM
+		    ,UP_FOLDER_ID
+		    ,BUYER_ID
+		    ,UPDATE_USER
+		    ,UPDATE_DATE
+		FROM
+		    TBL_EXP_FOLDER
+		WHERE 1=1
+			AND	BUYER_ID 		= #{BUYER_ID}    
+			AND UP_FOLDER_ID 	= #{FOLDER_ID}
+		ORDER BY 
+			ORDER_IDX
+			
+	</select>
+	
+	<select id="getFolderInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	faDashboard.getFolderInfo
+			FA 대시보드 기업폴더관리 폴더 정보 가져오기
+		*/
+		SELECT
+		     FOLDER_ID
+		    ,FOLDER_NM
+		    ,UP_FOLDER_ID
+		    ,BUYER_ID
+		    ,UPDATE_USER
+		    ,UPDATE_DATE
+		FROM
+		    TBL_EXP_FOLDER
+		WHERE 1=1
+			AND FOLDER_ID 	= #{FOLDER_ID}
+		ORDER BY 
+			ORDER_IDX
+			
+	</select>
+
+	<select id="getFolderPath" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	faDashboard.getFolderInfo
+			FA 대시보드 기업폴더관리 폴더 정보 가져오기
+		*/
+		SELECT
+			 FOLDER_ID
+			,FOLDER_NM
+		FROM
+			TBL_EXP_FOLDER
+		START WITH
+			FOLDER_ID = #{FOLDER_ID}
+		CONNECT BY
+			PRIOR UP_FOLDER_ID = FOLDER_ID
+		ORDER BY LEVEL DESC  
+	</select>
+
+	
+	<update id="saveFolder">
+		/*	faDashboard.saveFolder
+			FA 대시보드 기업폴더관리 폴더 등록
+		*/
+		MERGE INTO TBL_EXP_FOLDER T
+		USING (
+		  SELECT 
+		  	#{FOLDER_ID}	AS FOLDER_ID
+		  FROM DUAL
+		) S
+		ON (
+			T.FOLDER_ID	= S.FOLDER_ID 
+		)
+		WHEN MATCHED THEN
+			UPDATE SET
+				 T.FOLDER_NM = #{FOLDER_NM}
+		WHEN NOT MATCHED THEN 
+			INSERT ( 
+				 FOLDER_ID
+				,FOLDER_NM
+				,UP_FOLDER_ID
+				,BUYER_ID
+				,ORDER_IDX
+			    ,UPDATE_DATE
+			    ,UPDATE_USER
+			    ,SP_CSTM_ID
+			) VALUES ( 
+				 #{FOLDER_ID   }
+				,#{FOLDER_NM   }			
+				,#{UP_FOLDER_ID}	
+				,#{BUYER_ID    }
+				,NVL((SELECT MAX(ORDER_IDX) + 1 FROM TBL_EXP_FOLDER WHERE UP_FOLDER_ID = #{UP_FOLDER_ID}), 1)
+	   			,sysdate
+	   			,#{sessionVo.userId		}
+				,#{sessionVo.spCstmId	}
+			)
+	</update>	
+		
+		
+	<select id="getShareMsgList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	faDashboard.getShareMsgList
+			FA 대시보드 기업폴더관리 폴더 대화 내용 가져오기
+		*/
+		WITH USR AS (
+		SELECT 
+			 USER_ID
+			,USER_NM
+		FROM
+			TBL_EXP_USER
+		UNION	
+		SELECT 
+			 BUYER_ID AS USER_ID
+			,BUYER_NM AS USER_NM
+		FROM
+			TBL_EXP_BUYER
+		) 		
+		SELECT
+		     FOLDER_MSG_ID
+		    ,CONTENT
+		    ,FOLDER_ID
+		    ,REGISTER_ID
+		    ,REGISTER_TYPE
+		    ,UPDATE_USER
+		    ,(SELECT USER_NM FROM USR B WHERE A.UPDATE_USER = B.USER_ID ) AS UPDATE_USER_NM
+		    ,TO_CHAR( UPDATE_DATE , 'MM-DD HH24:MI:SS' )				  AS UPDATE_DATE
+		    ,UPDATE_DATE							 					  AS ODR
+		FROM
+		    TBL_EXP_FOLDER_MSG A
+		WHERE 1=1
+			AND FOLDER_ID 	= #{FOLDER_ID}   
+			AND DEL_YN 		= 'N'
+		ORDER BY ODR 
+	</select>
+		
+	
+	
+	<update id="saveShareMsg">
+		/*	faDashboard.saveFolder
+			FA 대시보드 기업폴더관리 메시지 등록
+		*/
+		MERGE INTO TBL_EXP_FOLDER_MSG T
+		USING (
+		  SELECT 
+		  	#{FOLDER_MSG_ID}	AS FOLDER_MSG_ID
+		  FROM DUAL
+		) S
+		ON (
+			T.FOLDER_MSG_ID	= S.FOLDER_MSG_ID 
+		)
+		WHEN MATCHED THEN
+			UPDATE SET
+				 T.CONTENT = #{CONTENT}
+		WHEN NOT MATCHED THEN 
+			INSERT ( 
+			     FOLDER_MSG_ID
+			    ,CONTENT
+			    ,FOLDER_ID
+			    ,REGISTER_ID
+			    ,REGISTER_TYPE
+			    ,UPDATE_DATE
+			    ,UPDATE_USER
+			    ,SP_CSTM_ID
+			) VALUES ( 
+				 #{FOLDER_MSG_ID }
+				,#{CONTENT       }			
+				,#{FOLDER_ID     }			
+				,NULL			
+				,NULL			
+	   			,sysdate
+	   			,#{sessionVo.userId		}
+				,#{sessionVo.spCstmId	}
+			)
+	</update>	
+
+	<update id="delShareMsg">
+		UPDATE 
+			TBL_EXP_FOLDER_MSG 
+		SET 
+			DEL_YN = 'Y'
+		WHERE 
+			FOLDER_MSG_ID = #{FOLDER_MSG_ID}
+	</update>
+		
 </mapper>

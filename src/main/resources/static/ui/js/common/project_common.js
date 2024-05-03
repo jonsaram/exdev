@@ -152,11 +152,11 @@ var C_COM = {
 			// LoadingBar 사용 옵션 추가 20210219
 			
 			if(isValid(callback)) {
-				C_COM.showLoadingBar();
+				if(parm.noLoadingBar != "Y") C_COM.showLoadingBar();
 				ajaxRequest(sendParm, function(resultData) {
 					setTimeout(function() {
-						C_COM.hideLoadingBar();	
-					}, 1000);
+						if(parm.noLoadingBar != "Y") C_COM.hideLoadingBar();
+					}, 300);
 					
 					if(resultData.state == "S") {
 						if(typeof callback == "function") callback(resultData);
@@ -208,12 +208,12 @@ var C_COM = {
 				 targetUrl 	: targetUrl
 				,data		: parm
 			}
-			
+			debugger;
 			if(isValid(callback)) {
-				C_COM.showLoadingBar();
+				if(parm.noLoadingBar != "Y") C_COM.showLoadingBar();
 				ajaxRequest(sendParm, function(resultData) {
 					setTimeout(function() {
-						C_COM.hideLoadingBar();	
+						if(parm.noLoadingBar != "Y") C_COM.hideLoadingBar();	
 					}, 300);
 					if(resultData.state == "S") {
 						if(typeof callback == "function") callback(resultData);

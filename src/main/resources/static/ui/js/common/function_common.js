@@ -1031,6 +1031,22 @@
 	  return parts.pop();
 	}
 	
+	// 한글 단어의 마지막 글자에 받침이 있는지 확인하는 함수
+	function hasConsonant(word) {
+		let checkNum = /[0-9]/;
+		let checkEng = /[a-zA-Z]/;
+		let checkSpc = /[~!@#$%^&*()_+|<>?:{}]/;
+		let checkKor = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+
+	    // 마지막 글자의 유니코드 값
+	    const charCode = word.charCodeAt(word.length - 1);
+	    // 유니코드의 한글 범위 내에서 해당 코드의 받침 확인
+	    const consonantCode = (charCode - 44032) % 28;
+	    return consonantCode !== 0; // 0이면 받침 없음, 1 이상이면 받침 있음
+	}
+	
+	
+	
 	//Json Debugging
 	//Json Debugging
 	//Json Debugging

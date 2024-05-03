@@ -5,7 +5,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Start Asset</title>
 	<link rel="stylesheet" type="text/css" href="./css/libs/jquery-ui.css"		/>
-	<link rel="stylesheet" type="text/css" href="./css/highchart.css"			/>
 	<link rel="stylesheet" type="text/css" href="./css/layout.css"				/>
 	<link rel="stylesheet" type="text/css" href="./css/common.css"				/>
 	<script type="text/javascript" src="./js/libs/jquery-1.12.4.min.js"			></script>
@@ -74,6 +73,8 @@
 			}	
 			C_COM.requestQuery(parm, function(resultData) {
 				G_VAL.session.buyerInfo = resultData.data[0];
+				debugger;
+				C_MENU.setBuyerInfo(G_VAL.session.buyerInfo);
 			});
 		}
 		
@@ -202,6 +203,7 @@
 					,buyerInfo		: G_VAL.session.buyerInfo
 				}
 				C_COM.renderHtml("mainContainer", rparm);
+				C_MENU.setBuyerInfo(G_VAL.session.buyerInfo);
 			 }
 			,moveMainMenu 	: function(mainMenuIdx) {
 				C_MENU.showSubMenuList(mainMenuIdx, 0);
@@ -216,6 +218,12 @@
 					$("#subMenuList").show();
 					$("#subMenuList2").hide();
 				}  
+			 }
+			,setBuyerInfo : function(buyerInfo) {
+				if(isValid(buyerInfo)) {
+					$("#subMenuList2 #BUYER_NM"	).html(buyerInfo.BUYER_NM	);
+					$("#subMenuList2 #ADDR"		).html(buyerInfo.ADDR		);
+				}
 			 }
 			,moveSubMenu	: function(idx) {
 				let subMenu = C_MENU.subMenuList[idx];
@@ -373,7 +381,7 @@
 			        </button>
 			    </div>
 				<button type="button" class="btn_arrow"></button>
-				<a href="javascript:void(0);" class="alarm">알림</a>
+				<a href="javascript:void(0);" class="alarm">알림<span class="alarm_count">3</span></a>
 				<a href="javascript:void(0);" class="user_login"><span id="loginUserNm">이희성</span></a>
 				<ul class="user_menu">
 					<li><a href="javascript:privateInfo()"><i class="icon_admin"></i>내정보 보기</a></li>
@@ -403,9 +411,9 @@
 		</nav>
 		<script type="text/x-jsrender" id="subMenuList2_template">						
 			<button class="btn fold"><i class="icon_arrow"></i></button>
-			<img class="img_company" src="../img/icon_company.png">
-			<div class="tit_company">{{:buyerInfo.BUYER_NM}}</div>
-			<div class="cpmpa_wrap"><span class="compa">{{:buyerInfo.ADDR}}</span></div>
+			<img class="img_company" src="../img/icon_company.png" id="BUYER_PIC">
+			<div class="tit_company" id="BUYER_NM"></div>
+			<div class="cpmpa_wrap"><span class="compa" id="ADDR"></span></div>
 			<ul>
 				<li>
 					<ul>

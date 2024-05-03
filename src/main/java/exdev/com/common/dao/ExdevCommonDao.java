@@ -18,6 +18,9 @@ public class ExdevCommonDao {
 	
 	@SuppressWarnings("rawtypes")
 	public List<Map> getList(String queryId, Object obj) throws Exception {
+		System.out.println("=================================================");
+		System.out.println("Request Query Id: " + queryId);
+		System.out.println("=================================================");
 		return sqlMainSession.selectList(queryId, obj);
 	}
 	public Object getObject(String queryId, Object obj) throws Exception {

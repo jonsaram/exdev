@@ -20,15 +20,22 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@compId> = {
-		 GRP_FILE_ID 	: ""
+		 GRP_FILE_ID 	: "<@GRP_FILE_ID>"
 		,OWNER_CD 		: ""
 		,mode			: ""
 		,allowExt		: []
 		,filesArr		: []
-		,init : function() {
+		,init : function(GRP_FILE_ID, OWNER_CD) {
+			if(isValid(GRP_FILE_ID) && isValid(OWNER_CD)) {
+				<@compId>.GRP_FILE_ID 	= GRP_FILE_ID	;
+				<@compId>.OWNER_CD 		= OWNER_CD		;
+			}
 			var parm = {
-				 queryId 		: "Filemng.getGrpFileList"
-				,requestParm	: {GRP_FILE_ID : "<@GRP_FILE_ID>"}
+				 queryId 		: "Filemng.getFileList"
+				,requestParm	: {
+					 GRP_FILE_ID 	: <@compId>.GRP_FILE_ID
+					,OWNER_CD 		: <@compId>.OWNER_CD
+				}
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				<@compId>.viewFileList(resultData.data);
@@ -137,6 +144,12 @@
 		    }
 		 }
 		,selectFile : function() {
+			
+			if(<@compId>.GRP_FILE_ID == "NA") {
+				C_POP.alert('File Component 설정이 필요합니다.\n\nGRP_FILE_ID = "NA" 인 경우 유효한 값을 설정 해주세요.');
+				return;
+			}
+			
 			$("#<@compId>_select").trigger("click");
 		 }
 		,deleteFile : function(fileId) {
@@ -177,11 +190,15 @@
 		} else if(isValid(parm.title)){
 			$("#<@compId> #title").html(parm.title);
 		}
+		
+		if(parm.hideButton == "Y") {
+			$("#<@compId>_button").hide();
+		}
 	});
 </script>
 <div>
 	<h4 id="title">첨부파일</h4>
-	<button type="button" class="stateBtn file" onclick="<@compId>.selectFile()"><span>파일선택</span></button>
+	<button type="button" class="stateBtn file" onclick="<@compId>.selectFile()" id="<@compId>_button"><span>파일선택</span></button>
 	<form method="POST" id="<@compId>_form" onsubmit="return false;" enctype="multipart/form-data">
      	<input id="<@compId>_select" type="file" onchange="<@compId>.addFile(this);" tabindex="-1" multiple style="display:none"/>
     </form>
@@ -197,7 +214,5 @@
 		<script type="text/x-jsrender" id="<@compId>_fileList_noData_template">    
 			<li class="tc"><span class="txt"><span>첨부파일이 없습니다.</span></li>
 		</script>
-		
-		
 	</div>
 </div>
