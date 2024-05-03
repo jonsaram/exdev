@@ -69,7 +69,7 @@
 			            fontSize: '11px'
 			        }
 			    },
-			    lineColor: '#DADADA', /* x축 라인색 */
+			    lineColor: '#DADADA',
 			    categories: categories,
 			    crosshair: true
 			}],
@@ -187,9 +187,6 @@
 		            borderWidth: 0
 		        }
 		    },
-/*		    legend: {
-		        enabled: false
-		    },*/
             legend: {
                 align: 'right',
                 x: 0,
@@ -208,12 +205,6 @@
             },
 		    tooltip: {
 		        shared: true,
-/*		        headerFormat: '<span style="font-size: 15px">' +
-		            '{point.key}' +
-		            '</span><br/>',
-		        pointFormat: '<span style="color:{point.color}">\u25CF</span> ' +
-		            '{series.name}: <b>{point.y} 억</b><br/>', // ◯ 문자 
-				backgroundColor: '#FFFFFF'*/
 		    },
 		    xAxis: {
 		        type: 'category',
@@ -221,17 +212,6 @@
 		            description: 'xAxisData'
 		        },
 		        max: xAxisData.length,
-/*		        labels: {
-		            useHTML: true,
-		            animate: true,
-		            format: '{value}<br>' +
-		                '<span class="f32">' +
-		                '<span style="display:inline-block;height:32px;vertical-align:text-top;" ' +
-		                'class="flag {value}"></span></span>',
-		            style: {
-		                textAlign: 'center'
-		            }
-		        }*/
 		    },
 		    yAxis: [{
 		        title: {
@@ -257,7 +237,6 @@
 		        tooltip: {
 		            valueSuffix: ' 억원'
 		        }
-
 		    }, 
 			{
 		        name: thisMonth,
@@ -277,11 +256,7 @@
 		        tooltip: {
 		            valueSuffix: ' 억원'
 		        }
-
 		    }],
-/*		    exporting: {
-		        allowHTML: true
-		    }*/
 		});
 		
 	}
@@ -295,7 +270,6 @@
 		Highcharts.chart(target, {
 		    chart: {
 		        zoomType: 'xy',
-  				//margin: [100, 50, 0, 40]
 		    },
 		    title: {
 		        text: '',
@@ -380,7 +354,6 @@
 
 		const series = param.series ;
 		
-		debugger;
 		let maxVal = 0;
 		series.forEach( srs =>{
 			
@@ -414,9 +387,8 @@
 		        labels: {
 		            format: '{value} 억',
 		            style: {
-		                //color: Highcharts.getOptions().colors[1],
-		                width: '60px', // 레이블의 폭을 조절 (원하는 값으로 설정)
-		                lineHeight: '20px' // 레이블의 높이를 조절 (원하는 값으로 설정)
+		                width: '60px',
+		                lineHeight: '20px'
 		            }
 				},
 				 max: maxVal,
@@ -424,66 +396,19 @@
 		    },
 			xAxis: [{
 		        categories: _monthArray,
-		       // crosshair: true
 		    }],
-	
-    legend: {
-     //   align: 'right',
-        x: 100, // Adjust the x position as needed
-   //     verticalAlign: 'top',
-        y: -250, // Adjust the y position as needed
-        itemStyle: {
-            color: '#8A8C92',
-            fontFamily: 'Noto Sans KR',
-            fontSize: '11px'
-        },
-        floating: false,
-      //  itemWidth: 200, // 아이템의 너비를 설정하여 스크롤바 비활성화
-       // symbolWidth: 10, // 아이템의 심볼 너비 설정
-      //  backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || 'rgba(255,255,255,0.25)'
-
-    },
-/*		    legend: {
-		        align: 'right',
-		        x: 0,
-		        verticalAlign: 'top',
-		        y: 0,
-                itemStyle: {
-                    color: '#8A8C92',
-                    fontFamily: 'Noto Sans KR',
-                    fontSize: '11px'
-                },
+			
+		    legend: {
+		        x: 100,
+		        y: -250,
+		        itemStyle: {
+		            color: '#8A8C92',
+		            fontFamily: 'Noto Sans KR',
+		            fontSize: '11px'
+		        },
 		        floating: false,
-		        backgroundColor:{
-		            backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || 'rgba(255,255,255,0.25)'
-				}
-		    },*/		
-/*		    plotOptions: {
-		        series: {
-		            label: {
-		                connectorAllowed: false
-		            },
-		           // pointStart: '1월'
-		        }
 		    },
-		*/
-		    series: series,
-		
-/*		    responsive: {
-		        rules: [{
-		            condition: {
-		               // maxWidth: 500
-		            },
-		            chartOptions: {
-		                legend: {
-		                    layout: 'horizontal',
-		                    align: 'left',
-		                    verticalAlign: 'bottom'
-		                }
-		            }
-		        }]
-		    }*/
-		
+		    series: series
 		});
 	}
 	
@@ -512,7 +437,7 @@
                         fontSize: '11px'
                     }
                 },
-                lineColor: '#dddddd', /* x축 라인색 */
+                lineColor: '#dddddd',
                 categories: categories,
                 crosshair: true
             }],
