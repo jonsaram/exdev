@@ -2,25 +2,25 @@
 <script type="text/javascript">
 var <@pageId> = {
 		
-		pageInit : () =>{
+	pageInit : () =>{
 
-			const yearsArray = Array.from({ length: 4 }, (_, index) => {
-				  const year = 2022 + index;
-				  return [year.toString(), year + "년"];
-			});
-			const monthsArray = Array.from({ length: 12 }, (_, index) => {
-				  const months = ("0"+(1 + index) ).slice(-2);
-				  return [months.toString(), months + "월"];
-			});
+		const yearsArray = Array.from({ length: 4 }, (_, index) => {
+			  const year = 2022 + index;
+			  return [year.toString(), year + "년"];
+		});
+		const monthsArray = Array.from({ length: 12 }, (_, index) => {
+			  const months = ("0"+(1 + index) ).slice(-2);
+			  return [months.toString(), months + "월"];
+		});
+		
+		var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"}
+		C_UICOM.makeSelectBox(yearsArrayList, "single");
+		C_UICOM.setSingleBox("<@pageId>_years", dayjs().year());
+		var monthsArrayList = { data : monthsArray,targetId : "<@pageId>_months"}
+		C_UICOM.makeSelectBox(monthsArrayList, "single");
+		C_UICOM.setSingleBox("<@pageId>_months", ("0"+(dayjs().month() + 1) ).slice(-2));
 
-			var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"}
-			C_UICOM.makeSelectBox(yearsArrayList, "single");
-			C_UICOM.setSingleBox("<@pageId>_years", dayjs().year());
-			var monthsArrayList = { data : monthsArray,targetId : "<@pageId>_months"}
-			C_UICOM.makeSelectBox(monthsArrayList, "single");
-			C_UICOM.setSingleBox("<@pageId>_months", ("0"+(dayjs().month() + 1) ).slice(-2));
-
-		}
+	}
 		,searchList : () => {
 			
 			var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
