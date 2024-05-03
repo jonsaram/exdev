@@ -50,6 +50,13 @@ var <@pageId> = {
 			$('#<@pageId> #USER_NM').text(parm[0].USER_NM);
 			$('#<@pageId> #CONTENT').html(parm[0].CONTENT);
 			$('#<@pageId> #REP_CNT').html(parm[0].REP_CNT);
+			if(parm[0].MODIFY_AUTH == 0){
+				$('button[name="<@pageId>_delete"]').hide();
+				$('button[name="<@pageId>_modify"]').hide();
+			}else{
+				$('button[name="<@pageId>_delete"]').show();
+				$('button[name="<@pageId>_modify"]').show();
+			}
 			//<@pageId>.textEditorComp.setContent(parm[0].CONTENT);
 			
 			var parm = {
@@ -377,15 +384,15 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						       				<script type="text/x-jsrender" id="<@pageId>_commentList_template">
 												{{for list}}
 												<div class="comment">
-												<table>
-													<tr>
-														<td width="100" align="center"><strong id="<@pageId>_UPDATE_USER">{{:USER_NM}}</strong></td>
-														<td width="100" align="center"><span id="<@pageId>_UPDATE_DATE">{{:UPDATE_DATE}}</span></td>
-														<td><span style="width:calc(100% - 260px)" name="<@pageId>_{{:BOARD_ADD_ID}}_rReply">{{:ADD_CONTENT}}</span></td>
-														<td width="60" align="center"><button class="btn ml5" onClick="<@pageId>.modifyReplyPopup('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}','{{:ADD_CONTENT}}');">수정</button></td>
-														<td width="60" align="center"><button class="btn ml5" onClick="<@pageId>.deleteReply('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}');">삭제</button></td>
-													<tr>
-												</table>
+													<strong id="<@pageId>_UPDATE_USER">{{:USER_NM}}</strong>
+													<span>{{:UPDATE_DATE}}</span>
+													<p style="width:calc(100% - 235px)">{{:ADD_CONTENT}}</p>
+													<div class="com_btnArea">
+													{{if MODIFY_AUTH == 1 }}
+														<button><i class="icon_pen" onClick="<@pageId>.modifyReplyPopup('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}','{{:ADD_CONTENT}}');"></i></button>
+														<button><i class="icon_trash" onClick="<@pageId>.deleteReply('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}');"></i></button>
+													{{/if}}
+													</div>
 												</div>
 												{{/for}}
 											</script>
