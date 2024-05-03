@@ -151,6 +151,7 @@
 	
 	}
 
+	//상세별 순매출 , FA 매출순위
 	function _comparisonChart (target, param){
 		
 		const thisMonth =	param.thisMonth;
@@ -177,10 +178,6 @@
 		    },
 		    xAxisData,
 		    title: {
-		        text: '',
-		        align: 'left'
-		    },
-		    subtitle: {
 		        text: '',
 		        align: 'left'
 		    },
@@ -211,11 +208,12 @@
             },
 		    tooltip: {
 		        shared: true,
-		        headerFormat: '<span style="font-size: 15px">' +
+/*		        headerFormat: '<span style="font-size: 15px">' +
 		            '{point.key}' +
 		            '</span><br/>',
 		        pointFormat: '<span style="color:{point.color}">\u25CF</span> ' +
-		            '{series.name}: <b>{point.y} 억</b><br/>' // ◯ 문자 
+		            '{series.name}: <b>{point.y} 억</b><br/>', // ◯ 문자 
+				backgroundColor: '#FFFFFF'*/
 		    },
 		    xAxis: {
 		        type: 'category',
@@ -223,7 +221,7 @@
 		            description: 'xAxisData'
 		        },
 		        max: xAxisData.length,
-		        labels: {
+/*		        labels: {
 		            useHTML: true,
 		            animate: true,
 		            format: '{value}<br>' +
@@ -233,15 +231,21 @@
 		            style: {
 		                textAlign: 'center'
 		            }
-		        }
+		        }*/
 		    },
 		    yAxis: [{
 		        title: {
 		            text: ''
-	
 		        },
-	 			format: '{value}억',
-		        showFirstLabel: false
+		        showFirstLabel: false,
+
+		        labels: {
+		            format: '{value}억',
+		            style: {
+		                color: Highcharts.getOptions().colors[0]
+		            }
+		        },
+				tickInterval: 0.5,
 		    }],
 		    series: [
 			{
@@ -249,7 +253,11 @@
 		        color: 'rgba(158, 159, 163, 0.5)',
 		        pointPlacement: -0.3,
 		        linkedTo: 'main',
-		        data: dataPrev["months"].slice()
+		        data: dataPrev["months"].slice(),
+		        tooltip: {
+		            valueSuffix: ' 억원'
+		        }
+
 		    }, 
 			{
 		        name: thisMonth,
@@ -265,15 +273,20 @@
 		                fontSize: '10px'
 		            }
 		        }],
-		        data: getData(data["months"]).slice()
+		        data: getData(data["months"]).slice(),
+		        tooltip: {
+		            valueSuffix: ' 억원'
+		        }
+
 		    }],
-		    exporting: {
+/*		    exporting: {
 		        allowHTML: true
-		    }
+		    }*/
 		});
 		
 	}
 
+	// 순매출 성장률
 	function _lineAndColumnChart(target, param){
 	
 		const thisYearSales = param.thisYearSales;
@@ -281,7 +294,8 @@
 		
 		Highcharts.chart(target, {
 		    chart: {
-		        zoomType: 'xy'
+		        zoomType: 'xy',
+  				//margin: [100, 50, 0, 40]
 		    },
 		    title: {
 		        text: '',
@@ -328,7 +342,7 @@
 		    },
 		    legend: {
 		        align: 'center',
-		        x: 130,
+		        x: 50,
 		        verticalAlign: 'top',
 		        y: 0,
 		        itemStyle: {
@@ -337,9 +351,9 @@
 		            fontSize: '11px'
 		        },
 		        floating: false,
-		        backgroundColor:
-		            Highcharts.defaultOptions.legend.backgroundColor || // theme
-		            'rgba(255,255,255,0.25)'
+		        backgroundColor:{
+		            backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || 'rgba(255,255,255,0.25)'
+				}
 		    },
 		    series: [{
 		        name: '금년매출',
@@ -361,12 +375,27 @@
 		});
 	}
 
+	//지사별 순매출
 	function _lineWithLabelsChart (target, param) {
 
 		const series = param.series ;
+		
+		debugger;
+		let maxVal = 0;
+		series.forEach( srs =>{
+			
+			const tmpVal = Math.max(...srs.data);
+			
+			if(maxVal < tmpVal)maxVal=tmpVal;
+			
+		} )
+		
+		maxVal = maxVal * 1.2;
+		
 		Highcharts.chart(target, {
 			chart :{
-			  margin: [50, 0, 40, 45],
+				type: 'line',
+			  margin: [60, 50, 40, 40],
 			},
 		    title: {
 		        text: '',
@@ -381,40 +410,55 @@
 		    yAxis: {
 		        title: {
 		            text: ''
-		        }
+		        },
+		        labels: {
+		            format: '{value} 억',
+		            style: {
+		                //color: Highcharts.getOptions().colors[1],
+		                width: '60px', // 레이블의 폭을 조절 (원하는 값으로 설정)
+		                lineHeight: '20px' // 레이블의 높이를 조절 (원하는 값으로 설정)
+		            }
+				},
+				 max: maxVal,
+				tickInterval: 0.5,
 		    },
-		
-	/*	    xAxis: {
-		        accessibility: {
-		            rangeDescription: 'Range: 2010 to 2020'
-		        }
-		    },*/
 			xAxis: [{
 		        categories: _monthArray,
 		       // crosshair: true
 		    }],
 	
+    legend: {
+     //   align: 'right',
+        x: 100, // Adjust the x position as needed
+   //     verticalAlign: 'top',
+        y: -250, // Adjust the y position as needed
+        itemStyle: {
+            color: '#8A8C92',
+            fontFamily: 'Noto Sans KR',
+            fontSize: '11px'
+        },
+        floating: false,
+      //  itemWidth: 200, // 아이템의 너비를 설정하여 스크롤바 비활성화
+       // symbolWidth: 10, // 아이템의 심볼 너비 설정
+      //  backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || 'rgba(255,255,255,0.25)'
+
+    },
 /*		    legend: {
-		        layout: 'vertical',
-		        align: 'left',
-		        verticalAlign: 'middle'
-		    },*/
-		    legend: {
-		        align: 'center',
-		        x: 260,
+		        align: 'right',
+		        x: 0,
 		        verticalAlign: 'top',
-		        y: -180,
+		        y: 0,
                 itemStyle: {
                     color: '#8A8C92',
                     fontFamily: 'Noto Sans KR',
                     fontSize: '11px'
                 },
-		        floating: true,
-		        backgroundColor:
-		            Highcharts.defaultOptions.legend.backgroundColor || // theme
-		            'rgba(255,255,255,0.25)'
-		    },		
-		    plotOptions: {
+		        floating: false,
+		        backgroundColor:{
+		            backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || 'rgba(255,255,255,0.25)'
+				}
+		    },*/		
+/*		    plotOptions: {
 		        series: {
 		            label: {
 		                connectorAllowed: false
@@ -422,10 +466,10 @@
 		           // pointStart: '1월'
 		        }
 		    },
-		
+		*/
 		    series: series,
 		
-		    responsive: {
+/*		    responsive: {
 		        rules: [{
 		            condition: {
 		               // maxWidth: 500
@@ -438,7 +482,7 @@
 		                }
 		            }
 		        }]
-		    }
+		    }*/
 		
 		});
 	}
