@@ -1,0 +1,186 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+ var <@popupId> = {
+	 rcvData 		: {}
+ 	,returnData 	: {}
+    ,searchId 		: ''	
+ 	,searchedRows	: []
+    ,close : function(returnData) {
+ 
+		if(isEmpty(returnData)) returnData = {};
+		C_POP.close(returnData);
+	}
+ 	,pageInit : (data) => {
+ 		
+ 		<@popupId>.setTitle(data.gubun);
+		
+		var parm = {
+				 queryGroup : [{queryId 		: "system.getDivisionInfo",requestParm	: {DIVISION_ID:null , BUSEO : 'Y'}}
+				]
+		}
+		C_COM.requestQuery(parm, function(resultData) {
+			
+			<@popupId>.divisionRows = resultData.data["system.getDivisionInfo"	];
+			const buseo 			= <@popupId>.getBuseoList();
+			
+			C_UICOM.makeSelectBox({ 
+				 defaultItem	: ["", "전체"]
+				,data 			: buseo
+	 			,targetId 		: "<@popupId>_buseo" }, "single");
+			C_UICOM.addChangeListener("<@popupId>_buseo", function(division) {
+				
+				<@popupId>.searchList(division, buseo);
+				
+			});
+			
+		}); 
+		
+ 	}
+	,searchList : function(division,buseo){
+		
+		const requestParm = {DIVISION_ID: division , SEARCH_ITEM : <@popupId>.searchId};
+		let parm = {
+			queryId			: "system.getDivisionInfo"
+			,requestParm    : requestParm
+		}
+		const BUSEO = buseo;
+        C_COM.requestQuery(parm, function(resultData) {
+        
+        	<@popupId>.searchedRows = resultData.data;
+        	let rparm = {
+           			targetId   : "<@popupId>_divisionList"
+					,list       : resultData.data
+			}
+            
+			C_COM.renderHtml("<@popupId>", rparm);
+       	
+			if( isEmpty(division) ){
+				$(".salesDivision").show();
+				$(".depth1").text("DEPTH1");
+				$(".depth2").text("DEPTH2");
+				$(".depth3").text("DEPTH3");
+				$(".depth4").text("DEPTH4");
+				$("col.divisionCol").attr("style","width:20%")	
+				
+			}else{
+				if( division == "SALES_DIV"){
+					$(".salesDivision").show();
+					$(".depth1").text("본사");
+					$(".depth2").text("지사");
+					$(".depth3").text("지점");
+					$(".depth4").text("팀");
+					$("col.divisionCol").attr("style","width:20%")
+				}else{
+					const headertext = BUSEO.filter( item =>  item[0] == division  )[0][1][0];
+					$(".salesDivision").hide();
+					$("col.divisionCol").eq(0).attr("style","width:40%")
+					$("col.divisionCol").eq(1).attr("style","width:60%")
+					$(".depth4").text(headertext);
+				}
+			}
+
+		});
+		
+	}
+	,getBuseoList : () =>{
+		const BUSEO = <@popupId>.divisionRows;
+		return BUSEO.map( item => { return [[item.DIVISION_ID],[item.DIVISION_NM]]})
+	}
+	,setTitle : (gubun) => {
+	}		
+	,nameSearch : (e) => {
+		
+		if (e.key === "Enter") {
+			var division = C_UICOM.getData("<@popupId>_buseo");
+			<@popupId>.searchId = event.target.value;
+			const buseo 			= <@popupId>.getBuseoList();
+			<@popupId>.searchList(division,buseo);
+				
+		}
+		
+	}
+	,getRow : (index) => {
+
+		const obj	= <@popupId>.searchedRows[index];
+		<@popupId>.close(obj);	
+		
+	}
+}
+// Popup Load가 완료된후 실행 된다.
+C_POP.onLoadPopup("<@popupId>", function(data) {
+ 	
+		<@popupId>.rcvData = data;
+		
+		<@popupId>.pageInit(data);
+
+		<@popupId>.searchList();
+ });
+</script>
+   <!-- 고객 선택 팝업 -->
+<div class="modal_wrap">
+	<div class="modal"  style="width:700px;height:610px;">
+		<div class="modal_header">
+               <strong class="tit">부서 선택</strong>
+               <button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+               <dl class="info_wrap pay">
+                   <dt class="_search">부서 명</dt>
+                   <dd>
+						<div class="search_inputWrap" style="width:100%">
+						<div id="<@popupId>_buseo" 	style="width:200px"></div>
+						<input type="search" name="<@popupId>_SEARCH_ID" onkeydown="<@popupId>.nameSearch(event)" style="width: 50%;margin-left: 15px;" ><button class="search_btn" onclick="<@popupId>.searchList()" style='right:70px;'><i class="icon_search"></i></button>
+						</div>
+                   </dd>
+                   
+                   <dt class="w100 pr0 _list">조직 리스트</dt>
+					<!-- 고객 리스트 -->
+					<div class="tbl01 col" id="<@popupId>_customer_list" style="min-height:300px;max-height:300px;overflow:auto;">
+					<table>
+						<caption>고객 리스트</caption>
+						<colgroup>
+							<col style="width:20%;" class='divisionCol'/>
+							<col style="width:20%;" class='salesDivision'/>
+							<col style="width:20%;" class='salesDivision'/>
+							<col style="width:20%;" class='salesDivision'/>
+							<col style="width:20%;" class='divisionCol'/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">부서명</th>
+								<th scope="col" class='salesDivision depth1'>DEPTH1</th>
+								<th scope="col" class='salesDivision depth2'>DEPTH2</th>
+								<th scope="col" class='salesDivision depth3'>DEPTH3</th>
+								<th scope="col" class='depth4'>DEPTH4</th>
+							</tr>
+						</thead>
+						<tbody  id="<@popupId>_divisionList">
+						</tbody>
+						<script type="text/x-jsrender" id="<@popupId>_divisionList_template">						
+							{{for list}}
+								<tr name="<@popupId>_tr_{{:#index}}"  ondblclick="javascript:<@popupId>.getRow('{{:#index}}')">
+			 						<td id='DIVISION_NM' class="tc">{{:DIVISION_NM}}</td>
+			 						<td id='DEPTH1'		 class="tc salesDivision">{{:DEPTH1}}</td>
+			 						<td id='DEPTH2'		 class="tc salesDivision">{{:DEPTH2}}</td>
+			 						<td id='DEPTH3'		 class="tc salesDivision">{{:DEPTH3}}</td>
+			 						<td id='DEPTH4'		 class="tc">{{:DEPTH4}}</td>
+								</tr>
+							{{/for}}
+						</script>
+						<script type="text/x-jsrender" id="<@popupId>_cstmList_noData_template">	
+						<tr>	
+							<td colspan=6>자료가 없습니다.</td>	
+						</tr>
+						</script>
+						</table>
+						</div>
+						</dt>
+					</dl>
+				</dt>
+			</dl>
+		</div>
+		<div class="modal_footer">
+		    <button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+		</div>
+	</div>
+</div>

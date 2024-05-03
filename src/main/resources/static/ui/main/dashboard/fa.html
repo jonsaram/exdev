@@ -3,6 +3,8 @@
 var <@pageId> = { 
 		 searchedPayment : []
 		,YEARLY_TARGET_PAYMENT : 0
+		,PAYMENT_SUM_TR_CHART:{}
+		,CUR_PAYMENT_SUM_TR_CHART_MAX_VAL : 0
 		,chartObj1 : null
 		,chartObj2 : null
 		,barChartObj1 : null
@@ -45,6 +47,9 @@ var <@pageId> = {
 				var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"+gubun}
 				C_UICOM.makeSelectBox(yearsArrayList, "single");
 				C_UICOM.setSingleBox("<@pageId>_years"+gubun, dayjs().year());
+				
+				<@pageId>.searchPaymentSumTrend(gubun);
+				
 				C_UICOM.addChangeListener("<@pageId>_years"+gubun, function(dataObj) {
 
 					const chart=C_UICOM.getData("<@pageId>_selectorChart"+gubun);
@@ -52,9 +57,8 @@ var <@pageId> = {
 					if(chart == "susuRyo")	<@pageId>.searchPaymentSumTrend(gubun)
 					else					<@pageId>.searchBarChart(chart,gubun);
 					
-				});			
-
-				<@pageId>.searchPaymentSumTrend(gubun);
+				});	
+				
 			}			
 			
 			//<@pageId>.getScheduleList();		// 테이블 바뀌고 있음	
@@ -122,7 +126,7 @@ var <@pageId> = {
 			        name: '달성률',
 			        innerSize: '82%',
 			        data: [
-			            ['목표 순매출 달성률', Number(ACHIEVE_RATE)],
+			            ['목표 수수료 달성률', Number(ACHIEVE_RATE)],
 			            ['', 100-Number(ACHIEVE_RATE)],
 			        ]
 		    	}] )
@@ -143,17 +147,25 @@ var <@pageId> = {
 				
 				const monthlyPayment		= resultData.data ;
 				
+				<@pageId>.YEARLY_TARGET_PAYMENT = resultData.data[0].TARGET_PAYMENT;
+				
+				const monthlyPaymentArr = [];
 				const paymentTrend = [];
 				let cumulativePayment = 0;
-				
+				let maxVal = <@pageId>.YEARLY_TARGET_PAYMENT / _HUNDRED_MILLION + 0.5;
 				monthlyPayment.forEach( monthPay => {
 					
 				    cumulativePayment += monthPay.SUM_PAYMENT;
 				    paymentTrend.push(cumulativePayment);
+				    monthlyPaymentArr.push(monthPay.SUM_PAYMENT);
+				    const tmp = cumulativePayment >= monthPay.SUM_PAYMENT ? cumulativePayment: monthPay.SUM_PAYMENT;
+				    if( maxVal <= tmp)maxVal=tmp;
 				})
-
-				const chartObj = Highcharts.chart("<@pageId>_transition_chart"+gubun, {
-				    chart: {
+				
+				<@pageId>.CUR_PAYMENT_SUM_TR_CHART_MAX_VAL = maxVal;
+				
+				<@pageId>.PAYMENT_SUM_TR_CHART[gubun] = Highcharts.chart("<@pageId>_transition_chart"+gubun, {
+					chart: {
 				        zoomType: 'xy'
 				    },
 				    credits: {enabled: false},
@@ -162,50 +174,53 @@ var <@pageId> = {
 				        align: 'left'
 				    },
 				    xAxis: [{
-				        categories: ['1월', '2월', '3월', '4월', '5월', '6월','7월', '8월', '9월', '10월', '11월', '12월'],
+				        categories: _monthArray,
 				        crosshair: true
 				    }],
-				    yAxis: [{
-				        labels: {
-				            format: '{value}억',
-				            style: {
-		                        color: '#8A8C92',
-		                        fontFamily: 'Noto Sans KR',
-		                        fontSize: '11px'
-		                    }
-				        },
-				        title: {
-				            text: '수수료 합계 추이',
-				            style: {
-				                color: Highcharts.getOptions().colors[1]
-				            }
-				        },
-				        plotLines: [{
-							value: <@pageId>.YEARLY_TARGET_PAYMENT / _HUNDRED_MILLION,
-				            color: "#75ba75",
-				            width: 2,
-				            label: {
-				                text: '목표',
-				                align: 'right'
-				            },
-				            id: 'plot-line-id'
-									}]
+				    yAxis: [
+				    	{
+					        title: {
+					            text: '월별 수수료',
+					            style:{
+					            	color:"#27187F",
+			                        fontFamily: 'Noto Sans KR',
+			                        fontSize: '12px',
+			                        fontWeight: 'bold'
+					            }
+					        },
+					        labels: {
+					            format: '{value} 억',
+					        },
+					    },
+				    	{
+					        title: {
+					            text: '수수료 합계 추이',
+					            style: {
+					                color: Highcharts.getOptions().colors[1]
+					            }
+					        },
+					        labels: {
+					            format: '{value}억',
+					            style: {
+			                        color: '#8A8C92',
+			                        fontFamily: 'Noto Sans KR',
+			                        fontSize: '11px'
+			                    }
+					        },
+					        opposite: true,
+					        max: maxVal,
+					        plotLines: [{
+								value: <@pageId>.YEARLY_TARGET_PAYMENT / _HUNDRED_MILLION,
+					            color: "#75ba75",
+					            width: 2,
+					            label: {
+					                text: '목표 '+<@pageId>.YEARLY_TARGET_PAYMENT / _HUNDRED_MILLION+" 억",
+					                align: 'right'
+					            },
+					            id: 'plot-line-id'
+										}]
 				    	}
-				    	,{
-				        title: {
-				            text: '월별 수수료',
-				            style:{
-				            	color:"#27187F",
-		                        fontFamily: 'Noto Sans KR',
-		                        fontSize: '12px',
-		                        fontWeight: 'bold'
-				            }
-				        },
-				        labels: {
-				            format: '{value} 억',
-				        },
-				        opposite: true
-				    }],
+					],
 				    tooltip: {
 				        shared: true
 				    },
@@ -219,29 +234,28 @@ var <@pageId> = {
 				            Highcharts.defaultOptions.legend.backgroundColor ||
 				            'rgba(255,255,255,0.25)'
 				    },
-				    series: [{
-				        name: '월별 수수료',
-				        type: 'column',
-				        yAxis: 1,
-				        data:[27.6, 28.8, 21.7, 34.1, 29.0, 28.4, 45.6, 51.7, 39.0,
-				            60.0, 28.6, 32.1],
+ 				    series: [{
+				        name: 	'월별 수수료',
+				        type: 	'column',
+				        yAxis: 	0,
+				        data:	monthlyPaymentArr,
 				        tooltip: {
 				            valueSuffix: ' 억'
 				        }
 				
 				    }, {
 				        name: '수수료 추이',
-				        type: 'spline',
-				        data:  [27.6, 56.4, 78.1, 112.2, 141.2, 169.6, 215.2, 266.9, 305.9,
-				            365.9, 394.5, 426.6],
+				        type: 	'spline',
+				        yAxis: 	1,
+				        data:  paymentTrend,
 				        tooltip: {
 				            valueSuffix: ' 억'
 				        }
-				    }]
-				});					
+				    }]  
+				});	
 				
-				if( gubun == 1)<@pageId>.chartObj1 = chartObj;
-				if( gubun == 2)<@pageId>.chartObj2 = chartObj;
+				if( gubun == 1)<@pageId>.chartObj1 = <@pageId>.PAYMENT_SUM_TR_CHART["1"];
+				if( gubun == 2)<@pageId>.chartObj2 = <@pageId>.PAYMENT_SUM_TR_CHART["2"];
 			})
 			
 		}	
@@ -259,14 +273,14 @@ var <@pageId> = {
 				
 				let data = 	<@pageId>.searchedPayment.map( payment =>{
 					
-					if( CN == "execBosu"		) return isEmpty(payment.SUM_EXEC_PAYMENT) ? 0 : payment.SUM_EXEC_PAYMENT / 10000 ;
-					if( CN == "salesBosu"	) return isEmpty(payment.SUM_SALES_PAYMENT) ? 0 : payment.SUM_SALES_PAYMENT / 10000;
+					if( CN == "execBosu"		) return isEmpty(payment.SUM_EXEC_PAYMENT	) ? 0 : payment.SUM_EXEC_PAYMENT;
+					if( CN == "salesBosu"		) return isEmpty(payment.SUM_SALES_PAYMENT	) ? 0 : payment.SUM_SALES_PAYMENT;
 					if( CN == "customerTrend") return isEmpty(payment.SUM_COSTOMER) ? 0 : payment.SUM_COSTOMER ;
 				
 				})		
 
 				let yAxisText 	= "";
-				let unit		= "만원";
+				let unit		= "억";
 				if( CN == "execBosu"	)	yAxisText = "실행 수수료 추이";
 				if( CN == "salesBosu"	)	yAxisText = "영업 수수료 추이";
 				if( CN == "customerTrend"){ yAxisText = "자문 고객 추이";unit = "명" }
@@ -281,7 +295,7 @@ var <@pageId> = {
 				        align: 'left'
 				    },
 				    xAxis: {
-				        categories: ['1월', '2월', '3월', '4월', '5월', '6월',	'7월', '8월', '9월', '10월', '11월', '12월'],
+				        categories: _monthArray,
 				        crosshair: true,
 				    },
 				    yAxis: {
@@ -327,18 +341,32 @@ var <@pageId> = {
 		,blurGoalVal : (obj) => {
 			
 			const val = Number($(obj).nval());
-			const targetPayment = val * _HUNDRED_MILLION ;	
-			<@pageId>.YEARLY_TARGET_PAYMENT = targetPayment;
+			const targetPayment = val ;	
+			
+			<@pageId>.YEARLY_TARGET_PAYMENT = targetPayment *  _HUNDRED_MILLION;
+			
 			var parm = {
 				 queryId 		: "faDashboard.updateTargetPayment"
 				,requestParm	: {
-									 TARGET_PAYMENT : targetPayment
+									 TARGET_PAYMENT : <@pageId>.YEARLY_TARGET_PAYMENT
 									,TARGET_YEAR 	: dayjs().format("YYYY")	
 								}
 			}
 	
 			C_COM.requestQuery(parm, function(resultData) {
 
+				const selectorChart1 = C_UICOM.getData("<@pageId>_selectorChart1");
+				const selectorChart2 = C_UICOM.getData("<@pageId>_selectorChart2");
+				
+				if (<@pageId>.PAYMENT_SUM_TR_CHART["1"] && selectorChart1 == "susuRyo") {
+					<@pageId>.PAYMENT_SUM_TR_CHART["1"].destroy();
+				}
+				if (<@pageId>.PAYMENT_SUM_TR_CHART["2"] && selectorChart2 == "susuRyo") {
+					<@pageId>.PAYMENT_SUM_TR_CHART["2"].destroy();
+				}
+				
+				<@pageId>.pageInit2();
+					
 				<@pageId>.searchMonthlyPayment();
 			
 				<@pageId>.updateYearyTargetPayment();
@@ -486,9 +514,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</div>
 
 				<div class="right">
-					<section class="sec_wrap" style="height:calc(50% - 7.5px)" id="<@pageId>_toDoList">
+					<section class="sec_wrap" style="height:421px" id="<@pageId>_toDoList">
 					</section>
-					<section class="sec_wrap" style="height:calc(50% - 7.5px)">
+					<section class="sec_wrap" style="height:421px">
 						<div class="cont_box">
 							<div class="clearFix">
 								<h3 class="fl lh33">예정 업무</h3>
@@ -497,7 +525,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								</div>
 							</div>
 							
-							<div id="<@pageId>_schedule"></div>
+							<div id="<@pageId>_schedule"  class="pd5" style="max-height:337px;width:calc(100% + 5px);overflow-y:auto;"></div>
 							<script type="text/x-jsrender" id="<@pageId>_schedule_template">
 							{{for list}}
 								{{if #index % 2 == 0 }}

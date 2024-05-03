@@ -8,11 +8,9 @@
 		 ,OLD_GRP_FILE_ID : ""
 		 ,USER_ID  : ""
 	 	 ,mode : ''
-	 	 ,BRANCH_DATA : {}
 		 ,hiarachySelData: []
-		 ,pageInit : (BRANCH_DATA) =>{
-			
-			<@popupId>.BRANCH_DATA = BRANCH_DATA;
+		 ,pageInit : () =>{
+
 			<@popupId>.setTitleHeight();
 
 			var parm = {
@@ -33,11 +31,11 @@
 			C_UICOM.makeSelectBox({ 
 				 		 data : C_COM.getCodeList("G_SURETY_INSURANCE")
 				 		,targetId : "<@popupId>_selectSuretyIns"}, "single");
-	 		
+	 		//직책
 			C_UICOM.makeSelectBox({ 
-				 		 data : C_COM.getCodeList("USER_ROLE")
-				 		,targetId : "<@popupId>_selectRole" }, "single");
-	 		
+						 data : C_COM.getCodeList("POSITION")
+				 		,targetId : "<@popupId>_selectPosition" }, "single");
+	 		//직급(구 등급)
 			C_UICOM.makeSelectBox({ 
 						 data : C_COM.getCodeList("GRADE")
 			 			,targetId : "<@popupId>_selectGrade" }, "single");
@@ -46,13 +44,6 @@
 						 data : C_COM.getCodeList("SALES_TYPE")
 			 			,targetId : "<@popupId>_selectSalesType" }, "single");
 
- 			C_UICOM.makeSelectBox({ 
-						 data : <@popupId>.BRANCH_DATA["BASE_BRANCH"	]
-			 			,targetId : "<@popupId>_selectBaseBranch" }, "single");
-
- 			
- 			
- 			
 			if( <@popupId>.mode == "U" ){
 
 				Object.entries(<@popupId>.recvData.param).forEach(([key, value]) => {
@@ -60,21 +51,20 @@
 					if( $("#<@popupId>_" + key).length > 0 ){
 						
 					    $("#<@popupId>_" + key).val(value);
+						
 					}else{
 
 					    <@popupId>.setSingleBox(key,value);
 					}
 				});
 				
+				<@popupId>.getDivisionInfo($("#<@popupId>_DIVISION_ID").val());
 			}else{
 				
 				const toDate	= dayjs().format("YYYY-MM-DD");
 				$("#<@popupId>_REG_DATE").val(toDate);
 			}
 			
-			
-			$("#<@popupId>_selectBaseBranch").trigger('change');
-		 
 		 }		 
 		 ,close : function(returnData) {
 			 
@@ -83,47 +73,50 @@
 				C_POP.close(returnData);
 		 }
 		 ,apply : () =>{
-			 
-			 if( <@popupId>.validation() == false){
-				 return;
-			 }
 
-			 let returnData = {};
-			 const $inputs = $("#<@popupId>_items input");
-			 $.each( $inputs, function(){
+			 <@popupId>.validation( ()=>{
+			 
+				 let returnData = {};
+				 const $inputs = $("#<@popupId>_items input");
+				 $.each( $inputs, function(){
+					 
+					 let key = $(this).attr("id").replace("<@popupId>_","");
+					 let val = $(this).val();
+					 
+					 if(key){
+											 
+					 	returnData[key] = val;
+					 }
+				 })
 				 
-				 let key = $(this).attr("id").replace("<@popupId>_","");
-				 let val = $(this).val();
+				 returnData['ADDR'] = returnData['ADDR1'] +" "+ returnData['ADDR2'];
+
+				 const $selects = $("#<@popupId>_items [id^='<@popupId>_select']");
+				 $.each( $selects, function(){
+					 let id  = $(this).attr("id");
+					 let key = $(this).attr("column");
+					 if(key){
+						key 	 = key.indexOf("<@popupId>_") > -1 ? key.replace("<@popupId>_","") : key;
+						let val = C_UICOM.getData(id);
+						returnData[key] = val;
+					 }
+				 })			 
+
+				 returnData['RELOAD_IMG']		= <@popupId>.RELOAD_IMG;
+				 returnData['STATE']			= 'INUSE';
+				 returnData['ROLE_ID']			= C_UICOM.getData("<@popupId>_selectSysRole");
+				 returnData['RECOMMENDER_ID']	= <@popupId>.recvData.param.RECOMMENDER_ID;
+				 returnData['RECOMMENDER_NM']	= <@popupId>.recvData.param.RECOMMENDER_NM;
+				 returnData['DIVISION_ID']		= <@popupId>.recvData.param.DIVISION_ID;
 				 
-				 if(key){
-										 
-				 	returnData[key] = val;
-				 }
+
+				 C_POP.confirm("입력한 정보로 저장 하시겠습니까?", function() {
+				 	<@popupId>.close(returnData);
+		         });
+				 
 			 })
-			 
-			 returnData['ADDR'] = returnData['ADDR1'] +" "+ returnData['ADDR2'];
-
-			 const $selects = $("#<@popupId>_items [id^='<@popupId>_select']");
-			 $.each( $selects, function(){
-				 let id  = $(this).attr("id");
-				 let key = $(this).attr("column");
-				 if(key){
-					key 	 = key.indexOf("<@popupId>_") > -1 ? key.replace("<@popupId>_","") : key;
-					let val = C_UICOM.getData(id);
-					returnData[key] = val;
-				 }
-			 })			 
-
-			 returnData['RELOAD_IMG']	= <@popupId>.RELOAD_IMG;
-			 returnData['STATE']		= 'INUSE';
-			 returnData['ROLE_ID']		= C_UICOM.getData("<@popupId>_selectSysRole");
-			 
-
-			 C_POP.confirm("입력한 정보로 저장 하시겠습니까?", function() {
-			 	<@popupId>.close(returnData);
-	         });
 		 }
-		 ,validation : () =>{
+		 ,validation : (func) =>{
 
 			 if( isEmpty($("#<@popupId>_USER_ID").val()) ) {C_POP.alert("사원 ID를 입력하여 주십시오."); return false;}
 			 if( <@popupId>.OLD_GRP_FILE_ID != $("#<@popupId>_USER_ID").val() ){
@@ -132,16 +125,37 @@
 				 if( dbUser ){C_POP.alert("이미 존재하는 사원 ID입니다.\n다시입력하여 주십시오."); return false;}
 			 }
 			 
-			 if( isEmpty($("#<@popupId>_USER_NM").val()) ) {C_POP.alert("이름을 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_PHONE_NUM").val()) ) {C_POP.alert("핸드폰번호를 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_JUMIN").val()) ) {C_POP.alert("주민등록번호를 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_REG_DATE").val()) ) {C_POP.alert("입사일을 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_E_MAIL").val()) ) {C_POP.alert("이메일을 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_ADDR1").val()) ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
-			 if( isEmpty($("#<@popupId>_ADDR2").val()) ) {C_POP.alert("상세주소를 입력하여 주십시오."); return false;}
-			 const phonePattern = /^01(?:0|1|[6-9])(?:\d{3}|\d{4})\d{4}$/;
-			 //if( !phonePattern.test($("#<@popupId>PHONE_NUM").val())){C_POP.alert("올바른 핸드폰번호를 입력하여 주십시오."); return false;}
-			 return true;
+			if( isEmpty($("#<@popupId>_USER_NM").val()) ) {C_POP.alert("이름을 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_PHONE_NUM").val()) ) {C_POP.alert("핸드폰번호를 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_JUMIN").val()) ) {C_POP.alert("주민등록번호를 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_REG_DATE").val()) ) {C_POP.alert("입사일을 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_E_MAIL").val()) ) {C_POP.alert("이메일을 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_ADDR1").val()) ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
+			if( isEmpty($("#<@popupId>_ADDR2").val()) ) {C_POP.alert("상세주소를 입력하여 주십시오."); return false;}
+			const userValid 	= <@popupId><@popupId>_RECOMMENDER.isValid;
+			if( !userValid 	|| isEmpty(<@popupId>.recvData.param.RECOMMENDER_ID) ) {C_POP.alert("추천인을 조회하여 입력하여 주십시오."); return false;}
+			
+			const division = $("#<@popupId>_DIVISION").val();
+			let bSalesDivision = false;			
+			if( division.indexOf("영업부") > -1){
+				bSalesDivision = true;
+			}
+			
+			const selectGradeVal = C_UICOM.getData("<@popupId>_selectGrade");
+			let bSalesGrade = false;
+			if( selectGradeVal.indexOf("S_MASTER") > -1 || selectGradeVal.indexOf("MASTER") > -1 || 
+					selectGradeVal.indexOf("FA") > -1 || selectGradeVal.indexOf("SUGGESTER") > -1 ){
+				bSalesGrade = true;
+			}
+
+			if( bSalesDivision && !bSalesGrade ){
+					
+				C_POP.alert("영업부서의 직급을 입력하여 주십시오."); return false;
+				 
+			}
+			
+			if(func)func();
+			return true;
 			 
 		 }
 		 ,fnRadioCheckValue : (name , pValue) => {
@@ -166,9 +180,8 @@
 			{
 				case "GENDER"				: selectId ="<@popupId>_selectGender";break;
 				case "SURETY_INSURANCE"		: selectId ="<@popupId>_selectSuretyIns";break;
-				case "ROLE"					: selectId ="<@popupId>_selectRole";break;
+				case "POSITION"				: selectId ="<@popupId>_selectPosition";break;
 				case "GRADE"				: selectId ="<@popupId>_selectGrade";break;
-				case "BASE_BRANCH_ID"		: selectId ="<@popupId>_selectBaseBranch";break;
 				case "SALES_TYPE"			: selectId ="<@popupId>_selectSalesType";break;
 				default:
 			}
@@ -188,26 +201,6 @@
 			$("#<@popupId>_postSearch").click( () => {
 				
 				<@popupId>.postPopup();
-				
-			})
-			
-			$("[id^='<@popupId>_select']").on('change', (e) => {
-
-				const id = $(e.target).attr("id");
-				
-				if( id.indexOf("selectBaseBranch") > -1){
-					
-					const sel_BRANCH_ID = C_UICOM.getData("<@popupId>_selectBaseBranch");
-					<@popupId>.searchList( "SP_BRANCH", sel_BRANCH_ID );
-					
-				}else if( id.indexOf("selectSpBranch") > -1){
-					
-					const sel_BRANCH_ID = C_UICOM.getData("<@popupId>_selectSpBranch");
-					<@popupId>.searchList( "BRANCH", sel_BRANCH_ID );
-					
-				}else if( id.indexOf("selectBranch") > -1){
-					
-				}
 				
 			})
 			
@@ -330,40 +323,6 @@
                 
             });
         }
-		,getSelectData : (callback) =>{
-			
-			var parm = {
-					queryGroup : [
-						 {
-							 queryId 		: "hrInfo.getBaseBranchList"
-							,requestParm	: {}
-						 }
- 						,{
-							 queryId 		: "hrInfo.getSpBranchList"
-							,requestParm	: {}
-						 }
-						,{
-							 queryId 		: "hrInfo.getBranchList"
-							,requestParm	: {}
-						 }
- 					]
-				}			
-				C_COM.requestQuery(parm, function(resultData) {
-
-						if( resultData.state == "S"){
-
-  							<@popupId>.BRANCH_DATA["BASE_BRANCH"	] = resultData.data["hrInfo.getBaseBranchList"].map( item=> [item.CODE_ID, item.CODE_NM] ) ;
-	 						<@popupId>.BRANCH_DATA["SP_BRANCH"		] = resultData.data["hrInfo.getSpBranchList"].map( item=> [item.CODE_ID, item.CODE_NM] ) ;
-							<@popupId>.BRANCH_DATA["BRANCH"			] = resultData.data["hrInfo.getBranchList"].map( item=> [item.CODE_ID, item.CODE_NM] ) ;
-	 						
-							callback ? callback() : null;
-							
-						}else{
-							C_POP.alert(resultData.msg)
-						}
-				});
-			
-		}
 		,postPopup  : () => {
 			
 		    new daum.Postcode({
@@ -416,33 +375,85 @@
 	 			if ( validation ) return false;
 	 			else alert("등록가능한 아이디 입니다. ");
  			} 
- 			
 			
+		}
+		,setComponent : () => {
+			
+			let parm = {
+				 gubun 			: "USER"
+				,placeholder 	: "추천인이름(추천인ID)"
+				,defaultInfo	: {USER_ID : <@popupId>.recvData.param.RECOMMENDER_ID
+								,  USER_NM : <@popupId>.recvData.param.RECOMMENDER_NM
+								  }
+			}
+			C_COMP.import("<@popupId>_RECOMMENDER", "component_common_compSelectUser",parm , function(retData) {
+				
+				$("#<@popupId>_RECOMMEND_USER").val(`${retData.USER_NM}(${retData.USER_ID})`);
+				<@popupId>.recvData.param.RECOMMENDER_ID = retData.USER_ID;
+				<@popupId>.recvData.param.RECOMMENDER_NM = retData.USER_NM;
+				
+			});	
+		}
+		,setImage : () =>{
+			
+			if( <@popupId>.USER_ID ){
+				
+				<@popupId>.OLD_GRP_FILE_ID = <@popupId>.USER_ID ;
+				_getImageFile("<@popupId>_userImg",{GRP_FILE_ID:<@popupId>.USER_ID , OWNER_CD:<@popupId>.OWNER_CD });
+			}			
+		}
+		,divisionPopup : () => {
+			
+			C_POP.open('popup_operation_hrInfoDivsionPopup', {}
+				, function(retData) {
+			
+					if(isValid(retData)){
+						<@popupId>.setDivisionInfo(retData)
+					}
+			});			
+			
+		}
+		,setDivisionInfo : (data) => {
+			
+			let divisionStr = ` ${data.DIVISION_NM}`
+			divisionStr += !isEmpty( data.DEPTH1 ) ? ` > ${data.DEPTH1}`:'';
+			divisionStr += !isEmpty( data.DEPTH2 ) ? ` > ${data.DEPTH2}`:'';
+			divisionStr += !isEmpty( data.DEPTH3 ) ? ` > ${data.DEPTH3}`:'';
+			divisionStr += !isEmpty( data.DEPTH4 ) ? ` > ${data.DEPTH4}`:'';
+			
+			$("#<@popupId>_DIVISION").val(divisionStr);
+			<@popupId>.recvData.param.DIVISION_ID = data.DIVISION_ID;
+
+			return divisionStr;
+		}
+		,getDivisionInfo : (DIVISION_ID) => {
+			
+            let parm = {
+                    queryId        : "system.getDivisionInfo"
+                   ,requestParm    : {DIVISION_ID: DIVISION_ID}
+            }
+            C_COM.requestQuery(parm, function(resultData) {
+            	
+				if(isValid(resultData)){
+					<@popupId>.setDivisionInfo(resultData.data[0])
+				}
+            	   
+			})
 		}
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
-
-		<@popupId>.recvData	= data;
+ 		<@popupId>.recvData	= data;
 		
 		<@popupId>.USER_ID = data.param.USER_ID;
 
 		<@popupId>.mode = <@popupId>.recvData.mode;
 
-		if( <@popupId>.USER_ID ){
-			
-			<@popupId>.OLD_GRP_FILE_ID = <@popupId>.USER_ID ;
-			_getImageFile("<@popupId>_userImg",{GRP_FILE_ID:<@popupId>.USER_ID , OWNER_CD:<@popupId>.OWNER_CD });
-		}
+		<@popupId>.setImage();
 
-		<@popupId>.hiarachySelData = Object.entries(<@popupId>.recvData.param)
-		.filter(item => item[0].indexOf("BRANCH_ID") > -1)
-	    .reduce((acc, item) => {
-	        acc[item[0]] = item[1];
-	        return acc;
-	    }, {});
+		<@popupId>.setComponent();
 		
-		_getBranchSelectData(<@popupId>.pageInit);
+		<@popupId>.pageInit();
 		
 		<@popupId>.setHandler();
 		
@@ -455,11 +466,12 @@
 			$("#<@popupId> .tit").html( "내정보 보기" );
 			
 		}
-		
-		//if( <@popupId>.paMap["ROLE_ID"] =="SYSTEM" ||<@popupId>.paMap["ROLE_ID"] =="MANAGER" ){
-		//	$("#<@popupId>_selectSysRoleLi").show();
-		//}else 
-			$("#<@popupId>_selectSysRoleLi").hide(); 
+
+ 		setTimeout( () =>{
+ 			
+			C_UICOM.setSingleBox("<@popupId>_selectSysRole", data.param.ROLE_ID || 'USER');
+			
+		},100)
 	});
 </script>
 
@@ -469,7 +481,7 @@
 }
 </style>
 <div class="modal_wrap" id="modal-ex">
-	<div class="modal" style="width:750px;height:700px;">
+	<div class="modal" style="width:750px;height:750px;">
 		<div class="modal_header">
 			<strong class="tit">직원 추가</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
@@ -484,8 +496,8 @@
 				<ul class="info_wrap col2">
 					<li>
 						<label>사원 ID</label>
-						<div class="info"><input type="text" id="<@popupId>_USER_ID" style="width:53.6%">
-						<button class="btn" style="width:80px;" onclick="<@popupId>.redundCheck();">중복체크</button>
+						<div class="info"><input type="text" id="<@popupId>_USER_ID" style="width:50%">
+						<button class="btn" style="width:75px;" onclick="<@popupId>.redundCheck();">중복체크</button>
 						</div>
 					</li>
 					<li>
@@ -523,10 +535,10 @@
 						<label>이메일</label>
 						<div class="info"><input type="text" id="<@popupId>_E_MAIL" style="width:100%"></div>
 					</li>
-					<li id="<@popupId>_selectSysRoleLi"  style='display:none'>
+					<li id="<@popupId>_selectSysRoleLi" disabled>
 						<label>시스템 ROLE</label>
 						<div class="info">							
-							<div id="<@popupId>_selectSysRole" class="select_box" style="width:100%">
+							<div id="<@popupId>_selectSysRole" class="select_box" style="width:100%" disabled>
 			                </div>
 						</div>
 					</li>
@@ -573,56 +585,48 @@
 							</div>
 						</div>
 					</li>
-					<li>
-						<label>본부</label>
+					<li class="w100 ml0">
+						<label>부서</label>
 						<div class="info">
-							<div id="<@popupId>_selectBaseBranch" column = "BASE_BRANCH_ID" class="select_box" style="width:100%">
+							<input type="text" id="<@popupId>_DIVISION" style="width:calc(86% - 2px)" disabled>
+							<input type="text" id="<@popupId>_DIVISION_ID" style="display:none">
+							<button class="btn" onclick="<@popupId>.divisionPopup();">부서 검색</button>
+						</div>
+					</li>
+					<li class="ml0">
+						<label>직책</label>
+						<div class="info">
+							<div id="<@popupId>_selectPosition" column = "POSITION" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
-					<li>
-						<label>지사</label>
-						<div class="info">
-							<div id="<@popupId>_selectSpBranch" column = "SP_BRANCH_ID" class="select_box" style="width:100%">
-			                </div>
-						</div>
-					</li>
-					<li>
-						<label>지점</label>
-						<div class="info">
-							<div id="<@popupId>_selectBranch" column = "BRANCH_ID" class="select_box" style="width:100%">
-			                </div>
-						</div>
-					</li>
-					<li>
-						<label>역할</label>
-						<div class="info">
-							<div id="<@popupId>_selectRole" column = "ROLE" class="select_box" style="width:100%">
-			                </div>
-						</div>
-					</li>
-					<li>
-						<label>등급</label>
+					<li style='margin-left:9px;'>
+						<label>직급</label>
 						<div class="info">
 							<div id="<@popupId>_selectGrade" column = "GRADE" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
-					<li>
+					<li class="ml0">
 						<label>SALES TYPE</label>
 						<div class="info">
 							<div id="<@popupId>_selectSalesType" column = "SALES_TYPE" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
-					<li class="w100">
+					<li style='margin-left:9px;'>
+						<label>추천인</label>
+						<div class="info">
+							<div  id="<@popupId>_RECOMMENDER" class="search_inputWrap" style="width:100%">
+							</div>
+						</div>
+					</li>
+					<li class="ml0">
 						<label>DESC</label>
 						<div class="info">
 							<input type="text" id="<@popupId>_USER_DESC" style="width:100%">
 						</div>
 					</li>
-					
-					
 				</ul>
 			</section>
 			<div id="fileuploadComp"></div>

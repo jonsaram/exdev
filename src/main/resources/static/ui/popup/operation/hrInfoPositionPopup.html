@@ -1,15 +1,16 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@popupId> = {
-		recvData : [],
-		clickedData : {},
-		pageInit : ()=>{
+		recvData : []
+		,clickedData : {}
+		,newData:{}
+		,pageInit : ()=>{
 
 			<@popupId>.setTitleHeight();
-			$("#<@popupId>_DEPARTMENT").val(<@popupId>.clickedData.DEPARTMENT)
-			$("#<@popupId>_POSITION").val(<@popupId>.clickedData.POSITION)
-			$("#<@popupId>_PA_DATE").val(<@popupId>.clickedData.PA_DATE)
-			
+			<@popupId>.getDivisionInfo(<@popupId>.clickedData.DIVISION_ID);
+ 			C_UICOM.setSingleBox("<@popupId>_selectPosition", <@popupId>.clickedData.POSITION);
+ 			$("#<@popupId>_PA_DATE").val(<@popupId>.clickedData.PA_DATE);
+
 		}	
 		,setTitleHeight : () => {
 			
@@ -21,10 +22,8 @@
 			C_POP.confirm(`이 직책 내용을 삭제 하시겠습니까?`, function() {
 				
 				let saveData = {
-						USER_ID				: <@popupId>.recvData.USER_ID
-						,DEPARTMENT			: $("#<@popupId>_DEPARTMENT").val()
-						,POSITION		 	: $("#<@popupId>_POSITION").val()
-						,PERSONAL_APPOINTMENT_DATE 	: $("#<@popupId>_PA_DATE").val()
+						POSITION_ID			: <@popupId>.clickedData.POSITION_ID
+						,USER_ID			: <@popupId>.clickedData.USER_ID
 					}
 				var parm ={
 						 queryId 		: "hrInfo.deletePositionHist"
@@ -45,11 +44,12 @@
 			});
 		}
 		,save : function() {
-			
+		
 			let saveData = {
-				USER_ID				: <@popupId>.recvData.USER_ID
-				,DEPARTMENT			: $("#<@popupId>_DEPARTMENT").val()
-				,POSITION		 	: $("#<@popupId>_POSITION").val()
+				POSITION_ID			: isEmpty(<@popupId>.clickedData?.POSITION_ID) ? C_COM.makeUniqueId() :<@popupId>.clickedData?.POSITION_ID
+				,USER_ID			: <@popupId>.recvData.USER_ID
+				,DEPARTMENT			: <@popupId>.newData.DIVISION_ID
+				,POSITION		 	: C_UICOM.getData("<@popupId>_selectPosition")
 				,PERSONAL_APPOINTMENT_DATE 	: $("#<@popupId>_PA_DATE").val()
 			}
 			if(isEmpty(saveData.DEPARTMENT )) {
@@ -85,7 +85,47 @@
 		,close : function(returnData) {
 			if(isEmpty(returnData)) returnData = {};
 			C_POP.close(returnData);
-		 }
+		 }		
+		,divisionPopup : () => {
+				
+				C_POP.open('popup_operation_hrInfoDivsionPopup', {}
+					, function(retData) {
+				
+						if(isValid(retData)){
+							<@popupId>.setDivisionInfo(retData)
+						}
+				});			
+				
+			}
+			,setDivisionInfo : (data) => {
+				
+				let divisionStr = ` ${data.DIVISION_NM}`
+				divisionStr += !isEmpty( data.DEPTH1 ) ? ` > ${data.DEPTH1}`:'';
+				divisionStr += !isEmpty( data.DEPTH2 ) ? ` > ${data.DEPTH2}`:'';
+				divisionStr += !isEmpty( data.DEPTH3 ) ? ` > ${data.DEPTH3}`:'';
+				divisionStr += !isEmpty( data.DEPTH4 ) ? ` > ${data.DEPTH4}`:'';
+				
+				$("#<@popupId>_DIVISION").val(divisionStr);
+				<@popupId>.newData.DIVISION_ID = data.DIVISION_ID;
+
+				return divisionStr;
+			}
+			,getDivisionInfo : (DIVISION_ID) => {
+				
+	            let parm = {
+	                    queryId        : "system.getDivisionInfo"
+	                   ,requestParm    : {DIVISION_ID: DIVISION_ID}
+	            }
+	            C_COM.requestQuery(parm, function(resultData) {
+	            	
+					if(isValid(resultData)){
+						<@popupId>.setDivisionInfo(resultData.data[0])
+					}
+	            	   
+				})
+			}
+ 		
+
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(parm) {
@@ -93,17 +133,25 @@
 		<@popupId>.recvData = parm.recvData;
 		<@popupId>.clickedData =  parm.clickedData;
 		
-		if(<@popupId>.clickedData){
+ 		//직책
+		C_UICOM.makeSelectBox({ 
+					 data : C_COM.getCodeList("POSITION")
+			 		,targetId : "<@popupId>_selectPosition" }, "single");
 		
+		if(<@popupId>.clickedData){
+
 			<@popupId>.pageInit();
 			
 		}else{
+			
 			$("#<@popupId>_delBtn").hide();
+			
 		}
+		
 	});
 </script>
 <div class="modal_wrap" id="modal-ex2">
-	<div class="modal" style="width:470px;height:370px;">
+	<div class="modal" style="width:530px;height:430px;">
 		<div class="modal_header">
 			<strong class="tit">직책 승급 등록</strong>
 			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
@@ -113,26 +161,27 @@
 			<ul class="info_wrap col2 pay">
 				<li class="w100 ml0">
 					<label>부서명</label>
-					<div class="info">
-						<div class="search_inputWrap" style="width:285px">
-							<input type="text"  id="<@popupId>_DEPARTMENT" style="width:100%">
-						</div>
+ 					<div class="info">
+						<button class="btn" onclick="<@popupId>.divisionPopup();" style='margin-bottom:10px;'>부서 검색</button>
+						<input type="text" id="<@popupId>_DIVISION" style="width:calc(95% - 2px)" disabled>
+						<input type="text" id="<@popupId>_DIVISION_ID" style="display:none">
 					</div>
 				</li>
+	
 				<li class="w100 ml0">
 					<label>직책</label>
 					<div class="info">
-						<div class="search_inputWrap" style="width:285px">
-							<input type="text"  id="<@popupId>_POSITION" style="width:100%">
-						</div>
+						<div id="<@popupId>_selectPosition" class="select_box" style="width:95%;">
+		                </div>
 					</div>
 				</li>
+			
 				<li class="w100 ml0">
 					<label>발령일</label>
 					<div class="info">
-						<div class="search_inputWrap" style="width:100%">
+						<div class="search_inputWrap">
 							<div class="calendar_wrap fl">
-								<input type="text" class="datepicker" id="<@popupId>_PA_DATE" style="width:132px">
+								<input type="text" class="datepicker" id="<@popupId>_PA_DATE" style="width:352px;">
 							</div>
 						</div>
 					</div>

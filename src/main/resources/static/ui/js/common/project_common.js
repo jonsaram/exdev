@@ -65,8 +65,23 @@ var C_COM = {
 		if(isEmpty(codeInfo)) {
 			return {};
 		}
-		
-		return codeInfo.codeMap[codeId];
+		if(isValid(codeId)) {
+			return codeInfo.codeMap[codeId];	
+		} else {
+			return codeInfo.codeMap;
+		}
+	 }  
+	,getCodeMap : function(grpCodeId) {
+		let codeMap = C_COM.getCodeAttr(grpCodeId);
+		if(isEmpty(codeMap)) {
+			return {}
+		} else {
+			let retMap = {};
+			$.each(codeMap, function(key, obj) {
+				retMap[key] = obj.CODE_NM
+			});
+			return retMap;
+		}
 	 }  
 	,addKeypressListener : function(pageId, callback) {
 		if(typeof callback != "function") {
@@ -401,11 +416,9 @@ var C_COM = {
 	,showLoadingBar : function() {
 		$("#loadingBar").show();
 		C_COM.loadingDepth++;
-		dlog(C_COM.loadingDepth);
 	 }
 	,hideLoadingBar : function() {
 		C_COM.loadingDepth--;
-		dlog(C_COM.loadingDepth);
 		if(C_COM.loadingDepth < 1) {
 			C_COM.loadingDepth = 0;
 			$("#loadingBar").hide();

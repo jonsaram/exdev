@@ -18,6 +18,7 @@ public class SessionVO {
 	private String grade;
 	private String email;
 	private String spCstmId;
+	private String loginType;
 	
 	public String getUserId() {
 		return userId;
@@ -49,6 +50,10 @@ public class SessionVO {
 	public void setSpCstmId(String spCstmId) {
 		this.spCstmId = spCstmId;
 	}
-
-	
+	public String getLoginType() {
+		return loginType;
+	}
+	public void setLoginType(String loginType) {
+		this.loginType = loginType;
+	}
 }

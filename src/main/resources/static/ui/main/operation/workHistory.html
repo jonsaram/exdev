@@ -7,23 +7,30 @@
 
 			C_POP.open('popup_system_memberSearchPopup', {param : {}, gubun:"USER"}, function(retData) {
 				<@pageId>.userInfo = retData;
-				let parm = {
-					 targetId 	: "tableId"
-					,data		: retData
-				}
-				C_COM.renderHtml("<@pageId>", parm);
-				
-				C_COM.getFileId(retData.USER_ID, "USER_FACE", function(fileInfo) {
-					if(fileInfo.length > 0) {
-						let url = C_COM.getImageUrl(fileInfo[0].FILE_ID);
-						$("#<@pageId>_userFace img").attr("src", url);
-					} else {
-						$("#<@pageId>_userFace img").attr("src", "../img/icon_noimg.png");
-					}
-				});
-				
-				<@pageId>.loadWorkHistory();
+				<@pageId>.setUserInfo();
 			});
+		 }
+		,setUserInfo : function() {
+			
+			if(isEmpty(<@pageId>.userInfo)) {
+				<@pageId>.userInfo = G_VAL.session.etcUserInfo;	
+			}
+			let parm = {
+				 targetId 	: "tableId"
+				,data		: <@pageId>.userInfo
+			}
+			C_COM.renderHtml("<@pageId>", parm);
+
+			C_COM.getFileId(<@pageId>.userInfo.USER_ID, "USER_FACE", function(fileInfo) {
+				if(fileInfo.length > 0) {
+					let url = C_COM.getImageUrl(fileInfo[0].FILE_ID);
+					$("#<@pageId>_userFace img").attr("src", url);
+				} else {
+					$("#<@pageId>_userFace img").attr("src", "../img/icon_noimg.png");
+				}
+			});
+			
+			<@pageId>.loadWorkHistory();
 		 }
 		,loadWorkHistory : function() {
 				
@@ -64,10 +71,14 @@
 		 }
 	}
 	// Page Load가 완료된후 실행 된다.
-	C_PM.onLoadPage("<@pageId>", function() {
-		C_COM.renderHtml("<@pageId>", {targetId 	: "tableId"});
+	C_PM.onLoadPage("<@pageId>", function(parm) {
 		
-		//<@pageId>.loadWorkHistory();
+		if(parm.noselect =="Y") {
+			$("#<@pageId> #selectUser1").hide();
+			$("#<@pageId> #selectUser2").hide();
+		}
+		
+		<@pageId>.setUserInfo();
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -81,8 +92,8 @@
 	<!-- search area -->
 	<div class="search_area plpr5">
 		<div class="fl">
-			<span class="tit01 fl lh33">사원 정보</span>
-			<a href="javascript:<@pageId>.selectUser()" class="btn fl">사원선택</a>
+			<span class="tit01 fl lh33" id="selectUser1">사원 정보</span>
+			<a href="javascript:<@pageId>.selectUser()" class="btn fl" id="selectUser2">사원선택</a>
 			<div class="calendar_wrap fl">
 				<input type="text" id="from" name="from" class="datepicker" style="width:114px">
 				<label for="to">~</label>
@@ -149,13 +160,9 @@
 		{{/for}}
 		</script>
 		<script type="text/x-jsrender" id="workHistoryList_noData_template">
-		{{for list ~dateMap=dateMap}}						
 			<section class="sec_wrap">
-				<div class="cont_box work_history">
-					<h3>등록된 Data가 없습니다.</h3>
-				</div>
+				<h3>등록된 Data가 없습니다.</h3>
 			</section>
-		{{/for}}
 		</script>
 	</div>
 </div>

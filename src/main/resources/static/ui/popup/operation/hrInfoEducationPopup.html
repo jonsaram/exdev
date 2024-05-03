@@ -24,9 +24,8 @@
 			C_POP.confirm(`이 학력 내용을 삭제 하시겠습니까?`, function() {
 				
 				let saveData = {
-						USER_ID				: <@popupId>.recvData.USER_ID
-						,START_PERIOD_DATE 	: $("#<@popupId>_START_PERIOD_DATE").val()
-						,END_PERIOD_DATE	: $("#<@popupId>_END_PERIOD_DATE").val()
+						 EDUCATION_ID	: isEmpty(<@popupId>.clickedData.EDUCATION_ID) ? C_COM.makeUniqueId() :<@popupId>.clickedData.EDUCATION_ID
+						,USER_ID		: <@popupId>.recvData.USER_ID
 					}
 				var parm ={
 						 queryId 		: "hrInfo.deleteEducationHist"
@@ -49,7 +48,8 @@
 		,save : function() {
 			
 			let saveData = {
-				USER_ID				: <@popupId>.recvData.USER_ID
+				EDUCATION_ID		: isEmpty(<@popupId>.clickedData?.EDUCATION_ID) ? C_COM.makeUniqueId() :<@popupId>.clickedData?.EDUCATION_ID
+				,USER_ID			: <@popupId>.recvData.USER_ID
 				,GUBUN				: $("#<@popupId>_GUBUN").val()
 				,START_PERIOD_DATE 	: $("#<@popupId>_START_PERIOD_DATE").val()
 				,END_PERIOD_DATE	: $("#<@popupId>_END_PERIOD_DATE").val()

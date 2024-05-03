@@ -2,25 +2,25 @@
 <script type="text/javascript">
 var <@pageId> = {
 		
-		pageInit : () =>{
+	pageInit : () =>{
 
-			const yearsArray = Array.from({ length: 4 }, (_, index) => {
-				  const year = 2022 + index;
-				  return [year.toString(), year + "년"];
-			});
-			const monthsArray = Array.from({ length: 12 }, (_, index) => {
-				  const months = ("0"+(1 + index) ).slice(-2);
-				  return [months.toString(), months + "월"];
-			});
+		const yearsArray = Array.from({ length: 4 }, (_, index) => {
+			  const year = 2022 + index;
+			  return [year.toString(), year + "년"];
+		});
+		const monthsArray = Array.from({ length: 12 }, (_, index) => {
+			  const months = ("0"+(1 + index) ).slice(-2);
+			  return [months.toString(), months + "월"];
+		});
+		
+		var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"}
+		C_UICOM.makeSelectBox(yearsArrayList, "single");
+		C_UICOM.setSingleBox("<@pageId>_years", dayjs().year());
+		var monthsArrayList = { data : monthsArray,targetId : "<@pageId>_months"}
+		C_UICOM.makeSelectBox(monthsArrayList, "single");
+		C_UICOM.setSingleBox("<@pageId>_months", ("0"+(dayjs().month() + 1) ).slice(-2));
 
-			var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"}
-			C_UICOM.makeSelectBox(yearsArrayList, "single");
-			C_UICOM.setSingleBox("<@pageId>_years", dayjs().year());
-			var monthsArrayList = { data : monthsArray,targetId : "<@pageId>_months"}
-			C_UICOM.makeSelectBox(monthsArrayList, "single");
-			C_UICOM.setSingleBox("<@pageId>_months", ("0"+(dayjs().month() + 1) ).slice(-2));
-
-		}
+	}
 		,searchList : () => {
 			
 			var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
@@ -45,19 +45,33 @@ var <@pageId> = {
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 
-				let sumTotalCost=0,sumIncome=0,sumPayment=0,sumTax=0,sumRealPay=0;
+	        	mergeTableTD('<@pageId>_salaryList', {startIdx :2, endIdx :4, startRowIdx : 1});;
+
+				
+				let sumTotalCost=0, sumIncome=0;
+				$.each($("#<@pageId>_salaryList [name^='<@pageId>_tr'] td[id='TOTAL_COST']") , function(idx){
+					
+					sumTotalCost +=Number($(this).text().replace(/,/g, ''));
+				})
+					$.each($("#<@pageId>_salaryList [name^='<@pageId>_tr'] td[id='INCOME']") , function(idx){
+					
+						sumIncome +=Number($(this).text().replace(/,/g, ''));
+				})
+				
+				let sumPayment=0,sumTax=0,sumRealPay=0;
 				resultData.data.forEach(item=>{
-					sumTotalCost 	+=item.TOTAL_COST;
-					sumIncome		+=item.INCOME;
 					sumPayment		+=item.PAYMENT;
 					sumTax			+=item.TAX;
 					sumRealPay		+=item.REAL_PAY;
 				})
+
 				$("#<@pageId>_sumTotalCost").text(sumTotalCost.toLocaleString());
 				$("#<@pageId>_sumIncome").text(sumIncome.toLocaleString());
 				$("#<@pageId>_sumPayment").text(sumPayment.toLocaleString());
 				$("#<@pageId>_sumTax").text(sumTax.toLocaleString());
-				$("#<@pageId>_sumRealPay").text(sumRealPay.toLocaleString());
+				$("#<@pageId>_sumRealPay").text(sumRealPay.toLocaleString());				
+				
+				
 				<@pageId>.setHandler();
 			});
 		}

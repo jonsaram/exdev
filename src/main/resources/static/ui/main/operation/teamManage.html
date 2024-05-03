@@ -42,15 +42,12 @@
 				}
 				C_COM.renderHtml("<@pageId>", parm);
 				
-				$("#<@pageId> #teamNm").html(teamItem.TEAM_NM);
+				let teamNm = `'${teamItem.BUYER_NM} / ${teamItem.CONSULTING_NM}' 프로젝트 `;
+				
+				$("#<@pageId> #teamNm").html(teamNm);
 				
 			});
 				
-		 }
-		,addTeam : function() {
-			C_POP.open('popup_operation_addTeamPopup', {}, function(retData) {
-				dalert(retData);
-			});
 		 }
 	}
 	// Page Load가 완료된후 실행 된다.
@@ -81,7 +78,6 @@
 			<div class="fl h100 mr15" style="width:calc(50% - 25px);">
 				<div class="cont_top clearFix">
 					<h3 class="fl font16 lh33">팀목록</h3>
-					<button class="btn select fl" onclick="<@pageId>.addTeam()">추가</button>
 					<div class="fr"><strong class="total">Total: <span class="pointColr" id="totalCnt"></span></strong></div>
 				</div>
 
@@ -95,16 +91,14 @@
 							<col style="width:120px;"/>
 							<col style="width:120px;"/>
 							<col style="width:120px;"/>
-							<col style="width:120px;"/>
 						</colgroup>
 						<thead>
 							<tr>
 								<th scope="col">No.</th>
-								<th scope="col">팀명</th>
+								<th scope="col">고객명</th>
+								<th scope="col">상품명</th>
 								<th scope="col">팀명수</th>
-								<th scope="col">생년일</th>
-								<th scope="col">소속지사명</th>
-								<th scope="col">관리</th>
+								<th scope="col">생성일</th>
 							</tr>
 						</thead>
 						<tbody id="<@pageId>_teamList">
@@ -113,20 +107,16 @@
 							{{for list}}
 							<tr onclick="<@pageId>.selectTeam({{:#index}})">
 								<td>{{:#index + 1}}</td>
-								<td>{{:TEAM_NM}}</td>
+								<td>{{:BUYER_NM}}</td>
+								<td>{{:CONSULTING_NM}}</td>
 								<td>{{:MEMBER_CNT}}</td>
 								<td>{{:UPDATE_DATE}}</td>
-								<td>{{:BRANCH_NM}}</td>
-								<td>
-									<a href=""><i class="icon_pen"></i></a>
-									<a href=""><i class="icon_trash"></i></a>
-								</td>
 							</tr>
 							{{/for}}
 						</script>
 						<script type="text/x-jsrender" id="<@pageId>_teamList_noData_template">	
 							<tr>	
-								<td colspan=6>자료가 없습니다.</td>	
+								<td colspan=5>자료가 없습니다.</td>	
 							</tr>
 						</script>
 					</table>

@@ -1,0 +1,400 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+var <@pageId> = {
+		 selectedCheck :{ "grpCodeList": [],"normalCodeList": [] }
+		,getItems : (loc) => {
+				const requestParm = {};
+				const updateItems = $("#"+loc+" input:not([type='radio'])");
+				
+				const valuesArray = updateItems.map(function() {
+				    return { name: this.name, value: ""+$(this).val() };
+				}).get();
+				
+				valuesArray.forEach(function(item) {
+					requestParm[item.name] = item.value;
+				});
+
+				return requestParm;
+				
+		}
+		,getSearchItems : () =>{
+			return <@pageId>.getItems("<@pageId>_searchItems")
+		}
+		,searchObj : (queryId, parm) => {
+			//dalert(parm);
+			
+				var parm = {
+						 queryId 		: queryId
+						,requestParm	: parm
+				}
+
+				C_COM.requestQuery(parm, function(resultData) {
+				
+					var rparm = {
+							list			: resultData.data
+						}
+					<@pageId>.viewHtml(resultData.data);
+
+				});
+				
+		}
+		,searchView : (parm) => {
+				<@pageId>.searchObj("board.getBoardView",parm);
+		}
+		,viewHtml : (parm) =>{
+			$('#<@pageId> #TITLE').text(parm[0].TITLE);
+			$('#<@pageId> #UPDATE_USER').text(parm[0].UPDATE_USER);
+			$('#<@pageId> #UPDATE_DATE').text(parm[0].UPDATE_DATE);
+			$('#<@pageId> #VIEW_CNT').text(parm[0].VIEW_CNT);
+			$('#<@pageId> #UPDATE_USER').text(parm[0].UPDATE_USER);
+			$('#<@pageId> #USER_NM').text(parm[0].USER_NM);
+			$('#<@pageId> #CONTENT').html(parm[0].CONTENT);
+			$('#<@pageId> #REP_CNT').html(parm[0].REP_CNT);
+			//<@pageId>.textEditorComp.setContent(parm[0].CONTENT);
+			
+			var parm = {
+					 GRP_FILE_ID 	: parm[0].BOARD_ID
+					,OWNER_CD 		: "BOARD"
+					,mode			: "R"
+					,allowExt		: ["jpg", "jpeg", "png", "gif", "bmp"]
+			}
+			C_COMP.import("importMultiFilemng", "component_compMultiFilemng", parm , function() {
+					
+			});
+		}
+		,searchReplyView : (parm, targetId) => {
+			var parm = {
+					 queryId 		: "board.getBoardAddList"
+					,requestParm	: parm
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+			
+				var rparm = {
+						 targetId 		: targetId
+						,list			: resultData.data
+					}
+				console.log(resultData.data);
+				C_COM.renderHtml("<@pageId>", rparm);
+
+			});
+		}
+		,updateCount : (boardId) => {
+			const requestParm = {};
+			requestParm['BOARD_MST_ID'] = $("#BOARD_MST_ID").val();
+			requestParm['BOARD_ID'] = boardId;
+			var parm = {
+					 queryId 		: "board.updateBoardCount"
+					,requestParm	: requestParm
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+
+				if( resultData.state == 'S'){
+					<@pageId>.searchReplyView(requestParm, "<@pageId>_commentList");
+				}				
+			});
+				
+		}
+		,updateReply : (param, queryId) => {
+
+			var parm = {
+					 queryId 		: queryId
+					,requestParm	: param
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+
+				if( resultData.state == 'S'){
+					<@pageId>.searchReplyView(param, "<@pageId>_commentList");
+					console.log("처리 성공");
+				}				
+			});
+			
+		}
+		,deleteCode : (queryId, requestParm) => {
+				
+				var parm = {
+						 queryId 		: queryId
+						,requestParm	: requestParm
+				}
+
+				C_COM.requestQuery(parm, function(resultData) {
+					if( resultData.state == 'S'){
+						<@pageId>.searchList();
+						console.log("코드 삭제 성공")
+					}				
+				});		
+				
+		}
+		,modifyReplyPopup : (board_add_id, board_id, msg) => {
+			C_POP.open('popup_common_inputOnelinePopup', {title1 : "댓글수정", title2 : "댓글", msg : msg}, function(retData) {
+				if(isValid(retData)) {
+					retData['BOARD_ADD_ID'] = board_add_id;
+					retData['BOARD_ID'] = board_id;
+					retData['ADD_CONTENT'] = retData.msg;
+					<@pageId>.modify(retData);					
+				}
+			});
+		 }
+		,modify : (rparm) => {
+   			<@pageId>.updateReply(rparm, "board.updateBoardAdd");
+		}
+		,deleteReply : (board_add_id, board_id) => {
+			const rparm = {};
+			C_POP.confirm('댓글을 삭제 하시겠습니까?', function() {
+				rparm['BOARD_ADD_ID'] = board_add_id;
+				rparm['BOARD_ID'] = board_id; 			
+   				<@pageId>.updateReply(rparm, "board.deleteBoardAdd");
+			});
+		}
+		,setHandler : (parm) => {
+			const requestParm = {};
+			requestParm['BOARD_MST_ID'] = parm.BOARD_MST_ID;
+			requestParm['BOARD_ID'] = parm.BOARD_ID;
+   			$('button[name="<@pageId>_delete"]').on('click', function (e) {
+		    	C_POP.confirm('게시물을 삭제 하시겠습니까?', function() {
+	    			var parm = {
+	    				 queryId 		: "board.deleteBoard"
+	    				,requestParm	: requestParm
+	    			}
+	    			C_COM.requestQuery(parm, function(resultData) {
+						if( resultData.state == 'S'){
+							dalert("게시물이 삭제되었습니다.");
+							history.go(-1);
+						}
+	    			});
+		    	});
+   			})
+
+   			$('button[name="<@pageId>_boardList"]').on('click', function (e) {
+				history.go(-1);
+   			})
+
+			$('button[name="<@pageId>_modify"]').on('click', function (e) {
+				C_POP.open('popup_board_modifyBoardPopup', requestParm, function(retData) {
+					console.log(requestParm);
+					if(retData.refresh == 'Y'){
+						<@pageId>.setHandler(requestParm);
+						<@pageId>.searchView(requestParm);
+						<@pageId>.searchReplyView(requestParm, "<@pageId>_commentList");
+					}
+				});
+			})
+   			
+   			$('#<@pageId>_search').on('click', function (e) {
+   				<@pageId>.searchList();
+   			})
+   				
+   			$('button[name="<@pageId>_insert"]').on('click', function (e) {
+   				const loc = $(this).siblings(".item-box").attr("id");
+   				const grp = loc.indexOf("grp") > -1 ? "GRP_" : "" ;
+   					
+   				<@pageId>.itemReset(loc,true,grp);
+   			})
+   				
+   			$('button[name="<@pageId>_save"]').on('click', function (e) {
+   				const requestParm = {};
+   				C_POP.confirm('댓글을 등록 하시겠습니까?', function() {
+	   				requestParm['BOARD_ADD_ID'] = C_COM.makeUniqueId();
+	   				requestParm['ADD_CONTENT'] = $('textarea[name="<@pageId>_rReply"]').val();
+	   				requestParm['BOARD_ID'] = parm['BOARD_ID'];
+	   				<@pageId>.updateReply(requestParm, "board.insertBoardAdd");
+	   				$('textarea[name="<@pageId>_rReply"]').val('');
+   				});
+   			})
+   			
+   			$('button[name="<@pageId>_deleteReply"]').on('click', function (e) {
+   				const loc = $(this).siblings(".item-box").attr("id");
+   					
+   				if(<@pageId>.validation(loc,"deleteCode")  == false)return;
+   					
+   				const queryId	= loc.indexOf("grp") > -1 ? "system.deleteGrpCode" : "system.deleteCode" ;
+   				let		keyObj 	= loc.indexOf("grp") > -1 ? {"GRP_CODE_ID":""} : {"GRP_CODE_ID":"","CODE_ID":""} ;
+				const gubun 	= loc.indexOf("grp") > -1 ? "grpCodeList" : "normalCodeList" ;
+   		 		<@pageId>.selectedCheck[gubun].forEach( item =>{
+
+   		 			let grpCodeId 	= "";
+   					let codeId 		= "";	
+		 			if( loc.indexOf("grp") == -1 ){
+   		 					
+		 				grpCodeId	= item.split("||")[0];
+   		 				codeId 		= item.split("||")[1];
+	   					keyObj["GRP_CODE_ID"] = grpCodeId;
+	   					keyObj["CODE_ID"] = codeId;
+	   		 				
+   		 			}else{
+   		 					
+	   					keyObj["GRP_CODE_ID"] = item;
+   		 			}
+   						<@pageId>.deleteCode(queryId, keyObj);
+   		 		});
+   			}) 
+   				
+   			$('button[name="<@pageId>_reset"]').on('click', function(e){
+
+   				const loc =$(this).parents(".item-box").attr("id");
+   				const grp = loc.indexOf("grp") > -1 ? "GRP_" : "" ;
+   				<@pageId>.itemReset(loc,true,grp);
+   			})
+   				
+   			$("button[name='<@pageId>_close']").on('click', function(e){
+
+   				const loc =$(this).parents(".item-box").attr("id");
+   				<@pageId>.itemReset(loc,false);
+   			}) 
+   				
+		}
+		
+ 		,setEachColumnValue : (loc, arr ,grp) => {
+
+			const name 	= arr[0];
+			const value = arr[1];
+
+			if( name == "USE_YN" ){
+				
+				<@pageId>.fnRadioCheckValue(loc, grp+'USE_YN',value);
+			
+			}else if( name == "DEL_YN" ){
+				
+				<@pageId>.fnRadioCheckValue(loc,  grp+'DEL_YN',value);
+			
+			}else{
+			
+				$("#"+loc+" input:not([type='checkbox'])").each((idx,obj)=>{
+
+					if(obj.name == grp+name && obj.name != 'ckbox'){
+						obj.value = value;
+					}
+				})
+			}
+		}
+		,fnRadioCheckValue : (loc, name , pValue) => {
+
+				const radioButtons = $("#"+loc+" input[name='"+name+"']");
+				if( pValue ){
+				 
+					const theRadioBtn = radioButtons.filter("[value='"+pValue+"']");
+					 theRadioBtn.prop('checked',true);
+				}else{
+				
+					const selectedValue = radioButtons.filter(":checked").val();
+					return selectedValue;
+				 }
+		}
+		, createBoardPopup : function() {
+			const requestParm = {};
+			requestParm['BOARD_MST_ID'] = $("#BOARD_MST_ID").val();
+			<@pageId>.getSearchItems(requestParm);
+
+			C_POP.open('popup_createBoardPopup', requestParm, function(retData) {
+				if(retData.refresh == 'Y'){
+					<@pageId>.searchList();
+				}
+			});
+		 }
+}
+
+// Page Load가 완료된후 실행 된다.
+C_PM.onLoadPage("<@pageId>", function(parm) {
+	let menuInfo = C_MENU.getCurrentMenuInfo();
+	$("#MENU_TITLE").text(menuInfo.MENU_NM);
+	<@pageId>.updateCount(parm.BOARD_ID);
+	<@pageId>.setHandler(parm);
+	//C_COMP.import("textEditorComp", "component_compTextEditor", {mode:"R"});
+	<@pageId>.searchView(parm);
+	<@pageId>.searchReplyView(parm, "<@pageId>_commentList");
+});
+	
+// History back으로 이동해왔을 경우 이루틴이 실행된다.
+C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+});
+
+</script>
+
+</head>
+		<div class="cont_wrap">
+			<div class="cont_top">
+				<h2><a href="company_board.html" class="before"><i class="icon_long_arrow_left"></i><span id="MENU_TITLE"></span></a></h2>
+			</div>
+			<div class="sec_scroll resize">
+				<section class="sec_wrap list pt0">
+					<div class="tbl01 row board">
+						<table>
+							<caption>표 캡션</caption>
+							<colgroup>
+								<col />
+							</colgroup>
+							<tbody>
+								<tr>
+									<td>
+										<h3 id="TITLE"></h3>
+										<dl class="board_cont">
+											<dt>작성자 :</dt>
+											<dd id="USER_NM"></dd>
+										</dl>
+										<dl class="board_cont">
+											<dt>작성일 :</dt>
+											<dd id="UPDATE_DATE"></dd>
+										</dl>
+										<dl class="board_cont">
+											<dt>조회 :</dt>
+											<dd id="VIEW_CNT"></dd>
+										</dl>
+										<dl class="board_cont">
+											<dt>댓글 :</dt>
+											<dd id="REP_CNT"></dd>
+										</dl>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<button type="button" class="btn fr" name="<@pageId>_delete"><i class="icon_pen"></i>삭제</button>
+										<button type="button" class="btn fr" name="<@pageId>_modify" style="margin-right:8px!important"><i class="icon_trash"></i>수정</button>
+										<button type="button" class="btn fr" name="<@pageId>_boardList"><i class="icon_letter"></i>목록</button>
+									</td>
+								</tr>
+								<tr>
+									<td id=importMultiFilemng></td>
+								</tr>
+								<tr>
+									<td>
+										<div id="CONTENT" class="lh20" style="min-height:200px;overflow:auto;">
+
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<h4 class="mt5">댓글</h4>
+										<div class="comment_wrap">
+											<div class="comment">
+												<p>
+													<textarea rows="2" style="width:calc(100% - 60px)" name="<@pageId>_rReply"></textarea>
+													<button class="btn ml5" style="height:58px" name="<@pageId>_save">등록</button>
+												</p>
+											</div>
+											<div id="<@pageId>_commentList">
+						       				</div>
+						       				<script type="text/x-jsrender" id="<@pageId>_commentList_template">
+												{{for list}}
+												<div class="comment">
+												<table>
+													<tr>
+														<td width="100" align="center"><strong id="<@pageId>_UPDATE_USER">{{:USER_NM}}</strong></td>
+														<td width="100" align="center"><span id="<@pageId>_UPDATE_DATE">{{:UPDATE_DATE}}</span></td>
+														<td><span style="width:calc(100% - 260px)" name="<@pageId>_{{:BOARD_ADD_ID}}_rReply">{{:ADD_CONTENT}}</span></td>
+														<td width="60" align="center"><button class="btn ml5" onClick="<@pageId>.modifyReplyPopup('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}','{{:ADD_CONTENT}}');">수정</button></td>
+														<td width="60" align="center"><button class="btn ml5" onClick="<@pageId>.deleteReply('{{:BOARD_ADD_ID}}','{{:BOARD_ID}}');">삭제</button></td>
+													<tr>
+												</table>
+												</div>
+												{{/for}}
+											</script>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</section>
+			</div>
+		</div>

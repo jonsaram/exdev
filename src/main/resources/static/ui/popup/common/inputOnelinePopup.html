@@ -12,6 +12,11 @@
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
+		
+		if(isValid(data) && isValid(data.msg)) {
+			$("#<@popupId>_msg").val(data.msg);
+		}
+		
 		$("#<@popupId>_msg").focus();
 	});
 </script>
@@ -23,12 +28,12 @@
 		</div>
 		<div class="modal_body">
 			<dl class="info_wrap pay">
-				<dt><@title2></dt>
+				<dt class="tc"><@title2></dt>
 				<dd><input id="<@popupId>_msg" type="text" value="" style="width:100%"></dd>
 			</dl>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select" onclick="<@popupId>.save()">등록</button>
+			<button type="button" class="btn select" onclick="<@popupId>.save()">저장</button>
 			<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
 		</div>
 	</div>

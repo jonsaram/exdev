@@ -75,15 +75,23 @@
 			팀 리스트 가져오기
 		*/
 		SELECT
-		     TEAM_ID
-		    ,TEAM_NM
-		    ,(SELECT count(*) FROM TBL_EXP_TEAM_MEMBER B WHERE A.TEAM_ID = B.TEAM_ID) AS MEMBER_CNT
-		    ,(SELECT BRANCH_NM FROM TBL_EXP_BRANCH C WHERE A.BRANCH_ID = C.BRANCH_ID) AS BRANCH_NM
-		    ,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD' ) UPDATE_DATE
+		     A.CONTRACT_ID
+		    ,C.BUYER_NM
+		    ,D.CONSULTING_NM
+		    ,(SELECT count(*) FROM TBL_EXP_TEAM_MEMBER B WHERE A.CONTRACT_ID = B.CONTRACT_ID) AS MEMBER_CNT
+		    ,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD' ) UPDATE_DATE
 		FROM
-			    TBL_EXP_TEAM A
-		WHERE 1=1			    
-			AND SP_CSTM_ID 	= #{sessionVo.spCstmId}
+			 TBL_EXP_TEAM 		A
+			,TBL_EXP_CONTRACT 	B
+			,TBL_EXP_BUYER		C
+			,TBL_EXP_CONSULTING	D
+		WHERE 1 = 1 
+			AND A.CONTRACT_ID 	= B.CONTRACT_ID
+			AND B.BUYER_ID		= C.BUYER_ID
+			AND B.SP_CSTM_ID	= C.SP_CSTM_ID
+			AND B.CONSULTING_ID	= D.CONSULTING_ID
+			AND A.SP_CSTM_ID 	= #{sessionVo.spCstmId}			
+		ORDER BY A.UPDATE_DATE DESC			
 	</select>
 
 	<select id="getTeamMemberList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -91,7 +99,7 @@
 			팀 Member 리스트 가져오기
 		*/
 		SELECT
-		     TEAM_ID
+		     CONTRACT_ID
 		    ,USER_ID
 		    ,GET_USER_NM(USER_ID) AS USER_NM
 		    ,TEAM_USER_ROLE
@@ -103,7 +111,10 @@
 		FROM
 		    TBL_EXP_TEAM_MEMBER B
 		WHERE 
-			TEAM_ID = #{TEAM_ID}  
+			CONTRACT_ID = #{CONTRACT_ID}
+		ORDER BY 
+			TEAM_USER_ROLE DESC			
+			  
    	</select>
 
 	<select id="getWorkHistoryList" resultType="java.util.HashMap" flushCache="true"  useCache="false">

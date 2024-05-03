@@ -83,7 +83,7 @@ var <@pageId> = {
 		,searchList : (requestParm, targetId) => {
 
 			var parm = {
-					 queryId 		: "rstMgn.getContractList"
+					 queryId 		: "cstm.getBuyerSellingList"
 					,requestParm	: {parm:requestParm}
 			}
 
@@ -218,26 +218,24 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
-									<col style="width:55px;"/>
 									<col style="width:60px;"/>
 									<col style="width:11%;"/>
 									<col style="width:11%;"/>
 									<col style="width:15%;"/>
-									<col style="width:9%;"/>
-									<col style="width:9%;"/>
+									<col style="width:10%;"/>
+									<col style="width:15%;"/>
 								</colgroup>
 								<thead>
 									<tr>
 										<th scope="col">년</th>
 										<th scope="col">월</th>
-										<th scope="col">팀</th>
 										<th scope="col">유입<br>경로</th>
 										<th scope="col">구분</th>
 										<th scope="col">담당자</th>
-										<th scope="col">사업자 등록번호</th>
+										<th scope="col">사업자<BR>등록번호</th>
 										<th scope="col">거래처</th>
 										<th scope="col">컨설팅명</th>
-										<th scope="col">총 계액금액</th>
+										<th scope="col">총<BR>계약금액</th>
 										<th scope="col">입금액</th>
 									</tr>
 								</thead>
@@ -248,11 +246,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<tr name="<@pageId>_tr_{{:#index}}" value='{{:CONTRACT_ID}}'>
 			 							<td>{{:CONTRACT_YEAR}}</td>
 			 							<td>{{:CONTRACT_MONTH}}</td>
-			 							<td>{{:TEAM_NM}}</td>
 			 							<td>{{:HOW_GET_NM}}</td>
 			 							<td>{{:CONTRACT_TYPE_NM}}</td>
 			 							<td>{{:USER_NM}}</td>
-										<td>{{:COMPANY_REGNUM}}</td>
+										<td class='tl'>{{:COMPANY_REGNUM}}</td>
 										<td>{{:BUYER_NM}}</td>
 										<td>{{:CONSULTING_NM}}</td>
  										<td class='tr'>{{numb:TOTAL_COST}}</td>
@@ -300,27 +297,25 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
-									<col style="width:55px;"/>
 									<col style="width:60px;"/>
 									<col style="width:11%;"/>
 									<col style="width:11%;"/>
 									<col style="width:15%;"/>
-									<col style="width:9%;"/>
-									<col style="width:9%;"/>
+									<col style="width:10%;"/>
+									<col style="width:15%;"/>
 								</colgroup>
 								<thead>
 									<tr id="<@pageId>_headingColName">
 										<th scope="col">NO.</th>
 										<th scope="col">년</th>
 										<th scope="col">월</th>
-										<th scope="col">팀</th>
 										<th scope="col">유입<br>경로</th>
 										<th scope="col">구분</th>
 										<th scope="col">담당자</th>
-										<th scope="col">사업자 등록번호</th>
+										<th scope="col">사업자<BR>등록번호</th>
 										<th scope="col">거래처</th>
 										<th scope="col">컨설팅명</th>
-										<th scope="col">총 계액금액</th>
+										<th scope="col">총<BR>계약금액</th>
 										<th scope="col">입금액</th>
 									</tr>
 								</thead>
@@ -332,21 +327,20 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			 							<td id='ROWIDX'				value='{{:ROWIDX}}'				>{{:ROWIDX}}</td>
 			 							<td id='CONTRACT_YEAR'		value='{{:CONTRACT_YEAR}}'		>{{:CONTRACT_YEAR}}</td>
 			 							<td id='CONTRACT_MONTH'		value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
-			 							<td id='TEAM_NM'			value='{{:TEAM_NM}}'			>{{:TEAM_NM}}</td>
 			 							<td id='HOW_GET_NM'			value='{{:HOW_GET_NM}}'			>{{:HOW_GET_NM}}</td>
 			 							<td id='CONTRACT_TYPE_NM'	value='{{:CONTRACT_TYPE_NM}}'	>{{:CONTRACT_TYPE_NM}}</td>
 			 							<td id='USER_NM'			value='{{:USER_NM}}'			>{{:USER_NM}}</td>
 										<td id='COMPANY_REGNUM' 	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
 										<td id='BUYER_NM'			value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
 										<td id='CONSULTING_NM'		value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
- 										<td id='TOTAL_COST'			value='{{:TOTAL_COST}}'			>{{numb:TOTAL_COST}}</td>
- 										<td id='TOT_INCOME'			value='{{:TOT_INCOME}}'			>{{numb:TOT_INCOME}}</td>
+ 										<td id='TOTAL_COST'	class='tr'	value='{{:TOTAL_COST}}'		>{{numb:TOTAL_COST}}</td>
+ 										<td id='TOT_INCOME'	class='tr'	value='{{:TOT_INCOME}}'		>{{numb:TOT_INCOME}}</td>
 									</tr>
 								{{/for}}
 								</script>
 								<script type="text/x-jsrender" id="<@pageId>_allContractList_noData_template">	
 									<tr>	
-										<td colspan=12>자료가 없습니다.</td>	
+										<td colspan=11>자료가 없습니다.</td>	
 									</tr>
 								</script>								
 							</table>

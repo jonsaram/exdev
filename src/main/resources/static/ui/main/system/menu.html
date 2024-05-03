@@ -302,31 +302,31 @@ td {
 				<colgroup>
 					<col style="width:30px;"/>
 					<col style="width:80px;"/>
-					<col style="width:120px;"/>
+					<col style="width:90px;"/>
 					<col style="width:100px;"/>
 					<col style="width:40px;"/>
 					<col style="width:110px;"/>
 					<col style="width:40px;"/>
 					<col style="width:110px;"/>
 					<col style="width:100px;"/>
-					<col style="width:40px;"/>
+					<col style="width:50px;"/>
 					<col style="width:40px;"/>
 					<col style="width:40px;"/>
 				</colgroup>
 				<thead>
 					<tr id="<@pageId>_headingColName">
 						<th scope="col"><input type="checkbox" id="<@pageId>_ckAll"></th>
-						<th scope="col">MENU_ID</th>
-						<th scope="col">MENU_NM</th>
-						<th scope="col">MENU_DESC</th>
+						<th scope="col">MENU ID</th>
+						<th scope="col">MENU NM</th>
+						<th scope="col">MENU DESC</th>
 						<th scope="col">DEPTH</th>
-						<th scope="col">PAGE_ID</th>
+						<th scope="col">PAGE ID</th>
 						<th scope="col">ORDER</th>
-						<th scope="col">PARENT_MENU_NM</th>
-						<th scope="col">PARENT_MENU_DESC</th>
-						<th scope="col">USE_YN</th>
-						<th scope="col"><i class="icon_pen"></i></th>
-						<th scope="col"><i class="icon_trash"></i></th>
+						<th scope="col">PARENT MENU</th>
+						<th scope="col">PARENT DESC</th>
+						<th scope="col">USE YN</th>
+						<th scope="col"></th>
+						<th scope="col"></th>
 					</tr>
 				</thead>
 			</table>
@@ -338,14 +338,14 @@ td {
 							<colgroup>
 					<col style="width:30px;"/>
 					<col style="width:80px;"/>
-					<col style="width:120px;"/>
+					<col style="width:90px;"/>
 					<col style="width:100px;"/>
 					<col style="width:40px;"/>
 					<col style="width:110px;"/>
 					<col style="width:40px;"/>
 					<col style="width:110px;"/>
 					<col style="width:100px;"/>
-					<col style="width:40px;"/>
+					<col style="width:50px;"/>
 					<col style="width:40px;"/>
 					<col style="width:40px;"/>
 							</colgroup>
@@ -356,15 +356,15 @@ td {
 				{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}" 						 value='{{:SP_CSTM_ID}}||{{:MENU_ID}}' >
 					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:MENU_ID}}'></td>
- 					<td id='MENU_ID'			value='{{:MENU_ID}}'		style="text-align:left">{{:MENU_ID}}</td>
- 					<td id='MENU_NM'			value='{{:MENU_NM}}'		style="text-align:left">{{:MENU_NM}}</td>
- 					<td id='MENU_DESC'			value='{{:MENU_DESC}}'		style="text-align:left">{{:MENU_DESC}}</td>
- 					<td id='MENU_DEPTH'			value='{{:MENU_DEPTH}}'		style="text-align:center">{{:MENU_DEPTH}}</td>
- 					<td id='PAGE_ID'			value='{{:PAGE_ID}}'		style="text-align:left">{{:PAGE_ID}}</td>
- 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}' 	style="text-align:center">{{:SORT_ORDER}}</td>
- 					<td id='PARENT_MENU_NM'		value='{{:PARENT_MENU_NM}}' style="text-align:left">{{:PARENT_MENU_NM}}</td>
- 					<td id='PARENT_MENU_DESC'	value='{{:PARENT_MENU_DESC}}' style="text-align:left">{{:PARENT_MENU_DESC}}</td>
- 					<td id='USE_YN'				value='{{:USE_YN}}' 		style="text-align:center">{{:USE_YN}}</td>
+ 					<td id='MENU_ID'			value='{{:MENU_ID}}'		class='tl'>{{:MENU_ID}}</td>
+ 					<td id='MENU_NM'			value='{{:MENU_NM}}'		class='tl'>{{:MENU_NM}}</td>
+ 					<td id='MENU_DESC'			value='{{:MENU_DESC}}'		class='tl'>{{:MENU_DESC}}</td>
+ 					<td id='MENU_DEPTH'			value='{{:MENU_DEPTH}}'		class='tl'>{{:MENU_DEPTH}}</td>
+ 					<td id='PAGE_ID'			value='{{:PAGE_ID}}'		class='tl'>{{:PAGE_ID}}</td>
+ 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}' 	class='tc'>{{:SORT_ORDER}}</td>
+ 					<td id='PARENT_MENU_NM'		value='{{:PARENT_MENU_NM}}' class='tl'>{{:PARENT_MENU_NM}}</td>
+ 					<td id='PARENT_MENU_DESC'	value='{{:PARENT_MENU_DESC}}' class='tl'>{{:PARENT_MENU_DESC}}</td>
+ 					<td id='USE_YN'				value='{{:USE_YN}}' 		class='tl'>{{:USE_YN}}</td>
  					<td id='DEL_YN'				value='{{:DEL_YN}}' 		style="display:none">{{:DEL_YN}}</td>
  					<td id='HAS_CHILD'			value='{{:HAS_CHILD}}' 		style="display:none">{{:HAS_CHILD}}</td>
  					<td id='PARENT_MENU_ID'		value='{{:PARENT_MENU_ID}}'	style="display:none">{{:PARENT_MENU_ID}}</td>
@@ -373,7 +373,7 @@ td {
  					<td id='PARAMETER'			value='{{:PARAMETER}}' 		style='display:none'>{{:PARAMETER}}</td>
  					<td id='ATTR1'				value='{{:ATTR1}}' 			style='display:none'>{{:ATTR1}}</td>
  					<td id='ATTR2'				value='{{:ATTR2}}' 			style='display:none'>{{:ATTR2}}</td>
- 					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}'>
+ 					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}' class='tl'>
 						<button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
 					<td><button id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:MENU_ID}}'><i class="icon_trash"></i></button></td>
 				</tr>

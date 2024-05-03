@@ -1,19 +1,15 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@pageId> = {
-		 checkedItems : []
+		checkedItems : []
 		,selectedContract : {}
-		,selectedUser : {}
- 		,excelParam : {}
- 		,searchListParam : {}
+		,excelParam : {}
+		,searchListParam : {}
  		,CONTRACT_ID : {}
 		,pageInit : () =>{
 			
 			_yearSelectBox("<@pageId>_years");
 			_monthSelectBox("<@pageId>_months");
-
-			var selectUserList = { data	: [["--","--"]],targetId : "<@pageId>_selectUser"}
-			C_UICOM.makeSelectBox(selectUserList, "single");
 
 			<@pageId>.setHanler();
 			
@@ -58,15 +54,14 @@ var <@pageId> = {
 
 				if(isValid(retData)){
 
-					<@pageId>.selectedContract = retData;
-					<@pageId>.CONTRACT_ID = retData["CONTRACT_ID"];
-					const BUYER_NM 		=	retData["BUYER_NM"];
-					const CONSULTING_NM	=	retData["CONSULTING_NM"];
-					const USER_ID		=	retData["USER_ID"];
-					const USER_NM		=	retData["USER_NM"];
+					<@pageId>.selectedContract 	=	retData;
+					<@pageId>.CONTRACT_ID 		=	retData["CONTRACT_ID"];
+					const BUYER_NM 				=	retData["BUYER_NM"];
+					const CONSULTING_NM			=	retData["CONSULTING_NM"];
+					const USER_ID				=	retData["USER_ID"];
+					const USER_NM				=	retData["USER_NM"];
 					
-					const contract_name = `${CONSULTING_NM} ( ${BUYER_NM} )`;
-					$("[name='<@pageId>_contract']").val(contract_name);
+					$("[name='<@pageId>_contract']").val(`${CONSULTING_NM} ( ${BUYER_NM} )`);
 					
 				}
 				
@@ -107,21 +102,19 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<div class="select_box fl" style="width:210px">
 				<div id="<@pageId>_years" style="width:100px"></div>
 				<div id="<@pageId>_months" style="width:100px"></div>
-               </div>
-               <span class="tit01 fl lh33">계약선택</span>
-               <div class="search_inputWrap fl">
-<!-- 				<input type="search" name="<@pageId>_contract" style="width:300px;" onclick="<@pageId>.openSelectContract();" placeholder="컨설팅명(고객명)" readonly ><a  href="javascript:void(0);" onclick="<@pageId>.openSelectContract();" class="search_btn"><i class="icon_search"></i></a> -->
-				<input type="search" name="<@pageId>_contract" style="width:300px;" onclick="<@pageId>.openSelectContract();" placeholder="컨설팅명(고객명)" ><a  href="javascript:void(0);" onclick="<@pageId>.openSelectContract();" class="search_btn"><i class="icon_search"></i></a>
 			</div>
-<!-- 			<span class="tit01 fl lh33">담당자</span>
-               <div class="search_inputWrap fl">
-				<div id="<@pageId>_selectUser" style="width:200px"></div>
-			</div> -->
+			<span class="tit01 fl lh33">계약선택</span>
+			<div class="search_inputWrap fl">
+				<input 	type="search" name="<@pageId>_contract" style="width:300px;" 
+						onclick="<@pageId>.openSelectContract();" placeholder="컨설팅명(고객명)" >
+						<a  href="javascript:void(0);" onclick="<@pageId>.openSelectContract();" class="search_btn">
+						<i class="icon_search"></i></a>
+			</div>
 			<button class="btn select fl" id="<@pageId>_search" >검색</button>
-           </div>
-           <div class="search_right">
+		</div>
+		<div class="search_right">
 			<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt"></span></strong>
-           </div>
+		</div>
 	</div>
 	<!-- 테이블 -->
 	<div class="tbl01 col tbl_scroll line" style="height:calc(100% - 41px);">
@@ -161,7 +154,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<td class="tl">{{:USER_NM}}</td>
 					<td class="tr">{{numb:TOTAL_COST}}</td>
 					<td class="tr">{{numb:REMAINING_SUM}}</td>
-					<td class="tr">{{:RESULT_DATE}}</td>
+					<td class="tc">{{:RESULT_DATE}}</td>
 					<td class="tr">{{numb:INCOME}}</td>
 					<td class="tr">{{numb:SUM_COST_PRICE}}</td>
 					<td class="tr">{{numb:ORG_SELLING_PRICE}}</td>

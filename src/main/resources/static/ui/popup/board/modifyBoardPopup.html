@@ -1,0 +1,141 @@
+<meta charset="utf-8">
+	<!-- 넓이 높이 조절 -->
+<style>
+	.ck.ck-editor {
+    	max-width: 100%;
+	}
+	.ck-editor__editable {
+	    min-height: 460px;
+	    max-height: 460px;
+	}
+</style>
+<script type="text/javascript">
+	var inParam;
+	var <@popupId> = {
+		 close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+		,getItems : (loc) => {
+
+			const requestParm = {};
+			const updateItems = $("#"+loc+" input:not([type='radio'])");
+			
+			const valuesArray = updateItems.map(function() {				
+			    return { name: this.name, value: "" + $(this).val() };
+			}).get();
+
+			valuesArray.forEach(function(item) {
+				requestParm[item.name] = item.value;
+			});
+			
+			requestParm['BOARD_ID'] = inParam.BOARD_ID;
+			requestParm['CONTENT'] = <@popupId>.textEditorComp.getContent();
+			requestParm['BOARD_MST_ID'] = inParam.BOARD_MST_ID;
+			
+			return requestParm;
+			
+		}
+		,searchObj : (queryId, parm) => {
+			var lparm = {
+					 queryId 		: queryId
+					,requestParm	: parm
+			}
+			
+			C_COM.requestQuery(lparm, function(resultData) {
+				if( resultData.state == 'S'){
+					<@popupId>.viewHtml(resultData.data);
+				}
+			});
+			
+		}
+		,searchView : (parm) => {
+			<@popupId>.searchObj("board.getBoardView",parm);
+		}
+		,viewHtml : (parm) =>{
+			$('#<@popupId> #TITLE').val(parm[0].TITLE);
+			//$('#<@pageId> #CONTENT').html(parm[0].CONTENT);
+			<@popupId>.textEditorComp.setContent(parm[0].CONTENT);
+			var parm = {
+					 GRP_FILE_ID 	: parm[0].BOARD_ID
+					,OWNER_CD 		: "BOARD"
+					,mode			: "M"
+					,allowExt		: ["jpg", "jpeg", "png", "gif", "bmp"]
+			}
+			C_COMP.import("importMultiFilemng", "component_compMultiFilemng", parm , function() {
+				
+			});	
+		}
+		,setHandler : (para) => {
+			$('button[name="<@popupId>_save"]').on('click', function (e) {
+				const loc = $(".info_wrap").attr("id");
+				const queryId = "board.updateBoard";
+				<@popupId>.updateBoard(loc, queryId);
+			})
+		}
+		,updateBoard : (loc, queryId) => {
+			
+			var parm = {
+					 queryId 		: queryId
+					,requestParm	: <@popupId>.getItems(loc)
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+				if( resultData.state == 'S'){
+					parm.requestParm["refresh"] = "Y";
+					dalert('게시물이 수정되었습니다.');
+					<@popupId>.close(parm.requestParm);
+				}
+			});
+		} 
+	
+	}
+
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+		inParam = data;
+		<@popupId>.searchView(inParam);
+		<@popupId>.setHandler(inParam);
+		C_COMP.import("textEditorComp", "component_compTextEditor", {content:"text sample"});
+		var parm = {
+				 GRP_FILE_ID 	: inParam['BOARD_ID']
+				,OWNER_CD 		: "BOARD"
+				,mode			: "M"
+				,allowExt		: ["jpg", "jpeg", "png", "gif", "bmp"]
+		}
+		C_COMP.import("importMultiFilemng", "component_compMultiFilemng", parm , function() {
+				
+		});
+	});
+</script>
+	<!-- 대화방 등록하기 팝업 -->
+	
+	<!-- 고객 수동 등록 팝업 -->
+	<div class="modal_wrap" id="modal-ex">
+		<div class="modal" style="width:1000px;height:840px;">
+			<div class="modal_header">
+				<strong class="tit">게시글 수정</strong>
+				<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+			</div>
+			<div class="modal_body">
+				<ul class="info_wrap col2 mt15" id="createItems">
+					<li class="w100">
+						<label>제목</label>
+						<div class="info">
+							<input id="TITLE" name="TITLE" type="text" style="width:100%">
+						</div>
+					</li>
+					<li class="w100 ml0">
+						<div id="textEditorComp" name="CONTENT" style="width:100%;height:100%;"></div>
+					</li>
+					<li class="w100 ml0">
+						<div id="importMultiFilemng">
+					</li>
+				</ul>
+			</div>
+			<div class="modal_footer">
+				<button type="button" class="btn select fl" name="<@popupId>_save"	>등록</button>
+				<button type="button" class="btn" onclick="<@popupId>.close()"	>취소</a></button>
+			</div>
+		</div>
+	</div>

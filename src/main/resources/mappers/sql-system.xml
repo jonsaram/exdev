@@ -104,6 +104,7 @@
 		AND T.SP_CSTM_ID = P.SP_CSTM_ID(+)
 		AND T.PARENT_MENU_ID = P.MENU_ID(+)
 		AND T.MENU_ID = RM.MENU_ID
+		AND RM.AUTH_TYPE IN ('A', 'R')
 		<if test=" MENU_NM != null and !MENU_NM.equals('') ">
 		AND T.MENU_NM like '%' || #{MENU_NM} || '%'
 		</if>
@@ -957,13 +958,67 @@
 		    ,RECOMMENDER_ID
 		    ,DECODE( USER_PW ,'1234','Y','N') MUST_CHANGE
 		FROM
-		    TBL_EXP_USER		
+		    TBL_EXP_USER A		
 		WHERE
 				USER_ID = #{userId}
 			AND USER_PW = #{userPw}
 			AND USE_YN	= 'Y'
 			AND DEL_YN	= 'N'
 	</select>
+
+	<select id="getBuyerInfoForLogin" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getBuyerInfo
+			Buyer 조회 
+		*/
+		SELECT
+		     BUYER_ID
+		    ,BUYER_NM
+		    ,TEL
+		    ,ADDR
+		    ,COMPANY_REGNUM
+		    ,USE_YN
+		    ,DEL_YN
+		    ,HOW_GET
+		    ,SP_CSTM_ID
+		    ,UPDATE_USER
+		    ,UPDATE_DATE
+		    ,BUYER_PW
+		    ,DECODE( BUYER_PW ,'1234','Y','N') MUST_CHANGE
+		FROM
+		    TBL_EXP_BUYER A
+		WHERE
+				BUYER_ID = #{userId}
+			AND BUYER_PW = #{userPw}
+			AND USE_YN	= 'Y'
+			AND DEL_YN	= 'N'
+	</select>
+
+	<select id="getBuyerInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getBuyerInfo
+			Buyer 조회 
+		*/
+		SELECT
+		     BUYER_ID
+		    ,BUYER_NM
+		    ,TEL
+		    ,ADDR
+		    ,COMPANY_REGNUM
+		    ,USE_YN
+		    ,DEL_YN
+		    ,HOW_GET
+		    ,SP_CSTM_ID
+		    ,UPDATE_USER
+		    ,UPDATE_DATE
+		    ,BUYER_PW
+		    ,DECODE( BUYER_PW ,'1234','Y','N') MUST_CHANGE
+		FROM
+		    TBL_EXP_BUYER A
+		WHERE
+				BUYER_ID = #{BUYER_ID}
+			AND USE_YN	= 'Y'
+			AND DEL_YN	= 'N'
+	</select>
+
 
 	<select id="getEtcUserInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	system.getEtcUserInfo

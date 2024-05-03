@@ -33,6 +33,20 @@
 				}
 				C_UICOM.makeSelectBox(singleboxList, "single");
 			});
+			
+			// 결재 현황 리스트
+			let parm3 = {
+				 queryId 		: "contract.getAdviceApprovalProcessList"
+				,requestParm	: {}
+			}
+			C_COM.requestQuery(parm3, function(resultData) {
+				var parm = {
+					 targetId 		: "approvalProcessList"
+					,list			: resultData.data
+					,targetTotalId	: "<@pageId>_totalCnt"
+				}
+				C_COM.renderHtml("<@pageId>", parm);
+			});
 		}
 		,loadCardList 	: function() {
 			
@@ -145,17 +159,26 @@
 		</li>
 	</ul>
 	<div class="cont_top mt20 mb0 pr10 clearFix">
-		<h3 class="fl font16">담당자 매칭 승인 대기</h3>
-		<div class="fr">결재 진행 중 <strong class="pointColr">2</strong> 건</div>
+		<h3 class="fl font16">결재 승인 대기</h3>
+		<div class="fr">결재 진행 중 <strong class="pointColr" id="<@pageId>_totalCnt">2</strong> 건</div>
 	</div>
 	<div class="sec_scroll" style="height:calc(100% - 140px);">
 		<section class="sec_wrap">
 			<div class="cont_box project_list">
-				<ol>
-					<li><a href="">1. 스타 에셋 / 월자문 컨설팅 1</a></li>
-					<li><a href="">2. 오리지날 스튜디오 / 재무회계 컨설팅 2호</a></li>
+				<ol id="approvalProcessList">
 				</ol>
 			</div>
+			<script type="text/x-jsrender" id="approvalProcessList_template">						
+				{{for list}}
+					<li><a href="javascript:;">{{:#index+ 1}}. {{:BUYER_NM}} / {{:CONSULTING_NM}} / {{:PROCESS_STATE_NM}}</a></li>
+				{{/for}}
+			</script>
+			<script type="text/x-jsrender" id="approvalProcessList_noData_template">						
+				{{for list}}
+					<li>검색된 Data가 없습니다.</li>
+				{{/for}}
+			</script>
+			
 		</section>
 		<section class="sec_wrap">
 			<div class="cont_box col3 project_list" id="cardList0">

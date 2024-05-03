@@ -303,6 +303,22 @@
         $('.listBtn li a').removeClass('active');
         $(this).addClass('active');
     });
+    $(document).on("click", ".close", function(){
+        $(this).parent().remove();
+    });
+
+
+    /*==== upDown Toggle ====*/
+    $(document).on("click", ".upDownToggle", function(){
+        $(this).children().toggleClass('down');
+        $(this).parent().parent().next().toggleClass('upDown');
+    });
+
+    /*==== Folder Menu ====*/
+    $(document).on("click", ".folder_menu li", function(){
+        $('.folder_menu li').removeClass('active');
+        $(this).addClass('active');
+    });
 
 })(window, window.jQuery);
 

@@ -141,7 +141,7 @@
 					C_POP.confirm("선택하신 MENU의 권한을 삭제 하시겠습니까?", function() {
 
 						<@pageId>.checkedItems.forEach( key =>{
-							const checkedItem = <@pageId>.searchedData[key]
+							const checkedItem = <@pageId>.searchedData[key];
 							<@pageId>.deleteOne(checkedItem);
 						})
 					});
@@ -237,7 +237,7 @@
 		<!-- search area -->
 		<div class="search_area mt0">
 			<div class="fl">
-				<button type="button" class="btn fl" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
+				<button type="button" class="btn fl" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>권한 삭제</button>
 		
 				<div class="search_inputWrap">
 					<div  class="select_box fl" id="<@pageId>_selectRoleId" style="width:200px;margin-left:10px;"></div>
@@ -283,8 +283,8 @@
 					<th scope="col">MENU_DEPTH</th>
 					<th scope="col">MENU_DESC</th>
 					<th scope="col">AUTH_TYPE</th>
-					<th scope="col"><i class="icon_pen"></i></th>
-					<th scope="col"><i class="icon_trash"></i></th>
+					<th scope="col"></th>
+					<th scope="col"></th>
 				</tr>
 			</thead>
 			</table>
@@ -312,7 +312,7 @@
 					{{if AUTH_TYPE_DESC == '권한없음' }}
 					<td></td>
 					{{else}}
-					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" ></td>
+					<td><input type='checkbox' id="<@pageId>_ck_{{:#getIndex()}}" ></td>
 					{{/if}}
 					<td id='ROLE_ID'		class="tl" >{{:ROLE_ID			}}</td>
 					<td id='ROLE_NM'		class="tl" >{{:ROLE_NM			}}</td>

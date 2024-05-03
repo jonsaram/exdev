@@ -54,11 +54,13 @@
 					 if( dbBuyer ){C_POP.alert("이미 존재하는 고객 ID입니다.\n다시입력하여 주십시오."); return false;}
 				 }
 			 }
+	 
 			 if(<@popupId>.mode == "I" )
 			 if( $("#<@popupId>_items #BUYER_NM").val() 		== "" ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
 			 if( $("#<@popupId>_items #TEL").val() 				== "" ) {C_POP.alert("연락처를 입력하여 주십시오."); return false;}
 			 if( $("#<@popupId>_items #ADDR").val() 			== "" ) {C_POP.alert("본점주소를 입력하여 주십시오."); return false;}
 			 if( $("#<@popupId>_items #COMPANY_REGNUM").val()	== "" ) {C_POP.alert("사업자등록번호를 입력하여 주십시오."); return false;}
+			 if( isEmpty(C_UICOM.getData("<@popupId>_selectHowgetId"))) {C_POP.alert("유입경로를 선택하여 주십시오."); return false;}
 			 return true;
 			 
 		 }
@@ -69,7 +71,7 @@
 			var codeList = C_COM.getCodeList("HOW_GET");
 
 			var singleboxList = { 
-				 defaultItem 	: ["--", "선택"]
+				 defaultItem 	: ["", "선택"]
 				,data 			: codeList
 			 	,targetId 		: selectTargetId
 			}
@@ -126,7 +128,7 @@
 					if( <@popupId>.OLD_BUYER_ID != val ){
 
 						<@popupId>.ID_CHANGE = true;
-						$("#<@popupId>_items #BUYER_ID").css("width","71%");
+						$("#<@popupId>_items #BUYER_ID").css("width","67%");
 						$("#<@popupId>_items #redundCheck").show();
 						<@popupId>.ID_CHECKED = false;	
 						
@@ -174,7 +176,7 @@
 				<ul class="info_wrap">
 					<li>
 						<label>고객ID</label>
-						<div class="info"><input type="text" id="BUYER_ID" style="width:71%">
+						<div class="info"><input type="text" id="BUYER_ID" style="width:67%">
 						<button class="btn" style="width:80px;" id="redundCheck" onclick="<@popupId>.redundCheck();">중복체크</button>
 						</div>
 					</li>

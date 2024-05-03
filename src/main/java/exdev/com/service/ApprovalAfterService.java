@@ -101,6 +101,8 @@ public class ApprovalAfterService extends ExdevBaseService{
 		
         int result = commonDao.update("contract.updateProject", map);
 		
+        int result2 = commonDao.update("contract.updateTeamState", map);
+		
 		return map;
 	}
 	
