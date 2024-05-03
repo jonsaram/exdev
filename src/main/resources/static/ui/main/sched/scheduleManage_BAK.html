@@ -8,9 +8,7 @@
        ,calendar : ''
        ,toDay : ''
        ,addSchedulePopup : function() {    
-
-            console.log("====== addSchedulePopup ======");
-           
+    
             let date = new Date();
             let todayPop = date.getFullYear() +
                       '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
@@ -18,6 +16,7 @@
     
            let requestParm = {};
            requestParm["today"]       = todayPop;
+           
            C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                 
                let parm = {};
@@ -61,8 +60,6 @@
                     let requestParm = {};
                     requestParm["today"]  = info.dateStr;
                     
-                    console.log("====== dateClick ======");
-                    
                     C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                         console.log('eventClick  popup_addSchedulePopup =>');
                         console.log('eventClick  popup_sched_dtlSchedulePopup obj.refresh =>'+obj.refresh);
@@ -73,9 +70,6 @@
                     })  
                   },
                 eventClick : function(obj) {
-                    
-
-                    console.log("====== eventClick ======");
                     
                     let date = new Date();
                     let todayPop = date.getFullYear() +
@@ -112,18 +106,9 @@
             
             $("#<@pageId> .fc-button-group button").bind("click", function() {
             	let title = $(this).attr("title");
-            	//dalert(title);
+            	dalert(title);
             	let cd = <@pageId>.calendar.getCurrentData();
-            	//dalert(cd.dateProfile.currentRange);
-            	
-            	var start = cd.dateProfile.currentRange.start;
-            	var end   = cd.dateProfile.currentRange.end;
-            	
-            	console.log("kbntt start["+start+"]   end["+end+"]   ");
-            	let requestParm = {};   
-                <@pageId>.getAllschedule( requestParm );
-            	
-            	
+            	dalert(cd.dateProfile.currentRange);
             });
             
          }
@@ -147,118 +132,42 @@
        }
        ,getAllschedule : function( requestParm ) {
            console.log("getAllschedule");
-           
-           let cd = <@pageId>.calendar.getCurrentData();
-           //dalert(cd.dateProfile.currentRange);
-           
-           var start = cd.dateProfile.currentRange.start;
-           const startYear = start.getFullYear();
-           const startMonth = (start.getMonth() + 1).toString().padStart(2, '0');
-           const startDay = start.getDate().toString().padStart(2, '0');
-           const startDateString = startYear + '-' + startMonth + '-' + startDay;
-
-           var end   = cd.dateProfile.currentRange.end;
-           const endYear = end.getFullYear();
-           const endMonth = (end.getMonth() + 1).toString().padStart(2, '0');
-           const endDay = end.getDate().toString().padStart(2, '0');
-           const endDateString = endYear + '-' + endMonth + '-' + endDay;
-           
-           const minusDay = new Date(start);
-           const minusDay14 = new Date(minusDay);
-           
-           minusDay14.setDate(minusDay.getDate()-14);
-           const minus14Year = minusDay14.getFullYear();
-           const minus14Month = (minusDay14.getMonth() + 1).toString().padStart(2, '0');
-           const minus14Day = minusDay14.getDate().toString().padStart(2, '0');
-           const minusDateString = minus14Year + '-' + minus14Month + '-' + minus14Day;
-           
-
-           const plusDay = new Date(end);
-           const plusDay14 = new Date(plusDay);
-           plusDay14.setDate(plusDay.getDate()+14);
-           const plus14Year = plusDay14.getFullYear();
-           const plus14Month = (plusDay14.getMonth() + 1).toString().padStart(2, '0');
-           const plus14Day = plusDay14.getDate().toString().padStart(2, '0');
-           const plusDateString = plus14Year + '-' + plus14Month + '-' + plus14Day;
-           
-           console.log("kbntt start["+start+"]");
-           console.log("kbntt end["+end+"]");
-           console.log("kbntt minusDateString["+minusDateString+"]  plusDateString["+plusDateString+"] ");
-           console.log("kbntt startDateString["+startDateString+"]   endDateString["+endDateString+"]   ");
-           
            <@pageId>.removeAllschedule();
            
-           let requestParm1 = {};            
-           requestParm1["startDate"]   = startDateString;
-           requestParm1["endDate"]     = endDateString;
-           requestParm1["minusDate"]   = minusDateString; 
-           requestParm1["plusDate"]    = plusDateString; 
-           requestParm1["month"]       = startMonth;    
-           
-                      
-           <@pageId>.serviceCall(requestParm1, "ScheduleService.getNotRepeatSchedule");
-           <@pageId>.serviceCall(requestParm1, "ScheduleService.getDayRepeatSchedule");
-           <@pageId>.serviceCall(requestParm1, "ScheduleService.getWeekRepeatSchedule");
-           <@pageId>.serviceCall(requestParm1, "ScheduleService.getMonthRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getQuarterRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getYearRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getShareYnSchedule");
-           
-       }
-       ,serviceCall : function( requestParm, serviceId ) {
-           
-    	   console.log("serviceCall ");
-           
-           var parm = {
-                serviceId              : serviceId
-               ,requestParm            : requestParm
+           let parm = {
+                queryId        : "schedule.getScheduleList"
+               ,requestParm    : requestParm
            }
-           C_COM.requestService(parm, function(resultData) {
-               //dalert(resultData);
-               for (var i=0; i<resultData.data.list.length; i++){
-                   //var  = resultData.data.list[i]
-                   /*
-                   console.log("resultData.data.list["+i+"].SCHEDULE_ID   "+resultData.data.list[i].SCHEDULE_ID);
-                   console.log("resultData.data.list["+i+"].TITLE   "+resultData.data.list[i].TITLE);
-                   console.log("resultData.data.list["+i+"].SCHEDULE_DATE   "+resultData.data.list[i].SCHEDULE_DATE);
-                   console.log("resultData.data.list["+i+"].SCHEDULE_START_DATE   "+resultData.data.list[i].SCHEDULE_START_DATE);
-                   console.log("resultData.data.list["+i+"].START_TIME_HOUR   "+resultData.data.list[i].START_TIME_HOUR);
-                   console.log("resultData.data.list["+i+"].START_TIME_MINUTE   "+resultData.data.list[i].START_TIME_MINUTE);
-                   console.log("resultData.data.list["+i+"].SCHEDULE_END_DATE   "+resultData.data.list[i].SCHEDULE_END_DATE);
-                   console.log("resultData.data.list["+i+"].END_TIME_HOUR   "+resultData.data.list[i].END_TIME_HOUR);
-                   console.log("resultData.data.list["+i+"].END_TIME_MINUTE   "+resultData.data.list[i].END_TIME_MINUTE);
-                   */
+            
+           C_COM.requestQuery(parm, function(resultData) {
+               
+               for (var i=0; i<resultData.data.length; i++){
+                   
                    let length = 24; // 표시할 글자수 기준
-                   let title = resultData.data.list[i].TITLE;
+                   let title = resultData.data[i].TITLE;
                    
                    if (title.length > length) {
-                       title = title.substr(0, length - 2) + '...';
+                	   title = title.substr(0, length - 2) + '...';
                    }
                    
                    var obj = new Object();
-                   obj.id    = resultData.data.list[i].SCHEDULE_ID;
+                   obj.id    = resultData.data[i].SCHEDULE_ID;
                    obj.title = title;
-                   obj.start = resultData.data.list[i].SCHEDULE_START_DATE+'T'+resultData.data.list[i].START_TIME_HOUR+':'+resultData.data.list[i].START_TIME_MINUTE+':00';
-                   obj.end   = resultData.data.list[i].SCHEDULE_END_DATE+'T'+resultData.data.list[i].END_TIME_HOUR+':'+resultData.data.list[i].END_TIME_MINUTE+':00';
-                   obj.textColor = resultData.data.list[i].TEXT_COLOR;
-                   obj.color = resultData.data.list[i].WORK_COLOR;
+                   obj.start = resultData.data[i].SCHEDULE_DATE1+'T'+resultData.data[i].START_TIME_HOUR+':'+resultData.data[i].START_TIME_MINUTE+':00';
+                   obj.end   = resultData.data[i].SCHEDULE_DATE1+'T'+resultData.data[i].END_TIME_HOUR+':'+resultData.data[i].END_TIME_MINUTE+':00';
+                   obj.textColor = resultData.data[i].TEXT_COLOR;
+                   obj.color = resultData.data[i].WORK_COLOR;
 
                    let shareYn = {};
-                   shareYn["shareYn"]   = resultData.data.list[i].SHARE_YN;
+                   shareYn["shareYn"]   = resultData.data[i].SHARE_YN;
                    obj.extendedProps = shareYn;
                    
-                   console.log("obj.id   "+obj.id);
-                   console.log("obj.title   "+obj.title);
-                   console.log("obj.start   "+obj.start);
-                   console.log("obj.end   "+obj.end);
-                   console.log("obj.textColor   "+obj.textColor);
-                   console.log("obj.color   "+obj.color);
                    <@pageId>.calendar.addEvent(obj);
-                   console.log("addEvent serviceId ==>"+serviceId);
-                   
-               }
-           });
+                    
+                }
+            }); 
        }
+
        ,getTodaySchedule : function( toDay ) {
            console.log("getTodaySchedule");
                       
@@ -382,11 +291,9 @@
     C_PM.onLoadPage("<@pageId>", function() {
         C_COM.hideLeftMenu();
         
-        <@pageId>.init();
-        
+        <@pageId>.init("A");
         let parm = {};
         <@pageId>.getAllschedule(parm);
-        /*
         <@pageId>.getTeamUser();
         
         let date = new Date();
@@ -399,9 +306,9 @@
                 <@pageId>.setCalendar(dateString);
             }
         });
-        */
+        
         //오늘의 일정
-        //<@pageId>.getTodaySchedule(<@pageId>.toDay);
+        <@pageId>.getTodaySchedule(<@pageId>.toDay);
     });
     // History back으로 이동해왔을 경우 이루틴이 실행된다.
     C_HM.onReturn("<@pageId>", function(pageId, data) {
