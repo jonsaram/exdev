@@ -233,7 +233,7 @@
                 console.log('2024-05-04 => ');
                 var obj = new Object();
                 obj.id    = '2024-05-04';
-                obj.title = 'event1';
+                obj.title = 'event';
                 obj.start = '2024-05-04T12:30:00';
                 obj.end   = '2024-05-04T15:30:00';
                 obj.textColor = "#fff";
@@ -251,6 +251,50 @@
                 obj.extendedProps = departmentVal;
                 
                 calendar.addEvent(obj);
+                
+                
+                var obj1 = new Object();
+                obj1.id    = '2024-05-05';
+                obj1.title = 'event1';
+                obj1.start = '2024-05-05T12:30:00';
+                obj1.end   = '2024-05-05T15:30:00';
+                obj1.textColor = "#fff";
+                obj1.color = "#8dcc76";
+                obj1.test = "test";
+                obj1.description = "test1";
+                obj1.resourceEditable = true; 
+                
+                let departmentVal1 = {};
+                departmentVal1["department"]   = "department";
+                departmentVal1["department1"]  = "department1";
+                departmentVal1["department2"]  = "department2";
+                departmentVal1["shareYn"]   = 'Y';//resultData.data.list[i].SHARE_YN;
+                
+                obj1.extendedProps = departmentVal1;
+                
+                calendar.addEvent(obj1);
+                
+
+                var obj2 = new Object();
+                obj2.id    = '66';
+                obj2.title = 'event6';
+                obj2.start = '2024-05-06T12:30:00';
+                obj2.end   = '2024-05-08T15:30:00';
+                obj2.textColor = "#fff";
+                obj2.color = "#8dcc76";
+                obj2.test = "test";
+                obj2.description = "test1";
+                obj2.resourceEditable = true; 
+                
+                let departmentVal2 = {};
+                departmentVal2["department"]   = "department";
+                departmentVal2["department1"]  = "department1";
+                departmentVal2["department2"]  = "department2";
+                departmentVal2["shareYn"]   = 'Y';//resultData.data.list[i].SHARE_YN;
+                
+                obj2.extendedProps = departmentVal2;
+                
+                calendar.addEvent(obj2);
                 
             }else if( info.dateStr == "2024-05-05" ){
                 console.log('2024-05-05 => '+calendar.initialDate);
@@ -270,13 +314,34 @@
                 	
                 }
                 
+            }else if( info.dateStr == "2024-05-08" ){
+                var eventSources = calendar.getEventSources();
+                console.log('EventSources => ' + eventSources);
+                var len = eventSources.length;
+                for (var i = 0; i < len; i++) { 
+                    console.log('eventSources['+i+'] => ' + eventSources[i]);
+                    var obj = eventSources[i];
+                    //console.log('obj.event.id => ' + obj.event.id); 
+                } 
+                //calendar.removeAllEvents();
+            }else if( info.dateStr == "2024-05-09" ){
+            	var eventArray = calendar.getEvents();
+            	eventArray.forEach(function(element) {
+           		  console.log("id ==>"+element.id);
+                  console.log("shareYn ==>"+element.extendedProps.shareYn);
+           		});
             }
+            
+            
+            
             
             //calendar.next();
             //calendar.destroy();
         });
-        /*  
+        /*  */
         calendar.on('eventClick', function(info) {
+        	
+        	console.log(JSON.stringify(info));
             console.log('eventClick info ' + info);
             console.log('eventClick on ' + info.dateStr);
             console.log('eventClick test =>' + info.test);
@@ -284,7 +349,7 @@
             console.log('eventClick resourceEditable =>' + info.event.resourceEditable);
             
         });
-        */
+        
         // ... other calendar things here...
         //calendar.fullCalendar( 'removeEvent', 123);
         /**/

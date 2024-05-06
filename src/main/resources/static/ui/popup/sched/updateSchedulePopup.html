@@ -5,7 +5,6 @@
         ,scheduleId : ''
         ,appMember      : {}
         ,userIndex : 0
-        ,mode : ''
         ,limitDate : ''
         ,orgDateStart : ''
         ,orgStartTimeHour : ''
@@ -109,35 +108,15 @@
         ,setApplyAllCheckDate : function( check  ) {//전체 적용 체크함에 따라 시작일 종료일 세팅
             
             console.log("== setApplyAllCheckDate ===>"+check);
-            console.log("== mode ===>"+<@popupId>.mode);
+            console.log("== UPDATE ===>");
             
-            if( "UPDATE" == <@popupId>.mode ){  
-                 console.log("== UPDATE ===>");
-                $('#<@popupId>_showApplyAll').show();
-                
-                if( "Y" == check){
-                    console.log("== check Y ===>");
-                    
-                    $("input:checkbox[id='<@popupId>_applyAll']").prop("checked", true);
-                    $('#<@popupId>_showDateStartUP').hide();    
-                    $('#<@popupId>_showDateStart').show();  
-                    $('#<@popupId>_showDateEnd').show();      
-                    $('#<@popupId>_showLoopType').show();     
-                }else{
-
-                    console.log("== check N ===>");
-                    $('#<@popupId>_showDateStartUP').show();   
-                    $('#<@popupId>_showDateStart').hide();  
-                    $('#<@popupId>_showDateEnd').hide();      
-                    $('#<@popupId>_showLoopType').hide();  
-                }   
-            }else if( "INSERT" == <@popupId>.mode ){
-                $('#<@popupId>_showApplyAll').hide();    
-                $('#<@popupId>_showDateStartUP').hide();    
-                $('#<@popupId>_showDateStart').show();  
-                $('#<@popupId>_showDateEnd').show();      
-                $('#<@popupId>_showLoopType').show();
-            }else{}
+            $('#<@popupId>_showApplyAll').show();
+            $("input:checkbox[id='<@popupId>_applyAll']").prop("checked", true);
+            $('#<@popupId>_showDateStartUP').hide();    
+            $('#<@popupId>_showDateStart').show();  
+            $('#<@popupId>_showDateEnd').show();      
+            $('#<@popupId>_showLoopType').show();
+            
         }
         ,memberSearchPopup : function() {
     
@@ -273,125 +252,6 @@
             });
             
         }
-        ,save : function( ) {
-
-            console.log("== 1 ==>");
-            let title = $('#<@popupId>_title').val();
-            
-            if (title.length < 1) {
-                C_POP.alert("제목을 입력해 주세요.");
-                $("#<@popupId>_title").focus();
-                return false;
-            }
-            
-            if ($('#<@popupId>_dateStart').val().length < 1) {
-                C_POP.alert("일정 시작일을 입력해 주세요.");
-                $("#<@popupId>_dateStart").focus();
-                return false;
-            }
-
-            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) > Number($('#<@popupId>_dateEnd').val().replace(/-/gi,"")) ){
-                C_POP.alert("시작일이 종료일보다 클 수 없습니다.");
-                $("#<@popupId>_dateStart").focus();
-                return false;
-            }
-            
-            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) < Number(<@popupId>.today.replace(/-/gi,"")) ){
-                C_POP.alert("시작일이 현재일보다 작을 수 없습니다.");
-                $("#<@popupId>_dateStart").focus();
-                return false;
-            }
-
-            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) < Number(<@popupId>.today.replace(/-/gi,"")) ){
-                C_POP.alert("시작일이 현재일보다 작을 수 없습니다.");
-                $("#<@popupId>_dateStart").focus();
-                return false;
-            }
-            
-            let startHM = <@popupId>.startTimeH + <@popupId>.startTimeM;
-            let endHM   = <@popupId>.endTimeH + <@popupId>.endTimeM;
-            
-            if( Number(startHM.replace(/-/gi,"")) > Number(endHM.replace(/-/gi,"")) ){
-                C_POP.alert("시작시간이 종료시간보다 클 수 없습니다.");
-                return false;
-            }
-            
-            if( <@popupId>.loopTypeCheck(<@popupId>.loopType) ){
-                
-                C_POP.alert("종료일이 제한 범위를 넘었습니다.");
-                return false;
-            }
-            
-            console.log("== 2 ==>");
-
-            let startYyMMDDHM = $('#<@popupId>_dateStart').val()+" "+<@popupId>.startTimeH+":"+<@popupId>.startTimeM+":00";
-            let endYyMMDDHM   = $('#<@popupId>_dateEnd').val()  +" "+<@popupId>.endTimeH  +":"+<@popupId>.endTimeM+":00";
-            
-            //중복 일정체크
-            if( <@popupId>.duplicationCheck( startYyMMDDHM, endYyMMDDHM ) ){
-                
-                return false;
-            } 
-            
-            let requestParm = {};    
-
-            requestParm["scheduleGrpId"]      = C_COM.makeUniqueId();
-            requestParm["scheduleId"]         = <@popupId>.scheduleId;
-            requestParm["title"]              = title;
-            requestParm["date"]               = $('#<@popupId>_dateStart').val();
-            requestParm["scheduleStartDate"]  = $('#<@popupId>_dateStart').val();
-            requestParm["scheduleEndDate"]    = $('#<@popupId>_dateEnd').val();
-            requestParm["position"]           = $('#<@popupId>_position').val();
-            requestParm["description"]        = $('#<@popupId>_description').val();
-            requestParm["contractId"]        = $('#<@popupId>_contractId').val();
-            requestParm["allApplyYn"]         = <@popupId>.allApplyYn;
-            requestParm["loopType"]           = <@popupId>.loopType;
-            requestParm["workType"]           = <@popupId>.workType;
-            requestParm["startTimeH"]         = <@popupId>.startTimeH;
-            requestParm["startTimeM"]         = <@popupId>.startTimeM;
-            requestParm["endTimeH"]           = <@popupId>.endTimeH;
-            requestParm["endTimeM"]           = <@popupId>.endTimeM;
-            requestParm["secretYn"]           = <@popupId>.secretYn;
-            requestParm["secretYn"]           = <@popupId>.secretYn;
-            requestParm["limitDate"]          = <@popupId>.limitDate;
-            
-            // 임의의 테이블 Key 생성
-            var scheduleIdArry = new Array();
-            for(i=0; i< 30; i++){
-                scheduleIdArry.push(C_COM.makeUniqueId());
-            }
-            requestParm["scheduleIdArry"]  = scheduleIdArry;
-            
-            // 참석자 추가
-            let mlst = <@popupId>.getAppMemberToList();
-            requestParm["users"]  = JSON.stringify(mlst);  
-            
-            // 데이타 저장
-            var obj = new Object();
-            obj.refresh = 'Y';
-            
-            var parm = {
-                 serviceId              : "ScheduleService.saveSchedule"
-                ,requestParm            : requestParm
-            }
-            C_COM.requestService(parm, function(resultData) {
-                
-                console.log("save resultData.data.state =>"+resultData.data.state);
-                //dalert(resultData);
-                
-                if("S" == resultData.data.state){
-                	
-                	var obj = new Object();
-                    obj.refresh = 'Y';
-                    C_POP.alert("일정이 추가 되었습니다.");
-                    C_POP.close(obj);
-                }else{
-                    C_POP.alert("일정이 추가에 실패하였습니다.");
-                }
-                
-            });
-         }
-
         ,duplicationCheck : function( startDate, endDate ) {
 
             let returnVal = false;
@@ -521,16 +381,12 @@
 
         var scheduleId = data["scheduleId"];
         
-        if(typeof scheduleId != "undefined" && scheduleId != null && scheduleId != ""){
-            
-            <@popupId>.scheduleId = scheduleId;
-            <@popupId>.searchSchedule(<@popupId>.scheduleId);
-            <@popupId>.mode = 'UPDATE';
-        }else{
-
-            <@popupId>.scheduleId = C_COM.makeUniqueId();// PK 생성
-            <@popupId>.mode = 'INSERT';
-        }
+        console.log("=== updateSchedulePopup scheduleId ===>"+scheduleId);
+        
+        <@popupId>.scheduleId = scheduleId;
+        <@popupId>.searchSchedule(<@popupId>.scheduleId);// 조회
+        
+        console.log("=== updateSchedulePopup 1 ===");
         
         //************** 업무유형 **************
         var workTypeList = C_COM.getCodeList("SCHEDULE_WORK_TYPE");
@@ -586,6 +442,8 @@
         });
         //============== 반복유형 ==============
             
+        console.log("=== updateSchedulePopup 2 ===");
+        
         //************** 공개여부 **************
         var secretYnList = C_COM.getCodeList("SCHEDULE_SECRET_YN");
         
@@ -631,6 +489,7 @@
         });
 
         //============== 시작시간 ==============
+        console.log("=== updateSchedulePopup 3 ===");
         
         //************** 시작분 **************
         var startMinuteList = C_COM.getCodeList("TIME_MINUTE_30");
@@ -678,6 +537,7 @@
 
         //============== 종료시간 ==============
             
+        console.log("=== updateSchedulePopup 4 ===");
         //************** 종료분 **************
         var endMinuteList = C_COM.getCodeList("TIME_MINUTE_30");
         
@@ -721,7 +581,9 @@
         <@popupId>.today = today;
         
         <@popupId>.limitDate = today;
-            
+
+        console.log("=== updateSchedulePopup 5 ===");
+        
         //버튼 보임 처리
         if ( <@popupId>.mode == 'UPDATE') {
             $('#<@popupId>_btnDelete').show();
@@ -749,7 +611,9 @@
                 
             }
         });        
-        
+
+        console.log("=== updateSchedulePopup 6 ===");
+        /*
         $("#<@popupId>_applyAll").change(function(){
             if($("#<@popupId>_applyAll").is(":checked")){
                 <@popupId>.allApplyYn = "Y";
@@ -759,6 +623,7 @@
                 <@popupId>.setApplyAllCheckDate( <@popupId>.allApplyYn );
             }
         });
+        */
     });
     
     
@@ -767,7 +632,7 @@
     <div class="modal_wrap" id="modal-ex">
         <div class="modal" style="width:700px;height:750px;">
             <div class="modal_header">
-                <strong class="tit">캘린더 일정추가</strong>
+                <strong class="tit">캘린더 일정수정</strong>
                 <button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
                 
             </div>
@@ -791,10 +656,12 @@
                             <div class="select_box fl" style="width:150px" id="<@popupId>_showLoopType" >
                                 <div id="<@popupId>_selectBoxLoopType" style="width:100%"></div>
                             </div>
+                            <!-- 
                             <div class="fl" id="<@popupId>_showApplyAll">
                                 <input type="checkbox" name="" id="<@popupId>_applyAll" class="pl10 lh33" >
                                 <label id="<@popupId>_applyAllLabel" for="day" class="ml5 lh33">전체적용</label>
                             </div>
+                             -->
                         </div>
                     </dd>
                     <dt>시간</dt>
@@ -875,7 +742,6 @@
             <div class="modal_footer">
                 <button type="button" id="<@popupId>_btnDelete" class="btn select" onclick="<@popupId>.delete()" >삭제</button>
                 <button type="button" id="<@popupId>_btnUpdate" class="btn select" onclick="<@popupId>.update()" >수정</button>
-                <button type="button" id="<@popupId>_btnSave"   class="btn select" onclick="<@popupId>.save()" >저장</button>
                 <button type="button" id="<@popupId>_btnClose"  class="btn close"  onclick="<@popupId>.close()" >취소</button>
             </div>
         </div>

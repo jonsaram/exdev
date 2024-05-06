@@ -2,6 +2,7 @@
 <script type="text/javascript">
     var <@popupId> = {
          scheduleId : ''
+        ,scheduleDay : ''
         ,appMember      : {}
    		,close : function() {
                var obj = new Object();
@@ -13,7 +14,7 @@
 	        let requestParm = {};
 	        requestParm["scheduleId"]  = scheduleId;
 	        let parm = {
-	             queryId        : "schedule.getScheduleList1"
+	             queryId        : "schedule.getScheduleDtl"
 	            ,requestParm    : requestParm
 	        }
 	        C_COM.requestQuery(parm, function(resultData) {
@@ -24,20 +25,26 @@
 	        		$('#<@popupId>_shareUser').val(resultData.data[i].USER_NM);
                     $('#<@popupId>_title').val(resultData.data[i].TITLE);
 	                $('#<@popupId>_workType').val(resultData.data[i].WORK_TYPE_NM);
-	                let scheduleDateYmd    = resultData.data[i].SCHEDULE_DATE_YMD;
+	                
+	                let scheduleStartYmd  = resultData.data[i].SCHEDULE_START_YMD;
                     let startTimeHourNm   = resultData.data[i].START_TIME_HOUR_NM;
                     let startTimeMinuteNm = resultData.data[i].START_TIME_MINUTE_NM;
+                    
+                    let scheduleEndYmd    = resultData.data[i].SCHEDULE_END_YMD;
                     let endTimeHourNm     = resultData.data[i].END_TIME_HOUR_NM;
                     let endTimeMinuteNm   = resultData.data[i].END_TIME_MINUTE_NM;
                     
-                    console.log("== scheduleDateYmd =>"+scheduleDateYmd);
+                    console.log("== scheduleStartYmd =>"+scheduleStartYmd);
                     console.log("== startTimeHourNm =>"+startTimeHourNm);
                     console.log("== startTimeMinuteNm =>"+startTimeMinuteNm);
+                    console.log("== scheduleEndYmd =>"+scheduleEndYmd);
                     console.log("== endTimeHourNm =>"+endTimeHourNm);
                     console.log("== endTimeMinuteNm =>"+endTimeMinuteNm);
 	                
-                    $('#<@popupId>_scheduleDate').val(scheduleDateYmd+" "+startTimeHourNm+":"+startTimeMinuteNm+" ~ "+endTimeHourNm+":"+endTimeMinuteNm );
-	                $('#<@popupId>_position').val(resultData.data[i].POSITION);
+                    $('#<@popupId>_scheduleDate').val(scheduleStartYmd+" "+startTimeHourNm+":"+startTimeMinuteNm+" ~ "+scheduleEndYmd+" "+endTimeHourNm+":"+endTimeMinuteNm );
+                    $('#<@popupId>_loopTypeNm').val(resultData.data[i].LOOP_TYPE_NM);
+                    $('#<@popupId>_contract').val(resultData.data[i].CONTRACT);
+                    $('#<@popupId>_position').val(resultData.data[i].POSITION);
                     $('#<@popupId>_scheduleSecretYn').val(resultData.data[i].SECRET_YN_NM);
                     $('#<@popupId>_description').val(resultData.data[i].DESCRIPTION);
                 }
@@ -90,9 +97,21 @@
     	
         <@popupId>.searchSchedule( data["scheduleId"] );
         
+        var shareYn = data["shareYn"];
+        var teamYn = data["teamYn"];
+        var title = "";
+        <@popupId>.scheduleDay   = data["today"];
+        
+        console.log("scheduleDay["+<@popupId>.scheduleDay+"]");
+        
+        if(shareYn == 'Y'){ title ="공유자";}
+        if(teamYn == 'Y'){ title ="팀원";}
+        
+        $('#<@popupId>_shareTitle').text(title);
+        
+        
+        
     });
-    
-    
 </script>
     <!-- 캘린더 일정추가 팝업 -->
     <div class="modal_wrap" id="modal-ex">
@@ -104,7 +123,7 @@
             </div>
             <div class="modal_body" style="overflow:visible;">
                 <dl class="info_wrap">
-                    <dt>공유자</dt>
+                    <dt id="<@popupId>_shareTitle"></dt>
                     <dd><input type="text" style="width:100%" readonly id="<@popupId>_shareUser" ></dd>
                     <dt>제목</dt>
                     <dd><input type="text" style="width:100%" readonly id="<@popupId>_title"></dd>
@@ -112,8 +131,12 @@
                     <dd><input type="text" style="width:100%" readonly id="<@popupId>_workType"></dd>
                     <dt>일정</dt>
                     <dd><input type="text" style="width:100%" readonly id="<@popupId>_scheduleDate"></dd>
+                    <dt>반복유형</dt>
+                    <dd><input type="text" style="width:100%" readonly id="<@popupId>_loopTypeNm"></dd>
                     <dt>위치</dt>
                     <dd><input type="text" style="width:100%" readonly id="<@popupId>_position"></dd>
+                    <dt>프로젝트</dt>
+                    <dd><input type="text" style="width:100%" readonly id="<@popupId>_contract"></dd>
                     <dt>참석자</dt>
                     <dd class="mb0" style="height:120px;overflow-y:auto;">
                         <div class="approver_list_wrap">

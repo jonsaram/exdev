@@ -7,6 +7,8 @@
        ,parmObj : {}
        ,calendar : ''
        ,toDay : ''
+       ,startDate : ''
+       ,endDate   : ''
        ,addSchedulePopup : function() {    
 
             console.log("====== addSchedulePopup ======");
@@ -64,8 +66,8 @@
                     console.log("====== dateClick ======");
                     
                     C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
-                        console.log('eventClick  popup_addSchedulePopup =>');
-                        console.log('eventClick  popup_sched_dtlSchedulePopup obj.refresh =>'+obj.refresh);
+                    	
+                        console.log('eventClick  popup_sched_addSchedulePopup obj.refresh =>'+obj.refresh);
                         if( obj.refresh == 'Y' ){
                             let parm = {};
                             <@pageId>.getAllschedule(parm);
@@ -73,31 +75,29 @@
                     })  
                   },
                 eventClick : function(obj) {
-                    
 
-                    console.log("====== eventClick ======");
-                    
                     let date = new Date();
                     let todayPop = date.getFullYear() +
                               '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
                               '-' + ( (date.getDate()) <= 9 ? "0" + (date.getDate()) : (date.getDate()) );
-            
+                    
+                   let shareYn = obj.event.extendedProps.shareYn;
+                   let teamYn = obj.event.extendedProps.teamYn;
+                    
                    let requestParm = {};
                    requestParm["scheduleId"]  = obj.event.id;
                    requestParm["today"]       = todayPop;
-                   let shareYn = obj.event.extendedProps.shareYn;
+                   requestParm["shareYn"]     = shareYn;
+                   requestParm["teamYn"]      = teamYn;
                    
-                   if( shareYn == 'Y' ){
+                   if( shareYn == 'Y' || teamYn == 'Y' ){
                        
                        C_POP.open('popup_sched_dtlSchedulePopup', requestParm, function(obj) {
-                           if( obj.refresh == 'Y' ){
-                        	   let parm = {};
-                               <@pageId>.getAllschedule(parm);
-                           }
+                           
                        })
-                   }else if( shareYn == 'N' ){
-                       
-                       C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
+                   }else if( shareYn == 'N'|| teamYn == 'N' ){
+                	   
+                       C_POP.open('popup_sched_updateSchedulePopup', requestParm, function(obj) {
                            if( obj.refresh == 'Y' ){
                                let parm = {};
                                <@pageId>.getAllschedule(parm);
@@ -119,7 +119,6 @@
             	var start = cd.dateProfile.currentRange.start;
             	var end   = cd.dateProfile.currentRange.end;
             	
-            	console.log("kbntt start["+start+"]   end["+end+"]   ");
             	let requestParm = {};   
                 <@pageId>.getAllschedule( requestParm );
             	
@@ -149,7 +148,6 @@
            console.log("getAllschedule");
            
            let cd = <@pageId>.calendar.getCurrentData();
-           //dalert(cd.dateProfile.currentRange);
            
            var start = cd.dateProfile.currentRange.start;
            const startYear = start.getFullYear();
@@ -193,21 +191,80 @@
            requestParm1["endDate"]     = endDateString;
            requestParm1["minusDate"]   = minusDateString; 
            requestParm1["plusDate"]    = plusDateString; 
-           requestParm1["month"]       = startMonth;    
+           requestParm1["month"]       = startMonth;
+           requestParm1["teamYn"]      = "N";
            
-                      
+           
+           <@pageId>.startDate   = startDateString;
+           <@pageId>.endDate     = endDateString;
+                                
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getNotRepeatSchedule");
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getDayRepeatSchedule");
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getWeekRepeatSchedule");
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getMonthRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getQuarterRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getYearRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getShareYnSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getQuarterRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getYearRepeatSchedule");
+           
+       }
+
+       ,getTeamschedule : function( requestParm ) {
+           console.log("getTeamschedule");
+           
+           let cd = <@pageId>.calendar.getCurrentData();
+           
+           var start = cd.dateProfile.currentRange.start;
+           const startYear = start.getFullYear();
+           const startMonth = (start.getMonth() + 1).toString().padStart(2, '0');
+           const startDay = start.getDate().toString().padStart(2, '0');
+           const startDateString = startYear + '-' + startMonth + '-' + startDay;
+
+           var end   = cd.dateProfile.currentRange.end;
+           const endYear = end.getFullYear();
+           const endMonth = (end.getMonth() + 1).toString().padStart(2, '0');
+           const endDay = end.getDate().toString().padStart(2, '0');
+           const endDateString = endYear + '-' + endMonth + '-' + endDay;
+           
+           const minusDay = new Date(start);
+           const minusDay14 = new Date(minusDay);
+           
+           minusDay14.setDate(minusDay.getDate()-14);
+           const minus14Year = minusDay14.getFullYear();
+           const minus14Month = (minusDay14.getMonth() + 1).toString().padStart(2, '0');
+           const minus14Day = minusDay14.getDate().toString().padStart(2, '0');
+           const minusDateString = minus14Year + '-' + minus14Month + '-' + minus14Day;
+           
+
+           const plusDay = new Date(end);
+           const plusDay14 = new Date(plusDay);
+           plusDay14.setDate(plusDay.getDate()+14);
+           const plus14Year = plusDay14.getFullYear();
+           const plus14Month = (plusDay14.getMonth() + 1).toString().padStart(2, '0');
+           const plus14Day = plusDay14.getDate().toString().padStart(2, '0');
+           const plusDateString = plus14Year + '-' + plus14Month + '-' + plus14Day;
+           
+           console.log("kbntt start["+start+"]");
+           console.log("kbntt end["+end+"]");
+           console.log("kbntt minusDateString["+minusDateString+"]  plusDateString["+plusDateString+"] ");
+           console.log("kbntt startDateString["+startDateString+"]   endDateString["+endDateString+"]   ");
+           
+           let requestParm1 = {};            
+           requestParm1["startDate"]   = startDateString;
+           requestParm1["endDate"]     = endDateString;
+           requestParm1["minusDate"]   = minusDateString; 
+           requestParm1["plusDate"]    = plusDateString; 
+           requestParm1["month"]       = startMonth;
+           requestParm1["teamYn"]      = "Y";
+           requestParm1["userIdList"]  = requestParm["userIdList"];
+           
+           <@pageId>.startDate   = startDateString;
+           <@pageId>.endDate     = endDateString;
+           
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamSchedule");
            
        }
        ,serviceCall : function( requestParm, serviceId ) {
            
-    	   console.log("serviceCall ");
+    	   console.log("serviceCall teamYn =>"+requestParm["teamYn"]);
            
            var parm = {
                 serviceId              : serviceId
@@ -216,18 +273,7 @@
            C_COM.requestService(parm, function(resultData) {
                //dalert(resultData);
                for (var i=0; i<resultData.data.list.length; i++){
-                   //var  = resultData.data.list[i]
-                   /*
-                   console.log("resultData.data.list["+i+"].SCHEDULE_ID   "+resultData.data.list[i].SCHEDULE_ID);
-                   console.log("resultData.data.list["+i+"].TITLE   "+resultData.data.list[i].TITLE);
-                   console.log("resultData.data.list["+i+"].SCHEDULE_DATE   "+resultData.data.list[i].SCHEDULE_DATE);
-                   console.log("resultData.data.list["+i+"].SCHEDULE_START_DATE   "+resultData.data.list[i].SCHEDULE_START_DATE);
-                   console.log("resultData.data.list["+i+"].START_TIME_HOUR   "+resultData.data.list[i].START_TIME_HOUR);
-                   console.log("resultData.data.list["+i+"].START_TIME_MINUTE   "+resultData.data.list[i].START_TIME_MINUTE);
-                   console.log("resultData.data.list["+i+"].SCHEDULE_END_DATE   "+resultData.data.list[i].SCHEDULE_END_DATE);
-                   console.log("resultData.data.list["+i+"].END_TIME_HOUR   "+resultData.data.list[i].END_TIME_HOUR);
-                   console.log("resultData.data.list["+i+"].END_TIME_MINUTE   "+resultData.data.list[i].END_TIME_MINUTE);
-                   */
+                   
                    let length = 24; // 표시할 글자수 기준
                    let title = resultData.data.list[i].TITLE;
                    
@@ -243,9 +289,11 @@
                    obj.textColor = resultData.data.list[i].TEXT_COLOR;
                    obj.color = resultData.data.list[i].WORK_COLOR;
 
-                   let shareYn = {};
-                   shareYn["shareYn"]   = resultData.data.list[i].SHARE_YN;
-                   obj.extendedProps = shareYn;
+                   let departmentVal = {};
+                   departmentVal["teamYn"]   = requestParm["teamYn"];
+                   departmentVal["shareYn"]  = resultData.data.list[i].SHARE_YN;
+                   
+                   obj.extendedProps = departmentVal;
                    
                    console.log("obj.id   "+obj.id);
                    console.log("obj.title   "+obj.title);
@@ -257,6 +305,20 @@
                    console.log("addEvent serviceId ==>"+serviceId);
                    
                }
+           });
+       }
+       ,removeTeamschedule : function(  ) {
+    	   console.log("removeTeamschedule ==>");
+    	   var eventArray = <@pageId>.calendar.getEvents();
+           eventArray.forEach(function(element) {
+             console.log("id ==>"+element.id);
+             console.log("teamYn ==>"+element.extendedProps.teamYn);
+             var event = <@pageId>.calendar.getEventById(element.id) 
+             let teamYn = event.extendedProps.teamYn;
+             console.log("=== teamYn ==>"+teamYn);
+             if( teamYn == 'Y' ){
+                 event.remove()  
+             }
            });
        }
        ,getTodaySchedule : function( toDay ) {
@@ -283,6 +345,9 @@
        ,setCalendar : function(dateString) {
            console.log(" dateString ==>"+dateString);
            <@pageId>.calendar.gotoDate( new Date(dateString) );
+           let parm = {};
+           <@pageId>.getAllschedule(parm);
+           
            $('#<@pageId>_tableId').css('display', 'none');
        }
 
@@ -343,25 +408,27 @@
                C_COM.renderHtml("<@pageId>", rparm);
             }); 
        }
-      ,handleAllClick : (cb) =>  {
-           console.log("handleAllClick ==>"+ cb.checked);
+       //팀전체 클릭
+      ,teamUserAllClick : (cb) =>  {
+           console.log("teamUserAllClick ==>"+ cb.checked);
            if( cb.checked ){
                $("input[name=<@pageId>_chk]").prop("checked", true);
            }else{
                $("input[name=<@pageId>_chk]").prop("checked", false);
            }
-           <@pageId>.searchScheduleCheckBox(); 
+           <@pageId>.searchTeamSchedule(); 
        }
-
-      ,handleClick : (cb) =>  {
-           console.log("handleClick ==>"+ cb.checked);
-           <@pageId>.searchScheduleCheckBox();
+       //팀원 클릭 
+      ,teamUserClick : (cb) =>  {
+           console.log("teamUserClick ==>"+ cb.checked);
+           <@pageId>.searchTeamSchedule();
        }
       
-      ,searchScheduleCheckBox : () =>  {
+      ,searchTeamSchedule : () =>  {
 
           var userIdList = new Array();       
           var i =0;
+          <@pageId>.removeTeamschedule();//팀 스케줄 삭제
           
           $("input[name=<@pageId>_chk]:checked").each(function(e){
               var value = $(this).val();
@@ -370,10 +437,11 @@
           })
           
           if ( userIdList.length > 0) {
+              
               let requestParm = {};   
               requestParm["userIdList"]  = userIdList;
               requestParm["checkYN"]     = "Y";
-              <@pageId>.getAllschedule( requestParm );
+              <@pageId>.getTeamschedule( requestParm );
           }
       }
 
@@ -386,9 +454,9 @@
         
         let parm = {};
         <@pageId>.getAllschedule(parm);
-        /*
-        <@pageId>.getTeamUser();
         
+        <@pageId>.getTeamUser();
+        /**/
         let date = new Date();
         <@pageId>.toDay = date.getFullYear() +
                           '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
@@ -399,7 +467,7 @@
                 <@pageId>.setCalendar(dateString);
             }
         });
-        */
+        
         //오늘의 일정
         //<@pageId>.getTodaySchedule(<@pageId>.toDay);
     });
@@ -436,16 +504,16 @@
                                     {{for list}}
                                         {{if #index == 0 }}
                                             <div>
-                                                <input name="<@pageId>_ckAll" id="<@pageId>_ckAll" type="checkbox" onclick='<@pageId>.handleAllClick(this);' value="">
+                                                <input name="<@pageId>_ckAll" id="<@pageId>_ckAll" type="checkbox" onclick='<@pageId>.teamUserAllClick(this);' value="">
                                                 <label for="product01">전체<i class="icon_check"></i></label>
                                             </div>
                                             <div>
-                                                <input name="<@pageId>_chk" id="<@pageId>_chk{{#index}}" type="checkbox" value="{{:USER_ID}}" onclick='<@pageId>.handleClick(this);' >
+                                                <input name="<@pageId>_chk" id="<@pageId>_chk{{#index}}" type="checkbox" value="{{:USER_ID}}" onclick='<@pageId>.teamUserClick(this);' >
                                                 <label for="product01">{{:USER_NM}}<i class="icon_check"></i></label>
                                             </div>
                                             {{else}}
                                             <div>
-                                                <input name="<@pageId>_chk" id="<@pageId>_chk{{#index}}" type="checkbox" value="{{:USER_ID}}" onclick='<@pageId>.handleClick(this);' >
+                                                <input name="<@pageId>_chk" id="<@pageId>_chk{{#index}}" type="checkbox" value="{{:USER_ID}}" onclick='<@pageId>.teamUserClick(this);' >
                                                 <label for="product01">{{:USER_NM}}<i class="icon_check"></i></label>
                                             </div>
                                         {{/if}}
