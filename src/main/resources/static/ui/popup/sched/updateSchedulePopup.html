@@ -62,6 +62,7 @@
         ,setSchedule : function( data ) {
             
             console.log("== setSchedule 1 ==>"+data);
+            console.log("== SCHEDULE_END_DATE ==>"+data.SCHEDULE_END_DATE);
             
             $('#<@popupId>_title').val(data.TITLE);
             $('#<@popupId>_position').val(data.POSITION);
@@ -71,7 +72,7 @@
             $('#<@popupId>_dateEnd').val(data.SCHEDULE_END_DATE);
             $('#<@popupId>_contractId').val(data.CONTRACT_ID);
             $('#<@popupId>_contractNm').val(data.CONTRACT_NM);
-            $('#<@popupId>_showLimitDate').val(data.SCHEDULE_START_DATE);
+            $('#<@popupId>_loopLimitDate').val(data.SCHEDULE_LOOP_END_DATE);
             
             // 셀렉트 박스 세팅
             C_UICOM.setSingleBox("<@popupId>_selectBoxLoopType", data.LOOP_TYPE);
@@ -204,6 +205,7 @@
             requestParm["scheduleStartDate"]  = $('#<@popupId>_dateStart').val();
             requestParm["scheduleEndDate"]    = $('#<@popupId>_dateEnd').val();
             requestParm["position"]           = $('#<@popupId>_position').val();
+            requestParm["loopLimitDate"]      = $('#<@popupId>_loopLimitDate').val();
             requestParm["description"]        = $('#<@popupId>_description').val();
             requestParm["loopType"]           = <@popupId>.loopType;
             requestParm["workType"]           = <@popupId>.workType;
@@ -216,17 +218,7 @@
             
             console.log("=== allApplyYn ===>"+<@popupId>.allApplyYn);
             console.log("=== scheduleGrpId ===>"+<@popupId>.scheduleGrpId);
-            /////////////////////////////////////////////////////////////////////
-            var scheduleIdArry = new Array();
-            
-            for(i=0; i< 30; i++){
-                scheduleIdArry.push(C_COM.makeUniqueId());
-            }
-
-            requestParm["scheduleIdArry"]  = scheduleIdArry;
-            /////////////////////////////////////////////////////////////////////
-            
-            
+                        
             // 참석자 추가
             let mlst = <@popupId>.getAppMemberToList();
             requestParm["users"]  = JSON.stringify(mlst);
@@ -383,11 +375,6 @@
         
         console.log("=== updateSchedulePopup scheduleId ===>"+scheduleId);
         
-        <@popupId>.scheduleId = scheduleId;
-        <@popupId>.searchSchedule(<@popupId>.scheduleId);// 조회
-        
-        console.log("=== updateSchedulePopup 1 ===");
-        
         //************** 업무유형 **************
         var workTypeList = C_COM.getCodeList("SCHEDULE_WORK_TYPE");
         
@@ -435,8 +422,6 @@
                 let setDate = <@popupId>.getLimitDate( <@popupId>.loopType, $('#<@popupId>_dateStart').val() );
                 console.log("=== setDate ===>"+setDate);
                 
-                <@popupId>.limitDate = setDate;
-                $('#<@popupId>_dateEnd').val(setDate);
             }
             
         });
@@ -624,6 +609,8 @@
             }
         });
         */
+        <@popupId>.scheduleId = scheduleId;
+        <@popupId>.searchSchedule(<@popupId>.scheduleId);// 조회
     });
     
     
@@ -632,7 +619,7 @@
     <div class="modal_wrap" id="modal-ex">
         <div class="modal" style="width:700px;height:750px;">
             <div class="modal_header">
-                <strong class="tit">캘린더 일정수정</strong>
+                <strong class="tit">캘린더 일정 수정</strong>
                 <button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
                 
             </div>
@@ -686,7 +673,7 @@
 	                    <dd>
 	                        <div class="clearFix">
 	                            <div class="calendar_wrap fl" id="<@popupId>_showLimitDate" >
-	                                <input type="text" class="datepicker" id="<@popupId>_dateStart1" style="width:150px" readonly>
+	                                <input type="text" class="datepicker" id="<@popupId>_loopLimitDate" style="width:150px" readonly>
 	                            </div>
 	                        </div>
 	                    </dd>

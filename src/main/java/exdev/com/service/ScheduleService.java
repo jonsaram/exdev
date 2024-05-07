@@ -67,26 +67,10 @@ public class ScheduleService extends ExdevBaseService{
         System.out.println("secretYn["+map.get("secretYn")+"]   ");
         System.out.println("description["+map.get("description")+"]   ");
         System.out.println("allApplyYn["+map.get("allApplyYn")+"]   ");
-        
-        
-        String allApplyYn = (String)map.get("allApplyYn");
-        
-        if( "Y".equals(allApplyYn)) {
-            
-            //result += commonDao.update("schedule.updateScheduleMaster", map);
-            
-            Map<String, String> deleteScheduleMap = new HashMap<String, String>();
-            deleteScheduleMap.put("allApplyYn", allApplyYn);
-            deleteScheduleMap.put("scheduleGrpId", (String)map.get("scheduleGrpId"));
-            result += commonDao.delete("schedule.deleteSchedule", deleteScheduleMap);
-            Map<String,Object> resultMap = saveScheduleAndShare( map );
-            
-        }else {
-            
-            result += commonDao.update("schedule.updateSchedule", map);
-            result += deleteScheduleShare(map);
-            result += saveScheduleShare(map, apprUserList );
-        }
+
+        result += commonDao.update("schedule.updateSchedule", map);
+        result += deleteScheduleShare(map);
+        result += saveScheduleShare(map, apprUserList );
         
         
         if( result > 0  ) {
@@ -807,6 +791,162 @@ public class ScheduleService extends ExdevBaseService{
             
             listMap.add(map1); 
         }
+        map.put("list", listMap);
+        return map;
+    }
+    
+    
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Object getUserSchedule(Map map) throws Exception {
+        
+        ArrayList<String> userIdList = new ArrayList<>();
+        userIdList = (ArrayList<String>)map.get("userIdList");
+        
+        String[] userIds = new String[userIdList.size()];
+        
+        for (int i=0; i<userIdList.size(); i++) {
+            userIds[i] = userIdList.get(i);
+            System.out.println("====== userId====>"+userIds[i]);
+        }
+        
+        List<Map> listMap = new ArrayList<Map>();
+        
+        /* 매일반복 */
+        /*
+        List<Map> daylist = commonDao.getList("schedule.getTeamDayRepeat", map);
+        for(Map resultMap : daylist) {
+               
+            Map<String, Object> map1 = new HashMap<String, Object>();
+            map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
+            map1.put("TITLE", (String)resultMap.get("TITLE"));
+            map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
+            map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
+            map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
+            map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
+            map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
+            map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
+            map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
+            map1.put("SHARE_YN", (String)resultMap.get("SHARE_YN"));
+            map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
+            map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
+            
+            listMap.add(map1); 
+        }
+        */
+        
+        /* 반복안함 */
+        /*
+        List<Map> notRepeatlist = commonDao.getList("schedule.getTeamNotRepeat", map);
+        for(Map resultMap : notRepeatlist) {
+               
+            Map<String, Object> map1 = new HashMap<String, Object>();
+            map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
+            map1.put("TITLE", (String)resultMap.get("TITLE"));
+            map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
+            map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
+            map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
+            map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
+            map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
+            map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
+            map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
+            map1.put("SHARE_YN", (String)resultMap.get("SHARE_YN"));
+            map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
+            map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
+            
+            listMap.add(map1); 
+        }
+        */
+        /* 매주 반복 */
+        /*
+        List<Map> weekRepeatlist = commonDao.getList("schedule.getTeamWeekRepeat", map);
+        for(Map resultMap : weekRepeatlist) {
+               
+            Map<String, Object> map1 = new HashMap<String, Object>();
+            map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
+            map1.put("TITLE", (String)resultMap.get("TITLE"));
+            map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
+            map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
+            map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
+            map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
+            map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
+            map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
+            map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
+            map1.put("SHARE_YN", (String)resultMap.get("SHARE_YN"));
+            map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
+            map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
+            
+            listMap.add(map1); 
+        }
+        */ 
+
+        /* 매월 반복 */
+        /**/
+        List<Map> monthRepeatlist = commonDao.getList("schedule.getTeamMonthRepeat", map);
+        for(Map resultMap : monthRepeatlist) {
+               
+            Map<String, Object> map1 = new HashMap<String, Object>();
+            map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
+            map1.put("TITLE", (String)resultMap.get("TITLE"));
+            map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
+            map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
+            map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
+            map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
+            map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
+            map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
+            map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
+            map1.put("SHARE_YN", (String)resultMap.get("SHARE_YN"));
+            map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
+            map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
+            
+            listMap.add(map1); 
+        }
+        
+        /* 매분기 반복 */
+        /*
+        List<Map> quarterRepeatlist = commonDao.getList("schedule.getTeamQuarterRepeat", map);
+        for(Map resultMap : quarterRepeatlist) {
+               
+            Map<String, Object> map1 = new HashMap<String, Object>();
+            map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
+            map1.put("TITLE", (String)resultMap.get("TITLE"));
+            map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
+            map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
+            map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
+            map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
+            map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
+            map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
+            map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
+            map1.put("SHARE_YN", (String)resultMap.get("SHARE_YN"));
+            map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
+            map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
+            
+            listMap.add(map1); 
+        }
+        */ 
+        /* 매년 반복 */
+
+        /*
+        List<Map> yearRepeatlist = commonDao.getList("schedule.getTeamYearRepeat", map);
+        for(Map resultMap : yearRepeatlist) {
+               
+            Map<String, Object> map1 = new HashMap<String, Object>();
+            map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
+            map1.put("TITLE", (String)resultMap.get("TITLE"));
+            map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
+            map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
+            map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
+            map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
+            map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
+            map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
+            map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
+            map1.put("SHARE_YN", (String)resultMap.get("SHARE_YN"));
+            map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
+            map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
+            
+            listMap.add(map1); 
+        }
+        */ 
         map.put("list", listMap);
         return map;
     }

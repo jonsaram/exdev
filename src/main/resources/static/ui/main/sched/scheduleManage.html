@@ -63,8 +63,6 @@
                     let requestParm = {};
                     requestParm["today"]  = info.dateStr;
                     
-                    console.log("====== dateClick ======");
-                    
                     C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                     	
                         console.log('eventClick  popup_sched_addSchedulePopup obj.refresh =>'+obj.refresh);
@@ -83,12 +81,19 @@
                     
                    let shareYn = obj.event.extendedProps.shareYn;
                    let teamYn = obj.event.extendedProps.teamYn;
-                    
+                   
+                   const idArr = obj.event.id.split("#");
                    let requestParm = {};
-                   requestParm["scheduleId"]  = obj.event.id;
+                   requestParm["scheduleId"]  = idArr[0];
                    requestParm["today"]       = todayPop;
                    requestParm["shareYn"]     = shareYn;
                    requestParm["teamYn"]      = teamYn;
+                    
+                   
+
+                   
+                   
+                   return ;
                    
                    if( shareYn == 'Y' || teamYn == 'Y' ){
                        
@@ -131,13 +136,10 @@
            C_COM.showLeftMenu();
         }
        ,removeAllschedule : function() {
-           console.log("removeAllschedule");
            
            var eventSources = <@pageId>.calendar.getEventSources();
-           console.log('EventSources => ' + eventSources);
            var len = eventSources.length;
            for (var i = 0; i < len; i++) { 
-               console.log('eventSources['+i+'] => ' + eventSources[i]);
                eventSources[i].remove(); 
            } 
            
@@ -204,6 +206,7 @@
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getMonthRepeatSchedule");
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getQuarterRepeatSchedule");
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getYearRepeatSchedule");
+
            
        }
 
@@ -282,7 +285,7 @@
                    }
                    
                    var obj = new Object();
-                   obj.id    = resultData.data.list[i].SCHEDULE_ID;
+                   obj.id    = resultData.data.list[i].SCHEDULE_ID +'#'+i ;
                    obj.title = title;
                    obj.start = resultData.data.list[i].SCHEDULE_START_DATE+'T'+resultData.data.list[i].START_TIME_HOUR+':'+resultData.data.list[i].START_TIME_MINUTE+':00';
                    obj.end   = resultData.data.list[i].SCHEDULE_END_DATE+'T'+resultData.data.list[i].END_TIME_HOUR+':'+resultData.data.list[i].END_TIME_MINUTE+':00';
@@ -295,17 +298,12 @@
                    
                    obj.extendedProps = departmentVal;
                    
-                   console.log("obj.id   "+obj.id);
-                   console.log("obj.title   "+obj.title);
-                   console.log("obj.start   "+obj.start);
-                   console.log("obj.end   "+obj.end);
-                   console.log("obj.textColor   "+obj.textColor);
-                   console.log("obj.color   "+obj.color);
                    <@pageId>.calendar.addEvent(obj);
-                   console.log("addEvent serviceId ==>"+serviceId);
-                   
                }
+               //오늘의 일정
+               <@pageId>.getTodaySchedule();
            });
+
        }
        ,removeTeamschedule : function(  ) {
     	   console.log("removeTeamschedule ==>");
@@ -313,33 +311,48 @@
            eventArray.forEach(function(element) {
              console.log("id ==>"+element.id);
              console.log("teamYn ==>"+element.extendedProps.teamYn);
+             console.log("start ==>"+element.start);
+             console.log("end ==>"+element.end);
+             
              var event = <@pageId>.calendar.getEventById(element.id) 
              let teamYn = event.extendedProps.teamYn;
+             
              console.log("=== teamYn ==>"+teamYn);
              if( teamYn == 'Y' ){
                  event.remove()  
              }
            });
        }
-       ,getTodaySchedule : function( toDay ) {
-           console.log("getTodaySchedule");
-                      
-           let requestParm = {};
-           requestParm["scheduleDate"]  = toDay;
-           requestParm["spCstmId"]      = "";
-           requestParm["userId"]        = "";
+       ,getTodaySchedule : function() {
            
-           let parm = {
-                queryId        : "schedule.getScheduleList1"
-               ,requestParm    : requestParm
-           }
-            
-           C_COM.requestQuery(parm, function(resultData) {
-               
-               console.log(" toDayScheduleCnt ==>"+resultData.data.length);
-                let count = resultData.data.length+'개';
-                $('#todaySchedulecnt span').text(count);
-            }); 
+    	   var eventArray = <@pageId>.calendar.getEvents();
+           var count = 0;
+           eventArray.forEach(function(element) {
+             
+             var event = <@pageId>.calendar.getEventById(element.id) 
+             let start = event.start;
+             let end   = event.end;
+             
+             const startYear = start.getFullYear();
+             const startMonth = (start.getMonth() + 1).toString().padStart(2, '0');
+             const startDay = start.getDate().toString().padStart(2, '0');
+             const startDateString = startYear + startMonth + startDay;
+             
+
+             const endYear = end.getFullYear();
+             const endMonth = (end.getMonth() + 1).toString().padStart(2, '0');
+             const endDay = end.getDate().toString().padStart(2, '0');
+             const endDateString = endYear + endMonth + endDay;
+             
+             let toDayYMD = <@pageId>.toDay.replaceAll('-', '');
+             
+             if ( Number(startDateString) <=  Number(toDayYMD) &&   Number(toDayYMD) <= Number(endDateString)  ) {
+                 count = count + 1;
+             }
+           });
+           
+           $('#todaySchedulecnt span').text(count+' 개');
+           
        }
        
        ,setCalendar : function(dateString) {
@@ -374,7 +387,6 @@
            }
             
            C_COM.requestQuery(parm, function(resultData) {
-               console.log("schedule.searchSchedule1");
                console.log( resultData.data);
                
                let rparm = {
@@ -456,7 +468,7 @@
         <@pageId>.getAllschedule(parm);
         
         <@pageId>.getTeamUser();
-        /**/
+        
         let date = new Date();
         <@pageId>.toDay = date.getFullYear() +
                           '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
@@ -467,9 +479,7 @@
                 <@pageId>.setCalendar(dateString);
             }
         });
-        
-        //오늘의 일정
-        //<@pageId>.getTodaySchedule(<@pageId>.toDay);
+
     });
     // History back으로 이동해왔을 경우 이루틴이 실행된다.
     C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -552,14 +562,12 @@
                                 <script type="text/x-jsrender" id="<@pageId>_tableId_template">    
                                     {{for list}}
                                         <li>
-                                            <a href='javascript: void(0);' name="searchList2" onclick="<@pageId>.setCalendar('{{:SCHEDULE_DATE1}}');">{{:SCHEDULE_DATE1}} : {{:TITLE}}
+                                            <a href='javascript: void(0);' name="searchList2" onclick="<@pageId>.setCalendar('{{:SCHEDULE_START_DATE}}');">{{:SCHEDULE_START_DATE}} : {{:TITLE}}
                                             </a>
                                         </li>
                                     {{/for}}
                                 </script>
                             </div>
-                            
-                            
                             <a href="javascript:void(0);" onclick="<@pageId>.addSchedulePopup();" class="btn select schedule_btn"><i class="icon_add_circle"></i>일정추가하기</a>
                         </div>
                         <div id='<@pageId>_calendar'></div>
