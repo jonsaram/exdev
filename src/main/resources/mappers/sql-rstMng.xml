@@ -34,7 +34,13 @@
 			, COUNT(*) CNT  
 			FROM TBL_EXP_CONTRACT C
 			,TBL_EXP_CONSULTING CS
+			,TBL_EXP_CONTRACT_MEMBER CM
 			WHERE C.CONSULTING_ID  = CS.CONSULTING_ID
+			AND C.CONTRACT_ID  = CM.CONTRACT_ID 
+			AND CM.RELATION_TYPE ='EXECUTE'
+			AND (	C.USER_ID	= #{sessionVo.userId	}
+		 		OR 	CM.USER_ID	= #{sessionVo.userId	} 	
+			)
 			<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
 			AND CS.CONSULTING_TYPE = #{SUB_CATEGORY}
 			</if>
@@ -89,6 +95,7 @@
 		,TBL_EXP_BUYER B
 		,TBL_EXP_CONSULTING CS
 		,TBL_EXP_USER U
+		,TBL_EXP_CONTRACT_MEMBER CM
 		WHERE 1=1
 		AND C.BUYER_ID		= B.BUYER_ID 
 		AND C.USE_YN 		= 'Y' AND C.DEL_YN ='N'
@@ -108,7 +115,13 @@
 		<if test=" parm.TO_CONTRACT_DATE != null and !parm.TO_CONTRACT_DATE.equals('')">
 		AND C.CONTRACT_DATE <![CDATA[<=]]> TO_DATE( #{parm.TO_CONTRACT_DATE} , 'YYYY-MM-DD')
 		</if>
-		AND C.PROCESS_STATE !='PRE_CONTRACT'			
+		AND C.PROCESS_STATE !='PRE_CONTRACT'	
+		AND C.CONTRACT_ID = CM.CONTRACT_ID
+		AND CM.RELATION_TYPE = 'EXECUTE'		
+		AND (
+			 C.USER_ID	= #{sessionVo.userId	}
+		 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+		)		
 	</sql>	
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getContractList
@@ -185,6 +198,7 @@
 				AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
 				AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
 			) R
+			,TBL_EXP_CONTRACT_MEMBER CM
 			WHERE 1=1
 			AND		C.CONTRACT_TYPE	= #{CONTRACT_TYPE}
 			AND		C.CONTRACT_ID	= R.CONTRACT_ID 
@@ -194,6 +208,12 @@
 			)
 			AND		C.USE_YN = 'Y'
 			AND		C.DEL_YN = 'N'
+			AND 	C.CONTRACT_ID = CM.CONTRACT_ID
+			AND 	CM.RELATION_TYPE = 'EXECUTE'
+			AND (
+				 	C.USER_ID	= #{sessionVo.userId	}
+			 	OR  CM.USER_ID	= #{sessionVo.userId	} 	
+			)
 			GROUP BY R.EACH_MONTH
 		) Data 
 		WHERE  M.month = Data.EACH_MONTH(+)
@@ -286,6 +306,7 @@
 			, SUM(ORG_SELLING_PRICE)			AS ORG_SELLING_PRICE
 			FROM
 			TBL_EXP_CONTRACT C
+			,TBL_EXP_CONTRACT_MEMBER CM
 			,(<include refid="getResultDataDuringTwoYears"/>) R
 			WHERE 	C.CONTRACT_TYPE	= 'MONTHLY'
 			AND		C.CONTRACT_ID	= R.CONTRACT_ID 
@@ -295,6 +316,12 @@
 			)
 			AND		C.USE_YN = 'Y'
 			AND		C.DEL_YN = 'N'
+			AND 	C.CONTRACT_ID = CM.CONTRACT_ID
+			AND 	CM.RELATION_TYPE = 'EXECUTE'
+			AND (
+				 C.USER_ID	= #{sessionVo.userId	}
+			 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+			)			
 			GROUP BY R.EACH_MONTH	 	
 	 	)
 		,RESULT_TAB AS (
@@ -384,6 +411,12 @@
 						AND CM.DEL_YN		= 'N'
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
+						AND C.CONTRACT_ID = CM.CONTRACT_ID
+						AND CM.RELATION_TYPE = 'EXECUTE'
+						AND (
+							 C.USER_ID	= #{sessionVo.userId	}
+						 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+						)						
 				)	
 				GROUP BY  RESULT_MONTH ,BRANCH_ID 
 			) DATA
@@ -430,6 +463,7 @@
 		,TBL_EXP_RESULT RST
 		,TBL_EXP_COST CS
 		,TBL_EXP_CONSULTING CT
+		,TBL_EXP_CONTRACT_MEMBER CM
 		WHERE 1=1
 		AND CN.CONTRACT_ID = RST.CONTRACT_ID 
 		AND CN.CONTRACT_ID = CS.CONTRACT_ID
@@ -438,6 +472,12 @@
 		AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
 		AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
 		AND CT.CONSULTING_ID  = CN.CONSULTING_ID 
+		AND CN.CONTRACT_ID = CM.CONTRACT_ID
+		AND CM.RELATION_TYPE = 'EXECUTE'
+		AND (
+			 CN.USER_ID	= #{sessionVo.userId	}
+		 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+		)						
 		<choose>
 	       	<when test=" LAST_YEAR == null  "> 
 				AND TO_CHAR(RST.RESULT_DATE, 'YYYY')   <![CDATA[ >= ]]> TO_CHAR( SYSDATE , 'YYYY')
@@ -495,6 +535,12 @@
 						AND CM.DEL_YN		= 'N'
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
+						AND C.CONTRACT_ID = CM.CONTRACT_ID
+						AND CM.RELATION_TYPE = 'EXECUTE'		
+						AND (
+							 C.USER_ID	= #{sessionVo.userId	}
+						 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+						)
 				)	
 				GROUP BY  RESULT_MONTH ,USER_ID , USER_NM
 			) DATA
@@ -522,6 +568,7 @@
 				FROM TBL_EXP_CONTRACT CN
 				,TBL_EXP_RESULT RST
 				,TBL_EXP_COST CS
+				,TBL_EXP_CONTRACT_MEMBER CM
 				WHERE CN.CONTRACT_TYPE = 'MONTHLY'
 				AND CN.CONTRACT_ID = RST.CONTRACT_ID 
 				AND CN.CONTRACT_ID = CS.CONTRACT_ID
@@ -529,6 +576,12 @@
 				AND CN.USE_YN = 'Y' AND CN.DEL_YN = 'N'
 				AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
 				AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
+				AND CN.CONTRACT_ID = CM.CONTRACT_ID
+				AND CM.RELATION_TYPE = 'EXECUTE'
+				AND (
+					 CN.USER_ID	= #{sessionVo.userId	}
+				 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+				)				
 				GROUP BY CN.CONTRACT_ID, CN.TOTAL_COST, RST.RESULT_ID, TO_CHAR(RST.RESULT_DATE, 'YYYYMM')
 			) DATA 
 			WHERE  M.month = DATA.EACH_MONTH

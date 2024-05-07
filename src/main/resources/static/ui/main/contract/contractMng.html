@@ -147,7 +147,7 @@ var <@pageId> = {
 				});					
 			});				
 		}
-		, deleteRow : (idx) =>{
+		,deleteRow : (idx) =>{
 			
 	    	C_POP.confirm('선택하신 계약정보를 삭제 하시겠습니까?', function() {
 	    		
@@ -258,11 +258,31 @@ var <@pageId> = {
 		,approval : (idx) =>{
 
 			const selectedRow	= <@pageId>.searchedRows[idx];
+
+			if( "<@CALL_TYPE>" == "USER"){
+				
+				const USER_ID = <@pageId>.paMap.USER_ID ; 
+				const contractUser = selectedRow.USER_ID;
+				const consultingUser = selectedRow.CONSULTANT_USER_ID;
+				
+				if( USER_ID != contractUser && USER_ID != consultingUser){
+					
+					C_POP.alert("계약 담당자이거나 실행 컨설턴트인 경우만 결재 할 수 있습니다. ");
+					return;
+				}
+				
+				if( selectedRow["PROCESS_STATE"] == 'CONTRACTED' &&  USER_ID != consultingUser){
+					
+					C_POP.alert("실행 컨설턴트인 경우만 실행완료 결재 상신 할 수 있습니다. ");
+					return;
+				}	
+			}
 			
 			if( isEmpty(selectedRow["CONTRACT_DATE"]) || isEmpty(selectedRow["TOTAL_COST"]) ){
+				
 				C_POP.alert("계약일, 계약금액 입력 후 결재 할 수 있습니다. ");
 				return;
-			}			
+			}	
 
 			let afterState	= "";
 			let title 		= "";
@@ -315,7 +335,7 @@ var <@pageId> = {
 }
 
 // Page Load가 완료된후 실행 된다.
-C_PM.onLoadPage("<@pageId>", function() {
+C_PM.onLoadPage("<@pageId>", function(parm) {
 
 	<@pageId>.pageInit();
 	<@pageId>.searchList();

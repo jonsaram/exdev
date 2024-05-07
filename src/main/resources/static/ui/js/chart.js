@@ -352,18 +352,24 @@
 	//지사별 순매출
 	function _lineWithLabelsChart (target, param) {
 
-		const series = param.series ;
-		
+		let series = param.series ;
+		const thisYear = param.thisYear;
 		let maxVal = 0;
-		series.forEach( srs =>{
-			
-			const tmpVal = Math.max(...srs.data);
-			
-			if(maxVal < tmpVal)maxVal=tmpVal;
-			
-		} )
 		
-		maxVal = maxVal * 1.2;
+		if( series.length == 0){
+			series = [0,0,0,0,0,0,0,0,0,0,0,0];
+		}else {
+			
+			series.forEach( srs =>{
+				
+				const tmpVal = Math.max(...srs.data);
+				
+				if(maxVal < tmpVal)maxVal=tmpVal;
+				
+			} )
+	
+			maxVal = maxVal * 1.2;
+		}
 		
 		Highcharts.chart(target, {
 			chart :{
@@ -374,12 +380,10 @@
 		        text: '',
 		        align: 'left'
 		    },
-		
 		    subtitle: {
 		        text: '',
 		        align: 'left'
 		    },
-		
 		    yAxis: {
 		        title: {
 		            text: ''
@@ -390,14 +394,13 @@
 		                width: '60px',
 		                lineHeight: '20px'
 		            }
-				},
-				 max: maxVal,
-				tickInterval: 0.5,
+		        },
+				max: maxVal,
+		        tickInterval: 0.5,
 		    },
-			xAxis: [{
+		    xAxis: {
 		        categories: _monthArray,
-		    }],
-			
+		    },
 		    legend: {
 		        x: 100,
 		        y: -250,
@@ -408,7 +411,10 @@
 		        },
 		        floating: false,
 		    },
-		    series: series
+		    series: [{
+		        name: thisYear+' 년',
+		        data: series
+		    }]
 		});
 	}
 	
