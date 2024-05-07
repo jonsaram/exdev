@@ -1976,6 +1976,7 @@ var C_COMP = {
 	 eventFn 			: {}
 	,callbackMap		: {}
 	,import	: function(targetId, compId, parm, callback) {
+		
 		if(parm == undefined) parm = {};
 		
 		var templateId = C_COM.getCurrentTemplateId();
@@ -2000,12 +2001,18 @@ var C_COMP = {
 		
 		C_COMP.callbackMap[compId] = callback;
 		
+		debugger;
+		
 		// 가상의 Document에 가져온 html 을 Setting한다.
 		var docDiv = $("<div></div>");
 		$(docDiv).html(html);
 
 		// html에서 최상위Div에 compId를 id로 부여한다.(unique값)
-		$("comp", docDiv).eq(0).attr("id"	, compId);
+		if($("component", docDiv).length > 0) {
+			$("component"	, docDiv).eq(0).attr("id"	, compId);
+		} else {
+			$("div"			, docDiv).eq(0).attr("id"	, compId);
+		}
 		
 		// Import할 Comp를 Load 한다.
 		var htmlSrc = $(docDiv, "#" + compId).html();
