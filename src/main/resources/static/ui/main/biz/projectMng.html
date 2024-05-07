@@ -82,18 +82,7 @@
 		        };
 		        apprProcessState = "ON_CONTRACTING_APPR";
 	        }
-/*
-	        else if(PROCESS_STATE == "CONTRACTING") {
-		        requestParm = {
-		        	 RELATION_ID 	: CONTRACT_ID
-		        	,AFTER_SERVICE	: `ApprovalAfterService.updateProjectProcess`
-		        	,AFTER_PARM		: `{"PROCESS_STATE" : "CONTRACTED"}`				// 결재 완료 후 처리에서 Update상태값 (계약 체결)
-		        	,TITLE			: `계약 체결 결재 요청`
-		        }
-		        apprProcessState = "ON_CONTRACTED_APPR";
-	        }
-*/	        
-	        
+	        dalert(requestParm.projectInfo);
 	        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
 				if(retData.state == "S") {
 					// 프로젝트 Update
@@ -137,7 +126,12 @@
 	        });
 		 }
 		,makeTeamMember : function(idx) {
-			C_POP.open('popup_operation_projectTeamMemberPopup', {}, function(retData) {
+			
+			let parm = {
+					projectInfo	: <@pageId>.projectList[idx]		
+			};
+			
+			C_POP.open('popup_operation_projectTeamMemberPopup', parm, function(retData) {
 				
 				if(isEmpty(retData)) return;
 				

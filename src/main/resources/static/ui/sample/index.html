@@ -11,6 +11,19 @@
 				dalert(retData);
 			});
 		 }
+		,addAlarm : function() {
+			
+			let parm = {
+				 userId 	: 'jonsaram'
+				,content	: '결재요청이 있습니다.'
+				,directExec	: 'MOVE/MN_APR_STA'
+			}
+			
+			C_COM.addAlarm(parm, function(retData) {
+
+			});
+			
+		 }
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -23,6 +36,9 @@
 </script>
 <div class="cont_wrap">
 	<!--section -->
+	<section>
+		<a href="javascript:<@pageId>.addAlarm()">add alarm</a>
+	</section>	<br/>
 	<section>
 		<a href="javascript:<@pageId>.openOneLinePopup()">popup_common_inputOnelinePopup</a>
 	</section>	<br/>

@@ -208,7 +208,7 @@ var C_COM = {
 				 targetUrl 	: targetUrl
 				,data		: parm
 			}
-			debugger;
+
 			if(isValid(callback)) {
 				if(parm.noLoadingBar != "Y") C_COM.showLoadingBar();
 				ajaxRequest(sendParm, function(resultData) {
@@ -735,6 +735,21 @@ var C_COM = {
 
 		C_COM.requestQuery(parm, function(resultData) {
 
+		});
+	 }
+	,addAlarm : function(parm, callback) {
+		var rparm = {
+			 queryId 		: "common.addAlarm"
+			,requestParm	: {
+				 ALARM_ID		: C_COM.makeUniqueId()
+				,TARGET_USER_ID : parm.userId
+				,CONTENT		: parm.content
+				,DIRECT_EXEC	: parm.directExec
+			}
+		}
+
+		C_COM.requestQuery(rparm, function(resultData) {
+			if(typeof callback == "function") callback();
 		});
 	 }
 }
@@ -2031,6 +2046,33 @@ var C_COMP = {
 }
 
 
+var C_ALARM = {
+	 init			: function() {
+     	let rparm = {
+		  queryId 		: "common.getAlarmListCount"
+		 ,requestParm	: {}
+     	}
+		C_COM.requestQuery(rparm, function(resultData) {
+			let cnt = resultData.data[0].CNT;
+			if(cnt == 0) {
+				$("#alarmCount").hide();
+			} else {
+				$("#alarmCount").show();
+				$("#alarmCount").html(cnt)
+			}
+		});
+	 }  
+	,showAlarmPopup : function()  {
+		C_POP.open('popup_common_alarmPopup', {}, function(retData) {
+						
+			C_ALARM.init();
+			
+			
+			
+		});
+	 }
+}
+
 
 
 
@@ -2100,27 +2142,6 @@ window.onpopstate = function () {
     }, 500);
 };
 
-var hiddencommand = "SHOWPAGEID";
-var hiddenconfirm = ""
-$(function() {
-	C_COM.init();
-	C_UICOM.init();
-	//C_GRID.init()
-	$(window).bind("keydown",function() {
-		
-		hiddenconfirm += String.fromCharCode(event.keyCode);
-		if(hiddenconfirm.length > 10) {
-			hiddenconfirm = hiddenconfirm.substring(1,11);
-		}
-		if(hiddencommand == hiddenconfirm) {
-			var templateId = C_COM.getCurrentTemplateId();
-			alert(templateId);
-		}
-	});
-});
-
-
-
 
 var C_WIN = {
 	 callbackMap: {}
@@ -2142,4 +2163,25 @@ $(window).resize(function() {
 	hasXScrollBar();
 	
 	//C_WIN.onWindowResize();
+});
+
+
+var hiddencommand = "SHOWPAGEID";
+var hiddenconfirm = ""
+$(function() {
+	C_COM.init();
+	C_UICOM.init();
+	C_ALARM.init();
+	//C_GRID.init()
+	$(window).bind("keydown",function() {
+		
+		hiddenconfirm += String.fromCharCode(event.keyCode);
+		if(hiddenconfirm.length > 10) {
+			hiddenconfirm = hiddenconfirm.substring(1,11);
+		}
+		if(hiddencommand == hiddenconfirm) {
+			var templateId = C_COM.getCurrentTemplateId();
+			alert(templateId);
+		}
+	});
 });

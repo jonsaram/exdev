@@ -110,8 +110,8 @@
 		
 	});
 </script>
-<div class="modal_wrap" id="modal-ex01">
-	<div class="modal" style="width:600px;height:500px;">
+<div class="modal_wrap">
+	<div class="modal" style="width:800px;height:500px;">
 		<div class="modal_header">
 			<strong class="tit">프로젝트 담당자 구성</strong>
 			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
@@ -119,8 +119,9 @@
 		<div class="modal_body">
 			<div class="search_area mt10">
 				<div class="fl">
-					<span class="tit01 fl lh33 tl">프로젝트명</span>
-					<input type="text" name="" class="fl" value="cccc">
+					<span class="tit01 fl lh33 tl">프로젝트 정보 : <@projectInfo.BUYER_NM> / <@projectInfo.CONSULTING_NM></span>
+					<sapn class="txt"></sapn>
+					
 	            </div>
 			</div>
 			<div class="cont_top clearFix mt20">
@@ -172,7 +173,7 @@
 							<td>{{:data.USER_ID}}</td>
 							<td>{{:data.USER_NM}}</td>
 							<td><div id="selectBox_{{:data.USER_ID}}"></div></td>
-							<td>{{:data.GRADE_NM}}</td>
+							<td title="{{:data.GRADE_NM}}">{{:data.GRADE_NM}}</td>
 							<td><input name="headerCheck" id="headerCheck_{{:data.USER_ID}}" value="{{:data.USER_ID}}" type="checkbox" onclick="<@popupId>.setHeader('{{:data.USER_ID}}')" {{:checked}}/></td>
 							<td><a href="javascript:<@popupId>.deleteMember('{{:data.USER_ID}}','{{:data.USER_NM}}')"><i class="icon_trash"></i></a></td>
 						</tr>
@@ -183,7 +184,7 @@
 							<td>{{:data.USER_ID}}</td>
 							<td>{{:data.USER_NM}}</td>
 							<td>영업</td>
-							<td>{{:data.GRADE_NM}}</td>
+							<td title="{{:data.GRADE_NM}}">{{:data.GRADE_NM}}</td>
 							<td></td>
 							<td></td>
 						</tr>

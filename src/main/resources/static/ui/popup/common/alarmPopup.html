@@ -1,0 +1,119 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		 loadAlarmList : function() {
+         	let rparm = {
+				  queryId 		: "common.getAlarmList"
+				 ,requestParm	: {}
+           	}
+   			C_COM.requestQuery(rparm, function(resultData) {
+   				if( resultData.state == "S"){
+   					
+   					let list = resultData.data;
+   					
+   					$.each(list, function(idx) {
+   						if(this.NEW_CHECK == "Y") {
+   							list[idx].boldStr = "bold";
+   							list[idx].newStr = "New";
+   						}
+   					});
+   					
+   			        let rparm = {
+   			              targetId   : "alarmList"
+   			             ,list		: resultData.data
+   			        }
+   			        C_COM.renderHtml("<@popupId>", rparm);
+   					
+   				}else{
+   					alert(resultData.msg)
+   				}
+
+   	         	let rparm = {
+   					  queryId 		: "common.deleteNewFromAlarm"
+   					 ,requestParm	: {}
+   	           	}
+   	   			C_COM.requestQuery(rparm, function(resultData) {
+
+   	   			});
+   			
+   			
+   			});				
+		 }
+		,moveMenu : function() {
+			C_MENU.moveMenu("MN_APR_STA");
+			<@popupId>.close();
+		 }
+		,close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(data) {
+		<@popupId>.loadAlarmList();
+	});
+</script>
+<div class="modal_wrap" id="modal-ex01">
+	<div class="modal" style="width:800px;height:500px;">
+		<div class="modal_header">
+			<strong class="tit">알림</strong>
+			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<div class="cont_top clearFix mt20">
+				<h3 class="fl font16 lh33 mtb0">알림 리스트</h3>
+				<a href="#modal-ex01" class="btn fl">선택 항목 삭제</a>
+			</div>
+			<div class="tbl01 col">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:45px;" />
+						<col style="width:140px;"/>
+						<col style="*"/>
+						<col style="width:60px;"/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col"><input type="checkbox"></th>
+							<th scope="col">도착시간</th>
+							<th scope="col">알림내용</th>
+							<th scope="col">상태</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div class="tbl01 col" style="max-height:253px;overflow-y:auto;">
+				<table>
+					<caption>표 캡션</caption>
+					<colgroup>
+						<col style="width:45px;" />
+						<col style="width:140px;"/>
+						<col style="*"/>
+						<col style="width:60px;"/>
+					</colgroup>
+					<tbody id="alarmList">
+					</tbody>
+					<script type="text/x-jsrender" id="alarmList_template">
+					{{for list}}	
+						<tr>
+							<td><input type="checkbox"></td>
+							<td style="font-weight:{{:boldStr}}">{{:UPDATE_DATE}}</td>
+							<td style="font-weight:{{:boldStr}}" class="tl" onclick="<@popupId>.moveMenu()">{{:CONTENT}}</td>
+							<td style="font-weight:{{:boldStr}}">{{:newStr}}</td>
+						</tr>
+					{{/for}}
+					</script>
+					<script type="text/x-jsrender" id="alarmList_noData_template">	
+						<tr>
+							<td class="tc">알람이 없습니다.</td>
+						</tr>
+					</script>
+				</table>
+			</div>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+		</div>
+	</div>
+</div>

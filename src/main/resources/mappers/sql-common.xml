@@ -203,5 +203,80 @@
 			ROWIDX <![CDATA[>=]]> ${startIdx} AND ROWIDX <![CDATA[<=]]> ${endIdx}
 	</sql>	
    	
-   		
+
+	<select id="getAlarmList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	common.getAlarmList
+			Alarm 리스트 조회
+		*/
+		SELECT
+			 ALARM_ID   
+			,TARGET_USER_ID    
+			,CONTENT    
+			,NEW_CHECK  
+			,DIRECT_EXEC
+			,DEL_YN     
+			,TO_CHAR( UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) AS UPDATE_DATE
+			,UPDATE_USER
+		FROM 
+			TBL_EXP_ALARM
+		WHERE 1=1
+			AND TARGET_USER_ID = #{sessionVo.userId}
+			AND DEL_YN = 'N'
+		ORDER BY UPDATE_DATE DESC
+   	</select>
+
+	<select id="getAlarmListCount" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	common.getAlarmList
+			Alarm 리스트 Count
+		*/
+		SELECT
+			count(*) CNT
+		FROM 
+			TBL_EXP_ALARM
+		WHERE 1=1
+			AND TARGET_USER_ID	= #{sessionVo.userId}
+			AND NEW_CHECK		= 'Y'
+			AND DEL_YN = 'N'
+   	</select>
+
+
+
+	<update id="addAlarm">
+		/*	contract.addAlarm
+			공통 / 알람등록
+		*/
+		INSERT INTO TBL_EXP_ALARM (
+			 ALARM_ID   
+			,TARGET_USER_ID    
+			,CONTENT    
+			,NEW_CHECK  
+			,DIRECT_EXEC
+			,DEL_YN     
+			,UPDATE_DATE
+			,UPDATE_USER
+			,SP_CSTM_ID 
+		) VALUES (
+			 #{ALARM_ID   		}
+			,#{TARGET_USER_ID   }
+			,#{CONTENT    		}
+			,'Y'
+			,'${DIRECT_EXEC		}'
+			,'N'
+   			,sysdate
+   			,#{sessionVo.userId		}
+			,#{sessionVo.spCstmId	}
+		)
+	</update>
+
+	<update id="deleteNewFromAlarm">
+		/*	contract.deleteNewFromAlarm
+			공통 / 알람 New 제거
+		*/
+		UPDATE TBL_EXP_ALARM 
+			SET NEW_CHECK = 'N'
+		WHERE 1=1
+			AND TARGET_USER_ID	= #{sessionVo.userId}
+			AND NEW_CHECK		= 'Y'
+			AND DEL_YN 			= 'N'
+   	</update>
 </mapper>

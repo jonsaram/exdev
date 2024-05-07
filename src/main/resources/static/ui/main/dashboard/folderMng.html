@@ -219,7 +219,8 @@
 				}
 				
 				C_COM.renderHtml("<@pageId>", rparm);
-				
+				$('#<@pageId> #shareMsg').scrollTop($('#<@pageId> #shareMsg')[0].scrollHeight);
+
 			});  
 			
 		 }
@@ -250,11 +251,6 @@
 			});  
 		 }
 		,delShareMsg : function(folderMsgId, idx) {
-			
-			
-			
-			
-			
 			var parm = {
 				 queryId 		: "faDashboard.delShareMsg"
 				,requestParm	: { 
@@ -290,6 +286,12 @@
 		C_COMP.import("folderFileMng", "component_compMultiFilemng", parm , function() {
 
 		});
+		
+		$("#<@pageId> #folderMsg").bind("keydown", function(event) {
+			if(event.keyCode == C_COM.KEY_CODE.ENTER) {
+				<@pageId>.addShareMsg();
+			}
+		});
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -299,8 +301,10 @@
 <div class="cont_wrap">
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>기업폴더관리</h2>
-		<nav class="side_area fr" id="folderPath">
-		</nav>
+	</div>
+	<section class="sec_wrap mb5">
+		<div class="cont_box" id="folderPath">
+		</div>
 		<script type="text/x-jsrender" id="folderPath_template">
 			<a href="javascript:<@pageId>.moveFolder('BASE')"><strong>기본폴더</strong></a> 
 		{{for list}}
@@ -310,7 +314,7 @@
 		<script type="text/x-jsrender" id="folderPath_noData_template">	
 			<a href="javascript:<@pageId>.moveFolder('BASE')"><strong>기본폴더</strong></a> 
 		</script>
-	</div>
+	</section>
 
 	<div class="sec_scroll">
 		<section class="sec_wrap h100">
@@ -374,7 +378,7 @@
 				</ul>
 				<script type="text/x-jsrender" id="shareMsg_template">	
 				{{for list}}
-					<li><span class="time">{{:UPDATE_DATE}} ( {{:USER_NM}} ) </span> <span class="txt">{{:CONTENT}}</span><button class="close" onclick="<@pageId>.delShareMsg('{{:FOLDER_MSG_ID}}', {{:#index}})">닫기</button></li>
+					<li><span class="time">{{:UPDATE_DATE}}</span> <span class="txt"> {{:UPDATE_USER_NM}} : {{:CONTENT}}</span><button class="close" onclick="<@pageId>.delShareMsg('{{:FOLDER_MSG_ID}}', {{:#index}})">닫기</button></li>
 				{{/for}}
 				</script>
 				<script type="text/x-jsrender" id="shareMsg_noData_template">	

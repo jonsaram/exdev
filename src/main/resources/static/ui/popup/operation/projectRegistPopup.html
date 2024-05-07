@@ -94,6 +94,10 @@
 			<@popupId>.CONTRACT_ID = projectItem.CONTRACT_ID
 		} else {
 			<@popupId>.CONTRACT_ID = C_COM.makeUniqueId();
+			
+			<@popupId>.userInfo = G_VAL.session.etcUserInfo;
+			
+			$("#<@popupId>_USER").val(G_VAL.session.etcUserInfo.USER_NM);
 		}
 	});
 </script>
@@ -109,7 +113,7 @@
 					<label>고객선택</label>
 					<div class="info">
 						<div class="search_inputWrap" style="width:100%">
-							<input type="search" id="<@popupId>_BUYER" placeholder="고객명(고객번호)" onkeypress="<@popupId>.handleKeyPress(event,'BUYER')">
+							<input type="search" id="<@popupId>_BUYER" placeholder="고객명(고객번호)">
 							<a href="javascript:void(0);" onclick="<@popupId>.buyerSearchPopup('BUYER');" class="search_btn"><i class="icon_search"></i></a>
 						</div>
 					</div>
@@ -118,8 +122,7 @@
 					<label>영업담당자</label>
 					<div class="info">
 						<div class="search_inputWrap" style="width:100%">
-							<input type="search" id="<@popupId>_USER" placeholder="사원이름(사원ID)" onkeypress="<@popupId>.handleKeyPress(event)">
-							<a  href="javascript:void(0);" onclick="<@popupId>.userSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
+							<input type="search" id="<@popupId>_USER" readOnly>
 						</div>
 					</div>
 				</li>

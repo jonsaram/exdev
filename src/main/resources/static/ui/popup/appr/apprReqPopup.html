@@ -141,12 +141,15 @@
             	}
             	parm.queryGroup.push(rparm);
             });
-            
             C_POP.confirm('결재 상신 하시겠습니까?', function() {
     			C_COM.requestQuery(parm, function(resultData) {
     				if( resultData.state == "S"){
     					alert("결재 상신 되었습니다.");
     					<@popupId>.close({state : "S"});
+    					
+    					// 결재요청 알람 처리
+    					
+    					
     				}else{
     					alert(resultData.msg)
     				}
