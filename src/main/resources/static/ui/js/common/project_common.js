@@ -1097,13 +1097,13 @@ var C_POP = {
 			if(typeof okFn == "function") okFn();
 		}
 	 }
-	,maxSize : function(popupId, maxDomId, normalDomId) {
+	,maxSize : function(popupId) {
 		// 창크기 최대화
 		var normalWidth 	= $("#" + popupId + " .modal").css("width");
 		var normalHeight 	= $("#" + popupId + " .modal").css("height");
 			
-		$("#" + popupId + " .modal").css("width"	, "100%");
-		$("#" + popupId + " .modal").css("height"	, "100%");
+		$("#" + popupId + " .modal").css("width"	, "90%");
+		$("#" + popupId + " .modal").css("height"	, "90%");
 		
 		if(isEmpty(C_POP.normalSizeMap[popupId])) C_POP.normalSizeMap[popupId] = {};
 		if(C_POP.normalSizeMap[popupId].popupState != "M") {
@@ -1116,7 +1116,7 @@ var C_POP = {
 		//if(isValid(maxDomId)	) $("#" + popupId + "#" + maxDomId		).hide();
 		//if(isValid(normalDomId)	) $("#" + popupId + "#" + normalDomId	).show();
 	 }
-	,normalSize : function(popupId, maxDomId, normalDomId) {
+	,normalSize : function(popupId) {
 		// 창크기 복원
 		var normalWidth 	= C_POP.normalSizeMap[popupId].normalWidth;
 		var normalHeight 	= C_POP.normalSizeMap[popupId].normalHeight;
@@ -2005,13 +2005,13 @@ var C_COMP = {
 		$(docDiv).html(html);
 
 		// html에서 최상위Div에 compId를 id로 부여한다.(unique값)
-		$("div", docDiv).eq(0).attr("id"	, compId);
+		$("comp", docDiv).eq(0).attr("id"	, compId);
 		
 		// Import할 Comp를 Load 한다.
 		var htmlSrc = $(docDiv, "#" + compId).html();
 		
 		htmlSrc = htmlSrc.render("<@", ">", parm);
-		
+
 		$(templateWebId).html(htmlSrc);
 		
 		// onLoadComp로 설정된 Function 실행

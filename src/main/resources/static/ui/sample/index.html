@@ -24,6 +24,17 @@
 			});
 			
 		 }
+		,getSchedule : function() {
+			var parm = {
+				 userIdList  : ['jonsaram', '123456789']
+				,startDate 	: '2024-05-01 00:00:00'
+				,endDate 	: '2024-05-07 23:59:59'
+			}
+			debugger;
+			C_CALENDAR.getScheduleList(parm, function(resultList) {
+				dalert(resultList);
+			});
+		 }
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -36,6 +47,12 @@
 </script>
 <div class="cont_wrap">
 	<!--section -->
+    <section>
+        <a href="javascript:<@pageId>.getSchedule()">스케쥴 가져오기</a>
+	</section>	<br/>
+    <section>
+        <a href="javascript:C_PM.movePage('sample_importComponentSample')">importComponentSample</a>
+	</section>	<br/>
 	<section>
 		<a href="javascript:<@pageId>.addAlarm()">add alarm</a>
 	</section>	<br/>
@@ -71,9 +88,6 @@
 	</section>	<br/>
     <section>
         <a href="javascript:C_PM.movePage('sample_commonCode')">Common Code</a>
-	</section>	<br/>
-    <section>
-        <a href="javascript:C_PM.movePage('sample_importComponentSample')">importComponentSample</a>
 	</section>	<br/>
     <section>
         <a href="javascript:C_PM.movePage('sample_importTextEditor')">Text Editor Sample</a>
