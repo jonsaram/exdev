@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@popupId> = {
-	 recvData : []	
+	  paMap : G_VAL.PAGE_AUTH_MAP["<@opener>"]
+	 ,recvData : []	
  	 ,mode : ''
  	 ,updatingData : {NEW_USER:{},NEW_BUYER:{}}
  	 ,addCoworkRtnData : []
@@ -153,7 +154,8 @@ var <@popupId> = {
 		}
 		
 		if( "<@processState>".indexOf("COMPLETED") > -1 ){
-
+			
+				$("#<@popupId>_applyBtn").hide();
 				<@popupId>.setDisableModeItems();
 				
 				setTimeout( ()=>{
@@ -186,12 +188,15 @@ var <@popupId> = {
 			<@popupId>.changeProcessState(dataObj);
 			
 		});
+
+		if( <@popupId>.paMap.ROLE_ID != "SYSTEM"){
 		//비활성
-	  		$("#<@popupId>_selectProcessStatus").attr("disabled", true).prop("disabled", true);
+/* 	  		$("#<@popupId>_selectProcessStatus").attr("disabled", true).prop("disabled", true);
 			$('#<@popupId>_selectProcessStatus button').prop("disabled", true);
-	 		$("#<@popupId>_selectProcessStatus").hide();
+	 		$("#<@popupId>_selectProcessStatus").hide(); */
 	 		const text = exPreContract.filter( item => { item[1] == "<@processState>" });
 	 		$("#<@popupId>_processStatus").text( exPreContract.filter( item=> item[0] == "<@processState>")[0][1] ).show();
+		}
 	 		
 		C_UICOM.makeSelectBox({ 
 			 defaultItem 	: ["--", "선택"]
@@ -714,7 +719,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 		</div> <!-- //modal_body -->
 
 		<div class="modal_footer">
-			<!-- <button type="button" class="btn select" id="<@popupId>_approvalBtn" 	onclick="<@popupId>.approval()" style="display:none;">체결완료결재</button> -->
 			<button type="button" class="btn select" id="<@popupId>_applyBtn" 		onclick="<@popupId>.apply()" >저장</button>
 			<button type="button" class="btn close"  id="<@popupId>_closeBtn" 		onclick="<@popupId>.close()" >취소</button>
 		</div>

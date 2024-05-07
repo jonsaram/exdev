@@ -19,6 +19,8 @@ public class SessionVO {
 	private String email;
 	private String spCstmId;
 	private String loginType;
+	private String systemRoleId;
+	private String systemRoleNm;
 	
 	public String getUserId() {
 		return userId;
@@ -55,5 +57,17 @@ public class SessionVO {
 	}
 	public void setLoginType(String loginType) {
 		this.loginType = loginType;
+	}
+	public String getSystemRoleId() {
+		return systemRoleId;
+	}
+	public void setSystemRoleId(String systemRoleId) {
+		this.systemRoleId = systemRoleId;
+	}
+	public String getSystemRoleNm() {
+		return systemRoleNm;
+	}
+	public void setSystemRoleNm(String systemRoleNm) {
+		this.systemRoleNm = systemRoleNm;
 	}
 }

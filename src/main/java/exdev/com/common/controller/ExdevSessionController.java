@@ -41,12 +41,16 @@ public class ExdevSessionController {
 		String userId 		= (String)userInfo.get("USER_ID"	);
 		String grade 		= (String)userInfo.get("GRADE"		);
 		String email		= (String)userInfo.get("EMAIL"		);
+		String systemRoleId	= (String)userInfo.get("SYSTEM_ROLE_ID"		);
+		String systemRoleNm	= (String)userInfo.get("SYSTEM_ROLE_NM"		);
 		
 		sessionVO.setSpCstmId	(spCstmId	);
 		sessionVO.setUserId		(userId		);
 		sessionVO.setUserNm		(userNm		);
 		sessionVO.setGrade		(grade		);
 		sessionVO.setEmail		(email		);
+		sessionVO.setSystemRoleId(systemRoleId);
+		sessionVO.setSystemRoleNm(systemRoleNm);
 		sessionVO.setLoginType	("USER"		);
 		
 		session.setAttribute(ExdevConstants.SESSION_ID, sessionVO);
@@ -88,12 +92,14 @@ public class ExdevSessionController {
 		
 		HashMap userInfo = new HashMap();
 
-		userInfo.put("SP_CSTM_ID"	,  sessionVO.getSpCstmId	());
-		userInfo.put("USER_NM"		,  sessionVO.getUserNm		());
-		userInfo.put("USER_ID"		,  sessionVO.getUserId		());
-		userInfo.put("GRADE"		,  sessionVO.getGrade		());
-		userInfo.put("EMAIL"		,  sessionVO.getEmail		());
-		userInfo.put("LOGIN_TYPE"	,  sessionVO.getLoginType	());
+		userInfo.put("SP_CSTM_ID"		,  sessionVO.getSpCstmId	());
+		userInfo.put("USER_NM"			,  sessionVO.getUserNm		());
+		userInfo.put("USER_ID"			,  sessionVO.getUserId		());
+		userInfo.put("GRADE"			,  sessionVO.getGrade		());
+		userInfo.put("EMAIL"			,  sessionVO.getEmail		());
+		userInfo.put("LOGIN_TYPE"		,  sessionVO.getLoginType	());
+		userInfo.put("SYSTEM_ROLE_ID"	,  sessionVO.getSystemRoleId());
+		userInfo.put("SYSTEM_ROLE_NM"	,  sessionVO.getSystemRoleNm());
 		
 		return userInfo;
 	}

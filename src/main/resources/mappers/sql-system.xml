@@ -969,37 +969,46 @@
 			User 조회 
 		*/
 		SELECT
-		     SP_CSTM_ID
-		    ,USER_ID
-		    ,USER_NM
-		    ,USER_DESC
-		    ,E_MAIL
-		    ,PHONE_NUM
-		    ,BRANCH_ID
-		    ,"ROLE"
-		    ,GRADE
-		    ,STATE
-		    ,REG_DATE
-		    ,JUMIN
-		    ,POST_NUM
-		    ,ADDR1
-		    ,ADDR2
-		    ,UPDATE_USER
-		    ,UPDATE_DATE
-		    ,SURETY_INSURANCE
-		    ,GENDER
-		    ,SALES_TYPE
-		    ,USE_YN
-		    ,DEL_YN
-		    ,RECOMMENDER_ID
-		    ,DECODE( USER_PW ,'1234','Y','N') MUST_CHANGE
+		     A.SP_CSTM_ID
+		    ,A.USER_ID
+		    ,A.USER_NM
+		    ,A.USER_DESC
+		    ,A.E_MAIL
+		    ,A.PHONE_NUM
+		    ,A.BRANCH_ID
+		    ,A."ROLE"
+		    ,A.GRADE
+		    ,A.STATE
+		    ,A.REG_DATE
+		    ,A.JUMIN
+		    ,A.POST_NUM
+		    ,A.ADDR1
+		    ,A.ADDR2
+		    ,A.UPDATE_USER
+		    ,A.UPDATE_DATE
+		    ,A.SURETY_INSURANCE
+		    ,A.GENDER
+		    ,A.SALES_TYPE
+		    ,A.USE_YN
+		    ,A.DEL_YN
+		    ,A.RECOMMENDER_ID
+		    ,DECODE( A.USER_PW ,'1234','Y','N') MUST_CHANGE
+		    ,AU.ROLE_ID 	AS SYSTEM_ROLE_ID
+			,R.ROLE_NM 		AS SYSTEM_ROLE_NM
 		FROM
-		    TBL_EXP_USER A		
+		    TBL_EXP_USER A
+		    ,TBL_EXP_AUTH AU
+		    ,TBL_EXP_ROLE R		
 		WHERE
-				USER_ID = #{userId}
-			AND USER_PW = #{userPw}
-			AND USE_YN	= 'Y'
-			AND DEL_YN	= 'N'
+				A.USER_ID 		= #{userId}
+			AND A.USER_PW 		= #{userPw}
+			AND A.USE_YN		= 'Y'
+			AND A.DEL_YN		= 'N'
+			AND A.USER_ID 		= AU.USER_ID 
+			AND A.SP_CSTM_ID 	= AU.SP_CSTM_ID 
+			AND AU.ROLE_ID 		= R.ROLE_ID 
+			AND R.USE_YN		= 'Y'
+			AND R.DEL_YN		= 'N'
 	</select>
 
 	<select id="getBuyerInfoForLogin" resultType="java.util.HashMap" flushCache="true"  useCache="false">
