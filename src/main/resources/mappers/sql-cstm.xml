@@ -203,7 +203,7 @@
 
 	<select id="getBuyerSellingList" resultType="java.util.HashMap">
 		/* cstm.getBuyerSellingList  
-			매출 top 5 거래처 
+			매출 top RANK 거래처 
 		*/
 		SELECT *
 		FROM (
@@ -271,6 +271,9 @@
 						,CONTRACT_TYPE, CONTRACT_TYPE_NM
 						,COMPANY_REGNUM
 						,CONSULTING_NM
-		) WHERE ROWNUM  <![CDATA[ <= ]]> 5
+		)
+		<if test=" parm.TRANK != null and !parm.RANK.equals('')">
+		 WHERE ROWNUM  <![CDATA[ <= ]]> #{parm.RANK}
+		 </if>
 	</select>	
 </mapper>

@@ -46,22 +46,27 @@ var <@popupId> = {
 			,paymentInfo:	<@popupId>.getJson($("#<@popupId>_paymentList"))
 		} 
 
-		if( !<@popupId>.validate(returnData) )
-			return;
-		 
-		<@popupId>.close( returnData ) ; 
+		if( <@popupId>.validate(returnData) ){
+			<@popupId>.close( returnData ) ; 
+		} 
 		 
 	 }
 	 ,validate : (returnData) => {
 
 		const resultInfo = returnData["resultInfo"];
-		if( isEmpty(resultInfo["RESULT_DATE"])	) {C_POP.alert("입금일을 입력하여 주십시오."	); return false;}
-		if( isEmpty(resultInfo["INCOME"])		) {C_POP.alert("입금액을 입력하여 주십시오."	); return false;}
-		if( isEmpty(resultInfo["INCOME_TYPE"])	) {C_POP.alert("입금타입을 입력하여 주십시오."	); return false;}
+		if( isEmpty(resultInfo["RESULT_DATE"])	) {C_POP.alert("[입금 정보] 입금일을 입력하여 주십시오."	); return false;}
+		if( isEmpty(resultInfo["INCOME_TYPE"])	) {C_POP.alert("[입금 정보] 입금타입을 입력하여 주십시오."	); return false;}
+		if( isEmpty(resultInfo["INCOME"])		) {C_POP.alert("[입금 정보] 입금액을 입력하여 주십시오."	); return false;}
  		 
-		if( <@popupId>.canAdd() == false 		) {C_POP.alert("비용이름, 비용설명, 비용 모두 입력해 주십시오."); return false;} 
+		if( <@popupId>.canAdd() == false 		) {C_POP.alert("[비용 산출] 비용이름, 비용설명, 비용 모두 입력해 주십시오."); return false;} 
 
-		const errMsg 		="수수료 산출 항목의 수수료율을 모두 입력해 주십시오."; 
+		const orgSellingPrice = $("#<@popupId>_real_sellingPrice").text();
+		if(!isEmpty(orgSellingPrice) ){
+			if( Number(orgSellingPrice.replace(/,/g, "")) < 0 )
+				{C_POP.alert('[순매출] 순매출이 마이너스인 정보를 등록할 수 없습니다.');return false;}
+		}
+		
+		const errMsg 		="[수수료 산출] 항목의 수수료율을 모두 입력해 주십시오."; 
 		const paymentInfo 	= returnData["paymentInfo"];
 		let isError = false;
 		if( paymentInfo.length > 0){
@@ -70,9 +75,10 @@ var <@popupId> = {
 			}) 			 
 		}else {C_POP.alert(errMsg); return false;} 
 		if( isError ){C_POP.alert(errMsg); return false;}
- 		 
+
+		
 		const rateSum = $("#<@popupId>_paymentList #<@popupId>_RATE_SUM").text().replace("%","");
-		if( rateSum > 100 ){C_POP.alert('총 수수료율(%)을 100% 이하로 수정하여 주십시오. ');return false;}
+		if( rateSum > 100 ){C_POP.alert('[수수료 산출] 총 수수료율(%)을 100% 이하로 수정하여 주십시오. ');return false;}
 		 
 		return true;
 
@@ -495,15 +501,13 @@ var <@popupId> = {
 	    });
 		
 		$("a[name^='<@popupId>_tab']").off().on('click', (obj) => {
-			
-		    const targetName = $(obj.target).attr("name");
-		    $("a[name^='<@popupId>_tab']").parent().removeClass('active');
-		    $('#<@popupId>_tab1, #<@popupId>_tab2').hide();
 
-		    $(obj.target).parent().addClass('active');
-		    $("#" + targetName).show();
+		    const targetName 	= $(obj.target).attr("name");
+		    const tab			= targetName.indexOf("tab1") > -1 ? "tab2" : "tab1" ; 
 
-		    setTimeout(()=>{if( !$("#" + targetName).is(':visible') )$("#" + targetName).show();},10)
+	    	$('#<@popupId>_'+tab).hide();$("#" + targetName).show();
+		    $("a[name^='<@popupId>_tab']").parent("li").removeClass('active');
+		    $(obj.target).parent("li").addClass('active');
 		    
 		});			
 	}
@@ -652,8 +656,8 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 			<!-- tap area -->
 			<div class="tab_wrap mt15" style="height:calc(100% - 15px);">
 				<ul>
-					<li class="active"><a href="javascript:void(0)" name="<@popupId>_tab1">입력정보1</a></li>
-					<li><a href="javascript:void(0)" name="<@popupId>_tab2">입력정보2</a></li>
+					<li class="active"><a href="javascript:void(0)" name="<@popupId>_tab1">계약 / 입금 정보</a></li>
+					<li><a href="javascript:void(0)" name="<@popupId>_tab2">순매출 / 수수료 정보</a></li>
 				</ul>
 				<div class="tab_content">
 					<div id="<@popupId>_tab1" class="display">
@@ -902,7 +906,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 		</div><!-- modal_body -->
 		
 		<div class="modal_footer">
-			<button type="button" class="btn select close" 	id="<@popupId>_apply" onclick="<@popupId>.apply()" >저장</button>
+			<button type="button" class="btn select" 		id="<@popupId>_apply" onclick="<@popupId>.apply()" >저장</button>
 			<button type="button" class="btn close"			id="<@popupId>_close" onclick="<@popupId>.close()" >닫기</button>
 		</div>
 	</div>

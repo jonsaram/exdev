@@ -927,6 +927,39 @@
 			)
 	</update>
 
+	<select id="getDivisionInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getDivisionInfo
+			Division 조회  
+		*/
+		SELECT DIVISION_ID 
+		,DIVISION_NM 
+		,DEPTH1 
+		,DEPTH2 
+		,DEPTH3 
+		,DEPTH4 
+		FROM TBL_EXP_DIVISION 
+		WHERE USE_YN ='Y'
+		AND DEL_YN = 'N'	
+		<if test=" DIVISION_ID != null and !DIVISION_ID.equals('') ">
+			AND DIVISION_ID like  #{DIVISION_ID} ||'%'
+		</if>
+		<if test=" BUSEO != null and !BUSEO.equals('Y') ">
+			AND DEPTH1 IS NULL 
+			AND DEPTH2 IS NULL 
+			AND DEPTH3 IS NULL 
+			AND DEPTH4 IS NULL 
+		</if>
+		<if test=" SEARCH_ITEM != null and !SEARCH_ITEM.equals('') ">
+			AND (  UPPER(DIVISION_NM) 	like  '%'|| UPPER(#{SEARCH_ITEM}) ||'%'
+				OR UPPER(DEPTH1)		like  '%'|| UPPER(#{SEARCH_ITEM}) ||'%'
+				OR UPPER(DEPTH2)		like  '%'|| UPPER(#{SEARCH_ITEM}) ||'%'
+				OR UPPER(DEPTH3)		like  '%'|| UPPER(#{SEARCH_ITEM}) ||'%'
+				OR UPPER(DEPTH4)		like  '%'|| UPPER(#{SEARCH_ITEM}) ||'%'
+			)
+		</if>
+		
+		ORDER BY DIVISION_ID, DEPTH1 NULLS FIRST, DEPTH2 NULLS FIRST, DEPTH3 NULLS FIRST, DEPTH4 NULLS FIRST
+	</select>
 
 	<select id="getUserInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	system.getUserInfo

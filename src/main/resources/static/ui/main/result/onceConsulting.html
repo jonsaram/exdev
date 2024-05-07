@@ -104,7 +104,8 @@ var <@pageId> = {
 				});	
 				
 			}else{
-
+				const queryId	=  "rstMgn.getContractList";
+				parm["queryId"] = queryId;
 				<@pageId>.excelParam = parm;
 				const listRange = C_UICOM.getData("<@pageId>_pagingChunk");
 				// 페이징 처리 초기화
@@ -113,7 +114,7 @@ var <@pageId> = {
 		 			,listDomId			: targetId
 		 			,pagingDomId		: "<@pageId>_pageDiv"
 		 			,totalCntDomId		: "<@pageId>_totalCnt"
-		 			,queryId			: "rstMgn.getContractList"
+		 			,queryId			: queryId
 					,listRange			: Number(listRange)
 					,pageRange			: 10
 		 			,parmFn				: function() {
