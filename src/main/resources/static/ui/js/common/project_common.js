@@ -1995,7 +1995,7 @@ var C_COMP = {
 
 		compId = templateId + targetId;
 
-		parm.compId = compId;
+		parm.compId = compId;;
 		
 		parm.parentId = templateId;
 		
