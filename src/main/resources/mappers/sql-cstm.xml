@@ -32,15 +32,15 @@
 	</sql>
 	<sql id="userContectedBuyers">
 		/* 고객을 등록 / 고객과 연계된 계약의 멤버들 */
-		AND (  B.UPDATE_USER = #{sessionVo.userId}
-			OR 
-			   B.BUYER_ID IN ( SELECT DISTINCT C.BUYER_ID  
+		AND (  B.BUYER_ID IN ( SELECT DISTINCT C.BUYER_ID  
 								FROM TBL_EXP_CONTRACT C
 								,TBL_EXP_CONTRACT_MEMBER CM 
 								WHERE C.CONTRACT_ID = CM.CONTRACT_ID 
 								AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
-								AND CM.USE_YN  = 'Y' AND C.DEL_YN = 'N'
-								AND CM.USER_ID = #{sessionVo.userId}
+								AND CM.RELATION_TYPE = 'EXECUTE'
+								AND ( C.USER_ID = #{sessionVo.userId}
+								  OR CM.USER_ID = #{sessionVo.userId}
+								)
 				)
 		)	
 	</sql>
@@ -244,6 +244,7 @@
 									,C.BUYER_ID
 									,C.CONTRACT_TYPE
 						    FROM TBL_EXP_CONTRACT C, TBL_EXP_BUYER B, TBL_EXP_CONSULTING CS
+							,TBL_EXP_CONTRACT_MEMBER CM
 						    WHERE 1 = 1
 						        AND C.BUYER_ID = B.BUYER_ID
 								<if test=" parm.FROM_CONTRACT_DATE != null and !parm.FROM_CONTRACT_DATE.equals('')">
@@ -263,6 +264,12 @@
 								AND CS.CONSULTING_TYPE = #{parm.CONSULTING_TYPE}
 								</if>		
 						        AND C.PROCESS_STATE != 'PRE_CONTRACT'
+								AND C.CONTRACT_ID = CM.CONTRACT_ID
+								AND CM.RELATION_TYPE = 'EXECUTE'
+								AND (
+									 C.USER_ID	= #{sessionVo.userId	}
+								 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+								)								
 						    ORDER BY SUM_INCOME DESC
 						)
 				)

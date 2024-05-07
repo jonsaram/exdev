@@ -102,8 +102,8 @@ var <@pageId> = {
 			const getOrgSellingPriceListOnly_ONE	=  sellingPriceListONLY_ONE_DATA.map((item,idx) =>   item.ORG_SELLING_PRICE );
 			const getOrgSellingPriceListPARTNER		=  sellingPriceListPARTNER_DATA.map( (item,idx) =>   item.ORG_SELLING_PRICE );
 		    
-			const thisYear 							= _.maxBy(_.uniqBy(sellingPriceListMONTHLY_DATA,"MONTH"). map( item=> {return { 'MONTH' : item.MONTH }} ),"MONTH").MONTH.slice(0,4);
-			const lastYear 							= _.minBy(_.uniqBy(sellingPriceListMONTHLY_DATA,"MONTH"). map( item=> {return { 'MONTH' : item.MONTH }} ),"MONTH").MONTH.slice(0,4);
+			const thisYear 							= <@pageId>.thisYear;
+			const lastYear 							= <@pageId>.lastYear;
 			const containerList 	= [	"<@pageId>_monthlyOSP_chart","<@pageId>_onceOSP_chart","<@pageId>_productOSP_chart"];
 			const categoriesList 	= [  _monthArray,_monthArray,_monthArray ];
 			const seriesList		= [
@@ -143,49 +143,57 @@ var <@pageId> = {
 				  													} );
 			//지사별 순매출
   			const getSellingBranchList	=  resultData.data["rstMgn.getSellingBranchList"		];
-  			
   			const series = [] ;
   			const branchListCnt = getSellingBranchList.length;
-  			getSellingBranchList.forEach( item => {
-  				
-  					let parm = {
-  						queryId        	: "rstMgn.getSellingBranchList"
-  						,requestParm    : item
-  					}
-  			        C_COM.requestQuery(parm, function(resultData) {
-  			        	
-  			        	let data = [] ;
-  			        	
-  			        	resultData.data.forEach( item => {
-  			        		
-  			        		const monthData = item["TOTAL_INCOME"] ? Number(item.TOTAL_INCOME): 0 ;
-  			        		data.push( monthData )
-  			        		
-  			        	})
-  			        	
-  			        	const seriseData = { name : item.BRANCH_ID , data : data} 
-  			        	series.push(seriseData);
-			
-  			        	if( series.length >= branchListCnt){
-  			        		
-  			        		<@pageId>.lineWithLabelsChart( "<@pageId>_OPB_chart", {series:series});
+  			if( branchListCnt == 0){
 
-  			        		let sum =0;
-  			        		series.map( item=> item.data ).forEach( ItemArr=>{
-  			        			
-  			        			sum += ItemArr.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-  			        		})
-	  						$("#<@pageId>_OrgSellingPriceByBranch").text(sum.toLocaleString() + "억원") ;
-  			        	}
-  			        	
-  			        });
-  			})
+        		<@pageId>.lineWithLabelsChart( "<@pageId>_OPB_chart", {thisYear:<@pageId>.thisYear, series:[]});
+				$("#<@pageId>_OrgSellingPriceByBranch").text("0억원") ;
+		        	
+  			}
+  			else {
+  				
+	  			getSellingBranchList.forEach( item => {
+	  				
+	  					let parm = {
+	  						queryId        	: "rstMgn.getSellingBranchList"
+	  						,requestParm    : item
+	  					}
+	  			        C_COM.requestQuery(parm, function(resultData) {
+	  			        	
+	  			        	let data = [] ;
+	  			        	
+	  			        	resultData.data.forEach( item => {
+	  			        		
+	  			        		const monthData = item["TOTAL_INCOME"] ? Number(item.TOTAL_INCOME): 0 ;
+	  			        		data.push( monthData )
+	  			        		
+	  			        	})
+	  			        	
+	  			        	const seriseData = { name : item.BRANCH_ID , data : data} 
+	  			        	series.push(seriseData);
+				
+	  			        	if( series.length >= branchListCnt){
+	  			        		
+	  			        		<@pageId>.lineWithLabelsChart( "<@pageId>_OPB_chart", {series:series});
+	
+	  			        		let sum =0;
+	  			        		series.map( item=> item.data ).forEach( ItemArr=>{
+	  			        			
+	  			        			sum += ItemArr.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+	  			        		})
+		  						$("#<@pageId>_OrgSellingPriceByBranch").text(sum.toLocaleString() + "억원") ;
+	  			        	}
+	  			        	
+	  			        });
+	  			})
+  			}
 
   			/* 상세별 순매출 (컨설팅상세별) */
   			const sellingThisYear		=  resultData.data["rstMgn.getSellingDetailList"	];
   			const sellingLastYear		=  resultData.data["rstMgn.getSellingDetailList_1"	];
-			const thisYear 				= _.maxBy(_.uniqBy(sellingThisYear,"YEAR"). map( item=> {return { 'YEAR' : item.YEAR }} ),"YEAR").YEAR;
-			const lastYear 				= ""+Number(thisYear) - 1;
+			const thisYear 				= <@pageId>.thisYear;
+			const lastYear 				= <@pageId>.lastYear;
   			
  		    const CONSULTING_THIS		=  sellingThisYear.map( item => {  return { [item.CONSULTING_NM]: item.ORG_SELLING_PRICE };} )
 														  .map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
@@ -290,8 +298,8 @@ var <@pageId> = {
 			})
 			sellingFAListLast = tempList;
 			
-			const thisYear 				= _.maxBy(_.uniqBy(sellingFAListThis,"YEAR"). map( item=> {return { 'YEAR' : item.YEAR }} ),"YEAR").YEAR;
-			const lastYear 				= _.minBy(_.uniqBy(sellingFAListLast,"YEAR"). map( item=> {return { 'YEAR' : item.YEAR }} ),"YEAR").YEAR;
+			const thisYear 				= <@pageId>.thisYear;
+			const lastYear 				= <@pageId>.lastYear;
 			const USER_THIS				=  sellingFAListThis.map( item => {  return { [item.USER_NM]: item.TOTAL_INCOME };} )
 															.map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
 			const USER_LAST				=  sellingFAListLast.map( item => {  return { [item.USER_NM]: item.TOTAL_INCOME };} )

@@ -76,6 +76,10 @@
 		AND C.CONTRACT_ID = TM.CONTRACT_ID
 		AND TM.RELATION_TYPE = 'EXECUTE'
 		AND TM.USER_ID	=TM_U.USER_ID
+		AND (
+			 C.USER_ID	= #{sessionVo.userId	}
+		 OR  TM.USER_ID	= #{sessionVo.userId	} 	
+		)
 	</sql>	
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getContractList
