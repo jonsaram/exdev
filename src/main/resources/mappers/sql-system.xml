@@ -579,6 +579,9 @@
 		<if test=" STATE != null and !STATE.equals('') ">
 		AND U.STATE = #{STATE}
 		</if>
+		<if test=" DEL_YN != null and !DEL_YN.equals('') ">
+		AND U.STATE = DECODE( #{DEL_YN}, 'Y', 'DELETED' ,'N', 'INUSE',  U.STATE) 
+		</if>
         ORDER BY U.USER_ID, A.ROLE_ID
 	</select>
 	
