@@ -49,6 +49,12 @@
 					AND CM.USE_YN = 'Y' AND CM.DEL_YN = 'N' AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
 					AND C.CONTRACT_ID = P.CONTRACT_ID 
 					AND TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE}
+					AND C.CONTRACT_ID = CM.CONTRACT_ID
+					AND CM.RELATION_TYPE = 'EXECUTE'
+					AND (
+						 C.USER_ID	= #{sessionVo.userId	}
+					 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+					)					
 				)
 				GROUP BY USER_ID
 			)
@@ -64,22 +70,34 @@
 					
 				SELECT NVL(C.BUYER_ID , 'POTENTIAL_CUSTOMER') AS CUSTOMER_TYPE
 				, B.*
-				FROM TBL_EXP_BUYER B ,TBL_EXP_CONTRACT C , TBL_EXP_RESULT R
+				FROM TBL_EXP_BUYER B ,TBL_EXP_CONTRACT C , TBL_EXP_RESULT R, TBL_EXP_CONTRACT_MEMBER CM
 				WHERE B.USE_YN = 'Y' AND B.DEL_YN = 'N' AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
 				AND C.CONTRACT_ID = R.CONTRACT_ID
 				AND TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{CUR_MONTH_DATE}  
 				AND	B.BUYER_ID = C.BUYER_ID(+)
+				AND C.CONTRACT_ID = CM.CONTRACT_ID
+				AND CM.RELATION_TYPE = 'EXECUTE'
+				AND (
+					 C.USER_ID	= #{sessionVo.userId	}
+				 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+				)					
 				
 				UNION ALL 
 				
 				SELECT NVL(C.BUYER_ID , 'POTENTIAL_CUSTOMER') AS CUSTOMER_TYPE
 				, B.*
-				FROM TBL_EXP_BUYER B ,TBL_EXP_CONTRACT C , TBL_EXP_RESULT R
+				FROM TBL_EXP_BUYER B ,TBL_EXP_CONTRACT C , TBL_EXP_RESULT R, TBL_EXP_CONTRACT_MEMBER CM
 				WHERE B.USE_YN = 'Y' AND B.DEL_YN = 'N' AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
 				AND C.CONTRACT_ID = R.CONTRACT_ID
 				AND TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{CUR_MONTH_DATE}  
 				AND B.BUYER_ID = C.BUYER_ID
 				AND 'PRE_CONTRACT' != C.PROCESS_STATE
+				AND C.CONTRACT_ID = CM.CONTRACT_ID
+				AND CM.RELATION_TYPE = 'EXECUTE'
+				AND (
+					 C.USER_ID	= #{sessionVo.userId	}
+				 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+				)					
 			)
 			
 			UNION ALL 
@@ -162,13 +180,35 @@
 						,DECODE( P.EXEC_TYPE,'EXEC', 0 ,PAYMENT) AS  SALES_PAYMENT /* 영업수수료 */		
 						FROM TBL_EXP_CONTRACT C , TBL_EXP_RESULT R
 						,TBL_EXP_PAYMENT P
+						,TBL_EXP_CONTRACT_MEMBER CM
 						WHERE C.CONTRACT_ID = R.CONTRACT_ID 
 						AND C.USE_YN = 'Y' 	AND C.DEL_YN = 'N' 	AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
 						AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
 						AND C.CONTRACT_ID = P.CONTRACT_ID 
-						
-						AND C.USER_ID = #{sessionVo.userId}
-						
+						AND C.CONTRACT_ID = CM.CONTRACT_ID
+						AND CM.RELATION_TYPE = 'EXECUTE'
+			        <choose>
+			       	<when test='gubun != null '> 
+			        	<if test=" gubun.equals('execBosu') ">
+					    AND CM.USER_ID	= #{sessionVo.userId	}
+			        	</if>
+			        	<if test=" gubun.equals('salesBosu') ">
+					    AND C.USER_ID	= #{sessionVo.userId	}  
+			        	</if>
+			        	<if test=" gubun.equals('customerTrend') ">
+					    AND (
+							 C.USER_ID	= #{sessionVo.userId	}
+						 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+						) 
+			        	</if>
+					</when>	
+			       	<when test='gubun == null '> 
+					    AND (
+							 C.USER_ID	= #{sessionVo.userId	}
+						 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+						) 
+					</when>						</choose>						
+
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') = #{CUR_YEAR_DATE}
 			)
 			GROUP BY TO_CHAR( RESULT_DATE,'YYYY-MM')
@@ -181,11 +221,36 @@
 			FROM(
 						SELECT DISTINCT C.BUYER_ID AS CUSTOMER, B.BUYER_NM ,C.CONTRACT_DATE 
 						FROM TBL_EXP_BUYER B ,TBL_EXP_CONTRACT C , TBL_EXP_RESULT R
+						,TBL_EXP_CONTRACT_MEMBER CM
 						WHERE B.USE_YN = 'Y' AND B.DEL_YN = 'N' AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
 						AND C.CONTRACT_ID = R.CONTRACT_ID
 						AND TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE}
 						AND B.BUYER_ID = C.BUYER_ID
 						AND 'PRE_CONTRACT' != C.PROCESS_STATE
+						AND C.CONTRACT_ID = CM.CONTRACT_ID
+						AND CM.RELATION_TYPE = 'EXECUTE'
+			        <choose>
+			       	<when test='gubun != null '> 
+			        	<if test=" gubun.equals('execBosu') ">
+					    AND CM.USER_ID	= #{sessionVo.userId	}
+			        	</if>
+			        	<if test=" gubun.equals('salesBosu') ">
+					    AND C.USER_ID	= #{sessionVo.userId	}  
+			        	</if>
+			        	<if test=" gubun.equals('customerTrend') ">
+					    AND (
+							 C.USER_ID	= #{sessionVo.userId	}
+						 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+						) 
+			        	</if>
+					</when>	
+			       	<when test='gubun == null '> 
+					    AND (
+							 C.USER_ID	= #{sessionVo.userId	}
+						 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+						) 
+					</when>	
+					</choose>							
 			)
 			GROUP BY TO_CHAR(CONTRACT_DATE,'YYYY-MM')
 

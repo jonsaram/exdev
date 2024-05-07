@@ -54,7 +54,7 @@
 			<if test=" CONTRACT_ID != null and !CONTRACT_ID.equals('') ">
 				AND CS.CONTRACT_ID = #{CONTRACT_ID}
 			</if>
-				AND USE_YN = 'Y' AND DEL_YN = 'N'
+				AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
 				GROUP BY CONTRACT_ID, RESULT_ID 
 			) CO
 			,( SELECT CONTRACT_ID, USER_ID, RESULT_ID, PAYMENT, 
