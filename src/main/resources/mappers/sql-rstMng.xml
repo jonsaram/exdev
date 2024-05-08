@@ -44,6 +44,12 @@
 			<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
 			AND CS.CONSULTING_TYPE = #{SUB_CATEGORY}
 			</if>
+			<if test=" FROM_CONTRACT_DATE != null and !FROM_CONTRACT_DATE.equals('')">
+			AND C.CONTRACT_DATE <![CDATA[>=]]> TO_DATE( #{FROM_CONTRACT_DATE} , 'YYYY-MM-DD') 
+			</if>		
+			<if test=" TO_CONTRACT_DATE != null and !TO_CONTRACT_DATE.equals('')">
+			AND C.CONTRACT_DATE <![CDATA[<=]]> TO_DATE( #{TO_CONTRACT_DATE} , 'YYYY-MM-DD')
+			</if>			
 			GROUP BY CS.CONSULTING_TYPE
 			<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
 			, CS.CONSULTING_NM

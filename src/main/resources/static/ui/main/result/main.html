@@ -343,7 +343,10 @@ var <@pageId> = {
 		
 			var parm = {
 					 queryId 		: "rstMgn.getConsultingTypeList"
-					,requestParm	: {SUB_CATEGORY:""}
+					,requestParm	: {SUB_CATEGORY:""
+						,FROM_CONTRACT_DATE	: $("#<@pageId>_fromDate").val()
+						,TO_CONTRACT_DATE	: $("#<@pageId>_toDate").val()
+					}
 			}
 
 			C_COM.requestQuery(parm, function(resultData) {
@@ -382,6 +385,8 @@ var <@pageId> = {
 
 			const requestParm = {
 					SUB_CATEGORY:<@pageId>.mainCategoryItem
+					,FROM_CONTRACT_DATE	: $("#<@pageId>_fromDate").val()
+					,TO_CONTRACT_DATE	: $("#<@pageId>_toDate").val()
 			};
 			
 			var parm = {
