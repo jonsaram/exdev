@@ -174,7 +174,7 @@
 		    chart: {
 		        type: 'column',
 
-                margin: [50, 0, 40, 45]
+                margin: [50, 50, 40, 60],
 		    },
 		    xAxisData,
 		    title: {
@@ -225,7 +225,7 @@
 		                color: Highcharts.getOptions().colors[0]
 		            }
 		        },
-				tickInterval: 0.5,
+				//tickInterval: 0.5,
 		    }],
 		    series: [
 			{
@@ -357,7 +357,10 @@
 		let maxVal = 0;
 		
 		if( series.length == 0){
-			series = [0,0,0,0,0,0,0,0,0,0,0,0];
+			series = [{
+		        name: thisYear+' 년',
+		        data: [0,0,0,0,0,0,0,0,0,0,0,0]
+		    	}];
 		}else {
 			
 			series.forEach( srs =>{
@@ -374,7 +377,7 @@
 		Highcharts.chart(target, {
 			chart :{
 				type: 'line',
-			  margin: [60, 50, 40, 40],
+			  margin: [50, 50, 40, 60],
 			},
 		    title: {
 		        text: '',
@@ -396,7 +399,7 @@
 		            }
 		        },
 				max: maxVal,
-		        tickInterval: 0.5,
+		       // tickInterval: 0.5,
 		    },
 		    xAxis: {
 		        categories: _monthArray,
@@ -411,10 +414,7 @@
 		        },
 		        floating: false,
 		    },
-		    series: [{
-		        name: thisYear+' 년',
-		        data: series
-		    }]
+		    series:series
 		});
 	}
 	

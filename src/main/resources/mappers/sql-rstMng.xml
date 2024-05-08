@@ -412,11 +412,11 @@
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
 						AND C.CONTRACT_ID = CM.CONTRACT_ID
-						AND CM.RELATION_TYPE = 'EXECUTE'
+<!-- 						AND CM.RELATION_TYPE = 'EXECUTE'
 						AND (
-							 C.USER_ID	= #{sessionVo.userId	}
-						 OR  CM.USER_ID	= #{sessionVo.userId	} 	
-						)						
+							 C.USER_ID	= sessionVo.userId
+						 OR  CM.USER_ID	= sessionVo.userId 	
+						) -->						
 				)	
 				GROUP BY  RESULT_MONTH ,BRANCH_ID 
 			) DATA
@@ -446,7 +446,6 @@
 	
 	</select>
 	
-	
 	<select id="getSellingDetailList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getSellingDetailList
 			상세별 순매출 (컨설팅상세별) 
@@ -463,21 +462,14 @@
 		,TBL_EXP_RESULT RST
 		,TBL_EXP_COST CS
 		,TBL_EXP_CONSULTING CT
-		,TBL_EXP_CONTRACT_MEMBER CM
 		WHERE 1=1
 		AND CN.CONTRACT_ID = RST.CONTRACT_ID 
-		AND CN.CONTRACT_ID = CS.CONTRACT_ID
-		AND CS.RESULT_ID = RST.RESULT_ID
+		AND CN.CONTRACT_ID = CS.CONTRACT_ID(+)
+		AND CS.RESULT_ID(+) = RST.RESULT_ID
 		AND CN.USE_YN = 'Y' AND CN.DEL_YN = 'N'
 		AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
-		AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
+		AND CS.USE_YN(+) = 'Y' AND CS.DEL_YN(+) = 'N'
 		AND CT.CONSULTING_ID  = CN.CONSULTING_ID 
-		AND CN.CONTRACT_ID = CM.CONTRACT_ID
-		AND CM.RELATION_TYPE = 'EXECUTE'
-		AND (
-			 CN.USER_ID	= #{sessionVo.userId	}
-		 OR  CM.USER_ID	= #{sessionVo.userId	} 	
-		)						
 		<choose>
 	       	<when test=" LAST_YEAR == null  "> 
 				AND TO_CHAR(RST.RESULT_DATE, 'YYYY')   <![CDATA[ >= ]]> TO_CHAR( SYSDATE , 'YYYY')

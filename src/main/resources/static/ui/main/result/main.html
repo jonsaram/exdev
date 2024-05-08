@@ -121,7 +121,7 @@ var <@pageId> = {
 										],
 									 ];
 
-			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx],'억원' ) );
+			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx],'억' ) );
 
 			
 			let sum = getOrgSellingPriceListMONTHLY.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
@@ -175,7 +175,7 @@ var <@pageId> = {
 				
 	  			        	if( series.length >= branchListCnt){
 	  			        		
-	  			        		<@pageId>.lineWithLabelsChart( "<@pageId>_OPB_chart", {series:series});
+	  			        		<@pageId>.lineWithLabelsChart( "<@pageId>_OPB_chart", {thisYear:<@pageId>.thisYear, series:series});
 	
 	  			        		let sum =0;
 	  			        		series.map( item=> item.data ).forEach( ItemArr=>{
@@ -258,7 +258,7 @@ var <@pageId> = {
 										],
 									 ];
 
-			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] ,'억원') );
+			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] ,'억') );
 	
 			let sum = getFaPayListMONTHLY.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 			$("#<@pageId>_FA_Monthly_PAY").text(sum.toLocaleString() + "억원") ;

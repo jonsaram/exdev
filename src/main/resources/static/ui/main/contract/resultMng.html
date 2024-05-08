@@ -192,8 +192,19 @@ var <@pageId> = {
 				return;
 	    		
 	    	}
-	    	
-			<@pageId>.openUpdatePopup();
+	    	// remainingCost to reload
+			const requestParm = {CONTRACT_ID : contractId , USER_ID : <@pageId>.contractItem.USER_ID };
+			
+			var parm = {
+					 queryId 		: "contract.getContractList"
+					,requestParm	: requestParm
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+
+				<@pageId>.contractItem =  resultData.data[0];
+
+				<@pageId>.openUpdatePopup();
+			});
 
 	    })
 
