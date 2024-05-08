@@ -97,7 +97,7 @@
 			AND CM.USE_YN		= 'Y'
 			AND CM.DEL_YN		= 'N'
 			<if test=" GUBUN != null and GUBUN.equals('MNG') ">
-			ORDER BY R.UPDATE_DATE , <include refid="buisnessHierarchyOrderBy"/>
+			ORDER BY R.UPDATE_DATE ,  R.RESULT_ID, <include refid="buisnessHierarchyOrderBy"/>
 			</if>
 			<if test=" GUBUN != null and GUBUN.equals('LIST') ">
 			ORDER BY REMAINING_SUM DESC  , P.PAYMENT_ID

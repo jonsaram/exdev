@@ -83,12 +83,18 @@ var <@pageId> = {
 				if( <@pageId>.contractItem.REMAINING_SUM == 0){
 					$("#<@pageId>_regResult").hide();
 				}
-	 			const trTemplate = $("#<@pageId>_resultList_total_template").render({ INCOME 			: addComma(TOTAL_ROW["INCOME"])
-	 																				, COST_PRICE 		: addComma(TOTAL_ROW["COST_PRICE"])
-	 																				, ORG_SELLING_PRICE : addComma(TOTAL_ROW["ORG_SELLING_PRICE"])
-	 																				, RATE 				: (TOTAL_ROW["RATE"] / resultIdCnt)
-	 																				, PAYMENT 			: addComma(TOTAL_ROW["PAYMENT"])
-	 																				, REAL_PROFIT		: addComma(TOTAL_ROW["REAL_PROFIT"])
+				
+				let totalORGSP 		= Number(TOTAL_ROW["ORG_SELLING_PRICE"]).toFixed(2);	totalORGSP 		= totalORGSP.replace(/\.00$/, "");
+				let totalRATE 		= Number((TOTAL_ROW["RATE"] / resultIdCnt)).toFixed(2);	totalRATE 		= totalRATE.replace(/\.00$/, "");
+				let totalPAYMENT 	= Number(TOTAL_ROW["PAYMENT"]).toFixed(2);				totalPAYMENT 	= totalPAYMENT.replace(/\.00$/, "");
+				let totalPROFIT		= Number(TOTAL_ROW["REAL_PROFIT"]).toFixed(2);			totalPROFIT		= totalPROFIT.replace(/\.00$/, "");
+				
+	 			const trTemplate = $("#<@pageId>_resultList_total_template").render({ INCOME 			: addComma(Number(TOTAL_ROW["INCOME"]))
+	 																				, COST_PRICE 		: addComma(Number(TOTAL_ROW["COST_PRICE"]))
+	 																				, ORG_SELLING_PRICE : addComma(totalORGSP)
+	 																				, RATE 				: totalRATE
+	 																				, PAYMENT 			: addComma(totalPAYMENT)
+	 																				, REAL_PROFIT		: addComma(totalPROFIT)
 	 																				});
 				$("#<@pageId>_resultList").append(trTemplate);
     		}
@@ -369,9 +375,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<caption>실적 리스트</caption>
 					<colgroup>
 						<col style="width:40px;"/>
-						<col style="width:140px;"/>
-						<col style="width:110px;" span="5" />
-						<col style="width:90px;" span="7" />
+						<col style="width:110px;"/>
+						<col style="width:100px;"/>
+						<col style="width:110px;" span="3" />
+						<col style="width:120px;"/>
+						<col style="width:90px;" span="5" />
+						<col style="width:120px;"/>
+						<col style="width:120px;"/>
 						<col style="width:40px;"/>
 						<col style="width:40px;"/>
 					</colgroup>
