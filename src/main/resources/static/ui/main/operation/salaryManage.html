@@ -81,9 +81,12 @@ var <@pageId> = {
 		}
 		,rowClick : (index) => {
 
-			const selectedRow = <@pageId>.searchedRows[index];
+			const selectedRow	= <@pageId>.searchedRows[index];
 			
-			const requestParm =  {USER_ID : selectedRow.USER_ID}
+			var contractDate	= C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
+			
+			const requestParm	= {	USER_ID 	: selectedRow.USER_ID ,
+									RESULT_DATE : contractDate + '-01' }
 			
 			var parm = {
 					 queryId 		: "salary.getPaymentDetailList"
