@@ -191,10 +191,30 @@ var <@pageId> = {
 
   			/* 상세별 순매출 (컨설팅상세별) */
   			const sellingThisYear		=  resultData.data["rstMgn.getSellingDetailList"	];
-  			const sellingLastYear		=  resultData.data["rstMgn.getSellingDetailList_1"	];
+  			let		sellingLastYear		=  resultData.data["rstMgn.getSellingDetailList_1"	];
 			const thisYear 				= <@pageId>.thisYear;
 			const lastYear 				= <@pageId>.lastYear;
   			
+			let tempList = [];
+			sellingThisYear.forEach( item=>{
+				
+				const temp = sellingLastYear.filter( lastItem=> lastItem.CONSULTING_ID == item.CONSULTING_ID );
+				const item2 = !isEmpty(temp) ? temp[0] : {};
+				if( Object.entries(item2).length > 0 )tempList.push(item2);
+				else {
+					item2.YEAR 			= item.YEAR - 1;
+					item2.CONSULTING_ID		= item.CONSULTING_ID ;
+					item2.CONSULTING_NM		= item.CONSULTING_NM ;
+					item2.ORG_SELLING_PRICE	= 0;
+					item2.TOT_COST_PRICE	= item.TOT_COST_PRICE;
+					item2.TOTAL_INCOME 	= 0;
+					tempList.push( item2)
+				}
+			})
+			sellingLastYear = tempList;
+  
+			
+
  		    const CONSULTING_THIS		=  sellingThisYear.map( item => {  return { [item.CONSULTING_NM]: item.ORG_SELLING_PRICE };} )
 														  .map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
  		    
