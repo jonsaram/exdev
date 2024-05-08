@@ -225,38 +225,40 @@
 		                color: Highcharts.getOptions().colors[0]
 		            }
 		        },
-				//tickInterval: 0.5,
 		    }],
-		    series: [
-			{
-		        name: lastMonth,
-		        color: 'rgba(158, 159, 163, 0.5)',
-		        pointPlacement: -0.3,
-		        linkedTo: 'main',
-		        data: dataPrev["months"].slice(),
-		        tooltip: {
-		            valueSuffix: ' 억원'
-		        }
-		    }, 
-			{
-		        name: thisMonth,
-		        id: 'main',
-		        dataSorting: {
-		            enabled: true,
-		            matchByName: true
-		        },
-		        dataLabels: [{
-		            enabled: true,
-		            inside: false,
-		            style: {
-		                fontSize: '10px'
-		            }
-		        }],
-		        data: getData(data["months"]).slice(),
-		        tooltip: {
-		            valueSuffix: ' 억원'
-		        }
-		    }],
+			series: [
+			    {
+			        name: lastMonth,
+			        color: 'rgba(158, 159, 163, 0.5)',
+			        pointPlacement: -0.3,
+			        linkedTo: 'main',
+			        data: dataPrev["months"].slice(),
+			        tooltip: {
+			            valueSuffix: ' 억원'
+			        },
+ 					showInLegend: true
+			    }, 
+			    {
+			        name: thisMonth,
+			        id: 'main',
+			        dataSorting: {
+			            enabled: true,
+			            matchByName: true
+			        },
+				    dataLabels: {
+				        enabled: true,
+				        inside: false,
+				        format: '{y} 억원',
+				        style: {
+				            fontSize: '10px'
+				        }
+				    },
+			        data: getData(data["months"]).slice(),
+			        tooltip: {
+			            valueSuffix: ' 억원'
+			        }
+			    }
+			],
 		});
 		
 	}
@@ -377,7 +379,7 @@
 		Highcharts.chart(target, {
 			chart :{
 				type: 'line',
-			  margin: [50, 50, 40, 60],
+			  	margin: [50, 50, 40, 60],
 			},
 		    title: {
 		        text: '',
@@ -399,7 +401,6 @@
 		            }
 		        },
 				max: maxVal,
-		       // tickInterval: 0.5,
 		    },
 		    xAxis: {
 		        categories: _monthArray,
@@ -413,6 +414,9 @@
 		            fontSize: '11px'
 		        },
 		        floating: false,
+		    },
+		    tooltip: {
+		        shared: true
 		    },
 		    series:series
 		});

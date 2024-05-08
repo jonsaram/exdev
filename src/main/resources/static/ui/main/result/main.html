@@ -108,16 +108,16 @@ var <@pageId> = {
 			const categoriesList 	= [  _monthArray,_monthArray,_monthArray ];
 			const seriesList		= [
 										[
-										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListMONTHLY.slice(12)	,tooltip: {valueSuffix: '억'},yAxis: 0}
-										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListMONTHLY.slice(0,12)	,tooltip: {valueSuffix:'억'}}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListMONTHLY.slice(12)	,tooltip: {valueSuffix: ' 억원'},yAxis: 0}
+										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListMONTHLY.slice(0,12)	,tooltip: {valueSuffix:' 억원'}}
 										],
 										[
-										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListOnly_ONE.slice(12)	,tooltip: {valueSuffix: '억'},yAxis: 0}
-										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListOnly_ONE.slice(12)	,tooltip: {valueSuffix: ' 억원'},yAxis: 0}
+										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:' 억원'}}
 										],
 										[
-										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListPARTNER.slice(12)	,tooltip: {valueSuffix: '억'},yAxis: 0}
-										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListPARTNER.slice(0,12)	,tooltip: {valueSuffix:'억'}}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListPARTNER.slice(12)	,tooltip: {valueSuffix: ' 억원'},yAxis: 0}
+										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListPARTNER.slice(0,12)	,tooltip: {valueSuffix:' 억원'}}
 										],
 									 ];
 
@@ -170,7 +170,7 @@ var <@pageId> = {
 	  			        		
 	  			        	})
 	  			        	
-	  			        	const seriseData = { name : item.BRANCH_ID , data : data} 
+	  			        	const seriseData = { name : item.BRANCH_ID , data : data , tooltip:{ valueSuffix: ' 억원'}} 
 	  			        	series.push(seriseData);
 				
 	  			        	if( series.length >= branchListCnt){
@@ -245,16 +245,16 @@ var <@pageId> = {
 			const categoriesList 	= [  _monthArray,_monthArray,_monthArray];
 			const seriesList		= [
 										[
-										 {  name: <@pageId>.thisYear+'년',type: 'column',yAxis: 1,data: getFaPayListMONTHLY.slice(12),tooltip: {valueSuffix: '억'}}
-										,{  name: <@pageId>.lastYear+'년',type: 'line',data:   getFaPayListMONTHLY.slice(0,12),tooltip: {valueSuffix:'억'}}
+										 {  name: <@pageId>.thisYear+'년',type: 'column',yAxis: 1,data: getFaPayListMONTHLY.slice(12),tooltip: {valueSuffix: ' 억원'}}
+										,{  name: <@pageId>.lastYear+'년',type: 'line',data:   getFaPayListMONTHLY.slice(0,12),tooltip: {valueSuffix:' 억원'}}
 										],
 										[
-										 {  name: <@pageId>.thisYear+'년',type: 'column',yAxis: 1,data: getFaPayListOnly_ONE.slice(12),tooltip: {valueSuffix: '억'}}
-										,{  name: <@pageId>.lastYear+'년',type: 'line',data:  getFaPayListOnly_ONE.slice(0,12),tooltip: {valueSuffix:'억'}}
+										 {  name: <@pageId>.thisYear+'년',type: 'column',yAxis: 1,data: getFaPayListOnly_ONE.slice(12),tooltip: {valueSuffix: ' 억원'}}
+										,{  name: <@pageId>.lastYear+'년',type: 'line',data:  getFaPayListOnly_ONE.slice(0,12),tooltip: {valueSuffix:' 억원'}}
 										],
 										[
-										 {  name: <@pageId>.thisYear+'년',type: 'column',yAxis: 1,data: getFaPayListPARTNER.slice(12),tooltip: {valueSuffix: '억'}}
-										,{  name: <@pageId>.lastYear+'년',type: 'line',data:  getFaPayListPARTNER.slice(0,12),tooltip: {valueSuffix:'억'}}
+										 {  name: <@pageId>.thisYear+'년',type: 'column',yAxis: 1,data: getFaPayListPARTNER.slice(12),tooltip: {valueSuffix: ' 억원'}}
+										,{  name: <@pageId>.lastYear+'년',type: 'line',data:  getFaPayListPARTNER.slice(0,12),tooltip: {valueSuffix:' 억원'}}
 										],
 									 ];
 
@@ -282,13 +282,14 @@ var <@pageId> = {
 			//FA 매출순위
   			const sellingFAListThis		=  resultData.data["rstMgn.getFASellingOrder"];
   			let   sellingFAListLast		=  resultData.data["rstMgn.getFASellingOrder_1"];
-  			
-			let tempList = [];
+			const thisYear 				= <@pageId>.thisYear;
+			const lastYear 				= <@pageId>.lastYear;
+ 			let tempList = [];
 			sellingFAListThis.forEach( item=>{
 				
-				const item2 = sellingFAListLast.filter( lastItem=> lastItem.USER_NM == item.USER_NM );
-				
-				if( item2.length > 0 )tempList.push(item2);
+				const temp = sellingFAListLast.filter( lastItem=> lastItem.USER_NM == item.USER_NM );
+				const item2 = !isEmpty(temp) ? temp[0] : {};
+				if( Object.entries(item2).length > 0 )tempList.push(item2);
 				else {
 					item2.YEAR 			= item.YEAR - 1;
 					item2.USER_NM		= item.USER_NM ;
@@ -298,8 +299,6 @@ var <@pageId> = {
 			})
 			sellingFAListLast = tempList;
 			
-			const thisYear 				= <@pageId>.thisYear;
-			const lastYear 				= <@pageId>.lastYear;
 			const USER_THIS				=  sellingFAListThis.map( item => {  return { [item.USER_NM]: item.TOTAL_INCOME };} )
 															.map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
 			const USER_LAST				=  sellingFAListLast.map( item => {  return { [item.USER_NM]: item.TOTAL_INCOME };} )
