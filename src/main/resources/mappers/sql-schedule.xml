@@ -5,7 +5,7 @@
 <mapper namespace="schedule">
 
 	<cache />
-	   <!-- 팀원조회 -->
+	<!-- 팀원조회 -->
     <select id="getTeamMember" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.getTeamMember */
 		SELECT  USER_ID
@@ -686,7 +686,11 @@
                ,A.START_TIME_MINUTE 
                ,LPAD(A.END_TIME_HOUR , 2, '0')              AS END_TIME_HOUR  
                ,A.END_TIME_MINUTE 
-               ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE   AS TITLE
+               ,TITLE
+               ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE1 
+               ,A.POSITION
+               ,A.WORK_TYPE
+               ,GET_CODE_NM('SCHEDULE_WORK_TYPE', A.WORK_TYPE) AS WORK_TYPE_NM
                ,'N' AS SHARE_YN
                ,B.ATTR1  AS WORK_COLOR     
                ,B.ATTR2  AS TEXT_COLOR
@@ -720,6 +724,13 @@
         <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
                 #{userId}
         </foreach>
+        <if test='periodYn == "Y"' >
+            AND   (
+                    ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_START_DATE AND  A.SCHEDULE_START_DATE <![CDATA[<=]]> #{endDate} ) OR  
+                    ( A.SCHEDULE_START_DATE <![CDATA[<=]]> #{startDate} AND #{endDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE)  OR  
+                    ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE AND A.SCHEDULE_END_DATE <![CDATA[<=]]> #{endDate} )  
+                  )
+        </if>
     </select>
     <!-- 매일반복 -->
     <select id="getDayRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -914,8 +925,12 @@
               ,B.DTE                AS SCHEDULE_END_DATE
               ,A.END_TIME_HOUR
               ,A.END_TIME_MINUTE
-              ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE 
-              ,'N'                 AS SHARE_YN
+              ,TITLE
+              ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE1 
+              ,'N'                  AS SHARE_YN
+              ,A.POSITION
+              ,A.WORK_TYPE
+              ,GET_CODE_NM('SCHEDULE_WORK_TYPE', A.WORK_TYPE) AS WORK_TYPE_NM
               ,C.ATTR1              AS WORK_COLOR
               ,C.ATTR2              AS TEXT_COLOR
         FROM   TABLE_SCHEDULE A
@@ -941,7 +956,15 @@
                    ON  1 = 1
                    AND A.WORK_TYPE = C.CODE_ID
         WHERE  1 = 1
-        AND    B.DTE <![CDATA[<=]]> A.SCHEDULE_LOOP_END_DATE 
+        AND    B.DTE <![CDATA[<=]]> A.SCHEDULE_LOOP_END_DATE
+        <if test='periodYn == "Y"' >
+            AND   (
+                    ( #{startDate} <![CDATA[<=]]> B.DTE AND  B.DTE <![CDATA[<=]]> #{endDate} ) OR  
+                    ( B.DTE <![CDATA[<=]]> #{startDate} AND #{endDate} <![CDATA[<=]]> B.DTE)  OR  
+                    ( #{startDate} <![CDATA[<=]]> B.DTE AND B.DTE <![CDATA[<=]]> #{endDate} )  
+                  )
+        </if>
+        
     </select>
 
     <select id="getWeekRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -1136,7 +1159,7 @@
     </select>
     
     <select id="getTeamWeekRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-/* schedule.getTeamWeekRepeat */
+        /* schedule.getTeamWeekRepeat */
         WITH BASE_TABEL AS( 
             SELECT DTE
                   ,DY
@@ -1175,6 +1198,10 @@
               ,A.END_TIME_HOUR
               ,A.END_TIME_MINUTE
               ,A.TITLE
+              ,A.TITLE1
+              ,A.POSITION
+              ,A.WORK_TYPE
+              ,A.WORK_TYPE_NM
               ,A.SHARE_YN
               ,A.WORK_COLOR
               ,A.TEXT_COLOR
@@ -1196,7 +1223,11 @@
                                ) AS SCHEDULE_END_DATE
                       , B.END_TIME_HOUR
                       , B.END_TIME_MINUTE
-                      ,'['||GET_USER_NM(B.USER_ID)||']'||B.TITLE    AS TITLE 
+                      , B.TITLE
+                      , '['||GET_USER_NM(B.USER_ID)||']'||B.TITLE    AS TITLE1 
+                      , B.POSITION
+                      , B.WORK_TYPE
+                      , GET_CODE_NM('SCHEDULE_WORK_TYPE', B.WORK_TYPE) AS WORK_TYPE_NM
                       , A.SHARE_YN           AS SHARE_YN
                       , C.ATTR1              AS WORK_COLOR
                       , C.ATTR2              AS TEXT_COLOR
@@ -1282,6 +1313,13 @@
                ) A
         WHERE 1 = 1
         AND   A.SCHEDULE_START_DATE <![CDATA[<=]]> A.SCHEDULE_LOOP_END_DATE
+        <if test='periodYn == "Y"' >
+        AND   (
+                ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_START_DATE AND  A.SCHEDULE_START_DATE <![CDATA[<=]]> #{endDate} ) OR  
+                ( A.SCHEDULE_START_DATE <![CDATA[<=]]> #{startDate} AND #{endDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE)  OR  
+                ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE AND A.SCHEDULE_END_DATE <![CDATA[<=]]> #{endDate} )  
+              )
+        </if>
     </select> 
     
     <select id="getMonthRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -1689,6 +1727,7 @@
         )
         SELECT A.SCHEDULE_ID
               ,A.TITLE
+              ,A.TITLE1
               ,A.SCHEDULE_LOOP_END_DATE
               ,A.SCHEDULE_DATE 
               ,A.SCHEDULE_START_DATE
@@ -1698,12 +1737,16 @@
               ,A.END_TIME_HOUR
               ,A.END_TIME_MINUTE
               ,A.SHARE_YN
+              ,A.POSITION
+              ,A.WORK_TYPE
+              ,GET_CODE_NM('SCHEDULE_WORK_TYPE', A.WORK_TYPE) AS WORK_TYPE_NM
               ,A.WORK_COLOR
               ,A.TEXT_COLOR
         FROM   (
                 /*===============================================================================*/
                 SELECT SCHEDULE_ID
-                      ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE
+                      ,TITLE
+                      ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE1
                       ,SCHEDULE_LOOP_END_DATE
                       ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
                       ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
@@ -1713,6 +1756,9 @@
                       ,END_TIME_HOUR
                       ,END_TIME_MINUTE
                       ,SHARE_YN
+                      ,POSITION
+                      ,WORK_TYPE
+                      ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
                       ,B.ATTR1              AS WORK_COLOR
                       ,B.ATTR2              AS TEXT_COLOR
                 FROM   TABLE_END_DAY
@@ -1721,7 +1767,8 @@
                            AND TABLE_END_DAY.WORK_TYPE = B.CODE_ID  
                 UNION ALL
                 SELECT SCHEDULE_ID
-                      ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE
+                      ,TITLE
+                      ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE1
                       ,SCHEDULE_LOOP_END_DATE
                       ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
                       ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
@@ -1731,6 +1778,9 @@
                       ,END_TIME_HOUR
                       ,END_TIME_MINUTE
                       ,SHARE_YN
+                      ,POSITION
+                      ,WORK_TYPE
+                      ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
                       ,B.ATTR1              AS WORK_COLOR
                       ,B.ATTR2              AS TEXT_COLOR
                 FROM   TABLE_SELECT_DAY
@@ -1739,7 +1789,8 @@
                            AND TABLE_SELECT_DAY.WORK_TYPE = B.CODE_ID  
                 UNION ALL
                 SELECT SCHEDULE_ID
-                      ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE
+                      ,TITLE
+                      ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE1
                       ,SCHEDULE_LOOP_END_DATE
                       ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
                       ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
@@ -1749,6 +1800,9 @@
                       ,END_TIME_HOUR
                       ,END_TIME_MINUTE
                       ,SHARE_YN
+                      ,POSITION
+                      ,WORK_TYPE
+                      ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
                       ,B.ATTR1              AS WORK_COLOR
                       ,B.ATTR2              AS TEXT_COLOR
                 FROM   TABLE_BASE
@@ -1759,6 +1813,13 @@
         ) A        
         WHERE 1 = 1
         AND   TO_DATE(A.SCHEDULE_START_DATE, 'YYYY-MM-DD') <![CDATA[<=]]> SCHEDULE_LOOP_END_DATE
+        <if test='periodYn == "Y"' >
+            AND   (
+                    ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_START_DATE AND  A.SCHEDULE_START_DATE <![CDATA[<=]]> #{endDate} ) OR  
+                    ( A.SCHEDULE_START_DATE <![CDATA[<=]]> #{startDate} AND #{endDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE)  OR  
+                    ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE AND A.SCHEDULE_END_DATE <![CDATA[<=]]> #{endDate} )  
+                  )
+        </if>
     </select> 
         
     <select id="getQuarterRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -2468,7 +2529,7 @@
         AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
     </select>
     
-        
+    <!-- 매년 반복이기때문에 시작만 보면됨  -->    
     <select id="getTeamYearRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.getTeamYearRepeat */
         WITH TABLE_END_DAY AS ( 
@@ -2596,67 +2657,105 @@
                       AND    A.DEL_YN = 'N'
                       AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
         )
-        /* 월의 마지막날-자동 */
-        SELECT SCHEDULE_ID
-              ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
-              ,START_TIME_HOUR
-              ,START_TIME_MINUTE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')) + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
-              ,END_TIME_HOUR
-              ,END_TIME_MINUTE
-              ,SHARE_YN
-              ,B.ATTR1              AS WORK_COLOR
-              ,B.ATTR2              AS TEXT_COLOR
-        FROM   TABLE_END_DAY
-               LEFT OUTER JOIN TABLE_CODE B
-                   ON  1 = 1
-                   AND TABLE_END_DAY.WORK_TYPE = B.CODE_ID  
-        WHERE  1 = 1
-        AND    SUBSTR( TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
-        AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
-        UNION ALL
-        /* 월의 마지막날-선택 */
-        SELECT SCHEDULE_ID
-              ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
-              ,START_TIME_HOUR
-              ,START_TIME_MINUTE
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
-              ,END_TIME_HOUR
-              ,END_TIME_MINUTE
-              ,SHARE_YN
-              ,B.ATTR1              AS WORK_COLOR
-              ,B.ATTR2              AS TEXT_COLOR
-        FROM   TABLE_SELECT_DAY
-               LEFT OUTER JOIN TABLE_CODE B
-                   ON  1 = 1
-                   AND TABLE_SELECT_DAY.WORK_TYPE = B.CODE_ID  
-        WHERE  1 = 1
-        AND    SUBSTR(TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),9,2) = LOOP_TYPE_DTL_VAL
-        AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
-        UNION ALL
-        /* 월의 일반날 */
-        SELECT SCHEDULE_ID
-              ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
-              ,START_TIME_HOUR
-              ,START_TIME_MINUTE
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
-              ,END_TIME_HOUR
-              ,END_TIME_MINUTE
-              ,SHARE_YN
-              ,B.ATTR1              AS WORK_COLOR
-              ,B.ATTR2              AS TEXT_COLOR
-        FROM   TABLE_BASE
-               LEFT OUTER JOIN TABLE_CODE B
-                   ON  1 = 1
-                   AND TABLE_BASE.WORK_TYPE = B.CODE_ID
-        WHERE  1 = 1
-        AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)
+        SELECT A.SCHEDULE_ID
+              ,A.TITLE
+              ,A.TITLE1
+              ,A.POSITION
+              ,A.WORK_TYPE
+              ,A.WORK_TYPE_NM
+              ,A.SCHEDULE_DATE
+              ,A.SCHEDULE_START_DATE
+              ,A.START_TIME_HOUR
+              ,A.START_TIME_MINUTE
+              ,A.SCHEDULE_END_DATE
+              ,A.END_TIME_HOUR
+              ,A.END_TIME_MINUTE
+              ,A.WORK_COLOR
+              ,A.TEXT_COLOR
+        FROM   (
+            /* 월의 마지막날-자동 */
+            SELECT SCHEDULE_ID
+                  ,TITLE
+                  ,'['||GET_USER_NM(USER_ID)||']'||TITLE    AS TITLE1 
+                  ,POSITION
+                  ,WORK_TYPE
+                  ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
+                  ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
+                  ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
+                  ,START_TIME_HOUR
+                  ,START_TIME_MINUTE
+                  ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')) + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                  ,END_TIME_HOUR
+                  ,END_TIME_MINUTE
+                  ,SHARE_YN
+                  ,B.ATTR1              AS WORK_COLOR
+                  ,B.ATTR2              AS TEXT_COLOR
+            FROM   TABLE_END_DAY
+                   LEFT OUTER JOIN TABLE_CODE B
+                       ON  1 = 1
+                       AND TABLE_END_DAY.WORK_TYPE = B.CODE_ID  
+            WHERE  1 = 1
+            AND    SUBSTR( TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
+            AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
+            UNION ALL
+            /* 월의 마지막날-선택 */
+            SELECT SCHEDULE_ID
+                  ,TITLE
+                  ,'['||GET_USER_NM(USER_ID)||']'||TITLE    AS TITLE1 
+                  ,POSITION
+                  ,WORK_TYPE
+                  ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
+                  ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
+                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
+                  ,START_TIME_HOUR
+                  ,START_TIME_MINUTE
+                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                  ,END_TIME_HOUR
+                  ,END_TIME_MINUTE
+                  ,SHARE_YN
+                  ,B.ATTR1              AS WORK_COLOR
+                  ,B.ATTR2              AS TEXT_COLOR
+            FROM   TABLE_SELECT_DAY
+                   LEFT OUTER JOIN TABLE_CODE B
+                       ON  1 = 1
+                       AND TABLE_SELECT_DAY.WORK_TYPE = B.CODE_ID  
+            WHERE  1 = 1
+            AND    SUBSTR(TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),9,2) = LOOP_TYPE_DTL_VAL
+            AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
+            UNION ALL
+            /* 월의 일반날 */
+            SELECT SCHEDULE_ID
+                  ,TITLE
+                  ,'['||GET_USER_NM(USER_ID)||']'||TITLE    AS TITLE1 
+                  ,POSITION
+                  ,WORK_TYPE
+                  ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
+                  ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
+                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
+                  ,START_TIME_HOUR
+                  ,START_TIME_MINUTE
+                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                  ,END_TIME_HOUR
+                  ,END_TIME_MINUTE
+                  ,SHARE_YN
+                  ,B.ATTR1              AS WORK_COLOR
+                  ,B.ATTR2              AS TEXT_COLOR
+            FROM   TABLE_BASE
+                   LEFT OUTER JOIN TABLE_CODE B
+                       ON  1 = 1
+                       AND TABLE_BASE.WORK_TYPE = B.CODE_ID
+            WHERE  1 = 1
+            AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)
+        ) A
+        WHERE 1 = 1
+        <if test='periodYn == "Y"' >
+                AND (
+                        ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_START_DATE AND  A.SCHEDULE_START_DATE <![CDATA[<=]]> #{endDate} ) OR  
+                        ( A.SCHEDULE_START_DATE <![CDATA[<=]]> #{startDate} AND #{endDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE)  OR  
+                        ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE AND A.SCHEDULE_END_DATE <![CDATA[<=]]> #{endDate} )  
+                    )
+        </if>
     </select> 
+     
     
 </mapper>
