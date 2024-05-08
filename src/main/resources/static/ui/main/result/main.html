@@ -43,9 +43,9 @@ var <@pageId> = {
 			
 			//월자문 순매출 , 1회성 순매출 , 외주자문 순매출
  			var parm = {
-				queryGroup : [{queryId	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONTRACT_TYPE : "MONTHLY"}}
-							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONTRACT_TYPE : "ONLY_ONE"}}
-							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONTRACT_TYPE : "PARTNER"}}
+				queryGroup : [{queryId	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONSULTING_TYPE : "MONTHLY"	}}
+							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONSULTING_TYPE : "ONCE"		}}
+							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONSULTING_TYPE : "COWORK"	}}
 							 ]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
@@ -55,8 +55,8 @@ var <@pageId> = {
 			
    			//순매출 성장률 , 지사별 순매출(전년도 추가) , 상세별 순매출(전년도 막대그래프 2개)   
  			var parm2 = {
-					queryGroup : [{queryId	: "rstMgn.getSellingGrowthRateList"	,requestParm	: {CONTRACT_TYPE : "MONTHLY"} },
-								  {queryId 	: "rstMgn.getSellingBranchList"		,requestParm	: {}}
+					queryGroup : [{queryId	: "rstMgn.getSellingGrowthRateList"	,requestParm	: {}}
+								 ,{queryId 	: "rstMgn.getSellingBranchList"		,requestParm	: {}}
 								 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: {}}
 								 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: {LAST_YEAR:"Y"}}
 								 ]
@@ -68,9 +68,9 @@ var <@pageId> = {
 			
  			//FA 월자문 수수료 , FA 1회성 수수료 , FA 외주자문 수수료.
  			var parm3 = {
-					queryGroup : [{queryId	: "rstMgn.getFaPayList"		,requestParm	: {CONTRACT_TYPE : "MONTHLY"	}}
-								 ,{queryId 	: "rstMgn.getFaPayList"		,requestParm	: {CONTRACT_TYPE : "ONLY_ONE"	}}
-							 	 ,{queryId 	: "rstMgn.getFaPayList"		,requestParm	: {CONTRACT_TYPE : "PARTNER"	}}
+					queryGroup : [{queryId	: "rstMgn.getFaPayList"		,requestParm	: {CONSULTING_TYPE : "MONTHLY"	}}
+								 ,{queryId 	: "rstMgn.getFaPayList"		,requestParm	: {CONSULTING_TYPE : "ONCE"		}}
+							 	 ,{queryId 	: "rstMgn.getFaPayList"		,requestParm	: {CONSULTING_TYPE : "COWORK"	}}
 								 ]
 			}
  			C_COM.requestQuery(parm3, function(resultData) {
@@ -80,7 +80,7 @@ var <@pageId> = {
 			
  			//월자문 계약건수  , FA 매출 순위(전월 비교 차트)
  			var parm4 = {
-					queryGroup : [{queryId	: "rstMgn.getContractCnt"		,requestParm	: {CONTRACT_TYPE : "MONTHLY"}}
+					queryGroup : [{queryId	: "rstMgn.getContractCnt"		,requestParm	: {}}
 								 ,{queryId 	: "rstMgn.getFASellingOrder"	,requestParm	: {}}
 								 ,{queryId 	: "rstMgn.getFASellingOrder"	,requestParm	: {LAST_YEAR:"Y"}}
 								 ]

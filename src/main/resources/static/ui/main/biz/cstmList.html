@@ -7,30 +7,23 @@ var <@pageId> = {
 		,pageInit : () =>{
 			
 			_setSearchListCnt("<@pageId>_pagingChunk" );
-			_makeMultiBox("<@pageId>_selectSearchItem",[
+/* 			_makeMultiBox("<@pageId>_selectSearchItem",[
 					 		 ["BUYER_ID", "고객번호"	]
 					 		,["BUYER_NM", "고객명"	]
 					 		,["COMPANY_REGNUM", "사업자등록번호"	]
 					 		,["ADDR", "본점주소"		]
 			])
-
+ */
 			
 		}
 		,searchList : () => {
 			
-			const SEARCH_TEXT = C_UICOM.getData("<@pageId>_selectSearchItem");
 			const searchText =  $("#<@pageId>_nmSearch").val();
 
-			if( isEmpty(SEARCH_TEXT) && !isEmpty(searchText) ){
-				
-				C_POP.alert("항목 선택 후 조회하여 주십시오. ");
-				return ; 
-				
-			}
-			const requestParm = { BUYER_ID : SEARCH_TEXT && SEARCH_TEXT.indexOf("BUYER_ID") > -1 ? searchText : ''
-								, BUYER_NM : SEARCH_TEXT && SEARCH_TEXT.indexOf("BUYER_NM") > -1 ? searchText : ''
-								, COMPANY_REGNUM : SEARCH_TEXT && SEARCH_TEXT.indexOf("COMPANY_REGNUM") > -1 ? searchText : ''
-								, ADDR : SEARCH_TEXT && SEARCH_TEXT.indexOf("ADDR") > -1 ? searchText : ''
+			const requestParm = { BUYER_ID 			: searchText
+								, BUYER_NM 			: searchText
+								, COMPANY_REGNUM 	: searchText
+								, ADDR 				: searchText
 								, CHECK_MEMBER : $("#mainMenuList .active").text() == '업무관리' ? 'Y' :'N'
 								};
 			
@@ -170,6 +163,9 @@ var <@pageId> = {
 		    
 		    $("#<@pageId>_deleteBtn").off().on('click',function(){
 
+		    	if( <@pageId>.checkedItems.length == 0)
+	    		{C_POP.alert("삭제하실 항목을 선택하여 주십시오."	); return false;}
+		    	
 		    	C_POP.confirm('선택하신 고객정보를 삭제 하시겠습니까?', function() {
 		    		
 			    	<@pageId>.checkedItems.forEach( idx =>{
@@ -216,7 +212,6 @@ var <@pageId> = {
 			
 			 if (e.key === "Enter") {
 				 
-		        var USER_NM = event.target.value;
 				<@pageId>.searchList();
 			}
 		}
@@ -233,6 +228,11 @@ var <@pageId> = {
 				}
 			});
 		 }
+		,iconSearch	: () =>{
+			
+			<@pageId>.searchList();
+			
+		}
 }
 
 // Page Load가 완료된후 실행 된다.
@@ -260,21 +260,21 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<!-- 멀티 선택 -->
 				<div class="fl">
 				
-					<div class="search_inputWrap fl" style='width:355px;'>
-						<div class="dropdown fl" id="<@pageId>_selectSearchItem"  style="width:150px;">
+					<div class="search_inputWrap fl" style='width:195px;'>
+<!-- 						<div class="dropdown fl" id="<@pageId>_selectSearchItem"  style="width:150px;">
 						</div>
-						<div class="search_inputWrap">
-							<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
+ -->
+ 						<div class="search_inputWrap">
+							<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn" onclick="<@pageId>.iconSearch();"><i class="icon_search"></i></button>
 						</div>
 					</div>
-					<button type="button" class="btn select fr" id="<@pageId>_searchBtn" style='margin-left:8px;'>조회</button>
-					<button type="button" class="btn fr" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
+							<button type="button" class="btn select fr" id="<@pageId>_searchBtn" style='margin-left:8px;'>조회</button>
+							<button type="button" class="btn fr" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
 				</div>
 				<div class="search_right">
 					<button type="button" class="btn select fl" id="<@pageId>_insertBtn"><i class="icon_user_plus"></i>상담 고객 추가</button>
 					<button type="button" class="btn fl" onclick="javascript:alert('현재 개발진행중입니다.');"><i class="icon_letter"></i>고객 문서 전달</button>
 						<button type="button" class="btn fl" id="<@pageId>_excelDownloadBtn"><i class="icon_download"></i>Excel 다운로드</button>
-						<!-- <button type="button" class="btn fl" onclick="<@pageId>.excelUpload();"><i class="icon_upload"></i> Excel 업로드</button> -->
 					<div id="<@pageId>_pagingChunk" style="margin-left: 5px;width:130px"></div>
 					<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
 	            </div>
@@ -306,8 +306,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<th scope="col">연락처</th>
 								<th scope="col">본점주소</th>
 								<th scope="col">유입경로</th>
-								<th scope="col"><i class="icon_pen"></i></th>
-								<th scope="col"><i class="icon_trash"></i></th>
+								<th scope="col"></th>
+								<th scope="col"></th>
 							</tr>
 						</thead>
 					</table>

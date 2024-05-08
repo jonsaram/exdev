@@ -21,62 +21,6 @@ var <@pageId> = {
  			$("#"+baseBranchTarget).trigger('change');
  			
 		}
-/* 		,selSearchList : function(id, sel_BRANCH_ID){
-
-			let queryId = "";
-			let requestParm = {}
-			
-			switch( id ){
-			
-				case "BASE_BRANCH"	:queryId = "hrInfo.getBaseBranchList";
-					break;
-				case "SP_BRANCH"	:queryId = "hrInfo.getSpBranchList"; 
-									 requestParm={BASE_BRANCH_ID : sel_BRANCH_ID}
-					break;
-				case "BRANCH"		:queryId = "hrInfo.getBranchList"; 
-									 requestParm={SP_BRANCH_ID : sel_BRANCH_ID }
-					break;
-					
-				default:
-			}
-			     
-            let parm = {
-                 queryId        : queryId
-                ,requestParm    : requestParm
-            }
-            C_COM.requestQuery(parm, function(resultData) {
-               
-            	const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
-            	
-    			switch( id ){
-    			
-					case "SP_BRANCH"	: 
-											C_UICOM.makeSelectBox({ 
-												 defaultItem 	: ["--", "전체"]
-												,data : DATA
-									 			,targetId : "<@pageId>_selectSpBranch" }, "single");
-
-											C_UICOM.setSingleBox("<@pageId>_selectSpBranch", "");
-											
-											const sel_BRANCH_ID = C_UICOM.getData("<@pageId>_selectSpBranch");
-											<@pageId>.selSearchList( "BRANCH"	, sel_BRANCH_ID);
-						break;
-						
-					case "BRANCH"		:
-						
-											C_UICOM.makeSelectBox({
-												 defaultItem 	: ["--", "전체"]
-												,data : DATA
-									 			,targetId : "<@pageId>_selectBranch" }, "single");
-											
-											C_UICOM.setSingleBox("<@pageId>_selectBranch", "");
-						break;
-						
-					default:
-				}
-                
-            });
-        } */
 		,searchList : () => {
 
 			const searchVal = $("#<@pageId>_nmSearch").val();
@@ -216,6 +160,9 @@ var <@pageId> = {
 		    	
 		    	let skip = false;
 		    	let deleteArr = [];
+		    	if( <@pageId>.checkedItems.length == 0)
+		    		{C_POP.alert("삭제하실 항목을 선택하여 주십시오."	); return false;}
+		    	
 		    	C_POP.confirm('선택하신 인사정보를 삭제 하시겠습니까?', function() {
 
 			    	<@pageId>.checkedItems.forEach( idx =>{

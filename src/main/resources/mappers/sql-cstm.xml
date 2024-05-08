@@ -47,25 +47,25 @@
 	<sql id="cstmParams">
 			AND ( 
 			<if test=" parm.BUYER_ID != null and !parm.BUYER_ID.equals('') ">
-				B.BUYER_ID like '%' || #{parm.BUYER_ID} || '%'
+				UPPER(B.BUYER_ID) like '%' || UPPER(#{parm.BUYER_ID}) || '%'
 			</if>
 			<if test=" parm.BUYER_NM != null and !parm.BUYER_NM.equals('') ">
 				<if test=" parm.BUYER_ID != null and !parm.BUYER_ID.equals('') ">
 				OR
 				</if>
-				B.BUYER_NM like '%' || #{parm.BUYER_NM} || '%'
+				UPPER(B.BUYER_NM) like '%' || UPPER(#{parm.BUYER_NM}) || '%'
 			</if>
 			<if test=" parm.COMPANY_REGNUM != null and !parm.COMPANY_REGNUM.equals('') ">
 				<if test=" ( parm.BUYER_ID != null and !parm.BUYER_ID.equals('')  or parm.BUYER_NM != null and !parm.BUYER_NM.equals(''))">
 				OR
 				</if>
-				B.COMPANY_REGNUM like '%' || #{parm.COMPANY_REGNUM} || '%'
+				UPPER(B.COMPANY_REGNUM) like '%' || UPPER(#{parm.COMPANY_REGNUM}) || '%'
 			</if>
 			<if test=" parm.ADDR != null and !parm.ADDR.equals('') ">
 				<if test=" ( parm.BUYER_ID != null and !parm.BUYER_ID.equals('')  or parm.BUYER_NM != null and !parm.BUYER_NM.equals('') or parm.COMPANY_REGNUM != null and !parm.COMPANY_REGNUM.equals(''))">
 				OR
 				</if>			
-				B.ADDR like '%' || #{parm.ADDR} || '%'
+				UPPER(B.ADDR) like '%' || UPPER(#{parm.ADDR}) || '%'
 			</if>
  			<if test=" parm.BUYER_ID == '' and parm.BUYER_NM == '' and parm.COMPANY_REGNUM == '' and parm.ADDR == ''">
 				1=1

@@ -169,7 +169,16 @@
 		    y: point[1],
 		    color: xAxisData[point[0]].color
 		}));
-		
+
+		let _dataPrev,_data ;
+		if( isEmpty(getData(data["months"]).slice()) ){
+			_data 		= [{name: '', y: 0, color: '#FE2371'}];
+			_dataPrev 	= [];
+		}else{
+			_data 		= getData(data["months"]).slice();
+			_dataPrev 	= dataPrev["months"].slice();
+		}
+
 		Highcharts.chart(target, {
 		    chart: {
 		        type: 'column',
@@ -211,7 +220,8 @@
 		        accessibility: {
 		            description: 'xAxisData'
 		        },
-		        max: xAxisData.length,
+		        max: isEmpty(getData(data["months"]).slice()) ? 0 : xAxisData.length,
+
 		    },
 		    yAxis: [{
 		        title: {
@@ -232,7 +242,7 @@
 			        color: 'rgba(158, 159, 163, 0.5)',
 			        pointPlacement: -0.3,
 			        linkedTo: 'main',
-			        data: dataPrev["months"].slice(),
+			        data: _dataPrev,
 			        tooltip: {
 			            valueSuffix: ' 억원'
 			        },
@@ -253,7 +263,7 @@
 				            fontSize: '10px'
 				        }
 				    },
-			        data: getData(data["months"]).slice(),
+			        data: _data,
 			        tooltip: {
 			            valueSuffix: ' 억원'
 			        }
