@@ -222,8 +222,8 @@
 						  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
 							OR  C.USER_ID  LIKE '%' || #{USER} || '%'
 						  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
-							OR  C.USER_ID  LIKE '%' || REGEXP_SUBSTR(#{USER}, '\(([^)]+)\)', 1, 1, NULL, 1) || '%'
-						  	OR  U.USER_NM  LIKE '%' || REGEXP_SUBSTR(#{USER}, '[^ ]+', 1, 1) || '%'
+							OR  C.USER_ID  LIKE '%' || NVL(REGEXP_SUBSTR(#{USER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{USER} ) || '%'
+						  	OR  U.USER_NM  LIKE '%' || NVL(REGEXP_SUBSTR(#{USER}, '[^ ]+', 1, 1),#{USER} ) || '%'
 						  	) 
 				</when>
 		       	<when test=" USER_ID != null and !USER_ID.equals('')"> 
@@ -234,8 +234,8 @@
 		       	<when test=" USER != null and !USER.equals('')"> 
 						AND (  C.USER_ID  LIKE '%' || #{USER} || '%'
 						  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
-							OR  C.USER_ID  LIKE '%' || REGEXP_SUBSTR(#{USER}, '\(([^)]+)\)', 1, 1, NULL, 1) || '%'
-						  	OR  U.USER_NM  LIKE '%' || REGEXP_SUBSTR(#{USER}, '[^ ]+', 1, 1) || '%'
+							OR  C.USER_ID  LIKE '%' || NVL(REGEXP_SUBSTR(#{USER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{USER} ) || '%'
+						  	OR  U.USER_NM  LIKE '%' || NVL(REGEXP_SUBSTR(#{USER}, '[^ ]+', 1, 1),#{USER} ) || '%'
 						  	)
 				</when>
 				</choose>	
@@ -245,8 +245,8 @@
 						   OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     
 						   OR C.BUYER_ID LIKE '%' || #{BUYER} || '%'
 						   OR B.BUYER_NM LIKE '%' || #{BUYER} || '%'
-						   OR C.BUYER_ID  LIKE '%' || REGEXP_SUBSTR(#{BUYER}, '\(([^)]+)\)', 1, 1, NULL, 1) || '%'
-						   OR B.BUYER_NM  LIKE '%' || REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1) || '%'
+						   OR C.BUYER_ID  LIKE '%' || NVL(REGEXP_SUBSTR(#{BUYER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{BUYER} ) || '%'
+						   OR B.BUYER_NM  LIKE '%' || NVL(REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1),#{BUYER} ) || '%'
 						   )
 				</when>
 		       	<when test=" BUYER_ID != null and !BUYER_ID.equals('')">  
@@ -257,8 +257,8 @@
 		       	<when test=" BUYER != null and !BUYER.equals('') ">  
 						AND (  C.BUYER_ID   LIKE '%' || #{BUYER} || '%'
 						  	OR B.BUYER_NM   LIKE '%' || #{BUYER} || '%'
-						    OR C.BUYER_ID  LIKE '%' || REGEXP_SUBSTR(#{BUYER}, '\(([^)]+)\)', 1, 1, NULL, 1) || '%'
-						    OR B.BUYER_NM  LIKE '%' || REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1) || '%'
+						    OR C.BUYER_ID  LIKE '%' || NVL(REGEXP_SUBSTR(#{BUYER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{BUYER} ) || '%'
+						    OR B.BUYER_NM  LIKE '%' || NVL(REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1),#{BUYER} ) || '%'
 						  	)
 				</when>
 				</choose>							     
