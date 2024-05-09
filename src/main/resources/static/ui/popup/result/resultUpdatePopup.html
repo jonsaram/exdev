@@ -2,6 +2,7 @@
 <script type="text/javascript">
 var <@popupId> = {
 	  recvData : []	
+	 ,IsMonthly : false
 	 ,CONTRACT_ID :''
 	 ,PROCESS_STATE:''
 	 ,RESULT_ID: '' 
@@ -647,7 +648,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 
 	<@popupId>.recvData			= data;
 	<@popupId>.CONTRACT_ID 		= data.contractItem.CONTRACT_ID; 
-	<@popupId>.PROCESS_STATE 	= data.contractItem.PROCESS_STATE; 
+	<@popupId>.PROCESS_STATE 	= data.contractItem.PROCESS_STATE;
+	<@popupId>.IsMonthly  		= data.contractItem.CONSULTING_TYPE == "MONTHLY" ? true:false;
+	
+	if(<@popupId>.IsMonthly){
+		data.contractItem.TOT_COST = data.contractItem.REMAINING_SUM; 
+	}
 
 	<@popupId>.RESULT_ID 		= isEmpty(data.resultItem?.RESULT_ID) ? C_COM.makeUniqueId() : data.resultItem["RESULT_ID"];
 	
