@@ -44,21 +44,23 @@
 								 queryId 		: "hrInfo.updateSuretyInsurance"
 								,requestParm	: <@pageId>.requestParm
 							 } 
-	  						,{
-								 queryId 		: "hrInfo.updatePositionHist"
+/*  	  						,{
+								 queryId 		: "hrInfo.updatePositionHist2"
 								,requestParm	: { USER_ID		: <@pageId>.requestParm["USER_ID"]
 												,	DEPARTMENT 	: <@pageId>.requestParm["DIVISION_ID"]
 												,	POSITION	: <@pageId>.requestParm["POSITION"] 
-												,PERSONAL_APPOINTMENT_DATE :  <@pageId>.requestParm["REG_DATE"]
+											//	,PERSONAL_APPOINTMENT_DATE :  <@pageId>.requestParm["REG_DATE"]
+											//	,	POSITION_ID : C_COM.makeUniqueId()
 												}
 							 } 
 	  						,{
-								 queryId 		: "hrInfo.updateGradeHist"
+								 queryId 		: "hrInfo.updateGradeHist2"
 								,requestParm	:  { USER_ID		: <@pageId>.requestParm["USER_ID"]
 												,	GRADE			: <@pageId>.requestParm["GRADE"] 
-												,	UPGRADE_DATE 	: <@pageId>.requestParm["REG_DATE"]
+											//	,	UPGRADE_DATE 	: <@pageId>.requestParm["REG_DATE"]
+	  										//	,	GRADE_ID		:  C_COM.makeUniqueId()
 												}
-							 } 
+							 } */
 						]
 			}
 			C_COM.requestQuery(parm, function(resultData ) {

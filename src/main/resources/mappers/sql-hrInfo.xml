@@ -180,10 +180,24 @@
 		         #{ADDR2}		AS ADDR2,
 		         'Y' 			AS USE_YN,
 		         'N' 			AS DEL_YN,
-		         #{RECOMMENDER_ID} AS RECOMMENDER_ID,
+		        <choose>
+			       	<when test="RECOMMENDER_ID != null and !RECOMMENDER_ID.equals('')"> 
+					   #{RECOMMENDER_ID} AS RECOMMENDER_ID,
+					</when>
+			       	<when test="RECOMMENDER_ID == null or RECOMMENDER_ID.equals('')"> 
+					   NULL AS RECOMMENDER_ID,
+					</when>
+				</choose>		         
 		         #{SALES_TYPE}	AS SALES_TYPE,
 		         #{SURETY_INSURANCE} AS SURETY_INSURANCE,
-		         #{DIVISION_ID} AS DIVISION_ID,
+		        <choose>
+			       	<when test="DIVISION_ID != null and !DIVISION_ID.equals('')"> 
+					   #{DIVISION_ID} AS DIVISION_ID,
+					</when>
+			       	<when test="DIVISION_ID == null or DIVISION_ID.equals('')"> 
+					    NULL AS DIVISION_ID,
+					</when>
+				</choose>		         
 		        #{sessionVo.userId}	AS UPDATE_USER,
 		         SYSDATE 		AS UPDATE_DATE
 		  FROM dual
@@ -227,14 +241,46 @@
 		/*	hrInfo.deleteHrInfo
 			인사정보  삭제
 		*/
-		UPDATE TBL_EXP_USER
-		SET STATE = 'DELETED' 
-		,USE_YN = 'N'
-		,DEL_YN = 'Y'
-		,UPDATE_USER = #{sessionVo.userId}
-		,UPDATE_DATE = SYSDATE
-		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
-		AND	  USER_ID	 = #{USER_ID}
+	    { CALL
+		    DECLARE
+		        p_USER_ID		VARCHAR2(30);
+		    BEGIN
+		    
+		        p_USER_ID	:= #{USER_ID};
+		    
+				UPDATE TBL_EXP_USER
+				SET STATE = 'DELETED' 
+				,USE_YN = 'N'
+				,DEL_YN = 'Y'
+				,UPDATE_USER = #{sessionVo.userId}
+				,UPDATE_DATE = SYSDATE
+				WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+				AND	  USER_ID	 = #{USER_ID}
+		        ;
+		        
+		        DELETE FROM TBL_EXP_CAREER_HIST
+				WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+				AND	  USER_ID	 = #{USER_ID}
+		        ;
+		        
+		        DELETE FROM TBL_EXP_EDUCATION_HIST
+				WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+				AND	  USER_ID	 = #{USER_ID}
+		        ;
+		        
+		        DELETE FROM TBL_EXP_GRADE_HIST
+				WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+				AND	  USER_ID	 = #{USER_ID}
+		        ;
+		        
+		        DELETE FROM TBL_EXP_POSITION_HIST
+				WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+				AND	  USER_ID	 = #{USER_ID}
+		        ;
+		        
+		        COMMIT;
+		    END
+	    }		
 	</delete>
 	
 	<update id="updateHrImg">
@@ -460,8 +506,8 @@
 		*/
 		SELECT 
 		 POSITION_ID
-		,SP_CSTM_ID
-		,USER_ID
+		,PH.SP_CSTM_ID
+		,PH.USER_ID
 		,TO_CHAR(PERSONAL_APPOINTMENT_DATE,'YYYY-MM-DD') AS PA_DATE
 		,DIV.DIVISION_NM AS DEPARTMENT
 		,DIV.DIVISION_ID
@@ -472,7 +518,8 @@
 		WHERE 1=1
 		AND PH.SP_CSTM_ID = #{sessionVo.spCstmId}
 		AND PH.USER_ID = #{USER_ID}
-		AND PH.DEPARTMENT = DIV.DIVISION_ID
+		AND PH.DEPARTMENT = DIV.DIVISION_ID(+)
+		AND POSITION != '--'
 		ORDER BY PERSONAL_APPOINTMENT_DATE DESC
 	</select>
 	

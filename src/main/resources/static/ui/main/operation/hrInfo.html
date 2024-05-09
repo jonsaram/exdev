@@ -96,16 +96,18 @@ var <@pageId> = {
 	  						,{
 								 queryId 		: "hrInfo.updatePositionHist"
 								,requestParm	: { USER_ID		: requestParm["USER_ID"]
-												,	DEPARTMENT 	: requestParm["DIVISION_ID"] 
-												,	POSITION	: requestParm["POSITION"] 
+												,	DEPARTMENT 	: isEmpty(requestParm["DIVISION_ID"])	? "": 	requestParm["DIVISION_ID"]
+												,	POSITION	: isEmpty(requestParm["POSITION"])		? "":	requestParm["POSITION"]  
 												,PERSONAL_APPOINTMENT_DATE : requestParm["REG_DATE"]
+	  											,	POSITION_ID : C_COM.makeUniqueId()
 												}
 							 } 
 	  						,{
 								 queryId 		: "hrInfo.updateGradeHist"
 								,requestParm	:  { USER_ID		: requestParm["USER_ID"]
-												,	GRADE			: requestParm["GRADE"] 
+												,	GRADE			: isEmpty(requestParm["GRADE"])		? "":	requestParm["GRADE"] 
 												,	UPGRADE_DATE 	: requestParm["REG_DATE"]
+	  											,	GRADE_ID		:  C_COM.makeUniqueId()
 												}
 							 } 
 	  						

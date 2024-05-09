@@ -33,11 +33,13 @@
 				 		,targetId : "<@popupId>_selectSuretyIns"}, "single");
 	 		//직책
 			C_UICOM.makeSelectBox({ 
-						 data : C_COM.getCodeList("POSITION")
+						 defaultItem 	: ["--", "선택"]
+						,data : C_COM.getCodeList("POSITION")
 				 		,targetId : "<@popupId>_selectPosition" }, "single");
 	 		//직급(구 등급)
 			C_UICOM.makeSelectBox({ 
-						 data : C_COM.getCodeList("GRADE")
+						 defaultItem 	: ["FA", "FA"]
+						,data : C_COM.getCodeList("GRADE")
 			 			,targetId : "<@popupId>_selectGrade" }, "single");
 
 			C_UICOM.makeSelectBox({ 
@@ -132,9 +134,10 @@
 			if( isEmpty($("#<@popupId>_E_MAIL").val()) ) {C_POP.alert("이메일을 입력하여 주십시오."); return false;}
 			if( isEmpty($("#<@popupId>_ADDR1").val()) ) {C_POP.alert("주소를 입력하여 주십시오."); return false;}
 			if( isEmpty($("#<@popupId>_ADDR2").val()) ) {C_POP.alert("상세주소를 입력하여 주십시오."); return false;}
-			const userValid 	= <@popupId><@popupId>_RECOMMENDER.isValid;
-			if( !userValid 	|| isEmpty(<@popupId>.recvData.param.RECOMMENDER_ID) ) {C_POP.alert("추천인을 조회하여 입력하여 주십시오."); return false;}
+			//const userValid 	= <@popupId><@popupId>_RECOMMENDER.isValid;
+			//if( !userValid 	|| isEmpty(<@popupId>.recvData.param.RECOMMENDER_ID) ) {C_POP.alert("추천인을 조회하여 입력하여 주십시오."); return false;}
 			
+			if( isEmpty($("#<@popupId>_DIVISION").val()) ) {C_POP.alert("부서를 입력하여 주십시오."); return false;}
 			const division = $("#<@popupId>_DIVISION").val();
 			let bSalesDivision = false;			
 			if( division.indexOf("영업부") > -1){
@@ -481,7 +484,7 @@
 }
 </style>
 <div class="modal_wrap" id="modal-ex">
-	<div class="modal" style="width:750px;height:750px;">
+	<div class="modal" style="width:750px;height:800px;">
 		<div class="modal_header">
 			<strong class="tit">직원 추가</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
