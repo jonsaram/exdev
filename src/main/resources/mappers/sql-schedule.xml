@@ -687,7 +687,12 @@
                ,LPAD(A.END_TIME_HOUR , 2, '0')              AS END_TIME_HOUR  
                ,A.END_TIME_MINUTE 
                ,TITLE
-               ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE1 
+               ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE1
+               ,A.CONTRACT_ID
+               ,C.BUYER_ID
+               ,C.BUYER_NM   
+               ,A.USER_ID
+               ,GET_USER_NM(A.USER_ID) AS USER_NM 
                ,A.POSITION
                ,A.WORK_TYPE
                ,GET_CODE_NM('SCHEDULE_WORK_TYPE', A.WORK_TYPE) AS WORK_TYPE_NM
@@ -713,6 +718,19 @@
                ) B
                    ON  1 = 1
                    AND A.WORK_TYPE = B.CODE_ID
+               LEFT OUTER JOIN (
+                      SELECT A.CONTRACT_ID
+                            ,A.BUYER_ID
+                            ,B.BUYER_NM
+                      FROM   TBL_EXP_CONTRACT A
+                             LEFT OUTER JOIN  TBL_EXP_BUYER B
+                               ON  1 = 1
+                               AND A.BUYER_ID = B.BUYER_ID
+                               AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+                      WHERE 1 = 1
+               ) C
+                 ON  1 = 1
+                 AND A.CONTRACT_ID = C.CONTRACT_ID
                JOIN TABLE_DATE D
                    ON  1 = 1
                    AND A.SCHEDULE_START_DATE = D.DTE
@@ -730,6 +748,9 @@
                     ( A.SCHEDULE_START_DATE <![CDATA[<=]]> #{startDate} AND #{endDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE)  OR  
                     ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE AND A.SCHEDULE_END_DATE <![CDATA[<=]]> #{endDate} )  
                   )
+        </if>
+        <if test=" contractId != null and contractId != '' " >
+            AND   A.CONTRACT_ID = #{contractId}
         </if>
     </select>
     <!-- 매일반복 -->
@@ -927,6 +948,11 @@
               ,A.END_TIME_MINUTE
               ,TITLE
               ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE1 
+              ,A.CONTRACT_ID
+              ,D.BUYER_ID
+              ,D.BUYER_NM
+              ,A.USER_ID
+              ,GET_USER_NM(A.USER_ID) AS USER_NM
               ,'N'                  AS SHARE_YN
               ,A.POSITION
               ,A.WORK_TYPE
@@ -955,6 +981,19 @@
                    ) C
                    ON  1 = 1
                    AND A.WORK_TYPE = C.CODE_ID
+               LEFT OUTER JOIN (
+                      SELECT A.CONTRACT_ID
+                            ,A.BUYER_ID
+                            ,B.BUYER_NM
+                      FROM   TBL_EXP_CONTRACT A
+                             LEFT OUTER JOIN  TBL_EXP_BUYER B
+                               ON  1 = 1
+                               AND A.BUYER_ID   = B.BUYER_ID
+                               AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+                      WHERE 1 = 1
+               ) D
+                 ON  1 = 1
+                 AND A.CONTRACT_ID = D.CONTRACT_ID      
         WHERE  1 = 1
         AND    B.DTE <![CDATA[<=]]> A.SCHEDULE_LOOP_END_DATE
         <if test='periodYn == "Y"' >
@@ -964,7 +1003,9 @@
                     ( #{startDate} <![CDATA[<=]]> B.DTE AND B.DTE <![CDATA[<=]]> #{endDate} )  
                   )
         </if>
-        
+        <if test=" contractId != null and contractId != '' " >
+            AND   A.CONTRACT_ID = #{contractId}
+        </if>
     </select>
 
     <select id="getWeekRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -1199,6 +1240,11 @@
               ,A.END_TIME_MINUTE
               ,A.TITLE
               ,A.TITLE1
+              ,A.CONTRACT_ID
+              ,A.BUYER_ID
+              ,A.BUYER_NM
+              ,A.USER_ID
+              ,GET_USER_NM(A.USER_ID) AS USER_NM   
               ,A.POSITION
               ,A.WORK_TYPE
               ,A.WORK_TYPE_NM
@@ -1225,6 +1271,10 @@
                       , B.END_TIME_MINUTE
                       , B.TITLE
                       , '['||GET_USER_NM(B.USER_ID)||']'||B.TITLE    AS TITLE1 
+                      , B.CONTRACT_ID
+                      , B.USER_ID
+                      , D.BUYER_ID
+                      , D.BUYER_NM   
                       , B.POSITION
                       , B.WORK_TYPE
                       , GET_CODE_NM('SCHEDULE_WORK_TYPE', B.WORK_TYPE) AS WORK_TYPE_NM
@@ -1308,8 +1358,21 @@
                            ) C
                            ON  1 = 1
                            AND B.WORK_TYPE = C.CODE_ID
-                      WHERE 1 = 1
-                      /*=====================================================================*/
+                       LEFT OUTER JOIN (
+                              SELECT A.CONTRACT_ID
+                                   ,A.BUYER_ID
+                                   ,B.BUYER_NM
+                             FROM   TBL_EXP_CONTRACT A
+                                    LEFT OUTER JOIN  TBL_EXP_BUYER B
+                                      ON  1 = 1
+                                      AND A.BUYER_ID   = B.BUYER_ID
+                                      AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+                             WHERE 1 = 1
+                       ) D
+                         ON  1 = 1
+                         AND B.CONTRACT_ID = D.CONTRACT_ID
+                WHERE 1 = 1
+                /*=====================================================================*/
                ) A
         WHERE 1 = 1
         AND   A.SCHEDULE_START_DATE <![CDATA[<=]]> A.SCHEDULE_LOOP_END_DATE
@@ -1319,6 +1382,9 @@
                 ( A.SCHEDULE_START_DATE <![CDATA[<=]]> #{startDate} AND #{endDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE)  OR  
                 ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE AND A.SCHEDULE_END_DATE <![CDATA[<=]]> #{endDate} )  
               )
+        </if>
+        <if test=" contractId != null and contractId != '' " >
+            AND   A.CONTRACT_ID = #{contractId}
         </if>
     </select> 
     
@@ -1728,6 +1794,11 @@
         SELECT A.SCHEDULE_ID
               ,A.TITLE
               ,A.TITLE1
+              ,A.CONTRACT_ID
+              ,B.BUYER_ID
+              ,B.BUYER_NM 
+              ,A.USER_ID
+              ,GET_USER_NM(A.USER_ID) AS USER_NM
               ,A.SCHEDULE_LOOP_END_DATE
               ,A.SCHEDULE_DATE 
               ,A.SCHEDULE_START_DATE
@@ -1746,6 +1817,8 @@
                 /*===============================================================================*/
                 SELECT SCHEDULE_ID
                       ,TITLE
+                      ,CONTRACT_ID
+                      ,USER_ID
                       ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE1
                       ,SCHEDULE_LOOP_END_DATE
                       ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
@@ -1768,6 +1841,8 @@
                 UNION ALL
                 SELECT SCHEDULE_ID
                       ,TITLE
+                      ,CONTRACT_ID
+                      ,USER_ID
                       ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE1
                       ,SCHEDULE_LOOP_END_DATE
                       ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
@@ -1790,6 +1865,8 @@
                 UNION ALL
                 SELECT SCHEDULE_ID
                       ,TITLE
+                      ,CONTRACT_ID
+                      ,USER_ID
                       ,'['||GET_USER_NM(USER_ID)||']'||TITLE   AS TITLE1
                       ,SCHEDULE_LOOP_END_DATE
                       ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
@@ -1810,7 +1887,20 @@
                            ON  1 = 1
                            AND TABLE_BASE.WORK_TYPE = B.CODE_ID
                 /*===============================================================================*/  
-        ) A        
+        ) A     
+        LEFT OUTER JOIN (
+               SELECT A.CONTRACT_ID
+                     ,A.BUYER_ID
+                     ,B.BUYER_NM
+               FROM   TBL_EXP_CONTRACT A
+                      LEFT OUTER JOIN  TBL_EXP_BUYER B
+                        ON  1 = 1
+                        AND A.BUYER_ID = B.BUYER_ID
+                        AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+               WHERE 1 = 1
+        ) B
+          ON  1 = 1
+          AND A.CONTRACT_ID = B.CONTRACT_ID      
         WHERE 1 = 1
         AND   TO_DATE(A.SCHEDULE_START_DATE, 'YYYY-MM-DD') <![CDATA[<=]]> SCHEDULE_LOOP_END_DATE
         <if test='periodYn == "Y"' >
@@ -1819,6 +1909,9 @@
                     ( A.SCHEDULE_START_DATE <![CDATA[<=]]> #{startDate} AND #{endDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE)  OR  
                     ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE AND A.SCHEDULE_END_DATE <![CDATA[<=]]> #{endDate} )  
                   )
+        </if>
+        <if test=" contractId != null and contractId != '' " >
+            AND   A.CONTRACT_ID = #{contractId}
         </if>
     </select> 
         
@@ -2660,6 +2753,11 @@
         SELECT A.SCHEDULE_ID
               ,A.TITLE
               ,A.TITLE1
+              ,A.CONTRACT_ID
+              ,B.BUYER_ID
+              ,B.BUYER_NM 
+              ,A.USER_ID
+              ,GET_USER_NM(A.USER_ID) AS USER_NM
               ,A.POSITION
               ,A.WORK_TYPE
               ,A.WORK_TYPE_NM
@@ -2677,6 +2775,8 @@
             SELECT SCHEDULE_ID
                   ,TITLE
                   ,'['||GET_USER_NM(USER_ID)||']'||TITLE    AS TITLE1 
+                  ,CONTRACT_ID
+                  ,USER_ID
                   ,POSITION
                   ,WORK_TYPE
                   ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
@@ -2702,6 +2802,8 @@
             SELECT SCHEDULE_ID
                   ,TITLE
                   ,'['||GET_USER_NM(USER_ID)||']'||TITLE    AS TITLE1 
+                  ,CONTRACT_ID
+                  ,USER_ID
                   ,POSITION
                   ,WORK_TYPE
                   ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
@@ -2726,7 +2828,9 @@
             /* 월의 일반날 */
             SELECT SCHEDULE_ID
                   ,TITLE
-                  ,'['||GET_USER_NM(USER_ID)||']'||TITLE    AS TITLE1 
+                  ,'['||GET_USER_NM(USER_ID)||']'||TITLE    AS TITLE1
+                  ,CONTRACT_ID
+                  ,USER_ID 
                   ,POSITION
                   ,WORK_TYPE
                   ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
@@ -2747,6 +2851,19 @@
             WHERE  1 = 1
             AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)
         ) A
+        LEFT OUTER JOIN (
+            SELECT A.CONTRACT_ID
+                  ,A.BUYER_ID
+                  ,B.BUYER_NM
+            FROM   TBL_EXP_CONTRACT A
+                   LEFT OUTER JOIN  TBL_EXP_BUYER B
+                     ON  1 = 1
+                     AND A.BUYER_ID   = B.BUYER_ID
+                     AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+            WHERE 1 = 1
+        ) B
+            ON  1 = 1
+            AND A.CONTRACT_ID = B.CONTRACT_ID
         WHERE 1 = 1
         <if test='periodYn == "Y"' >
                 AND (
@@ -2754,6 +2871,9 @@
                         ( A.SCHEDULE_START_DATE <![CDATA[<=]]> #{startDate} AND #{endDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE)  OR  
                         ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE AND A.SCHEDULE_END_DATE <![CDATA[<=]]> #{endDate} )  
                     )
+        </if>
+        <if test=" contractId != null and contractId != '' " >
+            AND   A.CONTRACT_ID = #{contractId}
         </if>
     </select> 
      
