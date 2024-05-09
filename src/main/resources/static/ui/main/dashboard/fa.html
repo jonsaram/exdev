@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@pageId> = { 
-		 searchedPayment : []
+		paMap : G_VAL.PAGE_AUTH_MAP["<@pageId>"]
+		,searchedPayment : []
 		,YEARLY_TARGET_PAYMENT : 0
 		,PAYMENT_SUM_TR_CHART:{}
 		,CUR_PAYMENT_SUM_TR_CHART_MAX_VAL : 0
@@ -61,23 +62,26 @@ var <@pageId> = {
 				
 			}			
 			
-			//<@pageId>.getScheduleList();		// 테이블 바뀌고 있음	
+			<@pageId>.getScheduleList();	
 			
 		}
 		,getScheduleList : (SEARCH_DATA) => {
 			
 			var parm = {
-				 queryId 		: "faDashboard.getScheduleList"
-				,requestParm	: {SEARCH_DATA : SEARCH_DATA}
+					userIdList	: [<@pageId>.paMap.USER_ID]
+					,startDate 	: dayjs().format("YYYY-MM-DD")
+					,endDate 	: dayjs().add(1, 'month').startOf('month').subtract(1, 'day').format("YYYY-MM-DD")
+					,searchData : SEARCH_DATA
 			}
-			C_COM.requestQuery(parm, function(resultData) {
-				
-	        	let rparm = {
-					 targetId	: "<@pageId>_schedule"
-					,list		: resultData.data
+			C_CALENDAR.getScheduleList(parm, function(resultList) {
+
+				let rparm = {
+					targetId	: "<@pageId>_schedule"
+					,list		: resultList
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
-			})
+				
+			});			
 
 		}
 		,searchMonthlyPayment	: (callback) =>{
@@ -401,7 +405,7 @@ var <@pageId> = {
 				 
 		        var SEARCH_DATA = event.target.value;
 
-		        //<@pageId>.getScheduleList(SEARCH_DATA);
+		        <@pageId>.getScheduleList(SEARCH_DATA);
 			}
 		}
 
@@ -547,7 +551,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 											<dt>일정:</dt>
 											<dd>
 												<span class="date">{{:SCHEDULE_DATE}}</span>
-												<span class="time">{{:SCHEDULE_TIME}}</span>
+												<span class="time">{{:START_TIME_HOUR}}:{{:START_TIME_MINUTE}}~{{:END_TIME_HOUR}}:{{:END_TIME_MINUTE}}</span>
 											</dd>
 											<dt>장소:</dt>
 											<dd>{{:POSITION}}</dd>
