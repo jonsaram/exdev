@@ -113,6 +113,17 @@
                 C_POP.alert("시작시간이 종료시간보다 클 수 없습니다.");
                 return false;
             }
+
+            var dateStart  = $('#<@popupId>_dateStart').val();
+            var dateEnd   = $('#<@popupId>_dateEnd').val();
+
+            if( dateStart == dateEnd ){
+                if( startHM == endHM ){
+                    
+                    C_POP.alert("일정 시작일시와 종료일시가 같습니다.");
+                    return false;
+                }
+            }
             
             if( <@popupId>.loopTypeCheck(<@popupId>.loopType) ){
                 //kbntt
