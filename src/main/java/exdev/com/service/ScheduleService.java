@@ -442,21 +442,7 @@ public class ScheduleService extends ExdevBaseService{
         List<Map> listMap = new ArrayList<Map>();
         List<Map> list = commonDao.getList("schedule.getNotRepeat", map);
         for(Map resultMap : list) {
-           
-            Map<String, Object> map1 = new HashMap<String, Object>();
-            map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
-            map1.put("TITLE", (String)resultMap.get("TITLE"));
-            map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
-            map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
-            map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
-            map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
-            map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
-            map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
-            map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
-            map1.put("SHARE_YN", (String)resultMap.get("SHARE_YN"));
-            map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
-            map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
-            listMap.add(map1);
+            listMap.add(resultMap);
         }
         
         map.put("list", listMap);
@@ -471,22 +457,7 @@ public class ScheduleService extends ExdevBaseService{
         /* 매일반복 */
         List<Map> weeklist = commonDao.getList("schedule.getDayRepeat", map);
         for(Map resultMap : weeklist) {
-               
-            Map<String, Object> map1 = new HashMap<String, Object>();
-            map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
-            map1.put("TITLE", (String)resultMap.get("TITLE"));
-            map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
-            map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
-            map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
-            map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
-            map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
-            map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
-            map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
-            map1.put("SHARE_YN", (String)resultMap.get("SHARE_YN"));
-            map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
-            map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
-            
-            listMap.add(map1); 
+            listMap.add(resultMap); 
         }
         
         map.put("list", listMap);
@@ -502,22 +473,7 @@ public class ScheduleService extends ExdevBaseService{
         /**/
         List<Map> weeklist = commonDao.getList("schedule.getWeekRepeat", map);
         for(Map resultMap : weeklist) {
- 
-            Map<String, Object> map1 = new HashMap<String, Object>();
-            map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
-            map1.put("TITLE", (String)resultMap.get("TITLE"));
-            map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
-            map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
-            map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
-            map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
-            map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
-            map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
-            map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
-            map1.put("SHARE_YN", (String)resultMap.get("SHARE_YN"));
-            map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
-            map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
-            
-            listMap.add(map1); 
+            listMap.add(resultMap); 
         }
         
         map.put("list", listMap);
@@ -534,22 +490,7 @@ public class ScheduleService extends ExdevBaseService{
         List<Map> monthList = commonDao.getList("schedule.getMonthRepeat", map);
 
         for(Map resultMap : monthList) {
-             
-          Map<String, Object> map1 = new HashMap<String, Object>();
-          map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
-          map1.put("TITLE", (String)resultMap.get("TITLE"));
-          map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
-          map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
-          map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
-          map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
-          map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
-          map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
-          map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
-          map1.put("SHARE_YN", (String)resultMap.get("SHARE_YN"));
-          map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
-          map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
-          
-          listMap.add(map1); 
+          listMap.add(resultMap); 
         }
         
         map.put("list", listMap);
@@ -565,35 +506,7 @@ public class ScheduleService extends ExdevBaseService{
         List<Map> monthList = commonDao.getList("schedule.getQuarterRepeat", map);
 
         for(Map resultMap : monthList) {
-          System.out.println("SCHEDULE_ID =>"+(String)resultMap.get("SCHEDULE_ID"));
-          System.out.println("TITLE =>"+(String)resultMap.get("TITLE"));
-          System.out.println("SCHEDULE_DATE =>"+(String)resultMap.get("SCHEDULE_DATE"));
-          System.out.println("SCHEDULE_START_DATE =>"+(String)resultMap.get("SCHEDULE_START_DATE"));
-          System.out.println("START_TIME_HOUR =>"+(String)resultMap.get("START_TIME_HOUR"));
-          System.out.println("START_TIME_MINUTE =>"+(String)resultMap.get("START_TIME_MINUTE"));
-          System.out.println("SCHEDULE_END_DATE =>"+(String)resultMap.get("SCHEDULE_END_DATE"));
-          System.out.println("END_TIME_HOUR =>"+(String)resultMap.get("END_TIME_HOUR"));
-          System.out.println("END_TIME_MINUTE =>"+(String)resultMap.get("END_TIME_MINUTE"));
-          System.out.println("WORK_COLOR =>"+(String)resultMap.get("WORK_COLOR"));
-          System.out.println("TEXT_COLOR =>"+(String)resultMap.get("TEXT_COLOR"));
-             
-          Map<String, Object> map1 = new HashMap<String, Object>();
-          map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
-          map1.put("TITLE", (String)resultMap.get("TITLE"));
-          map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
-          map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
-          map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
-          map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
-          map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
-          map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
-          map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
-          map1.put("SHARE_YN", (String)resultMap.get("SHARE_YN"));
-          map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
-          map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
-          
-          listMap.add(map1);
-         
-          
+          listMap.add(resultMap); 
         }
         
         map.put("list", listMap);
@@ -609,38 +522,10 @@ public class ScheduleService extends ExdevBaseService{
         List<Map> yearList = commonDao.getList("schedule.getYearRepeat", map);
     
         for(Map resultMap : yearList) {
-          System.out.println("SCHEDULE_ID =>"+(String)resultMap.get("SCHEDULE_ID"));
-          System.out.println("TITLE =>"+(String)resultMap.get("TITLE"));
-          System.out.println("SCHEDULE_DATE =>"+(String)resultMap.get("SCHEDULE_DATE"));
-          System.out.println("SCHEDULE_START_DATE =>"+(String)resultMap.get("SCHEDULE_START_DATE"));
-          System.out.println("START_TIME_HOUR =>"+(String)resultMap.get("START_TIME_HOUR"));
-          System.out.println("START_TIME_MINUTE =>"+(String)resultMap.get("START_TIME_MINUTE"));
-          System.out.println("SCHEDULE_END_DATE =>"+(String)resultMap.get("SCHEDULE_END_DATE"));
-          System.out.println("END_TIME_HOUR =>"+(String)resultMap.get("END_TIME_HOUR"));
-          System.out.println("END_TIME_MINUTE =>"+(String)resultMap.get("END_TIME_MINUTE"));
-          System.out.println("WORK_COLOR =>"+(String)resultMap.get("WORK_COLOR"));
-          System.out.println("TEXT_COLOR =>"+(String)resultMap.get("TEXT_COLOR"));
-             
-          Map<String, Object> map1 = new HashMap<String, Object>();
-          map1.put("SCHEDULE_ID", (String)resultMap.get("SCHEDULE_ID"));
-          map1.put("TITLE", (String)resultMap.get("TITLE"));
-          map1.put("SCHEDULE_DATE", (String)resultMap.get("SCHEDULE_DATE"));
-          map1.put("SCHEDULE_START_DATE", (String)resultMap.get("SCHEDULE_START_DATE"));
-          map1.put("START_TIME_HOUR", (String)resultMap.get("START_TIME_HOUR"));
-          map1.put("START_TIME_MINUTE", (String)resultMap.get("START_TIME_MINUTE"));
-          map1.put("SCHEDULE_END_DATE", (String)resultMap.get("SCHEDULE_END_DATE"));
-          map1.put("END_TIME_HOUR", (String)resultMap.get("END_TIME_HOUR"));
-          map1.put("END_TIME_MINUTE", (String)resultMap.get("END_TIME_MINUTE"));
-          map1.put("WORK_COLOR", (String)resultMap.get("WORK_COLOR"));
-          map1.put("TEXT_COLOR", (String)resultMap.get("TEXT_COLOR"));
-          
-          listMap.add(map1);
-         
-          
+          listMap.add(resultMap);
         }
         
         map.put("list", listMap);
-        System.out.println("ScheduleService.getUserList1 11");
         return map;
     }
     

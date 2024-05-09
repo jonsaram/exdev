@@ -842,6 +842,7 @@
         WHERE  1 = 1
         AND A.SP_CSTM_ID  = #{sessionVo.spCstmId}
         AND A.USER_ID     = #{sessionVo.userId}
+        AND B.DTE <![CDATA[<=]]>  SCHEDULE_LOOP_END_DATE
         UNION ALL
         SELECT A.SCHEDULE_GRP_ID
               ,A.SCHEDULE_ID
@@ -886,6 +887,7 @@
                    AND A.USER_ID     != E.USER_ID
         WHERE  1 = 1
         AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
+        AND B.DTE <![CDATA[<=]]>  SCHEDULE_LOOP_END_DATE
     </select>
 
     <!-- 매일반복-팀 -->
@@ -1060,150 +1062,171 @@
             AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
             AND    A.LOOP_TYPE  = 'WEEK'               
         )
-        SELECT  A.GROUP_ID
-              , SUBSTR(A.GROUP_ID, 1, INSTR(A.GROUP_ID, '#') - 1) AS SCHEDULE_ID
-              , SUBSTR(A.GROUP_ID, INSTR(A.GROUP_ID, '#', 1, 1) + 1, INSTR(A.GROUP_ID, '#', 1, 2) - INSTR(A.GROUP_ID, '#', 1, 1) - 1) AS SCHEDULE_DATE
-              , TO_CHAR(
-                       TO_DATE(SUBSTR(A.GROUP_ID, INSTR(A.GROUP_ID, '#', 1, 1) + 1, INSTR(A.GROUP_ID, '#', 1, 2) - INSTR(A.GROUP_ID, '#', 1, 1) - 1), 'YYYY-MM-DD HH24:MI:SS') 
-                       + (TO_NUMBER( SUBSTR(A.GROUP_ID, INSTR(A.GROUP_ID, '#', 1, 3) + 1)) * 7)-7, 'YYYY-MM-DD'
-                      ) AS SCHEDULE_START_DATE
-              , B.START_TIME_HOUR
-              , B.START_TIME_MINUTE
-              , TO_CHAR(
-                        TO_DATE( SUBSTR(A.GROUP_ID, INSTR(A.GROUP_ID, '#', 1, 2) + 1, INSTR(A.GROUP_ID, '#', 1, 3) - INSTR(A.GROUP_ID, '#', 1, 2) - 1) , 'YYYY-MM-DD HH24:MI:SS') 
-                        + (TO_NUMBER( SUBSTR(A.GROUP_ID, INSTR(A.GROUP_ID, '#', 1, 3) + 1)) * 7)-7, 'YYYY-MM-DD'
-                       ) AS SCHEDULE_END_DATE
-              , B.END_TIME_HOUR
-              , B.END_TIME_MINUTE
-              , B.TITLE
-              , A.SHARE_YN           AS SHARE_YN
-              , C.ATTR1              AS WORK_COLOR
-              , C.ATTR2              AS TEXT_COLOR
+        SELECT A.GROUP_ID
+              ,A.SCHEDULE_ID
+              ,A.SCHEDULE_DATE
+              ,A.SCHEDULE_START_DATE
+              ,A.START_TIME_HOUR
+              ,A.START_TIME_MINUTE
+              ,A.SCHEDULE_END_DATE
+              ,A.END_TIME_HOUR
+              ,A.END_TIME_MINUTE
+              ,A.SCHEDULE_LOOP_END_DATE
+              ,A.TITLE
+              ,A.SHARE_YN
+              ,A.WORK_COLOR
+              ,A.TEXT_COLOR 
         FROM   (
-                
-                SELECT A.GROUP_ID
-                      ,'N'             AS SHARE_YN
-                      ,MAX(A.DY_START) AS DY_START
-                      ,MAX(A.D_START)  AS D_START
-                      ,MAX(A.DY_END)   AS DY_END
-                      ,MAX(A.D_END)    AS D_END
+                /*=============================================================================*/        
+                SELECT  A.GROUP_ID
+                      , SUBSTR(A.GROUP_ID, 1, INSTR(A.GROUP_ID, '#') - 1) AS SCHEDULE_ID
+                      , SUBSTR(A.GROUP_ID, INSTR(A.GROUP_ID, '#', 1, 1) + 1, INSTR(A.GROUP_ID, '#', 1, 2) - INSTR(A.GROUP_ID, '#', 1, 1) - 1) AS SCHEDULE_DATE
+                      , TO_CHAR(
+                               TO_DATE(SUBSTR(A.GROUP_ID, INSTR(A.GROUP_ID, '#', 1, 1) + 1, INSTR(A.GROUP_ID, '#', 1, 2) - INSTR(A.GROUP_ID, '#', 1, 1) - 1), 'YYYY-MM-DD HH24:MI:SS') 
+                               + (TO_NUMBER( SUBSTR(A.GROUP_ID, INSTR(A.GROUP_ID, '#', 1, 3) + 1)) * 7)-7, 'YYYY-MM-DD'
+                              ) AS SCHEDULE_START_DATE
+                      , B.START_TIME_HOUR
+                      , B.START_TIME_MINUTE
+                      , TO_CHAR(
+                                TO_DATE( SUBSTR(A.GROUP_ID, INSTR(A.GROUP_ID, '#', 1, 2) + 1, INSTR(A.GROUP_ID, '#', 1, 3) - INSTR(A.GROUP_ID, '#', 1, 2) - 1) , 'YYYY-MM-DD HH24:MI:SS') 
+                                + (TO_NUMBER( SUBSTR(A.GROUP_ID, INSTR(A.GROUP_ID, '#', 1, 3) + 1)) * 7)-7, 'YYYY-MM-DD'
+                               ) AS SCHEDULE_END_DATE
+                      , B.END_TIME_HOUR
+                      , B.END_TIME_MINUTE
+                      , B.SCHEDULE_LOOP_END_DATE
+                      , B.TITLE
+                      , A.SHARE_YN           AS SHARE_YN
+                      , C.ATTR1              AS WORK_COLOR
+                      , C.ATTR2              AS TEXT_COLOR
                 FROM   (
-                            /*======= 사용자 일정    사용자 일정    사용자 일정    =======*/ 
-                            SELECT A.GROUP_ID||'#'||A.GRP_CNT AS GROUP_ID
-                                  ,A.DY_START
-                                  ,A.D_START
-                                  ,A.DY_END
-                                  ,A.D_END
-                            FROM   (
-
-                                    SELECT A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE AS GROUP_ID
-                                          ,ROW_NUMBER() OVER(PARTITION BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE ORDER BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE) AS GRP_CNT
-                                          ,BASE_TABEL.DY AS DY_START 
-                                          ,BASE_TABEL.D  AS D_START
-                                          ,NULL          AS DY_END 
-                                          ,NULL          AS D_END
-                                    FROM   BASE_TABEL
-                                          ,TABLE_SCHEDULE A
-                                    WHERE  1 = 1
-                                    AND    BASE_TABEL.D = A.WEEK_START
-                            ) A  
-                            UNION ALL 
-                            SELECT A.GROUP_ID||'#'||A.GRP_CNT AS GROUP_ID
-                                  ,A.DY_START
-                                  ,A.D_START
-                                  ,A.DY_END
-                                  ,A.D_END
-                            FROM   (
-
-                                    SELECT A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE AS GROUP_ID
-                                          ,ROW_NUMBER() OVER(PARTITION BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE ORDER BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE) AS GRP_CNT
-                                          ,NULL            AS DY_START 
-                                          ,NULL            AS D_START
-                                          ,BASE_TABEL.DY   AS DY_END 
-                                          ,BASE_TABEL.D    AS D_END
-                                    FROM   BASE_TABEL
-                                          ,TABLE_SCHEDULE A
-                                    WHERE  1 = 1
-                                    AND    BASE_TABEL.D = A.WEEK_END
-                            ) A 
-                            /*####### 사용자 일정    사용자 일정    사용자 일정    #######*/ 
+                        
+                        SELECT A.GROUP_ID
+                              ,'N'             AS SHARE_YN
+                              ,MAX(A.DY_START) AS DY_START
+                              ,MAX(A.D_START)  AS D_START
+                              ,MAX(A.DY_END)   AS DY_END
+                              ,MAX(A.D_END)    AS D_END
+                        FROM   (
+                                    /*======= 사용자 일정    사용자 일정    사용자 일정    =======*/ 
+                                    SELECT A.GROUP_ID||'#'||A.GRP_CNT AS GROUP_ID
+                                          ,A.DY_START
+                                          ,A.D_START
+                                          ,A.DY_END
+                                          ,A.D_END
+                                    FROM   (
+        
+                                            SELECT A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE AS GROUP_ID
+                                                  ,ROW_NUMBER() OVER(PARTITION BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE ORDER BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE) AS GRP_CNT
+                                                  ,BASE_TABEL.DY AS DY_START 
+                                                  ,BASE_TABEL.D  AS D_START
+                                                  ,NULL          AS DY_END 
+                                                  ,NULL          AS D_END
+                                            FROM   BASE_TABEL
+                                                  ,TABLE_SCHEDULE A
+                                            WHERE  1 = 1
+                                            AND    BASE_TABEL.D = A.WEEK_START
+                                    ) A  
+                                    UNION ALL 
+                                    SELECT A.GROUP_ID||'#'||A.GRP_CNT AS GROUP_ID
+                                          ,A.DY_START
+                                          ,A.D_START
+                                          ,A.DY_END
+                                          ,A.D_END
+                                    FROM   (
+        
+                                            SELECT A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE AS GROUP_ID
+                                                  ,ROW_NUMBER() OVER(PARTITION BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE ORDER BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE) AS GRP_CNT
+                                                  ,NULL            AS DY_START 
+                                                  ,NULL            AS D_START
+                                                  ,BASE_TABEL.DY   AS DY_END 
+                                                  ,BASE_TABEL.D    AS D_END
+                                            FROM   BASE_TABEL
+                                                  ,TABLE_SCHEDULE A
+                                            WHERE  1 = 1
+                                            AND    BASE_TABEL.D = A.WEEK_END
+                                    ) A 
+                                    /*####### 사용자 일정    사용자 일정    사용자 일정    #######*/ 
+                               ) A
+                        GROUP BY A.GROUP_ID 
+                        UNION ALL
+                        SELECT A.GROUP_ID
+                              ,'Y'             AS SHARE_YN
+                              ,MAX(A.DY_START) AS DY_START
+                              ,MAX(A.D_START)  AS D_START
+                              ,MAX(A.DY_END)   AS DY_END
+                              ,MAX(A.D_END)    AS D_END
+                        FROM   (
+                                    /*======= 공유된 일정    공유된 일정    공유된 일정    =======*/ 
+                                    SELECT A.GROUP_ID||'#'||A.GRP_CNT AS GROUP_ID
+                                          ,A.DY_START
+                                          ,A.D_START
+                                          ,A.DY_END
+                                          ,A.D_END
+                                    FROM   (
+        
+                                            SELECT A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE AS GROUP_ID
+                                                  ,ROW_NUMBER() OVER(PARTITION BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE ORDER BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE) AS GRP_CNT
+                                                  ,BASE_TABEL.DY AS DY_START 
+                                                  ,BASE_TABEL.D  AS D_START
+                                                  ,NULL          AS DY_END 
+                                                  ,NULL          AS D_END
+                                            FROM   BASE_TABEL
+                                                  ,TABLE_SCHEDULE_SHARE A
+                                            WHERE  1 = 1
+                                            AND    BASE_TABEL.D = A.WEEK_START
+                                    ) A  
+                                    UNION ALL 
+                                    SELECT A.GROUP_ID||'#'||A.GRP_CNT AS GROUP_ID
+                                          ,A.DY_START
+                                          ,A.D_START
+                                          ,A.DY_END
+                                          ,A.D_END
+                                    FROM   (
+        
+                                            SELECT A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE AS GROUP_ID
+                                                  ,ROW_NUMBER() OVER(PARTITION BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE ORDER BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE) AS GRP_CNT
+                                                  ,NULL            AS DY_START 
+                                                  ,NULL            AS D_START
+                                                  ,BASE_TABEL.DY   AS DY_END 
+                                                  ,BASE_TABEL.D    AS D_END
+                                            FROM   BASE_TABEL
+                                                  ,TABLE_SCHEDULE_SHARE A
+                                            WHERE  1 = 1
+                                            AND    BASE_TABEL.D = A.WEEK_END
+                                    ) A 
+                                    /*======= 공유된 일정    공유된 일정    공유된 일정    =======*/ 
+                               ) A
+                        GROUP BY A.GROUP_ID 
                        ) A
-                GROUP BY A.GROUP_ID 
-                UNION ALL
-                SELECT A.GROUP_ID
-                      ,'Y'             AS SHARE_YN
-                      ,MAX(A.DY_START) AS DY_START
-                      ,MAX(A.D_START)  AS D_START
-                      ,MAX(A.DY_END)   AS DY_END
-                      ,MAX(A.D_END)    AS D_END
-                FROM   (
-                            /*======= 공유된 일정    공유된 일정    공유된 일정    =======*/ 
-                            SELECT A.GROUP_ID||'#'||A.GRP_CNT AS GROUP_ID
-                                  ,A.DY_START
-                                  ,A.D_START
-                                  ,A.DY_END
-                                  ,A.D_END
-                            FROM   (
-
-                                    SELECT A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE AS GROUP_ID
-                                          ,ROW_NUMBER() OVER(PARTITION BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE ORDER BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE) AS GRP_CNT
-                                          ,BASE_TABEL.DY AS DY_START 
-                                          ,BASE_TABEL.D  AS D_START
-                                          ,NULL          AS DY_END 
-                                          ,NULL          AS D_END
-                                    FROM   BASE_TABEL
-                                          ,TABLE_SCHEDULE_SHARE A
-                                    WHERE  1 = 1
-                                    AND    BASE_TABEL.D = A.WEEK_START
-                            ) A  
-                            UNION ALL 
-                            SELECT A.GROUP_ID||'#'||A.GRP_CNT AS GROUP_ID
-                                  ,A.DY_START
-                                  ,A.D_START
-                                  ,A.DY_END
-                                  ,A.D_END
-                            FROM   (
-
-                                    SELECT A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE AS GROUP_ID
-                                          ,ROW_NUMBER() OVER(PARTITION BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE ORDER BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE) AS GRP_CNT
-                                          ,NULL            AS DY_START 
-                                          ,NULL            AS D_START
-                                          ,BASE_TABEL.DY   AS DY_END 
-                                          ,BASE_TABEL.D    AS D_END
-                                    FROM   BASE_TABEL
-                                          ,TABLE_SCHEDULE_SHARE A
-                                    WHERE  1 = 1
-                                    AND    BASE_TABEL.D = A.WEEK_END
-                            ) A 
-                            /*======= 공유된 일정    공유된 일정    공유된 일정    =======*/ 
-                       ) A
-                GROUP BY A.GROUP_ID 
-               ) A
-               JOIN TBL_EXP_SCHEDULE B
-                   ON  1 = 1
-                   AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                   AND B.LOOP_TYPE  = 'WEEK'
-                   AND SUBSTR(A.GROUP_ID, 1, INSTR(A.GROUP_ID, '#') - 1) = B.SCHEDULE_ID    
-               JOIN (
-                      SELECT A.GRP_CODE_ID
-                            ,B.CODE_ID
-                            ,B.ATTR1
-                            ,B.ATTR2
-                      FROM   TBL_EXP_GRPCODE A
-                             JOIN TBL_EXP_CODE B
-                                 ON  1 = 1
-                                 AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                 AND B.DEL_YN = 'N'
-                                 AND A.GRP_CODE_ID =  B.GRP_CODE_ID
-                      WHERE  1 = 1
-                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                      AND    A.DEL_YN = 'N'
-                      AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
-                   ) C
-                   ON  1 = 1
-                   AND B.WORK_TYPE = C.CODE_ID      
-
+                       JOIN TBL_EXP_SCHEDULE B
+                           ON  1 = 1
+                           AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+                           AND B.LOOP_TYPE  = 'WEEK'
+                           AND SUBSTR(A.GROUP_ID, 1, INSTR(A.GROUP_ID, '#') - 1) = B.SCHEDULE_ID    
+                       JOIN (
+                              SELECT A.GRP_CODE_ID
+                                    ,B.CODE_ID
+                                    ,B.ATTR1
+                                    ,B.ATTR2
+                              FROM   TBL_EXP_GRPCODE A
+                                     JOIN TBL_EXP_CODE B
+                                         ON  1 = 1
+                                         AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+                                         AND B.DEL_YN = 'N'
+                                         AND A.GRP_CODE_ID =  B.GRP_CODE_ID
+                              WHERE  1 = 1
+                              AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                              AND    A.DEL_YN = 'N'
+                              AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
+                           ) C
+                           ON  1 = 1
+                           AND B.WORK_TYPE = C.CODE_ID
+                /*=============================================================================*/
+        ) A
+        WHERE  1 = 1
+        AND    TO_DATE(SCHEDULE_START_DATE)  <![CDATA[<=]]> SCHEDULE_LOOP_END_DATE
     </select>
+    
     
     <select id="getTeamWeekRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.getTeamWeekRepeat */
@@ -1397,6 +1420,8 @@
         </if>
     </select> 
     
+
+
     <select id="getMonthRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.getMonthRepeat */
         WITH TABLE_END_DAY AS ( 
@@ -1549,132 +1574,156 @@
                 )
         SELECT SCHEDULE_ID
               ,TITLE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
+              ,SCHEDULE_DATE 
+              ,SCHEDULE_START_DATE
               ,START_TIME_HOUR
               ,START_TIME_MINUTE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')) + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+              ,SCHEDULE_END_DATE
               ,END_TIME_HOUR
               ,END_TIME_MINUTE
+              ,SCHEDULE_LOOP_END_DATE
               ,SHARE_YN
-              ,B.ATTR1              AS WORK_COLOR
-              ,B.ATTR2              AS TEXT_COLOR
-        FROM   TABLE_END_DAY
-               LEFT OUTER JOIN (
-                      SELECT A.GRP_CODE_ID
-                            ,B.CODE_ID
-                            ,B.ATTR1
-                            ,B.ATTR2
-                      FROM   TBL_EXP_GRPCODE A
-                             JOIN TBL_EXP_CODE B
-                                 ON  1 = 1
-                                 AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                 AND B.DEL_YN = 'N'
-                                 AND A.GRP_CODE_ID =  B.GRP_CODE_ID
-                      WHERE  1 = 1
-                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                      AND    A.DEL_YN = 'N'
-                      AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
-                   ) B
-                   ON  1 = 1
-                   AND TABLE_END_DAY.WORK_TYPE = B.CODE_ID  
-        UNION ALL
-        SELECT A.SCHEDULE_ID
-              ,A.TITLE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||A.LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
-              ,A.START_TIME_HOUR
-              ,A.START_TIME_MINUTE
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||A.LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD') + A.DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
-              ,A.END_TIME_HOUR
-              ,A.END_TIME_MINUTE
-              ,A.SHARE_YN
-              ,B.ATTR1              AS WORK_COLOR
-              ,B.ATTR2              AS TEXT_COLOR
+              ,WORK_COLOR
+              ,TEXT_COLOR
         FROM   (
-                SELECT     SCHEDULE_ID
-                          ,TITLE
-                          ,A.LAST_DATE
-                          ,A.SUB_DATE
-                          ,A.DATE_DIFFER
-                          ,A.LOOP_TYPE_DTL_VAL
-                          ,A.START_TIME_HOUR
-                          ,A.START_TIME_MINUTE
-                          ,A.END_TIME_HOUR
-                          ,A.END_TIME_MINUTE
-                          ,A.SHARE_YN
-                          ,A.WORK_TYPE
-                          ,CASE WHEN A.LAST_DATE <![CDATA[<]]>  A.SUB_DATE THEN 'N'
-                                ELSE 'Y'
-                           END AS DAY_CHECK
+                /*================================================================*/
+                SELECT SCHEDULE_ID
+                      ,TITLE
+                      ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
+                      ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
+                      ,START_TIME_HOUR
+                      ,START_TIME_MINUTE
+                      ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')) + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                      ,END_TIME_HOUR
+                      ,END_TIME_MINUTE
+                      ,SCHEDULE_LOOP_END_DATE
+                      ,SHARE_YN
+                      ,B.ATTR1              AS WORK_COLOR
+                      ,B.ATTR2              AS TEXT_COLOR
+                FROM   TABLE_END_DAY
+                       LEFT OUTER JOIN (
+                              SELECT A.GRP_CODE_ID
+                                    ,B.CODE_ID
+                                    ,B.ATTR1
+                                    ,B.ATTR2
+                              FROM   TBL_EXP_GRPCODE A
+                                     JOIN TBL_EXP_CODE B
+                                         ON  1 = 1
+                                         AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+                                         AND B.DEL_YN = 'N'
+                                         AND A.GRP_CODE_ID =  B.GRP_CODE_ID
+                              WHERE  1 = 1
+                              AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                              AND    A.DEL_YN = 'N'
+                              AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
+                           ) B
+                           ON  1 = 1
+                           AND TABLE_END_DAY.WORK_TYPE = B.CODE_ID  
+                UNION ALL
+                SELECT A.SCHEDULE_ID
+                      ,A.TITLE
+                      ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
+                      ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||A.LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
+                      ,A.START_TIME_HOUR
+                      ,A.START_TIME_MINUTE
+                      ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||A.LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD') + A.DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                      ,A.END_TIME_HOUR
+                      ,A.END_TIME_MINUTE
+                      ,A.SCHEDULE_LOOP_END_DATE
+                      ,A.SHARE_YN
+                      ,B.ATTR1              AS WORK_COLOR
+                      ,B.ATTR2              AS TEXT_COLOR
                 FROM   (
-                            SELECT SCHEDULE_ID
+                        SELECT     SCHEDULE_ID
                                   ,TITLE
-                                  ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD') AS LAST_DATE
-                                  ,SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL AS SUB_DATE
-                                  ,DATE_DIFFER
-                                  ,LOOP_TYPE_DTL_VAL
-                                  ,START_TIME_HOUR
-                                  ,START_TIME_MINUTE
-                                  ,END_TIME_HOUR
-                                  ,END_TIME_MINUTE
-                                  ,SHARE_YN
-                                  ,WORK_TYPE
-                            FROM   TABLE_SELECT_DAY
-                      ) A
-               ) A
-               LEFT OUTER JOIN (
-                      SELECT A.GRP_CODE_ID
-                            ,B.CODE_ID
-                            ,B.ATTR1
-                            ,B.ATTR2
-                      FROM   TBL_EXP_GRPCODE A
-                             JOIN TBL_EXP_CODE B
-                                 ON  1 = 1
-                                 AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                 AND B.DEL_YN = 'N'
-                                 AND A.GRP_CODE_ID =  B.GRP_CODE_ID
-                      WHERE  1 = 1
-                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                      AND    A.DEL_YN = 'N'
-                      AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
-                   ) B
-                   ON  1 = 1
-                   AND A.WORK_TYPE = B.CODE_ID  
+                                  ,A.LAST_DATE
+                                  ,A.SUB_DATE
+                                  ,A.DATE_DIFFER
+                                  ,A.LOOP_TYPE_DTL_VAL
+                                  ,A.START_TIME_HOUR
+                                  ,A.START_TIME_MINUTE
+                                  ,A.END_TIME_HOUR
+                                  ,A.END_TIME_MINUTE
+                                  ,A.SCHEDULE_LOOP_END_DATE
+                                  ,A.SHARE_YN
+                                  ,A.WORK_TYPE
+                                  ,CASE WHEN A.LAST_DATE <![CDATA[<]]>  A.SUB_DATE THEN 'N'
+                                        ELSE 'Y'
+                                   END AS DAY_CHECK
+                        FROM   (
+                                    SELECT SCHEDULE_ID
+                                          ,TITLE
+                                          ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD') AS LAST_DATE
+                                          ,SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL AS SUB_DATE
+                                          ,DATE_DIFFER
+                                          ,LOOP_TYPE_DTL_VAL
+                                          ,START_TIME_HOUR
+                                          ,START_TIME_MINUTE
+                                          ,END_TIME_HOUR
+                                          ,END_TIME_MINUTE
+                                          ,SCHEDULE_LOOP_END_DATE
+                                          ,SHARE_YN
+                                          ,WORK_TYPE
+                                    FROM   TABLE_SELECT_DAY
+                              ) A
+                       ) A
+                       LEFT OUTER JOIN (
+                              SELECT A.GRP_CODE_ID
+                                    ,B.CODE_ID
+                                    ,B.ATTR1
+                                    ,B.ATTR2
+                              FROM   TBL_EXP_GRPCODE A
+                                     JOIN TBL_EXP_CODE B
+                                         ON  1 = 1
+                                         AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+                                         AND B.DEL_YN = 'N'
+                                         AND A.GRP_CODE_ID =  B.GRP_CODE_ID
+                              WHERE  1 = 1
+                              AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                              AND    A.DEL_YN = 'N'
+                              AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
+                           ) B
+                           ON  1 = 1
+                           AND A.WORK_TYPE = B.CODE_ID  
+                WHERE  1 = 1
+                AND    A.DAY_CHECK = 'Y' 
+                UNION ALL
+                SELECT SCHEDULE_ID
+                      ,TITLE
+                      ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
+                      ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
+                      ,START_TIME_HOUR
+                      ,START_TIME_MINUTE
+                      ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                      ,END_TIME_HOUR
+                      ,END_TIME_MINUTE
+                      ,SCHEDULE_LOOP_END_DATE
+                      ,SHARE_YN
+                      ,B.ATTR1              AS WORK_COLOR
+                      ,B.ATTR2              AS TEXT_COLOR
+                FROM   TABLE_BASE
+                       LEFT OUTER JOIN (
+                              SELECT A.GRP_CODE_ID
+                                    ,B.CODE_ID
+                                    ,B.ATTR1
+                                    ,B.ATTR2
+                              FROM   TBL_EXP_GRPCODE A
+                                     JOIN TBL_EXP_CODE B
+                                         ON  1 = 1
+                                         AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+                                         AND B.DEL_YN = 'N'
+                                         AND A.GRP_CODE_ID =  B.GRP_CODE_ID
+                              WHERE  1 = 1
+                              AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                              AND    A.DEL_YN = 'N'
+                              AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
+                           ) B
+                           ON  1 = 1
+                           AND TABLE_BASE.WORK_TYPE = B.CODE_ID
+                /*================================================================*/
+        ) A
         WHERE  1 = 1
-        AND    A.DAY_CHECK = 'Y' 
-        UNION ALL
-        SELECT SCHEDULE_ID
-              ,TITLE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
-              ,START_TIME_HOUR
-              ,START_TIME_MINUTE
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
-              ,END_TIME_HOUR
-              ,END_TIME_MINUTE
-              ,SHARE_YN
-              ,B.ATTR1              AS WORK_COLOR
-              ,B.ATTR2              AS TEXT_COLOR
-        FROM   TABLE_BASE
-               LEFT OUTER JOIN (
-                      SELECT A.GRP_CODE_ID
-                            ,B.CODE_ID
-                            ,B.ATTR1
-                            ,B.ATTR2
-                      FROM   TBL_EXP_GRPCODE A
-                             JOIN TBL_EXP_CODE B
-                                 ON  1 = 1
-                                 AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                 AND B.DEL_YN = 'N'
-                                 AND A.GRP_CODE_ID =  B.GRP_CODE_ID
-                      WHERE  1 = 1
-                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                      AND    A.DEL_YN = 'N'
-                      AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
-                   ) B
-                   ON  1 = 1
-                   AND TABLE_BASE.WORK_TYPE = B.CODE_ID
+        AND    TO_DATE(A.SCHEDULE_START_DATE) <![CDATA[<=]]> SCHEDULE_LOOP_END_DATE
     </select>
     <select id="getTeamMonthRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.getTeamMonthRepeat */
@@ -2571,67 +2620,90 @@
                       AND    A.DEL_YN = 'N'
                       AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
         )
-        /* 월의 마지막날-자동 */
+
         SELECT SCHEDULE_ID
               ,TITLE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
+              ,SCHEDULE_DATE 
+              ,SCHEDULE_START_DATE
               ,START_TIME_HOUR
               ,START_TIME_MINUTE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')) + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+              ,SCHEDULE_END_DATE
               ,END_TIME_HOUR
               ,END_TIME_MINUTE
+              ,SCHEDULE_LOOP_END_DATE
               ,SHARE_YN
-              ,B.ATTR1              AS WORK_COLOR
-              ,B.ATTR2              AS TEXT_COLOR
-        FROM   TABLE_END_DAY
-               LEFT OUTER JOIN TABLE_CODE B
-                   ON  1 = 1
-                   AND TABLE_END_DAY.WORK_TYPE = B.CODE_ID  
-        WHERE  1 = 1
-        AND    SUBSTR( TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
-        AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
-        UNION ALL
-        /* 월의 마지막날-선택 */
-        SELECT SCHEDULE_ID
-              ,TITLE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
-              ,START_TIME_HOUR
-              ,START_TIME_MINUTE
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
-              ,END_TIME_HOUR
-              ,END_TIME_MINUTE
-              ,SHARE_YN
-              ,B.ATTR1              AS WORK_COLOR
-              ,B.ATTR2              AS TEXT_COLOR
-        FROM   TABLE_SELECT_DAY
-               LEFT OUTER JOIN TABLE_CODE B
-                   ON  1 = 1
-                   AND TABLE_SELECT_DAY.WORK_TYPE = B.CODE_ID  
-        WHERE  1 = 1
-        AND    SUBSTR(TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),9,2) = LOOP_TYPE_DTL_VAL
-        AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
-        UNION ALL
-        /* 월의 일반날 */
-        SELECT SCHEDULE_ID
-              ,TITLE
-              ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
-              ,START_TIME_HOUR
-              ,START_TIME_MINUTE
-              ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
-              ,END_TIME_HOUR
-              ,END_TIME_MINUTE
-              ,SHARE_YN
-              ,B.ATTR1              AS WORK_COLOR
-              ,B.ATTR2              AS TEXT_COLOR
-        FROM   TABLE_BASE
-               LEFT OUTER JOIN TABLE_CODE B
-                   ON  1 = 1
-                   AND TABLE_BASE.WORK_TYPE = B.CODE_ID
-        WHERE  1 = 1
-        AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
+              ,WORK_COLOR
+              ,TEXT_COLOR
+        FROM   (
+               /*==========================================================================*/
+               /* 월의 마지막날-자동 */
+               SELECT SCHEDULE_ID
+                     ,TITLE
+                     ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
+                     ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
+                     ,START_TIME_HOUR
+                     ,START_TIME_MINUTE
+                     ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')) + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                     ,END_TIME_HOUR
+                     ,END_TIME_MINUTE
+                     ,SCHEDULE_LOOP_END_DATE
+                     ,SHARE_YN
+                     ,B.ATTR1              AS WORK_COLOR
+                     ,B.ATTR2              AS TEXT_COLOR
+               FROM   TABLE_END_DAY
+                      LEFT OUTER JOIN TABLE_CODE B
+                          ON  1 = 1
+                          AND TABLE_END_DAY.WORK_TYPE = B.CODE_ID  
+               WHERE  1 = 1
+               AND    SUBSTR( TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
+               AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
+               UNION ALL
+               /* 월의 마지막날-선택 */
+               SELECT SCHEDULE_ID
+                     ,TITLE
+                     ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
+                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
+                     ,START_TIME_HOUR
+                     ,START_TIME_MINUTE
+                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                     ,END_TIME_HOUR
+                     ,END_TIME_MINUTE
+                     ,SCHEDULE_LOOP_END_DATE
+                     ,SHARE_YN
+                     ,B.ATTR1              AS WORK_COLOR
+                     ,B.ATTR2              AS TEXT_COLOR
+               FROM   TABLE_SELECT_DAY
+                      LEFT OUTER JOIN TABLE_CODE B
+                          ON  1 = 1
+                          AND TABLE_SELECT_DAY.WORK_TYPE = B.CODE_ID  
+               WHERE  1 = 1
+               AND    SUBSTR(TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),9,2) = LOOP_TYPE_DTL_VAL
+               AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
+               UNION ALL
+               /* 월의 일반날 */
+               SELECT SCHEDULE_ID
+                     ,TITLE
+                     ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
+                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
+                     ,START_TIME_HOUR
+                     ,START_TIME_MINUTE
+                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                     ,END_TIME_HOUR
+                     ,END_TIME_MINUTE
+                     ,SCHEDULE_LOOP_END_DATE
+                     ,SHARE_YN
+                     ,B.ATTR1              AS WORK_COLOR
+                     ,B.ATTR2              AS TEXT_COLOR
+               FROM   TABLE_BASE
+                      LEFT OUTER JOIN TABLE_CODE B
+                          ON  1 = 1
+                          AND TABLE_BASE.WORK_TYPE = B.CODE_ID
+               WHERE  1 = 1
+               AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2) 
+               /*==========================================================================*/
+        ) A
+        WHERE 1 = 1
+        AND   TO_DATE(A.SCHEDULE_START_DATE) <![CDATA[<=]]> SCHEDULE_LOOP_END_DATE 
     </select>
     
     <!-- 매년 반복이기때문에 시작만 보면됨  -->    
