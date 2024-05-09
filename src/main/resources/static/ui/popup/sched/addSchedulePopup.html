@@ -11,7 +11,6 @@
         ,orgEndTimeHour : ''
         ,orgEndTimeMinute : ''
         ,scheduleGrpId    : ''
-        ,allApplyYn    : 'N'
         ,today : ''
         ,loopType : ''	
         ,loopTypeDtlCd : ''
@@ -54,15 +53,6 @@
             C_UICOM.setSingleBox("<@popupId>_selectBoxStartMinute", startTimeMinute);
             C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", endTimeHour);
             C_UICOM.setSingleBox("<@popupId>_selectBoxEndMinute", endTimeMinute);
-        }
-        ,setApplyAllCheckDate : function( check  ) {//전체 적용 체크함에 따라 시작일 종료일 세팅
-            
-            console.log("== setApplyAllCheckDate ===>"+check);
-            $('#<@popupId>_showApplyAll').hide();    
-            $('#<@popupId>_showDateStartUP').hide();    
-            $('#<@popupId>_showDateStart').show();  
-            $('#<@popupId>_showDateEnd').show();      
-            $('#<@popupId>_showLoopType').show();
         }
         ,memberSearchPopup : function() {
     
@@ -154,7 +144,6 @@
             requestParm["description"]        = $('#<@popupId>_description').val();
             requestParm["contractId"]         = $('#<@popupId>_contractId').val();
             requestParm["loopLimitDate"]      = $('#<@popupId>_loopLimitDate').val();
-            requestParm["allApplyYn"]         = <@popupId>.allApplyYn;
             requestParm["loopType"]           = <@popupId>.loopType;
             requestParm["workType"]           = <@popupId>.workType;
             requestParm["startTimeH"]         = <@popupId>.startTimeH;
@@ -188,7 +177,6 @@
             console.log("== loopTypeDtlCd ==>"+<@popupId>.loopTypeDtlCd);
             console.log("== loopTypeDtlVal ==>"+<@popupId>.loopTypeDtlVal);
             console.log("== loopLimitDate ==>"+$('#<@popupId>_loopLimitDate').val() );
-            console.log("== allApplyYn ==>"+<@popupId>.allApplyYn );
             console.log("== loopType ==>"+<@popupId>.loopType );
             console.log("== workType ==>"+<@popupId>.workType );
             console.log("== startTimeH ==>"+<@popupId>.startTimeH );
@@ -634,15 +622,6 @@
             }
         });        
         
-        $("#<@popupId>_applyAll").change(function(){
-            if($("#<@popupId>_applyAll").is(":checked")){
-                <@popupId>.allApplyYn = "Y";
-                <@popupId>.setApplyAllCheckDate( <@popupId>.allApplyYn );
-            }else{
-                <@popupId>.allApplyYn = "N";
-                <@popupId>.setApplyAllCheckDate( <@popupId>.allApplyYn );
-            }
-        });
     });
     
     
@@ -674,10 +653,6 @@
                             </div>
                             <div class="select_box fl" style="width:150px" id="<@popupId>_showLoopType" >
                                 <div id="<@popupId>_selectBoxLoopType" style="width:100%"></div>
-                            </div>
-                            <div class="fl" id="<@popupId>_showApplyAll">
-                                <input type="checkbox" name="" id="<@popupId>_applyAll" class="pl10 lh33" >
-                                <label id="<@popupId>_applyAllLabel" for="day" class="ml5 lh33">전체적용</label>
                             </div>
                         </div>
                     </dd>

@@ -226,7 +226,6 @@ public class ScheduleService extends ExdevBaseService{
         String loopTypeDtlCd     = (String)map.get("loopTypeDtlCd");     
         String loopTypeDtlVal    = (String)map.get("loopTypeDtlVal");    
         String loopLimitDate     = (String)map.get("loopLimitDate");     
-        String allApplyYn        = (String)map.get("allApplyYn");        
         String loopType          = (String)map.get("loopType");          
         String workType          = (String)map.get("workType");          
         String startTimeH        = (String)map.get("startTimeH");        
@@ -252,7 +251,6 @@ public class ScheduleService extends ExdevBaseService{
         System.out.println("loopTypeDtlCd      ==>"+loopTypeDtlCd     );
         System.out.println("loopTypeDtlVal     ==>"+loopTypeDtlVal    );
         System.out.println("loopLimitDate      ==>"+loopLimitDate     );
-        System.out.println("allApplyYn         ==>"+allApplyYn        );
         System.out.println("loopType           ==>"+loopType          );
         System.out.println("workType           ==>"+workType          );
         System.out.println("startTimeH         ==>"+startTimeH        );
