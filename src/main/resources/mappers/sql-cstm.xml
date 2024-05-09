@@ -212,6 +212,9 @@
 				,CONTRACT_TYPE, CONTRACT_TYPE_NM
 				,COMPANY_REGNUM
 				,CONSULTING_NM
+				,CONSULTING_TYPE
+				,GET_CODE_NM('CONSULTING_TYPE', CONSULTING_TYPE ) CONSULTING_TYPE_NM
+				,USER_NM
 				,SUM( TOTAL_COST ) TOTAL_COST
 				,SUM( SUM_INCOME ) TOT_INCOME
 				FROM(
@@ -225,12 +228,14 @@
 						, GET_CODE_NM( 'HOW_GET', HOW_GET ) HOW_GET_NM
 						, CONTRACT_TYPE
 						, GET_CODE_NM('CONTRACT_TYPE', CONTRACT_TYPE ) CONTRACT_TYPE_NM
+						, CONSULTING_TYPE
 						, COMPANY_REGNUM 
 						, CONSULTING_NM
 						, TOTAL_COST
 						, SUM_INCOME 
+						, ( SELECT USER_NM FROM TBL_EXP_USER WHERE USER_ID = A.USER_ID ) USER_NM 
 						FROM (
-						    SELECT B.BUYER_NM,B.HOW_GET,B.COMPANY_REGNUM,  
+						    SELECT B.BUYER_NM,B.HOW_GET,B.COMPANY_REGNUM, C.USER_ID,
 						    		(
 						            SELECT SUM(R.INCOME)
 						            FROM TBL_EXP_RESULT R
@@ -239,6 +244,7 @@
 						                AND R.DEL_YN = 'N'
 						            ) SUM_INCOME
 									,CS.CONSULTING_NM
+									,CS.CONSULTING_TYPE
 									,C.TOTAL_COST
 									,C.CONTRACT_DATE
 									,C.BUYER_ID
@@ -270,13 +276,15 @@
 								 OR  CM.USER_ID	= #{sessionVo.userId	} 	
 								)								
 						    ORDER BY SUM_INCOME DESC
-						)
+						) A
 				)
 				GROUP BY CONTRACT_YEAR,CONTRACT_MONTH
 						,BUYER_ID, BUYER_NM, HOW_GET, HOW_GET_NM
 						,CONTRACT_TYPE, CONTRACT_TYPE_NM
 						,COMPANY_REGNUM
 						,CONSULTING_NM
+						,CONSULTING_TYPE
+						,USER_NM
 		)
 		<if test=" parm.TRANK != null and !parm.RANK.equals('')">
 		 WHERE ROWNUM  <![CDATA[ <= ]]> #{parm.RANK}

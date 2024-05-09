@@ -77,8 +77,8 @@ var <@popupId> = {
 		if( isError ){C_POP.alert(errMsg); return false;}
 
 		
-		const rateSum = $("#<@popupId>_RATE_SUM").text().replace("%","");
-		if( rateSum > 100 ){C_POP.alert('[수수료 산출] 총 수수료율(%)을 100% 이하로 수정하여 주십시오. ');return false;}
+/* 		const rateSum = $("#<@popupId>_RATE_SUM").text().replace("%","");
+		if( rateSum > 100 ){C_POP.alert('[수수료 산출] 총 수수료율(%)을 100% 이하로 수정하여 주십시오. ');return false;} */
 		 
 		return true;
 
@@ -342,9 +342,22 @@ var <@popupId> = {
 			const tr		= `#<@popupId>_paymentList tr[value=${userId}${userRelationType}]`;
 			const relationType = $(tr+" td[id='RELATION_TYPE']").attr("value");
 			
+			//EXEC나 SALES 인 경우 수수료율	
 			if( relationType != "COWORK" && relationType != "SUGGESTER"){
-				//EXEC나 SALES 인 경우 수수료율	
-				$(tr+" td[id='RATE']").attr("value",rate).html(rate+" %");
+				
+				const CONSULTING_TYPE 		= <@popupId>.recvData.contractItem.CONSULTING_TYPE;
+				const RESULT_INSERTED_CNT	= <@popupId>.recvData.contractItem.RESULT_INSERTED_CNT;
+				
+				if( relationType == "SALES" && CONSULTING_TYPE == "MONTHLY" && RESULT_INSERTED_CNT >= 3 ){
+					//월자문이고 4번째 실적입력 부터는 영업 수수료율은 0%
+					$(tr+" td[id='RATE']").attr("value","0").html("0 %");
+					
+				}else{
+					
+					$(tr+" td[id='RATE']").attr("value",rate).html(rate+" %");
+				
+				}
+				
 				
 			}else{
 				// COWORK이나 SUGGESTER인 경우 input에 수수료율을 넣는다.
