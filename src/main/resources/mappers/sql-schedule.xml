@@ -692,6 +692,7 @@
                ,C.BUYER_ID
                ,C.BUYER_NM   
                ,A.USER_ID
+               ,A.DESCRIPTION
                ,GET_USER_NM(A.USER_ID) AS USER_NM 
                ,A.POSITION
                ,A.WORK_TYPE
@@ -960,6 +961,7 @@
               ,GET_USER_NM(A.USER_ID) AS USER_NM
               ,'N'                  AS SHARE_YN
               ,A.POSITION
+              ,A.DESCRIPTION
               ,A.WORK_TYPE
               ,GET_CODE_NM('SCHEDULE_WORK_TYPE', A.WORK_TYPE) AS WORK_TYPE_NM
               ,C.ATTR1              AS WORK_COLOR
@@ -1273,6 +1275,7 @@
               ,A.BUYER_ID
               ,A.BUYER_NM
               ,A.USER_ID
+              ,A.DESCRIPTION
               ,GET_USER_NM(A.USER_ID) AS USER_NM   
               ,A.POSITION
               ,A.WORK_TYPE
@@ -1304,6 +1307,7 @@
                       , B.USER_ID
                       , D.BUYER_ID
                       , D.BUYER_NM   
+                      , B.DESCRIPTION
                       , B.POSITION
                       , B.WORK_TYPE
                       , GET_CODE_NM('SCHEDULE_WORK_TYPE', B.WORK_TYPE) AS WORK_TYPE_NM
@@ -1868,6 +1872,7 @@
               ,A.SHARE_YN
               ,A.POSITION
               ,A.WORK_TYPE
+              ,A.DESCRIPTION
               ,GET_CODE_NM('SCHEDULE_WORK_TYPE', A.WORK_TYPE) AS WORK_TYPE_NM
               ,A.WORK_COLOR
               ,A.TEXT_COLOR
@@ -1889,6 +1894,7 @@
                       ,SHARE_YN
                       ,POSITION
                       ,WORK_TYPE
+                      ,DESCRIPTION
                       ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
                       ,B.ATTR1              AS WORK_COLOR
                       ,B.ATTR2              AS TEXT_COLOR
@@ -1913,6 +1919,7 @@
                       ,SHARE_YN
                       ,POSITION
                       ,WORK_TYPE
+                      ,DESCRIPTION
                       ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
                       ,B.ATTR1              AS WORK_COLOR
                       ,B.ATTR2              AS TEXT_COLOR
@@ -1937,6 +1944,7 @@
                       ,SHARE_YN
                       ,POSITION
                       ,WORK_TYPE
+                      ,DESCRIPTION
                       ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
                       ,B.ATTR1              AS WORK_COLOR
                       ,B.ATTR2              AS TEXT_COLOR
@@ -2845,6 +2853,7 @@
               ,A.POSITION
               ,A.WORK_TYPE
               ,A.WORK_TYPE_NM
+              ,A.DESCRIPTION
               ,A.SCHEDULE_DATE
               ,A.SCHEDULE_START_DATE
               ,A.START_TIME_HOUR
@@ -2863,6 +2872,7 @@
                   ,USER_ID
                   ,POSITION
                   ,WORK_TYPE
+                  ,DESCRIPTION
                   ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
                   ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
                   ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
@@ -2890,6 +2900,7 @@
                   ,USER_ID
                   ,POSITION
                   ,WORK_TYPE
+                  ,DESCRIPTION
                   ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
                   ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
                   ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
@@ -2917,6 +2928,7 @@
                   ,USER_ID 
                   ,POSITION
                   ,WORK_TYPE
+                  ,DESCRIPTION
                   ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
                   ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
                   ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
