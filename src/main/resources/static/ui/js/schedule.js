@@ -12,6 +12,8 @@ var C_CALENDAR = {
         requestParm["contractId"]  = parm["contractId"]; 
         requestParm["userIdList"]  = parm["userIdList"];
         requestParm["periodYn"]    = "Y";
+        requestParm["searchData"]  = parm["searchData"];
+        
         
         var serviceId = "ScheduleService.getTeamSchedule";
         var parm = {

@@ -4,7 +4,6 @@
          userArr : []
         ,appMember      : {}
         ,userIndex : 0
-        ,mode : ''
         ,limitDate : ''
         ,orgDateStart : ''
         ,orgStartTimeHour : ''
@@ -59,35 +58,11 @@
         ,setApplyAllCheckDate : function( check  ) {//전체 적용 체크함에 따라 시작일 종료일 세팅
             
             console.log("== setApplyAllCheckDate ===>"+check);
-            console.log("== mode ===>"+<@popupId>.mode);
-            
-            if( "UPDATE" == <@popupId>.mode ){  
-                 console.log("== UPDATE ===>");
-                $('#<@popupId>_showApplyAll').show();
-                
-                if( "Y" == check){
-                    console.log("== check Y ===>");
-                    
-                    $("input:checkbox[id='<@popupId>_applyAll']").prop("checked", true);
-                    $('#<@popupId>_showDateStartUP').hide();    
-                    $('#<@popupId>_showDateStart').show();  
-                    $('#<@popupId>_showDateEnd').show();      
-                    $('#<@popupId>_showLoopType').show();     
-                }else{
-
-                    console.log("== check N ===>");
-                    $('#<@popupId>_showDateStartUP').show();   
-                    $('#<@popupId>_showDateStart').hide();  
-                    $('#<@popupId>_showDateEnd').hide();      
-                    $('#<@popupId>_showLoopType').hide();  
-                }   
-            }else if( "INSERT" == <@popupId>.mode ){
-                $('#<@popupId>_showApplyAll').hide();    
-                $('#<@popupId>_showDateStartUP').hide();    
-                $('#<@popupId>_showDateStart').show();  
-                $('#<@popupId>_showDateEnd').show();      
-                $('#<@popupId>_showLoopType').show();
-            }else{}
+            $('#<@popupId>_showApplyAll').hide();    
+            $('#<@popupId>_showDateStartUP').hide();    
+            $('#<@popupId>_showDateStart').show();  
+            $('#<@popupId>_showDateEnd').show();      
+            $('#<@popupId>_showLoopType').show();
         }
         ,memberSearchPopup : function() {
     
@@ -471,8 +446,6 @@
     C_POP.onLoadPopup("<@popupId>", function(data) {
 
         <@popupId>.scheduleId = C_COM.makeUniqueId();// PK 생성
-        <@popupId>.mode = 'INSERT';
-        
         
         //************** 업무유형 **************
         var workTypeList = C_COM.getCodeList("SCHEDULE_WORK_TYPE");
@@ -657,14 +630,7 @@
                 <@popupId>.setSelectBoxTime( "00", "00", "23", "30" );
                 <@popupId>.timeType = 'ALL';
             }else{  
-
-                <@popupId>.timeType = '';
-                if ( <@popupId>.mode == 'UPDATE'){
-                    <@popupId>.setSelectBoxTime( <@popupId>.orgStartTimeHour, <@popupId>.orgStartTimeMinute, <@popupId>.orgEndTimeHour, <@popupId>.orgEndTimeMinute );
-                }else{
-                    <@popupId>.setSelectBoxTime( "00", "00", "00", "00" );  
-                }
-                
+            	<@popupId>.setSelectBoxTime( "00", "00", "00", "00" );
             }
         });        
         

@@ -752,6 +752,9 @@
         <if test=" contractId != null and contractId != '' " >
             AND   A.CONTRACT_ID = #{contractId}
         </if>
+        <if test=" searchData != null and searchData != '' " >
+            AND   A.TITLE LIKE '%'||#{searchData}||'%'
+        </if>
     </select>
     <!-- 매일반복 -->
     <select id="getDayRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -946,7 +949,7 @@
               ,B.DTE                AS SCHEDULE_END_DATE
               ,A.END_TIME_HOUR
               ,A.END_TIME_MINUTE
-              ,TITLE
+              ,A.TITLE
               ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE1 
               ,A.CONTRACT_ID
               ,D.BUYER_ID
@@ -1005,6 +1008,9 @@
         </if>
         <if test=" contractId != null and contractId != '' " >
             AND   A.CONTRACT_ID = #{contractId}
+        </if>
+        <if test=" searchData != null and searchData != '' " >
+            AND   A.TITLE LIKE '%'||#{searchData}||'%'
         </if>
     </select>
 
@@ -1385,6 +1391,9 @@
         </if>
         <if test=" contractId != null and contractId != '' " >
             AND   A.CONTRACT_ID = #{contractId}
+        </if>
+        <if test=" searchData != null and searchData != '' " >
+            AND   A.TITLE LIKE '%'||#{searchData}||'%'
         </if>
     </select> 
     
@@ -1912,6 +1921,9 @@
         </if>
         <if test=" contractId != null and contractId != '' " >
             AND   A.CONTRACT_ID = #{contractId}
+        </if>
+        <if test=" searchData != null and searchData != '' " >
+            AND   A.TITLE LIKE '%'||#{searchData}||'%'
         </if>
     </select> 
         
@@ -2874,6 +2886,9 @@
         </if>
         <if test=" contractId != null and contractId != '' " >
             AND   A.CONTRACT_ID = #{contractId}
+        </if>
+        <if test=" searchData != null and searchData != '' " >
+            AND   A.TITLE LIKE '%'||#{searchData}||'%'
         </if>
     </select> 
      
