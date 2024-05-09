@@ -4,9 +4,6 @@ var C_CALENDAR = {
         var startDate = parm["startDate"];
         var endDate   = parm["endDate"];
         
-        console.log("=== startDate ==>"+startDate);
-        console.log("=== endDate ==>"+endDate);
-        
         let requestParm = {};            
         requestParm["minusDate"]   = startDate; 
         requestParm["plusDate"]    = endDate; 
