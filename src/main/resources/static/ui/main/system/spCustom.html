@@ -171,50 +171,37 @@
 				<div class="tbl01 col tbl_body_scroll">
 				<table>
 					<colgroup>
-							<col style="width:40px;"/>
-							<col style="width:80px;">
-							<col style="width:100px;"/>
-							<col style="width:80px;"/>
-							<col style="width:110px;"/>
-							<col style="width:80px;"/>
-							<col style="width:100px;"/>
-							<col style="width:100px;"/>
+						<col style="width:40px;"/>
+						<col style="width:80px;">
+						<col style="width:100px;"/>
+						<col style="width:80px;"/>
+						<col style="width:110px;"/>
+						<col style="width:80px;"/>
+						<col style="width:100px;"/>
+						<col style="width:100px;"/>
 					</colgroup>
-			
 				<tbody  id="spCustomerList">
 				</tbody>
-<script type="text/x-jsrender" id="spCustomerList_template">	
-				{{for list}}
-				<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}'>
-					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}'></td>
-					<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		>{{:SP_CSTM_ID}}</td>
- 					<td id='SP_CSTM_NM'		value='{{:SP_CSTM_NM}}'		>{{:SP_CSTM_NM}}</td>
- 					<td id='SP_CSTM_DESC'	value='{{:SP_CSTM_DESC}}'	>{{:SP_CSTM_DESC}}</td>
- 					<td id='USE_YN'			value='{{:USE_YN}}'			>{{:USE_YN}}</td>
- 					<td id='DEL_YN' 		value='{{:DEL_YN}}'			>{{:DEL_YN}}</td>
- 					<td id='UPDATE_USER'	value='{{:UPDATE_USER}}' 	>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
-				</tr>
-				{{/for}}
-</script>
-<script type="text/x-jsrender" id="spCustomerList_noData_template">	
-				<tr>	
-					<td colspan=8>자료가 없습니다.</td>	
-				</tr>
-</script>
-					</table>
-				</div>
-				<!-- paging -->
-				<div class="paging">
-					<a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-					<a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-					<strong title="현재 페이지">1</strong>
-					<a href="#none">2</a>
-					<a href="#none">3</a>
-					<a href="#none">4</a>
-					<a href="#none">5</a>
-					<a href="#none" class="btn_pg_next">다음 페이지</a>
-					<a href="#none" class="btn_pg_last">마지막 페이지</a>
+				<script type="text/x-jsrender" id="spCustomerList_template">	
+					{{for list}}
+					<tr name="<@pageId>_tr_{{:#index}}"                          value='{{:SP_CSTM_ID}}'>
+						<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}'></td>
+						<td id='SP_CSTM_ID'		value='{{:SP_CSTM_ID}}'		>{{:SP_CSTM_ID}}</td>
+ 						<td id='SP_CSTM_NM'		value='{{:SP_CSTM_NM}}'		>{{:SP_CSTM_NM}}</td>
+ 						<td id='SP_CSTM_DESC'	value='{{:SP_CSTM_DESC}}'	>{{:SP_CSTM_DESC}}</td>
+ 						<td id='USE_YN'			value='{{:USE_YN}}'			>{{:USE_YN}}</td>
+ 						<td id='DEL_YN' 		value='{{:DEL_YN}}'			>{{:DEL_YN}}</td>
+						<td id='UPDATE_USER'	value='{{:UPDATE_USER}}' 	>{{:UPDATE_USER}}</td>
+ 						<td id='UPDATE_DATE'	value='{{:UPDATE_DATE}}' 	>{{:UPDATE_DATE}}</td>
+					</tr>
+					{{/for}}
+				</script>
+				<script type="text/x-jsrender" id="spCustomerList_noData_template">	
+					<tr>	
+						<td colspan=8>자료가 없습니다.</td>	
+					</tr>
+				</script>
+				</table>
 				</div>
 			</section>
 </div>

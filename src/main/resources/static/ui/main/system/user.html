@@ -108,8 +108,8 @@
 			}
 			, deleteOne : (key) =>{
 				
-	    		const SP_CSTM_ID 	= <@pageId>.searchedData[key].SP_CSTM_ID // key.split("||")[0];
-	    		const USER_ID 		= <@pageId>.searchedData[key].USER_ID //key.split("||")[1];
+	    		const SP_CSTM_ID 	= <@pageId>.searchedData[key].SP_CSTM_ID
+	    		const USER_ID 		= <@pageId>.searchedData[key].USER_ID
 	    		<@pageId>.deleteItem({SP_CSTM_ID:SP_CSTM_ID,USER_ID:USER_ID})
 	    		
 			}
@@ -147,19 +147,11 @@
 					
 			    })
 			    
-/* 			    $("[id^='<@pageId>_delete_']").click(function(){
-
-			    	const key = $(this).attr("key");
-					<@pageId>.deleteOne(key);
-					
-			    }) */
-			    
 				$("#<@pageId>_search").click( () =>{
 			    	<@pageId>.searchList();
 			    })
 			    
 			}
-
 	}
 
 	// Page Load가 완료된후 실행 된다.
@@ -192,11 +184,7 @@
 					</div>
 
 					<div class="search_right">
-<!-- 						<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button>
-						<button type="button" class="btn fl"  id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
- -->						<!-- 싱글 선택 -->
 						<div  class="select_box fl" id="<@pageId>_selectBoxId" style="width:200px"></div>
-						<!-- <input type=button value="읽기" onclick="<@pageId>.getSingleBoxData()"/> -->
 		            </div>
 				</div>
 				<!-- 테이블 -->
@@ -222,11 +210,9 @@
 								<th scope="col">USER_NM</th>
 								<th scope="col">USER_DESC</th>
 								<th scope="col">E_MAIL</th>
-							
 								<th scope="col">PHONE_NUM</th>
 								<th scope="col">STATE</th>
 								<th scope="col">ROLENM</th>
-								
 								<th scope="col"></th>
 							</tr>
 						</thead>
@@ -269,7 +255,7 @@
 						</script>
 						<script type="text/x-jsrender" id="userList_noData_template">	
 						<tr>	
-							<td colspan=8>자료가 없습니다.</td>	
+							<td colspan=9>자료가 없습니다.</td>	
 						</tr>
 						</script>
 					</table>
