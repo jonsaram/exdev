@@ -87,7 +87,7 @@
             <@popupId>.loadAppMember();
          }
         /* 결재상신 */
-        ,approvalSave : function (state) {
+        ,approvalSave : function () {
         	let mlst = <@popupId>.getAppMemberToList();
             
             var TITLE = $("#<@popupId> #TITLE").val();
@@ -141,15 +141,33 @@
             	}
             	parm.queryGroup.push(rparm);
             });
+            
             C_POP.confirm('결재 상신 하시겠습니까?', function() {
     			C_COM.requestQuery(parm, function(resultData) {
     				if( resultData.state == "S"){
     					alert("결재 상신 되었습니다.");
-    					<@popupId>.close({state : "S"});
     					
     					// 결재요청 알람 처리
+    					let targetUserId = ""
+    					$.each(mlst, function(idx) {
+    						if(in_array(this.APPROVAL_TYPE, ["APPR", "AGREE"])) {
+    							targetUserId = this.USER_ID;
+    							return false;
+    						}
+    					});
     					
-    					
+   						let parm = {
+							 userId 	: targetUserId
+							,content	: TITLE
+							,directExec	: 'MOVE/MN_APR_STA'
+						}
+						
+						C_COM.addAlarm(parm, function(retData) {
+	
+						});
+
+    					<@popupId>.close({state : "S"});
+    				
     				}else{
     					alert(resultData.msg)
     				}
@@ -182,6 +200,48 @@
         		}
         	});
         	<@popupId>.loadAppMember();
+         }
+        ,approvalDefer : function() {
+            var TITLE = $("#<@popupId> #TITLE").val();
+            console.log("== title ==>"+TITLE);
+            if (TITLE.length < 1) {
+                alert("제목을 입력해 주세요.");
+                $("#<@popupId> #title").focus();
+                return false;
+            }
+            
+            var CONTENTS = <@popupId>.textEditorComp.getContent();
+            
+            if (CONTENTS.length < 1) {
+                alert("상신 내용을 입력해 주세요.");
+                $("#<@popupId> #CONTENTS").focus();
+                return false;
+            }
+            
+            var approvalInfo = {
+           		 APPROVAL_ID 	: <@popupId>.APPROVAL_ID
+               	,RELATION_ID 	: <@popupId>.RELATION_ID
+               	,TITLE 			: TITLE
+            	,CONTENTS 		: CONTENTS
+            	,AFTER_SERVICE 	: `<@AFTER_SERVICE>`
+            	,AFTER_PARM 	: `<@AFTER_PARM>`
+            	,STATE			: `HOLD`		// 보류중
+            }
+
+			var parm = {
+				 queryId 		: "approval.insertApproval"
+				,requestParm	: approvalInfo
+			}
+            C_POP.confirm('보류함으로 저장 하시겠습니까?', function() {
+    			C_COM.requestQuery(parm, function(resultData) {
+    				if( resultData.state == "S"){
+    					alert("저장 되었습니다.");
+    				}else{
+    					alert(resultData.msg)
+    				}
+    			});				
+            });
+         	
          }
         ,close : function(retData) {
         	if(isEmpty(retData)) retData = {};
@@ -237,6 +297,7 @@
 		<div class="modal" style="width:800px;height:800px;">
 			<div class="modal_header">
 				<strong class="tit">결재 상신</strong>
+				<button type="button" class="btn_zoomInOut"><span class="txt">확대</span></button>
 				<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 			</div>
 			<div class="modal_body">
@@ -285,7 +346,7 @@
 			</div>
 			<div class="modal_footer">
 				<button type="button" class="btn select" onclick="<@popupId>.approvalSave()">결재 상신</button>
-				<button type="button" class="btn select">보류함</button>
+				<button type="button" class="btn select" onclick="<@popupId>.approvalDefer()">보류함</button>
 				<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
 			</div>
 		</div>

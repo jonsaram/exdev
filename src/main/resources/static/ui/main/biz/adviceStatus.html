@@ -47,7 +47,7 @@
 				}
 				C_COM.renderHtml("<@pageId>", parm);
 			});
-		}
+		 }
 		,loadCardList 	: function() {
 			
 			var parm = {
@@ -120,6 +120,22 @@
 				C_COMP.import(key_wk, "component_biz_compConsultingProcess"		, {contractInfo : this}, function(data) {
 					//dalert(data);
 				});
+			});
+		 }
+		,openFolderMng : function(BUYER_ID, index) {
+			G_VAL.session.BUYER_ID = BUYER_ID;
+			
+			let projectInfo = <@pageId>.projectList[index];
+			
+			//C_MENU.moveMenu("MN_DSH_FOLDER", {projectInfo : projectInfo});
+			
+			let parm = {
+				 size 			: "MAX"
+				,BASE_FOLDER_ID	: projectInfo.BASE_FOLDER_ID 
+				,TOP_FOLDER_ID	: projectInfo.BASE_FOLDER_ID 
+			}
+			C_POP.open('popup_biz_folderMngPopup', parm, function(retData) {
+				dalert(retData);
 			});
 		 }
 	}
@@ -195,6 +211,7 @@
 		<div class="cont_top mt15 clearFix">
 			<h4 class="fl">{{:BUYER_NM}} / {{:CONSULTING_NM}}</h4>
 			<div class="fr inlineBlock_wrap">
+				<button class="btn small" onclick="<@pageId>.openFolderMng('{{:BUYER_ID}}', {{:#index}})">기업폴더보기</button>
 				<button class="btn small upDownToggle"><i class="up"></i></button>
 			</div>
 		</div>

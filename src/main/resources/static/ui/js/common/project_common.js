@@ -566,6 +566,26 @@ var C_COM = {
         }else{
            $(templateWebId + " .sec_scroll").removeClass('resize');
         }
+
+		// onEnter처리
+		
+		$(templateWebId + " input").each(function() {
+			let onEnter = $(this).attr("onEnter");
+			if(isEmpty(onEnter)) onEnter = $(this).attr("OnEnter");
+			if(isEmpty(onEnter)) onEnter = $(this).attr("onenter");
+			if(isValid(onEnter)) {
+				
+				$(this).unbind("keyup");
+				$(this).bind("keyup",function(event) {
+					if(event.keyCode == C_COM.KEY_CODE.ENTER) {
+						eval(onEnter);
+					}
+				});
+			}
+		});
+		
+
+
 	 }
 	,adjustTableScroll : function(templateId) {
 		var templateWebId = "#" + templateId + " ";
@@ -1042,6 +1062,16 @@ var C_POP = {
 		
 		// Page 내의 처리는 Popup도 Page와 동일하기 떄문에 C_PM의 initPage를 사용한다.
 		C_POP.preInitPopup(popupId);
+		
+		if(parm.size == "MAX") {
+			C_POP.maxSize(popupId);
+		}
+		debugger;
+		$(`#${popupId} .btn_zoomInOut`).unbind("click");
+		$(`#${popupId} .btn_zoomInOut`).bind("click", function() {
+			C_POP.toggleSize(popupId);
+		});
+		
 	 }
 	// Page에 Load시 스크립트 실행전 공통 설정을 한다.
 	,preInitPopup : function(popupId) {
@@ -1102,8 +1132,8 @@ var C_POP = {
 		var normalWidth 	= $("#" + popupId + " .modal").css("width");
 		var normalHeight 	= $("#" + popupId + " .modal").css("height");
 			
-		$("#" + popupId + " .modal").css("width"	, "90%");
-		$("#" + popupId + " .modal").css("height"	, "90%");
+		$("#" + popupId + " .modal").css("width"	, "97%");
+		$("#" + popupId + " .modal").css("height"	, "97%");
 		
 		if(isEmpty(C_POP.normalSizeMap[popupId])) C_POP.normalSizeMap[popupId] = {};
 		if(C_POP.normalSizeMap[popupId].popupState != "M") {
@@ -1113,6 +1143,9 @@ var C_POP = {
 				,popupState		: "M"
 			}
 		}
+		
+		$(`#${popupId} .btn_zoomInOut`).addClass("in");
+		
 		//if(isValid(maxDomId)	) $("#" + popupId + "#" + maxDomId		).hide();
 		//if(isValid(normalDomId)	) $("#" + popupId + "#" + normalDomId	).show();
 	 }
@@ -1129,8 +1162,22 @@ var C_POP = {
 			,normalHeight	: normalHeight
 			,popupState		: "N"
 		}
+		
+		$(`#${popupId} .btn_zoomInOut`).removeClass("in");
+		
 		//if(isValid(maxDomId)	) $("#" + popupId + " #" + maxDomId		).show();
 		//if(isValid(normalDomId)	) $("#" + popupId + " #" + normalDomId	).hide();
+	 }
+	,toggleSize : function(popupId) {
+		if(isEmpty(C_POP.normalSizeMap[popupId])) {
+			C_POP.maxSize(popupId);
+		} else {
+			if(C_POP.normalSizeMap[popupId].popupState == "N") {
+				C_POP.maxSize(popupId);
+			} else {
+				C_POP.normalSize(popupId);
+			}
+		}
 	 }
 }		
 
@@ -1778,7 +1825,9 @@ var C_PAGING = {
 
 // Table Widht 동적 조절 처리
 // 사용법
-// 사용할 Td에 
+// 사용할 Td에
+
+/* 
 var C_GRID = {
 	 GAP			: 0
 	,MIN_WIDTH		: 30
@@ -1969,7 +2018,7 @@ var C_GRID = {
 		});
 	 }
 }
-
+*/
 
 // Comp Class
 var C_COMP = {
@@ -1979,7 +2028,10 @@ var C_COMP = {
 		
 		if(parm == undefined) parm = {};
 		
-		var templateId = C_COM.getCurrentTemplateId();
+		var templateId = parm.templateId;
+		
+		if(isEmpty(templateId)) templateId = C_COM.getCurrentTemplateId();
+		
 		var templateWebId = "#" + templateId + " #" + targetId + " ";
 		
 		
@@ -1995,13 +2047,11 @@ var C_COMP = {
 
 		compId = templateId + targetId;
 
-		parm.compId = compId;;
+		parm.compId = compId;
 		
 		parm.parentId = templateId;
 		
 		C_COMP.callbackMap[compId] = callback;
-		
-		debugger;
 		
 		// 가상의 Document에 가져온 html 을 Setting한다.
 		var docDiv = $("<div></div>");
@@ -2173,8 +2223,9 @@ $(window).resize(function() {
 });
 
 
-var hiddencommand = "SHOWPAGEID";
-var hiddenconfirm = ""
+var hiddencommand 	= "SHOWPAGEID";
+var debugcommand 	= "GODEBUGGER";
+var hiddenconfirm 	= ""
 $(function() {
 	C_COM.init();
 	C_UICOM.init();
@@ -2189,6 +2240,8 @@ $(function() {
 		if(hiddencommand == hiddenconfirm) {
 			var templateId = C_COM.getCurrentTemplateId();
 			alert(templateId);
+		} else if(debugcommand == hiddenconfirm) {
+			C_PM.movePage("sample_index");
 		}
 	});
 });

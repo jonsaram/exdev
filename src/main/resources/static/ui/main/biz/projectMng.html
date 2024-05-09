@@ -12,9 +12,12 @@
 			});
 		 }
 		,loadData : function() {
+			
+			let searchWord	= $("#<@pageId> input[name=searchWord]"	).val();
+			
 			var parm = {
 				 queryId 		: "contract.getProjectList"
-				,requestParm	: {}
+				,requestParm	: {searchWord : searchWord}
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				
@@ -190,12 +193,8 @@
 		<div class="search_area mt0">
 			<div class="fl">
 				<a href="javascript:;" class="btn fl" onclick="<@pageId>.openProjectPopup()">프로젝트 등록</a>
-				<!-- 실글 선택 -->
-				<div class="select_box fl" style="width:132px">
-					<button type="button" class="btn radio"><span>고객명</span></button>
-                </div>
-                <input type="text" name="" class="fl">
-                <button class="btn select fl">검색</button>
+                <input type="text" name="searchWord" class="fl" onEnter="<@pageId>.loadData()">
+                <button class="btn select fl" onclick="<@pageId>.loadData()">검색</button>
             </div>
             <div class="search_right">
 				<button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>
@@ -267,8 +266,12 @@
 							{{/if}}
 							</td>
 							<td>
-								<button onclick="<@pageId>.modify({{:#index}})"><i class="icon_pen"		></i></button>	&nbsp; 
-								<button onclick="<@pageId>.delete({{:#index}})"><i class="icon_trash"	></i></button>
+							{{if SHOW_BTN=="Y" ~index=#index}} 
+								<button onclick="<@pageId>.modify({{:~index}})"><i class="icon_pen"		></i></button>	&nbsp; 
+								<button onclick="<@pageId>.delete({{:~index}})"><i class="icon_trash"	></i></button>
+							{{else}}
+								&nbsp;	
+							{{/if}}
 							</td>
 						</tr>
 						{{/for}}

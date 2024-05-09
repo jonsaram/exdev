@@ -1,0 +1,399 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@pageId> = {
+		 baseFolderId 		: "BASE"
+		,upFolderId			: ""
+		,BUYER_ID			: G_VAL.session.BUYER_ID
+		,leftFolderList		: []
+		,subFolderList		: []
+		,selectFolderId		: ""
+		,loadLeftFolderList	: function(defaultIdx) {
+			let baseFolderId = <@pageId>.baseFolderId;
+			
+			if(isEmpty(defaultIdx)) defaultIdx = 0;
+
+			var parm = {
+				queryGroup : [
+					 {
+						 queryId 		: "faDashboard.getSubFolderList"
+						,requestParm	: {
+							 FOLDER_ID 		: baseFolderId
+							,BUYER_ID		: <@pageId>.BUYER_ID
+						}
+					 }
+					,{
+						 queryId 		: "faDashboard.getFolderInfo"
+						,requestParm	: {
+							 FOLDER_ID 		: baseFolderId
+						}
+					 }
+					,{
+						 queryId 		: "faDashboard.getFolderPath"
+						,requestParm	: {
+							 FOLDER_ID 		: baseFolderId
+						}
+					 }
+				]
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				if(baseFolderId != "BASE") {
+					<@pageId>.upFolderId = resultData.data["faDashboard.getFolderInfo"][0].UP_FOLDER_ID;
+				}
+				
+				
+				<@pageId>.leftFolderList = resultData.data["faDashboard.getSubFolderList"];
+				
+				$.each(<@pageId>.leftFolderList, function(idx) {
+					if(idx == defaultIdx) {
+						<@pageId>.leftFolderList[idx].cls 	= ` class="active"`;
+						<@pageId>.selectFolderId			= this.FOLDER_ID;
+					}
+				});
+				var rparm = {
+					 targetId 		: "leftFolder"
+					,list			: <@pageId>.leftFolderList
+				}
+				C_COM.renderHtml("<@pageId>", rparm);
+				
+				if(baseFolderId == "BASE") $("#<@pageId> #upFolder").hide();
+				
+				<@pageId>.loadSubFolderList(<@pageId>.selectFolderId);
+				
+				
+				// 경로 설정
+				let folderPathList = resultData.data["faDashboard.getFolderPath"];
+
+				var rparm = {
+					 targetId 		: "folderPath"
+					,list			: folderPathList
+				}
+				C_COM.renderHtml("<@pageId>", rparm);
+				
+			});  
+		 }
+		,loadSubFolderList : function(selectFolderId) {
+			var parm = {
+				 queryId 		: "faDashboard.getSubFolderList"
+				,requestParm	: {
+					 FOLDER_ID 		: selectFolderId
+					,BUYER_ID		: <@pageId>.BUYER_ID
+				}
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				<@pageId>.subFolderList 	= resultData.data;
+				<@pageId>.selectFolderId	= selectFolderId
+
+				var rparm = {
+					 targetId 		: "subFolder"
+					,list			: <@pageId>.subFolderList
+				}
+				
+				C_COM.renderHtml("<@pageId>", rparm);
+				
+				<@pageId>.initFolderFileMng(selectFolderId);
+				
+				<@pageId>.loadShareMsgList();
+			});  
+		 }
+		// File Mng Setting
+		,initFolderFileMng : function(folderId) {
+			<@pageId>.folderFileMng.init("MN_DSH_FOLDER", folderId);
+		 }
+		,selectLeftFolder	: function(folderId) {
+			<@pageId>.loadSubFolderList(folderId);
+		 }
+		,addFolder : function() {
+			C_POP.open('popup_common_inputOnelinePopup', {title1 : "폴더추가", title2 : "폴더명", msg : ""}, function(retData) {
+
+				if(isEmpty(retData)) return;
+				
+				let folderNm = retData.msg;
+				let baseFolderId = <@pageId>.baseFolderId;
+				let folderInfo = {
+					 FOLDER_ID 		: C_COM.makeUniqueId()
+					,FOLDER_NM 		: folderNm
+					,BUYER_ID		: <@pageId>.BUYER_ID
+					,UP_FOLDER_ID	: baseFolderId
+				}				
+				<@pageId>.saveFolder(folderInfo, <@pageId>.loadLeftFolderList);				
+			});
+		 }
+		,saveFolder : function(folderInfo, callback) {
+
+			var parm = {
+				 queryId 		: "faDashboard.saveFolder"
+				,requestParm	: folderInfo
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				if(resultData.state == "S") {
+					if(typeof callback == "function") callback();
+				} else if(resultData.state == "E") {
+					C_POP.alert('폴더저장에 실패하였습니다.');
+				}					
+			});  
+		 }
+		,modifyFolder : function() {
+			$("#<@pageId> #leftFolder li[class=active]").each(function() {
+				let idx = $(this).attr("idx");
+				selectFolderInfo = <@pageId>.leftFolderList[idx];
+				
+				C_POP.open('popup_common_inputOnelinePopup', {title1 : "폴더수정", title2 : "폴더명", msg : selectFolderInfo.FOLDER_NM}, function(retData) {
+					
+					if(isEmpty(retData)) return;
+					
+					selectFolderInfo.FOLDER_NM = retData.msg;
+					
+					<@pageId>.saveFolder(selectFolderInfo, <@pageId>.loadLeftFolderList);
+				});
+			});
+		 }
+		,addSubFolder : function() {
+			let selectFolderInfo = "";
+			$("#<@pageId> #leftFolder li[class=active]").each(function() {
+				let idx = $(this).attr("idx");
+				selectFolderInfo = <@pageId>.leftFolderList[idx];
+			});
+
+			if(isEmpty(selectFolderInfo)) {
+				C_POP.alert('상위 폴더를 선택해 주세요.')
+				return;
+			}
+			
+			C_POP.open('popup_common_inputOnelinePopup', {title1 : "폴더추가", title2 : "폴더명", msg : ""}, function(retData) {
+
+				if(isEmpty(retData)) return;
+				
+				let folderNm = retData.msg;
+				
+				let baseFolderId = selectFolderInfo.FOLDER_ID;
+				
+				let folderInfo = {
+					 FOLDER_ID 		: C_COM.makeUniqueId()
+					,FOLDER_NM 		: folderNm
+					,BUYER_ID		: <@pageId>.BUYER_ID
+					,UP_FOLDER_ID	: baseFolderId
+				}				
+				<@pageId>.saveFolder(folderInfo, function() {
+					<@pageId>.loadSubFolderList(baseFolderId);	
+				});
+			});
+		 }
+		,moveFolder : function(folderId, idx) {
+			<@pageId>.baseFolderId = folderId;
+			<@pageId>.loadLeftFolderList(idx);
+		 }
+		,moveUpFolder : function() {
+			
+			 <@pageId>.baseFolderId = <@pageId>.upFolderId;
+			
+			<@pageId>.loadLeftFolderList();
+		 }
+		,selectFile : function() {
+			
+			let selectFolderInfo = "";
+			$("#<@pageId> #leftFolder li[class=active]").each(function() {
+				let idx = $(this).attr("idx");
+				selectFolderInfo = <@pageId>.leftFolderList[idx];
+			});
+
+			if(isEmpty(selectFolderInfo)) {
+				C_POP.alert('상위 폴더를 선택해 주세요.')
+				return;
+			}
+			
+			<@pageId>.folderFileMng.selectFile();
+		 }
+		,loadShareMsgList : function() {
+
+			var parm = {
+				 queryId 		: "faDashboard.getShareMsgList"
+				,requestParm	: { FOLDER_ID : <@pageId>.selectFolderId }
+				,noLoadingBar	: "Y"
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				var rparm = {
+					 targetId 		: "shareMsg"
+					,list			: resultData.data
+				}
+				
+				C_COM.renderHtml("<@pageId>", rparm);
+				$('#<@pageId> #shareMsg').scrollTop($('#<@pageId> #shareMsg')[0].scrollHeight);
+
+			});  
+			
+		 }
+		,addShareMsg : function() {
+			let folderMsg = $("#<@pageId> #folderMsg").val();
+			
+			if(isEmpty(folderMsg)) {
+				C_POP.alert("메시지를 입력하세요.");
+				return;
+			}
+			
+			var parm = {
+				 queryId 		: "faDashboard.saveShareMsg"
+				,requestParm	: { 
+					 FOLDER_MSG_ID 	: C_COM.makeUniqueId()
+					,FOLDER_ID 		: <@pageId>.selectFolderId
+					,CONTENT		: folderMsg
+				}
+				,noLoadingBar		: "Y"
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				if(resultData.state == "S") {
+					<@pageId>.loadShareMsgList();
+					$("#<@pageId> #folderMsg").val("").focus();
+				} else if(resultData.state == "E") {
+					C_POP.alert('메시지 저장에 실패하였습니다.');
+				}					
+			});  
+		 }
+		,delShareMsg : function(folderMsgId, idx) {
+			var parm = {
+				 queryId 		: "faDashboard.delShareMsg"
+				,requestParm	: { 
+					 FOLDER_MSG_ID 	: folderMsgId
+				 }
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				if(resultData.state == "S") {
+					<@pageId>.loadShareMsgList();
+					$("#<@pageId> #folderMsg").focus();
+				} else if(resultData.state == "E") {
+					C_POP.alert('메시지 삭제에 실패하였습니다.');
+				}					
+			});  
+		 }
+	}
+	// Page Load가 완료된후 실행 된다.
+	C_PM.onLoadPage("<@pageId>", function() {
+		if(isEmpty(G_VAL.session.BUYER_ID)) {
+			C_POP.alert('관리 고객이 없습니다.');
+			return;
+		} else {
+			<@pageId>.loadLeftFolderList();
+		}
+		
+		var parm = {
+			 GRP_FILE_ID 	: "NA"
+			,OWNER_CD 		: "NA"
+			,mode			: "M"
+			,title			: "NA"
+			,hideButton		: "Y"
+		}
+		C_COMP.import("folderFileMng", "component_compMultiFilemng", parm , function() {
+
+		});
+		
+		$("#<@pageId> #folderMsg").bind("keydown", function(event) {
+			if(event.keyCode == C_COM.KEY_CODE.ENTER) {
+				<@pageId>.addShareMsg();
+			}
+		});
+	});
+	// History back으로 이동해왔을 경우 이루틴이 실행된다.
+	C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+	});
+</script>
+<div class="cont_wrap">
+	<div class="cont_top">
+		<h2><i class="icon_bullet"></i>기업폴더관리</h2>
+	</div>
+	<section class="sec_wrap mb5">
+		<div class="cont_box" id="folderPath">
+		</div>
+		<script type="text/x-jsrender" id="folderPath_template">
+			<a href="javascript:<@pageId>.moveFolder('BASE')"><strong>기본폴더</strong></a> 
+		{{for list}}
+			&gt; <a href="javascript:<@pageId>.moveFolder('{{:FOLDER_ID}}')">{{:FOLDER_NM}}</a>
+		{{/for}}
+		</script>
+		<script type="text/x-jsrender" id="folderPath_noData_template">	
+			<a href="javascript:<@pageId>.moveFolder('BASE')"><strong>기본폴더</strong></a> 
+		</script>
+	</section>
+
+	<div class="sec_scroll">
+		<section class="sec_wrap h100">
+			<!-- 분류별 실적 -->
+			<div class="cont_box left v2 h100">
+				<ul class="folder_menu" id="leftFolder">
+				</ul>
+				<script type="text/x-jsrender" id="leftFolder_template">
+					<li id="upFolder" onclick="<@pageId>.moveUpFolder()">..</li>	
+				{{for list}}
+					<li idx="{{:#index}}" {{:cls}} onclick="<@pageId>.selectLeftFolder('{{:FOLDER_ID}}')">{{:FOLDER_NM}}</li>
+				{{/for}}
+				</script>
+				<script type="text/x-jsrender" id="leftFolder_noData_template">	
+					<li class="tc">등록된 폴더가 없습니다.</li>
+				</script>
+				<div class="fr" style="height:30px;line-height:30px;">
+					<button class="btn small select" onclick="<@pageId>.addFolder()">추가</button>
+					<button class="btn small select" onclick="<@pageId>.modifyFolder()">수정</button>
+					<button class="btn small select">삭제</button>
+				</div>
+			</div>
+			<div class="cont_box right v2 h100" style="overflow-y:auto;">
+				<!--// 폴더 등록 -->
+				<div class="clearFix mb10">
+					<h3 class="fl">폴더</h3>
+					<button type="button" class="btn small fl" onclick="<@pageId>.addSubFolder()">등록</button>
+				</div>
+				<div class="approver_list_wrap person">
+					<ul class="listBtn v2" id="subFolder" style="margin-top:7px;margin-left:7px;margin-bottom:7px;">
+					</ul>
+					<script type="text/x-jsrender" id="subFolder_template">	
+					{{for list}}
+						<li>
+							<a href="javascript:;" class="btn" onDblClick="<@pageId>.moveFolder('{{:UP_FOLDER_ID}}', {{:#index}} )">{{:FOLDER_NM}}</a>
+							<button class="close">닫기</button>
+						</li>
+					{{/for}}
+					</script>
+					<script type="text/x-jsrender" id="subFolder_noData_template">	
+						<li>
+							등록된 폴더가 없습니다.
+						</li>
+					</script>
+					
+				</div>
+				<!-- 폴더 등록 //-->
+
+				<!--// 파일 등록 -->
+				<div class="clearFix mb10 mt15">
+					<h3 class="fl">첨부파일</h3>
+					<button type="button" class="stateBtn file fl mt0" onclick="<@pageId>.selectFile()"><span>등록</span></button>
+				</div>
+				<div id="folderFileMng">
+				</div>
+				<!-- 파일 등록 //-->
+
+				<!--// 공유 메시지 -->
+				<h3 class="mt25 mb10">공유 메시지</h3>
+				<ul class="share_msg approver_list_wrap"  style="max-height:300px" id="shareMsg">
+				</ul>
+				<script type="text/x-jsrender" id="shareMsg_template">	
+				{{for list}}
+					<li><span class="time">{{:UPDATE_DATE}}</span> <span class="txt"> {{:UPDATE_USER_NM}} : {{:CONTENT}}</span><button class="close" onclick="<@pageId>.delShareMsg('{{:FOLDER_MSG_ID}}', {{:#index}})">닫기</button></li>
+				{{/for}}
+				</script>
+				<script type="text/x-jsrender" id="shareMsg_noData_template">	
+					<li class="tc">
+						등록된 내용이 없습니다.
+					</li>
+				</script>
+				<div class="comment clearFix mt10">
+					<strong class="fl lh33">메시지</strong>
+					<input class="fl" type="text" style="width:calc(100% - 120px)" value="" id="folderMsg">
+					<button class="btn fl" onclick="<@pageId>.addShareMsg()">등록</button>
+				</div>
+				<!-- 공유 메시지 //-->
+			</div>
+		</section>
+	</div>
+
+</div>

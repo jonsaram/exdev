@@ -130,6 +130,10 @@
 		WHERE
 				USER_ID 	= #{USER_ID}
 			AND SP_CSTM_ID 	= #{sessionVo.spCstmId}
+			AND UPDATE_DATE BETWEEN TO_DATE(#{fromDate}, 'YYYY-MM-DD') AND TO_DATE(#{toDate}, 'YYYY-MM-DD')
+			<if test=" searchWord != null and searchWord != '' " >
+			AND WORK_CONTENT LIKE '%${searchWord}%'
+			</if>
 		ORDER BY 	
 			UPDATE_DATE DESC	
 	</select>

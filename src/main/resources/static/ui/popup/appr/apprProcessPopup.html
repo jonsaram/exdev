@@ -7,19 +7,56 @@
 <script type="text/javascript">
 	var <@popupId> = {
 		 editorData : ""
-		,apprExec : function() {
-			C_POP.confirm('결재를 진행 하시겠습니까?', function() {
+		,apprReject : function() {
+			C_POP.confirm('결재를 반려 하시겠습니까?', function() {
 		        let parm = {
-	                queryId        : "approval.saveCompleteAppr"
+	                queryId        : "approval.saveResultAppr"
 	               ,requestParm    : {
 	            	   	 APPROVAL_ID 		: '<@APPROVAL_ID>'
 	            	   	,APPROVAL_COMMENT 	: <@popupId>.approvalComment.getContent()
+	            	   	,STATE				: 'REJECT'
+	            	}
+	        	}
+	        	let parmSnd = {
+                    queryId        : "approval.saveResultMainAppr"
+                   ,requestParm    : {
+                   	   	 APPROVAL_ID	: '<@APPROVAL_ID>'
+                   	   	,STATE			: 'REJECT' 
+                   	}
+	        	}
+	        	lastParm = {
+	        		queryGroup : [
+	        			 parm
+	        			,parmSnd
+	        		]
+	        	}
+		        
+				C_COM.requestQuery(lastParm, function(resultData) {
+					if( resultData.state == "S"){
+						C_POP.alert('결재가 반려 되었습니다.');
+						<@popupId>.close('reload');
+					}else{
+						alert(resultData.msg)
+					}
+				});				
+				
+			});
+			
+		 }
+		,apprExec : function() {
+			C_POP.confirm('결재를 진행 하시겠습니까?', function() {
+		        let parm = {
+	                queryId        : "approval.saveResultAppr"
+	               ,requestParm    : {
+	            	   	 APPROVAL_ID 		: '<@APPROVAL_ID>'
+	            	   	,APPROVAL_COMMENT 	: <@popupId>.approvalComment.getContent()
+	            	   	,STATE				: 'COMPLETE'
 	            	}
 	        	}
 		        let lastParm = parm;
 		        if('<@LST_APPR>' == 'Y') {
 		        	let parmSnd = {
-	                    queryId        : "approval.saveCompleteMainAppr"
+	                    queryId        : "approval.saveResultMainAppr"
 	                   ,requestParm    : {
 	                   	   	 APPROVAL_ID	: '<@APPROVAL_ID>'
 	                   	   	,STATE			: 'COMPLETE' 
@@ -52,7 +89,12 @@
 								C_POP.alert('결재가 완료 되었습니다.');
 								<@popupId>.close('reload');
 				            });
+				            
+				            <@popupId>.sendAlarmToNoticeUser();
 				        } else {
+				        	// 다음 결재자에게 Alarm 전송
+				        	<@popupId>.sendAlarmToNextAppr();
+				        	
 							C_POP.alert('결재가 완료 되었습니다.');
 							<@popupId>.close('reload');
 				        }
@@ -62,6 +104,51 @@
 				});				
 			});
 		 }
+		,sendAlarmToNextAppr : function() {
+            var parm = {
+                 queryId              : "approval.getNowApprUserInfo"
+                ,requestParm            : {APPROVAL_ID : '<@APPROVAL_ID>'}
+            }
+            C_COM.requestQuery(parm, function(resultData) {
+            	
+            	let appUserInfo = resultData.data[0];
+            	
+				if( resultData.state == "S"){
+					let parm = {
+						 userId 	: appUserInfo.USER_ID
+						,content	: appUserInfo.TITLE
+						,directExec	: 'MOVE/MN_APR_STA'
+					}
+					
+					C_COM.addAlarm(parm, function(retData) {
+
+					});
+				}
+            });
+		 }
+		,sendAlarmToNoticeUser : function() {
+            var parm = {
+                 queryId              : "approval.getNowNoticeUserInfo"
+                ,requestParm            : {APPROVAL_ID : '<@APPROVAL_ID>'}
+            }
+            C_COM.requestQuery(parm, function(resultData) {
+            	
+				if( resultData.state == "S"){
+	            	let noticeUserList = resultData.data;
+	            	
+	            	$.each(noticeUserList, function() {
+    					let parm = {
+    						 userId 	: this.USER_ID
+    						,content	: `${this.TITLE} 결재 완료 통보`
+    						,directExec	: 'MOVE/MN_APR_NOT'
+    					}
+    					C_COM.addAlarm(parm, function(retData) {
+
+    					});
+	            	});
+            	}
+            });
+		 }
 		,close : function(returnData) {
 			if(isEmpty(returnData)) returnData = {};
 			C_POP.close(returnData);
@@ -69,6 +156,7 @@
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(apprInfo) {
+		
         let parm = {
              queryId        : "approval.getApproval"
             ,requestParm    : {APPROVAL_ID : apprInfo.APPROVAL_ID}
@@ -81,13 +169,22 @@
             }
 
             C_COM.renderHtml("<@popupId>", rparm);
-
-            // 상신 내용
-        	C_COMP.import("reqEditorComp", "component_compTextEditor", {content:resultData.data[0].CONTENTS, mode : "R"}, function(data) {
-            });
-
+            
+            
+            // 첨부 파일
+			var parm = {
+				 GRP_FILE_ID 	: apprInfo.APPROVAL_ID
+				,OWNER_CD 		: "APPROVAL"
+				,mode			: "R"
+				,title			: "NA"
+			}
+			C_COMP.import("importMultiFilemng", "component_compMultiFilemng",parm , function() {
+			});
+            
+        	
             // 담당자 의견
             C_COMP.import("approvalComment", "component_compTextEditor", {content:""}, function(data) {
+            	
         	});
 
         });            
@@ -111,14 +208,20 @@
 				<dt>제목</dt>
 				<dd><input type="text" value="{{:info.TITLE}}" style="width:100%" disabled></dd>
 				<dt>상신내용</dt>
-				<dd><div id="reqEditorComp"></div></dd>
+				<dd>
+					<div>
+					{{:info.CONTENTS}}
+					</div>
+				</dd>
+				<dt>첨부파일</dt>
+				<dd id="importMultiFilemng"></dd>
 				<dt>담당자 의견</dt>
 				<dd><div id="approvalComment"></div></dd>
             </script>
 		</div>
 		<div class="modal_footer">
 			<button type="button" class="btn select" onclick="<@popupId>.apprExec()"	>결재 하기	</button>
-			<button type="button" class="btn select"									>반려하기	</button>
+			<button type="button" class="btn select" onclick="<@popupId>.apprReject()"	>반려하기	</button>
 			<button type="button" class="btn close" onclick="<@popupId>.close()"		>취소		</button>
 		</div>
 	</div>

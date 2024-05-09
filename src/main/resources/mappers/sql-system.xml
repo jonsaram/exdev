@@ -130,6 +130,7 @@
 		AND T.SORT_ORDER = #{SORT_ORDER}
 		</if>
 		AND T.DEL_YN = 'N'
+		AND T.USE_YN = 'Y'
 		ORDER BY SORT_ORDER
 	</select>
 		
@@ -1004,11 +1005,11 @@
 			AND A.USER_PW 		= #{userPw}
 			AND A.USE_YN		= 'Y'
 			AND A.DEL_YN		= 'N'
-			AND A.USER_ID 		= AU.USER_ID 
-			AND A.SP_CSTM_ID 	= AU.SP_CSTM_ID 
-			AND AU.ROLE_ID 		= R.ROLE_ID 
-			AND R.USE_YN		= 'Y'
-			AND R.DEL_YN		= 'N'
+			AND A.USER_ID 		= AU.USER_ID(+) 
+			AND A.SP_CSTM_ID 	= AU.SP_CSTM_ID(+) 
+			AND AU.ROLE_ID 		= R.ROLE_ID(+) 
+			AND R.USE_YN(+)		= 'Y'
+			AND R.DEL_YN(+)		= 'N'
 	</select>
 
 	<select id="getBuyerInfoForLogin" resultType="java.util.HashMap" flushCache="true"  useCache="false">

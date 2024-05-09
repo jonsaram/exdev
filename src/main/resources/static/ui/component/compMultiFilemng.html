@@ -155,13 +155,16 @@
 		,deleteFile : function(fileId) {
 			if(isEmpty(fileId)) return;
 			
-			var parm = {
-				 queryId 		: "Filemng.deleteFile"
-				,requestParm	: {FILE_ID : fileId}
-			}
-			C_COM.requestQuery(parm, function(resultData) {
-				<@compId>.init();
-			});
+			C_POP.confirm('파일을 삭제 하시겠습니까?', function() {
+				var parm = {
+					 queryId 		: "Filemng.deleteFile"
+					,requestParm	: {FILE_ID : fileId}
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					<@compId>.init();
+				});
+			})
+			
 		 }
 		,download : function(fileId) {
 			C_COM.fileDownload(fileId);

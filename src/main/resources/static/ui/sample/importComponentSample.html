@@ -10,10 +10,14 @@
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
-		C_COMP.import("importComp", "component_compSample", {AA:11}, function(data) {
+		C_COMP.import("importComp", "component_dashboard_compFolderMng", {AA:11}, function(data) {
 			alert("import page");
 			dalert(data);
 		});
+		
+		C_CALENDAR.getScheduleList();
+		
+		
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -24,8 +28,8 @@
 
 	Component Sample <br/><br/>
 	
-	<div id="importComp">
-	</div>
+	<comp id="importComp">
+	</comp>
 
 	<br/><br/><br/>
 	<input type=button value="compt function 호출" onclick="<@pageId>.callCompFn()"/>

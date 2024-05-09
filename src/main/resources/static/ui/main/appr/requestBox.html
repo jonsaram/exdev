@@ -4,7 +4,7 @@
         searchApproval : function() {
             let parm = {
                  queryId        : "approval.getApprovalList"
-                ,requestParm    : {}
+                ,requestParm    : {holdYn : "N"}
             }
             C_COM.requestQuery(parm, function(resultData) {
                 <@pageId>.approvalList = resultData.data;
@@ -43,27 +43,8 @@
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
 		
-		// Code List 읽어오기
-		var searchListCnt = C_COM.getCodeList("SEARCH_LIST_CNT");
-		
-		
-        var singleboxList = { 
-             data 		: searchListCnt
-            ,targetId 	: "searchListCnt" 
-        }
-        C_UICOM.makeSelectBox(singleboxList, "single");
-        
         <@pageId>.searchApproval();
         
-        
-		// List Range Select Box 설정
-        var singleboxList = { 
-			 data 			: C_COM.getCodeList("SEARCH_LIST_CNT")
-		 	,targetId 		: "listRange" 
-		}
-		C_UICOM.makeSelectBox(singleboxList, "single");
-        
-		
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -93,8 +74,10 @@
 					<button class="btn select fl">검색</button>
 					<button class="btn select fl" onclick="<@pageId>.apprReqPopup()">결재상신</button>
 					<div class="search_right">
+<!-- 
 						<button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>
                         <div id="searchListCnt" style="width:132px"></div>
+ -->
 		            </div>
 				</div>
 

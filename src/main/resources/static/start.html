@@ -49,6 +49,10 @@
 			location.replace("/");
 			
 		} else {
+			if(isEmpty(userInfo.SYSTEM_ROLE_ID)) {
+				C_POP.alert('권한 설정이 필요 합니다. 관리자에게 문의 하세요.');
+			}
+			
 			G_VAL.session			= userInfo				;
 
 			G_VAL.session.spCstmId	= userInfo.SP_CSTM_ID 	;
@@ -82,6 +86,7 @@
 		}
 		
 		$(function() {
+			
 			// 시작 Page Id
 			C_MENU.initMenu();
 			
@@ -245,6 +250,9 @@
 				
 				C_MENU.showMainMenuList	(mainIndex				);
 				C_MENU.moveMainMenu		(mainIndex				);
+				
+				C_HM.popPageStack();
+				
 				C_MENU.showSubMenuList	(mainIndex, subIndex	);
 				C_MENU.moveSubMenu		(subIndex				);
 				
@@ -365,7 +373,7 @@
 <body class="main">
 	<header id="header">
 		<div class="wrap">
-			<h1 class="logo"><a href="javascript:C_PM.movePage('sample_index')">Start Asset</a></h1>
+			<h1 class="logo"><a href="/start.html">Start Asset</a></h1>
 			<nav class="gnb">
 				<ul id="mainMenuList">
 				</ul>

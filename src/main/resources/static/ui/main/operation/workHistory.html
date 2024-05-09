@@ -34,6 +34,18 @@
 		 }
 		,loadWorkHistory : function() {
 				
+			let fromDate 	= $("#<@pageId> input[name=from]"		).val();
+			let toDate 		= $("#<@pageId> input[name=to]"			).val();
+			let searchWord	= $("#<@pageId> input[name=searchWord]"	).val();
+			
+			if(isEmpty(fromDate) || isEmpty(toDate)) {
+				C_POP.alert('검색 날짜를 선택 하세요.');
+				return;
+			}
+			
+			<@pageId>.userInfo.fromDate 	= getDateFormat(fromDate	, 8, "-");
+			<@pageId>.userInfo.toDate 		= getDateFormat(toDate		, 8, "-");	
+			<@pageId>.userInfo.searchWord 	= searchWord;	
 			
 			var parm = {
 				 queryId 		: "operation.getWorkHistoryList"
@@ -77,8 +89,16 @@
 			$("#<@pageId> #selectUser1").hide();
 			$("#<@pageId> #selectUser2").hide();
 		}
+		// init datepicker
+		
+		let fromDay	= getDateFormat(getAddMonth(getToday(), -1));
+		let toDay 	= getToday();
+		
+		$("#<@pageId> input[name=from]"	).val(fromDay);
+		$("#<@pageId> input[name=to]"	).val(toDay);
 		
 		<@pageId>.setUserInfo();
+		
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -95,12 +115,12 @@
 			<span class="tit01 fl lh33" id="selectUser1">사원 정보</span>
 			<a href="javascript:<@pageId>.selectUser()" class="btn fl" id="selectUser2">사원선택</a>
 			<div class="calendar_wrap fl">
-				<input type="text" id="from" name="from" class="datepicker" style="width:114px">
+				<input type="text" name="from" class="datepicker" style="width:114px">
 				<label for="to">~</label>
-				<input type="text" id="to" name="to" class="datepicker" style="width:114px">
+				<input type="text" name="to" class="datepicker" style="width:114px">
 			</div>
-               <input type="text" name="" class="fl">
-               <button class="btn select fl">검색</button>
+               <input type="text" name="searchWord" class="fl" onenter="<@pageId>.loadWorkHistory()">
+               <button class="btn select fl" onclick="<@pageId>.loadWorkHistory()">검색</button>
            </div>
            <div class="search_right">
 			<button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>

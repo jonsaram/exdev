@@ -9,18 +9,24 @@
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
 		
+		let parm = {
+			 BASE_FOLDER_ID : '<@BASE_FOLDER_ID>'
+			,TOP_FOLDER_ID 	: '<@TOP_FOLDER_ID>'
+		}
+		C_COMP.import("folderMng", "component_dashboard_compFolderMng", parm , function() {
+
+		});
 	});
 </script>
 <div class="modal_wrap">
 	<div class="modal" style="width:570px;height:350px;">
 		<div class="modal_header">
-			<strong class="tit">팝업 제목</strong>
+			<strong class="tit">기업폴더관리</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body">
-			<p>
-				popup 내용
-			</p>
+			<component id="folderMng">
+			</component>
 		</div>
 		<div class="modal_footer">
 			<button type="button" class="btn select">확인</button>

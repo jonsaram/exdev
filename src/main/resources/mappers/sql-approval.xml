@@ -46,7 +46,7 @@
     	20240303
     -->
     <select id="getApprovalList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /* approval.getApproval */
+        /* approval.getApprovalList */
 	    SELECT  
 	    	 A.APPROVAL_ID											AS APPROVAL_ID   
 			,A.RELATION_ID											AS RELATION_ID   
@@ -60,8 +60,15 @@
 			,TO_CHAR( A.COMPLETE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) 	AS COMPLETE_DATE
 		FROM  TBL_EXP_APPROVAL A
 		WHERE 1 = 1
+		<if test=' holdYn == "Y" '>
+			AND A.STATE 	= 'HOLD'
+		</if>		
+		<if test=' holdYn == "N" '>
+			AND NOT A.STATE 	= 'HOLD'
+		</if>		
 		    AND A.USER_ID    	= #{sessionVo.userId	}
 		    AND A.SP_CSTM_ID 	= #{sessionVo.spCstmId	}
+		    AND '${holdYn}' = '${holdYn}'
 		ORDER BY APPROVAL_DATE DESC
     </select>
 
@@ -118,7 +125,7 @@
         )
         VALUES(
 		    #{APPROVAL_ID		}   
-		   ,#{RELATION_ID		}   
+		   ,'${RELATION_ID		}'   
 		   ,#{sessionVo.userId 	}
 		   ,#{TITLE         	}
 		   ,#{CONTENTS      	}
@@ -303,10 +310,10 @@
     	Code by 위성열
     	20240303
     -->
-    <update id="saveCompleteAppr" parameterType="map" >
+    <update id="saveResultAppr" parameterType="map" >
         /* approval.saveCompleteAppr */
 		UPDATE TBL_EXP_APPROVAL_USER SET
-			 STATE 				= 'COMPLETE'
+			 STATE 				= #{STATE				}
 			,APPROVAL_COMMENT 	= #{APPROVAL_COMMENT	}
 			,COMPLETE_DATE 		= sysdate
 			,UPDATE_USER 		= #{sessionVo.userId 	}
@@ -321,10 +328,10 @@
     	Code by 위성열
     	20240303
     -->
-    <update id="saveCompleteMainAppr" parameterType="map" >
+    <update id="saveResultMainAppr" parameterType="map" >
         /* approval.saveCompleteMainAppr */
 		UPDATE TBL_EXP_APPROVAL SET
-			 STATE 				= 'COMPLETE'
+			 STATE 				= #{STATE				}
 			,COMPLETE_DATE 		= sysdate
 			,UPDATE_USER 		= #{sessionVo.userId 	}
 			,UPDATE_DATE 		= sysdate
@@ -351,5 +358,51 @@
 			AND APPROVAL_TYPE 	= 'NOTICE'
     </update>
 
-
+    <select id="getNowApprUserInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	approval.getNowApprUserInfo
+			현재 결재자 정보
+		*/
+		SELECT
+			 A.TITLE
+		    ,B.APPROVAL_ID
+		    ,B.ORDER_NUM
+		    ,B.SP_CSTM_ID
+		    ,B.USER_ID
+		    ,B.APPROVAL_TYPE
+		    ,B.STATE
+		    ,B.APPROVAL_COMMENT
+		    ,B.COMPLETE_DATE
+		FROM
+			 TBL_EXP_APPROVAL		A
+		    ,TBL_EXP_APPROVAL_USER	B
+		WHERE 1=1
+			AND A.APPROVAL_ID = B.APPROVAL_ID
+			AND B.APPROVAL_TYPE IN ('APPR', 'AGREE')
+			AND	B.APPROVAL_ID = #{APPROVAL_ID}
+			AND B.COMPLETE_DATE IS NULL
+		ORDER BY B.ORDER_NUM FETCH FIRST 1 ROW ONLY
+	</select>
+    <select id="getNowNoticeUserInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	approval.getNowNoticeUserInfo
+			현재 결재자 정보
+		*/
+		SELECT
+			 A.TITLE
+		    ,B.APPROVAL_ID
+		    ,B.ORDER_NUM
+		    ,B.SP_CSTM_ID
+		    ,B.USER_ID
+		    ,B.APPROVAL_TYPE
+		    ,B.STATE
+		    ,B.APPROVAL_COMMENT
+		    ,B.COMPLETE_DATE
+		FROM
+			 TBL_EXP_APPROVAL		A
+		    ,TBL_EXP_APPROVAL_USER	B
+		WHERE 1=1
+			AND A.APPROVAL_ID = B.APPROVAL_ID
+			AND B.APPROVAL_TYPE IN ('NOTICE')
+			AND	B.APPROVAL_ID = #{APPROVAL_ID}
+	</select>
+	
 </mapper>
