@@ -215,53 +215,64 @@
         <choose>
        	<when test='PA_ROLE != null'> 
         	<if test=" PA_ROLE.equals('SYSTEM') or PA_ROLE.equals('MANAGER')">
-		    AND 1=1  
+		    AND 1=1 
+		       <choose>
+		       	<when test=" USER_ID != null and !USER_ID.equals('') and USER != null and !USER.equals('')"> 
+						AND (	C.USER_ID  LIKE '%' || #{USER_ID} || '%'
+						  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
+							OR  C.USER_ID  LIKE '%' || #{USER} || '%'
+						  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
+							OR  C.USER_ID  LIKE '%' || REGEXP_SUBSTR(#{USER}, '\(([^)]+)\)', 1, 1, NULL, 1) || '%'
+						  	OR  U.USER_NM  LIKE '%' || REGEXP_SUBSTR(#{USER}, '[^ ]+', 1, 1) || '%'
+						  	) 
+				</when>
+		       	<when test=" USER_ID != null and !USER_ID.equals('')"> 
+						AND (  C.USER_ID  LIKE '%' || #{USER_ID} || '%'
+						  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
+						  	)
+				</when>
+		       	<when test=" USER != null and !USER.equals('')"> 
+						AND (  C.USER_ID  LIKE '%' || #{USER} || '%'
+						  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
+							OR  C.USER_ID  LIKE '%' || REGEXP_SUBSTR(#{USER}, '\(([^)]+)\)', 1, 1, NULL, 1) || '%'
+						  	OR  U.USER_NM  LIKE '%' || REGEXP_SUBSTR(#{USER}, '[^ ]+', 1, 1) || '%'
+						  	)
+				</when>
+				</choose>	
+		       <choose>
+		       	<when test=" BUYER_ID != null and !BUYER_ID.equals('') and BUYER != null and !BUYER.equals('')">  
+						AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
+						   OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     
+						   OR C.BUYER_ID LIKE '%' || #{BUYER} || '%'
+						   OR B.BUYER_NM LIKE '%' || #{BUYER} || '%'
+						   OR C.BUYER_ID  LIKE '%' || REGEXP_SUBSTR(#{BUYER}, '\(([^)]+)\)', 1, 1, NULL, 1) || '%'
+						   OR B.BUYER_NM  LIKE '%' || REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1) || '%'
+						   )
+				</when>
+		       	<when test=" BUYER_ID != null and !BUYER_ID.equals('')">  
+						AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
+				   			OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     
+				   			)
+				</when>
+		       	<when test=" BUYER != null and !BUYER.equals('') ">  
+						AND (  C.BUYER_ID   LIKE '%' || #{BUYER} || '%'
+						  	OR B.BUYER_NM   LIKE '%' || #{BUYER} || '%'
+						    OR C.BUYER_ID  LIKE '%' || REGEXP_SUBSTR(#{BUYER}, '\(([^)]+)\)', 1, 1, NULL, 1) || '%'
+						    OR B.BUYER_NM  LIKE '%' || REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1) || '%'
+						  	)
+				</when>
+				</choose>							     
         	</if>
         	<if test=" !PA_ROLE.equals('SYSTEM') and !PA_ROLE.equals('MANAGER')">
-        	AND (
-					C.USER_ID	= #{sessionVo.userId	}
-			 	OR	TM.USER_ID	= #{sessionVo.userId	} 	
-			)
+		        	AND (
+							C.USER_ID	= #{sessionVo.userId	}
+					 	OR	TM.USER_ID	= #{sessionVo.userId	} 	
+					)
         	</if>
 		</when>
-		</choose>	
-				
-	       	<if test=" USER_ID != null and !USER_ID.equals('') and USER != null and !USER.equals('')">  
-				AND (	C.USER_ID  LIKE '%' || #{USER_ID} || '%'
-				  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
-					OR  C.USER_ID  LIKE '%' || #{USER} || '%'
-				  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
-				  	)     
-	      	</if>
-	       	<if test=" USER_ID != null and !USER_ID.equals('') "> 
-				AND (  C.USER_ID  LIKE '%' || #{USER_ID} || '%'
-				  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
-				  	)
-	      	</if>
-	       	<if test=" USER != null and !USER.equals('') "> 
-				AND (  C.USER_ID  LIKE '%' || #{USER} || '%'
-				  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
-				  	)
-	      	</if>
-	      	
-	       	<if test=" BUYER_ID != null and !BUYER_ID.equals('') and BUYER != null and !BUYER.equals('')">  
-				AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
-				   OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     
-				   OR C.BUYER_ID LIKE '%' || #{BUYER} || '%'
-				   OR B.BUYER_NM LIKE '%' || #{BUYER} || '%'
-				   )
-	      	</if>
-	       	<if test=" BUYER_ID != null and !BUYER_ID.equals('') "> 
-				AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
-		   			OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     
-		   			)
-	      	</if>
-	       	<if test=" BUYER != null and !BUYER.equals('') "> 
-				AND (  C.BUYER_ID   LIKE '%' || #{BUYER} || '%'
-				  	OR B.BUYER_NM   LIKE '%' || #{BUYER} || '%'
-				  	)
-	      	</if>
 		
+		</choose>	
+ 				
 		<if test=" FROM_DATE != null and !FROM_DATE.equals('') ">
 		AND TO_CHAR( C.UPDATE_DATE, 'YYYY-MM-DD' )  <![CDATA[ >= ]]> #{FROM_DATE}
 		</if>
