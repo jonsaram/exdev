@@ -202,6 +202,7 @@
 		,TBL_EXP_USER U
 		,TBL_EXP_BUYER B
 		,TBL_EXP_CONSULTING CS
+		,TBL_EXP_CONTRACT_MEMBER TM
 		WHERE 1=1
 		AND C.USE_YN	= 'Y' 
 		AND C.DEL_YN 	= 'N'
@@ -209,6 +210,22 @@
 		AND C.BUYER_ID	= B.BUYER_ID
 		AND C.CONSULTING_ID = CS.CONSULTING_ID
 		AND C.PROCESS_STATE IN ( 'CONTRACTED', 'ON_COMPLETED_APPR', 'COMPLETED' )
+		AND C.CONTRACT_ID = TM.CONTRACT_ID
+		AND TM.RELATION_TYPE = 'EXECUTE'
+        <choose>
+       	<when test='PA_ROLE != null'> 
+        	<if test=" PA_ROLE.equals('SYSTEM') or PA_ROLE.equals('MANAGER')">
+		    AND 1=1  
+        	</if>
+        	<if test=" !PA_ROLE.equals('SYSTEM') and !PA_ROLE.equals('MANAGER')">
+        	AND (
+					C.USER_ID	= #{sessionVo.userId	}
+			 	OR	TM.USER_ID	= #{sessionVo.userId	} 	
+			)
+        	</if>
+		</when>
+		</choose>	
+				
 	       	<if test=" USER_ID != null and !USER_ID.equals('') and USER != null and !USER.equals('')">  
 				AND (	C.USER_ID  LIKE '%' || #{USER_ID} || '%'
 				  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'

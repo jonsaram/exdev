@@ -79,11 +79,22 @@
 		AND C.CONTRACT_ID = TM.CONTRACT_ID
 		AND TM.RELATION_TYPE = 'EXECUTE'
 		AND TM.USER_ID	=TM_U.USER_ID
-		AND (
-			 C.USER_ID	= #{sessionVo.userId	}
-		 OR  TM.USER_ID	= #{sessionVo.userId	} 	
-		)
-	</sql>	
+        <choose>
+       	<when test='PA_ROLE != null'> 
+        	<if test=" PA_ROLE.equals('SYSTEM') or PA_ROLE.equals('MANAGER')">
+		    AND 1=1  
+        	</if>
+        	<if test=" !PA_ROLE.equals('SYSTEM') and !PA_ROLE.equals('MANAGER')">
+        	AND (
+					C.USER_ID	= #{sessionVo.userId	}
+			 	OR	TM.USER_ID	= #{sessionVo.userId	} 	
+			)
+        	</if>
+		</when>
+		</choose>		
+
+	</sql>
+		
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getContractList
 			계약 리스트 조회 
