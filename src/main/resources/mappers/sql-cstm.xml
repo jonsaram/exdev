@@ -35,9 +35,9 @@
 		AND (  B.BUYER_ID IN ( SELECT DISTINCT C.BUYER_ID  
 								FROM TBL_EXP_CONTRACT C
 								,TBL_EXP_CONTRACT_MEMBER CM 
-								WHERE C.CONTRACT_ID = CM.CONTRACT_ID 
+								WHERE C.CONTRACT_ID = CM.CONTRACT_ID(+) 
 								AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
-								AND CM.RELATION_TYPE = 'EXECUTE'
+								AND CM.RELATION_TYPE(+) = 'EXECUTE'
 								AND ( C.USER_ID = #{sessionVo.userId}
 								  OR CM.USER_ID = #{sessionVo.userId}
 								)
