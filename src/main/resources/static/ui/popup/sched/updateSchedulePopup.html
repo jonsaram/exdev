@@ -162,53 +162,8 @@
             
             console.log("update");
 
-            if ($('#<@popupId>_title').val().length < 1) {
-                C_POP.alert("제목을 입력해 주세요.");
-                $("#<@popupId>_title").focus();
-                return false;
-            }
-            
-            if ($('#<@popupId>_dateStart').val().length < 1) {
-                C_POP.alert("일정을 입력해 주세요.");
-                $("#<@popupId>_dateStart").focus();
-                return false;
-            }
-
-            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) > Number($('#<@popupId>_dateEnd').val().replace(/-/gi,"")) ){
-                C_POP.alert("시작일이 종료일보다 클 수 없습니다.");
-                $("#<@popupId>_dateStart").focus();
-                return false;
-            }
-            
-            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) < Number(<@popupId>.today.replace(/-/gi,"")) ){
-                C_POP.alert("시작일이 현재일보다 작을 수 없습니다.");
-                $("#<@popupId>_dateStart").focus();
-                return false;
-            }
-
-            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) < Number(<@popupId>.today.replace(/-/gi,"")) ){
-                C_POP.alert("시작일이 현재일보다 작을 수 없습니다.");
-                $("#<@popupId>_dateStart").focus();
-                return false;
-            }
-            
-            let startHM = <@popupId>.startTimeH + <@popupId>.startTimeM;
-            let endHM   = <@popupId>.endTimeH + <@popupId>.endTimeM;
-            
-            if( Number(startHM.replace(/-/gi,"")) > Number(endHM.replace(/-/gi,"")) ){
-                C_POP.alert("시작시간이 종료시간보다 클 수 없습니다.");
-                return false;
-            }
-
-            var dateStart  = $('#<@popupId>_dateStart').val();
-            var dateEnd   = $('#<@popupId>_dateEnd').val();
-
-            if( dateStart == dateEnd ){
-                if( startHM == endHM ){
-                    
-                    C_POP.alert("일정 시작일시와 종료일시가 같습니다.");
-                    return false;
-                }
+            if( <@popupId>.saveCheck(<@popupId>.loopType) ){
+                return;
             }
             
             let requestParm = {};            
@@ -284,7 +239,79 @@
             return returnVal;
             
         }
-        
+        ,saveCheck : function( loopType ) {
+
+            if ($('#<@popupId>_title').val().length < 1) {
+                C_POP.alert("제목을 입력해 주세요.");
+                $("#<@popupId>_title").focus();
+                return true;
+            }
+            
+            if ($('#<@popupId>_dateStart').val().length < 1) {
+                C_POP.alert("일정을 입력해 주세요.");
+                $("#<@popupId>_dateStart").focus();
+                return true;
+            }
+
+            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) > Number($('#<@popupId>_dateEnd').val().replace(/-/gi,"")) ){
+                C_POP.alert("시작일이 종료일보다 클 수 없습니다.");
+                $("#<@popupId>_dateStart").focus();
+                return true;
+            }
+            
+            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) < Number(<@popupId>.today.replace(/-/gi,"")) ){
+                C_POP.alert("시작일이 현재일보다 작을 수 없습니다.");
+                $("#<@popupId>_dateStart").focus();
+                return true;
+            }
+
+            if( Number($('#<@popupId>_dateStart').val().replace(/-/gi,"")) < Number(<@popupId>.today.replace(/-/gi,"")) ){
+                C_POP.alert("시작일이 현재일보다 작을 수 없습니다.");
+                $("#<@popupId>_dateStart").focus();
+                return true;
+            }
+            
+            let startHM = <@popupId>.startTimeH + <@popupId>.startTimeM;
+            let endHM   = <@popupId>.endTimeH + <@popupId>.endTimeM;
+            
+            if( Number(startHM.replace(/-/gi,"")) > Number(endHM.replace(/-/gi,"")) ){
+                C_POP.alert("시작시간이 종료시간보다 클 수 없습니다.");
+                return true;
+            }
+
+            var dateStart  = $('#<@popupId>_dateStart').val();
+            var dateEnd   = $('#<@popupId>_dateEnd').val();
+
+            if( dateStart == dateEnd ){
+                if( startHM == endHM ){
+                    
+                    C_POP.alert("일정 시작일시와 종료일시가 같습니다.");
+                    return true;
+                }
+            }
+            
+            let startDay = $('#<@popupId>_dateStart').val();
+            let endDay   = $('#<@popupId>_dateEnd').val();
+            
+            const startDate = new Date(startDay);
+            const endDate   = new Date(endDay);
+            const diffDate = endDate.getTime() - startDate.getTime();
+            const dayCnt = Math.abs(diffDate / (1000 * 60 * 60 * 24)); // 밀리세컨 * 초 * 분 * 시 = 일
+            
+            if( "DAY" == loopType ){
+                if( startDay != endDay){
+                    C_POP.alert("매일 반복은 일정 시작일과 종료일이 같아야 합니다.");
+                    return true;
+                }
+            }else{
+                if( 5 < dayCnt){
+                    C_POP.alert("일정 시작일과 종료일 기간은 5일을 넘길 수 없습니다.");
+                    return true;
+                }
+            }
+                        
+            return false;
+        }
         ,loopTypeCheck : function( loopType ) {
             
             let dateStart = $('#<@popupId>_dateStart').val();
@@ -593,6 +620,7 @@
         <div class="modal" style="width:700px;height:750px;">
             <div class="modal_header">
                 <strong class="tit">캘린더 일정 수정</strong>
+                <button type="button" class="btn_zoomInOut"><span class="txt">확대</span></button>
                 <button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
                 
             </div>
