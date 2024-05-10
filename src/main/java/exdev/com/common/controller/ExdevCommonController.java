@@ -15,8 +15,6 @@
  */
 package exdev.com.common.controller;
 import java.io.File;
-import java.io.FileInputStream;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -43,9 +40,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.service.ExdevBaseService;
@@ -444,8 +441,8 @@ public class ExdevCommonController {
     public @ResponseBody Map  editImageUpload( 
             MultipartRequest request,  HttpSession session,HttpServletRequest httpServletRequest)  throws Exception {
 
-//        final String fileDirectoryPath = env.getProperty("filedirectorypath");
-		String fileDirectoryPath 		= "D:/OCI/workspace/exdev/";
+//      final String fileDirectoryPath = env.getProperty("filedirectorypath");
+		String fileDirectoryPath 		= "/home/ubuntu/spring-boot";
     	
         Map returnMap = new HashMap();
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);

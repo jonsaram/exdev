@@ -82,8 +82,6 @@
 			
 			let headerUserId = $("#<@popupId> input[name=headerCheck]:checked").val();
 			
-			<@popupId>.etcMemberMap[headerUserId]["HEADER_YN"] = "Y";
-			
 			if			(idx 		== 0) 	{
 				C_POP.alert('프로젝트 담당자을 추가하세요.'				);
 			} else if	(execCheck 	== "E") {
@@ -92,6 +90,8 @@
 				C_POP.alert('실행 컨설턴트를 지정 하세요.'				);
 			} else {
 				// 성공
+				<@popupId>.etcMemberMap[headerUserId]["HEADER_YN"] = "Y";
+
 				let teamMemberList = [<@popupId>.salesMember];
 				$.each(<@popupId>.etcMemberMap, function(key, obj) {
 					teamMemberList.push(obj);

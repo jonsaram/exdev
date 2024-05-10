@@ -184,8 +184,8 @@ public class FileService extends ExdevBaseService{
         Map returnMap = new HashMap();
 		
 //		String fileDirectoryPath 		= request.getSession().getServletContext().getRealPath("resources");
-		String fileDirectoryPath 		= "D:/OCI/workspace/exdev/";
-//		String fileDirectoryPath 		= "/home/ubuntu/spring-boot";
+//		String fileDirectoryPath 		= "D:/OCI/workspace/exdev/";
+		String fileDirectoryPath 		= "/home/ubuntu/spring-boot";
 		
         String path 		= fileDirectoryPath + File.separator + uploadPath;
         
