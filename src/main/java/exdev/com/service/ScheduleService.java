@@ -547,7 +547,7 @@ public class ScheduleService extends ExdevBaseService{
         }
         
         /* 매주 반복 */
-        /* */
+        /**/
         List<Map> weekRepeatlist = commonDao.getList("schedule.getTeamWeekRepeat", map);
         for(Map resultMap : weekRepeatlist) {
             listMap.add(resultMap); 
@@ -558,13 +558,6 @@ public class ScheduleService extends ExdevBaseService{
         List<Map> monthRepeatlist = commonDao.getList("schedule.getTeamMonthRepeat", map);
         for(Map resultMap : monthRepeatlist) {
             listMap.add(resultMap);  
-        }
-        
-        /* 매분기 반복 사용안함 */
-        /* */
-        List<Map> quarterRepeatlist = commonDao.getList("schedule.getTeamQuarterRepeat", map);
-        for(Map resultMap : quarterRepeatlist) {
-            listMap.add(resultMap); 
         }
         
         /* 매년 반복 */
