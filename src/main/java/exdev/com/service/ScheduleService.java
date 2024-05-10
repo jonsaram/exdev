@@ -561,12 +561,12 @@ public class ScheduleService extends ExdevBaseService{
         }
         
         /* 매분기 반복 사용안함 */
-        /*
+        /* */
         List<Map> quarterRepeatlist = commonDao.getList("schedule.getTeamQuarterRepeat", map);
         for(Map resultMap : quarterRepeatlist) {
             listMap.add(resultMap); 
         }
-         */
+        
         /* 매년 반복 */
         /**/
         List<Map> yearRepeatlist = commonDao.getList("schedule.getTeamYearRepeat", map);

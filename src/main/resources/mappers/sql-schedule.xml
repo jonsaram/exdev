@@ -731,20 +731,20 @@
                  AND A.CONTRACT_ID = C.CONTRACT_ID
                JOIN TABLE_DATE D
                    ON  1 = 1
-                   AND A.SCHEDULE_START_DATE = D.DTE
+                   AND TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') = D.DTE
         WHERE  1 = 1
         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
         AND    A.LOOP_TYPE = 'NOT_REPEAT' /*반복안함*/
-        AND    D.DTE <![CDATA[<=]]> A.SCHEDULE_LOOP_END_DATE 
+        AND    D.DTE <![CDATA[<=]]> TO_CHAR(A.SCHEDULE_LOOP_END_DATE ,'YYYY-MM-DD')
         AND    A.USER_ID    IN
         <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
                 #{userId}
         </foreach>
         <if test='periodYn == "Y"' >
             AND   (
-                    ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_START_DATE AND  A.SCHEDULE_START_DATE <![CDATA[<=]]> #{endDate} ) OR  
-                    ( A.SCHEDULE_START_DATE <![CDATA[<=]]> #{startDate} AND #{endDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE)  OR  
-                    ( #{startDate} <![CDATA[<=]]> A.SCHEDULE_END_DATE AND A.SCHEDULE_END_DATE <![CDATA[<=]]> #{endDate} )  
+                    ( #{startDate} <![CDATA[<=]]> TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') AND  TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') <![CDATA[<=]]> #{endDate} ) OR  
+                    ( TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') <![CDATA[<=]]> #{startDate} AND #{endDate} <![CDATA[<=]]> TO_CHAR(A.SCHEDULE_END_DATE,'YYYY-MM-DD'))  OR  
+                    ( #{startDate} <![CDATA[<=]]> TO_CHAR(A.SCHEDULE_END_DATE,'YYYY-MM-DD') AND TO_CHAR(A.SCHEDULE_END_DATE,'YYYY-MM-DD') <![CDATA[<=]]> #{endDate} )  
                   )
         </if>
         <if test=" contractId != null and contractId != '' " >
