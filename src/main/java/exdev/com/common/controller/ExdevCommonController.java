@@ -33,6 +33,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -79,7 +80,10 @@ public class ExdevCommonController {
     @Autowired
     private ApprovalService approvalService;
     
-	@SuppressWarnings({ "unused", "rawtypes" })
+    @Autowired
+    private Environment env;
+
+    @SuppressWarnings({ "unused", "rawtypes" })
 	@RequestMapping("requestService.do")
 	public @ResponseBody Map requestService(@RequestBody Map map, HttpSession session) throws Exception {
 		
@@ -351,7 +355,7 @@ public class ExdevCommonController {
      * @수 정 일자 :
      * @수 정 자
      */
-
+/*
     @SuppressWarnings({ "unused", "rawtypes" })
     @RequestMapping("/fileDownload.do")
     public void fileDownload(
@@ -385,7 +389,7 @@ public class ExdevCommonController {
         response.getOutputStream().close();
         
     }
-    
+ */   
     /** 
      * 내용        : CKEditor 저장 샘플
      * @생 성 자   : 이응규
@@ -394,7 +398,7 @@ public class ExdevCommonController {
      * @수 정 일자 :
      * @수 정 자
      */
-
+/*
     @SuppressWarnings({ "unused", "rawtypes" })
     @PostMapping("/editImageUpload1.do")
     public @ResponseBody Map  editImageUpload1( 
@@ -425,7 +429,7 @@ public class ExdevCommonController {
         //returnMap.put("uploaded", false);
         return returnMap;
     }
-
+*/
     /** 
      * 내용        : CKEditor 저장 샘플
      * @생 성 자   : 이응규
@@ -440,10 +444,13 @@ public class ExdevCommonController {
     public @ResponseBody Map  editImageUpload( 
             MultipartRequest request,  HttpSession session,HttpServletRequest httpServletRequest)  throws Exception {
 
+//        final String fileDirectoryPath = env.getProperty("filedirectorypath");
+		String fileDirectoryPath 		= "D:/OCI/workspace/exdev/";
+    	
         Map returnMap = new HashMap();
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
         
-        String localLocation = httpServletRequest.getSession().getServletContext().getRealPath("resources")+ File.separator + "editorFiles";
+        String localLocation = fileDirectoryPath + File.separator + "editorFiles";
         
         MultipartFile file = request.getFile("upload");
         String fileName = file.getOriginalFilename();

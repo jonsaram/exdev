@@ -999,7 +999,7 @@
                  ON  1 = 1
                  AND A.CONTRACT_ID = D.CONTRACT_ID      
         WHERE  1 = 1
-        AND    B.DTE <![CDATA[<=]]> A.SCHEDULE_LOOP_END_DATE
+        AND    B.DTE <![CDATA[<=]]> TO_CHAR(A.SCHEDULE_LOOP_END_DATE, 'YYYY-MM-DD')
         <if test='periodYn == "Y"' >
             AND   (
                     ( #{startDate} <![CDATA[<=]]> B.DTE AND  B.DTE <![CDATA[<=]]> #{endDate} ) OR  

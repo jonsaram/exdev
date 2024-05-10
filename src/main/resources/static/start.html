@@ -43,7 +43,7 @@
 		}
 		
 		let userInfo = ajaxRequest(sendParm);
-		
+		dalert(userInfo)
 		if(isEmpty(userInfo)) {
 			C_POP.alert('Session정보가 없습니다. 로그인을 해주세요.');
 			location.replace("/");
@@ -66,8 +66,7 @@
 				G_VAL.session.BUYER_ID = userInfo.USER_ID;
 				setBuyerSession(userInfo.USER_ID);
 			} else {
-				G_VAL.session.BUYER_ID = 'newko';
-				setBuyerSession('newko');
+				setBuyerListOfUser();
 			}
 			//changePwd("Y");
 		}
@@ -84,6 +83,26 @@
 				C_MENU.setBuyerInfo(G_VAL.session.buyerInfo);
 			});
 		}
+		
+		function setBuyerListOfUser() {
+			var parm = {
+				 queryId 		: "contract.getBuyerListOfUser"
+				,requestParm	: {
+					USER_ID : G_VAL.session.USER_ID
+				}
+			}	
+			C_COM.requestQuery(parm, function(resultData) {
+				if(isValid(resultData.data)) {
+					G_VAL.session.BUYER_ID = resultData.data[0].BUYER_ID;
+					setBuyerSession(G_VAL.session.BUYER_ID);
+				}
+			});
+			
+			
+			G_VAL.session.USER_ID
+		}
+		
+		
 		
 		$(function() {
 			

@@ -25,16 +25,16 @@
 				   ,userPw		: userPw
 				 }
 			}
-			
-			let userInfo = ajaxRequest(sendParm);
+			$("#loadingBar").show()
+			ajaxRequest(sendParm, function(userInfo) {
+				$("#loadingBar").hide();
 
-			if(userInfo.state == "E") {
-				alert('로그인 정보를 확인 하세요.');
-				return;
-			}
-			
-			location.href="/start.html";
-			
+				if(userInfo.state == "E") {
+					alert('로그인 정보를 확인 하세요.');
+					return;
+				}
+				location.href="/start.html";
+			});
 		}
 		
 		$(function() {
@@ -61,5 +61,33 @@
 		</div>
 		<button type="button" onclick="login()">LOG IN</button>
 	</div>
+	
+	
+	<!-- loading Bar -->
+	<div class="modal_wrap" style="display:none;" id="loadingBar">
+		<div class="preloader-wrapper big active">
+	      <div class="spinner-layer spinner-red">
+	        <div class="circle-clipper left"><div class="circle"></div></div>
+	        <div class="gap-patch"><div class="circle"></div></div>
+	        <div class="circle-clipper right"><div class="circle"></div></div>
+	      </div>
+	      <div class="spinner-layer spinner-orange">
+	        <div class="circle-clipper left"><div class="circle"></div></div>
+	        <div class="gap-patch"><div class="circle"></div></div>
+	        <div class="circle-clipper right"><div class="circle"></div></div>
+	      </div>
+	      <div class="spinner-layer spinner-red2">
+	        <div class="circle-clipper left"><div class="circle"></div></div>
+	        <div class="gap-patch"><div class="circle"></div></div>
+	        <div class="circle-clipper right"><div class="circle"></div></div>
+	      </div>
+	      <div class="spinner-layer spinner-orange2">
+	        <div class="circle-clipper left"><div class="circle"></div></div>
+	        <div class="gap-patch"><div class="circle"></div></div>
+	        <div class="circle-clipper right"><div class="circle"></div></div>
+	      </div>
+	    </div>
+	</div>
+	
 </body>
 </html>

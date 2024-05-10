@@ -15,10 +15,10 @@
 			잠재고객 / 가맹수 조회 
 		*/
 		SELECT MAX(#{sessionVo.userId	}) 			AS USER_ID
-			, ROUND(NVL(MAX( YEARLY_PAYMENT),0)) 	AS YEARLY_PAYMENT
-			, ROUND(NVL(MAX( SUM_PAYMENT),0)) 		AS SUM_PAYMENT
-			, ROUND(NVL(MAX( EXEC_SUM_PAYMENT),0)) 	AS EXEC_PAYMENT
-			, ROUND(NVL(MAX( SALES_SUM_PAYMENT),0)) AS SALES_SUM_PAYMENT
+			, NVL(MAX( YEARLY_PAYMENT),0) 		AS YEARLY_PAYMENT
+			, NVL(MAX( SUM_PAYMENT),0) 		AS SUM_PAYMENT
+			, NVL(MAX( EXEC_SUM_PAYMENT),0) 	AS EXEC_PAYMENT
+			, NVL(MAX( SALES_SUM_PAYMENT),0) 	AS SALES_SUM_PAYMENT
 			, NVL(MAX( POTENTIAL_CUSTOMER),0)  AS POTENTIAL_CUSTOMER
 			, NVL(MAX( AFFILIATE_CNT),0) AS AFFILIATE_CNT
 			, NVL(MAX( TARGET_PAYMENT ),0) AS TARGET_PAYMENT
@@ -343,6 +343,7 @@
 		WHERE 1=1
 			AND	BUYER_ID 		= #{BUYER_ID}    
 			AND UP_FOLDER_ID 	= #{FOLDER_ID}
+			AND DEL_YN 			= 'N'
 		ORDER BY 
 			ORDER_IDX
 			
@@ -377,6 +378,8 @@
 			,FOLDER_NM
 		FROM
 			TBL_EXP_FOLDER
+		WHERE
+			DEL_YN = 'N'	
 		START WITH
 			FOLDER_ID = #{FOLDER_ID}
 		CONNECT BY
@@ -500,6 +503,9 @@
 	</update>	
 
 	<update id="delShareMsg">
+		/*	faDashboard.delShareMsg
+			FA 대시보드 기업폴더관리 메시지 삭제
+		*/
 		UPDATE 
 			TBL_EXP_FOLDER_MSG 
 		SET 
@@ -507,5 +513,19 @@
 		WHERE 
 			FOLDER_MSG_ID = #{FOLDER_MSG_ID}
 	</update>
+		
+	<update id="deleteFolder">
+		/*	faDashboard.deleteFolder
+			FA 대시보드 기업폴더관리 폴더 삭제
+		*/
+		UPDATE 
+			TBL_EXP_FOLDER
+		SET 
+			DEL_YN = 'Y'
+		WHERE 
+			FOLDER_ID = #{FOLDER_ID}
+	</update>
+	
+	
 		
 </mapper>

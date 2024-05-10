@@ -207,6 +207,44 @@
 		AND DEL_YN = 'N'
 	</select>		
 
+	<select id="getBuyerListOfUser" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	contract.getBuyerListOfUser
+			User의 고객 리스트 조회 
+		*/
+		SELECT DISTINCT BUYER_ID, BUYER_NM
+		FROM (
+			SELECT 
+				 A.BUYER_ID
+				,A.BUYER_NM
+			FROM 
+				 TBL_EXP_BUYER    		A
+				,TBL_EXP_CONTRACT 		B
+				,TBL_EXP_TEAM_MEMBER	C
+			WHERE 1=1
+				AND	A.BUYER_ID 		= B.BUYER_ID
+				AND B.CONTRACT_ID 	= C.CONTRACT_ID
+				AND C.USER_ID		= #{USER_ID}
+				AND A.USE_YN = 'Y'
+				AND A.DEL_YN = 'N'
+				AND B.USE_YN = 'Y'
+				AND B.DEL_YN = 'N'
+			UNION
+			SELECT 
+				 A.BUYER_ID
+				,A.BUYER_NM
+			FROM 
+				 TBL_EXP_BUYER    		A
+				,TBL_EXP_CONTRACT 		B
+			WHERE 1=1
+				AND	A.BUYER_ID 		= B.BUYER_ID
+				AND B.USER_ID		= #{USER_ID}
+				AND A.USE_YN = 'Y'
+				AND A.DEL_YN = 'N'
+				AND B.USE_YN = 'Y'
+				AND B.DEL_YN = 'N'
+		)
+	</select>		
+
 	<select id="getUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getUserList
 			계약 담당자 리스트 조회 
@@ -562,6 +600,7 @@
 				,PROCESS_STATE
 				,USE_YN
 				,DEL_YN
+				,BASE_FOLDER_ID
 				,UPDATE_DATE
 				,UPDATE_USER
 				,SP_CSTM_ID
@@ -573,6 +612,7 @@
 				,'PRE_CONTRACT'
 				,'Y'
 				,'N' 
+				,#{BASE_FOLDER_ID		}
 	   			,sysdate
 	   			,#{sessionVo.userId		}
 				,#{sessionVo.spCstmId	}
@@ -583,36 +623,17 @@
 		/*	contract.getProjectList
 			프로젝트 리스트 조회 
 		*/
-		WITH LRAPR AS (
-			SELECT 
-				 A.APPROVAL_ID
-				,A.RELATION_ID
-				,A.STATE
-			FROM 
-				TBL_EXP_APPROVAL A,
-				(	
-					SELECT 
-						  RELATION_ID
-						 ,MAX(CREATE_DATE) CREATE_DATE
-					FROM TBL_EXP_APPROVAL
-					GROUP BY 
-						RELATION_ID
-				) B
-			WHERE 	
-					A.RELATION_ID = B.RELATION_ID
-				AND A.CREATE_DATE = B.CREATE_DATE
-		)
+
 		SELECT 
 			 A.CONTRACT_ID
 			,A.USER_ID
 			,GET_USER_NM(A.USER_ID) AS USER_NM
 			,B.USER_ID AS CONSULTANT_USER_ID
-			,GET_USER_NM(B.USER_ID) AS CONSULTANT_USER_NM
+			,E.USER_NM AS CONSULTANT_USER_NM
 			,A.BUYER_ID
-			,(SELECT BUYER_NM FROM TBL_EXP_BUYER WHERE BUYER_ID = A.BUYER_ID) AS BUYER_NM
+			,C.BUYER_NM
 			,A.CONSULTING_ID
-			,(SELECT CONSULTING_TYPE FROM TBL_EXP_CONSULTING WHERE CONSULTING_ID = A.CONSULTING_ID) AS CONSULTING_TYPE
-			,(SELECT CONSULTING_NM FROM TBL_EXP_CONSULTING WHERE CONSULTING_ID = A.CONSULTING_ID) AS CONSULTING_NM
+			,D.CONSULTING_NM
 			,A.PROCESS_STATE
 			,GET_CODE_NM('PROCESS_STATE', PROCESS_STATE) AS PROCESS_STATE_NM
 			,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) AS UPDATE_DATE
@@ -620,9 +641,13 @@
                 SELECT GET_CODE_NM('APPROVAL_USER_PROC', B.STATE) FROM TBL_EXP_APPROVAL B WHERE A.CONTRACT_ID = B.RELATION_ID
                 ORDER BY APPROVAL_DATE DESC FETCH FIRST 1 ROW ONLY
              ) AS APP_STATE_NM
+            ,A.BASE_FOLDER_ID
 		FROM 
 		 	  TBL_EXP_CONTRACT  	A
 		 	 ,TBL_EXP_TEAM_MEMBER 	B
+		 	 ,TBL_EXP_BUYER 		C
+		 	 ,TBL_EXP_CONSULTING 	D
+		 	 ,TBL_EXP_USER			E
 		WHERE  1=1
 			AND B.CONTRACT_ID(+)    = A.CONTRACT_ID
 			AND B.TEAM_USER_ROLE(+) = 'EXEC'
@@ -631,10 +656,18 @@
 				OR  A.USER_ID 			= #{sessionVo.userId}
 				OR  B.USER_ID 			= #{sessionVo.userId}
 			)
-			AND DEL_YN 		= 'N'
-			AND	A.SP_CSTM_ID	= #{sessionVo.spCstmId}
-		ORDER BY UPDATE_DATE DESC				
-		
+			AND A.BUYER_ID				= C.BUYER_ID
+			AND A.CONSULTING_ID			= D.CONSULTING_ID
+			AND B.USER_ID				= E.USER_ID(+)
+			AND A.DEL_YN 				= 'N'
+			<if test=" searchWord != null and searchWord != '' " >
+			AND (
+					GET_USER_NM(B.USER_ID)	LIKE '%${searchWord}%'
+				OR	C.BUYER_NM				LIKE '%${searchWord}%'
+				OR	D.CONSULTING_NM			LIKE '%${searchWord}%'
+			)
+			</if>
+		ORDER BY UPDATE_DATE DESC			
 				
 	</select>	
 
@@ -646,6 +679,18 @@
 		
 		UPDATE TBL_EXP_CONTRACT
 			SET PROCESS_STATE = #{PROCESS_STATE}
+		WHERE 
+			CONTRACT_ID = #{CONTRACT_ID}
+	</update>
+
+
+	<update id="deleteProject">
+		/*	contract.deleteProject
+			Project 삭제
+		*/
+		
+		UPDATE TBL_EXP_CONTRACT
+			SET DEL_YN = 'Y'
 		WHERE 
 			CONTRACT_ID = #{CONTRACT_ID}
 	</update>

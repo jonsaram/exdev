@@ -4,11 +4,13 @@
 		 baseFolderId 		: "BASE"
 		,topFolderId		: "BASE"
 		,upFolderId			: ""
+		,onClickCheck		: false
 		,BUYER_ID			: G_VAL.session.BUYER_ID
 		,leftFolderList		: []
 		,subFolderList		: []
 		,selectFolderId		: ""
 		,loadLeftFolderList	: function(defaultIdx) {
+			
 			let baseFolderId = <@compId>.baseFolderId;
 			
 			if(isEmpty(defaultIdx)) defaultIdx = 0;
@@ -36,7 +38,7 @@
 					 }
 				]
 			}
-			debugger;
+
 			C_COM.requestQuery(parm, function(resultData) {
 				
 				if(baseFolderId != <@compId>.topFolderId) {
@@ -60,7 +62,15 @@
 				
 				if(baseFolderId == <@compId>.topFolderId) $("#<@compId> #upFolder").hide();
 				
-				<@compId>.loadSubFolderList(<@compId>.selectFolderId);
+				if(isValid(<@compId>.leftFolderList)) {
+					<@compId>.loadSubFolderList(<@compId>.selectFolderId);	
+				} else {
+					<@compId>.clearRightBlock();					
+				}
+				
+				
+				
+				
 				
 				
 				// 경로 설정
@@ -73,6 +83,34 @@
 				C_COM.renderHtml("<@compId>", rparm);
 				
 			});  
+		 }
+		,clearRightBlock : function() {
+			var rparm = {
+				 targetId 		: "subFolder"
+				,list			: []
+			}
+			C_COM.renderHtml("<@compId>", rparm);
+			
+			var rparm = {
+				 targetId 		: "shareMsg"
+				,list			: []
+			}
+			
+			C_COM.renderHtml("<@compId>", rparm);
+
+			var parm = {
+				 GRP_FILE_ID 	: "NA"
+				,OWNER_CD 		: "NA"
+				,mode			: "M"
+				,title			: "NA"
+				,hideButton		: "Y"
+				,templateId		: "<@compId>"
+			}
+
+			C_COMP.import("folderFileMng", "component_compMultiFilemng", parm , function() {
+
+			});
+			
 		 }
 		,loadSubFolderList : function(selectFolderId) {
 			
@@ -106,7 +144,11 @@
 			<@compId>.folderFileMng.init("MN_DSH_FOLDER", folderId);
 		 }
 		,selectLeftFolder	: function(folderId) {
-			<@compId>.loadSubFolderList(folderId);
+			<@compId>.onClickCheck = true;
+			setTimeout(function() {
+				if(<@compId>.onClickCheck) <@compId>.loadSubFolderList(folderId);
+				<@compId>.onClickCheck = false;
+			}, 250);
 		 }
 		,addFolder : function() {
 			C_POP.open('popup_common_inputOnelinePopup', {title1 : "폴더추가", title2 : "폴더명", msg : ""}, function(retData) {
@@ -164,7 +206,6 @@
 				C_POP.alert('상위 폴더를 선택해 주세요.')
 				return;
 			}
-			
 			C_POP.open('popup_common_inputOnelinePopup', {title1 : "폴더추가", title2 : "폴더명", msg : ""}, function(retData) {
 
 				if(isEmpty(retData)) return;
@@ -185,6 +226,7 @@
 			});
 		 }
 		,moveFolder : function(folderId, idx) {
+			<@compId>.onClickCheck = false;
 			<@compId>.baseFolderId = folderId;
 			<@compId>.loadLeftFolderList(idx);
 		 }
@@ -337,11 +379,12 @@
 		C_COMP.import("folderFileMng", "component_compMultiFilemng", parm , function() {
 
 		});
+		
 	});
 </script>
 <component>
 	<section class="sec_wrap mb5">
-		<div class="cont_box" id="folderPath">
+		<div class="cont_box font12" id="folderPath">
 		</div>
 		<script type="text/x-jsrender" id="folderPath_template">
 			<a href="javascript:<@compId>.moveFolder('BASE')"><strong>기본폴더</strong></a> 
@@ -353,21 +396,20 @@
 			<a href="javascript:<@compId>.moveFolder('BASE')"><strong>기본폴더</strong></a> 
 		</script>
 	</section>
-
-	<div class="sec_scroll">
+	<div class="sec_scroll" style="height:calc(100% - 105px);">
 		<section class="sec_wrap h100">
 			<!-- 분류별 실적 -->
 			<div class="cont_box left v2 h100">
 				<ul class="folder_menu" id="leftFolder">
 				</ul>
 				<script type="text/x-jsrender" id="leftFolder_template">
-					<li id="upFolder" onclick="<@compId>.moveUpFolder()">..</li>	
+					<li id="upFolder" onDblclick="<@compId>.moveUpFolder()">..</li>	
 				{{for list}}
-					<li idx="{{:#index}}" {{:cls}} onclick="<@compId>.selectLeftFolder('{{:FOLDER_ID}}')">{{:FOLDER_NM}}</li>
+					<li idx="{{:#index}}" {{:cls}} onclick="<@compId>.selectLeftFolder('{{:FOLDER_ID}}')" onDblClick="<@compId>.moveFolder('{{:FOLDER_ID}}', 0 )">{{:FOLDER_NM}}</li>
 				{{/for}}
 				</script>
 				<script type="text/x-jsrender" id="leftFolder_noData_template">	
-					<li class="tc">등록된 폴더가 없습니다.</li>
+					<li id="upFolder" onDblclick="<@compId>.moveUpFolder()">..</li>	
 				</script>
 				<div class="fr" style="height:30px;line-height:30px;">
 					<button class="btn small select" onclick="<@compId>.addFolder()">추가</button>
@@ -378,8 +420,8 @@
 			<div class="cont_box right v2 h100" style="overflow-y:auto;">
 				<!--// 폴더 등록 -->
 				<div class="clearFix mb10">
-					<h3 class="fl">폴더</h3>
-					<button type="button" class="btn small fl" onclick="<@compId>.addSubFolder()">등록</button>
+					<h3 class="fl mtb0">폴더</h3>
+					<a href="javascript:;" class="btn small fl" onclick="<@compId>.addSubFolder()">등록</a>
 				</div>
 				<div class="approver_list_wrap person">
 					<ul class="listBtn v2" id="subFolder" style="margin-top:7px;margin-left:7px;margin-bottom:7px;">
@@ -400,23 +442,23 @@
 					
 				</div>
 				<!-- 폴더 등록 //-->
-
+	
 				<!--// 파일 등록 -->
 				<div class="clearFix mb10 mt15">
-					<h3 class="fl">첨부파일</h3>
+					<h3 class="fl mtb0">첨부파일</h3>
 					<button type="button" class="stateBtn file fl mt0" onclick="<@compId>.selectFile()"><span>등록</span></button>
 				</div>
 				<div id="folderFileMng">
 				</div>
 				<!-- 파일 등록 //-->
-
+	
 				<!--// 공유 메시지 -->
 				<h3 class="mt25 mb10">공유 메시지</h3>
-				<ul class="share_msg approver_list_wrap"  style="max-height:300px" id="shareMsg">
+				<ul class="share_msg" id="shareMsg">
 				</ul>
 				<script type="text/x-jsrender" id="shareMsg_template">	
 				{{for list}}
-					<li><span class="time">{{:UPDATE_DATE}}</span> <span class="txt"> {{:UPDATE_USER_NM}} : {{:CONTENT}}</span><button class="close" onclick="<@compId>.delShareMsg('{{:FOLDER_MSG_ID}}', {{:#index}})">닫기</button></li>
+					<li><span class="time">{{:UPDATE_DATE}}</span> <strong>{{:UPDATE_USER_NM}}</strong> <span class="txt">{{:CONTENT}}</span> <div class="fr"><button><i class="icon_pen"></i></button><button><i class="icon_trash"></i></button></div></li>
 				{{/for}}
 				</script>
 				<script type="text/x-jsrender" id="shareMsg_noData_template">	
@@ -424,6 +466,7 @@
 						등록된 내용이 없습니다.
 					</li>
 				</script>
+				
 				<div class="comment clearFix mt10">
 					<strong class="fl lh33">메시지</strong>
 					<input class="fl" type="text" style="width:calc(100% - 120px)" value="" id="folderMsg" onEnter="<@compId>.addShareMsg()">

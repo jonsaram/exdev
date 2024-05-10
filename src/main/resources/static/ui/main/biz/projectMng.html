@@ -43,8 +43,6 @@
 					}
 				});
 				
-				
-				
 				$.each(<@pageId>.projectList, function(idx) {
 					if(isEmpty(this.APP_STATE_NM)) <@pageId>.projectList[idx].APP_STATE_NM = "";
 				});
@@ -57,13 +55,36 @@
 				C_COM.renderHtml("<@pageId>", rparm);
 			});  
 		 }
-		,modify	: function(index) {
+		,modifyProject	: function(index) {
 			let projectItem = <@pageId>.projectList[index];
 			
 			C_POP.open('popup_operation_projectRegistPopup', {mode : 'M', projectItem : projectItem }, function(retData) {
 				if(retData.reload == 'Y') {
 					<@pageId>.loadData();
 				}
+			});
+		 }
+		,deleteProject	: function(index) {
+			let projectItem = <@pageId>.projectList[index];
+			
+			C_POP.confirm('선택된 프로젝트를 삭제하시겠습니까?', function() {
+
+				var parm =	{
+					 queryId 		: "contract.deleteProject"
+					,requestParm	: projectItem
+				}
+
+				C_COM.requestQuery(parm, function(resultData) {
+					if(resultData.state == "S") {
+						
+						C_POP.alert('삭제 되었습니다.');
+						
+						<@pageId>.loadData();
+						
+					} else {
+						C_POP.alert('삭제 실패 했습니다.');
+					}
+				});
 			});
 		 }
 		,approval : function(idx, appContent) {
@@ -85,7 +106,7 @@
 		        };
 		        apprProcessState = "ON_CONTRACTING_APPR";
 	        }
-	        dalert(requestParm.projectInfo);
+
 	        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
 				if(retData.state == "S") {
 					// 프로젝트 Update
@@ -267,8 +288,8 @@
 							</td>
 							<td>
 							{{if SHOW_BTN=="Y" ~index=#index}} 
-								<button onclick="<@pageId>.modify({{:~index}})"><i class="icon_pen"		></i></button>	&nbsp; 
-								<button onclick="<@pageId>.delete({{:~index}})"><i class="icon_trash"	></i></button>
+								<button onclick="<@pageId>.modifyProject({{:~index}})"><i class="icon_pen"		></i></button>	&nbsp; 
+								<button onclick="<@pageId>.deleteProject({{:~index}})"><i class="icon_trash"	></i></button>
 							{{else}}
 								&nbsp;	
 							{{/if}}

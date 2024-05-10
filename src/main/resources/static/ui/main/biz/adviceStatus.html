@@ -12,11 +12,10 @@
 			C_COM.requestQuery(parm, function(resultData) {
 				let codeList = C_COM.makeArrayTwoColumn(resultData.data, "BUYER_ID", "BUYER_NM");
 				var singleboxList = { 
-					 defaultItem 	: ["", "고객선택"]
-					,data 			: codeList
+					 data 			: codeList
 				 	,targetId 		: "<@pageId>_customerSelectBox" 
 				}
-				C_UICOM.makeSelectBox(singleboxList, "single");
+				C_UICOM.makeSelectBox(singleboxList, "multi");
 			});
 			
 			// 두번째 SelectBox 세팅	    
@@ -27,11 +26,10 @@
 			C_COM.requestQuery(parm2, function(resultData) {
 				let codeList = C_COM.makeArrayTwoColumn(resultData.data, "CONSULTING_ID", "CONSULTING_NM");
 				var singleboxList = { 
-					 defaultItem 	: ["", "상품선택"]
-					,data 			: codeList
+					 data 			: codeList
 				 	,targetId 		: "<@pageId>_consultingSelectBox" 
 				}
-				C_UICOM.makeSelectBox(singleboxList, "single");
+				C_UICOM.makeSelectBox(singleboxList, "multi");
 			});
 			
 			// 결재 현황 리스트
@@ -47,6 +45,15 @@
 				}
 				C_COM.renderHtml("<@pageId>", parm);
 			});
+		 }
+		,makeFilterMap : function() {
+			let filterMap = {}
+
+			filterMap.consultingList 	= C_UICOM.getData("<@pageId>_consultingSelectBox");
+			filterMap.buyerList 		= C_UICOM.getData("<@pageId>_customerSelectBox");
+			
+			return filterMap;
+			
 		 }
 		,loadCardList 	: function() {
 			
@@ -135,7 +142,7 @@
 				,TOP_FOLDER_ID	: projectInfo.BASE_FOLDER_ID 
 			}
 			C_POP.open('popup_biz_folderMngPopup', parm, function(retData) {
-				dalert(retData);
+				
 			});
 		 }
 	}
@@ -166,11 +173,11 @@
 					<label for="to">~</label>
 					<input type="text" id="to" name="to" class="datepicker" style="width:114px">
 				</div>
-				<div id="<@pageId>_customerSelectBox" 	class="select_box fl" style="width:160px"></div>
-                <div id="<@pageId>_consultingSelectBox" class="select_box fl" style="width:200px"></div>
+				<div id="<@pageId>_customerSelectBox" 	class="select_box fl" style="width:250px"></div>
+                <div id="<@pageId>_consultingSelectBox" class="select_box fl" style="width:250px"></div>
                 <span class="tit01 fl lh33 tr" style="min-width:40px;">내용</span>
                 <input type="text" name="" class="fl">
-                <button class="btn select fl">검색</button>
+                <button class="btn select fl" onclick="<@pageId>.makeFilterMap()">검색</button>
 			</div>
 		</li>
 	</ul>

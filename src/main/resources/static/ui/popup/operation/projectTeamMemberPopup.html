@@ -76,6 +76,10 @@
 			});
 			
 			// 팀장 세팅
+			$.each(<@popupId>.etcMemberMap, function(key, obj) {
+				<@popupId>.etcMemberMap[key].HEADER_YN = "N";
+			});
+			
 			let headerUserId = $("#<@popupId> input[name=headerCheck]:checked").val();
 			
 			<@popupId>.etcMemberMap[headerUserId]["HEADER_YN"] = "Y";
@@ -127,6 +131,7 @@
 		
 		<@popupId>.salesMember = userInfo;
 		<@popupId>.salesMember["TEAM_USER_ROLE"] = "SALES";
+		<@popupId>.salesMember["HEADER_YN"] 		= "N";
 		
 	});
 </script>

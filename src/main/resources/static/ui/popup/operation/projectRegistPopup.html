@@ -55,17 +55,22 @@
 				return;
 			}
 			
+			let folderNm = `${<@popupId>.buyerInfo.BUYER_NM}_${<@popupId>.consultingInfo.CONSULTING_NM}`;
+			
+			let folderId = C_COM.makeUniqueId();
+			
+			saveData.BASE_FOLDER_ID = folderId;
+			
 			let parm1 ={
 				 queryId 		: "contract.registProject"
 				,requestParm	: saveData
 			}
-			
-			let folderNm = `${<@popupId>.buyerInfo.BUYER_NM}_${<@popupId>.consultingInfo.CONSULTING_NM}`;
+
 			
 			let parm2 = {
 				 queryId 		: "faDashboard.saveFolder"
 				,requestParm	: {
-					 FOLDER_ID 		: C_COM.makeUniqueId()
+					 FOLDER_ID 		: folderId
 					,FOLDER_NM 		: folderNm
 					,BUYER_ID		: saveData.BUYER_ID
 					,UP_FOLDER_ID	: 'BASE'

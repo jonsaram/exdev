@@ -73,10 +73,14 @@ public class ExdevSessionController {
 		String spCstmId 	= (String)userInfo.get("SP_CSTM_ID"	);
 		String userNm 		= (String)userInfo.get("BUYER_NM"	);
 		String userId 		= (String)userInfo.get("BUYER_ID"	);
+		String systemRoleId	= (String)userInfo.get("SYSTEM_ROLE_ID"		);
+		String systemRoleNm	= (String)userInfo.get("SYSTEM_ROLE_NM"		);
 		
 		sessionVO.setSpCstmId	(spCstmId	);
 		sessionVO.setUserId		(userId		);
 		sessionVO.setUserNm		(userNm		);
+		sessionVO.setSystemRoleId(systemRoleId);
+		sessionVO.setSystemRoleNm(systemRoleNm);
 		sessionVO.setLoginType	("BUYER"	);
 		
 		session.setAttribute(ExdevConstants.SESSION_ID, sessionVO);

@@ -30,7 +30,6 @@ var <@pageId> = {
 			return <@pageId>.getItems("<@pageId>_searchItems")
 		}
 		,searchObj : (queryId, parm) => {
-			dalert(parm);
 			
 				var parm = {
 						 queryId 		: queryId
@@ -160,8 +159,6 @@ var <@pageId> = {
    			})
    			
    			$('button[name="<@pageId>_delete"]').on('click', function (e) {
-dalert("delete");
-return;
    				const loc = $(this).siblings(".item-box").attr("id");
    					
    				if(<@pageId>.validation(loc,"deleteCode")  == false)return;

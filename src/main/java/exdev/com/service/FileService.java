@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +35,8 @@ public class FileService extends ExdevBaseService{
 	@Autowired
 	private ExdevCommonDao commonDao;
 
+    @Autowired
+    private Environment env;
 
     /** 
      * 멀티 파일삭제 서비스
@@ -47,7 +50,7 @@ public class FileService extends ExdevBaseService{
     public Map fileDeleteMulti(HttpServletRequest request, String[] uuidArry) throws Exception {
 	    
 	    Map<String, String> returnMap = new HashMap<String, String>();
-	    String root = request.getSession().getServletContext().getRealPath("resources");
+        final String fileDirectoryPath = env.getProperty("filedirectorypath");
 	    
 	    try {
             for(  String uuid:uuidArry ) {
@@ -57,7 +60,7 @@ public class FileService extends ExdevBaseService{
                 int result = 0;
                 
                 for(Map fileMap : list) {
-                    new File(root +File.separator+  fileMap.get("FILE_PATH") +File.separator+ fileMap.get("STORED_FILE_NAME")).delete();
+                    new File(fileDirectoryPath +File.separator+  fileMap.get("FILE_PATH") +File.separator+ fileMap.get("STORED_FILE_NAME")).delete();
                     result += commonDao.delete("Sample.deleteFile", uuidMap);
                 }
             }
@@ -176,14 +179,22 @@ public class FileService extends ExdevBaseService{
 	@SuppressWarnings("unchecked")
 	public Map fileUploadMulti( HttpServletRequest request, List<MultipartFile> multiFileList, String  GRP_FILE_ID, String[] FILE_IDS, String  uploadPath, SessionVO sessionVo) throws Exception {
 		
-		Map returnMap = new HashMap();
+        final String fileDirectoryPath2 = env.getProperty("filedirectorypath");
+        
+        Map returnMap = new HashMap();
 		
-		String root 		= request.getSession().getServletContext().getRealPath("resources");
-//		String root 		= "D:/OCI/workspace/exdev/";
-//		String root 		= "/home/ubuntu/spring-boot";
+//		String fileDirectoryPath 		= request.getSession().getServletContext().getRealPath("resources");
+		String fileDirectoryPath 		= "D:/OCI/workspace/exdev/";
+//		String fileDirectoryPath 		= "/home/ubuntu/spring-boot";
 		
-		
-        String path 		= root + File.separator + uploadPath;
+        String path 		= fileDirectoryPath + File.separator + uploadPath;
+        
+        System.out.println("1=================================================================");
+        System.out.println("=================================================================");
+        System.out.println(fileDirectoryPath);
+        System.out.println(fileDirectoryPath2);
+        System.out.println("=================================================================");
+        System.out.println("=================================================================");
         
 		File fileCheck = new File(path);
 		if(!fileCheck.exists()) fileCheck.mkdirs();
@@ -217,6 +228,12 @@ public class FileService extends ExdevBaseService{
 			for(int i = 0; i < multiFileList.size(); i++) {
 				
 				Map insertMap = (Map)fileList.get(i);
+				
+		        System.out.println("2=================================================================");
+		        System.out.println("=================================================================");
+		        System.out.println((String)insertMap.get("FILE_PATH"));
+		        System.out.println("=================================================================");
+		        System.out.println("=================================================================");
 				
 				File uploadFile = new File((String)insertMap.get("FILE_PATH"));
 				
