@@ -1223,7 +1223,7 @@
                 /*=============================================================================*/
         ) A
         WHERE  1 = 1
-        AND    TO_DATE(SCHEDULE_START_DATE)  <![CDATA[<=]]> SCHEDULE_LOOP_END_DATE
+        AND    TO_DATE(SCHEDULE_START_DATE)  <![CDATA[<=]]> TO_CHAR(SCHEDULE_LOOP_END_DATE,'YYYY-MM-DD')
     </select>
     
     
@@ -1724,7 +1724,7 @@
                 /*================================================================*/
         ) A
         WHERE  1 = 1
-        AND    TO_DATE(A.SCHEDULE_START_DATE) <![CDATA[<=]]> SCHEDULE_LOOP_END_DATE
+        AND    A.SCHEDULE_START_DATE <![CDATA[<=]]> TO_CHAR(A.SCHEDULE_LOOP_END_DATE, 'YYYY-MM-DD')
     </select>
     <select id="getTeamMonthRepeat" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.getTeamMonthRepeat */
@@ -2708,7 +2708,7 @@
                /*==========================================================================*/
         ) A
         WHERE 1 = 1
-        AND   TO_DATE(A.SCHEDULE_START_DATE) <![CDATA[<=]]> SCHEDULE_LOOP_END_DATE 
+        AND   A.SCHEDULE_START_DATE <![CDATA[<=]]> TO_CHAR(A.SCHEDULE_LOOP_END_DATE,'YYYY-MM-DD')
     </select>
     
     <!-- 매년 반복이기때문에 시작만 보면됨  -->    
