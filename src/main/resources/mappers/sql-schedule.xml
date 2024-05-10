@@ -609,7 +609,7 @@
                    AND A.CONTRACT_ID = C.CONTRACT_ID
                JOIN TABLE_DATE D
                    ON  1 = 1
-                   AND A.SCHEDULE_START_DATE = D.DTE
+                   AND TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') = D.DTE
         WHERE  1 = 1
         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
         AND    A.USER_ID    = #{sessionVo.userId}
@@ -652,7 +652,7 @@
                    AND A.CONTRACT_ID = C.CONTRACT_ID
                JOIN TABLE_DATE D
                    ON  1 = 1
-                   AND A.SCHEDULE_START_DATE = D.DTE
+                   AND TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') = D.DTE
                JOIN TBL_EXP_SCHEDULE_SHARE E
                    ON  1 = 1
                    AND A.SP_CSTM_ID = E.SP_CSTM_ID
@@ -840,7 +840,7 @@
         WHERE  1 = 1
         AND A.SP_CSTM_ID  = #{sessionVo.spCstmId}
         AND A.USER_ID     = #{sessionVo.userId}
-        AND B.DTE <![CDATA[<=]]>  SCHEDULE_LOOP_END_DATE
+        AND B.DTE <![CDATA[<=]]>  TO_CHAR(SCHEDULE_LOOP_END_DATE,'YYYY-MM-DD')
         UNION ALL
         SELECT A.SCHEDULE_GRP_ID
               ,A.SCHEDULE_ID
@@ -885,7 +885,7 @@
                    AND A.USER_ID     != E.USER_ID
         WHERE  1 = 1
         AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
-        AND B.DTE <![CDATA[<=]]>  SCHEDULE_LOOP_END_DATE
+        AND B.DTE <![CDATA[<=]]>  TO_CHAR(SCHEDULE_LOOP_END_DATE,'YYYY-MM-DD')
     </select>
 
     <!-- 매일반복-팀 -->
