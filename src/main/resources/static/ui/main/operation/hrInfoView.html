@@ -33,7 +33,23 @@
 
 			<@pageId>.requestParm = param ? param : {} ;
 			<@pageId>.requestParm["SP_CSTM_ID"] = G_VAL.SP_CSTM_ID;
-			
+			let positionUpdate = {
+					 queryId 		: "hrInfo.updatePositionHist"
+							,requestParm	: { USER_ID		: <@pageId>.requestParm["USER_ID"]
+											,	DEPARTMENT 	: <@pageId>.requestParm["DIVISION_ID"]
+											,	POSITION	: <@pageId>.requestParm["POSITION"] 
+											,PERSONAL_APPOINTMENT_DATE :  <@pageId>.requestParm["REG_DATE"]
+											,	POSITION_ID : C_COM.makeUniqueId()
+											}
+						 } 
+			let gradeUpdate = {
+					 queryId 		: "hrInfo.updateGradeHist"
+							,requestParm	:  { USER_ID		: <@pageId>.requestParm["USER_ID"]
+											,	GRADE			: <@pageId>.requestParm["GRADE"] 
+											,	UPGRADE_DATE 	: <@pageId>.requestParm["REG_DATE"]
+											,	GRADE_ID		:  C_COM.makeUniqueId()
+											}
+						 } 
 			var parm = {
 						queryGroup : [
 							 {
@@ -44,25 +60,12 @@
 								 queryId 		: "hrInfo.updateSuretyInsurance"
 								,requestParm	: <@pageId>.requestParm
 							 } 
-/*  	  						,{
-								 queryId 		: "hrInfo.updatePositionHist2"
-								,requestParm	: { USER_ID		: <@pageId>.requestParm["USER_ID"]
-												,	DEPARTMENT 	: <@pageId>.requestParm["DIVISION_ID"]
-												,	POSITION	: <@pageId>.requestParm["POSITION"] 
-											//	,PERSONAL_APPOINTMENT_DATE :  <@pageId>.requestParm["REG_DATE"]
-											//	,	POSITION_ID : C_COM.makeUniqueId()
-												}
-							 } 
-	  						,{
-								 queryId 		: "hrInfo.updateGradeHist2"
-								,requestParm	:  { USER_ID		: <@pageId>.requestParm["USER_ID"]
-												,	GRADE			: <@pageId>.requestParm["GRADE"] 
-											//	,	UPGRADE_DATE 	: <@pageId>.requestParm["REG_DATE"]
-	  										//	,	GRADE_ID		:  C_COM.makeUniqueId()
-												}
-							 } */
 						]
 			}
+			
+			if( <@pageId>.requestParm["CHANGE_POSITION"]) parm.queryGroup.push(positionUpdate);
+			if( <@pageId>.requestParm["CHANGE_GRADE"] 	) parm.queryGroup.push(gradeUpdate);
+			
 			C_COM.requestQuery(parm, function(resultData ) {
 
 				if( resultData.state == "S"){
@@ -95,7 +98,9 @@
 			
 		} 		
 		,openPopup : () => {
-			
+	
+			const POSITION 	= <@pageId>.recvData.POSITION;
+			const GRADE		= <@pageId>.recvData.GRADE;
 			C_POP.open('popup_operation_hrInfoUpdatePopup', {param:<@pageId>.recvData, mode:"U"}, function(retData) {
 				
 				if(isValid(retData)){
@@ -105,6 +110,12 @@
 						<@pageId>.getUserImg();
 						
 					}
+
+					retData["CHANGE_POSITION"] 	= false;
+					retData["CHANGE_GRADE"]		= false; 
+					
+					if( POSITION != retData.POSITION)retData["CHANGE_POSITION"] = true;
+					if( GRADE != retData.GRADE)retData["CHANGE_GRADE"] = true;
 					
 					<@pageId>.updateItem(retData);
 				}
