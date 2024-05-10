@@ -482,6 +482,11 @@
 .number {
 	text-align: right;
 }
+.required-label::after {
+    content: "*";
+    color: red;
+    margin-left: 5px; /* 별표와 텍스트 사이의 간격 조정 */
+}
 </style>
 <div class="modal_wrap" id="modal-ex">
 	<div class="modal" style="width:750px;height:800px;">
@@ -498,32 +503,32 @@
 				
 				<ul class="info_wrap col2">
 					<li>
-						<label>사원 ID</label>
-						<div class="info"><input type="text" id="<@popupId>_USER_ID" style="width:50%">
+						<label><span class="required-label">사원 ID</span></label>
+						<div class="info"><input type="text" id="<@popupId>_USER_ID" style="width:50%"  required>
 						<button class="btn" style="width:75px;" onclick="<@popupId>.redundCheck();">중복체크</button>
 						</div>
 					</li>
 					<li>
-						<label>이름</label>
+						<label><span class="required-label">이름</span></label>
 						<div class="info"><input type="text" id="<@popupId>_USER_NM" style="width:100%"></div>
 					</li>
 					<li>
-						<label>핸드폰번호</label>
+						<label><span class="required-label">핸드폰번호</span></label>
 						<div class="info"><input type="text" id="<@popupId>_PHONE_NUM" style="width:100%"></div>
 					</li>
 					<li>
-						<label>주민등록번호</label>
+						<label><span class="required-label">주민등록번호</span></label>
 						<div class="info"><input type="text" id="<@popupId>_JUMIN" style="width:100%"></div>
 					</li>
 					<li>
-						<label>성별</label>
+						<label><span class="required-label">성별</span></label>
 						<div class="info">
 							<div id="<@popupId>_selectGender" column = "<@popupId>_GENDER" class="select_box" style="width:100%">
 			                </div>
 						</div>
 					</li>
 					<li>
-						<label>입사일</label>
+						<label><span class="required-label">입사일</span></label>
 						<div class="info">
 							<div class="calendar_wrap w100">
 								<input type="text" class="datepicker" id="<@popupId>_REG_DATE" style="width:100%">
@@ -535,18 +540,18 @@
 			<section>
 				<ul class="info_wrap col2">
 					<li>
-						<label>이메일</label>
+						<label><span class="required-label">이메일</span></label>
 						<div class="info"><input type="text" id="<@popupId>_E_MAIL" style="width:100%"></div>
 					</li>
 					<li id="<@popupId>_selectSysRoleLi" disabled>
-						<label>시스템 ROLE</label>
+						<label><span class="required-label">시스템 ROLE</span></label>
 						<div class="info">							
 							<div id="<@popupId>_selectSysRole" class="select_box" style="width:100%" disabled>
 			                </div>
 						</div>
 					</li>
 					<li class="w100">
-						<label>주소</label>
+						<label><span class="required-label">주소</span></label>
 						<div class="info">
 							<input type="text" id="<@popupId>_POST_NUM" >
 							<button class="btn" id="<@popupId>_postSearch">우편번호 검색</button>
@@ -589,7 +594,7 @@
 						</div>
 					</li>
 					<li class="w100 ml0">
-						<label>부서</label>
+						<label><span class="required-label">부서</span></label>
 						<div class="info">
 							<input type="text" id="<@popupId>_DIVISION" style="width:calc(86% - 2px)" disabled>
 							<input type="text" id="<@popupId>_DIVISION_ID" style="display:none">
