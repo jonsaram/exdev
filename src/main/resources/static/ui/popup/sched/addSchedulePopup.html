@@ -57,8 +57,9 @@
         ,memberSearchPopup : function() {
     
             C_POP.open('popup_userSearchPopup', {}, function(retData) {
-                console.log("memberSearchPopup =>"+retData);
-                <@popupId>.addMember(retData);
+                if(!(typeof retData == "undefined" || retData == null || retData == "")){
+                	<@popupId>.addMember(retData);
+                }
             });
          }
         ,addMember : function(retData) {
