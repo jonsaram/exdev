@@ -858,6 +858,7 @@
 		SELECT
 			 A.TABLE_NAME
 			,COLUMN_LIST
+			,TBL_CMMT
 			,B.ORG_FILE_NM
 			,B.FILE_ID
 		FROM 
@@ -910,13 +911,15 @@
 		)
 		WHEN MATCHED THEN
 		  UPDATE SET
-		  	 T.COLUMN_LIST = #{COLUMN_LIST		}
-		    ,T.UPDATE_USER = #{sessionVo.userId	}
-		    ,T.UPDATE_DATE = sysdate
+		  	 T.COLUMN_LIST 	= #{COLUMN_LIST		}
+		  	,T.TBL_CMMT		= #{TBL_CMMT		}
+		    ,T.UPDATE_USER 	= #{sessionVo.userId}
+		    ,T.UPDATE_DATE 	= sysdate
 		WHEN NOT MATCHED THEN 
     		INSERT (
     			 TABLE_NAME	 
     			,COLUMN_LIST 
+    			,TBL_CMMT 
     			,UPDATE_USER 
     			,UPDATE_DATE 
     			,SP_CSTM_ID  
@@ -925,6 +928,7 @@
 		  	VALUES (
 				 #{TABLE_NAME			}
                 ,#{COLUMN_LIST			}
+                ,#{TBL_CMMT				}
                 ,#{sessionVo.userId		}
                 ,sysdate                
                 ,#{sessionVo.spCstmId	}
