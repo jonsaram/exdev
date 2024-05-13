@@ -137,6 +137,16 @@
 			AND DEL_YN 		= 'N' 
    	</update>
    	
+	<update id="changeGrpFileId">
+		/*	Filemng.changeGrpFileId
+			파일 GRP ID 변경
+		*/
+		UPDATE TBL_EXP_FILEMNG SET
+			 GRP_FILE_ID 	= #{targetKey.GRP_FILE_ID}
+		WHERE 1=1
+			AND GRP_FILE_ID = #{nowKey.GRP_FILE_ID	}
+			AND OWNER_CD 	= #{nowKey.OWNER_CD		}
+   	</update>
    		
     
 </mapper>

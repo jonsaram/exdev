@@ -2224,7 +2224,7 @@ $(window).resize(function() {
 
 
 var hiddencommand 	= "SHOWPAGEID";
-var debugcommand 	= "GODEBUGGER";
+var debugcommand 	= "GODEBUG";
 var hiddenconfirm 	= ""
 $(function() {
 	C_COM.init();
@@ -2240,7 +2240,7 @@ $(function() {
 		if(hiddencommand == hiddenconfirm) {
 			var templateId = C_COM.getCurrentTemplateId();
 			alert(templateId);
-		} else if(debugcommand == hiddenconfirm) {
+		} else if(hiddenconfirm.indexOf(debugcommand) > -1 ) {
 			C_PM.movePage("sample_index");
 		}
 	});

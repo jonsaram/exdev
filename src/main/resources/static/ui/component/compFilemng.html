@@ -137,6 +137,15 @@
 			
 			$("#<@compId>_select").trigger("click");
 		 }
+		,changeGrpFileId : function(parm, callback) {
+			var parm = {
+				 queryId 		: "Filemng.changeGrpFileId"
+				,requestParm	: {nowKey : parm.nowKey, targetKey : parm.targetKey}
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				if(typeof callback == "function") callback(resultData.state);
+			});
+		 }
 	}
 	// Component Load가 완료된후 실행 된다.
 	C_COMP.onLoadComp("<@compId>", function(parm) {
