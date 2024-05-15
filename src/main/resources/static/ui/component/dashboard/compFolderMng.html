@@ -79,6 +79,7 @@
 				var rparm = {
 					 targetId 		: "folderPath"
 					,list			: folderPathList
+					,buyerInfo		: G_VAL.session.buyerInfo
 				}
 				C_COM.renderHtml("<@compId>", rparm);
 				
@@ -387,13 +388,13 @@
 		<div class="cont_box font12" id="folderPath">
 		</div>
 		<script type="text/x-jsrender" id="folderPath_template">
-			<a href="javascript:<@compId>.moveFolder('BASE')"><strong>기본폴더</strong></a> 
+			<a href="javascript:<@compId>.moveFolder('BASE')"><strong>{{:buyerInfo.BUYER_NM}}</strong></a> 
 		{{for list}}
 			&gt; <a href="javascript:<@compId>.moveFolder('{{:FOLDER_ID}}')">{{:FOLDER_NM}}</a>
 		{{/for}}
 		</script>
 		<script type="text/x-jsrender" id="folderPath_noData_template">	
-			<a href="javascript:<@compId>.moveFolder('BASE')"><strong>기본폴더</strong></a> 
+			<a href="javascript:<@compId>.moveFolder('BASE')"><strong>{{:buyerInfo.BUYER_NM}}</strong></a> 
 		</script>
 	</section>
 	<div class="sec_scroll" style="height:calc(100% - 105px);">

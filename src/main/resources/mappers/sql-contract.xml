@@ -211,11 +211,12 @@
 		/*	contract.getBuyerListOfUser
 			User의 고객 리스트 조회 
 		*/
-		SELECT DISTINCT BUYER_ID, BUYER_NM
+		SELECT DISTINCT BUYER_ID, BUYER_NM, ADDR
 		FROM (
 			SELECT 
 				 A.BUYER_ID
 				,A.BUYER_NM
+				,A.ADDR
 			FROM 
 				 TBL_EXP_BUYER    		A
 				,TBL_EXP_CONTRACT 		B
@@ -232,6 +233,7 @@
 			SELECT 
 				 A.BUYER_ID
 				,A.BUYER_NM
+				,A.ADDR
 			FROM 
 				 TBL_EXP_BUYER    		A
 				,TBL_EXP_CONTRACT 		B

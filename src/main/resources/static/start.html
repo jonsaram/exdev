@@ -80,7 +80,9 @@
 			}	
 			C_COM.requestQuery(parm, function(resultData) {
 				G_VAL.session.buyerInfo = resultData.data[0];
-				C_MENU.setBuyerInfo(G_VAL.session.buyerInfo);
+				G_VAL.myBuyerList 		= [G_VAL.session.buyerInfo];
+				G_VAL.myBuyerMap		= arrayToMap(G_VAL.myBuyerList, "BUYER_ID");
+				setBuyerInfo(G_VAL.session.BUYER_ID);
 			});
 		}
 		
@@ -93,16 +95,42 @@
 			}	
 			C_COM.requestQuery(parm, function(resultData) {
 				if(isValid(resultData.data)) {
-					G_VAL.session.BUYER_ID = resultData.data[0].BUYER_ID;
-					setBuyerSession(G_VAL.session.BUYER_ID);
+					G_VAL.myBuyerList 		= resultData.data;
+					G_VAL.myBuyerMap		= arrayToMap(G_VAL.myBuyerList, "BUYER_ID");
+					G_VAL.session.buyerInfo	= resultData.data[0];	
+					G_VAL.session.BUYER_ID 	= G_VAL.myBuyerList[0].BUYER_ID;
+					setBuyerInfo(G_VAL.session.BUYER_ID);
 				}
 			});
-			
-			
-			G_VAL.session.USER_ID
 		}
 		
+		// Buyer값을 세팅 한다.
+		function setBuyerInfo(buyerId) {
+			G_VAL.session.BUYER_ID = buyerId;
+			let buyerInfo = G_VAL.myBuyerMap[buyerId];
+			G_VAL.session.buyerInfo = buyerInfo;
+			if(G_VAL.session.LOGIN_TYPE == "USER") {
+				let selectStr = `<select id="selectBuyerId" onchange="changeBuyer()">`;
+				$.each(G_VAL.myBuyerList, function() {
+					selectStr += `<option value="${this.BUYER_ID}">${this.BUYER_NM}</option>`;
+				});
+				selectStr += `</select>`;
+				
+				$("#subMenuListForBuyer #ADDR"		).html(buyerInfo.ADDR		);
+				$("#subMenuListForBuyer #BUYER_NM"	).html(selectStr			);
+			} else {
+				$("#subMenuListForBuyer #ADDR"		).html(buyerInfo.ADDR		);
+				$("#subMenuListForBuyer #BUYER_NM"	).html(buyerInfo.BUYER_NM	);
+			}
+		}
 		
+		function changeBuyer() {
+			let buyerId = $("#selectBuyerId").val();
+			G_VAL.session.buyerInfo = G_VAL.myBuyerMap[buyerId]; 
+			G_VAL.session.BUYER_ID = buyerId; 
+			C_MENU.reload();
+			$("#subMenuListForBuyer #ADDR"		).html(G_VAL.session.buyerInfo.ADDR		);
+		}
 		
 		$(function() {
 			
@@ -182,6 +210,9 @@
 					
 				});
 			 }
+			,reload		: function() {
+				C_MENU.moveMenu(C_MENU.currentSubMenuId);
+			 }
 			,setMenuActive : function(menuList, idx) {
 				$.each(menuList, function(i) {
 					menuList[i].activeClass = "";
@@ -227,30 +258,29 @@
 				var rparm = {
 					 targetId 		: "subMenuList2"
 					,list			: subMenuList
-					,buyerInfo		: G_VAL.session.buyerInfo
 				}
 				C_COM.renderHtml("mainContainer", rparm);
-				C_MENU.setBuyerInfo(G_VAL.session.buyerInfo);
+				
 			 }
 			,moveMainMenu 	: function(mainMenuIdx) {
-				C_MENU.showSubMenuList(mainMenuIdx, 0);
-				C_MENU.moveSubMenu(0);
 				if(in_array(C_MENU.mainMenuList[mainMenuIdx].MENU_ID, ["MN_SCD", "MN_FDS"])) {
 					$("#subMenuList").hide();
-					$("#subMenuList2").hide();
+					$("#subMenuListForBuyer").hide();
 				} else if(in_array(C_MENU.mainMenuList[mainMenuIdx].MENU_ID, ["MN_DSH"])) {
+					if(isEmpty(G_VAL.session.BUYER_ID)) {
+						C_POP.alert('등록된 고객이 없습니다.');
+						return;
+					}
+					
+					
 					$("#subMenuList").hide();
-					$("#subMenuList2").show();
+					$("#subMenuListForBuyer").show();
 				} else {
 					$("#subMenuList").show();
-					$("#subMenuList2").hide();
+					$("#subMenuListForBuyer").hide();
 				}  
-			 }
-			,setBuyerInfo : function(buyerInfo) {
-				if(isValid(buyerInfo)) {
-					$("#subMenuList2 #BUYER_NM"	).html(buyerInfo.BUYER_NM	);
-					$("#subMenuList2 #ADDR"		).html(buyerInfo.ADDR		);
-				}
+				C_MENU.showSubMenuList(mainMenuIdx, 0);
+				C_MENU.moveSubMenu(0);
 			 }
 			,moveSubMenu	: function(idx) {
 				let subMenu = C_MENU.subMenuList[idx];
@@ -437,14 +467,14 @@
 			</ul>
 		</script>
 		
-		<nav class="lnb company" id="subMenuList2" style="display:none">
-		</nav>
-		<script type="text/x-jsrender" id="subMenuList2_template">						
+		<nav class="lnb company" id="subMenuListForBuyer" style="display:none">
 			<button class="btn fold"><i class="icon_arrow"></i></button>
 			<img class="img_company" src="../img/icon_company.png" id="BUYER_PIC">
 			<div class="tit_company" id="BUYER_NM"></div>
 			<div class="cpmpa_wrap"><span class="compa" id="ADDR"></span></div>
-			<ul>
+			<ul id="subMenuList2">
+			</ul>
+			<script type="text/x-jsrender" id="subMenuList2_template">						
 				<li>
 					<ul>
 					{{for list}}
@@ -452,8 +482,8 @@
 					{{/for}}
 					</ul>
 				</li>
-			</ul>
-		</script>
+			</script>
+		</nav>
 		
 		<span id="bodyBlock">
 		</span>

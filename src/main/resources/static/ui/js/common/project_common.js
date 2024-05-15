@@ -1255,7 +1255,6 @@ var C_UICOM = {
 	    });
 	 }
 	,makeSelectBox : function(parm, type) {
-		var templateId = C_COM.getCurrentTemplateId();
 		if(isEmpty(type)) type="single";
 		C_UICOM.makeSelectBoxExec(parm, type)	 
 	 }
@@ -1274,6 +1273,7 @@ var C_UICOM = {
 		
 		var defaultItem = parm.defaultItem
 		var list 		= parm.data;
+		var templateId 	= parm.templateId;
 		var targetId 	= parm.targetId;
 
 		if(isValid(defaultItem)) {
@@ -1282,7 +1282,7 @@ var C_UICOM = {
 			list = nlist;
 		}
 		
-		var templateId = C_COM.getCurrentTemplateId();
+		if(isEmpty(templateId)) templateId = C_COM.getCurrentTemplateId();
 
 		var templateWebId = "#" + templateId + " #" + targetId + " ";
 

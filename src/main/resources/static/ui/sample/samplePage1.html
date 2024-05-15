@@ -17,7 +17,11 @@
 				,requestParm	: {parm : "XXX"}
 			}
 			C_COM.requestQuery(parm, function(resultData) {
-				dalert(resultData);
+				if(resultData.state == "S") {
+					dalert(resultData);
+				} else if(resultData.state == "E") {
+					dalert(resultData);
+				}					
 			});
 		 }
 		,updateQuery : function() {

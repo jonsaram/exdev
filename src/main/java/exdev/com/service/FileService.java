@@ -49,8 +49,8 @@ public class FileService extends ExdevBaseService{
 	@SuppressWarnings({ "rawtypes", "unchecked" })
     public Map fileDeleteMulti(HttpServletRequest request, String[] uuidArry) throws Exception {
 	    
-	    Map<String, String> returnMap = new HashMap<String, String>();
-        final String fileDirectoryPath = env.getProperty("filedirectorypath");
+	    Map<String, String> returnMap 	= new HashMap<String, String>();
+		String fileDirectoryPath 		= ExdevConstants.FILE_DIRECTORY_PATH;
 	    
 	    try {
             for(  String uuid:uuidArry ) {
@@ -179,22 +179,12 @@ public class FileService extends ExdevBaseService{
 	@SuppressWarnings("unchecked")
 	public Map fileUploadMulti( HttpServletRequest request, List<MultipartFile> multiFileList, String  GRP_FILE_ID, String[] FILE_IDS, String  uploadPath, SessionVO sessionVo) throws Exception {
 		
-        final String fileDirectoryPath2 = env.getProperty("filedirectorypath");
-        
         Map returnMap = new HashMap();
 		
 //		String fileDirectoryPath 		= request.getSession().getServletContext().getRealPath("resources");
-//		String fileDirectoryPath 		= "D:/OCI/workspace/exdev/";
-		String fileDirectoryPath 		= "/home/ubuntu/spring-boot";
+		String fileDirectoryPath 		= ExdevConstants.FILE_DIRECTORY_PATH;
 		
         String path 		= fileDirectoryPath + File.separator + uploadPath;
-        
-        System.out.println("1=================================================================");
-        System.out.println("=================================================================");
-        System.out.println(fileDirectoryPath);
-        System.out.println(fileDirectoryPath2);
-        System.out.println("=================================================================");
-        System.out.println("=================================================================");
         
 		File fileCheck = new File(path);
 		if(!fileCheck.exists()) fileCheck.mkdirs();

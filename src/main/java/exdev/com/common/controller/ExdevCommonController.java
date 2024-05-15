@@ -441,8 +441,7 @@ public class ExdevCommonController {
     public @ResponseBody Map  editImageUpload( 
             MultipartRequest request,  HttpSession session,HttpServletRequest httpServletRequest)  throws Exception {
 
-//      final String fileDirectoryPath = env.getProperty("filedirectorypath");
-		String fileDirectoryPath 		= "/home/ubuntu/spring-boot";
+		String fileDirectoryPath = ExdevConstants.FILE_DIRECTORY_PATH;
     	
         Map returnMap = new HashMap();
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);

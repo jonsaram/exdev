@@ -346,6 +346,7 @@
 			AND DEL_YN 			= 'N'
 		ORDER BY 
 			ORDER_IDX
+ 		
 			
 	</select>
 	
@@ -526,6 +527,60 @@
 			FOLDER_ID = #{FOLDER_ID}
 	</update>
 	
+
+	<update id="makeBuyerFolder">
+		/*	faDashboard."makeBuyerFolder"
+			FA 대시보드 기업폴더관리 기업전용폴더 생성
+		*/
+		MERGE INTO TBL_EXP_FOLDER T
+		USING (
+		  SELECT 
+		  	 #{BUYER_ID}	AS BUYER_ID
+		  	,'BASE'			AS UP_FOLDER_ID
+		  	,'0'			AS ORDER_IDX
+		  FROM DUAL
+		) S
+		ON (
+				T.BUYER_ID		= S.BUYER_ID 
+			AND T.UP_FOLDER_ID	= S.UP_FOLDER_ID 
+			AND T.ORDER_IDX		= S.ORDER_IDX 
+		)
+		WHEN NOT MATCHED THEN 
+			INSERT ( 
+				 FOLDER_ID
+				,FOLDER_NM
+				,UP_FOLDER_ID
+				,BUYER_ID
+				,ORDER_IDX
+			    ,UPDATE_DATE
+			    ,UPDATE_USER
+			    ,SP_CSTM_ID
+			) VALUES ( 
+				 #{FOLDER_ID	}
+				,#{FOLDER_NM	}					
+				,'BASE'	
+				,#{BUYER_ID    }
+				,0
+	   			,sysdate
+	   			,#{sessionVo.userId		}
+				,#{sessionVo.spCstmId	}
+			)
+	</update>	
 	
+	<select id="getBuyerFolder" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	faDashboard.getFolderInfo
+			FA 대시보드 기업폴더관리 기업 전용 폴더 정보 가져오기
+		*/
+		SELECT
+			 FOLDER_ID
+			,FOLDER_NM
+		FROM
+			TBL_EXP_FOLDER
+		WHERE 1=1
+			AND BUYER_ID 	 = #{BUYER_ID}
+			AND UP_FOLDER_ID = 'BASE'
+			AND ORDER_IDX 	 = '0'
+			AND DEL_YN 		 = 'N'
+	</select>
 		
 </mapper>
