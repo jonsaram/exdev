@@ -75,6 +75,15 @@ var <@pageId> = {
 			}
 			C_CALENDAR.getScheduleList(parm, function(resultList) {
 
+				const rlLength = resultList.length;
+				resultList = resultList.map( (schedule,index) =>{
+					
+					if(rlLength == index+1)
+					 	schedule["LAST_DATA"] = index ;
+					return schedule;
+					
+				})
+
 				let rparm = {
 					targetId	: "<@pageId>_schedule"
 					,list		: resultList
@@ -518,9 +527,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</div>
 
 				<div class="right">
-					<section class="sec_wrap" style="height:380px" id="<@pageId>_toDoList">
+					<section class="sec_wrap" style="height:421px" id="<@pageId>_toDoList">
 					</section>
-					<section class="sec_wrap" style="height:390px;">
+					<section class="sec_wrap" style="height:421px;">
 						<div class="cont_box">
 							<div class="clearFix">
 								<h3 class="fl lh33">예정 업무</h3>
@@ -528,54 +537,54 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
 								</div>
 							</div>
-							
+					
 							<div id="<@pageId>_schedule"  class="pd5" style="max-height:337px;width:calc(100% + 5px);overflow-y:auto;"></div>
 							<script type="text/x-jsrender" id="<@pageId>_schedule_template">
 							{{for list}}
 								{{if #index % 2 == 0 }}
 								<section class="sec_wrap pd0 mt15" >
 								{{/if}}
-								<div class="cont_box col2">
-									<h4>{{:TITLE}}</h4>
-									<div class="content">
-										{{if 	WORK_TYPE == 'MEETING'}}	<i class="status meeting"></i>
-										{{else 	WORK_TYPE == 'SUGGESTER'}} 	<i class="status schedule"></i>
-										{{else 	WORK_TYPE == 'TEL_CONSUL'}} <i class="status tel_consul"></i>
-										{{else 	WORK_TYPE == 'SCHEDULE'}} 	<i class="status schedule"></i>
-										{{else 	WORK_TYPE == 'SEND_EMAIL'}} <i class="status send_email"></i>
-										{{else 	WORK_TYPE == 'SEMINAR'}} 	<i class="status seminar"></i>
-										{{else 	WORK_TYPE == 'OTHER_WORK'}} <i class="status other_work"></i>
-										{{/if}}
-										<span>{{:WORK_TYPE_NM}}</span>
-										<dl>
-											<dt>일정:</dt>
-											<dd>
-												<span class="date">{{:SCHEDULE_DATE}}</span>
-												<span class="time">{{:START_TIME_HOUR}}:{{:START_TIME_MINUTE}}~{{:END_TIME_HOUR}}:{{:END_TIME_MINUTE}}</span>
-											</dd>
-											<dt>장소:</dt>
-											<dd>{{:POSITION}}</dd>
-										</dl>
-										<div class="note">{{:DESCRIPTION}}</div>
+									<div class="cont_box col2">
+										<h4>{{:TITLE}}</h4>
+										<div class="content">
+											{{if 	WORK_TYPE == 'MEETING'}}	<i class="status meeting"></i>
+											{{else 	WORK_TYPE == 'SUGGESTER'}} 	<i class="status schedule"></i>
+											{{else 	WORK_TYPE == 'TEL_CONSUL'}} <i class="status tel_consul"></i>
+											{{else 	WORK_TYPE == 'SCHEDULE'}} 	<i class="status schedule"></i>
+											{{else 	WORK_TYPE == 'SEND_EMAIL'}} <i class="status send_email"></i>
+											{{else 	WORK_TYPE == 'SEMINAR'}} 	<i class="status seminar"></i>
+											{{else 	WORK_TYPE == 'OTHER_WORK'}} <i class="status other_work"></i>
+											{{/if}}
+											<span>{{:WORK_TYPE_NM}}</span>
+											<dl>
+												<dt>일정:</dt>
+												<dd>
+													<span class="date">{{:SCHEDULE_DATE}}</span>
+													<span class="time">{{:START_TIME_HOUR}}:{{:START_TIME_MINUTE}}~{{:END_TIME_HOUR}}:{{:END_TIME_MINUTE}}</span>
+												</dd>
+												<dt>장소:</dt>
+												<dd>{{:POSITION}}</dd>
+											</dl>
+											<div class="note">{{:DESCRIPTION}}</div>
+										</div>
 									</div>
-								</div>
-								{{if #index+1 == LAST_DATA && #index % 2 == 0}}
-								<div class="cont_box col2">
-									<h4></h4>
-									<div class="content">
-										<span></span>
-										<dl>
-											<dt></dt>
-											<dd>
-												<span class="date"></span>
-												<span class="time"></span>
-											</dd>
-											<dt></dt>
-											<dd></dd>
-										</dl>
-										<div class="note"></div>
+								{{if #index == LAST_DATA && #index % 2 == 0}}
+									<div class="cont_box col2" style='visibility:hidden'>
+										<h4></h4>
+										<div class="content">
+											<span></span>
+											<dl>
+												<dt></dt>
+												<dd>
+													<span class="date"></span>
+													<span class="time"></span>
+												</dd>
+												<dt></dt>
+												<dd></dd>
+											</dl>
+											<div class="note"></div>
+										</div>
 									</div>
-								</div>
 								{{/if}}
 								{{if #index % 2 == 1 }}
 								</section>
