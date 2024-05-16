@@ -106,7 +106,8 @@
 		
 		// Buyer값을 세팅 한다.
 		function setBuyerInfo(buyerId) {
-			G_VAL.session.BUYER_ID = buyerId;
+			if(isValid(buyerId)) G_VAL.session.BUYER_ID = buyerId;
+			buyerId = G_VAL.session.BUYER_ID;
 			let buyerInfo = G_VAL.myBuyerMap[buyerId];
 			G_VAL.session.buyerInfo = buyerInfo;
 			if(G_VAL.session.LOGIN_TYPE == "USER") {
@@ -115,7 +116,6 @@
 					selectStr += `<option value="${this.BUYER_ID}">${this.BUYER_NM}</option>`;
 				});
 				selectStr += `</select>`;
-				
 				$("#subMenuListForBuyer #ADDR"		).html(buyerInfo.ADDR		);
 				$("#subMenuListForBuyer #BUYER_NM"	).html(selectStr			);
 			} else {
@@ -123,7 +123,9 @@
 				$("#subMenuListForBuyer #BUYER_NM"	).html(buyerInfo.BUYER_NM	);
 			}
 		}
-		
+		function getBuyerInfo(buyerId) {
+			return G_VAL.myBuyerMap[buyerId];
+		}
 		function changeBuyer() {
 			let buyerId = $("#selectBuyerId").val();
 			G_VAL.session.buyerInfo = G_VAL.myBuyerMap[buyerId]; 
@@ -281,6 +283,12 @@
 				}  
 				C_MENU.showSubMenuList(mainMenuIdx, 0);
 				C_MENU.moveSubMenu(0);
+				
+				// main menu active처리
+				$("#mainMenuList li").removeClass("active");
+				$("#mainMenuList #mainmenu_li_" + mainMenuIdx).addClass("active");
+				
+				
 			 }
 			,moveSubMenu	: function(idx) {
 				let subMenu = C_MENU.subMenuList[idx];
@@ -428,7 +436,7 @@
 				</ul>
 				<script type="text/x-jsrender" id="mainMenuList_template">						
 				{{for list}}
-					<li class="{{:activeClass}}"><a href="javascript:C_MENU.moveMainMenu({{:#index}});">{{:MENU_NM}}</a></li>
+					<li class="{{:activeClass}}" id="mainmenu_li_{{:#index}}"><a href="javascript:C_MENU.moveMainMenu({{:#index}});">{{:MENU_NM}}</a></li>
 				{{/for}}
 				</script>
 			</nav>

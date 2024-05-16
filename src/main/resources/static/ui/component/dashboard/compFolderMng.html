@@ -5,10 +5,11 @@
 		,topFolderId		: "BASE"
 		,upFolderId			: ""
 		,onClickCheck		: false
-		,BUYER_ID			: G_VAL.session.BUYER_ID
+		,BUYER_ID			: "<@BUYER_ID>"
 		,leftFolderList		: []
 		,subFolderList		: []
 		,selectFolderId		: ""
+		,shareMsgList		: []
 		,loadLeftFolderList	: function(defaultIdx) {
 			
 			let baseFolderId = <@compId>.baseFolderId;
@@ -60,7 +61,17 @@
 				}
 				C_COM.renderHtml("<@compId>", rparm);
 				
-				if(baseFolderId == <@compId>.topFolderId) $("#<@compId> #upFolder").hide();
+				if(baseFolderId == <@compId>.topFolderId) {
+					$("#<@compId> #upFolder").hide();
+					$("#<@compId> #noFolder").hide();
+					if(isEmpty(<@compId>.leftFolderList)) {
+						$("#<@compId> #noFolder").show();
+					}
+				} else {
+					$("#<@compId> #upFolder").show();
+					$("#<@compId> #noFolder").hide();
+				}
+			
 				
 				if(isValid(<@compId>.leftFolderList)) {
 					<@compId>.loadSubFolderList(<@compId>.selectFolderId);	
@@ -68,18 +79,13 @@
 					<@compId>.clearRightBlock();					
 				}
 				
-				
-				
-				
-				
-				
 				// 경로 설정
-				let folderPathList = resultData.data["faDashboard.getFolderPath"];
-
+				let folderPathList 	= resultData.data["faDashboard.getFolderPath"];
+				let buyerInfo		= getBuyerInfo("<@BUYER_ID>");
 				var rparm = {
 					 targetId 		: "folderPath"
 					,list			: folderPathList
-					,buyerInfo		: G_VAL.session.buyerInfo
+					,buyerInfo		: buyerInfo
 				}
 				C_COM.renderHtml("<@compId>", rparm);
 				
@@ -253,7 +259,7 @@
 			<@compId>.folderFileMng.selectFile();
 		 }
 		,loadShareMsgList : function() {
-
+			
 			var parm = {
 				 queryId 		: "faDashboard.getShareMsgList"
 				,requestParm	: { FOLDER_ID : <@compId>.selectFolderId }
@@ -267,7 +273,10 @@
 				}
 				
 				C_COM.renderHtml("<@compId>", rparm);
+				
 				$('#<@compId> #shareMsg').scrollTop($('#<@compId> #shareMsg')[0].scrollHeight);
+
+				<@compId>.shareMsgList = resultData.data;
 
 			});  
 			
@@ -280,6 +289,21 @@
 				return;
 			}
 			
+			let selectFolderInfo = "";
+			$("#<@compId> #leftFolder li[class=active]").each(function() {
+				let idx = $(this).attr("idx");
+				selectFolderInfo = <@compId>.leftFolderList[idx];
+			});
+
+			if(isEmpty(selectFolderInfo)) {
+				C_POP.alert('상위 폴더를 선택해 주세요.')
+				return;
+			}
+			
+			if(isEmpty(<@compId>.selectFolderId)) {
+				C_POP.alert("좌측 영역에서 폴더를 추가 하신 후에 메시지를 남겨주세요.");
+				return;
+			}
 			var parm = {
 				 queryId 		: "faDashboard.saveShareMsg"
 				,requestParm	: { 
@@ -298,21 +322,44 @@
 				}					
 			});  
 		 }
-		,delShareMsg : function(folderMsgId, idx) {
-			var parm = {
-				 queryId 		: "faDashboard.delShareMsg"
-				,requestParm	: { 
-					 FOLDER_MSG_ID 	: folderMsgId
-				 }
-			}
-			C_COM.requestQuery(parm, function(resultData) {
-				if(resultData.state == "S") {
-					<@compId>.loadShareMsgList();
-					$("#<@compId> #folderMsg").focus();
-				} else if(resultData.state == "E") {
-					C_POP.alert('메시지 삭제에 실패하였습니다.');
-				}					
-			});  
+		,modifyMsg : function(index) {
+			let shareMsg = <@compId>.shareMsgList[index];
+			
+			C_POP.open('popup_common_inputOnelinePopup', { title1 : "메시지 수정", title2 : "메시지", msg : shareMsg.CONTENT }, function(retData) {
+				var parm = {
+					 queryId 		: "faDashboard.saveShareMsg"
+					,requestParm	: { 
+						  FOLDER_MSG_ID		: shareMsg.FOLDER_MSG_ID
+						 ,CONTENT			: retData.msg
+					}
+				}
+				dalert(parm);
+				C_COM.requestQuery(parm, function(resultData) {
+					if(resultData.state == "S") {
+						<@compId>.loadShareMsgList();
+					} else if(resultData.state == "E") {
+						C_POP.alert('메시지 수정 실패하였습니다.');
+					}
+				});
+			});
+		 }
+		,delShareMsg : function(index) {
+			let shareMsg = <@compId>.shareMsgList[index];
+			C_POP.confirm(`'${shareMsg.CONTENT}' 메시지를 삭제 하시겠습니까?`, function() {
+				var parm = {
+					 queryId 		: "faDashboard.delShareMsg"
+					,requestParm	: shareMsg
+				}
+				dalert(parm);
+				C_COM.requestQuery(parm, function(resultData) {
+					if(resultData.state == "S") {
+						<@compId>.loadShareMsgList();
+						$("#<@compId> #folderMsg").focus();
+					} else if(resultData.state == "E") {
+						C_POP.alert('메시지 삭제에 실패하였습니다.');
+					}					
+				});  
+			});
 		 }
 		,deleteFolder : function() {
 			if(isEmpty(<@compId>.selectFolderId)) {
@@ -361,7 +408,7 @@
 		if(isValid(data.TOP_FOLDER_ID)) {
 			<@compId>.topFolderId 	= data.TOP_FOLDER_ID;
 		}
-		if(isEmpty(G_VAL.session.BUYER_ID)) {
+		if(isEmpty(data.BUYER_ID)) {
 			C_POP.alert('관리 고객이 없습니다.');
 			return;
 		} else {
@@ -411,6 +458,7 @@
 				</script>
 				<script type="text/x-jsrender" id="leftFolder_noData_template">	
 					<li id="upFolder" onDblclick="<@compId>.moveUpFolder()">..</li>	
+					<li id="noFolder">폴더를 추가해주세요.</li>	
 				</script>
 				<div class="fr" style="height:30px;line-height:30px;">
 					<button class="btn small select" onclick="<@compId>.addFolder()">추가</button>
@@ -455,22 +503,24 @@
 	
 				<!--// 공유 메시지 -->
 				<h3 class="mt25 mb10">공유 메시지</h3>
-				<ul class="share_msg" id="shareMsg">
+				<ul class="share_msg" id="shareMsg" style="min-height:80px">
 				</ul>
 				<script type="text/x-jsrender" id="shareMsg_template">	
 				{{for list}}
-					<li><span class="time">{{:UPDATE_DATE}}</span> <strong>{{:UPDATE_USER_NM}}</strong> <span class="txt">{{:CONTENT}}</span> <div class="fr"><button><i class="icon_pen"></i></button><button><i class="icon_trash"></i></button></div></li>
+					<li><span class="time">{{:UPDATE_DATE}}</span> <strong>{{:UPDATE_USER_NM}}</strong> <span class="txt">{{:CONTENT}}</span>
+						<div class="fr"><button onclick="<@compId>.modifyMsg({{:#index}})"><i class="icon_pen"></i></button><button onclick="<@compId>.delShareMsg({{:#index}})"><i class="icon_trash"></i></button></div>
+					</li>
 				{{/for}}
 				</script>
 				<script type="text/x-jsrender" id="shareMsg_noData_template">	
 					<li class="tc">
-						등록된 내용이 없습니다.
+						<span class="txt">등록된 내용이 없습니다.</span>
 					</li>
 				</script>
 				
 				<div class="comment clearFix mt10">
 					<strong class="fl lh33">메시지</strong>
-					<input class="fl" type="text" style="width:calc(100% - 120px)" value="" id="folderMsg" onEnter="<@compId>.addShareMsg()">
+					<input class="fl" type="text" style="width:calc(100% - 120px);" value="" id="folderMsg" onEnter="<@compId>.addShareMsg()">
 					<button class="btn fl" onclick="<@compId>.addShareMsg()">등록</button>
 				</div>
 				<!-- 공유 메시지 //-->

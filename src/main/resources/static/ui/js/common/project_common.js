@@ -2216,8 +2216,8 @@ var C_WIN = {
 } 
 
 $(window).resize(function() {
-	hasYScrollBar();
-	hasXScrollBar();
+	//hasYScrollBar();
+	//hasXScrollBar();
 	
 	//C_WIN.onWindowResize();
 });

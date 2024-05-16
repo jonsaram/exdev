@@ -130,8 +130,6 @@
 			});
 		 }
 		,openFolderMng : function(BUYER_ID, index) {
-			G_VAL.session.BUYER_ID = BUYER_ID;
-			
 			let projectInfo = <@pageId>.projectList[index];
 			
 			//C_MENU.moveMenu("MN_DSH_FOLDER", {projectInfo : projectInfo});
@@ -140,6 +138,7 @@
 				 size 			: "MAX"
 				,BASE_FOLDER_ID	: projectInfo.BASE_FOLDER_ID 
 				,TOP_FOLDER_ID	: projectInfo.BASE_FOLDER_ID 
+				,BUYER_ID		: BUYER_ID
 			}
 			C_POP.open('popup_biz_folderMngPopup', parm, function(retData) {
 				

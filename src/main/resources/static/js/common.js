@@ -49,11 +49,11 @@
     // });
 
     /*==== Gnb menu active ====*/
-    $(document).on("click", ".gnb li a", function(){
+/*    $(document).on("click", ".gnb li a", function(){
         $('.gnb li').removeClass('active');
         $(this).parent().addClass('active');
     });
-
+*/
     /*==== User menu ====*/
     $(document).on("click", ".user_login", function(){
         $(this).toggleClass('rotate');
