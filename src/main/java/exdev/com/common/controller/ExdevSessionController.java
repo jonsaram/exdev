@@ -43,6 +43,7 @@ public class ExdevSessionController {
 		String email		= (String)userInfo.get("EMAIL"		);
 		String systemRoleId	= (String)userInfo.get("SYSTEM_ROLE_ID"		);
 		String systemRoleNm	= (String)userInfo.get("SYSTEM_ROLE_NM"		);
+		String userImgId	= (String)userInfo.get("USER_IMG_ID"		);
 		
 		sessionVO.setSpCstmId	(spCstmId	);
 		sessionVO.setUserId		(userId		);
@@ -51,6 +52,7 @@ public class ExdevSessionController {
 		sessionVO.setEmail		(email		);
 		sessionVO.setSystemRoleId(systemRoleId);
 		sessionVO.setSystemRoleNm(systemRoleNm);
+		sessionVO.setUserImgId	(userImgId	);
 		sessionVO.setLoginType	("USER"		);
 		
 		session.setAttribute(ExdevConstants.SESSION_ID, sessionVO);
@@ -104,6 +106,7 @@ public class ExdevSessionController {
 		userInfo.put("LOGIN_TYPE"		,  sessionVO.getLoginType	());
 		userInfo.put("SYSTEM_ROLE_ID"	,  sessionVO.getSystemRoleId());
 		userInfo.put("SYSTEM_ROLE_NM"	,  sessionVO.getSystemRoleNm());
+		userInfo.put("USER_IMG_ID"		,  sessionVO.getUserImgId	());
 		
 		return userInfo;
 	}

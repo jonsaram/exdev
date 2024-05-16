@@ -53,13 +53,14 @@
 				C_POP.alert('권한 설정이 필요 합니다. 관리자에게 문의 하세요.');
 			}
 			
-			G_VAL.session			= userInfo				;
+			G_VAL.session				= userInfo				;
 
-			G_VAL.session.spCstmId	= userInfo.SP_CSTM_ID 	;
-			G_VAL.session.userId  	= userInfo.USER_ID 		;
-			G_VAL.session.userNm  	= userInfo.USER_NM 		;
-			G_VAL.session.grade		= userInfo.GRADE 		;
-			G_VAL.session.email		= userInfo.E_MAIL 		;
+			G_VAL.session.spCstmId		= userInfo.SP_CSTM_ID 	;
+			G_VAL.session.userId  		= userInfo.USER_ID 		;
+			G_VAL.session.userNm  		= userInfo.USER_NM 		;
+			G_VAL.session.grade			= userInfo.GRADE 		;
+			G_VAL.session.email			= userInfo.E_MAIL 		;
+			G_VAL.session.userImgId		= userInfo.USER_IMG_ID	;
 			
 			// 고객 로그인인경우
 			if(userInfo.LOGIN_TYPE == "BUYER") {
@@ -140,6 +141,7 @@
 			C_MENU.initMenu();
 			
 			$("#loginUserNm").html(userInfo.USER_NM);
+			$("#userImg").attr("src","/filedownload.do?FILE_ID="+G_VAL.session.userImgId);
 			
 			var parm = {
 				 queryId 		: "system.getEtcUserInfo"
@@ -450,7 +452,7 @@
 			    </div>
 				<button type="button" class="btn_arrow"></button>
 				<a href="javascript:C_ALARM.showAlarmPopup()" class="alarm">알림<span class="alarm_count" id="alarmCount">3</span></a>
-				<a href="#" class="user_login"><span class="photo"><img src="../img/img_photo01.jpg"></span><span>이희성</span></a>
+				<a href="javascript:void(0);" class="user_login"><span class="photo"><img id="userImg" src=""></span><span id="loginUserNm">이희성</span></a>
 				<ul class="user_menu">
 					<li><a href="javascript:privateInfo()"><i class="icon_admin"></i>내정보 보기</a></li>
 					<li><a href="javascript:changePwd()"><i class="icon_pwEdit"></i>비밀번호 변경</a></li>

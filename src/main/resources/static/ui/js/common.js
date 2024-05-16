@@ -265,6 +265,7 @@ function _getBranchSelectData ( callback ) {
 function _getImageFile (targetId , obj ) {
 
 	// image upload component
+	const USER_ID = obj.GRP_FILE_ID;
 	C_COMP.import("fileuploadComp", "component_compFilemng",{hide : "Y"} , function(fileId) {});
 	C_COM.getFileId(obj["GRP_FILE_ID"], obj["OWNER_CD"], function(fileObjList) {
 		
@@ -273,6 +274,16 @@ function _getImageFile (targetId , obj ) {
 			let fileId = fileObjList[0].FILE_ID;
 			let imgPath = C_COM.getImageUrl(fileId);
 			$("#"+targetId).attr("src", imgPath);
+			
+			if( USER_ID == G_VAL.session.USER_ID){
+				G_VAL.session.userImgId = fileId;
+				$("#userImg").attr("src",imgPath);								
+			}else
+			{
+				$("#userImg").attr("src","/filedownload.do?FILE_ID="+G_VAL.session.userImgId);
+			}
+				
+			
 		}
 	});	
 	
