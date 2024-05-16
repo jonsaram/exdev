@@ -90,6 +90,15 @@
 		        $(this).children().toggleClass('down');
 		        $(this).parent().parent().next().toggleClass('upDown');
 		    });
+		    
+		    <@pageId>.foldAllCard("cardList0");
+		    <@pageId>.expandCard("cardList0", 0);
+		    <@pageId>.foldAllCard("cardList1");
+		    <@pageId>.expandCard("cardList1", 0);
+		    <@pageId>.foldAllCard("cardList2");
+		    <@pageId>.expandCard("cardList2", 0);
+		    
+		    
 		 }
 		,setCard : function(targetId, contractState, cardTitle) {
 			
@@ -144,6 +153,23 @@
 				
 			});
 		 }
+		,expandAllCard : function(targetId) {
+			$(`#<@pageId> #${targetId} i[name=updownButton]`	).removeClass('down');
+			$(`#<@pageId> #${targetId} div[name=cardBody]`		).removeClass('upDown');
+		 }
+		,foldAllCard : function(targetId) {
+			$(`#<@pageId> #${targetId} i[name=updownButton]`	).addClass('down');
+			$(`#<@pageId> #${targetId} div[name=cardBody]`		).addClass('upDown');
+		 }
+		,expandCard : function(targetId, idx) {
+			$(`#<@pageId> #${targetId} #updownButton${idx}`	).removeClass('down');
+			$(`#<@pageId> #${targetId} #cardBody${idx}`		).removeClass('upDown');
+		 }
+		,foldCard	: function(targetId, idx) {
+			$(`#<@pageId> #${targetId} #updownButton${idx}`	).addClass('down');
+			$(`#<@pageId> #${targetId} #cardBody${idx}`		).addClass('upDown');
+		 }
+		
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -203,25 +229,27 @@
 			
 		</section>
 		<section class="sec_wrap">
-			<div class="cont_box col3 project_list" id="cardList0">
+			<div class="cont_box col3 project_list" style="height:calc(100% - 140px);" id="cardList0">
 			</div>
-			<div class="cont_box col3 project_list" id="cardList1">
+			<div class="cont_box col3 project_list" style="height:calc(100% - 140px);" id="cardList1">
 			</div>
-			<div class="cont_box col3 project_list" id="cardList2">
+			<div class="cont_box col3 project_list" style="height:calc(100% - 140px);" id="cardList2">
 			</div>
 		</section>
 	</div>
 	<script type="text/x-jsrender" id="basecard_template">						
-		<h3 class="tc">{{:cardTitle}} <strong class="pointColr">{{:cardCnt}}</strong> 건</div></h3>
+		<h3 class="tc">{{:cardTitle}} <strong class="pointColr">{{:cardCnt}}</strong> 건</div>
+			<button class="btn small allupToggle" onclick="<@pageId>.foldAllCard('{{:targetId}}')"><i class="up"></i></button><button class="btn small alldownToggle"	onclick="<@pageId>.expandAllCard	('{{:targetId}}')"><i class="up down"></i></button>
+		</h3>
 		{{for list 	~targetId=targetId}}
 		<div class="cont_top mt15 clearFix">
 			<h4 class="fl">{{:BUYER_NM}} / {{:CONSULTING_NM}}</h4>
 			<div class="fr inlineBlock_wrap">
 				<button class="btn small" onclick="<@pageId>.openFolderMng('{{:BUYER_ID}}', {{:#index}})">기업폴더보기</button>
-				<button class="btn small upDownToggle"><i class="up"></i></button>
+				<button class="btn small upDownToggle"><i class="up" name="updownButton" id="updownButton{{:#index}}"></i></button>
 			</div>
 		</div>
-		<div class="cont_box">
+		<div class="cont_box" name="cardBody" id="cardBody{{:#index}}">
 			<!-- 컨설팅 진행 목록 -->
 			<div id="{{:~targetId}}_cslist{{:#index}}">
 			</div>
