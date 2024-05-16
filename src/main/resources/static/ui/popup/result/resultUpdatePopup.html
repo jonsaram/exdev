@@ -117,12 +117,16 @@ var <@popupId> = {
 		C_UICOM.makeSelectBox(singleboxList, "single");
 		
 		$("#<@popupId>_contractInfo #TOTAL_COST"	).html( addComma(parentData.contractItem.TOTAL_COST)	);
-		$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( addComma(parentData.contractItem.REMAINING_SUM)	);
+		let remainingSum = addComma(parentData.contractItem.REMAINING_SUM);
+		if( <@popupId>.IsMonthly )remainingSum = "-";
+		$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( remainingSum	);			
 		$("#<@popupId>_RESULT_DATE"					).val ( dayjs().format("YYYY-MM-DD")					);
 				
 		if( "<@mode>" != "I"){
 			
-			$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( addComma( parentData.resultItem["LAST_REMAINING_SUM"]));
+			let remainingSum	=	addComma( parentData.resultItem["LAST_REMAINING_SUM"]);
+			if( <@popupId>.IsMonthly )remainingSum	= "-" ;
+			$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( remainingSum );
 			$("#<@popupId>_RESULT_DATE"					).val (parentData.resultItem["RESULT_DATE"	] );
 			
 			<@popupId>.setCostList();
@@ -498,15 +502,18 @@ var <@popupId> = {
 			$('#<@popupId>_supplyCost'		).val( addComma(supplytax.supplyCost)).attr("style","width:100%;text-align:right");
 			$('#<@popupId>_tax'				).val( addComma(supplytax.tax)		 ).attr("style","width:100%;text-align:right");
 			
- 	        const remainingSum = $("#REMAINING_SUM").text().replace(/,/g, '');
-	        if( Number(remainingSum) - Number(supplytax.supplyCost)  < 0  ){
-	        	
-	        	C_POP.alert("입금액이 잔금보다 큽니다."); 
-	        	$(this).val("0");
-	        	$('#<@popupId>_supplyCost , #<@popupId>_tax'	).val( "0"	).html("");
-	        	$('#<@popupId>_real_supplyCost , #<@popupId>_real_sumCost ,  #<@popupId>_real_supptax'	).html("");
-	        	return;
-	        }
+			if(<@popupId>.montyly == false ){
+				
+	 	        const remainingSum = $("#REMAINING_SUM").text().replace(/,/g, '');
+		        if( Number(remainingSum) - Number(supplytax.supplyCost)  < 0  ){
+		        	
+		        	C_POP.alert("입금액이 잔금보다 큽니다."); 
+		        	$(this).val("0");
+		        	$('#<@popupId>_supplyCost , #<@popupId>_tax'	).val( "0"	).html("");
+		        	$('#<@popupId>_real_supplyCost , #<@popupId>_real_sumCost ,  #<@popupId>_real_supptax'	).html("");
+		        	return;
+		        }
+			}
 	        
 			const incomeMinusCostPrice = <@popupId>.callOrgSellingPrice();
 			<@popupId>.calcPayment(incomeMinusCostPrice);

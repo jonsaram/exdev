@@ -35,7 +35,8 @@ var <@pageId> = {
 					 ,BUYER_NM 	: searchVal
 					 ,BUYER_ID	: searchVal
 					 ,USER_NM	: searchVal
-					 ,PA_ROLE	: <@pageId>.paMap.ROLE_ID
+					 ,PA_ROLE	: isEmpty("<@CALL_TYPE>") ? <@pageId>.paMap.ROLE_ID : null
+					 ,CALL_TYPE	: "<@CALL_TYPE>"
 			};
 			
 			var parm = {
@@ -281,7 +282,7 @@ var <@pageId> = {
 			
 			if( isEmpty(selectedRow["CONTRACT_DATE"]) || isEmpty(selectedRow["TOTAL_COST"]) ){
 				
-				C_POP.alert("계약일, 계약금액 등 필수 항목 입력 후 결재 할 수 있습니다. ");
+				C_POP.alert("계약일, 계약금액 등 계약 체결을 위한\n필수 항목 입력 후 결재 할 수 있습니다.");
 				return;
 			}	
 
@@ -447,17 +448,22 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			 					<td id='ROWIDX'				class='tc' >{{:ROWIDX}}</td>
 			 					<td id='BUYER_ID' title='{{:BUYER_ID}}'	class='tl' >{{:BUYER_ID}}</td>
 			 					<td id='BUYER_NM' title='{{:BUYER_NM}}'			class='tl' >{{:BUYER_NM}}</a></td>
-			 					<td id='PROCESS_STATE_NM'	>{{:PROCESS_STATE_NM}}</td>
-			 					<td id='CONTACT_DATE'		>{{:CONTACT_DATE}}</td>
-								<td id='USER_NM' 			>{{:USER_NM}}</td>
-								<td id='CONSULTING_TYPE_NM'	 title='{{:CONSULTING_TYPE_NM}}'	class='tl'>{{:CONSULTING_TYPE_NM}}</td>
+			 					<td id='PROCESS_STATE_NM'	title='{{:PROCESS_STATE_NM}}'	>{{:PROCESS_STATE_NM}}</td>
+			 					<td id='CONTACT_DATE'		title='{{:CONTACT_DATE}}'		>{{:CONTACT_DATE}}</td>
+								<td id='USER_NM' 			title='{{:USER_NM}}'			>{{:USER_NM}}</td>
+								<td id='CONSULTING_TYPE_NM'	title='{{:CONSULTING_TYPE_NM}}'	class='tl'>{{:CONSULTING_TYPE_NM}}</td>
 								<td id='CONTRACT_DATE'		>{{:CONTRACT_DATE}}</td>
 								<td id='EXPIRE_DATE'		>{{:EXPIRE_DATE}}</td>
 								<td id='TOTAL_COST'	 title='{{numb:TOTAL_COST}}'	class='tr'>{{numb:TOTAL_COST}}</td>
 								<td id='CONSULTING_NM'	 title='{{:CONSULTING_NM}}'	class='tl'>{{:CONSULTING_NM}}</td>
 								<td class='tc'>
 								{{if APP_STATE_NM=="N/A" ~index=#index}} 
-									<button type="button" class="btn tc" onclick="<@pageId>.approval({{:~index}})">결재</button>
+									{{if PROCESS_STATE == "CONTRACTING"}}
+									<button type="button" title="계약 체결 완료 결재" class="btn tc" onclick="<@pageId>.approval({{:#getIndex()}})">체결 결재</button>
+									{{/if}}
+									{{if PROCESS_STATE == "CONTRACTED"}}
+									<button type="button" title="계약 실행 완료 결재"  class="btn tc" onclick="<@pageId>.approval({{:#getIndex()}})">완료 결재</button>
+									{{/if}}
 								{{else}}
 									{{:APP_STATE_NM}}	
 								{{/if}}

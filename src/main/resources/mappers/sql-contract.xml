@@ -11,6 +11,7 @@
 		,B.BUYER_NM
 		,B.BUYER_NM || ' ( ' || B.BUYER_ID || ' )'  AS "BUYER"
 		,C.PROCESS_STATE
+		,NVL( C.PRE_PROCESS_STATE ,'-' ) AS PRE_PROCESS_STATE 
 		,GET_CODE_NM('PROCESS_STATE', C.PROCESS_STATE ) AS PROCESS_STATE_NM 
 		,TO_CHAR( C.CONTACT_DATE , 'YYYY-MM-DD') 	AS CONTACT_DATE 
 		,C.USER_ID 									AS USER_ID
@@ -84,10 +85,18 @@
         	</if>
         	<if test=" !PA_ROLE.equals('SYSTEM') and !PA_ROLE.equals('MANAGER')">
         	AND (
-					C.USER_ID	= #{sessionVo.userId	}
-			 	OR	TM.USER_ID	= #{sessionVo.userId	} 	
+        			C.UPDATE_USER 	= #{sessionVo.userId	}
+				OR	C.USER_ID		= #{sessionVo.userId	}
+			 	OR	TM.USER_ID		= #{sessionVo.userId	} 	
 			)
         	</if>
+		</when>
+       	<when test= "CALL_TYPE != null and CALL_TYPE.equals('USER')"> 
+        	AND (
+        			C.UPDATE_USER 	= #{sessionVo.userId	}
+				OR	C.USER_ID		= #{sessionVo.userId	}
+			 	OR	TM.USER_ID		= #{sessionVo.userId	} 	
+			)
 		</when>
 		</choose>		
 
@@ -136,11 +145,19 @@
         	</if>
         	<if test=" !parm.PA_ROLE.equals('SYSTEM') and !parm.PA_ROLE.equals('MANAGER')">
         	AND (
-					C.USER_ID	= #{sessionVo.userId	}
-			 	OR	TM.USER_ID	= #{sessionVo.userId	} 	
+					C.UPDATE_USER 	= #{sessionVo.userId	}
+				OR	C.USER_ID		= #{sessionVo.userId	}
+			 	OR	TM.USER_ID		= #{sessionVo.userId	} 	
 			)
         	</if>
 		</when>
+       	<when test= "parm.CALL_TYPE != null and parm.CALL_TYPE.equals('USER')"> 
+        	AND (
+        			C.UPDATE_USER 	= #{sessionVo.userId	}
+				OR	C.USER_ID		= #{sessionVo.userId	}
+			 	OR	TM.USER_ID		= #{sessionVo.userId	} 	
+			)
+		</when>		
 		</choose>		
 	
 		<if test=" parm.CONTRACT_ID != null and !parm.CONTRACT_ID.equals('') ">
@@ -436,10 +453,16 @@
 	</select>	
 	<update id="updateContractProcessState" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	contract.updateContractProcessState
-			계약 상태 변경
+			계약 상태 변경 및 이전상태 저장
 		*/
 		UPDATE TBL_EXP_CONTRACT
 		SET PROCESS_STATE = #{PROCESS_STATE}
+		<if test=" PRE_PROCESS_STATE != null and !PRE_PROCESS_STATE.equals('') ">
+		,	PRE_PROCESS_STATE =  #{PRE_PROCESS_STATE}
+		</if>
+		<if test=" PRE_PROCESS_STATE == null or PRE_PROCESS_STATE.equals('') ">
+		,	PRE_PROCESS_STATE =  PROCESS_STATE
+		</if>
 		,	UPDATE_USER = #{sessionVo.userId}
 		,	UPDATE_DATE = SYSDATE
 		WHERE CONTRACT_ID	 = #{CONTRACT_ID}
@@ -528,34 +551,6 @@
 		WHERE CONTRACT_ID	= #{CONTRACT_ID}
 	</delete>
 	
-<!-- 
-	<select id="getOverridingList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	contract.getOverridingList
-			Overriding 관련 상급자 조회 
-		*/
-		SELECT 'MAIN_HEADER' AS BUSINESS_HIERARCHY ,GET_CODE_NM('BUSINESS_HIERARCHY','MAIN_HEADER'  ) AS POSITION
-		,BB.USER_ID , GET_USER_NM(BB.USER_ID) AS USER_NM, GET_CODE_NM('GRADE',U.GRADE) AS GRADE_NM , 'OVERRIDING' AS RELATION_TYPE
-		FROM TBL_EXP_USER U, TBL_EXP_BASE_BRANCH BB,TBL_EXP_SP_BRANCH SB , TBL_EXP_BRANCH BR 
-		WHERE  BR.BRANCH_ID = #{BRANCH_ID} 
-		AND BR.SP_BRANCH_ID = SB.SP_BRANCH_ID AND SB.BASE_BRANCH_ID = BB.BASE_BRANCH_ID AND U.USER_ID = BB.USER_ID
-		 
-		UNION ALL
-		
-		SELECT 'LOCAL_HEADER' ,GET_CODE_NM('BUSINESS_HIERARCHY','LOCAL_HEADER'  ) 
-		,SB.USER_ID , GET_USER_NM(SB.USER_ID), GET_CODE_NM('GRADE',U.GRADE)   , 'OVERRIDING'
-		FROM   TBL_EXP_USER U,TBL_EXP_SP_BRANCH SB , TBL_EXP_BRANCH BR 
-		WHERE  BR.BRANCH_ID = #{BRANCH_ID}  
-		AND BR.SP_BRANCH_ID = SB.SP_BRANCH_ID AND U.USER_ID = SB.USER_ID
-		 
-		UNION ALL
-		
-		SELECT 'DEPT_HEADER' ,GET_CODE_NM('BUSINESS_HIERARCHY','DEPT_HEADER'  ) 
-		,BR.USER_ID  ,GET_USER_NM(BR.USER_ID), GET_CODE_NM('GRADE',U.GRADE)  , 'OVERRIDING'
-		FROM   TBL_EXP_USER U,TBL_EXP_BRANCH BR 
-		WHERE BR.BRANCH_ID = #{BRANCH_ID}  
-		AND U.USER_ID = BR.USER_ID
-	</select>	
- -->
 	<select id="getConsultingList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getConsultingList
 			컨설팅 리스트 조회 

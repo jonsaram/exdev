@@ -81,7 +81,11 @@ var <@pageId> = {
     			<@pageId>.contractItem.REMAINING_SUM = Math.min( ...REMAINING_SUM_LIST );
     			
 				if( <@pageId>.contractItem.REMAINING_SUM == 0){
-					$("#<@pageId>_regResult").hide();
+	    			// 잔금 0 이라도 월자문컨설팅에서는 계속됨 ( 잔금 차감 방식 아님. )
+					if( <@pageId>.contractItem.CONSULTING_TYPE != "MONTHLY" ){
+						
+						$("#<@pageId>_regResult").hide();
+					}
 				}
 				
 				let totalORGSP 		= Number(TOTAL_ROW["ORG_SELLING_PRICE"]).toFixed(2);	totalORGSP 		= totalORGSP.replace(/\.00$/, "");

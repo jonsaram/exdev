@@ -1,6 +1,26 @@
 
 const _HUNDRED_MILLION = 100000000 ;
 
+
+function _yearMonthSelectBox(obj) {
+
+	const yearMonths = [];
+	[dayjs().year(),dayjs().year() - 1].forEach( year => {
+		
+				const monthsArray = Array.from({ length: 12 }, (_, indexm) => {
+					  const months = ("0"+(1 + indexm) ).slice(-2);
+					  return yearMonths.push( [year.toString()+"-"+months.toString(), year+"년  "+ months + "월"] );
+				});				  
+		
+	});
+		  
+	var dateList = { data	: yearMonths,targetId : obj}
+	C_UICOM.makeSelectBox(dateList, "single");
+	C_UICOM.setSingleBox(obj, dayjs().year()+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
+	
+}
+
+
 function _yearSelectBox (yearObj) {
 	
 	var yearsArrayList = { data	: _getYearDataList (),targetId : yearObj}

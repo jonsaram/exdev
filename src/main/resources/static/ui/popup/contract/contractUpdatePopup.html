@@ -10,6 +10,7 @@ var <@popupId> = {
  	 ,addSuggesterRtnData : []
  	 ,consultingId:''
  	 ,processState:''
+ 	 ,preProcessState:''
  	 ,consultantUser:{}
  	 ,bFirst : true
 	 ,close : function(returnData) {
@@ -30,7 +31,11 @@ var <@popupId> = {
 					returnData[key] = val;
 			}
 		})
-		returnData["CONTRACT_TYPE"]		= C_UICOM.getData("<@popupId>_selectContractType");
+
+		// 계약 구분은 상품에 따라 설정.
+		returnData["CONTRACT_TYPE"]		= 	<@popupId>.updatingData["CONSULTING_TYPE"] == "MONTHLY" ? "MONTHLY" : 
+											<@popupId>.updatingData["CONSULTING_TYPE"] == "ONCE" 	? "ONLY_ONE" : "PARTNER"
+												
 		returnData["CONSULTING_CLASS"]	= C_UICOM.getData("<@popupId>_selectConsultingClass");
 		 
 		returnData["USER_ID"]			= <@popupId>.updatingData["USER_ID"]
@@ -38,13 +43,90 @@ var <@popupId> = {
 		returnData["CONSULTING_ID"]		= <@popupId>.consultingId;
 
 		returnData["CONTRACT_MEMBER"]	= <@popupId>.getContractMember(returnData["CONTRACT_ID"],returnData["USER_ID"]);
-		returnData["PROCESS_STATE"]		= <@popupId>.processState;
-		 
-		if( <@popupId>.validation(returnData) == false){
-			return null;
+
+		// 계약 보류/ 계약 거부 상태 변경 시 valid 체크 안함.
+		let selectPSVal = C_UICOM.getData("<@popupId>_selectPendingStatus");
+		if( isEmpty(selectPSVal) )
+			selectPSVal = C_UICOM.getData("<@popupId>_selectProcessStatus");
+		if( selectPSVal == "PENDING" || selectPSVal == "REJECTING" ) {
+			
+			if( <@popupId>.processState != "PENDING" && <@popupId>.processState != "REJECTING" ){
+
+				let yn = false;
+				C_POP.confirm('현 계약상태를 [계약 보류] 혹은 [계약 거절]로\n상태 변경 하시겠습니까?', function() {
+					
+					yn = true;
+					
+				});
+				
+				if( yn == true){
+	
+					returnData["PROCESS_STATE"]		= selectPSVal;
+					returnData["PRE_PROCESS_STATE"]	= "<@processState>";
+					<@popupId>.changeProcessState({PRE_PROCESS_STATE : returnData["PRE_PROCESS_STATE"] , PROCESS_STATE : returnData["PROCESS_STATE"]	});
+					return returnData;
+
+				}else{
+					
+					if( <@popupId>.validation(returnData) == false){
+						return null;
+					}
+					
+				}
+				
+			}else{
+				
+				C_POP.alert("[계약 보류] 혹은 [계약 거절] 상태가 아닌 경우에만 보류 혹은 거절할 수 있습니다.")
+				return null;
+				
+			}
 		}
-		 
-		return returnData;
+		
+		// 계약 보류/ 계약 거부 상태 해제.	
+		else if( selectPSVal == "RELEASE"  ) {
+			// USER 인경우는 현재 processState가 
+			if( <@popupId>.processState == "PENDING" || <@popupId>.processState == "REJECTING" ){
+				
+				let yn = false;
+				C_POP.confirm('현 [계약 보류] 혹은 [계약 거절] 상태를 해제하시겠습니까?', function() {
+					
+					yn = true;
+					
+				});
+				
+				if( yn == true){
+	
+					returnData["PROCESS_STATE"]		= <@popupId>.preProcessState;
+					returnData["PRE_PROCESS_STATE"]	= "<@processState>";
+					<@popupId>.changeProcessState({PRE_PROCESS_STATE : returnData["PRE_PROCESS_STATE"] , PROCESS_STATE : returnData["PROCESS_STATE"]	});
+					return returnData;
+				}else{
+					
+					if( <@popupId>.validation(returnData) == false){
+						return null;
+					}
+					
+				}
+				
+			}else{
+				
+				C_POP.alert("[계약 보류] 혹은 [계약 거절] 상태인 경우에만 해제할 수 있습니다.")
+				return null;
+				
+			}
+			
+			
+		}else {
+			
+			if( <@popupId>.validation(returnData) == false ){
+				return null;
+			}else {
+				
+				return returnData;
+			}
+			
+		}
+		
 		
  	 }
 	 ,apply : () =>{
@@ -57,25 +139,38 @@ var <@popupId> = {
 		 
 	 }
 	 ,validation : (returnData) =>{
-	 
-		 const buyerValid 	= <@popupId><@popupId>_BUYER.isValid;
-		 const userValid	= <@popupId><@popupId>_USER.isValid;
 
- 		 if( !buyerValid 	|| isEmpty(returnData["BUYER_ID"]) ) {C_POP.alert("고객명을 조회하여 입력하여 주십시오."); return false;}
- 		 if( !userValid		|| isEmpty(returnData["USER_ID"]) ) {C_POP.alert("계약담당자를 조회하여 입력하여 주십시오."); return false;}
-		 if( isEmpty(returnData["CONTACT_DATE"]) ) {C_POP.alert("상담일을 선택하여 주십시오."); return false;}
-		 if( isEmpty(returnData["CONTRACT_DATE"]) ) {C_POP.alert("자문계약일을 선택하여 주십시오."); return false;}
-		 if( isEmpty(returnData["EXPIRE_DATE"]) ) {C_POP.alert("만료일을 선택하여 주십시오."); return false;}
-		 if( returnData["CONTRACT_TYPE"] == '--'  ) {C_POP.alert("계약구분을 선택하여 주십시오."); return false;}
-		 if( isEmpty(returnData["TOTAL_COST"]) ) {C_POP.alert("총계약금액을 입력하여 주십시오."); return false;}
-		 if( isEmpty(returnData["CONSULTING"]) ) {C_POP.alert("컨설팅 상품을 입력하여 주십시오."); return false;}
-		 if( returnData["CONSULTING_CLASS"] == '--'  ) {C_POP.alert("컨설팅 분야를 선택하여 주십시오."); return false;}
-		 if( isEmpty(returnData["TAX_MNG"]) ) {C_POP.alert("세무담당을 입력하여 주십시오."); return false;}
-		 if( isEmpty(returnData["LABOR_MNG"]) ) {C_POP.alert("노무담당을 입력하여 주십시오."); return false;}
-		 if( <@popupId>.getContractMember().length == 0) {C_POP.alert("코웍 사원을 등록하여 주십시오."); return false;}
-		 
-		 return true;
-		 
+		const buyerValid	= <@popupId><@popupId>_BUYER.isValid;
+		const userValid		= <@popupId><@popupId>_USER.isValid;
+		
+		if( !buyerValid 	|| isEmpty(returnData["BUYER_ID"]) 	) {C_POP.alert("고객명을 조회하여 입력하여 주십시오."); return false;}
+		if( !userValid		|| isEmpty(returnData["USER_ID"]) 	) {C_POP.alert("계약담당자를 조회하여 입력하여 주십시오."); return false;}
+		if( isEmpty(returnData["CONTACT_DATE"]) 				) {C_POP.alert("상담일을 선택하여 주십시오."); return false;}
+		if( isEmpty(returnData["CONTRACT_DATE"]) 				) {C_POP.alert("자문계약일을 선택하여 주십시오."); return false;}
+		if( isEmpty(returnData["EXPIRE_DATE"]) 					) {C_POP.alert("만료일을 선택하여 주십시오."); return false;}
+		//if( returnData["CONTRACT_TYPE"] == '--'  				) {C_POP.alert("계약구분을 선택하여 주십시오."); return false;}
+		if( isEmpty(returnData["TOTAL_COST"]) 					) {C_POP.alert("총계약금액을 입력하여 주십시오."); return false;}
+		if( isEmpty(returnData["CONSULTING"]) 					) {C_POP.alert("컨설팅 상품을 입력하여 주십시오."); return false;}
+		if( returnData["CONSULTING_CLASS"] == '--'  			) {C_POP.alert("컨설팅 분야를 선택하여 주십시오."); return false;}
+		if( isEmpty(returnData["TAX_MNG"]) 						) {C_POP.alert("세무담당을 입력하여 주십시오."); return false;}
+		if( isEmpty(returnData["LABOR_MNG"]) 					) {C_POP.alert("노무담당을 입력하여 주십시오."); return false;}
+		if( <@popupId>.getContractMember().length == 0			) {C_POP.alert("코웍 사원을 등록하여 주십시오."); return false;}
+
+		const sps = C_UICOM.getData("<@popupId>_selectProcessStatus");
+ 		if( !isEmpty(sps) && sps != "<@processState>"){
+			
+			C_POP.confirm('현 계약상태가 변경되었습니다.\n새로운 계약상태를 적용하시겠습니까?', function() {
+				
+				let selectPSVal= C_UICOM.getData("<@popupId>_selectProcessStatus");
+				returnData["PROCESS_STATE"]		= selectPSVal;
+				returnData["PRE_PROCESS_STATE"]	= "<@processState>";
+				<@popupId>.changeProcessState({PRE_PROCESS_STATE : returnData["PRE_PROCESS_STATE"] , PROCESS_STATE : returnData["PROCESS_STATE"]	});
+				
+			});
+		}
+		
+		return true;
+		
 	 }
 	,pageInit : () => {
 		
@@ -155,20 +250,20 @@ var <@popupId> = {
 		
 		if( "<@processState>".indexOf("COMPLETED") > -1 ){
 			
+			$("#<@popupId>_applyBtn").hide();
+			<@popupId>.setDisableModeItems();
+			
+			setTimeout( ()=>{
 				$("#<@popupId>_applyBtn").hide();
-				<@popupId>.setDisableModeItems();
-				
-				setTimeout( ()=>{
-					$("#<@popupId>_applyBtn").hide();
-					$("#<@popupId>_addCowork").hide();
-					$("#<@popupId>_coworkList button").hide();
-					$("#<@popupId>_selectContractType").children().prop("disabled",true)
-					$("#<@popupId>_selectConsultingClass").children().prop("disabled",true)
-					$("#<@popupId> .ui-datepicker-trigger").hide();
-					$("#<@popupId> .datepicker").prop("disabled",true);
-					$("#<@popupId> input[type='text']").prop("disabled",true)
-					$("#<@popupId> button .icon_trash").hide()
-				},300)
+				$("#<@popupId>_addCowork").hide();
+				$("#<@popupId>_coworkList button").hide();
+				$("#<@popupId>_selectContractType").children().prop("disabled",true)
+				$("#<@popupId>_selectConsultingClass").children().prop("disabled",true)
+				$("#<@popupId> .ui-datepicker-trigger").hide();
+				$("#<@popupId> .datepicker").prop("disabled",true);
+				$("#<@popupId> input[type='text']").prop("disabled",true)
+				$("#<@popupId> button .icon_trash").hide()
+			},300)
 
 		}
 		
@@ -178,33 +273,40 @@ var <@popupId> = {
 		const processState = C_COM.getCodeList("PROCESS_STATE");
 		const exPreContract = processState.filter( item => { return item[0] !='PRE_CONTRACT' && item[0] !='ON_CONTRACTING_APPR' ? item :'' });
 		
-		C_UICOM.makeSelectBox({ 
-				 data 			: exPreContract
-			 	,targetId 		: "<@popupId>_selectProcessStatus" 
-		}, "single");
-		C_UICOM.setSingleBox("<@popupId>_selectProcessStatus" , "<@processState>");
-		C_UICOM.addChangeListener("<@popupId>_selectProcessStatus", function(dataObj) {
+		if( <@popupId>.paMap.ROLE_ID == "SYSTEM" || <@popupId>.paMap.ROLE_ID == "MANAGER" ){
 			
-			<@popupId>.changeProcessState(dataObj);
+			$("#<@popupId>_pendingStatus").hide();
 			
-		});
+			C_UICOM.makeSelectBox({ 
+					 data 			: exPreContract
+				 	,targetId 		: "<@popupId>_selectProcessStatus" 
+			}, "single");
+			C_UICOM.setSingleBox("<@popupId>_selectProcessStatus" , "<@processState>");
+			
+		}else{
 
-		if( <@popupId>.paMap.ROLE_ID != "SYSTEM"){
-		//비활성
-/* 	  		$("#<@popupId>_selectProcessStatus").attr("disabled", true).prop("disabled", true);
-			$('#<@popupId>_selectProcessStatus button').prop("disabled", true);
-	 		$("#<@popupId>_selectProcessStatus").hide(); */
-	 		const text = exPreContract.filter( item => { item[1] == "<@processState>" });
-	 		$("#<@popupId>_processStatus").text( exPreContract.filter( item=> item[0] == "<@processState>")[0][1] ).show();
+			const text = exPreContract.filter( item => { item[1] == "<@processState>" });
+			
+			$("#<@popupId>_peek").css('margin-top','7px');
+			$("#<@popupId>_peek").text( exPreContract.filter( item=> item[0] == "<@processState>")[0][1] ).show();
+				
+			let data =  exPreContract.filter( item => { return item[0] =='PENDING' || item[0] =='REJECTING' ? item :'' });
+			data.push(["RELEASE","거절 및 보류 해제"]);
+			C_UICOM.makeSelectBox({ 
+				defaultItem 	: ["--", "선택"]
+				,data 			: data  
+				,targetId 		: "<@popupId>_selectPendingStatus" 
+			}, "single");
+
 		}
 	 		
-		C_UICOM.makeSelectBox({ 
+/* 		C_UICOM.makeSelectBox({ 
 			 defaultItem 	: ["--", "선택"]
 			,data : C_COM.getCodeList("CONTRACT_TYPE")
- 			,targetId : "<@popupId>_selectContractType" }, "single");
+			,targetId : "<@popupId>_selectContractType" }, "single");
 		if( CONTRACT_TYPE ) 
-			C_UICOM.setSingleBox("<@popupId>_selectContractType", CONTRACT_TYPE);
-		
+			C_UICOM.setSingleBox("<@popupId>_selectContractType", CONTRACT_TYPE); */
+
 		C_UICOM.makeSelectBox({ 
 			 defaultItem 	: ["--", "선택"]
 			,data : C_COM.getCodeList("CONSULTING_CLASS")
@@ -215,18 +317,19 @@ var <@popupId> = {
 	}
 	,changeProcessState : (state) => {
 
-		const CONTRACT_ID = <@popupId>.updatingData["CONTRACT_ID"];
+ 		const CONTRACT_ID = <@popupId>.updatingData["CONTRACT_ID"];
 		var parm = {
 				 queryId 		: "contract.updateContractProcessState"
-				,requestParm	: {CONTRACT_ID : CONTRACT_ID , PROCESS_STATE : state}
+				,requestParm	: 	{
+										CONTRACT_ID : CONTRACT_ID
+										, PRE_PROCESS_STATE : state.PRE_PROCESS_STATE 
+										, PROCESS_STATE : state.PROCESS_STATE
+									}
 		}
 
 		C_COM.requestQuery(parm, function(resultData) {
 			
-			C_POP.alert("계약 상태를 변경하였습니다.");
-			<@popupId>.close();
-			
-		});		
+		});	
 		
 	}
 	,savedContractMemberSearch : () => {
@@ -304,11 +407,12 @@ var <@popupId> = {
 
 		C_POP.open('popup_contract_consultingSearchPopup', {param:param}, function(retData) {
 
-			const consultingNm	= retData["CONSULTING_NM"];
-			const consultingTypeNm= retData["CONSULTING_TYPE_NM"];
+			const consultingNm								= retData["CONSULTING_NM"];
+			const consultingTypeNm							= retData["CONSULTING_TYPE_NM"];
 			if( !isEmpty(consultingNm) ){
 				<@popupId>.updatingData["CONSULTING_ID"]	= retData["CONSULTING_ID"] ;
-				<@popupId>.consultingId=  retData["CONSULTING_ID"] ;
+				<@popupId>.updatingData["CONSULTING_TYPE"]	= retData["CONSULTING_TYPE"] ;
+				<@popupId>.consultingId						= retData["CONSULTING_ID"] ;
 				$("#<@popupId>_CONSULTING").val( `${consultingNm} ( ${consultingTypeNm} )` );
 			}
 			
@@ -468,6 +572,11 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.mode				= <@popupId>.recvData.mode;
 	<@popupId>.updatingData		= <@popupId>.recvData.param;
 	
+	//현 상태 저장.
+	<@popupId>.processState		= <@popupId>.recvData.param.PROCESS_STATE;
+	<@popupId>.preProcessState	= <@popupId>.recvData.param.PRE_PROCESS_STATE;
+	
+	
 	<@popupId>.resulting		= <@popupId>.updatingData?.RESULTING;
 	<@popupId>.consultingId		= <@popupId>.updatingData?.CONSULTING_ID;
 	<@popupId>.consultantUser	= {ID:<@popupId>.updatingData?.CONSULTANT_USER_ID, 
@@ -500,31 +609,34 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								
 								<li>
 									<label>계약 상태</label>
-									<div class="info" id="<@popupId>_processStatus"  style='margin-top:7px;'>
-										<div id="<@popupId>_peek"></div>
-										<div id="<@popupId>_selectProcessStatus" class="select_box" style="width:100%; float: right !important;"></div>
+									<div class="info" id="<@popupId>_processStatus">
+										<span id="<@popupId>_peek" style='display:inline-block;'></span>
+ 										<div id="<@popupId>_selectProcessStatus" class="select_box" style="width:85%;"></div>
+									</div>
+								</li>
+								<li >
+									<label id='<@popupId>_pendingStatus'>상태 변경</label>
+									<div class="info">
+										<div id="<@popupId>_selectPendingStatus" class="select_box" style="width:195px;"></div>
+									</div>
 								</li>
 								
-								<li style="visibility: hidden;">
-									<label></label>
-									<div class="info"><input type="text" style="width:100%" disabled></div>
-								</li>
 
-								<li class="w100">
+								<li class="w100" >
 									<label>고객선택</label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%" id="<@popupId>_BUYER">
 										</div>
 									</div>
 								</li>
-								<li class="w100 ml0">
+								<li class="w100 ml0" >
 									<label>계약담당자</label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%" id="<@popupId>_USER">
 										</div>
 									</div>
 								</li>
-								<li>
+								<li >
 									<label>상담일</label>
 									<div class="info">
 										<div class="calendar_wrap">
@@ -532,11 +644,11 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 										</div>
 									</div>
 								</li>
-								<li>
+								<li >
 									<label>자문계약일</label>
 									<div class="info">
 										<div class="calendar_wrap">
-											<input type="text" class="datepicker" id="<@popupId>_CONTRACT_DATE" style="width:100%">
+											<input type="text" class="datepicker" id="<@popupId>_CONTRACT_DATE" style="width:197px;">
 										</div>
 									</div>
 								</li>
@@ -554,22 +666,23 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label></label>
 									<div class="info"><input type="text" style="width:100%" disabled></div>
 								</li>
-																
+<!-- 
 								<li class="w100">
 									<label>계약구분</label>
 									<div class="info">
-										<!-- 싱글 선택 -->
+										싱글 선택
 										<div id="<@popupId>_selectContractType" column = "CONTRACT_TYPE" class="select_box" style="width:100%">
 						                </div>
 									</div>
 								</li>
+ -->																
 								<li class="ml0">
 									<label>총계약금액</label>
 									<div class="info">
-										<input type="text"  id="<@popupId>_TOTAL_COST" style="width:100%" number>
+										<input type="text"  id="<@popupId>_TOTAL_COST" style="width:96%" number>
 									</div>
 								</li>
-								<li class="w100">
+								<li class="w100 ml0">
 									<label>컨설팅 분야</label>
 									<div class="info">
 										<!-- 싱글 선택 -->
@@ -587,13 +700,13 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 										</div>
 									</div>
 								</li>
-								<li>
+								<li class="w100 ml0">
 									<label>세무담당</label>
 									<div class="info">
 										<input type="text" id='<@popupId>_TAX_MNG' style="width:100%">
 									</div>
 								</li>
-								<li>
+								<li class="w100 ml0">
 									<label>노무담당</label>
 									<div class="info">
 										<input type="text" id='<@popupId>_LABOR_MNG' style="width:100%">

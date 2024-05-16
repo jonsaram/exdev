@@ -9,12 +9,13 @@ var <@pageId> = {
 		,treemapChart : (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
 		,pageInit  : () =>{
 			
-			const toDate	= dayjs().format("YYYY-MM-DD");
-			const fromDate 	= dayjs().subtract(1, 'month').format("YYYY-MM-DD");
-			$("#<@pageId>_fromDate"		).val(fromDate);
-			$("#<@pageId>_toDate"		).val(toDate);
-			$("#<@pageId>_fromDateAll"	).val(fromDate);
-			$("#<@pageId>_toDateAll"	).val(toDate);
+			_yearMonthSelectBox("<@pageId>_fromDate");
+			C_UICOM.setSingleBox("<@pageId>_fromDate", dayjs().year()-1+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
+			_yearMonthSelectBox("<@pageId>_toDate");
+			_yearMonthSelectBox("<@pageId>_fromDateAll");
+			C_UICOM.setSingleBox("<@pageId>_fromDateAll", dayjs().year()-1+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
+			_yearMonthSelectBox("<@pageId>_toDateAll");
+
 			_setSearchListCnt("<@pageId>_pagingChunk" );
 			
 			<@pageId>.setHandler();
@@ -47,8 +48,9 @@ var <@pageId> = {
 
 			const requestParm = {
 					SUB_CATEGORY:<@pageId>.mainCategoryItem
-					,FROM_CONTRACT_DATE	: $("#<@pageId>_fromDateAll").val()
-					,TO_CONTRACT_DATE	: $("#<@pageId>_toDateAll").val()
+					,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDateAll"	)+"01" ).format("YYYY-MM-DD") 
+					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDateAll"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD') 
+					
 			};
 			
 			var parm = {
@@ -137,8 +139,8 @@ var <@pageId> = {
 			const ID = options ? options.id : '';
 			const requestParm = {
 					 CONSULTING_TYPE 	:'ONCE'
-					,FROM_CONTRACT_DATE	: $("#<@pageId>_fromDate").val()
-					,TO_CONTRACT_DATE	: $("#<@pageId>_toDate").val()
+					,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD") 
+					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD') 
 					,RANK:'5'
 					,CONSULTING_ID : ID
 			};
@@ -151,8 +153,8 @@ var <@pageId> = {
 			const ID = options ? options.id : '';
 			const requestParm = {
 					 CONSULTING_TYPE 	: 'ONCE'
-					,FROM_CONTRACT_DATE	: $("#<@pageId>_fromDateAll").val()
-					,TO_CONTRACT_DATE	: $("#<@pageId>_toDateAll").val()
+					,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDateAll"	)+"01" ).format("YYYY-MM-DD") 
+					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDateAll"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD')
 					,CONSULTING_ID : ID
 			};
 			
@@ -204,12 +206,12 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<!-- search area -->
 						<div class="search_area">
 							<span class="tit01">조회기간</span>
-							<div class="calendar_wrap">
-								<input type="text" class="datepicker" style="width:132px" id="<@pageId>_fromDate">
+							<div class="calendar_wrap" style='top:12px;'>
+								<div id="<@pageId>_fromDate" style="width:132px"></div>
 							</div>
 							~
-							<div class="calendar_wrap">
-								<input type="text" class="datepicker" style="width:132px" id="<@pageId>_toDate">
+							<div class="calendar_wrap" style='top:12px;'>
+								<div id="<@pageId>_toDate" style="width:132px"></div>
 							</div>
 							<button class="btn select" id='<@pageId>_search'>검색</button>
 							<div class="search_right">
@@ -279,15 +281,15 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<!-- search area -->
 						<div class="search_area">
 							<span class="tit01">조회기간</span>
-							<div class="calendar_wrap">
-								<input type="text" class="datepicker" style="width:132px" id="<@pageId>_fromDateAll">
+							<div class="calendar_wrap" style='top:12px;'>
+								<div id="<@pageId>_fromDateAll" style="width:132px"></div>
 							</div>
 							~
-							<div class="calendar_wrap">
-								<input type="text" class="datepicker" style="width:132px" id="<@pageId>_toDateAll">
+							<div class="calendar_wrap" style='top:12px;'>
+								<div id="<@pageId>_toDateAll" style="width:132px"></div>
 							</div>
 							<button class="btn select" id='<@pageId>_searchAll'>검색</button>
-							<div class="search_right">
+							<div class="search_right"   style="margin-top:12px;">
 								<button type="button" class="btn fl" id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
  								<div id="<@pageId>_pagingChunk" style="margin-left: 5px;width:130px"></div>
 								<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
