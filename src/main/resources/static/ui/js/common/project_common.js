@@ -1066,7 +1066,7 @@ var C_POP = {
 		if(parm.size == "MAX") {
 			C_POP.maxSize(popupId);
 		}
-		debugger;
+		//debugger;
 		$(`#${popupId} .btn_zoomInOut`).unbind("click");
 		$(`#${popupId} .btn_zoomInOut`).bind("click", function() {
 			C_POP.toggleSize(popupId);
