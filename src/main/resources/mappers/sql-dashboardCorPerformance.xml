@@ -1590,4 +1590,35 @@
                ) A  
     </select>
     
+    <!-- 메뉴조회 -->
+    <select id="getMenuList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getMenuList */
+        SELECT  SP_CSTM_ID  
+               ,MENU_ID     
+               ,MENU_NM     
+               ,GROUP_1     
+               ,GROUP_2     
+               ,GROUP_3     
+               ,UPDATE_USER 
+               ,UPDATE_DATE 
+        FROM   TBL_EXP_STORE_MENU_MASTER
+        WHERE  1 = 1
+        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+        <if test=" !'ALL'.equals(menuId) and menuId != null and menuId != ''  ">
+            AND   MENU_ID  = #{menuId}
+        </if>
+        <if test=" menuNm != null and menuNm != ''  ">
+            AND   MENU_NM  LIKE '%'||#{menuNm}||'%'
+        </if>
+        <if test=" !'ALL'.equals(group1) and group1 != null and group1 != ''  ">
+            AND   GROUP_1  = #{group1}
+        </if>
+        <if test=" !'ALL'.equals(group2) and group2 != null and group2 != ''  ">
+            AND   GROUP_2  = #{group2}
+        </if>
+        <if test=" !'ALL'.equals(group3) and group3 != null and group3 != ''  ">
+            AND   GROUP_3  = #{group3}
+        </if>
+        ORDER BY MENU_NM
+    </select>
 </mapper>

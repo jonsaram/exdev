@@ -2,6 +2,8 @@
 <script type="text/javascript">
     var <@compId> = {
              searchedRows : [] // 페이지
+            ,selectGroup1 : 'ALL'
+            ,selectGroup2 : 'ALL'
             ,pageInit : () => {
 
                 const yearsArray = Array.from({ length: 6 }, (_, index) => {
@@ -23,6 +25,7 @@
                 */
                 
                 // 월
+                /*
                 var monthList = C_COM.getCodeList("STORE_MONTH");
                 
                 var selectBoxMonthList = { 
@@ -36,6 +39,7 @@
                     ,targetId : "<@compId>_selectStartBoxMonth" 
                 }
                 C_UICOM.makeSelectBox(selectStartBoxMonthList, "single");
+                */
                 
                 /*
                 var selectEndBoxMontht = { 
@@ -44,7 +48,8 @@
                 }
                 C_UICOM.makeSelectBox(selectEndBoxMontht, "single");
                 */ 
-
+                <@compId>.getSelectMenu();
+                
                 // 권역
                 var regionList = C_COM.getCodeList("STORE_REGION");
                 //dalert(regionList);
@@ -73,7 +78,9 @@
                 C_UICOM.makeSelectBox(selectBoxMenuGroup1List, "single");
                 
                 C_UICOM.addChangeListener("<@compId>_selectGroup1", function(dataObj) {
-                    console.log("_selectBoxRegion  =>"+dataObj);
+                    console.log("_selectGroup1  =>"+dataObj);
+                    <@compId>.selectGroup1 = dataObj;
+                    <@compId>.getSelectMenu();
                 });
 
                 // 분류명
@@ -87,7 +94,9 @@
                 C_UICOM.makeSelectBox(selectBoxMenuGroup2List, "single");
                 
                 C_UICOM.addChangeListener("<@compId>_selectGroup2", function(dataObj) {
-                    console.log("_selectBoxRegion  =>"+dataObj);
+                    console.log("_selectGroup2  =>"+dataObj);
+                    <@compId>.selectGroup2 = dataObj;
+                    <@compId>.getSelectMenu();
                 });
                 
                 // 메뉴명
@@ -115,6 +124,42 @@
                 
             }
 
+            ,getSelectMenu : () => {
+                
+                console.log("getSelectMenu 1" );
+                
+                let requestParm = {};
+                requestParm["group1"] = <@compId>.selectGroup1 ;
+                requestParm["group2"] = <@compId>.selectGroup2 ;
+                
+                console.log("getSelectMenu 2" );
+                var parm1 = {
+                        queryId  : "dashboardCorPerformance.getMenuList"
+                       ,requestParm   : requestParm
+                }
+
+                console.log("getSelectMenu 3" );
+                
+                C_COM.requestQuery(parm1, function(resultData) {
+                    
+                    const DATA = resultData.data.map( item => [ item.MENU_ID, item.MENU_NM ]);
+                    
+                    var selectBoxMenuList = {
+                            defaultItem    : ["ALL", "전체"]
+                           ,data : DATA
+                           ,targetId : "<@compId>_selectBoxMenu" 
+                    }
+                    
+                    C_UICOM.makeSelectBox(selectBoxMenuList, "single");
+                });
+
+                console.log("getSelectMenu 4" );
+                
+                C_UICOM.addChangeListener("<@compId>_selectBoxMenu", function(dataObj) {
+                    //<@compId>.select = dataObj;
+                });
+            }
+            
             ,getSelectStore : () => {
                 
                 console.log("getSelectStore =>"+<@compId>.region );
@@ -147,43 +192,92 @@
                     <@compId>.store = dataObj;
                 });
             }
-            ,getSelectMenu : () => {
-                
-                console.log("getSelectMenu =>");
-                
-                let requestParm = {};
-                requestParm["spCstmId"] = G_VAL.session.spCstmId ;
-                requestParm["region"] = <@compId>.region ;
-                
-                console.log("=== region ===>"+<@compId>.region);
-                
-                var parm1 = {
-                        queryId  : "dashboardCorPerformance.getStore"
-                       ,requestParm   : requestParm
-                }
-                
-                C_COM.requestQuery(parm1, function(resultData) {
-                    
-                    const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
-                    
-                    var selectBoxStoreList = {
-                            defaultItem    : ["ALL", "전체"]
-                           ,data : DATA
-                           ,targetId : "<@compId>_selectBoxStore" 
-                    }
-                    
-                    C_UICOM.makeSelectBox(selectBoxStoreList, "single");
-                });
-                
-                C_UICOM.addChangeListener("<@compId>_selectBoxStore", function(dataObj) {
-                    <@compId>.store = dataObj;
-                });
+            /*============= 매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    =============*/
+            ,searchList1 : () => {
+            	console.log(" searchList1");
+            	<@compId>.setChart1();
             }
+
+            ,setChart1 : () => {
+                console.log(" setChart1");
+            }
+            /*############# 매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    #############*/
+            
+            /*============= 분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    =============*/
+            ,searchList2 : () => {
+                console.log(" searchList2");
+                <@compId>.setChart2();
+            }
+
+            ,setChart2 : () => {
+                console.log(" setChart2");
+            }
+            /*############# 분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    #############*/
+            
+            /*============= 상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    =============*/
+            ,searchList3 : () => {
+                console.log(" searchList3");
+                <@compId>.setChart3();
+            }
+
+            ,setChart3 : () => {
+                console.log(" setChart3");
+            }
+            /*############# 상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    #############*/
+            
+            /*============= 마진비교           마진비교          마진비교           마진비교           마진비교           =============*/
+            ,searchList4 : () => {
+                console.log(" searchList4");
+                <@compId>.setChart4();
+            }
+
+            ,setChart4 : () => {
+                console.log(" setChart4");
+            }
+            /*############# 마진비교           마진비교          마진비교           마진비교           마진비교           #############*/
+            
+            /*============= 상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트     =============*/
+            ,searchList5 : () => {
+                console.log(" searchList5");
+                <@compId>.setChart5();
+            }
+
+            ,setChart5 : () => {
+                console.log(" setChart5");
+            }
+            /*============= 상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트     =============*/
+            
+            /*============= 상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    =============*/
+            ,searchList6 : () => {
+                console.log(" searchList6");
+                <@compId>.setChart6();
+            }
+
+            ,setChart6 : () => {
+                console.log(" setChart6");
+            }
+            /*============= 상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    =============*/
+            
+            
+            ,setHandler : () => {
+
+                $("#<@compId>_searchBtn").click( () =>{
+                    console.log(" search 클릭");
+                    <@compId>.searchList1();//매출 비교
+                    <@compId>.searchList2();//분류명별 매출액
+                    <@compId>.searchList3();//상세메뉴 매출액
+                    <@compId>.searchList4();//마진비교
+                    <@compId>.searchList5();//상세메뉴 코스트
+                    <@compId>.searchList6();//상세메뉴 마진금액
+                })            
+                
+            } 
 
     }
     // Component Load가 완료된후 실행 된다.
     C_COMP.onLoadComp("<@compId>", function(data) {
         <@compId>.pageInit();
+        <@compId>.setHandler();
     });
 </script>
 
@@ -195,9 +289,11 @@
             <div class="select_box fl" style="width:132px">
                 <div id="<@compId>_selectBoxYear" style="width:132px"></div>
             </div>
+            <!--
             <div class="select_box fl" style="width:132px">
                 <div id="<@compId>_selectBoxMonth" style="width:132px"></div>
             </div>
+             -->
             <!-- 대분류 선택 -->
             <div class="select_box fl" style="width:130px">
                 <div id="<@compId>_selectGroup1" style="width:130px"></div>
@@ -209,8 +305,8 @@
             
             <span class="tit01 fl lh33">메뉴명</span>
             <!-- 대분류 선택 -->
-            <div class="select_box fl" style="width:100px">
-                <div id="<@compId>_selectMenu" style="width:100px"></div>
+            <div class="select_box fl" style="width:200px">
+                <div id="<@compId>_selectBoxMenu" style="width:200px"></div>
             </div>
             
             <span class="tit01 fl lh33">권역</span>
@@ -227,7 +323,7 @@
             <div class="select_box fl" style="width:132px">
                  <div id="<@compId>_selectBoxSupervisor" style="width:132px"></div>
             </div>
-            <button type="button" class="btn select fl" id="<@compId>_searchBtn1">조회</button>
+            <button type="button" class="btn select fl" id="<@compId>_searchBtn">조회</button>
         </div>
     </div>
 
