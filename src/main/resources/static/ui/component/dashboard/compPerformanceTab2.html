@@ -19,9 +19,11 @@
                 C_UICOM.makeSelectBox(startYearsArrayList, "single");
                 C_UICOM.setSingleBox("<@compId>_selectStartBoxYear", dayjs().year());
                 
+                /*
                 var endYearsArrayList = { data : yearsArray,targetId : "<@compId>_selectEndBoxYear"}
                 C_UICOM.makeSelectBox(endYearsArrayList, "single");
                 C_UICOM.setSingleBox("<@compId>_selectEndBoxYear", dayjs().year());
+                */
                 
                 // 월
                 var monthList = C_COM.getCodeList("STORE_MONTH");
@@ -38,12 +40,13 @@
                 }
                 C_UICOM.makeSelectBox(selectStartBoxMonthList, "single");
                 
+                /*
                 var selectEndBoxMontht = { 
                      data : monthList
                     ,targetId : "<@compId>_selectEndBoxMonth" 
                 }
                 C_UICOM.makeSelectBox(selectEndBoxMontht, "single");
-                   
+                */ 
 
                 // 권역
                 var regionList = C_COM.getCodeList("STORE_REGION");
@@ -697,27 +700,6 @@
             /* 순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    */
             ,searchChart31 : ( startYear, startMonth, endYear, endMonth ) => {
 
-                console.log("=== searchChart31   ===");
-
-                
-                
-                console.log("=== startDate   ==="+startYear+startMonth+"-01");
-                console.log("=== endDate   ==="+startYear+startMonth+"-01");
-                
-                let yearStart = Number(startYear);
-                let yearEnd   = Number(endYear);
-                let yearDiffe = yearEnd - yearStart+1;
-                
-                var yearList = new Array();
-                
-                if( yearDiffe == 0 ){
-                	yearList[0] = yearStart;
-                }else{
-                    for (var i=0; i< yearDiffe; i++){
-                    	yearList[i] = yearStart + i;
-                    }	
-                }
-                
                 let requestParm = {};            
                 requestParm["startYear"]   = startYear;
                 requestParm["startMonth"]  = startMonth;           
@@ -725,12 +707,7 @@
                 requestParm["endMonth"]    = endMonth ;
                 requestParm["startDate"]   = startYear+"-"+startMonth+"-01";
                 requestParm["endDate"]     = endYear+"-"+endMonth+"-01";
-                requestParm["yearList"]    = yearList;
-
-                console.log("== startDate ==>"+startYear+"-"+startMonth+"-01");
-                console.log("== endDate ==>"+endYear+"-"+endMonth+"-01");
                 
-                /**/
                 let parm = {
                      queryId        : "dashboardCorPerformance.SalesAndGoalSalesChartList"
                     ,requestParm    : requestParm
@@ -804,9 +781,9 @@
             /* 순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    */
             
             /* 순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    */
-            ,searchChart32 : (year, month, region, store, supervisor) => {
+            ,searchChart32 : (year, month) => {
 
-                console.log("=== searchChart32   ===");
+               
 
                 let prevYear  ;
                 let prevMonth ;
@@ -818,18 +795,16 @@
                     prevYear = year;
                     prevMonth = String(Number(month)-1).padStart(2, "0"); 
                 }
+                console.log("=== searchChart32 year["+year+"] month["+month+"] prevYear["+prevYear+"] prevMonth["+prevMonth+"]  ===");
                 
                 let requestParm = {};            
                 requestParm["year"]       = year;
                 requestParm["month"]      = month; 
                 requestParm["prevYear"]   = prevYear;
-                requestParm["prevMonth"]  = prevMonth;           
-                requestParm["region"]     = region ;
-                requestParm["store"]      = store ;
-                requestParm["supervisor"] = supervisor ;
+                requestParm["prevMonth"]  = prevMonth;
                 
                 var parm = {
-                        queryId  : "dashboardCorPerformance.SalesAndGoalSales1"
+                        queryId  : "dashboardCorPerformance.SalesAndPreMonthSales"
                        ,requestParm   : requestParm
                 }
                 
@@ -841,62 +816,62 @@
 
             ,setChart32 : (resultData) =>{
 
-                let categoriesList = [];
-                let salesList      = [];
-                let goalSalesList  = [];
+                let categoriesList   = [];
+                let netSalesList     = [];
+                let netSalesPreList  = [];
                 
                 for (var i=0; i< resultData.data.length; i++){
                     categoriesList[i] = resultData.data[i].STORE_NM3;
-                    salesList[i]      = resultData.data[i].AMOUNT;
-                    goalSalesList[i]  = resultData.data[i].AMOUNT_GOAL;
+                    netSalesList[i]      = resultData.data[i].NET_SALES;
+                    netSalesPreList[i]  = resultData.data[i].NET_SALES_PRE;
                 }
                 
                 $("#<@compId>_chart32").highcharts({
-                   
-                     chart: {
-                            type: 'column'
-                        },
-                        title: {
-                            text: '2023-01-01 ~ 2023-08-31',
-                            align: 'left'
-                        },
-                        subtitle: {
-                            text: '',
-                            align: 'left'
-                        },
-                        colors: ['#66ff00', '#0099ff'],
-                        xAxis: {
-                            categories: categoriesList,
-                            crosshair: true,
-                            accessibility: {
-                                description: 'Countries'
-                            }
-                        },
-                        yAxis: {
-                            min: 0,
-                            title: {
-                                text: ''
-                            }
-                        },
-                        tooltip: {
-                            valueSuffix: ''
-                        },
-                        plotOptions: {
-                            column: {
-                                pointPadding: 0.2,
-                                borderWidth: 0
-                            }
-                        },
-                        series: [
-                            {
-                                name: '순매출액',
-                                data: salesList
-                            },
-                            {
-                                name: '목표금액',
-                                data: goalSalesList
-                            }
-                        ]
+
+                    chart: {
+                           type: 'column'
+                       },
+                       title: {
+                           text: '',
+                           align: 'left'
+                       },
+                       subtitle: {
+                           text: '',
+                           align: 'left'
+                       },
+                       colors: ['#66ff00', '#0099ff'],
+                       xAxis: {
+                           categories: categoriesList,
+                           crosshair: true,
+                           accessibility: {
+                               description: 'Countries'
+                           }
+                       },
+                       yAxis: {
+                           min: 0,
+                           title: {
+                               text: ''
+                           }
+                       },
+                       tooltip: {
+                           valueSuffix: ''
+                       },
+                       plotOptions: {
+                           column: {
+                               pointPadding: 0.2,
+                               borderWidth: 0
+                           }
+                       },
+                       series: [
+                           {
+                               name: '순매출액',
+                               data: netSalesList
+                           },
+                           {
+                               name: '전월금액',
+                               data: netSalesPreList
+                           }
+                       ]
                 });
             }//setChart31
             /* 순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    */
@@ -926,13 +901,13 @@
                 $("#<@compId>_searchBtn2").click( () =>{
                     console.log(" _searchBtn 클릭");
 
-                    let startYear        = C_UICOM.getData("<@compId>_selectStartBoxYear");
-                    let startMonth       = C_UICOM.getData('<@compId>_selectStartBoxMonth');
-                    let endYear        = C_UICOM.getData("<@compId>_selectEndBoxYear");
-                    let endMonth       = C_UICOM.getData('<@compId>_selectEndBoxMonth');
+                    let startYear      = C_UICOM.getData("<@compId>_selectStartBoxYear");
+                    let startMonth     = C_UICOM.getData('<@compId>_selectStartBoxMonth');
+                    let endYear        = null;//C_UICOM.getData("<@compId>_selectEndBoxYear");
+                    let endMonth       = null;//C_UICOM.getData('<@compId>_selectEndBoxMonth');
                     
                     <@compId>.searchChart31( startYear, startMonth, endYear, endMonth );
-                    //<@compId>.searchChart32( year, month, region, store, supervisor );
+                    <@compId>.searchChart32( startYear, startMonth );
                 })
             }
     }
@@ -1050,12 +1025,14 @@
             <div class="select_box fl" style="width:132px">
                 <div id="<@compId>_selectStartBoxMonth" style="width:132px"></div>
             </div>
+            <!-- 
             <div class="select_box fl" style="width:132px">
                 <div id="<@compId>_selectEndBoxYear" style="width:132px"></div>
             </div>
             <div class="select_box fl" style="width:132px">
                 <div id="<@compId>_selectEndBoxMonth" style="width:132px"></div>
             </div>
+            -->
             <button type="button" class="btn select fl" id="<@compId>_searchBtn2">조회</button>
         </div>
     </div>

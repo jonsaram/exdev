@@ -44,11 +44,6 @@
          }
         ,setSelectBoxTime : function( startTimeHour, startTimeMinute, endTimeHour, endTimeMinute ) {
                 
-            console.log("== setSelectBoxTime startTimeHour===>"+startTimeHour);
-            console.log("== setSelectBoxTime startTimeMinute===>"+startTimeMinute);
-            console.log("== setSelectBoxTime endTimeHour===>"+endTimeHour);
-            console.log("== setSelectBoxTime endTimeMinute===>"+endTimeMinute);
-            
             C_UICOM.setSingleBox("<@popupId>_selectBoxStartTime", startTimeHour);
             C_UICOM.setSingleBox("<@popupId>_selectBoxStartMinute", startTimeMinute);
             C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", endTimeHour);
@@ -74,9 +69,6 @@
          }
         ,save : function( ) {
 
-            console.log("== 1 ==>");
-            
-
             if( <@popupId>.saveCheck(<@popupId>.loopType) ){
                 return;
             }
@@ -86,8 +78,6 @@
                 //C_POP.alert("종료일이 제한 범위를 넘었습니다.");
                 //return false;
             }
-            
-            console.log("== 2 ==>");
 
             let startYyMMDDHM = $('#<@popupId>_dateStart').val()+" "+<@popupId>.startTimeH+":"+<@popupId>.startTimeM+":00";
             let endYyMMDDHM   = $('#<@popupId>_dateEnd').val()  +" "+<@popupId>.endTimeH  +":"+<@popupId>.endTimeM+":00";
@@ -112,7 +102,6 @@
             requestParm["position"]           = $('#<@popupId>_position').val();
             requestParm["description"]        = $('#<@popupId>_description').val();
             requestParm["contractId"]         = $('#<@popupId>_contractId').val();
-            requestParm["loopLimitDate"]      = $('#<@popupId>_loopLimitDate').val();
             requestParm["loopType"]           = <@popupId>.loopType;
             requestParm["workType"]           = <@popupId>.workType;
             requestParm["startTimeH"]         = <@popupId>.startTimeH;
@@ -122,6 +111,13 @@
             requestParm["secretYn"]           = <@popupId>.secretYn;
             requestParm["limitDate"]          = <@popupId>.limitDate;
             requestParm["timeType"]           = <@popupId>.timeType;
+            
+            // 반복안함선택시 종료일 제한은 일정 종료일로 세팅
+            if("NOT_REPEAT" == <@popupId>.loopType ){
+            	requestParm["loopLimitDate"] = $('#<@popupId>_dateEnd').val();
+            }else{
+            	requestParm["loopLimitDate"] = $('#<@popupId>_loopLimitDate').val();
+            }
             
             if ( (<@popupId>.isEndDayOfMonth && <@popupId>.isLoopTypeMonth) ||  
             	 (<@popupId>.isEndDayOfMonth && <@popupId>.isLoopTypeYear) ||
@@ -133,27 +129,6 @@
             	requestParm["loopTypeDtlCd"]      = '';
                 requestParm["loopTypeDtlVal"]     = '';    
             }
-            
-            
-            console.log("== scheduleId ==>"+<@popupId>.scheduleId);
-            console.log("== title ==>"+title);
-            console.log("== date ==>"+$('#<@popupId>_dateStart').val());              
-            console.log("== scheduleStartDate ==>"+$('#<@popupId>_dateStart').val()); 
-            console.log("== scheduleEndDate ==>"+$('#<@popupId>_dateEnd').val() );
-            console.log("== position ==>"+$('#<@popupId>_position').val() );
-            console.log("== description ==>"+$('#<@popupId>_description').val() );
-            console.log("== contractId ==>"+$('#<@popupId>_contractId').val() );
-            console.log("== loopTypeDtlCd ==>"+<@popupId>.loopTypeDtlCd);
-            console.log("== loopTypeDtlVal ==>"+<@popupId>.loopTypeDtlVal);
-            console.log("== loopLimitDate ==>"+$('#<@popupId>_loopLimitDate').val() );
-            console.log("== loopType ==>"+<@popupId>.loopType );
-            console.log("== workType ==>"+<@popupId>.workType );
-            console.log("== startTimeH ==>"+<@popupId>.startTimeH );
-            console.log("== startTimeM ==>"+<@popupId>.startTimeM );
-            console.log("== endTimeH ==>"+<@popupId>.endTimeH );
-            console.log("== endTimeM ==>"+<@popupId>.endTimeM );
-            console.log("== secretYn ==>"+<@popupId>.secretYn );
-            console.log("== limitDate ==>"+<@popupId>.limitDate );  
             
             // 임의의 테이블 Key 생성
             var scheduleIdArry = new Array();
@@ -203,7 +178,6 @@
                     let duplDay = "";
                     for(var i =0; i < resultData.data.length; i++){
                         duplDay += resultData.data[i].SCHEDULE_DATE+"\n";
-                        console.log("resultData.data["+i+"].SCHEDULE_DATE ==>"+resultData.data[i].SCHEDULE_DATE);
                     }   
                     C_POP.alert("중복된 일정이 있습니다\n"+duplDay);
                 }
@@ -326,8 +300,6 @@
             let endDate = new Date($('#<@popupId>_dateEnd').val());
             let checkDate = new Date(result);
 
-            console.log("dateStart["+dateStart+"]  endDate["+endDate+"]  checkDate["+checkDate+"]  ");
-            
             return endDate > checkDate;
             
         }
@@ -382,7 +354,6 @@
 
         ,setSelectBoxLoopTypeDtl : function(selectDay) {
 
-        	console.log("setSelectBoxLoopTypeDtl selectDay ==>"+selectDay);
             //************** 반복상세 **************
             var loopTypeList = [
                   ['SELECT_DAY', selectDay+'일 마다 반복']
@@ -402,7 +373,6 @@
             <@popupId>.loopTypeDtlVal = selectDay;
             
             C_UICOM.addChangeListener("<@popupId>_selectBoxLoopTypeDtl", function(dataObj) {
-            	console.log("월반복  ==>"+dataObj);
                 <@popupId>.loopTypeDtlCd = dataObj;
                 
                 if( dataObj == 'SELECT_DAY'){
@@ -416,21 +386,14 @@
          /* 일정의 시작일과 반복주기 선택이 변경될때 호출*/
         ,setEndDayOfMonth : function() {
         	
-        	console.log("setEndDayOfMonth");
-            
         	var dateStart = $('#<@popupId>_dateStart').val();
 
-            console.log(" dateStart =>"+dateStart);
-            
             let lastDate = new Date(Number(dateStart.substr(0, 4)), Number(dateStart.substr(5, 2)), 0);//월의 마지막일
             if ( Number(dateStart.substr(8, 2)) == lastDate.getDate() ) {//시작일이 선택월의 마지막날인가
             	<@popupId>.isEndDayOfMonth = true;
             }
-            console.log(" isEndDayOfMonth =>"+<@popupId>.isEndDayOfMonth);
             
             //var loopType = $('#<@popupId>_selectBoxLoopType').val();
-            
-            console.log(" loopType =>"+<@popupId>.loopType);
             
             if ( <@popupId>.loopType == 'MONTH' ) {//시작일이 선택월의 마지막날인가
             	<@popupId>.isLoopTypeMonth = true;
@@ -450,23 +413,30 @@
                 <@popupId>.isLoopTypeYear = false;
             }
             
-            console.log(" isLoopTypeMonth =>"+<@popupId>.isLoopTypeMonth);
-            console.log(" isLoopTypeQuarter =>"+<@popupId>.isLoopTypeQuarter);
-            console.log(" isLoopTypeYear =>"+<@popupId>.isLoopTypeYear);
-            
             if ( (<@popupId>.isEndDayOfMonth && <@popupId>.isLoopTypeMonth) || 
             	 (<@popupId>.isEndDayOfMonth && <@popupId>.isLoopTypeYear) ||
             	 (<@popupId>.isEndDayOfMonth && <@popupId>.isLoopTypeQuarter)
                ) {//시작일이 선택월의 마지막날인가
-                console.log(" 월반복 보이기 =>");
                 $("#<@popupId>_showLoopTypeDtl").show();    
                 <@popupId>.setSelectBoxLoopTypeDtl(dateStart.substr(8, 2));
             }else{
-            	console.log(" 월반복 숨기기 =>");
-                $("#<@popupId>_showLoopTypeDtl").hide();    
+            	$("#<@popupId>_showLoopTypeDtl").hide();    
             }
          }
-        
+         //종료시간 세팅
+        ,setEndTime : function(timeHour) {
+        	var endHour ;
+            if( timeHour == "23"){ endHour = "00";}
+            else{
+            	var numTimeHour = Number(timeHour);
+            	var numEndHour = numTimeHour +1 ;
+            	endHour = String(numEndHour).padStart(2, "0");
+            }
+            
+            C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", endHour);
+            <@popupId>.endTimeH = endHour;
+        }
+         
     }//var <@popupId>
     
     // Popup Load가 완료된후 실행 된다.
@@ -572,6 +542,9 @@
         
         C_UICOM.addChangeListener("<@popupId>_selectBoxStartTime", function(dataObj) {
             <@popupId>.startTimeH = dataObj;
+            
+            //종료시간 세팅
+            <@popupId>.setEndTime(dataObj);
         });
 
         //============== 시작시간 ==============
@@ -613,8 +586,8 @@
         var endTimeCodeAttrList = C_COM.getCodeAttr("TIME_HOUR_24", "00");
 
         //초기값 세팅
-        C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", "00");
-        <@popupId>.endTimeH = "00";
+        C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", "01");
+        <@popupId>.endTimeH = "01";
         
         C_UICOM.addChangeListener("<@popupId>_selectBoxEndTime", function(dataObj) {
             <@popupId>.endTimeH = dataObj;

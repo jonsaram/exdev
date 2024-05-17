@@ -60,8 +60,6 @@
          }
         ,setSchedule : function( data ) {
             
-            console.log("== setSchedule 1 ==>"+data);
-            console.log("== SCHEDULE_END_DATE ==>"+data.SCHEDULE_END_DATE);
             
             $('#<@popupId>_title').val(data.TITLE);
             $('#<@popupId>_position').val(data.POSITION);
@@ -78,8 +76,6 @@
             C_UICOM.setSingleBox("<@popupId>_selectBoxWorkType", data.WORK_TYPE);
             C_UICOM.setSingleBox("<@popupId>_scheduleSecretYn", data.SECRET_YN);
             
-            console.log("== setSchedule data.SCHEDULE_GRP_ID ==>"+data.SCHEDULE_GRP_ID);
-            
             <@popupId>.loopType           = data.LOOP_TYPE;
             <@popupId>.scheduleGrpId      = data.SCHEDULE_GRP_ID;
             <@popupId>.orgStartTimeHour   = data.START_TIME_HOUR;
@@ -92,11 +88,6 @@
                         
         }
         ,setSelectBoxTime : function( startTimeHour, startTimeMinute, endTimeHour, endTimeMinute ) {
-                
-            console.log("== setSelectBoxTime startTimeHour===>"+startTimeHour);
-            console.log("== setSelectBoxTime startTimeMinute===>"+startTimeMinute);
-            console.log("== setSelectBoxTime endTimeHour===>"+endTimeHour);
-            console.log("== setSelectBoxTime endTimeMinute===>"+endTimeMinute);
             
             C_UICOM.setSingleBox("<@popupId>_selectBoxStartTime", startTimeHour);
             C_UICOM.setSingleBox("<@popupId>_selectBoxStartMinute", startTimeMinute);
@@ -106,7 +97,6 @@
         ,memberSearchPopup : function() {
     
             C_POP.open('popup_userSearchPopup', {}, function(retData) {
-                console.log("memberSearchPopup =>"+retData);
                 if(!(typeof retData == "undefined" || retData == null || retData == "")){
                     <@popupId>.addMember(retData);
                 }
@@ -146,7 +136,6 @@
             }
             C_COM.requestService(parm, function(resultData) {
                 
-                console.log("resultData.data.state =>"+resultData.data.state);
                 if("S" == resultData.data.state){
                     dalert("일정이 삭제에 성공하였습니다.");
                     var obj = new Object();
@@ -161,8 +150,6 @@
             
         }
         ,update : function() {
-            
-            console.log("update");
 
             if( <@popupId>.saveCheck(<@popupId>.loopType) ){
                 return;
@@ -176,7 +163,6 @@
             requestParm["scheduleStartDate"]  = $('#<@popupId>_dateStart').val();
             requestParm["scheduleEndDate"]    = $('#<@popupId>_dateEnd').val();
             requestParm["position"]           = $('#<@popupId>_position').val();
-            requestParm["loopLimitDate"]      = $('#<@popupId>_loopLimitDate').val();
             requestParm["description"]        = $('#<@popupId>_description').val();
             requestParm["loopType"]           = <@popupId>.loopType;
             requestParm["workType"]           = <@popupId>.workType;
@@ -186,8 +172,13 @@
             requestParm["endTimeM"]           = <@popupId>.endTimeM;
             requestParm["secretYn"]           = <@popupId>.secretYn;
             
-            console.log("=== scheduleGrpId ===>"+<@popupId>.scheduleGrpId);
-                        
+            // 반복안함선택시 종료일 제한은 일정 종료일로 세팅
+            if("NOT_REPEAT" == <@popupId>.loopType ){
+                requestParm["loopLimitDate"] = $('#<@popupId>_dateEnd').val();
+            }else{
+                requestParm["loopLimitDate"] = $('#<@popupId>_loopLimitDate').val();
+            }
+         
             // 참석자 추가
             let mlst = <@popupId>.getAppMemberToList();
             requestParm["users"]  = JSON.stringify(mlst);
@@ -199,7 +190,6 @@
             }
             C_COM.requestService(parm, function(resultData) {
                 
-                console.log("resultData.data.state =>"+resultData.data.state);
                 if("S" == resultData.data.state){
 
                     var obj = new Object();
@@ -232,7 +222,6 @@
                     let duplDay = "";
                     for(var i =0; i < resultData.data.length; i++){
                         duplDay += resultData.data[i].SCHEDULE_DATE+"\n";
-                        console.log("resultData.data["+i+"].SCHEDULE_DATE ==>"+resultData.data[i].SCHEDULE_DATE);
                     }   
                     C_POP.alert("중복된 일정이 있습니다\n"+duplDay);
                 }
@@ -352,8 +341,6 @@
             
             let endDate = new Date($('#<@popupId>_dateEnd').val());
             let checkDate = new Date(result);
-
-            console.log("dateStart["+dateStart+"]  endDate["+endDate+"]  checkDate["+checkDate+"]  ");
             
             return endDate > checkDate;
             
@@ -406,6 +393,20 @@
                 }
             });
          }
+
+        //종료시간 세팅
+       ,setEndTime : function(timeHour) {
+           var endHour ;
+           if( timeHour == "23"){ endHour = "00";}
+           else{
+               var numTimeHour = Number(timeHour);
+               var numEndHour = numTimeHour +1 ;
+               endHour = String(numEndHour).padStart(2, "0");
+           }
+           
+           C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", endHour);
+           <@popupId>.endTimeH = endHour;
+       }
         
     }//var <@popupId>
     
@@ -413,8 +414,6 @@
     C_POP.onLoadPopup("<@popupId>", function(data) {
 
         var scheduleId = data["scheduleId"];
-        
-        console.log("=== updateSchedulePopup scheduleId ===>"+scheduleId);
         
         //************** 업무유형 **************
         var workTypeList = C_COM.getCodeList("SCHEDULE_WORK_TYPE");
@@ -461,14 +460,10 @@
             }else{
             	$("#<@popupId>_showLimitDate").show();
                 let setDate = <@popupId>.getLimitDate( <@popupId>.loopType, $('#<@popupId>_dateStart').val() );
-                console.log("=== setDate ===>"+setDate);
-                
             }
             
         });
         //============== 반복유형 ==============
-            
-        console.log("=== updateSchedulePopup 2 ===");
         
         //************** 공개여부 **************
         var secretYnList = C_COM.getCodeList("SCHEDULE_SECRET_YN");
@@ -512,10 +507,11 @@
         
         C_UICOM.addChangeListener("<@popupId>_selectBoxStartTime", function(dataObj) {
             <@popupId>.startTimeH = dataObj;
+            //종료시간 세팅
+            <@popupId>.setEndTime(dataObj);
         });
 
         //============== 시작시간 ==============
-        console.log("=== updateSchedulePopup 3 ===");
         
         //************** 시작분 **************
         var startMinuteList = C_COM.getCodeList("TIME_MINUTE_30");
@@ -554,8 +550,8 @@
         var endTimeCodeAttrList = C_COM.getCodeAttr("TIME_HOUR_24", "00");
 
         //초기값 세팅
-        C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", "00");
-        <@popupId>.endTimeH = "00";
+        C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", "01");
+        <@popupId>.endTimeH = "01";
         
         C_UICOM.addChangeListener("<@popupId>_selectBoxEndTime", function(dataObj) {
             <@popupId>.endTimeH = dataObj;
@@ -563,7 +559,6 @@
 
         //============== 종료시간 ==============
             
-        console.log("=== updateSchedulePopup 4 ===");
         //************** 종료분 **************
         var endMinuteList = C_COM.getCodeList("TIME_MINUTE_30");
         
@@ -588,8 +583,6 @@
         //============== 종료분 ==============
             
         var today = data["today"];
-        console.log("=== today["+today+"] ===>");
-        
         
         $('#<@popupId>_dateStart').val(today);
         $('#<@popupId>_dateEnd').val(today);
@@ -608,8 +601,6 @@
                 
             }
         });        
-
-        console.log("=== updateSchedulePopup 6 ===");
        
         <@popupId>.scheduleId = scheduleId;
         <@popupId>.searchSchedule(<@popupId>.scheduleId);// 조회

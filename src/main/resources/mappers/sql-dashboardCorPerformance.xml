@@ -186,7 +186,7 @@
         ORDER BY A.SP_CSTM_ID
                 ,A.STORE_ID
     </select>
-        <select id="SalesAndGoalSalesChartList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+            <select id="SalesAndGoalSalesChartList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.SalesAndGoalSalesChartList */
         SELECT A.SP_CSTM_ID
               ,A.STORE_ID
@@ -233,50 +233,53 @@
                                               ,B.MONTH12        AS SALES_MONTH12
                                        FROM   TBL_EXP_STORE_SALES_GOAL A
                                               JOIN (
-                                                       SELECT SP_CSTM_ID
-                                                             ,STORE_ID
-                                                             ,YEAR
-                                                             ,SUM(MONTH01) AS MONTH01
-                                                             ,SUM(MONTH02) AS MONTH02
-                                                             ,SUM(MONTH03) AS MONTH03
-                                                             ,SUM(MONTH04) AS MONTH04
-                                                             ,SUM(MONTH05) AS MONTH05
-                                                             ,SUM(MONTH06) AS MONTH06
-                                                             ,SUM(MONTH07) AS MONTH07
-                                                             ,SUM(MONTH08) AS MONTH08
-                                                             ,SUM(MONTH09) AS MONTH09
-                                                             ,SUM(MONTH10) AS MONTH10
-                                                             ,SUM(MONTH11) AS MONTH11
-                                                             ,SUM(MONTH12) AS MONTH12
-                                                       FROM   (
-                                                                   SELECT  SP_CSTM_ID    
-                                                                          ,STORE_ID      
-                                                                          ,YEAR
-                                                                          ,MONTH
-                                                                          ,CASE MONTH WHEN '01'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH01
-                                                                          ,CASE MONTH WHEN '02'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH02
-                                                                          ,CASE MONTH WHEN '03'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH03
-                                                                          ,CASE MONTH WHEN '04'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH04
-                                                                          ,CASE MONTH WHEN '05'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH05
-                                                                          ,CASE MONTH WHEN '06'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH06
-                                                                          ,CASE MONTH WHEN '07'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH07
-                                                                          ,CASE MONTH WHEN '08'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH08
-                                                                          ,CASE MONTH WHEN '09'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH09
-                                                                          ,CASE MONTH WHEN '10'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH10
-                                                                          ,CASE MONTH WHEN '11'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH11
-                                                                          ,CASE MONTH WHEN '12'  THEN NVL(AMOUNT,0)  ELSE 0 END AS MONTH12
-                                                                   FROM   TBL_EXP_STORE_FINANCIAL
-                                                                   WHERE  1 = 1
-                                                                   AND    SP_CSTM_ID = #{sessionVo.spCstmId}
-                                                                   AND    YEAR IN 
-														            <foreach collection="yearList" item="year" index="index" open="(" separator="," close=")">
-														                    #{year}
-														            </foreach>
-                                                                   AND    SUBJECT = 'SUBJECT_001'
-                                                              )
-                                                       GROUP BY SP_CSTM_ID    
+                                                        /*=========================================================================================*/
+
+                                                        SELECT  SP_CSTM_ID
                                                                ,STORE_ID
                                                                ,YEAR
+                                                               ,SUM(MONTH01) AS MONTH01
+                                                               ,SUM(MONTH02) AS MONTH02
+                                                               ,SUM(MONTH03) AS MONTH03
+                                                               ,SUM(MONTH04) AS MONTH04
+                                                               ,SUM(MONTH05) AS MONTH05
+                                                               ,SUM(MONTH06) AS MONTH06
+                                                               ,SUM(MONTH07) AS MONTH07
+                                                               ,SUM(MONTH08) AS MONTH08
+                                                               ,SUM(MONTH09) AS MONTH09
+                                                               ,SUM(MONTH10) AS MONTH10
+                                                               ,SUM(MONTH11) AS MONTH11
+                                                               ,SUM(MONTH12) AS MONTH12
+                                                        FROM   (
+                                                                        SELECT  A.SP_CSTM_ID
+                                                                               ,A.STORE_ID
+                                                                               ,A.YEAR
+                                                                               ,A.MONTH
+                                                                               ,CASE MONTH WHEN '01'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH01
+                                                                               ,CASE MONTH WHEN '02'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH02
+                                                                               ,CASE MONTH WHEN '03'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH03
+                                                                               ,CASE MONTH WHEN '04'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH04
+                                                                               ,CASE MONTH WHEN '05'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH05
+                                                                               ,CASE MONTH WHEN '06'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH06
+                                                                               ,CASE MONTH WHEN '07'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH07
+                                                                               ,CASE MONTH WHEN '08'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH08
+                                                                               ,CASE MONTH WHEN '09'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH09
+                                                                               ,CASE MONTH WHEN '10'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH10
+                                                                               ,CASE MONTH WHEN '11'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH11
+                                                                               ,CASE MONTH WHEN '12'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH12
+                                                                        FROM   TBL_EXP_STORE_SALES A
+                                                                        WHERE  1 = 1
+                                                                        AND    A.SP_CSTM_ID  = #{sessionVo.spCstmId}
+                                                                        AND    A.YEAR        = #{startYear}
+                                                                        GROUP BY A.SP_CSTM_ID
+                                                                                ,A.STORE_ID
+                                                                                ,A.YEAR
+                                                                                ,A.MONTH
+                                                        ) A
+                                                        GROUP BY A.SP_CSTM_ID
+                                                                ,A.STORE_ID
+                                                                ,A.YEAR
+                                                       /*=========================================================================================*/
                                                    ) B
                                                 ON  1 = 1
                                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
@@ -284,10 +287,7 @@
                                                 AND A.YEAR       = B.YEAR
                                        WHERE  1 = 1
                                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                       AND    A.YEAR IN
-                                       <foreach collection="yearList" item="year" index="index" open="(" separator="," close=")">
-                                           #{year}
-                                       </foreach>
+                                       AND    A.YEAR  = #{startYear}
                                        ORDER BY A.SP_CSTM_ID    
                                                ,A.STORE_ID      
                                                ,A.YEAR 
@@ -320,7 +320,7 @@
                          AND A.SP_CSTM_ID  = B.SP_CSTM_ID
                          AND A.STORE_ID    = B.STORE_ID
                 WHERE  1 = 1
-                AND    A.YYYY_MM_DD BETWEEN TO_DATE( #{startDate} , 'YYYY-MM-DD') AND TO_DATE( #{endDate} , 'YYYY-MM-DD')
+                AND    TO_CHAR(A.YYYY_MM_DD, 'YYYY-MM-DD') = #{startDate}
                 ORDER BY A.SP_CSTM_ID
                         ,A.STORE_ID
                         ,B.STORE_NM3
@@ -332,9 +332,51 @@
         GROUP BY A.SP_CSTM_ID
                 ,A.STORE_ID     
                 ,A.STORE_NM3  
-        ORDER BY SALES_MONTH DESC    
-    </select>    
-    
+        ORDER BY SALES_MONTH DESC
+    </select>
+            
+    <select id="SalesAndPreMonthSales" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+    /*  dashboardCorPerformance.SalesAndPreMonthSales */
+    SELECT A.SP_CSTM_ID
+          ,A.STORE_ID
+          ,B.STORE_NM3
+          ,SUM(A.NET_SALES)     AS NET_SALES
+          ,SUM(A.NET_SALES_PRE) AS NET_SALES_PRE
+    FROM   (
+                SELECT  A.SP_CSTM_ID
+                       ,A.STORE_ID
+                       ,SUM(A.NET_SALES) AS NET_SALES
+                       ,0                AS NET_SALES_PRE
+                FROM   TBL_EXP_STORE_SALES A
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID  = #{sessionVo.spCstmId}
+                AND    A.YEAR        = #{year}
+                AND    A.MONTH       = #{month}
+                GROUP BY  A.SP_CSTM_ID
+                       ,A.STORE_ID
+                UNION ALL
+                SELECT  A.SP_CSTM_ID
+                       ,A.STORE_ID
+                       ,0                AS NET_SALES
+                       ,SUM(A.NET_SALES) AS NET_SALES_PRE
+                FROM   TBL_EXP_STORE_SALES A
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID  = #{sessionVo.spCstmId}
+                AND    A.YEAR        = #{prevYear}
+                AND    A.MONTH       = #{prevMonth}
+                GROUP BY  A.SP_CSTM_ID
+                       ,A.STORE_ID
+    ) A
+    JOIN TBL_EXP_STORE_INFO B
+      ON  1 = 1
+      AND A.SP_CSTM_ID  = B.SP_CSTM_ID
+      AND A.STORE_ID    = B.STORE_ID
+    GROUP BY  A.SP_CSTM_ID
+             ,A.STORE_ID
+             ,B.STORE_NM3
+    </select>
+                  
+                  
     <select id="getComparisonPreMonth" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getComparisonPreMonth */
         SELECT SP_CSTM_ID
@@ -380,32 +422,67 @@
                 ,STORE_NM3  
         ORDER BY SP_CSTM_ID
                 ,STORE_ID
-    </select>
-    
-    
+    </select>    
+
     <sql id="getFinancial_body">
-        SELECT ROW_NUMBER() OVER (ORDER BY A.STORE_ID,A.YEAR,A.MONTH DESC) AS RN
-              ,A.SP_CSTM_ID
-              ,A.STORE_ID
-              ,A.YEAR
-              ,A.MONTH
-              ,C.STORE_NM3
-              ,A.SUBJECT
-              ,GET_CODE_NM('FINANCIAL_SUBJECT', A.SUBJECT) AS SUBJECT_NM 
-              ,A.AMOUNT AS AMOUNT
-        FROM   TBL_EXP_STORE_FINANCIAL A
-               JOIN TBL_EXP_STORE_INFO C
+        SELECT  ROW_NUMBER() OVER (ORDER BY A.STORE_ID,A.YEAR,A.MONTH DESC) AS RN
+               ,A.SP_CSTM_ID
+               ,A.STORE_ID
+               ,A.YEAR
+               ,A.MONTH
+               ,A.STORE_NM3
+               ,A.SUBJECT
+               ,A.SUBJECT_NM 
+               ,A.AMOUNT
+               ,B.AMOUNT AS AMOUNT1
+               ,CASE WHEN B.AMOUNT = 0 THEN 0
+                    ELSE ROUND( (A.AMOUNT/B.AMOUNT) * 100 ,2)
+               END AS AMOUNT_RAT
+        FROM   (
+                SELECT A.SP_CSTM_ID
+                      ,A.STORE_ID
+                      ,A.YEAR
+                      ,A.MONTH
+                      ,C.STORE_NM3
+                      ,A.SUBJECT
+                      ,GET_CODE_NM('FINANCIAL_SUBJECT', A.SUBJECT) AS SUBJECT_NM 
+                      ,A.AMOUNT AS AMOUNT
+                FROM   TBL_EXP_STORE_FINANCIAL A
+                       JOIN TBL_EXP_STORE_INFO C
+                         ON  1 = 1
+                         AND A.SP_CSTM_ID = C.SP_CSTM_ID
+                         AND A.STORE_ID   = C.STORE_ID  
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{parm.spCstmId}
+                <if test=" !'ALL'.equals(parm.storeId) ">
+                    AND    A.STORE_ID = #{parm.storeId} 
+                </if>
+                AND    A.SUBJECT = #{parm.subject} 
+                AND    A.YEAR    = #{parm.year}
+                AND    A.MONTH   = #{parm.month}
+               ) A
+               JOIN (
+                SELECT A.AMOUNT
+                      ,A.SP_CSTM_ID
+                      ,A.STORE_ID
+                      ,A.YEAR
+                      ,A.MONTH
+                FROM   TBL_EXP_STORE_FINANCIAL A
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{parm.spCstmId}
+                <if test=" !'ALL'.equals(parm.storeId) ">
+                    AND    A.STORE_ID = #{parm.storeId} 
+                </if>
+                AND    A.SUBJECT = 'SUBJECT_001' 
+                AND    A.YEAR    = #{parm.year}
+                AND    A.MONTH   = #{parm.month}
+               ) B
                  ON  1 = 1
-                 AND A.SP_CSTM_ID = C.SP_CSTM_ID
-                 AND A.STORE_ID   = C.STORE_ID  
+                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                 AND A.STORE_ID   = B.STORE_ID  
+                 AND A.YEAR       = B.YEAR      
+                 AND A.MONTH      = B.MONTH     
         WHERE  1 = 1
-        AND    A.SP_CSTM_ID = #{parm.spCstmId}
-        <if test=" !'ALL'.equals(parm.storeId) ">
-            AND    A.STORE_ID = #{parm.storeId} 
-        </if>
-        AND    A.SUBJECT = #{parm.subject} 
-        AND    A.YEAR    = #{parm.year}
-        AND    A.MONTH   = #{parm.month}
     </sql>  
     
     <!-- 매출액 순위, 영업이익별 순위 -->
@@ -413,10 +490,10 @@
         /*  dashboardCorPerformance.getFinancial */
         <include refid="getFinancial_body"/>
         ORDER BY  A.SP_CSTM_ID
-              ,A.YEAR
-              ,A.MONTH
-              ,A.STORE_ID
-              ,C.STORE_NM3 
+                 ,A.YEAR
+                 ,A.MONTH
+                 ,A.STORE_ID
+                 ,A.STORE_NM3 
     </select>
     
     <select id="getFinancial_totalCnt" resultType="Integer">
@@ -434,7 +511,7 @@
               ,A.YEAR
               ,A.MONTH
               ,A.STORE_ID
-              ,C.STORE_NM3 
+              ,A.STORE_NM3 
         <include refid="common.pagingWrapEnd"/>
     </select>
     
@@ -701,7 +778,7 @@
                     AND    A.REGION =  #{region} 
                 </if>
                 <if test=" !'ALL'.equals(store) ">
-                    AND    STORE_ID = #{store} 
+                    AND    A.STORE_ID = #{store} 
                 </if>
                 <if test=" !'ALL'.equals(supervisor) ">
                     AND    A.SUPERVISOR = #{supervisor} 
@@ -875,7 +952,7 @@
                                 AND    A.REGION =  #{region} 
                             </if>
                             <if test=" !'ALL'.equals(store) ">
-                                AND    STORE_ID = #{store} 
+                                AND    A.STORE_ID = #{store} 
                             </if>
                             <if test=" !'ALL'.equals(supervisor) ">
                                 AND    A.SUPERVISOR = #{supervisor} 
@@ -904,7 +981,7 @@
                                 AND    A.REGION =  #{region} 
                             </if>
                             <if test=" !'ALL'.equals(store) ">
-                                AND    STORE_ID = #{store} 
+                                AND    A.STORE_ID = #{store} 
                             </if>
                             <if test=" !'ALL'.equals(supervisor) ">
                                 AND    A.SUPERVISOR = #{supervisor} 
@@ -967,7 +1044,7 @@
                     AND    A.REGION =  #{region} 
                 </if>
                 <if test=" !'ALL'.equals(store) ">
-                    AND    STORE_ID = #{store} 
+                    AND    A.STORE_ID = #{store} 
                 </if>
                 <if test=" !'ALL'.equals(supervisor) ">
                     AND    A.SUPERVISOR = #{supervisor} 
