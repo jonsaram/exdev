@@ -6,9 +6,9 @@ var <@pageId> = {
 		,mainCategoryItem: ''
 		,excelParam : {}
 		,treemapChart 		: (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
-		,comparisonChart 	: (target, param)=>_comparisonChart(target, param)
-		,lineAndColumnChart : (target, param)=>_lineAndColumnChart(target, param)
-		,lineWithLabelsChart: (target, param)=>_lineWithLabelsChart(target, param)
+		,comparisonChart 	: (target, param, unit)=>_comparisonChart(target, param, unit)
+		,lineAndColumnChart : (target, param, unit)=>_lineAndColumnChart(target, param, unit)
+		,lineWithLabelsChart: (target, param, unit)=>_lineWithLabelsChart(target, param, unit)
 		,createChart 		: (container, categories, series, unit)=>_createChart(container, categories, series, null,null,unit)
 		,pageInit  : () =>{
 			
@@ -16,7 +16,7 @@ var <@pageId> = {
 			<@pageId>.lastYear = <@pageId>.thisYear - 1;
  
 			_yearMonthSelectBox("<@pageId>_fromDate");
-			C_UICOM.setSingleBox("<@pageId>_fromDate", dayjs().year()-1+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
+			C_UICOM.setSingleBox("<@pageId>_fromDate", dayjs().year()-1+"-"+("01").slice(-2));
 			_yearMonthSelectBox("<@pageId>_toDate");
 			<@pageId>.setHandler();
 		}
@@ -42,9 +42,9 @@ var <@pageId> = {
 			
 			//월자문 순매출 , 1회성 순매출 , 외주자문 순매출
  			var parm = {
-				queryGroup : [{queryId	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONSULTING_TYPE : "MONTHLY"	}}
-							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONSULTING_TYPE : "ONCE"		}}
-							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONSULTING_TYPE : "COWORK"	}}
+				queryGroup : [{queryId	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONSULTING_TYPE : "MONTHLY"	, UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONSULTING_TYPE : "ONCE"		, UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+							 ,{queryId 	: "rstMgn.getOrgSellingPriceList",requestParm	: {CONSULTING_TYPE : "COWORK"	, UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
 							 ]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
@@ -54,10 +54,10 @@ var <@pageId> = {
 			
    			//순매출 성장률 , 지사별 순매출(전년도 추가) , 상세별 순매출(전년도 막대그래프 2개)   
  			var parm2 = {
-					queryGroup : [{queryId	: "rstMgn.getSellingGrowthRateList"	,requestParm	: {}}
-								 ,{queryId 	: "rstMgn.getSellingBranchList"		,requestParm	: {}}
-								 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: {}}
-								 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: {LAST_YEAR:"Y"}}
+					queryGroup : [{queryId	: "rstMgn.getSellingGrowthRateList"	,requestParm	: { UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+								 ,{queryId 	: "rstMgn.getSellingBranchList"		,requestParm	: { UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+								 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: { UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+								 ,{queryId 	: "rstMgn.getSellingDetailList"		,requestParm	: { UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"], LAST_YEAR:"Y"}}
 								 ]
 			}
  			C_COM.requestQuery(parm2, function(resultData) {
@@ -67,9 +67,9 @@ var <@pageId> = {
 			
  			//FA 월자문 수수료 , FA 1회성 수수료 , FA 외주자문 수수료.
  			var parm3 = {
-					queryGroup : [{queryId	: "rstMgn.getFaPayList"		,requestParm	: {CONSULTING_TYPE : "MONTHLY"	}}
-								 ,{queryId 	: "rstMgn.getFaPayList"		,requestParm	: {CONSULTING_TYPE : "ONCE"		}}
-							 	 ,{queryId 	: "rstMgn.getFaPayList"		,requestParm	: {CONSULTING_TYPE : "COWORK"	}}
+					queryGroup : [{queryId	: "rstMgn.getFaPayList"		,requestParm	: {CONSULTING_TYPE : "MONTHLY"	,UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+								 ,{queryId 	: "rstMgn.getFaPayList"		,requestParm	: {CONSULTING_TYPE : "ONCE"		,UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+							 	 ,{queryId 	: "rstMgn.getFaPayList"		,requestParm	: {CONSULTING_TYPE : "COWORK"	,UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
 								 ]
 			}
  			C_COM.requestQuery(parm3, function(resultData) {
@@ -80,8 +80,8 @@ var <@pageId> = {
  			//월자문 계약건수  , FA 매출 순위(전월 비교 차트)
  			var parm4 = {
 					queryGroup : [{queryId	: "rstMgn.getContractCnt"		,requestParm	: {}}
-								 ,{queryId 	: "rstMgn.getFASellingOrder"	,requestParm	: {}}
-								 ,{queryId 	: "rstMgn.getFASellingOrder"	,requestParm	: {LAST_YEAR:"Y"}}
+								 ,{queryId 	: "rstMgn.getFASellingOrder"	,requestParm	: {UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+								 ,{queryId 	: "rstMgn.getFASellingOrder"	,requestParm	: {UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"], LAST_YEAR:"Y"}}
 								 ]
 			}
  			C_COM.requestQuery(parm4, function(resultData) {
@@ -107,28 +107,28 @@ var <@pageId> = {
 			const categoriesList 	= [  _monthArray,_monthArray,_monthArray ];
 			const seriesList		= [
 										[
-										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListMONTHLY.slice(12)	,tooltip: {valueSuffix: ' 억원'},yAxis: 0}
-										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListMONTHLY.slice(0,12)	,tooltip: {valueSuffix:' 억원'}}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListMONTHLY.slice(12)	,tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])},yAxis: 0}
+										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListMONTHLY.slice(0,12)	,tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}}
 										],
 										[
-										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListOnly_ONE.slice(12)	,tooltip: {valueSuffix: ' 억원'},yAxis: 0}
-										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix:' 억원'}}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListOnly_ONE.slice(12)	,tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])},yAxis: 0}
+										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListOnly_ONE.slice(0,12),tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}}
 										],
 										[
-										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListPARTNER.slice(12)	,tooltip: {valueSuffix: ' 억원'},yAxis: 0}
-										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListPARTNER.slice(0,12)	,tooltip: {valueSuffix:' 억원'}}
+										 {  name: thisYear+'년',type: 'column',	data: getOrgSellingPriceListPARTNER.slice(12)	,tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])},yAxis: 0}
+										,{  name: lastYear+'년',type: 'line',	data: getOrgSellingPriceListPARTNER.slice(0,12)	,tooltip: {valueSuffix:	' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}}
 										],
 									 ];
 
-			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx],'억' ) );
+			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx], <@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]) ) );
 
 			
 			let sum = getOrgSellingPriceListMONTHLY.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_monthly_OrgSellingPrice").text(sum.toLocaleString() + "억원") ;
+			$("#<@pageId>_monthly_OrgSellingPrice").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 				sum = getOrgSellingPriceListOnly_ONE.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_once_OrgSellingPrice").text(sum.toLocaleString() + "억원") ;
+			$("#<@pageId>_once_OrgSellingPrice").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 				sum = getOrgSellingPriceListPARTNER.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_product_OrgSellingPrice").text(sum.toLocaleString() + "억원") ;
+			$("#<@pageId>_product_OrgSellingPrice").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 			
 			_setRemoveHighChartCredits();
 			
@@ -139,21 +139,22 @@ var <@pageId> = {
    			const getOrgSellingPriceList			=  resultData.data["rstMgn.getSellingGrowthRateList"	];
 			<@pageId>.lineAndColumnChart( "<@pageId>_OSPGR_chart" , { thisYearSales	: getOrgSellingPriceList.map( item=> item.THIS_YEAR_SALES)
 				  													  ,growthRate	: getOrgSellingPriceList.map( item=> item.GROWTH_RATE)
-				  													} );
+				  													},<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"])  );
 			//지사별 순매출
   			const getSellingBranchList	=  resultData.data["rstMgn.getSellingBranchList"		];
   			const series = [] ;
   			const branchListCnt = getSellingBranchList.length;
   			if( branchListCnt == 0){
 
-        		<@pageId>.lineWithLabelsChart( "<@pageId>_OPB_chart", {thisYear:<@pageId>.thisYear, series:[]});
-				$("#<@pageId>_OrgSellingPriceByBranch").text("0억원") ;
+        		<@pageId>.lineWithLabelsChart( "<@pageId>_OPB_chart", {thisYear:<@pageId>.thisYear, series:[]}, <@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
+				$("#<@pageId>_OrgSellingPriceByBranch").text("0"+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 		        	
   			}
   			else {
   				
 	  			getSellingBranchList.forEach( item => {
 	  				
+	  					item["UNIT_TYPE"]	= G_VAL.session.etcUserInfo["UNIT_TYPE"];
 	  					let parm = {
 	  						queryId        	: "rstMgn.getSellingBranchList"
 	  						,requestParm    : item
@@ -164,24 +165,24 @@ var <@pageId> = {
 	  			        	
 	  			        	resultData.data.forEach( item => {
 	  			        		
-	  			        		const monthData = item["TOTAL_INCOME"] ? Number(item.TOTAL_INCOME): 0 ;
+	  			        		const monthData = item["ORG_SELLING_PRICE"] ? Number(item.ORG_SELLING_PRICE): 0 ;
 	  			        		data.push( monthData )
 	  			        		
 	  			        	})
 	  			        	
-	  			        	const seriseData = { name : item.BRANCH_ID , data : data , tooltip:{ valueSuffix: ' 억원'}} 
+	  			        	const seriseData = { name : item.BRANCH_ID , data : data , tooltip:{ valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}} 
 	  			        	series.push(seriseData);
 				
 	  			        	if( series.length >= branchListCnt){
 	  			        		
-	  			        		<@pageId>.lineWithLabelsChart( "<@pageId>_OPB_chart", {thisYear:<@pageId>.thisYear, series:series});
+	  			        		<@pageId>.lineWithLabelsChart( "<@pageId>_OPB_chart", {thisYear:<@pageId>.thisYear, series:series}, <@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
 	
 	  			        		let sum =0;
 	  			        		series.map( item=> item.data ).forEach( ItemArr=>{
 	  			        			
 	  			        			sum += ItemArr.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 	  			        		})
-		  						$("#<@pageId>_OrgSellingPriceByBranch").text(sum.toLocaleString() + "억원") ;
+		  						$("#<@pageId>_OrgSellingPriceByBranch").text(sum.toLocaleString() + ""+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 	  			        	}
 	  			        	
 	  			        });
@@ -245,10 +246,10 @@ var <@pageId> = {
 							,xAxisData 	: xAsisData 
 						  }
 			
-			<@pageId>.comparisonChart("<@pageId>_OSPD_chart" , param );  			
+			<@pageId>.comparisonChart("<@pageId>_OSPD_chart" , param , <@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]) );  			
 
 			let sum = CONSULTING_THIS_DATA.map( item=> item[1] ).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_OrgSellingPriceByDetail").text(sum.toLocaleString() + "억원") ;
+			$("#<@pageId>_OrgSellingPriceByDetail").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 			
 			_setRemoveHighChartCredits();
 			
@@ -264,27 +265,26 @@ var <@pageId> = {
 			const categoriesList 	= [  _monthArray,_monthArray,_monthArray];
 			const seriesList		= [
 										[
-										 {  name: <@pageId>.thisYear+'년',type: 'column',yAxis: 1,data: getFaPayListMONTHLY.slice(12),tooltip: {valueSuffix: ' 억원'}}
-										,{  name: <@pageId>.lastYear+'년',type: 'line',data:   getFaPayListMONTHLY.slice(0,12),tooltip: {valueSuffix:' 억원'}}
+										 {  name: <@pageId>.thisYear+'년',type: 'column'			,data: getFaPayListMONTHLY.slice(  12),tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}}
+										,{  name: <@pageId>.lastYear+'년',type: 'line'	,yAxis: 1	,data: getFaPayListMONTHLY.slice(0,12),tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}}
 										],
 										[
-										 {  name: <@pageId>.thisYear+'년',type: 'column',yAxis: 1,data: getFaPayListOnly_ONE.slice(12),tooltip: {valueSuffix: ' 억원'}}
-										,{  name: <@pageId>.lastYear+'년',type: 'line',data:  getFaPayListOnly_ONE.slice(0,12),tooltip: {valueSuffix:' 억원'}}
+										 {  name: <@pageId>.thisYear+'년',type: 'column'			,data: getFaPayListOnly_ONE.slice(	12),tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}}
+										,{  name: <@pageId>.lastYear+'년',type: 'line'	,yAxis: 1	,data: getFaPayListOnly_ONE.slice(0,12),tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}}
 										],
 										[
-										 {  name: <@pageId>.thisYear+'년',type: 'column',yAxis: 1,data: getFaPayListPARTNER.slice(12),tooltip: {valueSuffix: ' 억원'}}
-										,{  name: <@pageId>.lastYear+'년',type: 'line',data:  getFaPayListPARTNER.slice(0,12),tooltip: {valueSuffix:' 억원'}}
+										 {  name: <@pageId>.thisYear+'년',type: 'column'			,data: getFaPayListPARTNER.slice(12	 ),tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}}
+										,{  name: <@pageId>.lastYear+'년',type: 'line'	,yAxis: 1	,data: getFaPayListPARTNER.slice(0,12),tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}}
 										],
 									 ];
 
-			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] ,'억') );
-	
+			containerList.forEach( (chart,idx) => <@pageId>.createChart( containerList[idx] , categoriesList[idx] , seriesList[idx] , <@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"])) );	
 			let sum = getFaPayListMONTHLY.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_FA_Monthly_PAY").text(sum.toLocaleString() + "억원") ;
+			$("#<@pageId>_FA_Monthly_PAY").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 				sum = getFaPayListOnly_ONE.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_FA_Once_PAY").text(sum.toLocaleString() + "억원") ;
+			$("#<@pageId>_FA_Once_PAY").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 				sum = getFaPayListPARTNER.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_FA_Partner_PAY").text(sum.toLocaleString() + "억원") ;
+			$("#<@pageId>_FA_Partner_PAY").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 			
 			_setRemoveHighChartCredits();
 			
@@ -294,8 +294,8 @@ var <@pageId> = {
 			//월자문 계약건수
   			const getContractCnt	=  resultData.data["rstMgn.getContractCnt"	 ].map( (item,idx) =>   item.CONTRACT_CNT );
 			<@pageId>.createChart( "<@pageId>_monthlyContractCnt_chart" 
-									, _monthArray , [{  name: <@pageId>.thisYear+'년',type: 'column',	data: getContractCnt.slice(  12),tooltip: {valueSuffix:'건'} ,yAxis	: 1}
-													,{  name: <@pageId>.lastYear+'년',type: 'line',	data: getContractCnt.slice(0,12),tooltip: {valueSuffix:'건'}}
+									, _monthArray , [{  name: <@pageId>.thisYear+'년',type: 'column',			data: getContractCnt.slice(  12),tooltip: {valueSuffix:'건'}}
+													,{  name: <@pageId>.lastYear+'년',type: 'line',yAxis: 1,	data: getContractCnt.slice(0,12),tooltip: {valueSuffix:'건'}}
 													],'건');
 			
 			//FA 매출순위
@@ -312,15 +312,15 @@ var <@pageId> = {
 				else {
 					item2.YEAR 			= item.YEAR - 1;
 					item2.USER_NM		= item.USER_NM ;
-					item2.TOTAL_INCOME 	= 0;
+					item2.ORG_SELLING_PRICE 	= 0;
 					tempList.push( item2)
 				}
 			})
 			sellingFAListLast = tempList;
 			
-			const USER_THIS				=  sellingFAListThis.map( item => {  return { [item.USER_NM]: item.TOTAL_INCOME };} )
+			const USER_THIS				=  sellingFAListThis.map( item => {  return { [item.USER_NM]: item.ORG_SELLING_PRICE };} )
 															.map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
-			const USER_LAST				=  sellingFAListLast.map( item => {  return { [item.USER_NM]: item.TOTAL_INCOME };} )
+			const USER_LAST				=  sellingFAListLast.map( item => {  return { [item.USER_NM]: item.ORG_SELLING_PRICE };} )
 															.map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
 
 			const USER_THIS_DATA = [];
@@ -348,12 +348,12 @@ var <@pageId> = {
 							,xAxisData 	: xAsisData 
 						  }
 			
-			<@pageId>.comparisonChart("<@pageId>_faSellingRank_chart" , param );  	
+			<@pageId>.comparisonChart("<@pageId>_faSellingRank_chart" , param ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));  	
 			
 			let sum = getContractCnt.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 			$("#<@pageId>_monthly_contract_cnt").text(sum.toLocaleString() + "건") ;
 				sum = USER_THIS_DATA.map( item=> item[1] ).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_fa_selling_rank").text(sum.toLocaleString() + "억원") ;
+			$("#<@pageId>_fa_selling_rank").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 			
 			_setRemoveHighChartCredits();
 		} 
@@ -400,7 +400,7 @@ var <@pageId> = {
 			
 		}		
 		,subCategoryTreemap :  () => {
-debugger;
+
 			const requestParm = {
 					SUB_CATEGORY:<@pageId>.mainCategoryItem
 					,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD") 
@@ -435,6 +435,7 @@ debugger;
 			const requestParm = {
 					 FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD") 
 					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD') 
+					,UNIT_TYPE			: G_VAL.session.etcUserInfo["UNIT_TYPE"]
 			};
 			
 			var parm = {
@@ -463,7 +464,22 @@ debugger;
 				 }
 	 		});	
 			
-		}	
+		}
+		,getUnitStr : (str, gubun) =>{
+			
+			if( str == "억원"){
+				
+				if( gubun == 'SMALL')return "백만원";
+				else return str;
+				
+			}
+			if( str == "억"){
+				
+				if( gubun == 'SMALL')return "백만";
+				else return str;
+				
+			}
+		}
 		
 		
 }

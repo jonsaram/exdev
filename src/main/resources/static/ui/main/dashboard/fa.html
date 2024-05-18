@@ -10,6 +10,7 @@ var <@pageId> = {
 		,chartObj2 : null
 		,barChartObj1 : null
 		,barChartObj2 : null
+		,UNIT_TYPE : 'SMALL' /* SMALL / BIG */
 		,pageInit  : () =>{
 
 			//당월/ 실행/ 영업 수수료 , 연간목표 수수료 , 달성률
@@ -108,6 +109,16 @@ var <@pageId> = {
 
 				const data = resultData.data[0];
 				
+				// (실행수수료 + 영업수수료) 1억이하 이고 당월수수료 300만원이하인경우 백만단위로 변경 
+				if(data.YEARLY_PAYMENT <= 100000000 && data.SUM_PAYMENT <= 3000000 ){
+					<@pageId>.UNIT_TYPE = "SMALL";
+					
+				}else{
+					<@pageId>.UNIT_TYPE = "BIG";
+				}
+				
+				 G_VAL.session.etcUserInfo["UNIT_TYPE"] = <@pageId>.UNIT_TYPE;
+				 
 				$("#<@pageId>_curMonthOSP").text( `당월 수수료(${dayjs().format("YYYY.MM")})` );
 				
 				const targetPayment = data.TARGET_PAYMENT;
@@ -147,11 +158,26 @@ var <@pageId> = {
 			});
 			
 		} 
+		,getUnitStr : (str, gubun) =>{
+			
+			if( str == "억원"){
+				
+				if( gubun == 'SMALL')return "백만원";
+				else return str;
+				
+			}
+			if( str == "억"){
+				
+				if( gubun == 'SMALL')return "백만";
+				else return str;
+				
+			}
+		}
 		,searchPaymentSumTrend : (gubun) => {
 		
 			var parm = {
 				 queryId 		: "faDashboard.getPaymentByMonth"
-				,requestParm	: {CUR_YEAR_DATE : C_UICOM.getData("<@pageId>_years"+gubun)}
+				,requestParm	: {CUR_YEAR_DATE : C_UICOM.getData("<@pageId>_years"+gubun) , UNIT_TYPE : <@pageId>.UNIT_TYPE}
 			}
 
 			C_COM.requestQuery(parm, function(resultData) {
@@ -202,7 +228,7 @@ var <@pageId> = {
 					            }
 					        },
 					        labels: {
-					            format: '{value} 억',
+					            format: '{value} '+<@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE ),
 					        },
 					    },
 				    	{
@@ -213,7 +239,7 @@ var <@pageId> = {
 					            }
 					        },
 					        labels: {
-					            format: '{value}억',
+					            format: '{value}'+'억' ,
 					            style: {
 			                        color: '#8A8C92',
 			                        fontFamily: 'Noto Sans KR',
@@ -253,7 +279,7 @@ var <@pageId> = {
 				        yAxis: 	0,
 				        data:	monthlyPaymentArr,
 				        tooltip: {
-				            valueSuffix: ' 억'
+				            valueSuffix: ' '+<@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE )
 				        }
 				
 				    }, {
@@ -262,7 +288,7 @@ var <@pageId> = {
 				        yAxis: 	1,
 				        data:  paymentTrend,
 				        tooltip: {
-				            valueSuffix: ' 억'
+				            valueSuffix: ' '+<@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE )
 				        }
 				    }]  
 				});	
@@ -277,7 +303,7 @@ var <@pageId> = {
 			const CN = chartName;
 			var parm = {
 					 queryId 		: "faDashboard.getPaymentByMonth"
-					,requestParm	: {CUR_YEAR_DATE : C_UICOM.getData("<@pageId>_years"+gubun), gubun:CN}
+					,requestParm	: {CUR_YEAR_DATE : C_UICOM.getData("<@pageId>_years"+gubun), gubun:CN , UNIT_TYPE : <@pageId>.UNIT_TYPE}
 			}
 
 			C_COM.requestQuery(parm, function(resultData) {
@@ -293,7 +319,7 @@ var <@pageId> = {
 				})		
 
 				let yAxisText 	= "";
-				let unit		= "억";
+				let unit		= <@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE );
 				if( CN == "execBosu"	)	yAxisText = "실행 수수료 추이";
 				if( CN == "salesBosu"	)	yAxisText = "영업 수수료 추이";
 				if( CN == "customerTrend"){ yAxisText = "자문 고객 추이";unit = "명" }

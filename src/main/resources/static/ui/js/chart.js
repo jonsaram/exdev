@@ -152,7 +152,7 @@
 	}
 
 	//상세별 순매출 , FA 매출순위
-	function _comparisonChart (target, param){
+	function _comparisonChart (target, param , unit){
 		
 		const thisMonth =	param.thisMonth;
 		const lastMonth =	param.lastMonth;
@@ -183,7 +183,7 @@
 		    chart: {
 		        type: 'column',
 
-                margin: [50, 50, 40, 60],
+                margin: [50, 50, 60, 60],
 		    },
 		    xAxisData,
 		    title: {
@@ -230,7 +230,7 @@
 		        showFirstLabel: false,
 
 		        labels: {
-		            format: '{value}억',
+		            format: '{value}'+unit,
 		            style: {
 		                color: Highcharts.getOptions().colors[0]
 		            }
@@ -244,7 +244,7 @@
 			        linkedTo: 'main',
 			        data: _dataPrev,
 			        tooltip: {
-			            valueSuffix: ' 억원'
+			            valueSuffix: ' '+unit+'원'
 			        },
  					showInLegend: true
 			    }, 
@@ -258,14 +258,14 @@
 				    dataLabels: {
 				        enabled: true,
 				        inside: false,
-				        format: '{y} 억원',
+				        format: '{y} '+unit,
 				        style: {
 				            fontSize: '10px'
 				        }
 				    },
 			        data: _data,
 			        tooltip: {
-			            valueSuffix: ' 억원'
+			            valueSuffix: ' '+unit+'원'
 			        }
 			    }
 			],
@@ -274,7 +274,7 @@
 	}
 
 	// 순매출 성장률
-	function _lineAndColumnChart(target, param){
+	function _lineAndColumnChart(target, param , unit){
 	
 		const thisYearSales = param.thisYearSales;
 		const growthRate = param.growthRate;
@@ -316,7 +316,7 @@
 		            }
 		        },
 		        labels: {
-		            format: '{value}억',
+		            format: '{value}'+unit,
 		            style: {
 		                color: Highcharts.getOptions().colors[0]
 		            }
@@ -347,7 +347,7 @@
 		        yAxis: 1,
 		        data: thisYearSales ,
 		        tooltip: {
-		            valueSuffix: ' 억원'
+		            valueSuffix: ' '+unit+'원'
 		        }
 		
 		    }, {
@@ -362,7 +362,7 @@
 	}
 
 	//지사별 순매출
-	function _lineWithLabelsChart (target, param) {
+	function _lineWithLabelsChart (target, param, unit) {
 
 		let series = param.series ;
 		const thisYear = param.thisYear;
@@ -404,7 +404,7 @@
 		            text: ''
 		        },
 		        labels: {
-		            format: '{value} 억',
+		            format: '{value} '+unit,
 		            style: {
 		                width: '60px',
 		                lineHeight: '20px'
