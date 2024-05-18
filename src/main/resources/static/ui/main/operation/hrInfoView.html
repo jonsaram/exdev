@@ -75,9 +75,6 @@
 					<@pageId>.setParamOnThisPage( <@pageId>.requestParm );
 					<@pageId>.setUserAuth(<@pageId>.requestParm);
 					<@pageId>.getHistories();
-					
-					
-
 				}else{
 					C_POP.alert(resultData.msg)
 				}
@@ -105,11 +102,9 @@
 				
 				if(isValid(retData)){
 					
-					if( retData.RELOAD_IMG == 'Y'){
-						
-						<@pageId>.getUserImg();
-						
-					}
+					const picNum = retData["PIC_NUM"];
+					<@pageId>.getUserImg(picNum);
+
 
 					retData["CHANGE_POSITION"] 	= false;
 					retData["CHANGE_GRADE"]		= false; 
@@ -173,12 +168,24 @@
 				}
 			});	
 		}	
-		,getUserImg : ()=>{
-
-			if( $("#<@pageId>_USER_ID").text() ){
-				_getImageFile("<@pageId>_hrImg",{GRP_FILE_ID:$("#<@pageId>_USER_ID").text() , OWNER_CD:"USER_FACE" });
-			}
-
+		,getUserImg : (picNum)=>{
+ 
+			let PIC_NUM = Number(<@pageId>.recvData.PIC_NUM);
+			
+			if( picNum != undefined && picNum >= 0  )
+				PIC_NUM = picNum;	
+			
+			if( PIC_NUM == 0 ){
+			
+				_getImageFile("<@pageId>_hrImg",{GRP_FILE_ID:<@pageId>.recvData.USER_ID , OWNER_CD:"USER_FACE" });
+				
+			}else{
+				
+				$("#<@pageId>_hrImg").attr("src","../img/picture/picture"+PIC_NUM+".png");
+				if( <@pageId>.recvData.USER_ID == G_VAL.session.USER_ID){
+					$("#userImg").attr("src","../img/picture/picture"+PIC_NUM+".png");
+				}
+			}		
 		}
 		,education : (clickedData) => {
 

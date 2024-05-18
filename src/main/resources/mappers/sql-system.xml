@@ -586,6 +586,17 @@
         ORDER BY U.USER_ID, A.ROLE_ID
 	</select>
 	
+	
+	<update id="updateUserImg" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	system.updateUserImg
+			사용자 이미지 변경
+		*/
+		UPDATE TBL_EXP_USER
+		SET PIC_NUM = #{PIC_NUM}  
+		WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+		AND	  USER_ID	 = #{USER_ID}
+	</update>
+	
 	<update id="updateUser" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	system.updateUser
 			User  저장
@@ -1000,7 +1011,6 @@
 		    ,DECODE( A.USER_PW ,'1234','Y','N') MUST_CHANGE
 		    ,AU.ROLE_ID 	AS SYSTEM_ROLE_ID
 			,R.ROLE_NM 		AS SYSTEM_ROLE_NM
-			,(SELECT FILE_ID FROM TBL_EXP_FILEMNG WHERE OWNER_CD = 'USER_FACE' AND DEL_YN= 'N' AND GRP_FILE_ID = A.USER_ID) USER_IMG_ID
 		FROM
 		    TBL_EXP_USER A
 		    ,TBL_EXP_AUTH AU
@@ -1104,6 +1114,8 @@
 		    ,USE_YN
 		    ,DEL_YN
 		    ,RECOMMENDER_ID
+   			,(SELECT FILE_ID FROM TBL_EXP_FILEMNG WHERE OWNER_CD = 'USER_FACE' AND DEL_YN= 'N' AND GRP_FILE_ID = A.USER_ID) USER_IMG_ID
+   			,PIC_NUM
 		FROM
 		    TBL_EXP_USER A		
 		WHERE

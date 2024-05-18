@@ -63,6 +63,24 @@
 		AND R.RESULT_DATE <![CDATA[ >= ]]> TO_DATE(#{RESULT_DATE},'YYYY-MM-DD')
 		AND R.RESULT_DATE <![CDATA[ <  ]]> ADD_MONTHS(TO_DATE(#{RESULT_DATE},'YYYY-MM-DD'), 1)
 		</if>
+		<if test=" CONSULTING_IDS!= null and !CONSULTING_IDS.equals('')">
+			AND C.CONSULTING_ID	IN 
+			<foreach item="CONSULTING_ID" collection="CONSULTING_IDS" open="(" close=")" separator=",">
+				#{CONSULTING_ID}		
+			</foreach>	
+		</if>
+		<if test=" BUYER_IDS != null and !BUYER_IDS.equals('')">
+			AND C.BUYER_ID	IN 
+			<foreach item="BUYER_ID" collection="BUYER_IDS" open="(" close=")" separator=",">
+				#{BUYER_ID}		
+			</foreach>	
+		</if>
+		<if test=" RELATION_TYPES != null and !RELATION_TYPES.equals('')">
+			AND P.RELATION_TYPE	IN 
+			<foreach item="RELATION_TYPE" collection="RELATION_TYPES" open="(" close=")" separator=",">
+				#{RELATION_TYPE}		
+			</foreach>	
+		</if>
 		AND EXEC_P.CONTRACT_ID(+)	= R.CONTRACT_ID 
 		AND EXEC_P.RESULT_ID(+)		= R.RESULT_ID 
 		AND EXEC_P.EXEC_TYPE(+) 	= 'EXEC'

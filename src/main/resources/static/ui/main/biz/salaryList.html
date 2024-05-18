@@ -2,36 +2,31 @@
 <script type="text/javascript">
 var <@pageId> = {
 		
-	pageInit : () =>{
-
-		const yearsArray = Array.from({ length: 4 }, (_, index) => {
-			  const year = 2022 + index;
-			  return [year.toString(), year + "년"];
-		});
-		const monthsArray = Array.from({ length: 12 }, (_, index) => {
-			  const months = ("0"+(1 + index) ).slice(-2);
-			  return [months.toString(), months + "월"];
-		});
+		pageInit : () =>{
 		
-		var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"}
-		C_UICOM.makeSelectBox(yearsArrayList, "single");
-		C_UICOM.setSingleBox("<@pageId>_years", dayjs().year());
-		var monthsArrayList = { data : monthsArray,targetId : "<@pageId>_months"}
-		C_UICOM.makeSelectBox(monthsArrayList, "single");
-		C_UICOM.setSingleBox("<@pageId>_months", ("0"+(dayjs().month() + 1) ).slice(-2));
-
-	}
+			_yearMonthSelectBox("<@pageId>_yearMonths");
+			
+			var relationTypeList = C_COM.getCodeList("RELATION_TYPE");
+			var multiboxList1 = { 
+				 data 			: relationTypeList
+			 	,targetId 		: "<@pageId>_selectRelationBox" 
+			}
+			C_UICOM.makeSelectBox(multiboxList1, "multi");
+		
+		}
 		,searchList : () => {
 			
-			var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
-
+			const contractDate	= dayjs( C_UICOM.getData("<@pageId>_yearMonths"	) ).format("YYYY-MM-DD"); 
+			
 			const requestParm = {
-					USER_ID : G_VAL.session.USER_ID
-					,RESULT_DATE : contractDate + '-01'	
-					
+					USER_ID			: G_VAL.session.USER_ID
+					,RESULT_DATE	: contractDate
+					,CONSULTING_IDS	: C_UICOM.getData("<@pageId>_selectConsultingNmBox")
+					,BUYER_IDS		: C_UICOM.getData("<@pageId>_selectCustomerBox")
+					,RELATION_TYPES	: C_UICOM.getData("<@pageId>_selectRelationBox")
 			};
 			
-			var parm = {
+			const parm = {
 					 queryId 		: "salary.getPaymentList"
 					,requestParm	: requestParm
 			}
@@ -45,9 +40,8 @@ var <@pageId> = {
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 
-	        	mergeTableTD('<@pageId>_salaryList', {startIdx :2, endIdx :4, startRowIdx : 1});;
+	        	mergeTableTD('<@pageId>_salaryList', {startIdx :2, endIdx :3, startRowIdx : 1});;
 
-				
 				let sumTotalCost=0, sumIncome=0;
 				$.each($("#<@pageId>_salaryList [name^='<@pageId>_tr'] td[id='TOTAL_COST']") , function(idx){
 					
@@ -71,6 +65,29 @@ var <@pageId> = {
 				$("#<@pageId>_sumTax").text(sumTax.toLocaleString());
 				$("#<@pageId>_sumRealPay").text(sumRealPay.toLocaleString());				
 				
+				// 컨설팅명 
+				const uniqueNames = _.uniqBy(resultData.data, 'CONSULTING_ID').map(item => [item.CONSULTING_ID,item.CONSULTING_NM]);
+				var multiboxList2 = { 
+						 data 			: uniqueNames
+					 	,targetId 		: "<@pageId>_selectConsultingNmBox" 
+				}
+				C_UICOM.makeSelectBox(multiboxList2, "multi");
+				if( !isEmpty(requestParm.CONSULTING_IDS)){
+					
+					C_UICOM.setMultiBox("<@pageId>_selectConsultingNmBox", requestParm.CONSULTING_IDS);
+				}
+				
+				// 고객명 
+				const uniqueCustomers = _.uniqBy(resultData.data, 'BUYER_ID').map(item => [item.BUYER_ID,item.BUYER_NM]);
+				var multiboxList3 = { 
+						 data 			: uniqueCustomers
+					 	,targetId 		: "<@pageId>_selectCustomerBox" 
+				}
+				C_UICOM.makeSelectBox(multiboxList3, "multi");
+				if( !isEmpty(requestParm.CONSULTING_IDS)){
+					
+					C_UICOM.setMultiBox("<@pageId>_selectCustomerBox", requestParm.BUYER_IDS);
+				}
 				
 				<@pageId>.setHandler();
 			});
@@ -98,12 +115,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 <section class="sec_wrap list" style="height:calc(100% - 43px);">
 	<!-- search area -->
 	<div class="search_area mt0">
-		<div class="fl">
-			<!-- 싱글 선택 -->
-				<div id="<@pageId>_years" style="width:200px"></div>
-				<div id="<@pageId>_months" style="width:200px"></div>
+		<!-- <div class="fl"> -->
+				<span class="tit01 fl lh33">급여내역일</span>
+				<div id="<@pageId>_yearMonths" style="width:160px"></div>
+				<span class="tit01 fl lh33">컨설팅 명</span>
+				<div id="<@pageId>_selectConsultingNmBox" style="width:180px"></div>
+				<span class="tit01 fl lh33">고객 명</span>
+				<div id="<@pageId>_selectCustomerBox" style="width:150px"></div>
+				<span class="tit01 fl lh33">계약관계</span>
+				<div id="<@pageId>_selectRelationBox" style="width:150px"></div>
 				<button class="btn select fl" onclick="<@pageId>.searchList()">검색</button>
-           </div>
+        <!--    </div> -->
            <div class="search_right">
 			<strong class="total">Total: <span  class="pointColr" id="<@pageId>_totalCnt"></span></strong>
            </div>
@@ -123,7 +145,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<th scope="col" colspan="3">계약정보</th>
 						<th scope="col" rowspan="2">실적/입금액</th>
 						<th scope="col" rowspan="2">입금일</th>
-						<th scope="col" rowspan="2">계약관례Type</th>
+						<th scope="col" rowspan="2">계약관계</th>
 						<th scope="col" rowspan="2">수수료율</th>
 						<th scope="col" rowspan="2">수수료(세전)</th>
 						<th scope="col" rowspan="2">원천세(3.3%)</th>
@@ -140,15 +162,15 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<script type="text/x-jsrender" id="<@pageId>_salaryList_template">						
 					{{for list}}
 						<tr name="<@pageId>_tr_{{:#index}}">
-							<td id='RN'							>{{:RN}}</td>
-							<td id='USER_NM'					>{{:USER_NM}}</td>
-							<td id='CONSULTING_NM'				>{{:CONSULTING_NM}}</td>
-							<td id='TOTAL_COST'	class="tr"		>{{numb:TOTAL_COST}}</td>
-							<td id='INCOME'		class="tr"		>{{numb:INCOME}}</td>
-							<td id='RESULT_DATE'class="tc"		>{{:RESULT_DATE}}</td>
-							<td id='RELATION_TYPE_NM' class="tc">{{:RELATION_TYPE_NM}}</td>
-							<td id='RATE'						>{{:RATE}}</td>
-							<td id='PAYMENT' class="tr"			>{{numb:PAYMENT}}</td>
+							<td id='RN'								>{{:RN}}</td>
+							<td id='USER_NM'	class="tl"			title="{{:USER_NM}}"			>{{:USER_NM}}</td>
+							<td id='CONSULTING_NM'class="tl"		title="{{:CONSULTING_NM}}"		>{{:CONSULTING_NM}}</td>
+							<td id='TOTAL_COST'	class="tr"			title="{{numb:TOTAL_COST}}"		>{{numb:TOTAL_COST}}</td>
+							<td id='INCOME'		class="tr"			title="{{numb:INCOME}}"			>{{numb:INCOME}}</td>
+							<td id='RESULT_DATE'class="tc"			title="{{:RESULT_DATE}}"		>{{:RESULT_DATE}}</td>
+							<td id='RELATION_TYPE_NM' class="tc" 	title="{{:RELATION_TYPE_NM}}"	>{{:RELATION_TYPE_NM}}</td>
+							<td id='RATE'							title="{{:RELATION_TYPE_NM}}"	>{{:RATE}}</td>
+							<td id='PAYMENT' 	class="tr"	title="{{numb:PAYMENT}}"				>{{numb:PAYMENT}}</td>
 							<td class="tr">{{numb:TAX}}</td>
 							<td class="tr">{{numb:REAL_PAY}}</td>
 						</tr>

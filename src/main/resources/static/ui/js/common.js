@@ -275,14 +275,13 @@ function _getImageFile (targetId , obj ) {
 			let imgPath = C_COM.getImageUrl(fileId);
 			$("#"+targetId).attr("src", imgPath);
 			
+			/* header의 이미지 */
 			if( USER_ID == G_VAL.session.USER_ID){
-				G_VAL.session.userImgId = fileId;
-				$("#userImg").attr("src",imgPath);								
-			}else
-			{
-				$("#userImg").attr("src","/filedownload.do?FILE_ID="+G_VAL.session.userImgId);
-			}
 				
+				G_VAL.session.userImgId = fileId;
+				$("#userImg").attr("src",imgPath);
+
+			}
 			
 		}
 	});	

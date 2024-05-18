@@ -60,7 +60,6 @@
 			G_VAL.session.userNm  		= userInfo.USER_NM 		;
 			G_VAL.session.grade			= userInfo.GRADE 		;
 			G_VAL.session.email			= userInfo.E_MAIL 		;
-			G_VAL.session.userImgId		= userInfo.USER_IMG_ID	;
 			
 			// 고객 로그인인경우
 			if(userInfo.LOGIN_TYPE == "BUYER") {
@@ -141,7 +140,6 @@
 			C_MENU.initMenu();
 			
 			$("#loginUserNm").html(userInfo.USER_NM);
-			$("#userImg").attr("src","/filedownload.do?FILE_ID="+G_VAL.session.userImgId);
 			
 			var parm = {
 				 queryId 		: "system.getEtcUserInfo"
@@ -149,6 +147,14 @@
 			}	
 			C_COM.requestQuery(parm, function(resultData) {
 				G_VAL.session.etcUserInfo = resultData.data[0];
+
+				if( G_VAL.session.etcUserInfo.PIC_NUM > 0){
+					
+					$("#userImg").attr("src","../img/picture/picture"+G_VAL.session.etcUserInfo.PIC_NUM+".png");					
+				}else{
+					
+					$("#userImg").attr("src","/filedownload.do?FILE_ID="+G_VAL.session.etcUserInfo.USER_IMG_ID);
+				}
 			});
 
 			var parm = {

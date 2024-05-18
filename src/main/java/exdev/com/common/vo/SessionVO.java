@@ -21,7 +21,6 @@ public class SessionVO {
 	private String loginType;
 	private String systemRoleId;
 	private String systemRoleNm;
-	private String userImgId;
 	
 	public String getUserId() {
 		return userId;
@@ -70,11 +69,5 @@ public class SessionVO {
 	}
 	public void setSystemRoleNm(String systemRoleNm) {
 		this.systemRoleNm = systemRoleNm;
-	}
-	public String getUserImgId() {
-		return userImgId;
-	}
-	public void setUserImgId(String userImgId) {
-		this.userImgId = userImgId;
 	}
 }

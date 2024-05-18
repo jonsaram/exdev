@@ -1,0 +1,140 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		recvData : []
+		,USER_ID: ''
+		,pageInit : ()=>{
+
+		}	
+		,close : function(returnData) {
+
+			if(isEmpty(returnData)) returnData = { PIC_NUM: <@popupId>.recvData.PIC_NUM , USER_ID:	<@popupId>.USER_ID };
+			C_POP.close(returnData);
+		 }
+		,save : () => {
+			
+			let selectedImg = $('input[name="<@popupId>_photo"]:checked').attr("id").replace("<@popupId>_radio_list","");
+			C_POP.confirm("해당 이미지를 선택 하시겠습니까?", function() {
+				
+				const parm = {
+						 queryId 		: "system.updateUserImg"
+						,requestParm	: { PIC_NUM: Number(selectedImg), USER_ID:	<@popupId>.USER_ID }
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					
+					<@popupId>.close(parm.requestParm);					
+				});
+			});
+		}
+		,regPhoto : () => {
+			
+			C_POP.confirm("새로운 사진을 등록 하시겠습니까?", function() {
+        		
+				let parm = {
+					GRP_FILE_ID	: <@popupId>.USER_ID
+					,OWNER_CD 		: "USER_FACE"
+					,clearFileGroup	: "Y"
+				}
+				<@popupId>.fileuploadComp.selectFile(parm, function(data) {
+					
+					if(isValid(data)) {
+						
+    						let imgPath = C_COM.getImageUrl(data);
+    						
+    						if( imgPath ){
+
+	    						const parm = {
+	    								 queryId 		: "system.updateUserImg"
+	    								,requestParm	: { PIC_NUM: Number("0"), USER_ID:	<@popupId>.USER_ID }
+	    						}
+	    						C_COM.requestQuery(parm, function(resultData) {
+						
+	    							<@popupId>.close(parm.requestParm);					
+	    						});    						
+    						}else{
+    							
+    							C_POP.alert('알수 없는 Error 발생');	
+    						}
+    						
+					} else {
+						
+    						C_POP.alert('알수 없는 Error 발생');
+					}
+				});
+				
+        	});
+        	
+		}
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(parm) {
+
+		<@popupId>.recvData		= parm;
+		<@popupId>.USER_ID 		= parm.USER_ID;
+		<@popupId>.FILE_PATH 	= parm.filePath;
+		
+		if( parm.PIC_NUM ){
+			$('#<@popupId>_radio_list0'+parm.PIC_NUM).prop('checked', true);
+		}
+		
+		C_COMP.import("fileuploadComp", "component_compFilemng",{hide : "Y"} , function(fileId) {});
+	});
+</script>
+	<!-- 사진등록 팝업 -->
+	<div class="modal_wrap" id="modal-ex2">
+		<div class="modal" style="width:850px;height:320px;">
+			<div class="modal_header">
+				<strong class="tit">사진 선택</strong>
+				<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
+			</div>
+			<div class="modal_body" style="overflow:visible;">
+				<ul class="photo_list">
+					<li>
+						<figure class="photo_wrap">
+							<img src="../img/picture/picture1.png">
+						</figure>
+						<input type="radio" name="<@popupId>_photo" id="<@popupId>_radio_list01" checked>
+					</li>
+					<li>
+						<figure class="photo_wrap">
+							<img src="../img/picture/picture2.png">
+						</figure>
+						<input type="radio" name="<@popupId>_photo" id="<@popupId>_radio_list02">
+					</li>
+					<li>
+						<figure class="photo_wrap">
+							<img src="../img/picture/picture3.png">
+						</figure>
+						<input type="radio" name="<@popupId>_photo" id="<@popupId>_radio_list03">
+					</li>
+					<li>
+						<figure class="photo_wrap">
+							<img src="../img/picture/picture4.png">
+						</figure>
+						<input type="radio" name="<@popupId>_photo" id="<@popupId>_radio_list04">
+					</li>
+					<li>
+						<figure class="photo_wrap">
+							<img src="../img/picture/picture5.png">
+						</figure>
+						<input type="radio" name="<@popupId>_photo" id="<@popupId>_radio_list05">
+					</li>
+					<li>
+						<figure class="photo_wrap">
+							<img src="../img/picture/picture6.png">
+						</figure>
+						<input type="radio" name="<@popupId>_photo" id="<@popupId>_radio_list06">
+					</li>
+					<li>
+						<button class="btn" onclick='<@popupId>.regPhoto();'>사진 변경<br>클릭!</button>
+						<input type="radio" name="<@popupId>_photo" id="<@popupId>_radio_list00" value='addReg'>
+					</li>
+				</ul>
+			</div>
+			<div id="fileuploadComp"></div>
+			<div class="modal_footer">
+				<button type="button" class="btn select"	onclick="<@popupId>.save();">저장</button>
+				<button type="button" class="btn close"  	onclick="<@popupId>.close()">취소</button>
+			</div>
+		</div>
+	</div>

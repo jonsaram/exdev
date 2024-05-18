@@ -5,8 +5,9 @@
 		 ,recvData : []
 		 ,OWNER_CD : "USER_FACE"
 		 ,RELOAD_IMG:'N'
-		 ,OLD_GRP_FILE_ID : ""
+		 ,BACKUP_USER_ID : ""
 		 ,USER_ID  : ""
+		 ,PIC_NUM: ''
 	 	 ,mode : ''
 		 ,hiarachySelData: []
 		 ,pageInit : () =>{
@@ -110,7 +111,7 @@
 				 returnData['RECOMMENDER_ID']	= <@popupId>.recvData.param.RECOMMENDER_ID;
 				 returnData['RECOMMENDER_NM']	= <@popupId>.recvData.param.RECOMMENDER_NM;
 				 returnData['DIVISION_ID']		= <@popupId>.recvData.param.DIVISION_ID;
-				 
+				 returnData['PIC_NUM']			= <@popupId>.PIC_NUM;
 
 				 C_POP.confirm("입력한 정보로 저장 하시겠습니까?", function() {
 				 	<@popupId>.close(returnData);
@@ -121,7 +122,7 @@
 		 ,validation : (func) =>{
 
 			 if( isEmpty($("#<@popupId>_USER_ID").val()) ) {C_POP.alert("사원 ID를 입력하여 주십시오."); return false;}
-			 if( <@popupId>.OLD_GRP_FILE_ID != $("#<@popupId>_USER_ID").val() ){
+			 if( <@popupId>.BACKUP_USER_ID != $("#<@popupId>_USER_ID").val() ){
 				 
 				 const dbUser = <@popupId>.redundCheck('validation');
 				 if( dbUser ){C_POP.alert("이미 존재하는 사원 ID입니다.\n다시입력하여 주십시오."); return false;}
@@ -270,62 +271,6 @@
 			    }
 			});
 		}        
-		,searchList : function(id, sel_BRANCH_ID){
-
-			let queryId = "";
-			let requestParm = {}
-			
-			switch( id ){
-			
-				case "BASE_BRANCH"	:queryId = "hrInfo.getBaseBranchList";
-					break;
-				case "SP_BRANCH"	:queryId = "hrInfo.getSpBranchList"; 
-									 requestParm={BASE_BRANCH_ID : sel_BRANCH_ID}
-					break;
-				case "BRANCH"		:queryId = "hrInfo.getBranchList"; 
-									 requestParm={SP_BRANCH_ID : sel_BRANCH_ID }
-					break;
-					
-				default:
-			}
-			     
-            let parm = {
-                 queryId        : queryId
-                ,requestParm    : requestParm
-            }
-            C_COM.requestQuery(parm, function(resultData) {
-               
-            	const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
-            	
-    			switch( id ){
-    			
-					case "SP_BRANCH"	: 
-											C_UICOM.makeSelectBox({ 
-												 data : DATA
-									 			,targetId : "<@popupId>_selectSpBranch" }, "single");
-											
-										
-											C_UICOM.setSingleBox("<@popupId>_selectSpBranch", <@popupId>.hiarachySelData["SP_BRANCH_ID"]);
-											
-											const sel_BRANCH_ID = C_UICOM.getData("<@popupId>_selectSpBranch");
-											<@popupId>.searchList( "BRANCH"	, sel_BRANCH_ID);
-						break;
-						
-					case "BRANCH"		:
-						
-											C_UICOM.makeSelectBox({ 
-												 data : DATA
-									 			,targetId : "<@popupId>_selectBranch" }, "single");
-											
-											C_UICOM.setSingleBox("<@popupId>_selectBranch", <@popupId>.hiarachySelData["BRANCH_ID"]);
-
-						break;
-						
-					default:
-				}
-                
-            });
-        }
 		,postPopup  : () => {
 			
 		    new daum.Postcode({
@@ -341,25 +286,14 @@
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 		,selectImage : function() {
+
 			if( isEmpty(<@popupId>.USER_ID) ) {
-				C_POP.alert("사원 ID 를 저장하기 전 사진을 등록할 수 없습니다.");
+				C_POP.alert("사원 ID 를 입력하기 전 사진을 등록할 수 없습니다.");
 				return;
 			}
-			let parm = {
-				 GRP_FILE_ID	: <@popupId>.USER_ID
-				,OWNER_CD 		: <@popupId>.OWNER_CD
-				,clearFileGroup	: "Y"
-			}
-
-			<@popupId>.fileuploadComp.selectFile(parm, function(data) {
-				if(isValid(data)) {
-					let imgPath = C_COM.getImageUrl(data);
-					$("#<@popupId>_userImg").attr("src", imgPath);
-					<@popupId>.RELOAD_IMG='Y';
-				} else {
-					C_POP.alert('알수 없는 Error 발생');
-				}
-			});
+			
+			<@popupId>.defaultImgShow();
+	
 		 }
 		,redundCheck : (validation) => {
 			
@@ -376,7 +310,10 @@
  			}else{
  				
 	 			if ( validation ) return false;
-	 			else alert("등록가능한 아이디 입니다. ");
+	 			else {
+	 				<@popupId>.USER_ID = $("#<@popupId>_USER_ID").val();
+	 				alert("등록가능한 아이디 입니다. ");
+	 			}
  			} 
 			
 		}
@@ -397,13 +334,19 @@
 				
 			});	
 		}
-		,setImage : () =>{
+		,setImage : (picNum) =>{
 			
-			if( <@popupId>.USER_ID ){
+			picNum =picNum || '0';
+			
+			if( Number(picNum) == 0){
 				
-				<@popupId>.OLD_GRP_FILE_ID = <@popupId>.USER_ID ;
 				_getImageFile("<@popupId>_userImg",{GRP_FILE_ID:<@popupId>.USER_ID , OWNER_CD:<@popupId>.OWNER_CD });
+				
+			}else{
+				
+				$("#<@popupId>_userImg").attr("src","../img/picture/picture"+picNum+".png");					
 			}			
+			
 		}
 		,divisionPopup : () => {
 			
@@ -443,16 +386,37 @@
             	   
 			})
 		}
+		,defaultImgShow : () => {
+
+ 			const param = {PIC_NUM : <@popupId>.recvData.param.PIC_NUM, USER_ID : <@popupId>.USER_ID , filePath : $("#<@popupId>_userImg").attr("src") }
+	 		C_POP.open('popup_operation_hrInfoPicPopup',param, function(retData) {
+
+				const picNum = Number(retData.PIC_NUM);
+				if( picNum != undefined ){
+					if( picNum > 0 ){
+						
+						$("#<@popupId>_userImg").attr("src","../img/picture/picture"+picNum+".png");
+					}else{
+						
+						_getImageFile("<@popupId>_userImg",{GRP_FILE_ID:<@popupId>.USER_ID , OWNER_CD:"USER_FACE" });
+					}
+					
+					<@popupId>.PIC_NUM = picNum;
+				}
+			});
+		}
+		
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
  		<@popupId>.recvData	= data;
-		
-		<@popupId>.USER_ID = data.param.USER_ID;
 
+		<@popupId>.USER_ID = data.param?.USER_ID;
+		<@popupId>.BACKUP_USER_ID = <@popupId>.USER_ID ;
+		
 		<@popupId>.mode = <@popupId>.recvData.mode;
 
-		<@popupId>.setImage();
+		<@popupId>.setImage(data.param.PIC_NUM);
 
 		<@popupId>.setComponent();
 		
@@ -498,7 +462,7 @@
 			<div class="clearFix mt15" style="height:160px;">
 				<figure class="photo_wrap fl mr15" >
 					<img src="../img/icon_noimg.png" id="<@popupId>_userImg">
-					<button class="btn mt5 w100 small" onclick="<@popupId>.selectImage()">사진등록</button>
+					<button class="btn mt5 w100 small" onclick="<@popupId>.selectImage()">사진변경</button>
 				</figure>
 				
 				<ul class="info_wrap col2">
