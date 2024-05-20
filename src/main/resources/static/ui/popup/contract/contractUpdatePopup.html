@@ -283,6 +283,12 @@ var <@popupId> = {
 			}, "single");
 			C_UICOM.setSingleBox("<@popupId>_selectProcessStatus" , "<@processState>");
 			
+			if( popup_contract_contractUpdatePopup.paMap.MENU_ID == "MN_BIZ_CTRMNG"){
+				
+				C_UICOM.setSelectBoxOption("<@popupId>_selectProcessStatus", "readOnly", "Y");
+				
+			}
+			
 		}else{
 
 			const text = exPreContract.filter( item => { item[1] == "<@processState>" });

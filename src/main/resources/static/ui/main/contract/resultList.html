@@ -7,17 +7,17 @@ var <@pageId> = {
 		,excelParam : {}
 		,searchListParam : {}
  		,CONTRACT_ID : {}
+		,YEAR_MONTHS	: ''
 		,pageInit : () =>{
 			
-			_yearSelectBox("<@pageId>_years");
-			_monthSelectBox("<@pageId>_months");
-
+			_yearMonthSelectBox("<@pageId>_yearMonths");
+			<@pageId>.YEAR_MONTHS		= dayjs( C_UICOM.getData("<@pageId>_yearMonths"		) ,"YYYYMM" ).format('YYYY-MM');
 			<@pageId>.setHanler();
 			
 		}
 		,searchList : () => {
-			
-			var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
+
+			var contractDate = <@pageId>.YEAR_MONTHS;
 			
 			const requestParm = {
 					RESULT_DATE_YM 	: contractDate	
@@ -43,7 +43,7 @@ var <@pageId> = {
 				C_COM.renderHtml("<@pageId>", rparm);
 				
 	        	mergeTableTD('<@pageId>_resultList', {startIdx : 8, endIdx : 8, startRowIdx : 1});;
-	        	mergeTableTD('<@pageId>_resultList', {startIdx : 2, endIdx : 6, startRowIdx : 1});
+	        	mergeTableTD('<@pageId>_resultList', {startIdx : 2, endIdx : 7, startRowIdx : 1});
 
 			});  
 		}
@@ -71,6 +71,16 @@ var <@pageId> = {
 		}		
 		,setHanler : () => {
 			
+			let fn = function(dataObj, targetId) {
+				if( targetId == "<@pageId>_yearMonths"){
+					
+					<@pageId>.YEAR_MONTHS		= dayjs( C_UICOM.getData("<@pageId>_yearMonths"		) ,"YYYYMM" ).format('YYYY-MM');
+					
+				}				
+			}
+			C_UICOM.addChangeListener("<@pageId>_yearMonths"		, fn);
+			
+			
 			$("#<@pageId>_search").click( () =>{
 			
 				<@pageId>.searchList();
@@ -84,6 +94,8 @@ var <@pageId> = {
 C_PM.onLoadPage("<@pageId>", function() {
 
 	<@pageId>.pageInit();
+	
+	<@pageId>.searchList();
 
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -100,9 +112,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 	<div class="search_area mt0">
 		<div class="fl">
 			<!-- 싱글 선택 -->
-			<div class="select_box fl" style="width:210px">
-				<div id="<@pageId>_years" style="width:100px"></div>
-				<div id="<@pageId>_months" style="width:100px"></div>
+			<div class="select_box fl" style="width:142x">
+				<div id="<@pageId>_yearMonths" style="width:132px"></div>
 			</div>
 			<span class="tit01 fl lh33">계약선택</span>
 			<div class="search_inputWrap fl">

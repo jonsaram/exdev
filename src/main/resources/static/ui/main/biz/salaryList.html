@@ -13,22 +13,43 @@ var <@pageId> = {
 			}
 			C_UICOM.makeSelectBox(multiboxList1, "multi");
 		
+ 			const contractDate	= dayjs( C_UICOM.getData("<@pageId>_yearMonths"	) ).format("YYYY-MM-DD"); 
+			const parm = {
+					 queryId 		: "salary.getPaymentList"
+					,requestParm	: {USER_ID: G_VAL.session.USER_ID,RESULT_DATE	: contractDate }
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+						
+				// 컨설팅명 
+				const uniqueNames = _.uniqBy(resultData.data, 'CONSULTING_ID').map(item => [item.CONSULTING_ID,item.CONSULTING_NM]);
+				var multiboxList2 = { 
+						 data 			: uniqueNames
+					 	,targetId 		: "<@pageId>_selectConsultingNmBox" 
+				}
+				C_UICOM.makeSelectBox(multiboxList2, "multi");
+				
+				// 고객명 
+				const uniqueCustomers = _.uniqBy(resultData.data, 'BUYER_ID').map(item => [item.BUYER_ID,item.BUYER_NM]);
+				var multiboxList3 = { 
+						 data 			: uniqueCustomers
+					 	,targetId 		: "<@pageId>_selectCustomerBox" 
+				}
+				C_UICOM.makeSelectBox(multiboxList3, "multi");
+				
+			});
 		}
 		,searchList : () => {
 			
-			const contractDate	= dayjs( C_UICOM.getData("<@pageId>_yearMonths"	) ).format("YYYY-MM-DD"); 
-			
-			const requestParm = {
-					USER_ID			: G_VAL.session.USER_ID
-					,RESULT_DATE	: contractDate
-					,CONSULTING_IDS	: C_UICOM.getData("<@pageId>_selectConsultingNmBox")
-					,BUYER_IDS		: C_UICOM.getData("<@pageId>_selectCustomerBox")
-					,RELATION_TYPES	: C_UICOM.getData("<@pageId>_selectRelationBox")
-			};
-			
 			const parm = {
 					 queryId 		: "salary.getPaymentList"
-					,requestParm	: requestParm
+					,requestParm	: 
+									{
+										USER_ID			: G_VAL.session.USER_ID
+										,RESULT_DATE	: dayjs( C_UICOM.getData("<@pageId>_yearMonths"	) ).format("YYYY-MM-DD")
+										,CONSULTING_IDS	: !isEmpty(C_UICOM.getData("<@pageId>_selectConsultingNmBox"))	? C_UICOM.getData("<@pageId>_selectConsultingNmBox"):null
+										,BUYER_IDS		: !isEmpty(C_UICOM.getData("<@pageId>_selectCustomerBox"))		? C_UICOM.getData("<@pageId>_selectCustomerBox"):null
+										,RELATION_TYPES	: !isEmpty(C_UICOM.getData("<@pageId>_selectRelationBox"))		? C_UICOM.getData("<@pageId>_selectRelationBox"):null
+									}
 			}
 
 			C_COM.requestQuery(parm, function(resultData) {
@@ -40,14 +61,14 @@ var <@pageId> = {
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 
-	        	mergeTableTD('<@pageId>_salaryList', {startIdx :2, endIdx :3, startRowIdx : 1});;
+	        	mergeTableTD('<@pageId>_salaryList', {startIdx :2, endIdx :3, startRowIdx : 1});
 
 				let sumTotalCost=0, sumIncome=0;
 				$.each($("#<@pageId>_salaryList [name^='<@pageId>_tr'] td[id='TOTAL_COST']") , function(idx){
 					
 					sumTotalCost +=Number($(this).text().replace(/,/g, ''));
 				})
-					$.each($("#<@pageId>_salaryList [name^='<@pageId>_tr'] td[id='INCOME']") , function(idx){
+				$.each($("#<@pageId>_salaryList [name^='<@pageId>_tr'] td[id='INCOME']") , function(idx){
 					
 						sumIncome +=Number($(this).text().replace(/,/g, ''));
 				})
@@ -59,41 +80,42 @@ var <@pageId> = {
 					sumRealPay		+=item.REAL_PAY;
 				})
 
-				//$("#<@pageId>_sumTotalCost").text(sumTotalCost.toLocaleString());
 				$("#<@pageId>_sumIncome").text(sumIncome.toLocaleString());
 				$("#<@pageId>_sumPayment").text(sumPayment.toLocaleString());
 				$("#<@pageId>_sumTax").text(sumTax.toLocaleString());
 				$("#<@pageId>_sumRealPay").text(sumRealPay.toLocaleString());				
 				
-				// 컨설팅명 
-				const uniqueNames = _.uniqBy(resultData.data, 'CONSULTING_ID').map(item => [item.CONSULTING_ID,item.CONSULTING_NM]);
-				var multiboxList2 = { 
-						 data 			: uniqueNames
-					 	,targetId 		: "<@pageId>_selectConsultingNmBox" 
-				}
-				C_UICOM.makeSelectBox(multiboxList2, "multi");
-				if( !isEmpty(requestParm.CONSULTING_IDS)){
-					
-					C_UICOM.setMultiBox("<@pageId>_selectConsultingNmBox", requestParm.CONSULTING_IDS);
-				}
-				
-				// 고객명 
-				const uniqueCustomers = _.uniqBy(resultData.data, 'BUYER_ID').map(item => [item.BUYER_ID,item.BUYER_NM]);
-				var multiboxList3 = { 
-						 data 			: uniqueCustomers
-					 	,targetId 		: "<@pageId>_selectCustomerBox" 
-				}
-				C_UICOM.makeSelectBox(multiboxList3, "multi");
-				if( !isEmpty(requestParm.CONSULTING_IDS)){
-					
-					C_UICOM.setMultiBox("<@pageId>_selectCustomerBox", requestParm.BUYER_IDS);
-				}
-				
-				<@pageId>.setHandler();
 			});
 		}
 		,setHandler : () => {
 			
+			C_UICOM.addChangeListener("<@pageId>_yearMonths", function(dataObj) {
+				
+	 			const contractDate	= dayjs( C_UICOM.getData("<@pageId>_yearMonths"	) ).format("YYYY-MM-DD"); 
+				const parm = {
+						 queryId 		: "salary.getPaymentList"
+						,requestParm	: {USER_ID: G_VAL.session.USER_ID,RESULT_DATE	: contractDate }
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+
+					// 컨설팅명 
+					const uniqueNames = _.uniqBy(resultData.data, 'CONSULTING_ID').map(item => [item.CONSULTING_ID,item.CONSULTING_NM]);
+					var multiboxList2 = { 
+							 data 			: uniqueNames
+						 	,targetId 		: "<@pageId>_selectConsultingNmBox" 
+					}
+					C_UICOM.makeSelectBox(multiboxList2, "multi");
+					
+					// 고객명 
+					const uniqueCustomers = _.uniqBy(resultData.data, 'BUYER_ID').map(item => [item.BUYER_ID,item.BUYER_NM]);
+					var multiboxList3 = { 
+							 data 			: uniqueCustomers
+						 	,targetId 		: "<@pageId>_selectCustomerBox" 
+					}
+					C_UICOM.makeSelectBox(multiboxList3, "multi");
+					
+				});
+			});
 		}
 }
 
@@ -101,7 +123,11 @@ var <@pageId> = {
 C_PM.onLoadPage("<@pageId>", function() {
 
 	<@pageId>.pageInit();
+
+	<@pageId>.setHandler();
+	
 	<@pageId>.searchList();
+	
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
 C_HM.onReturn("<@pageId>", function(pageId, data) {

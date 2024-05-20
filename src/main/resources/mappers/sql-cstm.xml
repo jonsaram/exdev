@@ -82,11 +82,10 @@
 			고객 리스트 조회 
 		*/
 		<include refid="getCstmList_body"/>
-		<include refid="cstmParams"/>
+		<!-- <include refid="cstmParams"/> -->
 		<if test=" BUYER_ID != null and !BUYER_ID.equals('') ">
-		  AND B.BUYER_ID like '%' || #{BUYER_ID} || '%'
+		  AND B.BUYER_ID = #{BUYER_ID}
 		</if>
-<!--         ORDER BY B.BUYER_NM -->
 	</select>	
 	<select id="getCstmList_totalCnt" resultType="Integer">
 		/* cstm.getCstmList_totalCnt  */
@@ -100,7 +99,6 @@
 		<include refid="common.pagingWrapStart"/>
 		<include refid="getCstmList_body"/>
 		<include refid="cstmParams"/>
-        <!-- ORDER BY CASE WHEN B.UPDATE_DATE > SYSDATE-1 THEN 0 ELSE 1 END ,B.BUYER_NM -->
 		<include refid="common.pagingWrapEnd"/>
 	</select>
 		 	

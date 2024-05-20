@@ -5,26 +5,12 @@ var <@pageId> = {
 		,searchedUser : {}
 		,pageInit : () =>{
 			
-			const yearsArray = Array.from({ length: 4 }, (_, index) => {
-				  const year = 2022 + index;
-				  return [year.toString(), year + "년"];
-			});
-			const monthsArray = Array.from({ length: 12 }, (_, index) => {
-				  const months = ("0"+(1 + index) ).slice(-2);
-				  return [months.toString(), months + "월"];
-			});
-
-			var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"}
-			C_UICOM.makeSelectBox(yearsArrayList, "single");
-			C_UICOM.setSingleBox("<@pageId>_years", dayjs().year());
-			var monthsArrayList = { data : monthsArray,targetId : "<@pageId>_months"}
-			C_UICOM.makeSelectBox(monthsArrayList, "single");
-			C_UICOM.setSingleBox("<@pageId>_months", ("0"+(dayjs().month() + 1) ).slice(-2));
+			_yearMonthSelectBox("<@pageId>_yearMonths");
 
 		}
 		,searchList : () => {
 			
-			var contractDate = C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
+			const contractDate	= dayjs( C_UICOM.getData("<@pageId>_yearMonths"	) ).format("YYYY-MM");
 			
 			const requestParm = {
 					RESULT_DATE : contractDate + '-01'	
@@ -73,7 +59,8 @@ var <@pageId> = {
 					$("#<@pageId>_sumRealPay").text("");
 					
 					$("#<@pageId>_payUserName").text("-");
-					$("#<@pageId>_payDate").text(C_UICOM.getData("<@pageId>_years")+"년 "+C_UICOM.getData("<@pageId>_months")+"월");
+					let contractDate	= dayjs( C_UICOM.getData("<@pageId>_yearMonths"	) ).format("YYYY-MM")
+					$("#<@pageId>_payDate").text(contractDate.split("-")[0]+"년 "+contractDate.split("-")[1]+"월");
 					
 				}
 				
@@ -83,7 +70,7 @@ var <@pageId> = {
 
 			const selectedRow	= <@pageId>.searchedRows[index];
 			
-			var contractDate	= C_UICOM.getData("<@pageId>_years")+"-"+C_UICOM.getData("<@pageId>_months") ;
+			const contractDate	= dayjs( C_UICOM.getData("<@pageId>_yearMonths"	) ).format("YYYY-MM");
 			
 			const requestParm	= {	USER_ID 	: selectedRow.USER_ID ,
 									RESULT_DATE : contractDate + '-01' }
@@ -172,8 +159,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<div class="search_area mt0">
 					<div class="fl">
 
-						<div id="<@pageId>_years" style="width:200px"></div>
-						<div id="<@pageId>_months" style="width:200px"></div>
+						<div id="<@pageId>_yearMonths" style="width:180px"></div>
 
 		                <span class="tit01 fl lh33">사원선택</span>
 		                <div class="search_inputWrap fl">

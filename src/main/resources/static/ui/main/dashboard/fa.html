@@ -140,7 +140,8 @@ var <@pageId> = {
 				
 				//년간 달성률
 				const yearlyPayment = data.YEARLY_PAYMENT;
-				ACHIEVE_RATE = ( (yearlyPayment * 100) / (targetPayment) ).toFixed(2);
+				if( targetPayment == 0) ACHIEVE_RATE = 0;
+				else ACHIEVE_RATE = ( (yearlyPayment * 100) / (targetPayment) ).toFixed(2);
 
 				$("#<@pageId>_faSection1 .piechart_wrap .percent 	> .num").text( addComma(ACHIEVE_RATE) );
 				$("#<@pageId>_faSection1 .piechart_wrap .won 		> .num").text( addComma(yearlyPayment) );
