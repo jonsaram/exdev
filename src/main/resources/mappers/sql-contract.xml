@@ -648,11 +648,7 @@
 		WHERE  1=1
 			AND B.CONTRACT_ID(+)    = A.CONTRACT_ID
 			AND B.TEAM_USER_ROLE(+) IN ('EXEC')
-			AND	(
-					A.UPDATE_USER 		= #{sessionVo.userId}
-				OR  A.USER_ID 			= #{sessionVo.userId}
-				OR  B.USER_ID 			= #{sessionVo.userId}
-			)
+			AND A.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_TEAM_MEMBER WHERE USER_ID = #{sessionVo.userId})
 			AND A.BUYER_ID				= C.BUYER_ID
 			AND A.CONSULTING_ID			= D.CONSULTING_ID
 			AND B.USER_ID				= E.USER_ID(+)
