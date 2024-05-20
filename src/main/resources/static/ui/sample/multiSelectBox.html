@@ -10,6 +10,10 @@
 		,setSelectBoxData : function() {
 			C_UICOM.setMultiBox("selectBoxId", ["2222", "3333"]);
 		 }
+		,setDisabled : function(state) {
+			C_UICOM.setSelectBoxOption("selectBoxId", "readOnly", state);
+		}
+		
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -21,6 +25,7 @@
 			 		,["4444", "고객명"		]
 			 ]
 		 	,targetId : "selectBoxId" 
+		 	,readOnly : "Y"
 		}
 		C_UICOM.makeSelectBox(multiboxList, "multi");
 		
@@ -46,5 +51,11 @@
 	<br/>	
 	<br/>	
 	<input type=button value="값세팅" onclick="<@pageId>.setSelectBoxData()"/>
+	<br/>	
+	<br/>	
+	<input type=button value="disabled" onclick="<@pageId>.setDisabled('Y')"/>
+	<br/>	
+	<br/>	
+	<input type=button value="disabled 해제" onclick="<@pageId>.setDisabled('N')"/>
 
 </div>

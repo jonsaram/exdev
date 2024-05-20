@@ -1333,6 +1333,8 @@ var C_UICOM = {
 			C_UICOM._setDataListMap(targetId, rparm.firstItemCD); 
 			
 			
+			
+			
 
 		} else {
 			var rlist = [];
@@ -1354,6 +1356,23 @@ var C_UICOM = {
 			
 			C_UICOM.initMultiBox(targetId);
 
+		}
+		
+		C_UICOM.applyOption(targetId);
+	 }
+	,applyOption : function(targetId) {
+		var templateId = C_COM.getCurrentTemplateId();
+
+		var templateWebBtn = "#" + templateId + " #" + targetId + "_btn ";
+		
+		var templateTargetId = templateId + targetId;
+		
+		let option = C_UICOM.selectBoxOption[templateTargetId];
+		
+		if(option.readOnly == "Y") {
+			$(templateWebBtn).addClass("disabled-bg");			
+		} else {
+			$(templateWebBtn).removeClass("disabled-bg");
 		}
 	 }
 	,initSingleBox : function(targetId) {
@@ -1412,6 +1431,8 @@ var C_UICOM = {
 		var templateTargetId = templateId + targetId;
 		
 		C_UICOM.selectBoxOption[templateTargetId][key] = val;
+		
+		C_UICOM.applyOption(targetId);
 	 }
 	,initMultiBox : function(targetId) {
 

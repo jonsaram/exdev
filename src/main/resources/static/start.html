@@ -431,7 +431,7 @@
 	    color:#000;
 	    font-size:3em;
 	  }
-	  
+	  .disabled-bg {background:#f1f1f1}
 	</style>
 
 </head>
@@ -520,7 +520,7 @@
 			 
 		-->
 		<script type="text/x-jsrender" id="_comMultibox_template">	
-			<button type="button" class="btn arrow" uid="{{:targetId}}">
+			<button type="button" class="btn arrow" uid="{{:targetId}}" id="{{:targetId}}_btn">
 				<span class="hida" uid="{{:targetId}}">선택</span>
 				<p class="multiSel" uid="{{:targetId}}"></p>
 			</button>
@@ -536,7 +536,7 @@
 		</script>
 				
 		<script type="text/x-jsrender" id="_comSinglebox_template">	
-			<button type="button" class="btn radio" onclick="C_UICOM.toggleSingleSelectBox('{{:targetId}}')" uid="{{:targetId}}"><span uid="{{:targetId}}">{{:firstItemNm}}</span></button>
+			<button type="button" class="btn radio" onclick="C_UICOM.toggleSingleSelectBox('{{:targetId}}')" uid="{{:targetId}}" id="{{:targetId}}_btn"><span uid="{{:targetId}}">{{:firstItemNm}}</span></button>
             <ul class="select_lst viewHide" id="{{:targetId}}_ul" uid="{{:targetId}}">
 				{{for list ~targetId=targetId}}
                 <li uid="{{:targetId}}">

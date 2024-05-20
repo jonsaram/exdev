@@ -16,6 +16,9 @@
 				dalert(retData);
 			});
 		 }
+		,setDisabled : function(state) {
+			C_UICOM.setSelectBoxOption("selectBoxId", "readOnly", state);
+		}
 	
 	}
 	// Page Load가 완료된후 실행 된다.
@@ -28,7 +31,8 @@
 		var singleboxList = { 
 			 defaultItem 	: ["111", "선택"]
 			,data 			: userRoleList
-		 	,targetId 		: "selectBoxId" 
+		 	,targetId 		: "selectBoxId"
+		 	,readOnly		: "Y"
 		}
 		C_UICOM.makeSelectBox(singleboxList, "single");
 		
@@ -59,6 +63,12 @@
 	<br/>	
 	<br/>	
 	<input type=button value="값세팅" onclick="<@pageId>.setSelectBoxData()"/>
+	<br/>	
+	<br/>	
+	<input type=button value="disabled" onclick="<@pageId>.setDisabled('Y')"/>
+	<br/>	
+	<br/>	
+	<input type=button value="disabled 해제" onclick="<@pageId>.setDisabled('N')"/>
 	<br/>	
 	<br/>	
 	<br/>	
