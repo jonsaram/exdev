@@ -39,6 +39,7 @@
 			});
 		 }
 		,templateUpload		: function(index) {
+			dalert(<@pageId>.resultData[index]);
 			var grpFileId = <@pageId>.resultData[index].TABLE_NAME;
 
 			let selectItem = <@pageId>.resultData[index];
@@ -47,6 +48,7 @@
 				,OWNER_CD 		: <@pageId>.OWNER_CD
 				,clearFileGroup	: "Y"
 			}
+			debugger;
 			<@pageId>.fileuploadComp.selectFile(parm, function(data) {
 				C_POP.alert('Template이 업로드 되었습니다.');
 				<@pageId>.loadData();

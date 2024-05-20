@@ -153,6 +153,13 @@
 				
 			});
 		 }
+		,openBigCard	: function(index) {
+			let projectInfo = <@pageId>.projectList[index];
+
+			C_POP.open('popup_biz_adviceStatusPopup', projectInfo, function(retData) {
+				
+			});
+		 }
 		,expandAllCard : function(targetId) {
 			$(`#<@pageId> #${targetId} i[name=updownButton]`	).removeClass('down');
 			$(`#<@pageId> #${targetId} div[name=cardBody]`		).removeClass('upDown');
@@ -246,6 +253,7 @@
 			<div class="cont_top clearFix">
 				<h4 class="fl">{{:BUYER_NM}} / {{:CONSULTING_NM}}</h4>
 				<div class="fr inlineBlock_wrap">
+					<button class="btn small" onclick="<@pageId>.openBigCard({{:#index}})">카드크게보기</button>
 					<button class="btn small" onclick="<@pageId>.openFolderMng('{{:BUYER_ID}}', {{:#index}})">기업폴더보기</button>
 					<button class="btn small upDownToggle"><i class="up" name="updownButton" id="updownButton{{:#index}}"></i></button>
 				</div>

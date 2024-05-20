@@ -73,7 +73,7 @@
 		    }
 		    if(<@compId>.clearFileGroup == "Y") {
 				C_COM.clearFileGroup(<@compId>.GRP_FILE_ID, <@compId>.OWNER_CD, function(data) {
-					fn();
+					setTimeout(fn, 500);
 				});
 			} else fn();
 		    <@compId>.clearFileGroup = undefined; 
@@ -87,6 +87,7 @@
 	            // 파일 배열에 담기
 	            var reader = new FileReader();
 	            reader.onload = function () {
+	            	debugger;
 	            	<@compId>.filesArr.push(file);
 			    	<@compId>.uploadMultiFile();		    	
 				    // 초기화
