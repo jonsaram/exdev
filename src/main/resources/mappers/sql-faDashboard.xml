@@ -281,13 +281,25 @@
 	</update>
 
 	<update id="updateTodo">
-		/*	contract.updateTodo
-			자FA 대시보드 TODO 실행 상태 변경
+		/*	faDashboard.updateTodo
+			FA 대시보드 TODO 실행 상태 변경
 		*/
 		UPDATE 
 			TBL_EXP_TODO_FA 
 		SET 
 			EXEC_CHECK = #{EXEC_CHECK}
+		WHERE 
+			TODO_ID = #{TODO_ID}
+	</update>	
+
+	<update id="updateTodoContent">
+		/*	faDashboard.updateTodoContent
+			대시보드 TODO 항목 내용 변경
+		*/
+		UPDATE 
+			TBL_EXP_TODO_FA 
+		SET 
+			TODO = #{TODO}
 		WHERE 
 			TODO_ID = #{TODO_ID}
 	</update>	

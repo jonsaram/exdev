@@ -51,6 +51,23 @@
 			});  
 			
 		 }
+		,updateTodo : function(idx) {
+			let todoInfo = <@compId>.todoList[idx];
+			
+			C_POP.open('popup_common_inputOnelinePopup', {title1 : "To do 항목 수정", title2 : "항목", msg : todoInfo.TODO }, function(retData) {
+
+				todoInfo.TODO = retData.msg;
+				let parm = {
+					 queryId 		: "faDashboard.updateTodoContent"
+					,requestParm	: todoInfo
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					<@compId>.loadTodoList();
+				});  
+				
+			});
+			
+		 }
 		,deleteTodo : function(idx) {
 			let todoInfo = <@compId>.todoList[idx];
 			
@@ -108,7 +125,9 @@
 	<li>
 		<input type="checkbox" name="customer" class="check_undo" id="ck_{{:TODO_ID}}" onclick="<@compId>.checkProcess({{:#index}})" {{:execCheckStr}}>
 		<label for="ck_{{:TODO_ID}}"><span class="txt"><span>{{:UPDATE_DATE}} </span><span>: {{:TODO}}</span></span></label>
-		<button class="pay_close" onclick="<@compId>.deleteTodo({{:#index}})">닫기</button>
+		<div class="fr"><button  onclick="<@compId>.updateTodo({{:#index}})"><i class="icon_pen"></i></button>
+						<button  onclick="<@compId>.deleteTodo({{:#index}})"><i class="icon_trash"></i></button>
+		</div>
 	</li>
 	{{/for}}
 	</script>
