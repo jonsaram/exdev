@@ -84,19 +84,12 @@
 		    AND 1=1  
         	</if>
         	<if test=" !PA_ROLE.equals('SYSTEM') and !PA_ROLE.equals('MANAGER')">
-        	AND (
-        			C.UPDATE_USER 	= #{sessionVo.userId	}
-				OR	C.USER_ID		= #{sessionVo.userId	}
-			 	OR	TM.USER_ID		= #{sessionVo.userId	} 	
-			)
+			AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_TEAM_MEMBER WHERE USER_ID = #{sessionVo.userId})
+			
         	</if>
 		</when>
        	<when test= "CALL_TYPE != null and CALL_TYPE.equals('USER')"> 
-        	AND (
-        			C.UPDATE_USER 	= #{sessionVo.userId	}
-				OR	C.USER_ID		= #{sessionVo.userId	}
-			 	OR	TM.USER_ID		= #{sessionVo.userId	} 	
-			)
+			AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_TEAM_MEMBER WHERE USER_ID = #{sessionVo.userId})
 		</when>
 		</choose>		
 
