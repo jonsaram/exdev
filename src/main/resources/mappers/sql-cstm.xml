@@ -70,6 +70,13 @@
  			<if test=" parm.BUYER_ID == '' and parm.BUYER_NM == '' and parm.COMPANY_REGNUM == '' and parm.ADDR == ''">
 				1=1
 			</if>
+			<if test=" parm.TEL != null and !parm.TEL.equals('') ">
+				OR UPPER(B.TEL) like '%' || UPPER(#{parm.TEL}) || '%'
+			</if>
+			<if test=" parm.HOW_GET != null and !parm.HOW_GET.equals('') ">
+				OR  UPPER(GET_CODE_NM( 'HOW_GET', B.HOW_GET )) = UPPER(#{parm.HOW_GET})
+			</if>
+			
 		)
 		<if test=' parm.CHECK_MEMBER != null and parm.CHECK_MEMBER =="Y" '>
 			<include refid="userContectedBuyers"/>
