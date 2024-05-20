@@ -1184,9 +1184,10 @@ var C_POP = {
 // UI 관련 공통
 
 var C_UICOM = {
-	 dataListMap : {} 	// selectBox 에서 선택한 내용 담기
-	,useSelectBoxIdList : {}
+	 dataListMap 			: {} 	// selectBox 에서 선택한 내용 담기
+	,useSelectBoxIdList 	: {}
 	,listenerChangeFnMap	: {}
+	,selectBoxOption		: {}
 	,getData : function(targetId){
 
 		var templateId = C_COM.getCurrentTemplateId();
@@ -1259,8 +1260,16 @@ var C_UICOM = {
 		C_UICOM.makeSelectBoxExec(parm, type)	 
 	 }
 	,toggleSingleSelectBox : function(targetId) {
-		var templateId = C_COM.getCurrentTemplateId();
 
+		var templateId = C_COM.getCurrentTemplateId();
+		var templateTargetId = templateId + targetId;
+		
+		let option = C_UICOM.selectBoxOption[templateTargetId];
+		
+		// 읽기 전용으로 Setting시 클릭 제어
+		if(option.readOnly == "Y") {
+			return;
+		}
 		var pageWebUl = "#" + templateId + " #" + targetId + "_ul ";
 		$(pageWebUl).show();
 		if ( $(pageWebUl).hasClass("viewHide") ) {
@@ -1287,6 +1296,8 @@ var C_UICOM = {
 		var templateWebId = "#" + templateId + " #" + targetId + " ";
 
 		var templateTargetId = templateId + targetId;
+		
+		C_UICOM.selectBoxOption[templateTargetId] = parm;
 
 		// SelectBox ID 등록		
 		C_UICOM.useSelectBoxIdList[templateTargetId] = {templateId : templateId, targetId : targetId};
@@ -1399,11 +1410,19 @@ var C_UICOM = {
 
 		var templateId = C_COM.getCurrentTemplateId();
 
+		var templateTargetId = templateId + targetId;
+		
+		let option = C_UICOM.selectBoxOption[templateTargetId];
+
 		var pageWebId = "#" + templateId + " #" + targetId + " ";
 
 	    /*============= 멀티선택 ================*/
 		$(pageWebId + "button").unbind("click");
 	    $(pageWebId + "button").bind("click", function(){
+			// 읽기 전용으로 Setting시 클릭 제어
+			if(option.readOnly == "Y") {
+				return;
+			}
 	        $(this).parent().children().find("ul").slideToggle('fast');
 	    });
 	 }
