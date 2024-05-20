@@ -9,6 +9,21 @@
 	<!--
 	성과 관리 
 	 -->	
+	<sql id='NOT_CONTRACTED_STATE'>
+			( 	C.PROCESS_STATE ='PRE_CONTRACT' 
+			OR	C.PROCESS_STATE ='ON_CONTRACTING_APPR'
+			OR	C.PROCESS_STATE ='CONTRACTING'
+			OR	C.PROCESS_STATE ='PENDING'
+			OR	C.PROCESS_STATE ='REJECTING'
+			)
+	</sql>
+	 
+	<sql id='CONTRACTED_STATE'>
+			( 	C.PROCESS_STATE ='CONTRACTED' 
+			OR	C.PROCESS_STATE ='ON_COMPLETED_APPR'
+			OR	C.PROCESS_STATE ='COMPLETED'
+			)
+	</sql>
 	 
 	<select id="getConsultingTypeList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getConsultingTypeList
@@ -41,6 +56,7 @@
 			AND (	C.USER_ID	= #{sessionVo.userId	}
 		 		OR 	CM.USER_ID	= #{sessionVo.userId	} 	
 			)
+			AND <include refid="CONTRACTED_STATE"/>
 			<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
 			AND CS.CONSULTING_TYPE = #{SUB_CATEGORY}
 			</if>
@@ -122,7 +138,7 @@
 		<if test=" parm.TO_CONTRACT_DATE != null and !parm.TO_CONTRACT_DATE.equals('')">
 		AND C.CONTRACT_DATE <![CDATA[<=]]> TO_DATE( #{parm.TO_CONTRACT_DATE} , 'YYYY-MM-DD')
 		</if>
-		AND ( C.PROCESS_STATE !='PRE_CONTRACT' AND C.PROCESS_STATE !='CONTRACTING' )	
+		AND <include refid="CONTRACTED_STATE"/>
 		AND C.CONTRACT_ID = CM.CONTRACT_ID
 		AND CM.RELATION_TYPE = 'EXECUTE'		
 		AND (
@@ -217,7 +233,7 @@
 			,TBL_EXP_CONTRACT_MEMBER CM
 			,TBL_EXP_CONSULTING CS
 			WHERE 1=1
-			<!-- AND		C.CONTRACT_TYPE	= CONTRACT_TYPE -->
+			AND <include refid="CONTRACTED_STATE"/>
 			AND C.CONSULTING_ID	= CS.CONSULTING_ID
 			AND CS.CONSULTING_TYPE = #{CONSULTING_TYPE}
 			AND		C.CONTRACT_ID	= R.CONTRACT_ID 
@@ -239,7 +255,7 @@
 		ORDER BY M.month	
 		
 	</select>
-	
+<!-- 	
 	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getPaymentList
 			전체  수수료 지급 (월자문/1회성컨설팅) 
@@ -263,6 +279,7 @@
 						,TBL_EXP_CONTRACT_MEMBER CM
 						,TBL_EXP_USER U
 						WHERE C.CONTRACT_ID	= R.CONTRACT_ID 
+						AND <include refid="CONTRACTED_STATE"/>
 						AND R.CONTRACT_ID	= P.CONTRACT_ID 
 						AND R.RESULT_ID		= P.RESULT_ID 
 						AND C.CONTRACT_TYPE = #{CONTRACT_TYPE}
@@ -286,7 +303,7 @@
 		ORDER BY MONTH 
 		
 	</select>	
-  	
+   -->	
   	<sql id="getResultDataDuringTwoYears">
   	
 	   	/* RESULT테이블에서 2년치의 데이터를 조회. */
@@ -328,7 +345,7 @@
 			,TBL_EXP_CONTRACT_MEMBER CM
 			,(<include refid="getResultDataDuringTwoYears"/>) R
 			WHERE 1=1
-			<!-- AND	C.CONTRACT_TYPE	= 'MONTHLY' -->
+			AND <include refid="CONTRACTED_STATE"/>
 			AND		C.CONTRACT_ID	= R.CONTRACT_ID 
 			AND (	C.PROCESS_STATE = 'CONTRACTED'
 				OR	C.PROCESS_STATE = 'ON_COMPLETED_APPR'
@@ -430,6 +447,7 @@
 						,TBL_EXP_USER U
 						,TBL_EXP_DIVISION  DIV
 						WHERE 1=1
+						AND <include refid="CONTRACTED_STATE"/>
 						AND U.DIVISION_ID = DIV.DIVISION_ID 
 						AND U.DIVISION_ID LIKE 'SALES_DIV%' /* 일때, 지사가 있음 */
 						AND C.CONTRACT_ID	= R.CONTRACT_ID 
@@ -498,14 +516,22 @@
 			, ROUND(NVL(SUM(ORG_SELLING_PRICE),0) / 1000000 , 2) 	AS ORG_SELLING_PRICE
 			</when>
 		</choose>			
-		FROM TBL_EXP_CONTRACT CN
+		FROM TBL_EXP_CONTRACT C
 		,TBL_EXP_RESULT RST
 		,TBL_EXP_CONSULTING CT
+		,TBL_EXP_CONTRACT_MEMBER CM
 		WHERE 1=1
-		AND CN.CONTRACT_ID = RST.CONTRACT_ID 
-		AND CN.USE_YN = 'Y' AND CN.DEL_YN = 'N'
+		AND <include refid="CONTRACTED_STATE"/>
+		AND C.CONTRACT_ID = RST.CONTRACT_ID 
+		AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
 		AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
-		AND CT.CONSULTING_ID  = CN.CONSULTING_ID 
+		AND CT.CONSULTING_ID  = C.CONSULTING_ID 
+		AND 	C.CONTRACT_ID = CM.CONTRACT_ID
+		AND 	CM.RELATION_TYPE = 'EXECUTE'
+		AND (
+			 C.USER_ID	= #{sessionVo.userId	}
+		 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+		)			
 		<choose>
 	       	<when test=" LAST_YEAR == null  "> 
 				AND TO_CHAR(RST.RESULT_DATE, 'YYYY')   <![CDATA[ >= ]]> TO_CHAR( SYSDATE , 'YYYY')
@@ -552,6 +578,7 @@
 						,TBL_EXP_USER U
 						,TBL_EXP_CONSULTING CS
 						WHERE C.CONTRACT_ID	= R.CONTRACT_ID 
+						AND <include refid="CONTRACTED_STATE"/>
 						AND R.CONTRACT_ID	= P.CONTRACT_ID 
 						AND R.RESULT_ID		= P.RESULT_ID 
 						AND C.CONSULTING_ID = CS.CONSULTING_ID
@@ -569,6 +596,7 @@
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
 						AND C.CONTRACT_ID = CM.CONTRACT_ID
+						AND P.USER_ID		= #{sessionVo.userId	}
 				)	
 				GROUP BY  RESULT_MONTH ,USER_ID , USER_NM
 			) DATA
@@ -591,8 +619,7 @@
 	
 	<select id="getContractCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getContractCnt
-			전체  계약건수 ( 월자문  ) 
-			사용자가 영업컨설턴트/ 실행컨설턴트인 경우 
+			전체 월자문 계약건수
 		*/
 			
 		WITH MONTHS_24 AS (<include refid="MONTHS_24"/>)
@@ -600,30 +627,24 @@
 			SELECT M.month, COUNT(CONTRACT_ID) CONTRACT_CNT
 			FROM MONTHS_24 M
 			, (
-				SELECT CN.CONTRACT_ID
+				SELECT C.CONTRACT_ID
 				, TO_CHAR(RST.RESULT_DATE, 'YYYYMM') AS EACH_MONTH
-				FROM TBL_EXP_CONTRACT CN
+				FROM TBL_EXP_CONTRACT C
 				,TBL_EXP_RESULT RST
 				,TBL_EXP_COST CS
-				,TBL_EXP_CONTRACT_MEMBER CM
 				,TBL_EXP_CONSULTING CST
 				WHERE 1=1
-				<!-- AND CN.CONTRACT_TYPE = 'MONTHLY' -->
-				AND CN.CONSULTING_ID = CST.CONSULTING_ID
 				AND CST.CONSULTING_TYPE = 'MONTHLY'
-				AND CN.CONTRACT_ID = RST.CONTRACT_ID 
-				AND CN.CONTRACT_ID = CS.CONTRACT_ID
+				AND <include refid="CONTRACTED_STATE"/>
+				AND C.CONSULTING_ID = CST.CONSULTING_ID
+				AND CST.CONSULTING_TYPE = 'MONTHLY'
+				AND C.CONTRACT_ID = RST.CONTRACT_ID 
+				AND C.CONTRACT_ID = CS.CONTRACT_ID
 				AND CS.RESULT_ID = RST.RESULT_ID
-				AND CN.USE_YN = 'Y' AND CN.DEL_YN = 'N'
+				AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
 				AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
 				AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
-				AND CN.CONTRACT_ID = CM.CONTRACT_ID
-				AND CM.RELATION_TYPE = 'EXECUTE'
-				AND (
-					 CN.USER_ID	= #{sessionVo.userId	}
-				 OR  CM.USER_ID	= #{sessionVo.userId	} 	
-				)				
-				GROUP BY CN.CONTRACT_ID, CN.TOTAL_COST, RST.RESULT_ID, TO_CHAR(RST.RESULT_DATE, 'YYYYMM')
+				GROUP BY C.CONTRACT_ID, C.TOTAL_COST, RST.RESULT_ID, TO_CHAR(RST.RESULT_DATE, 'YYYYMM')
 			) DATA 
 			WHERE  M.month = DATA.EACH_MONTH
 			GROUP BY M.month
@@ -657,12 +678,13 @@
 								, TBL_EXP_CONTRACT_MEMBER CM 
 								, TBL_EXP_USER U
 								WHERE C.CONTRACT_ID = R.CONTRACT_ID
+								AND <include refid="CONTRACTED_STATE"/>
 								AND C.CONTRACT_ID = CM.CONTRACT_ID
 								AND R.USE_YN = 'Y'
 								AND R.DEL_YN = 'N'
 								AND CM.USE_YN = 'Y'
 								AND CM.DEL_YN = 'N'
-								AND ( C.USER_ID = U.USER_ID OR U.USER_ID = CM.USER_ID ) 
+								AND ( U.USER_ID = C.USER_ID OR U.USER_ID = CM.USER_ID ) 
 								<choose>
 							       	<when test=" LAST_YEAR == null  "> 
 										AND TO_CHAR(R.RESULT_DATE, 'YYYY')   <![CDATA[ >= ]]> TO_CHAR( SYSDATE , 'YYYY')
@@ -675,10 +697,6 @@
 							      	</otherwise>
 								</choose>	
 								AND  CM.RELATION_TYPE = 'EXECUTE'
-								AND (	C.PROCESS_STATE = 'CONTRACTED'
-									OR	C.PROCESS_STATE = 'ON_COMPLETED_APPR'
-									OR	C.PROCESS_STATE = 'COMPLETED'
-								)									
 							)
 							GROUP BY RESULT_YEAR , USER_ID , USER_NM 
 						) DATA
