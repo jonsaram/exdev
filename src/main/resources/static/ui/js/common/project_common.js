@@ -1216,7 +1216,7 @@ var C_UICOM = {
 			} else {
 				return;
 			}
-			fn(C_UICOM.dataListMap[templateTargetId]);	
+			fn(C_UICOM.dataListMap[templateTargetId], targetId);	
 		}
 	 }
 	// onchange 저장

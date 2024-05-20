@@ -59,7 +59,7 @@ var <@pageId> = {
 					sumRealPay		+=item.REAL_PAY;
 				})
 
-				$("#<@pageId>_sumTotalCost").text(sumTotalCost.toLocaleString());
+				//$("#<@pageId>_sumTotalCost").text(sumTotalCost.toLocaleString());
 				$("#<@pageId>_sumIncome").text(sumIncome.toLocaleString());
 				$("#<@pageId>_sumPayment").text(sumPayment.toLocaleString());
 				$("#<@pageId>_sumTax").text(sumTax.toLocaleString());
@@ -162,7 +162,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<script type="text/x-jsrender" id="<@pageId>_salaryList_template">						
 					{{for list}}
 						<tr name="<@pageId>_tr_{{:#index}}">
-							<td id='RN'								>{{:RN}}</td>
+							<td id='RN'		{{:RESULT_ID}}	>{{:RN}}</td>
 							<td id='USER_NM'	class="tl"			title="{{:USER_NM}}"			>{{:USER_NM}}</td>
 							<td id='CONSULTING_NM'class="tl"		title="{{:CONSULTING_NM}}"		>{{:CONSULTING_NM}}</td>
 							<td id='TOTAL_COST'	class="tr"			title="{{numb:TOTAL_COST}}"		>{{numb:TOTAL_COST}}</td>

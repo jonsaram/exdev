@@ -10,6 +10,8 @@ var <@pageId> = {
 		,lineAndColumnChart : (target, param, unit)=>_lineAndColumnChart(target, param, unit)
 		,lineWithLabelsChart: (target, param, unit)=>_lineWithLabelsChart(target, param, unit)
 		,createChart 		: (container, categories, series, unit)=>_createChart(container, categories, series, null,null,unit)
+		,FROM_CONTRACT_DATE	: ''
+		,TO_CONTRACT_DATE	: ''
 		,pageInit  : () =>{
 			
 			<@pageId>.thisYear = dayjs().year();
@@ -18,13 +20,30 @@ var <@pageId> = {
 			_yearMonthSelectBox("<@pageId>_fromDate");
 			C_UICOM.setSingleBox("<@pageId>_fromDate", dayjs().year()-1+"-"+("01").slice(-2));
 			_yearMonthSelectBox("<@pageId>_toDate");
-			<@pageId>.setHandler();
+			<@pageId>.FROM_CONTRACT_DATE	= dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD");
+			<@pageId>.TO_CONTRACT_DATE		= dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD');
+			
+			setTimeout( ()=>{<@pageId>.setHandler();},300)
 		}
 		,searchList : () => {
 			
 			<@pageId>.contractList();
 		}
 		,setHandler : () => {
+			
+			let fn = function(dataObj, targetId) {
+				if( targetId == "<@pageId>_fromDate"){
+					
+					<@pageId>.FROM_CONTRACT_DATE = dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD");
+					
+				}else if( targetId == "<@pageId>_toDate"){
+					
+					<@pageId>.TO_CONTRACT_DATE = dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD');
+					
+				}					
+			}
+			C_UICOM.addChangeListener("<@pageId>_fromDate"		, fn);
+			C_UICOM.addChangeListener("<@pageId>_toDate"		, fn);
 			
 			$("#<@pageId>_search").off().on('click', () =>{
 
@@ -362,8 +381,8 @@ var <@pageId> = {
 			var parm = {
 					 queryId 		: "rstMgn.getConsultingTypeList"
 					,requestParm	: {SUB_CATEGORY:""
-						,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD") 
-						,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD') 
+						,FROM_CONTRACT_DATE	: <@pageId>.FROM_CONTRACT_DATE 
+						,TO_CONTRACT_DATE	: <@pageId>.TO_CONTRACT_DATE 
 					}
 			}
 
@@ -403,8 +422,8 @@ var <@pageId> = {
 
 			const requestParm = {
 					SUB_CATEGORY:<@pageId>.mainCategoryItem
-					,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD") 
-					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD') 
+					,FROM_CONTRACT_DATE	: <@pageId>.FROM_CONTRACT_DATE  
+					,TO_CONTRACT_DATE	: <@pageId>.TO_CONTRACT_DATE 
 			};
 			
 			var parm = {
@@ -433,8 +452,8 @@ var <@pageId> = {
 		,contractList :  () => {
 
 			const requestParm = {
-					 FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD") 
-					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD') 
+					 FROM_CONTRACT_DATE	: <@pageId>.FROM_CONTRACT_DATE  
+					,TO_CONTRACT_DATE	: <@pageId>.TO_CONTRACT_DATE 
 					,UNIT_TYPE			: G_VAL.session.etcUserInfo["UNIT_TYPE"]
 			};
 			

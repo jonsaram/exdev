@@ -7,19 +7,52 @@ var <@pageId> = {
 		,excelParam : {}
 		,categoryChart	: ()=> <@pageId>.mainCategoryChart()
 		,treemapChart : (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
+		,FROM_CONTRACT_DATE	: ''
+		,TO_CONTRACT_DATE	: ''
+		,FROM_CONTRACT_DATE_ALL	: ''
+		,TO_CONTRACT_DATE_ALL	: ''
 		,pageInit  : () =>{
 			
 			_yearMonthSelectBox("<@pageId>_fromDate");
 			C_UICOM.setSingleBox("<@pageId>_fromDate", dayjs().year()-1+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
 			_yearMonthSelectBox("<@pageId>_toDate");
 			_yearMonthSelectBox("<@pageId>_fromDateAll");
+			C_UICOM.setSingleBox("<@pageId>_fromDateAll", dayjs().year()-1+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
 			_yearMonthSelectBox("<@pageId>_toDateAll");
 
-			_setSearchListCnt("<@pageId>_pagingChunk" );
+			<@pageId>.FROM_CONTRACT_DATE	= dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD");
+			<@pageId>.TO_CONTRACT_DATE		= dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD');
+			<@pageId>.FROM_CONTRACT_DATE_ALL= dayjs( C_UICOM.getData("<@pageId>_fromDateAll")+"01" ).format("YYYY-MM-DD");
+			<@pageId>.TO_CONTRACT_DATE_ALL	= dayjs( C_UICOM.getData("<@pageId>_toDateAll"	) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD');
+  			_setSearchListCnt("<@pageId>_pagingChunk" );
 			
-			<@pageId>.setHandler();
+			<@pageId>.setHandler();  
 		}
 		,setHandler : () => {
+		
+			let fn = function(dataObj, targetId) {
+				if( targetId == "<@pageId>_fromDate"){
+					
+					<@pageId>.FROM_CONTRACT_DATE = dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD");
+					
+				}else if( targetId == "<@pageId>_toDate"){
+					
+					<@pageId>.TO_CONTRACT_DATE = dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD');
+					
+				}else if( targetId == "<@pageId>_fromDateAll"){
+					
+					<@pageId>.FROM_CONTRACT_DATE_ALL = dayjs( C_UICOM.getData("<@pageId>_fromDateAll"	)+"01" ).format("YYYY-MM-DD");
+					
+				}else if( targetId == "<@pageId>_toDateAll"){
+					
+					<@pageId>.TO_CONTRACT_DATE_ALL = dayjs( C_UICOM.getData("<@pageId>_toDateAll"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD');
+					
+				}					
+			}
+			C_UICOM.addChangeListener("<@pageId>_fromDate"		, fn);
+			C_UICOM.addChangeListener("<@pageId>_toDate"		, fn);
+			C_UICOM.addChangeListener("<@pageId>_fromDateAll"	, fn);
+			C_UICOM.addChangeListener("<@pageId>_toDateAll"		, fn);
 			
 			$("#<@pageId>_search"		).off().on('click', () =><@pageId>.contractList());
 			$("#<@pageId>_searchAll"	).off().on('click', () =><@pageId>.allContractList());
@@ -31,7 +64,7 @@ var <@pageId> = {
 		    	const $tds = $("#<@pageId>_allContractList [name='<@pageId>_tr_0'] td");
 		    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"월자문 계약 리스트");  
 		    });		
-
+			
 		}
 		,mainCategoryChart :  () => {
 		
@@ -47,8 +80,8 @@ var <@pageId> = {
 
 			const requestParm = {
 					SUB_CATEGORY:<@pageId>.mainCategoryItem
-					,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDateAll"	)+"01" ).format("YYYY-MM-DD") 
-					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDateAll"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD') 
+					,FROM_CONTRACT_DATE	: <@pageId>.FROM_CONTRACT_DATE_ALL 
+					,TO_CONTRACT_DATE	: <@pageId>.TO_CONTRACT_DATE_ALL 
 					
 			};
 			
@@ -86,22 +119,25 @@ var <@pageId> = {
 		,searchList : (requestParm, targetId) => {
 
 			var parm = {
-					 queryId 		: "cstm.getBuyerSellingList"
+					 queryId 		: "rstMgn.getBuyerSellingList"
 					,requestParm	: {parm:requestParm}
 			}
 
 			if( targetId == "<@pageId>_contractList")
 			{	
+	
 				C_COM.requestQuery(parm, function(resultData) {
 					
 					var rparm = {
 							 targetId 		: targetId
 							,list			: resultData.data
 					}
+				
 					C_COM.renderHtml("<@pageId>", rparm);
 					
 					<@pageId>.setHandler();
-				});
+				
+				});	
 				
 			}else{
 				const queryId	=  "rstMgn.getContractList";
@@ -128,15 +164,15 @@ var <@pageId> = {
 						<@pageId>.setHandler();
 					 }
 		 		});			
-			}
+			}			
 		}
 		,contractList :  (options) => {
 
 			const ID = options ? options.id : '';
 			const requestParm = {
 					 CONSULTING_TYPE 	: 'MONTHLY'
-					,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD") 
-					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD') 
+					,FROM_CONTRACT_DATE	: <@pageId>.FROM_CONTRACT_DATE 
+					,TO_CONTRACT_DATE	: <@pageId>.TO_CONTRACT_DATE 
 					,RANK:'5'
 					,CONSULTING_ID : ID
 			};
@@ -149,8 +185,8 @@ var <@pageId> = {
 			const ID = options ? options.id : '';
 			const requestParm = {
 					 CONSULTING_TYPE 	: 'MONTHLY'
-					,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDateAll"	)+"01" ).format("YYYY-MM-DD") 
-					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDateAll"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD')
+					,FROM_CONTRACT_DATE	: <@pageId>.FROM_CONTRACT_DATE_ALL 
+					,TO_CONTRACT_DATE	: <@pageId>.TO_CONTRACT_DATE_ALL 
 					,CONSULTING_ID : ID
 			};
 			

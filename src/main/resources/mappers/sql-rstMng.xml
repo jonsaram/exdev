@@ -717,4 +717,93 @@
 		ORDER BY ORG_SELLING_PRICE DESC 
 		FETCH NEXT 10 ROWS ONLY
 	</select>	
+	
+	<select id="getBuyerSellingList" resultType="java.util.HashMap">
+		/* rstMgn.getBuyerSellingList  
+			매출 top RANK 거래처 
+		*/
+		SELECT *
+		FROM (
+				SELECT CONTRACT_YEAR,CONTRACT_MONTH
+				,BUYER_ID, BUYER_NM, HOW_GET, HOW_GET_NM
+				,CONTRACT_TYPE, CONTRACT_TYPE_NM
+				,COMPANY_REGNUM
+				,CONSULTING_NM
+				,CONSULTING_TYPE
+				,GET_CODE_NM('CONSULTING_TYPE', CONSULTING_TYPE ) CONSULTING_TYPE_NM
+				,USER_NM
+				,SUM( TOTAL_COST ) TOTAL_COST
+				,SUM( SUM_INCOME ) TOT_INCOME
+				FROM(
+						
+						SELECT ROWNUM 		
+						, TO_CHAR( CONTRACT_DATE , 'YYYY' ) AS CONTRACT_YEAR
+						, TO_CHAR( CONTRACT_DATE , 'MM' ) AS CONTRACT_MONTH
+						, BUYER_ID
+						, BUYER_NM
+						, HOW_GET
+						, GET_CODE_NM( 'HOW_GET', HOW_GET ) HOW_GET_NM
+						, CONTRACT_TYPE
+						, GET_CODE_NM('CONTRACT_TYPE', CONTRACT_TYPE ) CONTRACT_TYPE_NM
+						, CONSULTING_TYPE
+						, COMPANY_REGNUM 
+						, CONSULTING_NM
+						, TOTAL_COST
+						, SUM_INCOME 
+						, ( SELECT USER_NM FROM TBL_EXP_USER WHERE USER_ID = A.USER_ID ) USER_NM 
+						FROM (
+						    SELECT B.BUYER_NM,B.HOW_GET,B.COMPANY_REGNUM, C.USER_ID,
+						    		(
+						            SELECT SUM(R.INCOME)
+						            FROM TBL_EXP_RESULT R
+						            WHERE R.CONTRACT_ID = C.CONTRACT_ID
+						                AND R.USE_YN = 'Y'
+						                AND R.DEL_YN = 'N'
+						            ) SUM_INCOME
+									,CS.CONSULTING_NM
+									,CS.CONSULTING_TYPE
+									,C.TOTAL_COST
+									,C.CONTRACT_DATE
+									,C.BUYER_ID
+									,C.CONTRACT_TYPE
+						    FROM TBL_EXP_CONTRACT C, TBL_EXP_BUYER B, TBL_EXP_CONSULTING CS
+							,TBL_EXP_CONTRACT_MEMBER CM
+						    WHERE 1 = 1
+						    	AND <include refid="CONTRACTED_STATE"/>
+						        AND C.BUYER_ID = B.BUYER_ID
+								<if test=" parm.FROM_CONTRACT_DATE != null and !parm.FROM_CONTRACT_DATE.equals('')">
+								AND C.CONTRACT_DATE <![CDATA[>=]]> TO_DATE( #{parm.FROM_CONTRACT_DATE} , 'YYYY-MM-DD') 
+								</if>		
+								<if test=" parm.TO_CONTRACT_DATE != null and !parm.TO_CONTRACT_DATE.equals('')">
+								AND C.CONTRACT_DATE <![CDATA[<=]]> TO_DATE( #{parm.TO_CONTRACT_DATE} , 'YYYY-MM-DD')
+								</if>
+						        AND B.USE_YN = 'Y'
+						        AND B.DEL_YN = 'N'
+						        AND C.USE_YN = 'Y'
+						        AND C.DEL_YN = 'N'
+						        AND C.CONSULTING_ID = CS.CONSULTING_ID
+								<if test=" parm.CONSULTING_TYPE != null and !parm.CONSULTING_TYPE.equals('')">
+								AND CS.CONSULTING_TYPE = #{parm.CONSULTING_TYPE}
+								</if>		
+								AND C.CONTRACT_ID = CM.CONTRACT_ID
+								AND CM.RELATION_TYPE = 'EXECUTE'
+								AND (
+									 C.USER_ID	= #{sessionVo.userId	}
+								 OR  CM.USER_ID	= #{sessionVo.userId	} 	
+								)								
+						    ORDER BY SUM_INCOME DESC
+						) A
+				)
+				GROUP BY CONTRACT_YEAR,CONTRACT_MONTH
+						,BUYER_ID, BUYER_NM, HOW_GET, HOW_GET_NM
+						,CONTRACT_TYPE, CONTRACT_TYPE_NM
+						,COMPANY_REGNUM
+						,CONSULTING_NM
+						,CONSULTING_TYPE
+						,USER_NM
+		)
+		<if test=" parm.TRANK != null and !parm.RANK.equals('')">
+		 WHERE ROWNUM  <![CDATA[ <= ]]> #{parm.RANK}
+		 </if>
+	</select>	
 </mapper>

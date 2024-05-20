@@ -7,6 +7,10 @@ var <@pageId> = {
 		,excelParam : {}
 		,categoryChart	: ()=> <@pageId>.mainCategoryChart()
 		,treemapChart : (target, colorAxis, treemapData , func)=>_treemapChart(target, colorAxis, treemapData, func)
+		,FROM_CONTRACT_DATE	: ''
+		,TO_CONTRACT_DATE	: ''
+		,FROM_CONTRACT_DATE_ALL	: ''
+		,TO_CONTRACT_DATE_ALL	: ''
 		,pageInit  : () =>{
 			
 			_yearMonthSelectBox("<@pageId>_fromDate");
@@ -16,11 +20,39 @@ var <@pageId> = {
 			C_UICOM.setSingleBox("<@pageId>_fromDateAll", dayjs().year()-1+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
 			_yearMonthSelectBox("<@pageId>_toDateAll");
 
-			_setSearchListCnt("<@pageId>_pagingChunk" );
+			<@pageId>.FROM_CONTRACT_DATE	= dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD");
+			<@pageId>.TO_CONTRACT_DATE		= dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD');
+			<@pageId>.FROM_CONTRACT_DATE_ALL= dayjs( C_UICOM.getData("<@pageId>_fromDateAll")+"01" ).format("YYYY-MM-DD");
+			<@pageId>.TO_CONTRACT_DATE_ALL	= dayjs( C_UICOM.getData("<@pageId>_toDateAll"	) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD');
+  			_setSearchListCnt("<@pageId>_pagingChunk" );
 			
-			<@pageId>.setHandler();
+			<@pageId>.setHandler();  
 		}
 		,setHandler : () => {
+		
+			let fn = function(dataObj, targetId) {
+				if( targetId == "<@pageId>_fromDate"){
+					
+					<@pageId>.FROM_CONTRACT_DATE = dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD");
+					
+				}else if( targetId == "<@pageId>_toDate"){
+					
+					<@pageId>.TO_CONTRACT_DATE = dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD');
+					
+				}else if( targetId == "<@pageId>_fromDateAll"){
+					
+					<@pageId>.FROM_CONTRACT_DATE_ALL = dayjs( C_UICOM.getData("<@pageId>_fromDateAll"	)+"01" ).format("YYYY-MM-DD");
+					
+				}else if( targetId == "<@pageId>_toDateAll"){
+					
+					<@pageId>.TO_CONTRACT_DATE_ALL = dayjs( C_UICOM.getData("<@pageId>_toDateAll"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD');
+					
+				}					
+			}
+			C_UICOM.addChangeListener("<@pageId>_fromDate"		, fn);
+			C_UICOM.addChangeListener("<@pageId>_toDate"		, fn);
+			C_UICOM.addChangeListener("<@pageId>_fromDateAll"	, fn);
+			C_UICOM.addChangeListener("<@pageId>_toDateAll"		, fn);
 			
 			$("#<@pageId>_search"		).off().on('click', () =><@pageId>.contractList());
 			$("#<@pageId>_searchAll"	).off().on('click', () =><@pageId>.allContractList());
@@ -48,8 +80,8 @@ var <@pageId> = {
 
 			const requestParm = {
 					SUB_CATEGORY:<@pageId>.mainCategoryItem
-					,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDateAll"	)+"01" ).format("YYYY-MM-DD") 
-					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDateAll"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD') 
+					,FROM_CONTRACT_DATE	: <@pageId>.FROM_CONTRACT_DATE_ALL 
+					,TO_CONTRACT_DATE	: <@pageId>.TO_CONTRACT_DATE_ALL 
 					
 			};
 			
@@ -87,7 +119,7 @@ var <@pageId> = {
 		,searchList : (requestParm, targetId) => {
 
 			var parm = {
-					 queryId 		: "cstm.getBuyerSellingList"
+					 queryId 		: "rstMgn.getBuyerSellingList"
 					,requestParm	: {parm:requestParm}
 			}
 
@@ -138,9 +170,9 @@ var <@pageId> = {
 
 			const ID = options ? options.id : '';
 			const requestParm = {
-					 CONSULTING_TYPE 	:'ONCE'
-					,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDate"	)+"01" ).format("YYYY-MM-DD") 
-					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDate"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD') 
+					 CONSULTING_TYPE 	: 'ONCE'
+					,FROM_CONTRACT_DATE	: <@pageId>.FROM_CONTRACT_DATE 
+					,TO_CONTRACT_DATE	: <@pageId>.TO_CONTRACT_DATE 
 					,RANK:'5'
 					,CONSULTING_ID : ID
 			};
@@ -153,8 +185,8 @@ var <@pageId> = {
 			const ID = options ? options.id : '';
 			const requestParm = {
 					 CONSULTING_TYPE 	: 'ONCE'
-					,FROM_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_fromDateAll"	)+"01" ).format("YYYY-MM-DD") 
-					,TO_CONTRACT_DATE	: dayjs( C_UICOM.getData("<@pageId>_toDateAll"		) ,"YYYYMM" ).endOf('month').format('YYYY-MM-DD')
+					,FROM_CONTRACT_DATE	: <@pageId>.FROM_CONTRACT_DATE_ALL 
+					,TO_CONTRACT_DATE	: <@pageId>.TO_CONTRACT_DATE_ALL 
 					,CONSULTING_ID : ID
 			};
 			
@@ -183,7 +215,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			</div>
 			<div class="sec_scroll">
 				<section class="sec_wrap">
-				<!-- 분류별 실적 -->
+					<!-- 분류별 실적 -->
 				<div class="cont_box left" style='width:28%;overflow:hidden'>
 					<h3>분류별 실적</h3>
 					<div class="box_division_wrap" style='margin-top:0px;'>
@@ -222,10 +254,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<table>
 								<caption>표 캡션</caption>
 								<colgroup>
-									<col style="width:40px;"/>
-									<col style="width:40px;"/>
-									<col style="width:40px;"/>
-									<col style="width:40px;"/>
+									<col style="width:55px;"/>
+									<col style="width:55px;"/>
+									<col style="width:55px;"/>
+									<col style="width:55px;"/>
 									<col style="width:60px;"/>
 									<col style="width:11%;"/>
 									<col style="width:11%;"/>
@@ -257,11 +289,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			 							<td title='{{:HOW_GET_NM}}'		>{{:HOW_GET_NM}}</td>
 			 							<td	title='{{:CONSULTING_TYPE_NM}}'>{{:CONSULTING_TYPE_NM}}</td>
 			 							<td title='{{:USER_NM}}'		>{{:USER_NM}}</td>
-										<td	title='{{:COMPANY_REGNUM}}'	>{{:COMPANY_REGNUM}}</td>
+										<td title='{{:COMPANY_REGNUM}}' class='tl'>{{:COMPANY_REGNUM}}</td>
 										<td title='{{:BUYER_NM}}'		>{{:BUYER_NM}}</td>
 										<td title='{{:CONSULTING_NM}}'	>{{:CONSULTING_NM}}</td>
- 										<td title='{{numb:TOTAL_COST}}' class='tr'>{{numb:TOTAL_COST}}</td>
- 										<td title='{{numb:TOT_INCOME}}'	class='tr'>{{numb:TOT_INCOME}}</td>
+ 										<td title='{{numb:TOTAL_COST}}'	class='tr'>{{numb:TOTAL_COST}}</td>
+ 										<td title='{{numb:TOT_INCOME}}' class='tr'>{{numb:TOT_INCOME}}</td>
 									</tr>
 								{{/for}}
 								</script>
@@ -337,12 +369,12 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			 							<td id='CONTRACT_MONTH'		title='{{:CONTRACT_MONTH}}'	value='{{:CONTRACT_MONTH}}'		>{{:CONTRACT_MONTH}}</a></td>
 			 							<td id='HOW_GET_NM'			title='{{:HOW_GET_NM}}'		value='{{:HOW_GET_NM}}'			>{{:HOW_GET_NM}}</td>
 			 							<td id='CONSULTING_TYPE_NM'	title='{{:CONSULTING_TYPE_NM}}'	value='{{:CONSULTING_TYPE_NM}}'	>{{:CONSULTING_TYPE_NM}}</td>
-			 							<td id='USER_NM'			title='{{:USER_NM}}'		value='{{:USER_NM}}'			>{{:USER_NM}}</td>
+			 							<td id='USER_NM'			title='{{:USER_NM}}' 		value='{{:USER_NM}}'			>{{:USER_NM}}</td>
 										<td id='COMPANY_REGNUM' 	title='{{:COMPANY_REGNUM}}'	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
 										<td id='BUYER_NM'			title='{{:BUYER_NM}}'		value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
 										<td id='CONSULTING_NM'		title='{{:CONSULTING_NM}}'	value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
- 										<td id='TOTAL_COST'	title='{{numb:TOTAL_COST}}' class='tr'	value='{{:TOTAL_COST}}'		>{{numb:TOTAL_COST}}</td>
- 										<td id='TOT_INCOME'	title='{{numb:TOT_INCOME}}'	class='tr'	value='{{:TOT_INCOME}}'		>{{numb:TOT_INCOME}}</td>
+ 										<td id='TOTAL_COST'	class='tr'	title='{{numb:TOTAL_COST}}' value='{{:TOTAL_COST}}'		>{{numb:TOTAL_COST}}</td>
+ 										<td id='TOT_INCOME'	class='tr'	title='{{numb:TOT_INCOME}}'	value='{{:TOT_INCOME}}'		>{{numb:TOT_INCOME}}</td>
 									</tr>
 								{{/for}}
 								</script>
