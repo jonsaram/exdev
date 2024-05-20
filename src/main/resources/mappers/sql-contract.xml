@@ -407,7 +407,7 @@
 						SELECT USER_ID 
 						FROM TBL_EXP_TEAM_MEMBER
 						WHERE CONTRACT_ID = #{CONTRACT_ID}
-						AND TEAM_USER_ROLE = 'EXEC'
+						AND TEAM_USER_ROLE = 'SALES'
 					
 					)
 				)
@@ -647,7 +647,7 @@
 		 	 ,TBL_EXP_USER			E
 		WHERE  1=1
 			AND B.CONTRACT_ID(+)    = A.CONTRACT_ID
-			AND B.TEAM_USER_ROLE(+) IN ('EXEC', 'COWORK')
+			AND B.TEAM_USER_ROLE(+) IN ('EXEC')
 			AND	(
 					A.UPDATE_USER 		= #{sessionVo.userId}
 				OR  A.USER_ID 			= #{sessionVo.userId}
