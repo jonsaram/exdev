@@ -1406,6 +1406,13 @@ var C_UICOM = {
 		C_UICOM._setDataListMap(targetId, valList); 
 		
 	 }
+	,setSelectBoxOption : function(targetId, key, val) {
+		var templateId = C_COM.getCurrentTemplateId();
+
+		var templateTargetId = templateId + targetId;
+		
+		C_UICOM.selectBoxOption[templateTargetId][key] = val;
+	 }
 	,initMultiBox : function(targetId) {
 
 		var templateId = C_COM.getCurrentTemplateId();
