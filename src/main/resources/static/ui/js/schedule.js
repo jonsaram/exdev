@@ -20,12 +20,16 @@ var C_CALENDAR = {
              serviceId              : serviceId
             ,requestParm            : requestParm
         }
+
         let resultList = [];
+
         C_COM.requestService(parm, function(resultData) {
             
-            for (var i=0; i<resultData.data.list.length; i++){
-                resultList = resultData.data.list;
-            }
+			$.each(resultData.data.list, function() {
+				let item = this;
+				item.START_DATETIME = `${item.SCHEDULE_START_DATE} ${item.START_TIME_MINUTE}:${item.START_TIME_MINUTE}`;
+				resultList.push(item);
+			});
             if(typeof callback == "function") callback(resultList);
         });
         

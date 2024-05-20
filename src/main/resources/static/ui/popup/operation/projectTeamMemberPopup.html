@@ -36,6 +36,17 @@
 	    		C_COMP.import(`selectBox_${retData.USER_ID}`, "component_common_compSelectbox", <@popupId>.userRoleList, function(data) {
 	    			
 	    		});
+	    		
+	    		<@popupId>[`selectBox_${retData.USER_ID}`].addChangeListener(function(domObj) {
+	    			let val = <@popupId>[`selectBox_${retData.USER_ID}`].getValue();
+	    			if(val == 'EXEC') {
+	    				$(`#<@popupId> #COWORK_RATE_${retData.USER_ID}`).prop("disabled", true).val("");
+	    			} else {
+	    				$(`#<@popupId> #COWORK_RATE_${retData.USER_ID}`).prop("disabled", false).val("0");
+	    			}
+	    		});
+
+	    		
 	    	});
 		 }
 		,deleteMember : function(USER_ID, USER_NM) {
@@ -60,6 +71,8 @@
 			
 			let execCheck = "N";
 			let idx = 0;
+			let coworkTotal		= 0;
+			let coworkErrorNum  = 0;
 			$.each(<@popupId>.etcMemberMap, function(key, obj) {
 
 				idx++;
@@ -73,6 +86,25 @@
 					execCheck = "Y";
 				}
 				<@popupId>.etcMemberMap[key]["TEAM_USER_ROLE"] = role;
+				
+				if(role == "COWORK") {
+					let coworkRate = $(`#<@popupId> #COWORK_RATE_${key}`).val();
+					
+					if(isEmpty(coworkRate)) {
+						coworkErrorNum = 1;
+					}
+					coworkTotal += Number(coworkRate);
+					if(coworkTotal > 100) {
+						coworkErrorNum = 2;
+					}
+					if(coworkErrorNum > 0) {
+						$(`#<@popupId> #COWORK_RATE_${key}`).focus()
+						return false;
+					}
+
+					<@popupId>.etcMemberMap[key]["COWORK_RATE"] = coworkRate;
+				} 
+				
 			});
 			
 			// 팀장 세팅
@@ -88,6 +120,10 @@
 				C_POP.alert('실행 컨설턴트는 1명만 지정 할 수 있습니다.');
 			} else if	(execCheck 	== "N") {
 				C_POP.alert('실행 컨설턴트를 지정 하세요.'				);
+			} else if	(coworkErrorNum == 1) {
+				C_POP.alert('Cowork Rate를 입력해주세요.'				);
+			} else if	(coworkErrorNum == 2) {
+				C_POP.alert('Cowork Rate의 합은 100% 보다 작아야 합니다.');
 			} else {
 				// 성공
 				<@popupId>.etcMemberMap[headerUserId]["HEADER_YN"] = "Y";
@@ -96,6 +132,7 @@
 				$.each(<@popupId>.etcMemberMap, function(key, obj) {
 					teamMemberList.push(obj);
 				});
+				
 				<@popupId>.close(teamMemberList);
 			}
 		 }
@@ -136,7 +173,7 @@
 	});
 </script>
 <div class="modal_wrap">
-	<div class="modal" style="width:800px;height:500px;">
+	<div class="modal" style="width:900px;height:500px;">
 		<div class="modal_header">
 			<strong class="tit">프로젝트 담당자 구성</strong>
 			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
@@ -157,10 +194,11 @@
 				<table>
 					<caption>표 캡션</caption>
 					<colgroup>
-						<col style="width:45px;" />
+						<col style="width:25px;" />
 						<col style="width:80px;"/>
 						<col style="width:80px;"/>
-						<col style="width:110px;"/>
+						<col style="width:90px;"/>
+						<col style="width:90px;"/>
 						<col style="width:80px" />
 						<col style="width:60px" />
 						<col style="width:45px" />
@@ -171,6 +209,7 @@
 							<th scope="col">담당자ID</th>
 							<th scope="col">담당자명</th>
 							<th scope="col">역할</th>
+							<th scope="col">Cowork Rate</th>
 							<th scope="col">등급</th>
 							<th scope="col">팀장</th>
 							<th scope="col">관리</th>
@@ -182,10 +221,11 @@
 				<table>
 					<caption>표 캡션</caption>
 					<colgroup>
-						<col style="width:45px;" />
+						<col style="width:25px;" />
 						<col style="width:80px;"/>
 						<col style="width:80px;"/>
-						<col style="width:110px;"/>
+						<col style="width:90px;"/>
+						<col style="width:90px;"/>
 						<col style="width:80px" />
 						<col style="width:60px" />
 						<col style="width:45px" />
@@ -198,6 +238,7 @@
 							<td>{{:data.USER_ID}}</td>
 							<td>{{:data.USER_NM}}</td>
 							<td><div id="selectBox_{{:data.USER_ID}}"></div></td>
+							<td><input type="text" id="COWORK_RATE_{{:data.USER_ID}}" name="COWORK_RATE" style="width:60px" number fix="2" disabled/> %</td>
 							<td title="{{:data.GRADE_NM}}">{{:data.GRADE_NM}}</td>
 							<td><input name="headerCheck" id="headerCheck_{{:data.USER_ID}}" value="{{:data.USER_ID}}" type="checkbox" onclick="<@popupId>.setHeader('{{:data.USER_ID}}')" {{:checked}}/></td>
 							<td><a href="javascript:<@popupId>.deleteMember('{{:data.USER_ID}}','{{:data.USER_NM}}')"><i class="icon_trash"></i></a></td>
@@ -213,6 +254,7 @@
 							{{else}}
 							<td>영업</td>
 							{{/if}}
+							<td>&nbsp;</td>
 							<td title="{{:data.GRADE_NM}}">{{:data.GRADE_NM}}</td>
 							<td></td>
 							<td></td>

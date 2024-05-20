@@ -4,26 +4,33 @@ var <@compId> = {
 		 contractInfo : {}
 		,scheduleList	  : []
 		,loadScheduleList : function() {
+			let today = getDateFormat(getToday(), 8, "-");
+			let nxtDay = getDateFormat(getDateByAddDayFromNow(30), 8, "-");
+			
 			var parm = {
-				 queryId 		: "schedule.getScheduleListInContract"
-				,requestParm	: <@compId>.contractInfo
+				 userIdList  : [G_VAL.session.USER_ID]
+			    ,contractId  : <@compId>.contractInfo.CONTRACT_ID
+				,startDate 	 : today
+				,endDate 	 : nxtDay
 			}
-			C_COM.requestQuery(parm, function(resultData) {
+			
+			C_CALENDAR.getScheduleList(parm, function(resultList) {
+				dwrite(resultList);
 				var rparm = {
 					 targetId 		: "scheduleList"
-					,list			: resultData.data
+					,list			: resultList
 				}
 				C_COM.renderHtml("<@compId>", rparm);
 				
 				<@compId>.scheduleList = resultData.data
-			});  
-			 
+			});
 		  }
          ,addSchedule: function() {
-            let requestParm = {};
+     		let today = getDateFormat(getToday(), 8, "-");
+            let requestParm = {today : today};
             
             C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
-                console.log('eventClick  popup_addSchedulePopup =>');
+                <@compId>.loadScheduleList();
             })  
           }
 		
@@ -34,7 +41,6 @@ var <@compId> = {
 		<@compId>.contractInfo =  data.contractInfo;
 
 		<@compId>.loadScheduleList();
-	
 	});
 </script>
 <div>
@@ -50,7 +56,7 @@ var <@compId> = {
 		<script type="text/x-jsrender" id="scheduleList_template">
 			{{for list}}
 			<li>
-				<span class="txt"><span>{{:SCHEDULE_DATE}} </span><span>: {{:TITLE}}</span></span><button class="pay_close">닫기</button>
+				<span class="txt"><span>{{:START_DATETIME}} </span><span>: {{:TITLE}}</span></span><button class="pay_close">닫기</button>
 			</li>
 			{{/for}}
 		</script>

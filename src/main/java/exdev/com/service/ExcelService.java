@@ -151,7 +151,17 @@ public class ExcelService  extends ExdevBaseService{
 	        	
 	        	// 첫행,두번째행은 설명으로 Skip 
 	        	if(idx <= 1) {
-
+		        	// 첫Cell이 skip이면 Sheet 종료  
+	        		if(idx == 0) {
+		                Cell cell1 	 = row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+		        		String sheetCommand = cell1.toString();
+		        		if("skip".equals(sheetCommand)) {
+		                    resultMap.put("msg","");
+		            		resultMap.put("data","skip");
+		                    resultMap.put("state","S");
+		                    return resultMap;
+		        		}
+	        		}
 	        	// 세번째행은 Table Name 읽어서 CODE에서 Column 정보 가져옴 및 기타 옵션 가져옴
 	        	} else if(idx == 2) {
 	                Cell cell1 = row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);

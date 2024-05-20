@@ -212,7 +212,7 @@
 	</div>
 	<div class="sec_scroll" style="height:calc(100% - 140px);">
 		<section class="sec_wrap">
-			<div class="cont_box project_list">
+			<div class="cont_box project_list" style="max-height:90px;overflow:auto;">
 				<ol id="approvalProcessList">
 				</ol>
 			</div>
@@ -222,18 +222,17 @@
 				{{/for}}
 			</script>
 			<script type="text/x-jsrender" id="approvalProcessList_noData_template">						
-				{{for list}}
-					<li>검색된 Data가 없습니다.</li>
-				{{/for}}
+				<li class="tc">승인 대기 중인 결재가 없습니다.</li>
 			</script>
 			
 		</section>
-		<section class="sec_wrap">
-			<div class="cont_box col3 project_list" style="height:calc(100% - 140px);" id="cardList0">
+		
+		<section class="sec_wrap" style="height:calc(100% - 95px)">
+			<div class="cont_box col3 project_list" id="cardList0">
 			</div>
-			<div class="cont_box col3 project_list" style="height:calc(100% - 140px);" id="cardList1">
+			<div class="cont_box col3 project_list" id="cardList1">
 			</div>
-			<div class="cont_box col3 project_list" style="height:calc(100% - 140px);" id="cardList2">
+			<div class="cont_box col3 project_list" id="cardList2">
 			</div>
 		</section>
 	</div>
@@ -241,29 +240,33 @@
 		<h3 class="tc">{{:cardTitle}} <strong class="pointColr">{{:cardCnt}}</strong> 건</div>
 			<button class="btn small allupToggle" onclick="<@pageId>.foldAllCard('{{:targetId}}')"><i class="up"></i></button><button class="btn small alldownToggle"	onclick="<@pageId>.expandAllCard	('{{:targetId}}')"><i class="up down"></i></button>
 		</h3>
+		<div class="cont_wrap_scroll mt15">
 		{{for list 	~targetId=targetId}}
-		<div class="cont_top mt15 clearFix">
-			<h4 class="fl">{{:BUYER_NM}} / {{:CONSULTING_NM}}</h4>
-			<div class="fr inlineBlock_wrap">
-				<button class="btn small" onclick="<@pageId>.openFolderMng('{{:BUYER_ID}}', {{:#index}})">기업폴더보기</button>
-				<button class="btn small upDownToggle"><i class="up" name="updownButton" id="updownButton{{:#index}}"></i></button>
+
+			<div class="cont_top clearFix">
+				<h4 class="fl">{{:BUYER_NM}} / {{:CONSULTING_NM}}</h4>
+				<div class="fr inlineBlock_wrap">
+					<button class="btn small" onclick="<@pageId>.openFolderMng('{{:BUYER_ID}}', {{:#index}})">기업폴더보기</button>
+					<button class="btn small upDownToggle"><i class="up" name="updownButton" id="updownButton{{:#index}}"></i></button>
+				</div>
 			</div>
-		</div>
-		<div class="cont_box" name="cardBody" id="cardBody{{:#index}}">
-			<!-- 컨설팅 진행 목록 -->
-			<div id="{{:~targetId}}_cslist{{:#index}}">
+			<div class="cont_box" name="cardBody" id="cardBody{{:#index}}">
+				<!-- 컨설팅 진행 목록 -->
+				<div id="{{:~targetId}}_cslist{{:#index}}">
+				</div>
+				<!-- Schedule -->
+				<div id="{{:~targetId}}_sch{{:#index}}">
+				</div>
+				<!-- TO-DO List -->
+				<div id="{{:~targetId}}_todo{{:#index}}">					
+				</div>
+				<!-- 메모하기 -->
+				<div id="{{:~targetId}}_wk{{:#index}}">
+				</div>
 			</div>
-			<!-- Schedule -->
-			<div id="{{:~targetId}}_sch{{:#index}}">
-			</div>
-			<!-- TO-DO List -->
-			<div id="{{:~targetId}}_todo{{:#index}}">					
-			</div>
-			<!-- 메모하기 -->
-			<div id="{{:~targetId}}_wk{{:#index}}">
-			</div>
-		</div>
+			<div class="mt15"></div>
 		{{/for}}
+		</div>
 	</script>
 	<script type="text/x-jsrender" id="basecard_noData_template">	
 		<h3 class="tc">{{:cardTitle}} <strong class="pointColr">{{:cardCnt}}</strong> 건</div></h3>
@@ -273,5 +276,4 @@
 			<div class="tc">등록된 카드가 없습니다.</div>
 		</div>
 	</script>
-	
 </div>

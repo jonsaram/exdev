@@ -647,7 +647,7 @@
 		 	 ,TBL_EXP_USER			E
 		WHERE  1=1
 			AND B.CONTRACT_ID(+)    = A.CONTRACT_ID
-			AND B.TEAM_USER_ROLE(+) = 'EXEC'
+			AND B.TEAM_USER_ROLE(+) IN ('EXEC', 'COWORK')
 			AND	(
 					A.UPDATE_USER 		= #{sessionVo.userId}
 				OR  A.USER_ID 			= #{sessionVo.userId}
@@ -857,6 +857,7 @@
 		     CONTRACT_ID
 		    ,USER_ID
 		    ,TEAM_USER_ROLE
+		    ,COWORK_RATE
 		    ,HEADER_YN
 			,UPDATE_DATE
 			,UPDATE_USER
@@ -865,7 +866,8 @@
 			 #{CONTRACT_ID   }
 			,#{USER_ID       }
 			,#{TEAM_USER_ROLE}
-			,'${HEADER_YN     }'
+			,'${COWORK_RATE  }'
+			,'${HEADER_YN    }'
    			,sysdate
    			,#{sessionVo.userId		}
 			,#{sessionVo.spCstmId	}

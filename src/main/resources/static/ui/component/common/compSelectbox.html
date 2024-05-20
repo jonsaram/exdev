@@ -1,9 +1,16 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@compId> = {
-		getValue : function() {
+		 changeListenerFn : function(){}
+		,getValue : function() {
 			return $("#<@compId> #selectBox option:selected").val();
-		}
+		 }
+		,onChange : function(domObj) {
+			if(typeof <@compId>.changeListenerFn == "function") <@compId>.changeListenerFn(domObj);
+		 }
+		,addChangeListener : function(fn) {
+			if(typeof fn == "function") <@compId>.changeListenerFn = fn;
+		 }
 	}
 	// Component Load가 완료된후 실행 된다.
 	C_COMP.onLoadComp("<@compId>", function(list) {
@@ -19,7 +26,7 @@
 	});
 </script>
 <div>
-<select id="selectBox">
+<select id="selectBox" onchange="<@compId>.onChange(this)">
 </select>
 <script type="text/x-jsrender" id="selectBox_template">
 {{for list}}

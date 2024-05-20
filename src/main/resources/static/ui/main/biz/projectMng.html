@@ -108,7 +108,6 @@
 		        };
 		        apprProcessState = "ON_CONTRACTING_APPR";
 	        }
-
 	        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
 				if(retData.state == "S") {
 					// 프로젝트 Update
@@ -164,7 +163,7 @@
 				let projectInfo = <@pageId>.projectList[idx];
 				
 				<@pageId>.teamMemberList = retData;
-				
+
 				let appContent   = `* 고객명 : ${projectInfo.BUYER_NM}\n`;
 				appContent 		+= `* 상품명 : ${projectInfo.CONSULTING_NM}\n\n`;
 				appContent 		+= `* 프로젝트 담당자\n\n`;
@@ -177,9 +176,13 @@
 					} else {
 						
 						let headerStr = "";
-						if(this.HEADER_YN == "Y") headerStr = ' / 팀장';
+						if(this.HEADER_YN == "Y") headerStr = ' / 팀장 ';
+						let coworkRate = "";
+						if(this.TEAM_USER_ROLE == "COWORK") {
+							coworkRate = ` / Cowork Rate ${this.COWORK_RATE}% `;
+						}
 
-						appContent += `${roleMap[this.TEAM_USER_ROLE]} 컨설턴트 : ${this.USER_ID} / ${this.USER_NM} / ${this.GRADE_NM} ${headerStr}\n`;
+						appContent += `${roleMap[this.TEAM_USER_ROLE]} 컨설턴트 : ${this.USER_ID} / ${this.USER_NM} / ${this.GRADE_NM} ${coworkRate} ${headerStr}\n`;
 						
 					}
 				});
