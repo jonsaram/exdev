@@ -8,13 +8,6 @@ var <@pageId> = {
 		,pageInit : () =>{
 			
 			_setSearchListCnt("<@pageId>_pagingChunk" );
-/* 			_makeMultiBox("<@pageId>_selectSearchItem",[
-					 		 ["BUYER_ID", "고객번호"	]
-					 		,["BUYER_NM", "고객명"	]
-					 		,["COMPANY_REGNUM", "사업자등록번호"	]
-					 		,["ADDR", "본점주소"		]
-			])
- */
 			
 		}
 		,searchList : () => {
@@ -290,7 +283,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<colgroup>
 								<col style="width:40px;"/>
 								<col style="width:40px;"/>
-								<col style="width:90px;">
+								<col style="width:110px;">
+								<col style="width:140px;"/>
+								<col style="width:150px;"/>
 								<col style="width:150px;"/>
 								<col style="width:150px;"/>
 								<col style="width:150px;"/>
@@ -309,6 +304,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<th scope="col">연락처</th>
 								<th scope="col">본점주소</th>
 								<th scope="col">유입경로</th>
+								<th scope="col">등록자</th>
+								<th scope="col">등록일자</th>
 								<th scope="col"></th>
 								<th scope="col"></th>
 							</tr>
@@ -320,7 +317,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<colgroup>
 								<col style="width:40px;"/>
 								<col style="width:40px;"/>
-								<col style="width:90px;">
+								<col style="width:110px;">
+								<col style="width:140px;"/>
+								<col style="width:150px;"/>
 								<col style="width:150px;"/>
 								<col style="width:150px;"/>
 								<col style="width:150px;"/>
@@ -337,11 +336,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}"></td>
 			 					<td id='ROWIDX'			class='tc'>{{:ROWIDX}}</td>
 			 					<td id='BUYER_ID'		class='tl'>{{:BUYER_ID}}</td>
-			 					<td id='BUYER_NM'		class='tl'>{{:BUYER_NM}}</a></td>
-			 					<td id='COMPANY_REGNUM'	class='tl'>{{:COMPANY_REGNUM}}</a></td>
-			 					<td id='TEL'			class='tl'>{{:TEL}}</td>
+			 					<td id='BUYER_NM'		class='tc'>{{:BUYER_NM}}</a></td>
+			 					<td id='COMPANY_REGNUM'	class='tc'>{{:COMPANY_REGNUM}}</a></td>
+			 					<td id='TEL'			class='tc'>{{:TEL}}</td>
 								<td id='ADDR'			class='tl'>{{:ADDR}}</td>
-								<td id='HOW_GET_NM'		>{{:HOW_GET_NM}}</td>
+								<td id='HOW_GET_NM'		class='tc'>{{:HOW_GET_NM}}</td>
+								<td>{{:CREATE_USER_NM}}</td>
+								<td>{{:CREATE_DATE}}</td>
 			 					<td><button onclick="javascript:<@pageId>.openPopup('{{:#index}}');"><i class="icon_pen"></i></button></td>
 								<td><button onclick="javascript:<@pageId>.deleteRow('{{:#index}}');"><i class="icon_trash"></i></button></td>
 							</tr>

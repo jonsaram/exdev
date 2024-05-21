@@ -97,11 +97,21 @@
 		}
 		,redundCheck : (validation) => {
 			
-			var parm = {
+			const parm = { BUYER_ID 	: ''
+					, BUYER_NM 			: ''
+					, COMPANY_REGNUM 	: ''
+					, TEL				: ''
+					, ADDR 				: ''
+					, HOW_GET			: ''
+					, CHECK_MEMBER 		: 'N'
+					, CHECK_BUYER_ID 	: $("#<@popupId>_items #BUYER_ID").val()							
+					};
+
+			var param = {
 					 queryId 		: "cstm.getCstmList"
-					,requestParm	: {BUYER_ID : $("#<@popupId>_items #BUYER_ID").val() }
+					,requestParm	: {parm:parm}
 			}
- 			const dbBuyer =  C_COM.requestQuery(parm) ;
+ 			const dbBuyer =  C_COM.requestQuery(param) ;
 
  			if( dbBuyer.data.length == 1 ) {
  				

@@ -49,13 +49,7 @@
 			, COUNT(*) CNT  
 			FROM TBL_EXP_CONTRACT C
 			,TBL_EXP_CONSULTING CS
-			,TBL_EXP_CONTRACT_MEMBER CM
 			WHERE C.CONSULTING_ID  = CS.CONSULTING_ID
-			AND C.CONTRACT_ID  = CM.CONTRACT_ID 
-			AND CM.RELATION_TYPE ='EXECUTE'
-			AND (	C.USER_ID	= #{sessionVo.userId	}
-		 		OR 	CM.USER_ID	= #{sessionVo.userId	} 	
-			)
 			AND <include refid="CONTRACTED_STATE"/>
 			<if test=" SUB_CATEGORY != null and !SUB_CATEGORY.equals('')">
 			AND CS.CONSULTING_TYPE = #{SUB_CATEGORY}
@@ -118,13 +112,15 @@
 		,TBL_EXP_BUYER B
 		,TBL_EXP_CONSULTING CS
 		,TBL_EXP_USER U
-		,TBL_EXP_CONTRACT_MEMBER CM
 		WHERE 1=1
 		AND C.BUYER_ID		= B.BUYER_ID 
-		AND C.USE_YN 		= 'Y' AND C.DEL_YN ='N'
+		AND C.USE_YN 		= 'Y' 
+		AND C.DEL_YN 		='N'
 		AND C.CONSULTING_ID	= CS.CONSULTING_ID  
 		AND B.USE_YN 		= 'Y' AND B.DEL_YN ='N'
-		AND C.USER_ID 		= U.USER_ID AND U.USE_YN = 'Y' AND U.DEL_YN = 'N'
+		AND C.USER_ID 		= U.USER_ID 
+		AND U.USE_YN 		= 'Y' 
+		AND U.DEL_YN 		= 'N'
 		AND GET_CODE_NM( 'HOW_GET', B.HOW_GET ) IS NOT NULL
 		<if test=" parm.CONSULTING_ID != null and !parm.CONSULTING_ID.equals('')">
 		AND CS.CONSULTING_ID = #{parm.CONSULTING_ID}
@@ -139,12 +135,6 @@
 		AND C.CONTRACT_DATE <![CDATA[<=]]> TO_DATE( #{parm.TO_CONTRACT_DATE} , 'YYYY-MM-DD')
 		</if>
 		AND <include refid="CONTRACTED_STATE"/>
-		AND C.CONTRACT_ID = CM.CONTRACT_ID
-		AND CM.RELATION_TYPE = 'EXECUTE'		
-		AND (
-			 C.USER_ID	= #{sessionVo.userId	}
-		 OR  CM.USER_ID	= #{sessionVo.userId	} 	
-		)		
 	</sql>	
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getContractList
@@ -230,22 +220,14 @@
 				AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
 				AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
 			) R
-			,TBL_EXP_CONTRACT_MEMBER CM
 			,TBL_EXP_CONSULTING CS
 			WHERE 1=1
 			AND <include refid="CONTRACTED_STATE"/>
-			AND C.CONSULTING_ID	= CS.CONSULTING_ID
-			AND CS.CONSULTING_TYPE = #{CONSULTING_TYPE}
-			AND		C.CONTRACT_ID	= R.CONTRACT_ID 
-			AND <include refid="CONTRACTED_STATE"/>
-			AND		C.USE_YN = 'Y'
-			AND		C.DEL_YN = 'N'
-			AND 	C.CONTRACT_ID = CM.CONTRACT_ID
-			AND 	CM.RELATION_TYPE = 'EXECUTE'
-			AND (
-				 	C.USER_ID	= #{sessionVo.userId	}
-			 	OR  CM.USER_ID	= #{sessionVo.userId	} 	
-			)
+			AND C.CONSULTING_ID		= CS.CONSULTING_ID
+			AND CS.CONSULTING_TYPE 	= #{CONSULTING_TYPE}
+			AND	C.CONTRACT_ID		= R.CONTRACT_ID 
+			AND	C.USE_YN 			= 'Y'
+			AND	C.DEL_YN 			= 'N'
 			GROUP BY R.EACH_MONTH
 		) Data 
 		WHERE  M.month = Data.EACH_MONTH(+)
@@ -291,23 +273,12 @@
 			, SUM(ORG_SELLING_PRICE)			AS ORG_SELLING_PRICE
 			FROM
 			 TBL_EXP_CONTRACT C
-			,TBL_EXP_CONTRACT_MEMBER CM
 			,(<include refid="getResultDataDuringTwoYears"/>) R
 			WHERE 1=1
 			AND <include refid="CONTRACTED_STATE"/>
-			AND		C.CONTRACT_ID	= R.CONTRACT_ID 
-			AND (	C.PROCESS_STATE = 'CONTRACTED'
-				OR	C.PROCESS_STATE = 'ON_COMPLETED_APPR'
-				OR	C.PROCESS_STATE = 'COMPLETED'
-			)
-			AND		C.USE_YN = 'Y'
-			AND		C.DEL_YN = 'N'
-			AND 	C.CONTRACT_ID = CM.CONTRACT_ID
-			AND 	CM.RELATION_TYPE = 'EXECUTE'
-			AND (
-				 C.USER_ID	= #{sessionVo.userId	}
-			 OR  CM.USER_ID	= #{sessionVo.userId	} 	
-			)			
+			AND	C.CONTRACT_ID	= R.CONTRACT_ID 
+			AND	C.USE_YN 		= 'Y'
+			AND	C.DEL_YN 		= 'N'
 			GROUP BY R.EACH_MONTH	 	
 	 	)
 		,RESULT_TAB AS (
@@ -381,7 +352,6 @@
 						SELECT
 						TO_CHAR( R.RESULT_DATE, 'YYYYMM') AS RESULT_MONTH
 						,U.USER_NM
-						,U2.USER_NM
 						,R.INCOME
 						,( SELECT SUM(COST_PRICE) 
 							FROM TBL_EXP_COST CS 
@@ -394,35 +364,18 @@
 						,DIV.DEPTH2 AS BRANCH_ID
 						FROM TBL_EXP_RESULT R
 						,TBL_EXP_CONTRACT C
-						,TBL_EXP_CONTRACT_MEMBER CM
 						,TBL_EXP_USER U
-						,TBL_EXP_USER U2
 						,TBL_EXP_DIVISION  DIV
 						WHERE 1=1
 						AND <include refid="CONTRACTED_STATE"/>
-						AND
-						(
-							(U.DIVISION_ID = DIV.DIVISION_ID 
-								AND U.DIVISION_ID LIKE 'SALES_DIV%' /* 일때, 지사가 있음 */
-							)
-							OR 
-							(U2.DIVISION_ID = DIV.DIVISION_ID 
-								AND U2.DIVISION_ID LIKE 'SALES_DIV%' /* 일때, 지사가 있음 */
-							)
-						)
+						AND U.DIVISION_ID 		= DIV.DIVISION_ID 
+						AND U.DIVISION_ID 		LIKE 'SALES_DIV%' /* 일때, 지사가 있음 */
 						AND C.CONTRACT_ID		= R.CONTRACT_ID 
-						AND C.CONTRACT_ID 		= CM.CONTRACT_ID 
-						AND CM.RELATION_TYPE 	= 'EXECUTE'
-						
-						AND ( C.USER_ID			= U.USER_ID
-			 			 AND CM.USER_ID			= U2.USER_ID
-			 			)
+						AND C.USER_ID			= U.USER_ID
 			 			AND C.USE_YN 			= 'Y' 
 			 			AND C.DEL_YN 			= 'N'	
 						AND R.USE_YN			= 'Y'
 						AND R.DEL_YN			= 'N'
-						AND CM.USE_YN			= 'Y'
-						AND CM.DEL_YN			= 'N'
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
 				)	
@@ -484,19 +437,14 @@
 		FROM TBL_EXP_CONTRACT C
 		,TBL_EXP_RESULT RST
 		,TBL_EXP_CONSULTING CT
-		,TBL_EXP_CONTRACT_MEMBER CM
 		WHERE 1=1
 		AND <include refid="CONTRACTED_STATE"/>
-		AND C.CONTRACT_ID = RST.CONTRACT_ID 
-		AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
-		AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
-		AND CT.CONSULTING_ID  = C.CONSULTING_ID 
-		AND 	C.CONTRACT_ID = CM.CONTRACT_ID
-		AND 	CM.RELATION_TYPE = 'EXECUTE'
-		AND (
-			 C.USER_ID	= #{sessionVo.userId	}
-		 OR  CM.USER_ID	= #{sessionVo.userId	} 	
-		)			
+		AND C.CONTRACT_ID 		= RST.CONTRACT_ID 
+		AND C.USE_YN 			= 'Y' 
+		AND C.DEL_YN 			= 'N'
+		AND RST.USE_YN 			= 'Y' 
+		AND RST.DEL_YN 			= 'N'
+		AND CT.CONSULTING_ID	= C.CONSULTING_ID 
 		<choose>
 	       	<when test=" LAST_YEAR == null  "> 
 				AND TO_CHAR(RST.RESULT_DATE, 'YYYY')   <![CDATA[ >= ]]> TO_CHAR( SYSDATE , 'YYYY')
@@ -551,8 +499,6 @@
 						AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
 						AND P.RELATION_TYPE	= CM.RELATION_TYPE
 						AND P.USER_ID 		= CM.USER_ID
-						AND P.USER_ID 		= U.USER_ID 
-						AND R.USE_YN		= 'Y'
 						AND R.DEL_YN		= 'N'
 						AND P.USE_YN		= 'Y'
 						AND P.DEL_YN		= 'N'
@@ -560,8 +506,6 @@
 						AND CM.DEL_YN		= 'N'
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
-						AND C.CONTRACT_ID = CM.CONTRACT_ID
-						AND P.USER_ID		= #{sessionVo.userId	}
 				)	
 				GROUP BY  RESULT_MONTH ,USER_ID , USER_NM
 			) DATA
@@ -596,19 +540,16 @@
 				, TO_CHAR(RST.RESULT_DATE, 'YYYYMM') AS EACH_MONTH
 				FROM TBL_EXP_CONTRACT C
 				,TBL_EXP_RESULT RST
-				,TBL_EXP_COST CS
 				,TBL_EXP_CONSULTING CST
 				WHERE 1=1
-				AND CST.CONSULTING_TYPE = 'MONTHLY'
+				AND CST.CONSULTING_TYPE 	= 'MONTHLY'
 				AND <include refid="CONTRACTED_STATE"/>
-				AND C.CONSULTING_ID = CST.CONSULTING_ID
-				AND CST.CONSULTING_TYPE = 'MONTHLY'
-				AND C.CONTRACT_ID = RST.CONTRACT_ID 
-				AND C.CONTRACT_ID = CS.CONTRACT_ID
-				AND CS.RESULT_ID = RST.RESULT_ID
-				AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
-				AND RST.USE_YN = 'Y' AND RST.DEL_YN = 'N'
-				AND CS.USE_YN = 'Y' AND CS.DEL_YN = 'N'
+				AND C.CONSULTING_ID 		= CST.CONSULTING_ID
+				AND C.CONTRACT_ID 			= RST.CONTRACT_ID 
+				AND C.USE_YN 				= 'Y' 
+				AND C.DEL_YN 				= 'N'
+				AND RST.USE_YN 				= 'Y' 
+				AND RST.DEL_YN 				= 'N'
 				GROUP BY C.CONTRACT_ID, C.TOTAL_COST, RST.RESULT_ID, TO_CHAR(RST.RESULT_DATE, 'YYYYMM')
 			) DATA 
 			WHERE  M.month = DATA.EACH_MONTH
@@ -628,28 +569,31 @@
 			전체  FA 매출 순위 
 		*/
 		WITH EACH_SELLING_PRICE AS ( 
-						SELECT DATA.RESULT_YEAR , DATA.USER_ID , DATA.USER_NM , DATA.ORG_SELLING_PRICE
+						SELECT DATA.RESULT_YEAR , DATA.USER_ID , DATA.USER_NM , DATA.PAYMENT
 						FROM ( 
-							SELECT RESULT_YEAR , USER_ID , USER_NM ,  SUM(ORG_SELLING_PRICE) ORG_SELLING_PRICE
+							SELECT RESULT_YEAR , USER_ID , USER_NM ,  SUM(PAYMENT) PAYMENT
 							FROM
 							( 
-								SELECT DISTINCT TO_CHAR( R.RESULT_DATE, 'YYYY') AS RESULT_YEAR 
-								, R.RESULT_ID
-								, R.INCOME 
-								, R.ORG_SELLING_PRICE
+								SELECT TO_CHAR( R.RESULT_DATE, 'YYYY') AS RESULT_YEAR 
+								, SUM( P.PAYMENT ) AS PAYMENT
 								, U.USER_ID , U.USER_NM
 								FROM TBL_EXP_RESULT R 
 								, TBL_EXP_CONTRACT C 
-								, TBL_EXP_CONTRACT_MEMBER CM 
+								, TBL_EXP_CONTRACT_MEMBER CM
+								, TBL_EXP_PAYMENT P 
 								, TBL_EXP_USER U
 								WHERE C.CONTRACT_ID = R.CONTRACT_ID
 								AND <include refid="CONTRACTED_STATE"/>
-								AND C.CONTRACT_ID = CM.CONTRACT_ID
-								AND R.USE_YN = 'Y'
-								AND R.DEL_YN = 'N'
-								AND CM.USE_YN = 'Y'
-								AND CM.DEL_YN = 'N'
-								AND ( U.USER_ID = C.USER_ID OR U.USER_ID = CM.USER_ID ) 
+								AND C.CONTRACT_ID 	= CM.CONTRACT_ID
+								AND C.CONTRACT_ID 	= P.CONTRACT_ID
+								AND R.RESULT_ID 	= P.RESULT_ID
+								AND P.RELATION_TYPE = CM.RELATION_TYPE
+								AND P.USE_YN 		= 'Y'
+								AND P.DEL_YN 		= 'N'
+								AND R.USE_YN 		= 'Y'
+								AND R.DEL_YN 		= 'N'
+								AND CM.USE_YN 		= 'Y'
+								AND CM.DEL_YN 		= 'N'
 								<choose>
 							       	<when test=" LAST_YEAR == null  "> 
 										AND TO_CHAR(R.RESULT_DATE, 'YYYY')   <![CDATA[ >= ]]> TO_CHAR( SYSDATE , 'YYYY')
@@ -660,8 +604,8 @@
 							      	</when>
 							      	<otherwise>			
 							      	</otherwise>
-								</choose>	
-								AND  CM.RELATION_TYPE = 'EXECUTE'
+								</choose>
+								GROUP BY TO_CHAR( R.RESULT_DATE, 'YYYY'), U.USER_ID, U.USER_NM	
 							)
 							GROUP BY RESULT_YEAR , USER_ID , USER_NM 
 						) DATA
@@ -670,16 +614,16 @@
 		, USER_NM
 		<choose>
 			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('BIG') "> 
-			, ROUND(NVL(SUM(ORG_SELLING_PRICE),0) / 100000000,2) AS ORG_SELLING_PRICE
+			, ROUND(NVL(SUM(PAYMENT),0) / 100000000,2) AS PAYMENT
 			</when>
 			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('SMALL') "> 
-			, ROUND(NVL(SUM(ORG_SELLING_PRICE),0) / 1000000,2) AS ORG_SELLING_PRICE
+			, ROUND(NVL(SUM(PAYMENT),0) / 1000000,2) AS PAYMENT
 			</when>
 		</choose>			
 		FROM EACH_SELLING_PRICE
 		WHERE USER_NM IS NOT NULL
 		GROUP BY RESULT_YEAR, USER_NM
-		ORDER BY ORG_SELLING_PRICE DESC 
+		ORDER BY PAYMENT DESC 
 		FETCH NEXT 10 ROWS ONLY
 	</select>	
 	
@@ -732,7 +676,6 @@
 									,C.BUYER_ID
 									,C.CONTRACT_TYPE
 						    FROM TBL_EXP_CONTRACT C, TBL_EXP_BUYER B, TBL_EXP_CONSULTING CS
-							,TBL_EXP_CONTRACT_MEMBER CM
 						    WHERE 1 = 1
 						    	AND <include refid="CONTRACTED_STATE"/>
 						        AND C.BUYER_ID = B.BUYER_ID
@@ -750,12 +693,6 @@
 								<if test=" parm.CONSULTING_TYPE != null and !parm.CONSULTING_TYPE.equals('')">
 								AND CS.CONSULTING_TYPE = #{parm.CONSULTING_TYPE}
 								</if>		
-								AND C.CONTRACT_ID = CM.CONTRACT_ID
-								AND CM.RELATION_TYPE = 'EXECUTE'
-								AND (
-									 C.USER_ID	= #{sessionVo.userId	}
-								 OR  CM.USER_ID	= #{sessionVo.userId	} 	
-								)								
 						    ORDER BY SUM_INCOME DESC
 						) A
 				)

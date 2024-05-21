@@ -331,15 +331,15 @@ var <@pageId> = {
 				else {
 					item2.YEAR 			= item.YEAR - 1;
 					item2.USER_NM		= item.USER_NM ;
-					item2.ORG_SELLING_PRICE 	= 0;
+					item2.PAYMENT 	= 0;
 					tempList.push( item2)
 				}
 			})
 			sellingFAListLast = tempList;
 			
-			const USER_THIS				=  sellingFAListThis.map( item => {  return { [item.USER_NM]: item.ORG_SELLING_PRICE };} )
+			const USER_THIS				=  sellingFAListThis.map( item => {  return { [item.USER_NM]: item.PAYMENT };} )
 															.map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
-			const USER_LAST				=  sellingFAListLast.map( item => {  return { [item.USER_NM]: item.ORG_SELLING_PRICE };} )
+			const USER_LAST				=  sellingFAListLast.map( item => {  return { [item.USER_NM]: item.PAYMENT	 };} )
 															.map( obj =>  {  let key = Object.keys(obj)[0];let value = obj[key];return [key, value];});
 
 			const USER_THIS_DATA = [];
