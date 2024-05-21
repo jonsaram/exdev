@@ -328,7 +328,7 @@
 		    },
 		    legend: {
 		        align: 'center',
-		        x: 50,
+		        x: 120,
 		        verticalAlign: 'top',
 		        y: 0,
 		        itemStyle: {
@@ -417,13 +417,13 @@
 		    },
 		    legend: {
 		        x: 100,
-		        y: -250,
+		        y: -270,
 		        itemStyle: {
 		            color: '#8A8C92',
 		            fontFamily: 'Noto Sans KR',
 		            fontSize: '11px'
 		        },
-		        floating: false,
+		        floating: true,
 		    },
 		    tooltip: {
 		        shared: true
