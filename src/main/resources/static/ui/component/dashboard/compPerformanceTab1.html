@@ -51,16 +51,18 @@ var <@compId> = {
             
         }
         /* 1-1 *******  매출액 순위    매출액 순위    매출액 순위    매출액 순위    매출액 순위    매출액 순위    */
-        ,searchList11 : () => {
-            console.log("=== searchList  1  ===");
-            let requestParm11 = {};
-            requestParm11["spCstmId"] = "starasset";
-            requestParm11["year"]     = "2023";
-            requestParm11["subject"]  = "SUBJECT_001";
+        ,searchList11 : (requestParm) => {
+        	
+            console.log("=== startDate  ===>"+requestParm["startDate"]);
+            console.log("=== endDate    ===>"+requestParm["endDate"]);
+            console.log("=== region     ===>"+requestParm["region"]);
+            console.log("=== supervisor ===>"+requestParm["supervisor"]);
+            
+            requestParm["subject"]  = "SUBJECT_001";
             
             var parm11 = {
                     queryId  : "dashboardCorPerformance.getSalesRanking"
-                   ,requestParm   : requestParm11
+                   ,requestParm   : requestParm
             }
    
             C_COM.requestQuery(parm11, function(resultData) {
@@ -192,12 +194,9 @@ var <@compId> = {
 
         /* 1-1 ####### 매출액 순위    매출액 순위    매출액 순위    매출액 순위    매출액 순위    매출액 순위    */
         
-        /* 1-2 *******  권역별 순위    권역별 순위    권역별 순위    권역별 순위    권역별 순위    */
-        ,searchList12 : () => {
-            console.log("=== searchList  1  ===");
-            let requestParm = {};
-            requestParm["spCstmId"] = "starasset";
-            requestParm["year"]     = "2023";
+        /* 1-2 *******  영업이익별 순위    영업이익별 순위    영업이익별 순위    영업이익별 순위    영업이익별 순위    */
+        ,searchList12 : (requestParm) => {
+        	
             requestParm["subject"]  = "SUBJECT_005";
             
             var parm = {
@@ -336,12 +335,8 @@ var <@compId> = {
 
         /* 1-2 #######  영업이익별 순위    영업이익별 순위    영업이익별 순위    영업이익별 순위    영업이익별 순위    */
         
-        /* 1-3 *******  권역별 순위    영업이익별 순위    영업이익별 순위    영업이익별 순위    영업이익별 순위    */
-        ,searchList13 : () => {
-            console.log("=== searchList  1  ===");
-            let requestParm = {};
-            requestParm["spCstmId"] = "starasset";
-            requestParm["year"]     = "2023";
+        /* 1-3 *******  권역별 순위    권역별 순위    권역별 순위    권역별 순위    권역별 순위    권역별 순위        */
+        ,searchList13 : (requestParm) => {
             
             var parm = {
                     queryId  : "dashboardCorPerformance.getRegionsRanking"
@@ -381,15 +376,13 @@ var <@compId> = {
 
             var categoriesArr = []; 
             var dataArr = [];
-            
-            for (var i=0; i<resultData.data.length; i++){
-                categoriesArr[i] = resultData.data[i].REGION_NM;
-                dataArr[i] = resultData.data[i].AMOUNT1;
-                 
-            }
-            
 
-            $('#<@pageId>_chart13').highcharts({
+            for (var i=0; i<resultData.list.length; i++){
+                categoriesArr[i] = resultData.list[i].REGION_NM;
+                dataArr[i] = resultData.list[i].AMOUNT1;
+            }
+
+            $('#<@compId>_chart13').highcharts({
                 chart: {
                     zoomType: 'xy',
                     margin: [50, 0, 40, 45],
@@ -480,11 +473,7 @@ var <@compId> = {
         /* 1-3 *******  권역별 순위    권역별 순위    권역별 순위    권역별 순위    권역별 순위    */
         
         /* 2-1 *******  누적 매출 현황    누적 매출 현황    누적 매출 현황    누적 매출 현황    누적 매출 현황    */
-        ,searchList21 : () => {
-            console.log("=== searchList  1  ===");
-            let requestParm = {};
-            requestParm["spCstmId"] = "starasset";
-            requestParm["year"]     = "2023";
+        ,searchList21 : (requestParm) => {
             
             var parm = {
                     queryId  : "dashboardCorPerformance.getMonthAccrue"
@@ -590,11 +579,7 @@ var <@compId> = {
         /* 2-1 #######  누적 매출 현황    누적 매출 현황    누적 매출 현황    누적 매출 현황    누적 매출 현황    */
         
         /* 2-2 *******  월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    */
-        ,searchList22 : () => {
-            console.log("=== searchList  1  ===");
-            let requestParm = {};
-            requestParm["spCstmId"] = "starasset";
-            requestParm["year"]     = "2023";
+        ,searchList22 : (requestParm) => {
             
             var parm = {
                     queryId  : "dashboardCorPerformance.getMonthSales"
@@ -677,19 +662,34 @@ var <@compId> = {
         ,setHandler : () => {
 
             $("#<@compId>_searchBtn").click( () =>{
-                console.log(" search 클릭");
-                <@compId>.searchList11();
-                <@compId>.searchList12();
-                <@compId>.searchList13();
-                <@compId>.searchList21();
-                <@compId>.searchList22();
+            	var startYears  = C_UICOM.getData("<@compId>_startYears");
+            	var startMonths = C_UICOM.getData("<@compId>_startMonths");
+            	var endYears    = C_UICOM.getData("<@compId>_endYears");
+            	var endMonths   = C_UICOM.getData("<@compId>_endMonths");
+            	var region      = C_UICOM.getData("<@compId>_selectBoxRegion");
+            	var supervisor  = C_UICOM.getData("<@compId>_selectBoxSupervisor");
+            	
+            	var startDate  = startYears+"-"+startMonths;
+                var endDate    = endYears+"-"+endMonths;
+            	
+            	let requestParm = {};
+                requestParm["year"]       = startYears;
+                requestParm["startDate"]  = startDate;
+                requestParm["endDate"]    = endDate;
+                requestParm["region"]     = region;
+                requestParm["supervisor"] = supervisor;
+                
+                <@compId>.searchList11(requestParm);
+                <@compId>.searchList12(requestParm);
+                <@compId>.searchList13(requestParm);
+                <@compId>.searchList21(requestParm);
+                <@compId>.searchList22(requestParm);
             })            
             
         } 
 }
 // Page Load가 완료된후 실행 된다.
 C_COMP.onLoadComp("<@compId>", function(data) {
-    console.log("111111");
     <@compId>.pageInit();
     <@compId>.setHandler();
    
@@ -864,9 +864,10 @@ C_HM.onReturn("<@compId>", function(pageId, data) {
             <h3>권역별 순위</h3>
             <figure class="highcharts-figure2 mt15">
                 <!-- 차트 영역 -->
-                <div class="chart03" style="width:100%;height:291px;margin:0 auto">
-                    <!-- 임시 차트 이미지 -->
+                <div class="chart03" id="<@compId>_chart13" style="width:100%;height:291px;margin:0 auto">
+                    <!-- 임시 차트 이미지
                     <img src="../img/img_sales03.png" style="width:100%;height:291px;">
+                     -->
                 </div>
             </figure>
             <h3>권역별 TOP5 Total : <span id="<@compId>_total13"></span></h3>

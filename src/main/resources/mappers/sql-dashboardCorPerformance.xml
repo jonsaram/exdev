@@ -28,9 +28,17 @@
                          AND A.SP_CSTM_ID = B.SP_CSTM_ID
                          AND A.STORE_ID   = B.STORE_ID
                 WHERE  1 = 1
-                AND    A.SP_CSTM_ID = #{spCstmId}
-                AND    A.YEAR       = #{year}
-                AND    A.SUBJECT    = #{subject}
+                AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                <if test=" !'ALL'.equals(subject) ">
+                    AND    A.SUBJECT    = #{subject}
+                </if>
+                <if test=" !'ALL'.equals(region) ">
+                    AND    B.REGION     = #{region}
+                </if>
+                <if test=" !'ALL'.equals(supervisor) ">
+                    AND    B.SUPERVISOR    = #{supervisor}
+                </if>
+                AND    TO_DATE(A.YEAR||'-'||A.MONTH , 'YYYY-MM')  BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM') 
                 GROUP BY B.SP_CSTM_ID
                         ,B.STORE_ID
                         ,B.STORE_NM
@@ -100,8 +108,8 @@
                   ,SUM(AMOUNT) AS AMOUNT
             FROM   TBL_EXP_STORE_FINANCIAL
             WHERE  1 = 1
-            AND    SUBJECT IN ('SUBJECT_001','SUBJECT_003','SUBJECT_010','SUBJECT_005') 
-            AND    SP_CSTM_ID = #{spCstmId}
+            AND    SUBJECT IN ('SUBJECT_001','SUBJECT_003','SUBJECT_010','SUBJECT_005')
+            AND    SP_CSTM_ID = #{sessionVo.spCstmId}
             AND    YEAR = #{year}
             GROUP BY MONTH
                     ,SUBJECT
@@ -137,7 +145,7 @@
         FROM   TBL_EXP_STORE_FINANCIAL
         WHERE  1 = 1
         AND    SUBJECT IN ('SUBJECT_001','SUBJECT_003','SUBJECT_010','SUBJECT_005') 
-        AND    SP_CSTM_ID = #{spCstmId}
+        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
         AND    YEAR = #{year}
         GROUP BY MONTH
                 ,SUBJECT
@@ -640,8 +648,8 @@
                              AND A.SP_CSTM_ID = B.SP_CSTM_ID
                              AND A.STORE_ID   = B.STORE_ID
                     WHERE  1 = 1
-                    AND    A.SP_CSTM_ID = #{spCstmId}
-                    AND    A.YEAR       = #{year}
+                    AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                    AND    TO_DATE(A.YEAR||'-'||A.MONTH , 'YYYY-MM')  BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM') 
                     GROUP BY B.SP_CSTM_ID
                             ,B.REGION
                             ,GET_CODE_NM('STORE_REGION', B.REGION)
@@ -1616,5 +1624,160 @@
             AND   GROUP_2  = #{group2}
         </if>
         ORDER BY MENU_NM
+    </select>
+    
+    <!-- 매장별 매출 분석- 매출비교 -->
+    <select id="getMenuMonthSales" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getMenuMonthSales */
+        WITH BASE_TABLE AS
+        (   
+            SELECT C.MENU_ID
+                  ,C.MENU_NM 
+                  ,B.MONTH
+                  ,SUM(B.SALES) SALES
+            FROM   TBL_EXP_STORE_INFO A
+                   JOIN TBL_EXP_STORE_MENU_SALES B
+                       ON  1 = 1
+                       AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                       AND A.STORE_ID   = B.STORE_ID
+                       AND B.YEAR       = '2023'
+                       --AND B.GROUP_1
+                       --AND B.GROUP_1
+                       --AND B.MENU_ID
+                  JOIN TBL_EXP_STORE_MENU_MASTER C
+                       ON  1 = 1
+                       AND B.SP_CSTM_ID = C.SP_CSTM_ID
+                       AND B.MENU_ID    = C.MENU_ID
+                       AND B.GROUP_1    = C.GROUP_1
+                       AND B.GROUP_2    = C.GROUP_2
+            WHERE  1 = 1
+            --AND A.STORE_ID
+            --AND    A.REGION'
+            --AND    A.SUPERVISOR 
+            GROUP BY B.MONTH
+                    ,C.MENU_ID
+                    ,C.MENU_NM
+            ORDER BY B.MONTH
+                    ,SUM(B.SALES) DESC
+        )
+        , 
+        MONTH_TABLE AS 
+        (
+          SELECT '01' AS MONTH FROM DUAL UNION ALL
+          SELECT '02' AS MONTH FROM DUAL UNION ALL
+          SELECT '03' AS MONTH FROM DUAL UNION ALL
+          SELECT '04' AS MONTH FROM DUAL UNION ALL
+          SELECT '05' AS MONTH FROM DUAL UNION ALL
+          SELECT '06' AS MONTH FROM DUAL UNION ALL
+          SELECT '07' AS MONTH FROM DUAL UNION ALL
+          SELECT '08' AS MONTH FROM DUAL UNION ALL
+          SELECT '09' AS MONTH FROM DUAL UNION ALL
+          SELECT '10' AS MONTH FROM DUAL UNION ALL
+          SELECT '11' AS MONTH FROM DUAL UNION ALL
+          SELECT '12' AS MONTH FROM DUAL
+        )
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '01' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+        UNION ALL
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '02' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+        UNION ALL
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '03' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+        UNION ALL
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '04' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+        UNION ALL
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '05' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+        UNION ALL
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '06' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+        UNION ALL
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '07' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+        UNION ALL
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '08' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+        UNION ALL
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '09' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+        UNION ALL
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '10' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+        UNION ALL
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '11' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+        UNION ALL
+        SELECT A.MONTH ,B.MENU_ID ,B.MENU_NM ,B.SALES 
+        FROM   MONTH_TABLE A  LEFT OUTER JOIN BASE_TABLE B ON  1 = 1 AND A.MONTH = B.MONTH 
+        WHERE  A.MONTH = '12' 
+        AND   ROWNUM <![CDATA[ <= ]]>5 
+    </select>
+    <select id="getMenuSalesRanking" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getMenuSalesRanking */
+        SELECT C.MENU_ID
+              ,C.MENU_NM 
+              ,SUM(B.SALES) SALES
+        FROM   TBL_EXP_STORE_INFO A
+               JOIN TBL_EXP_STORE_MENU_SALES B
+                   ON  1 = 1
+                   AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                   AND A.STORE_ID   = B.STORE_ID
+                   AND B.YEAR       = '2023'
+              JOIN TBL_EXP_STORE_MENU_MASTER C
+                   ON  1 = 1
+                   AND B.SP_CSTM_ID = C.SP_CSTM_ID
+                   AND B.MENU_ID    = C.MENU_ID
+                   AND B.GROUP_1    = C.GROUP_1
+                   AND B.GROUP_2    = C.GROUP_2
+        WHERE  1 = 1 
+        GROUP BY C.MENU_ID
+                ,C.MENU_NM
+        ORDER BY SUM(B.SALES) DESC
+    </select>
+
+    <select id="getMenuGrp1SalesRanking" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getMenuGrp1SalesRanking */
+        SELECT C.GROUP_1 
+              ,GET_CODE_NM('STORE_MENU_GROUP1',C.GROUP_1) AS GROUP_1_NM
+              ,SUM(B.SALES) SALES
+        FROM   TBL_EXP_STORE_INFO A
+               JOIN TBL_EXP_STORE_MENU_SALES B
+                   ON  1 = 1
+                   AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                   AND A.STORE_ID   = B.STORE_ID
+                   AND B.YEAR       = '2023'
+              JOIN TBL_EXP_STORE_MENU_MASTER C
+                   ON  1 = 1
+                   AND B.SP_CSTM_ID = C.SP_CSTM_ID
+                   AND B.MENU_ID    = C.MENU_ID
+                   AND B.GROUP_1    = C.GROUP_1
+                   AND B.GROUP_2    = C.GROUP_2
+        WHERE  1 = 1 
+        GROUP BY C.GROUP_1
+        ORDER BY SUM(B.SALES) DESC
     </select>
 </mapper>

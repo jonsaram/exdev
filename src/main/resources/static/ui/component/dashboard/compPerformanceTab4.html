@@ -192,36 +192,380 @@
                     <@compId>.store = dataObj;
                 });
             }
-            /*============= 매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    =============*/
+
+            ,setChartData : function( resultData,subject ) {
+                //console.log("=== setChart21Data");
+                let resultList = [];
+                var j = 0;
+                for (var i=0; i< resultData.data.length; i++){
+                    if( resultData.data[i].SUBJECT == subject ){
+                        resultList[j++] = resultData.data[i].AMOUNT;
+                    }
+                }
+                return resultList;
+             }
+            
+            /*============= 매출 비교 그래프    매출 비교 그래프    매출 비교 그s래프    매출 비교 그래프    매출 비교 그래프    =============*/
             ,searchList1 : () => {
             	console.log(" searchList1");
-            	<@compId>.setChart1();
+            	
+                let requestParm = {};
+                requestParm["spCstmId"] = "starasset";
+                requestParm["year"]     = "2023";
+                
+                var parm = {
+                        queryId  : "dashboardCorPerformance.getMenuMonthSales"
+                       ,requestParm   : requestParm
+                }
+        
+                C_COM.requestQuery(parm, function(resultData) {
+                    <@compId>.setChart1(resultData);
+                });
+                 
+            	
             }
 
-            ,setChart1 : () => {
-                console.log(" setChart1");
-            }
+            ,setChart1 : (resultData) =>{
+                console.log("=== setChart22");
+                 
+                 var categories1Arr = <@compId>.setChartData( resultData, "SUBJECT_001");
+                 var categories2Arr = <@compId>.setChartData( resultData, "SUBJECT_003");
+                 var categories3Arr = <@compId>.setChartData( resultData, "SUBJECT_005");
+                 var categories4Arr = <@compId>.setChartData( resultData, "SUBJECT_010");
+                 
+                 $('#<@compId>_chart22').highcharts({
+
+                     title: {
+                         text: '',
+                         align: 'left'
+                     },
+
+                     yAxis: {
+                         title: {
+                             text: ''
+                         }
+                     },
+                     colors: ['#27187F', '#F29423','#66ff00', '#0099ff'],
+                     xAxis: {
+                         categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                         accessibility: {
+                             rangeDescription: '2'
+                         }
+                     },
+
+                     plotOptions: {
+                         column: {
+                             pointPadding: 0.2,
+                             borderWidth: 0
+                         }
+                     },
+
+                     series: [{
+                         name: '매출액',
+                         data: categories1Arr
+                     }, {
+                         name: '매출총이익',
+                         data: categories2Arr
+                     }, {
+                         name: '당기순이익',
+                         data: categories4Arr
+                     }, {
+                         name: '영업이익',
+                         data: categories3Arr
+                     }],
+
+                     responsive: {
+                         rules: [{
+                             condition: {
+                                 maxWidth: 500
+                             },
+                             chartOptions: {
+                                 legend: {
+                                     layout: 'horizontal',
+                                     align: 'center',
+                                     verticalAlign: 'bottom'
+                                 }
+                             }
+                         }]
+                     }
+
+                 });
+             }//setChart22
             /*############# 매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    #############*/
             
             /*============= 분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    =============*/
             ,searchList2 : () => {
-                console.log(" searchList2");
-                <@compId>.setChart2();
+                console.log(" searchList2 1");
+                let requestParm2 = {};
+                requestParm2["spCstmId"] = "starasset";
+                requestParm2["year"]     = "2023";
+                requestParm2["subject"]  = "SUBJECT_001";
+                
+                var parm = {
+                        queryId  : "dashboardCorPerformance.getMenuGrp1SalesRanking"
+                       ,requestParm   : requestParm2
+                }
+                console.log(" searchList2 1");
+       
+                C_COM.requestQuery(parm, function(resultData) { 
+                    <@compId>.setTotal2(resultData);
+                    
+                    var rparm = {
+                         targetId       : "<@compId>_tableId2"
+                        ,list           : resultData.data
+                        ,listRange      : 5         // 리스트 범위
+                        ,pageRange      : 5         // Page 범위
+                        ,pagingDomId    : "<@compId>_pageDiv2" // Page가 표시되는 Dom Id
+                        ,totalCntDomId  : "<@compId>_total2"
+                        ,onPageClickCallback : function(pageInfo) {
+                            <@compId>.setChart2(pageInfo);
+                         }
+                    }
+                    C_PAGING.renderHtml("<@compId>", rparm);
+                });
+                
             }
 
-            ,setChart2 : () => {
-                console.log(" setChart2");
-            }
+            ,setTotal2 : (resultData) =>{
+                
+                let total = 0;
+                for (var i=0; i<resultData.data.length; i++){
+                    total += resultData.data[i].SALES;
+                }
+                $('#<@compId>_totalAmount2').text(total);
+                
+            }//searchList
+            ,setChart2 : (resultData) =>{
+
+                var categoriesArr = []; 
+                var dataArr = [];
+
+                for (var i=0; i<resultData.list.length; i++){
+                    categoriesArr[i] = resultData.list[i].GROUP_1_NM;
+                    dataArr[i] = resultData.list[i].SALES;
+                     
+                }
+                
+                $("#<@compId>_chart2").highcharts({
+                   
+                    credits: {enabled: false},// 하이차트 워터마크 삭제
+                    title: {
+                        text: '',
+                        align: 'left'
+                    },
+                    subtitle: {
+                        text: '',
+                        align: 'left'
+                    },
+                    xAxis: [{
+                        labels: {
+                            style: {
+                                color: '#8A8C92',
+                                fontFamily: 'Noto Sans KR',
+                                fontSize: '11px'
+                            }
+                        },
+                        lineColor: '#DADADA', /* x축 라인색 */
+                        categories: categoriesArr,
+                        crosshair: true
+                    }],
+                    yAxis: [{
+                        labels: {
+                            format: '{value}',
+                            style: {
+                                color: '#8A8C92',
+                                fontFamily: 'Noto Sans KR',
+                                fontSize: '11px'
+                            }
+                        },
+                        title: {
+                            text: ''
+                        }
+                    }, { // Secondary yAxis
+                        title: {
+                            text: '',
+                            style: {
+                            }
+                        },
+                        labels: {
+                            format: ' '
+                        },
+                        opposite: true
+                    }],
+                    tooltip: {
+                        shared: true
+                    },
+                    legend: {
+                        align: 'right',
+                        x:0,
+                        verticalAlign: 'top',
+                        y: 0,
+                        itemStyle: {
+                            color: '#8A8C92',
+                            fontFamily: 'Noto Sans KR',
+                            fontSize: '11px'
+                        },
+                        symbolRadius:0,//범례 심볼 radius 지정
+                        symbolWidth:10,
+                        symbolHeight:10,
+                        x: 0,//가로 위치 지정.
+                        y: -2,//세로 위치 지정.
+                    },
+                    plotOptions: {//라인에 원표시 삭제
+                        line:{
+                            marker: {
+                                enabled: false
+                            }
+                        }
+                    },
+                    series: [{
+                        name: '',
+                        type: 'column',
+                        yAxis: 0,
+                        data: dataArr,
+                        tooltip: {
+                            valueSuffix: ''
+                        }
+                    }]
+                });
+            }//setChart11
             /*############# 분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    #############*/
             
             /*============= 상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    =============*/
             ,searchList3 : () => {
                 console.log(" searchList3");
-                <@compId>.setChart3();
+                let requestParm2 = {};
+                requestParm2["spCstmId"] = "starasset";
+                requestParm2["year"]     = "2023";
+                requestParm2["subject"]  = "SUBJECT_001";
+                
+                var parm = {
+                        queryId  : "dashboardCorPerformance.getMenuSalesRanking"
+                       ,requestParm   : requestParm2
+                }
+                console.log(" searchList3 1");
+       
+                C_COM.requestQuery(parm, function(resultData) { 
+                    <@compId>.setTotal3(resultData);
+                    
+                    var rparm = {
+                         targetId       : "<@compId>_tableId3"
+                        ,list           : resultData.data
+                        ,listRange      : 5         // 리스트 범위
+                        ,pageRange      : 5         // Page 범위
+                        ,pagingDomId    : "<@compId>_pageDiv3" // Page가 표시되는 Dom Id
+                        ,totalCntDomId  : "<@compId>_total3"
+                        ,onPageClickCallback : function(pageInfo) {
+                            <@compId>.setChart3(pageInfo);
+                         }
+                    }
+                    C_PAGING.renderHtml("<@compId>", rparm);
+                });
             }
 
-            ,setChart3 : () => {
+            ,setTotal3 : (resultData) =>{
+                
+                let total = 0;
+                for (var i=0; i<resultData.data.length; i++){
+                    total += resultData.data[i].SALES;
+                }
+                $('#<@compId>_totalAmount3').text(total);
+                
+            }
+            ,setChart3 : (resultData) => {
                 console.log(" setChart3");
+
+                var categoriesArr = []; 
+                var dataArr = [];
+
+                for (var i=0; i<resultData.list.length; i++){
+                    categoriesArr[i] = resultData.list[i].MENU_NM;
+                    dataArr[i] = resultData.list[i].SALES;
+                     
+                }
+                
+                $("#<@compId>_chart3").highcharts({
+                   
+                    credits: {enabled: false},// 하이차트 워터마크 삭제
+                    title: {
+                        text: '',
+                        align: 'left'
+                    },
+                    subtitle: {
+                        text: '',
+                        align: 'left'
+                    },
+                    xAxis: [{
+                        labels: {
+                            style: {
+                                color: '#8A8C92',
+                                fontFamily: 'Noto Sans KR',
+                                fontSize: '11px'
+                            }
+                        },
+                        lineColor: '#DADADA', /* x축 라인색 */
+                        categories: categoriesArr,
+                        crosshair: true
+                    }],
+                    yAxis: [{
+                        labels: {
+                            format: '{value}',
+                            style: {
+                                color: '#8A8C92',
+                                fontFamily: 'Noto Sans KR',
+                                fontSize: '11px'
+                            }
+                        },
+                        title: {
+                            text: ''
+                        }
+                    }, { // Secondary yAxis
+                        title: {
+                            text: '',
+                            style: {
+                            }
+                        },
+                        labels: {
+                            format: ' '
+                        },
+                        opposite: true
+                    }],
+                    tooltip: {
+                        shared: true
+                    },
+                    legend: {
+                        align: 'right',
+                        x:0,
+                        verticalAlign: 'top',
+                        y: 0,
+                        itemStyle: {
+                            color: '#8A8C92',
+                            fontFamily: 'Noto Sans KR',
+                            fontSize: '11px'
+                        },
+                        symbolRadius:0,//범례 심볼 radius 지정
+                        symbolWidth:10,
+                        symbolHeight:10,
+                        x: 0,//가로 위치 지정.
+                        y: -2,//세로 위치 지정.
+                    },
+                    plotOptions: {//라인에 원표시 삭제
+                        line:{
+                            marker: {
+                                enabled: false
+                            }
+                        }
+                    },
+                    series: [{
+                        name: '',
+                        type: 'column',
+                        yAxis: 0,
+                        data: dataArr,
+                        tooltip: {
+                            valueSuffix: ''
+                        }
+                    }]
+                });
             }
             /*############# 상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    #############*/
             
@@ -263,12 +607,12 @@
 
                 $("#<@compId>_searchBtn").click( () =>{
                     console.log(" search 클릭");
-                    <@compId>.searchList1();//매출 비교
+                    //<@compId>.searchList1();//매출 비교
                     <@compId>.searchList2();//분류명별 매출액
                     <@compId>.searchList3();//상세메뉴 매출액
-                    <@compId>.searchList4();//마진비교
-                    <@compId>.searchList5();//상세메뉴 코스트
-                    <@compId>.searchList6();//상세메뉴 마진금액
+                    //<@compId>.searchList4();//마진비교
+                    //<@compId>.searchList5();//상세메뉴 코스트
+                    //<@compId>.searchList6();//상세메뉴 마진금액
                 })            
                 
             } 
@@ -344,12 +688,14 @@
                 <h3>분류명별 매출액</h3>
                 <div class="clearFix">
                     <figure class="highcharts-figure2 fl mt20" style="width:45%">
-                        <div class="chart02_01" style="width:100%;height:210px;margin:0 auto">
-                            <!-- 임시 차트 이미지 -->
+                        <div class="chart02_01" id="<@compId>_chart2" style="width:100%;height:210px;margin:0 auto">
+                            <!-- 임시 차트 이미지
                             <img src="../img/img_chart_list13.png" style="width:100%;height:210px;">
+                             -->
                         </div>
                     </figure>
                     <div class="fl ml15" style="width:calc(55% - 15px)">
+                        <h3>매출 TOP5 Total : <span id="<@compId>_total2"></span></h3>
                         <!-- 테이블 -->
                         <div class="tbl01 col noScroll small">
                             <table>
@@ -366,53 +712,33 @@
                                         <th scope="col" class="tr">총매출액</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="tl">1.</td>
-                                        <td class="tl">세트메뉴(뉴코)</td>
-                                        <td class="tr">1,289,903,400</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">2.</td>
-                                        <td class="tl">대실료(뉴코)</td>
-                                        <td class="tr">1,260,302,500</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">3.</td>
-                                        <td class="tl">주류(뉴코)</td>
-                                        <td class="tr">1,076,028,400</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">4.</td>
-                                        <td class="tl">스페셜안주(뉴코)</td>
-                                        <td class="tr">304,678,400</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">5.</td>
-                                        <td class="tl">튀김안주(뉴코)</td>
-                                        <td class="tr">228,636,600</td>
-                                    </tr>
+                                <tbody id="<@compId>_tableId2">
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td></td>
-                                        <td class="tl">총 합계</td>
-                                        <td class="tr">5,062,829,100</td>
+                                        <td class="tl">총합계</td>
+                                        <td class="tr" id="<@compId>_totalAmount2"></td>
                                     </tr>
                                 </tfoot>
+                                <script type="text/x-jsrender" id="<@compId>_tableId2_template">   
+                                    {{for list}}
+                                    <tr>     
+                                        <td class="tl">{{:rownum}}</td>    
+                                        <td class="tl">{{:GROUP_1_NM}}</td> 
+                                        <td class="tr">{{:SALES}}</td>  
+                                    </tr>
+                                    {{/for}}
+                                </script>
+                                <script type="text/x-jsrender" id="<@compId>_tableId2_noData_template">    
+                                    <tr>    
+                                        <td colspan=3>자료가 없습니다.</td>    
+                                    </tr>
+                                </script>
                             </table>
                         </div>
                         <!-- paging -->
-                        <div class="paging small">
-                            <a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-                            <a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-                            <strong title="현재 페이지">1</strong>
-                            <a href="#none">2</a>
-                            <a href="#none">3</a>
-                            <a href="#none">4</a>
-                            <a href="#none">5</a>
-                            <a href="#none" class="btn_pg_next">다음 페이지</a>
-                            <a href="#none" class="btn_pg_last">마지막 페이지</a>
+                        <div class="paging" id="<@compId>_pageDiv2">
                         </div>
                     </div>
                 </div>
@@ -421,9 +747,10 @@
                 <h3>상세 메뉴 매출액</h3>
                 <div class="clearFix">
                     <figure class="highcharts-figure2 fl mt20" style="width:45%">
-                        <div class="chart02_01" style="width:100%;height:210px;margin:0 auto">
-                            <!-- 임시 차트 이미지 -->
-                            <img src="../img/img_chart_list14.png" style="width:100%;height:210px;">
+                        <div class="chart02_01" id="<@compId>_chart3" style="width:100%;height:210px;margin:0 auto">
+                            <!-- 임시 차트 이미지
+                            <img src="../img/img_chart_list13.png" style="width:100%;height:210px;">
+                             -->
                         </div>
                     </figure>
                     <div class="fl ml15" style="width:calc(55% - 15px)">
@@ -443,53 +770,33 @@
                                         <th scope="col" class="tr">총매출액</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="tl">1.</td>
-                                        <td class="tl">NEWCO 4~5인코스</td>
-                                        <td class="tr">401,600,700</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">2.</td>
-                                        <td class="tl">참이슬</td>
-                                        <td class="tr">294,450,500</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">3.</td>
-                                        <td class="tl">NEWCO 2인코스</td>
-                                        <td class="tr">266,896,600</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">4.</td>
-                                        <td class="tl">스페셜모듬과일</td>
-                                        <td class="tr">257,513,500</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">5.</td>
-                                        <td class="tl">카스(500ml)</td>
-                                        <td class="tr">184,583,500</td>
-                                    </tr>
+                                <tbody id="<@compId>_tableId3">
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td></td>
-                                        <td class="tl">총 합계</td>
-                                        <td class="tr">3,877,889,100</td>
+                                        <td class="tl">총합계</td>
+                                        <td class="tr" id="<@compId>_totalAmount3"></td>
                                     </tr>
                                 </tfoot>
+                                <script type="text/x-jsrender" id="<@compId>_tableId3_template">   
+                                    {{for list}}
+                                    <tr>     
+                                        <td class="tl">{{:rownum}}</td>    
+                                        <td class="tl">{{:MENU_NM}}</td> 
+                                        <td class="tr">{{:SALES}}</td>  
+                                    </tr>
+                                    {{/for}}
+                                </script>
+                                <script type="text/x-jsrender" id="<@compId>_tableId3_noData_template">    
+                                    <tr>    
+                                        <td colspan=3>자료가 없습니다.</td>    
+                                    </tr>
+                                </script>
                             </table>
                         </div>
                         <!-- paging -->
-                        <div class="paging small">
-                            <a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-                            <a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-                            <strong title="현재 페이지">1</strong>
-                            <a href="#none">2</a>
-                            <a href="#none">3</a>
-                            <a href="#none">4</a>
-                            <a href="#none">5</a>
-                            <a href="#none" class="btn_pg_next">다음 페이지</a>
-                            <a href="#none" class="btn_pg_last">마지막 페이지</a>
+                        <div class="paging" id="<@compId>_pageDiv3">
                         </div>
                     </div>
                 </div>
