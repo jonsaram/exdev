@@ -8,7 +8,7 @@
 	업무 관리 
 	 -->	
 	<sql id="getCstmList_body">
-		SELECT ROW_NUMBER() OVER( ORDER BY B.BUYER_NM) RN
+		SELECT ROW_NUMBER() OVER( ORDER BY CASE WHEN B.UPDATE_DATE > SYSDATE-1 THEN 0 ELSE 1 END ,B.BUYER_NM) RN
 		, B.BUYER_ID
 		, B.BUYER_NM
 		, B.TEL
@@ -25,29 +25,21 @@
 			THEN 'N'
 			ELSE 'Y'
 		END AS CAN_DEL
+		, CASE 
+			WHEN  ( SELECT COUNT(1) 
+					FROM TBL_EXP_CONTRACT I 
+					WHERE I.BUYER_ID = B.BUYER_ID 
+					AND I.USE_YN ='Y' AND DEL_YN='N') 
+					<![CDATA[ > ]]> 0 
+			THEN 'Y'
+			ELSE 'N'
+		END AS CONTRACT_YN
 		, GET_USER_NM( B.CREATE_USER ) AS CREATE_USER_NM
-		, TO_CHAR( B.CREATE_DATE , 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DATE
+		, TO_CHAR( B.CREATE_DATE , 'YYYY-MM-DD HH24:MI') AS CREATE_DATE
 		FROM TBL_EXP_BUYER B
 		WHERE 1=1
 		AND B.USE_YN = 'Y'
 		AND B.DEL_YN = 'N'	
-	</sql>
-	<sql id="userContectedBuyers">
-		/* 고객을 등록 / 고객과 연계된 계약의 멤버들 */
-		AND (  B.BUYER_ID IN ( SELECT DISTINCT C.BUYER_ID  
-								FROM TBL_EXP_CONTRACT C
-								,TBL_EXP_CONTRACT_MEMBER CM 
-								WHERE C.CONTRACT_ID = CM.CONTRACT_ID(+) 
-								AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
-								AND CM.RELATION_TYPE(+) = 'EXECUTE'
-								AND ( C.USER_ID = #{sessionVo.userId}
-								  OR CM.USER_ID = #{sessionVo.userId}
-								)
-							)
-				OR B.CREATE_USER =  #{sessionVo.userId}			
-		)	
-	</sql>
-	<sql id="cstmParams">
 		AND ( 
 			<if test=" parm.BUYER_ID != null and !parm.BUYER_ID.equals('') ">
 				UPPER(B.BUYER_ID) like '%' || UPPER(#{parm.BUYER_ID}) || '%'
@@ -88,27 +80,41 @@
 			<include refid="userContectedBuyers"/>
 		</if>
 		
-		ORDER BY CASE WHEN B.UPDATE_DATE > SYSDATE-1 THEN 0 ELSE 1 END ,B.BUYER_NM
+		ORDER BY CASE WHEN B.UPDATE_DATE > SYSDATE-1 THEN 0 ELSE 1 END ,B.BUYER_NM		
+	</sql>
+	<sql id="userContectedBuyers">
+		/* 고객을 등록 / 고객과 연계된 계약의 멤버들 */
+		AND (  B.BUYER_ID IN ( SELECT DISTINCT C.BUYER_ID  
+								FROM TBL_EXP_CONTRACT C
+								,TBL_EXP_CONTRACT_MEMBER CM 
+								WHERE 1=1
+								AND C.CONTRACT_ID	= CM.CONTRACT_ID 
+								AND C.USE_YN 		= 'Y' 
+								AND C.DEL_YN 		= 'N'
+								AND CM.RELATION_TYPE= 'EXECUTE'
+								AND ( C.USER_ID = #{sessionVo.userId}
+								  OR CM.USER_ID = #{sessionVo.userId}
+								)
+							)
+				OR B.CREATE_USER =  #{sessionVo.userId}			
+		)	
 	</sql>
 	<select id="getCstmList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	cstm.getCstmList
 			고객 리스트 조회 
 		*/
 		<include refid="getCstmList_body"/>
-		<include refid="cstmParams"/>
 	</select>	
 	<select id="getCstmList_totalCnt" resultType="Integer">
 		/* cstm.getCstmList_totalCnt  */
 		<include refid="common.totalWrapStart"/>
 		<include refid="getCstmList_body"/>
-		<include refid="cstmParams"/>
 		<include refid="common.totalWrapEnd"/>
 	</select>
 	<select id="getCstmList_paging" resultType="java.util.HashMap">
 		/* cstm.getCstmList_paging  */
 		<include refid="common.pagingWrapStart"/>
 		<include refid="getCstmList_body"/>
-		<include refid="cstmParams"/>
 		<include refid="common.pagingWrapEnd"/>
 	</select>
 		 	
