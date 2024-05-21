@@ -605,7 +605,7 @@
 							      	<otherwise>			
 							      	</otherwise>
 								</choose>
-								GROUP BY TO_CHAR( R.RESULT_DATE, 'YYYY'), U.USER_ID, U.USER_NM	
+								GROUP BY TO_CHAR( R.RESULT_DATE, 'YYYY'), CM.USER_ID, GET_USER_NM(CM.USER_ID)	
 							)
 							GROUP BY RESULT_YEAR , USER_ID , USER_NM 
 						) DATA
