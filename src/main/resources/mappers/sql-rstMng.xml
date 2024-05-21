@@ -114,11 +114,12 @@
 		,TBL_EXP_USER U
 		WHERE 1=1
 		AND C.BUYER_ID		= B.BUYER_ID 
-		AND C.USE_YN 		= 'Y' 
-		AND C.DEL_YN 		='N'
-		AND C.CONSULTING_ID	= CS.CONSULTING_ID  
-		AND B.USE_YN 		= 'Y' AND B.DEL_YN ='N'
 		AND C.USER_ID 		= U.USER_ID 
+		AND C.CONSULTING_ID	= CS.CONSULTING_ID  
+		AND C.USE_YN 		= 'Y' 
+		AND C.DEL_YN 		= 'N'
+		AND B.USE_YN 		= 'Y' 
+		AND B.DEL_YN 		= 'N'
 		AND U.USE_YN 		= 'Y' 
 		AND U.DEL_YN 		= 'N'
 		AND GET_CODE_NM( 'HOW_GET', B.HOW_GET ) IS NOT NULL
@@ -135,13 +136,13 @@
 		AND C.CONTRACT_DATE <![CDATA[<=]]> TO_DATE( #{parm.TO_CONTRACT_DATE} , 'YYYY-MM-DD')
 		</if>
 		AND <include refid="CONTRACTED_STATE"/>
+		ORDER BY TOTAL_COST DESC ,CONTRACT_YEAR, CONTRACT_MONTH
 	</sql>	
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getContractList
 			전체 계약 리스트
 		*/
 		<include refid="getContractList_body"/>
-		ORDER BY TOTAL_COST DESC ,CONTRACT_YEAR, CONTRACT_MONTH
 		<if test=" parm.RANK != null and !parm.RANK.equals('')">
 			FETCH NEXT #{parm.RANK} ROWS ONLY
 		</if>
@@ -156,7 +157,6 @@
 		/* rstMgn.getContractList_paging  */
 		<include refid="common.pagingWrapStart"/>
 		<include refid="getContractList_body"/>
-		ORDER BY TOTAL_COST DESC ,CONTRACT_YEAR, CONTRACT_MONTH
 		<include refid="common.pagingWrapEnd"/>
 	</select>
 		
@@ -178,6 +178,9 @@
 		*/
 
 		SELECT M.MONTH
+			, NVL(TOT_INCOME, 0) 			AS TOT_INCOME_ORIGIN_VAL
+			, NVL(TOT_COST_PRICE, 0) 		AS TOT_COST_PRICE_ORIGIN_VAL
+			, NVL(ORG_SELLING_PRICE, 0)	 	AS ORG_SELLING_PRICE_ORIGIN_VAL
 		<choose>
 			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('BIG') "> 
 			, ROUND(NVL(TOT_INCOME, 0)/100000000,2) 			AS TOT_INCOME
@@ -301,7 +304,7 @@
 	        ,NVL(B.MONTH , TO_CHAR(TO_DATE(A.MONTH,'YYYYMM') -INTERVAL '1' YEAR,'YYYYMM') ) AS LAST_YEAR
 	        ,A.ORG_SELLING_PRICE AS THIS_YEAR_SALES
 	        ,B.ORG_SELLING_PRICE AS LAST_YEAR_SALES
-	        ,DECODE(B.ORG_SELLING_PRICE,0,0, (A.ORG_SELLING_PRICE / B.ORG_SELLING_PRICE - 1) * 100) AS GROWTH_RATE
+	        ,DECODE(B.ORG_SELLING_PRICE,0,0, (A.ORG_SELLING_PRICE / B.ORG_SELLING_PRICE) * 100) AS GROWTH_RATE
 		    FROM 
 		     RESULT_TAB A
 		    ,RESULT_TAB B 
@@ -309,7 +312,11 @@
 			AND TO_NUMBER(SUBSTR(A.MONTH, 5, 2)) = TO_NUMBER(SUBSTR(B.MONTH(+), 5, 2)) 
 		)
 
-		SELECT THIS_YEAR, MAX(LAST_YEAR) LAST_YEAR
+		SELECT THIS_YEAR, MAX(LAST_YEAR) 	LAST_YEAR
+			,NVL(MAX( THIS_YEAR_SALES),0) 	THIS_YEAR_SALES_ORIGIN_VAL
+			,NVL(MAX( LAST_YEAR_SALES),0)	LAST_YEAR_SALES_ORIGIN_VAL
+			,NVL(MAX( GROWTH_RATE) ,0)		GROWTH_RATE_ORIGIN_VAL
+			
 		<choose>
 			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('BIG') "> 
 			,ROUND(NVL(MAX( THIS_YEAR_SALES)/100000000 ,0),2) THIS_YEAR_SALES
@@ -464,7 +471,7 @@
 	</select>		
 
 	
-	<select id="getFaPayList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+	<select id="getFaPayList" resultType="java.util.HashMap" flushCache="true" useCache="false">
 		/*	rstMgn.getFaPayList
 			FA 월자문 수수료 ( 월자문 / 일회성 / 외주자문) 
 		*/
@@ -474,21 +481,17 @@
 			SELECT  M.month, DATA.TOTAL_PAYMENT
 			FROM MONTHS_24 M
 			,(
-				SELECT RESULT_MONTH ,USER_ID , USER_NM ,SUM( PAYMENT) TOTAL_PAYMENT
+				SELECT RESULT_MONTH ,SUM( PAYMENT) TOTAL_PAYMENT
 				FROM(
-						SELECT DISTINCT
+						SELECT
 						TO_CHAR( R.RESULT_DATE, 'YYYYMM') AS RESULT_MONTH
 						,R.RESULT_ID
 						,R.INCOME
 						,P.PAYMENT
-						,U.DIVISION_ID
-						,U.USER_ID
-						,U.USER_NM
 						FROM TBL_EXP_RESULT R
 						,TBL_EXP_CONTRACT C
 						,TBL_EXP_PAYMENT P
 						,TBL_EXP_CONTRACT_MEMBER CM
-						,TBL_EXP_USER U
 						,TBL_EXP_CONSULTING CS
 						WHERE C.CONTRACT_ID	= R.CONTRACT_ID 
 						AND <include refid="CONTRACTED_STATE"/>
@@ -499,6 +502,7 @@
 						AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
 						AND P.RELATION_TYPE	= CM.RELATION_TYPE
 						AND P.USER_ID 		= CM.USER_ID
+						AND R.USE_YN		= 'Y'
 						AND R.DEL_YN		= 'N'
 						AND P.USE_YN		= 'Y'
 						AND P.DEL_YN		= 'N'
@@ -507,11 +511,12 @@
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
 				)	
-				GROUP BY  RESULT_MONTH ,USER_ID , USER_NM
+				GROUP BY  RESULT_MONTH
 			) DATA
 			WHERE M.MONTH = DATA.RESULT_MONTH(+)
 		)
 		SELECT MONTH
+			, NVL(SUM ( TOTAL_PAYMENT ),0) AS TOTAL_PAYMENT_ORIGIN_VAL
 		<choose>
 			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('BIG') "> 
 			, ROUND(NVL(SUM ( TOTAL_PAYMENT ),0) / 100000000 ,2) AS TOTAL_PAYMENT
@@ -537,20 +542,16 @@
 			FROM MONTHS_24 M
 			, (
 				SELECT C.CONTRACT_ID
-				, TO_CHAR(RST.RESULT_DATE, 'YYYYMM') AS EACH_MONTH
+				, TO_CHAR(C.CONTRACT_DATE, 'YYYYMM') AS EACH_MONTH
 				FROM TBL_EXP_CONTRACT C
-				,TBL_EXP_RESULT RST
 				,TBL_EXP_CONSULTING CST
 				WHERE 1=1
 				AND CST.CONSULTING_TYPE 	= 'MONTHLY'
 				AND <include refid="CONTRACTED_STATE"/>
 				AND C.CONSULTING_ID 		= CST.CONSULTING_ID
-				AND C.CONTRACT_ID 			= RST.CONTRACT_ID 
 				AND C.USE_YN 				= 'Y' 
 				AND C.DEL_YN 				= 'N'
-				AND RST.USE_YN 				= 'Y' 
-				AND RST.DEL_YN 				= 'N'
-				GROUP BY C.CONTRACT_ID, C.TOTAL_COST, RST.RESULT_ID, TO_CHAR(RST.RESULT_DATE, 'YYYYMM')
+				GROUP BY C.CONTRACT_ID, C.TOTAL_COST, TO_CHAR(C.CONTRACT_DATE, 'YYYYMM')
 			) DATA 
 			WHERE  M.month = DATA.EACH_MONTH
 			GROUP BY M.month
@@ -576,12 +577,11 @@
 							( 
 								SELECT TO_CHAR( R.RESULT_DATE, 'YYYY') AS RESULT_YEAR 
 								, SUM( P.PAYMENT ) AS PAYMENT
-								, U.USER_ID , U.USER_NM
+								, CM.USER_ID , GET_USER_NM(CM.USER_ID) AS USER_NM
 								FROM TBL_EXP_RESULT R 
 								, TBL_EXP_CONTRACT C 
 								, TBL_EXP_CONTRACT_MEMBER CM
 								, TBL_EXP_PAYMENT P 
-								, TBL_EXP_USER U
 								WHERE C.CONTRACT_ID = R.CONTRACT_ID
 								AND <include refid="CONTRACTED_STATE"/>
 								AND C.CONTRACT_ID 	= CM.CONTRACT_ID
@@ -612,6 +612,7 @@
 		) 
 		SELECT RESULT_YEAR AS YEAR
 		, USER_NM
+		, NVL(SUM(PAYMENT),0) AS PAYMENT_ORIGIN_VAL
 		<choose>
 			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('BIG') "> 
 			, ROUND(NVL(SUM(PAYMENT),0) / 100000000,2) AS PAYMENT
@@ -704,8 +705,8 @@
 						,CONSULTING_TYPE
 						,USER_NM
 		)
-		<if test=" parm.TRANK != null and !parm.RANK.equals('')">
-		 WHERE ROWNUM  <![CDATA[ <= ]]> #{parm.RANK}
+		<if test=" parm.RANK != null and !parm.RANK.equals('')">
+		 FETCH NEXT #{parm.RANK} ROWS ONLY
 		 </if>
 	</select>	
 </mapper>
