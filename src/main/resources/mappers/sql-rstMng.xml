@@ -237,10 +237,7 @@
 			AND C.CONSULTING_ID	= CS.CONSULTING_ID
 			AND CS.CONSULTING_TYPE = #{CONSULTING_TYPE}
 			AND		C.CONTRACT_ID	= R.CONTRACT_ID 
-			AND (	C.PROCESS_STATE = 'CONTRACTED'
-				OR	C.PROCESS_STATE = 'ON_COMPLETED_APPR'
-				OR	C.PROCESS_STATE = 'COMPLETED'
-			)
+			AND <include refid="CONTRACTED_STATE"/>
 			AND		C.USE_YN = 'Y'
 			AND		C.DEL_YN = 'N'
 			AND 	C.CONTRACT_ID = CM.CONTRACT_ID
@@ -255,55 +252,7 @@
 		ORDER BY M.month	
 		
 	</select>
-<!-- 	
-	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	rstMgn.getPaymentList
-			전체  수수료 지급 (월자문/1회성컨설팅) 
-		*/
 
-		WITH MONTHS_24 AS (<include refid="MONTHS_24"/>)
-		,EACH_PAYMENT AS (
-		
-			SELECT  M.month,  DATA.TOTAL_INCOME
-			FROM MONTHS_24 M
-			,(
-				SELECT RESULT_MONTH ,SUM( PAYMENT) TOTAL_INCOME
-				FROM(
-						SELECT DISTINCT
-						TO_CHAR( R.RESULT_DATE, 'YYYYMM') AS RESULT_MONTH
-						,R.INCOME
-						,P.PAYMENT
-						FROM TBL_EXP_RESULT R
-						,TBL_EXP_CONTRACT C
-						,TBL_EXP_PAYMENT P
-						,TBL_EXP_CONTRACT_MEMBER CM
-						,TBL_EXP_USER U
-						WHERE C.CONTRACT_ID	= R.CONTRACT_ID 
-						AND <include refid="CONTRACTED_STATE"/>
-						AND R.CONTRACT_ID	= P.CONTRACT_ID 
-						AND R.RESULT_ID		= P.RESULT_ID 
-						AND C.CONTRACT_TYPE = #{CONTRACT_TYPE}
-						AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
-						AND P.USER_ID 		= CM.USER_ID
-						AND P.USER_ID 		= U.USER_ID 
-						AND R.USE_YN		= 'Y'
-						AND R.DEL_YN		= 'N'
-						AND P.USE_YN		= 'Y'
-						AND P.DEL_YN		= 'N'
-						AND CM.USE_YN		= 'Y'
-						AND CM.DEL_YN		= 'N'
-						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
-						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
-				)	
-				GROUP BY  RESULT_MONTH
-			) DATA
-			WHERE M.MONTH = DATA.RESULT_MONTH(+)
-		)
-		SELECT * FROM EACH_PAYMENT
-		ORDER BY MONTH 
-		
-	</select>	
-   -->	
   	<sql id="getResultDataDuringTwoYears">
   	
 	   	/* RESULT테이블에서 2년치의 데이터를 조회. */
@@ -429,8 +378,10 @@
 			,(
 				SELECT RESULT_MONTH ,BRANCH_ID ,SUM(ORG_SELLING_PRICE) ORG_SELLING_PRICE
 				FROM(
-						SELECT DISTINCT
+						SELECT
 						TO_CHAR( R.RESULT_DATE, 'YYYYMM') AS RESULT_MONTH
+						,U.USER_NM
+						,U2.USER_NM
 						,R.INCOME
 						,( SELECT SUM(COST_PRICE) 
 							FROM TBL_EXP_COST CS 
@@ -445,21 +396,35 @@
 						,TBL_EXP_CONTRACT C
 						,TBL_EXP_CONTRACT_MEMBER CM
 						,TBL_EXP_USER U
+						,TBL_EXP_USER U2
 						,TBL_EXP_DIVISION  DIV
 						WHERE 1=1
 						AND <include refid="CONTRACTED_STATE"/>
-						AND U.DIVISION_ID = DIV.DIVISION_ID 
-						AND U.DIVISION_ID LIKE 'SALES_DIV%' /* 일때, 지사가 있음 */
-						AND C.CONTRACT_ID	= R.CONTRACT_ID 
-						AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
-						AND CM.USER_ID 		= U.USER_ID
-						AND R.USE_YN		= 'Y'
-						AND R.DEL_YN		= 'N'
-						AND CM.USE_YN		= 'Y'
-						AND CM.DEL_YN		= 'N'
+						AND
+						(
+							(U.DIVISION_ID = DIV.DIVISION_ID 
+								AND U.DIVISION_ID LIKE 'SALES_DIV%' /* 일때, 지사가 있음 */
+							)
+							OR 
+							(U2.DIVISION_ID = DIV.DIVISION_ID 
+								AND U2.DIVISION_ID LIKE 'SALES_DIV%' /* 일때, 지사가 있음 */
+							)
+						)
+						AND C.CONTRACT_ID		= R.CONTRACT_ID 
+						AND C.CONTRACT_ID 		= CM.CONTRACT_ID 
+						AND CM.RELATION_TYPE 	= 'EXECUTE'
+						
+						AND ( C.USER_ID			= U.USER_ID
+			 			 AND CM.USER_ID			= U2.USER_ID
+			 			)
+			 			AND C.USE_YN 			= 'Y' 
+			 			AND C.DEL_YN 			= 'N'	
+						AND R.USE_YN			= 'Y'
+						AND R.DEL_YN			= 'N'
+						AND CM.USE_YN			= 'Y'
+						AND CM.DEL_YN			= 'N'
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ >= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), -12), 'YYYY')
 						AND TO_CHAR(R.RESULT_DATE, 'YYYY') <![CDATA[ <= ]]> TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), 0), 'YYYY')
-						AND C.CONTRACT_ID = CM.CONTRACT_ID
 				)	
 				GROUP BY  RESULT_MONTH ,BRANCH_ID 
 			) DATA
