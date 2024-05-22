@@ -23,11 +23,15 @@
 	// getToday() 	=> 20110102
 	// getToday(12) => 201101020304
 	// getToday(14) => 20110102030405
-	function getToday(len)
+	function getToday(len, gubun)
 	{
 		if(len == undefined) len = 8;
 		var todate = new Date();
 		var result = todate.getFullYear() + "-" + fillZero(parseInt(todate.getMonth()) + 1, 2) + "-" + fillZero(todate.getDate(), 2) + " " + fillZero(todate.getHours(), 2) + ":" + fillZero(todate.getMinutes(), 2) + ":" + fillZero(todate.getSeconds(), 2);
+		
+		if(isValid(gubun)) {
+			result = getDateFormat(result, len, gubun);
+		}
 		return result;
 	}
 

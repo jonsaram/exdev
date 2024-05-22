@@ -82,8 +82,6 @@
 			C_COM.requestQuery(parm, function(resultData) {
 				<@compId>.loadTodoList();
 			});  
-			
-			
 		 }
 	
 	}
@@ -108,8 +106,8 @@
 		<script type="text/x-jsrender" id="todoList_template">
 			{{for list}}
 			<li>
-				<input type="checkbox" name="customer" class="check_undo" id="ck_{{:TODO_ID}}" onclick="<@compId>.checkProcess({{:#index}})" {{:execCheckStr}}>
-				<label for="ck_{{:TODO_ID}}"><span class="txt"><span>{{:UPDATE_DATE}} </span><span>: {{:TODO}}</span></span></label>
+				<input type="checkbox" name="customer" class="check_undo" id="ck_<@compId>_{{:TODO_ID}}" onclick="<@compId>.checkProcess({{:#index}})" {{:execCheckStr}}>
+				<label for="ck_<@compId>_{{:TODO_ID}}"><span class="txt"><span>{{:UPDATE_DATE}} </span><span>: {{:TODO}}</span></span></label>
 				<button class="pay_close" onclick="<@compId>.deleteTodo({{:#index}})">닫기</button>
 			</li>
 			{{/for}}

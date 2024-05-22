@@ -241,11 +241,21 @@
 				,TBL_EXP_CONTRACT 		B
 			WHERE 1=1
 				AND	A.BUYER_ID 		= B.BUYER_ID
-				AND B.USER_ID		= #{USER_ID}
 				AND A.USE_YN = 'Y'
 				AND A.DEL_YN = 'N'
 				AND B.USE_YN = 'Y'
 				AND B.DEL_YN = 'N'
+			UNION
+			SELECT 
+				 A.BUYER_ID
+				,A.BUYER_NM
+				,A.ADDR
+			FROM 
+				 TBL_EXP_BUYER    		A
+			WHERE 1=1
+				AND A.CREATE_USER = #{USER_ID}
+				AND A.USE_YN = 'Y'
+				AND A.DEL_YN = 'N'
 		)
 	</select>		
 

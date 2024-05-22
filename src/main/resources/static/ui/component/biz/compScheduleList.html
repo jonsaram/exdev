@@ -6,14 +6,13 @@ var <@compId> = {
 		,loadScheduleList : function() {
 			let today = getDateFormat(getToday(), 8, "-");
 			let nxtDay = getDateFormat(getDateByAddDayFromNow(30), 8, "-");
-			
+
 			var parm = {
 				 userIdList  : [G_VAL.session.USER_ID]
 			    ,contractId  : <@compId>.contractInfo.CONTRACT_ID
 				,startDate 	 : today
 				,endDate 	 : nxtDay
 			}
-			
 			C_CALENDAR.getScheduleList(parm, function(resultList) {
 				var rparm = {
 					 targetId 		: "scheduleList"
@@ -21,17 +20,33 @@ var <@compId> = {
 				}
 				C_COM.renderHtml("<@compId>", rparm);
 				
-				<@compId>.scheduleList = resultData.data
+				<@compId>.scheduleList = resultList;
+				
 			});
-		  }
-         ,addSchedule: function() {
+		 }
+        ,addSchedule: function() {
      		let today = getDateFormat(getToday(), 8, "-");
             let requestParm = {today : today};
             
             C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                 <@compId>.loadScheduleList();
             })  
-          }
+         }
+        ,modifySchedule : function(index) {
+        	let scheduleObj = <@compId>.scheduleList[index];
+        	 
+        	let today = getToday(8, '-');
+        	 
+            let parm = {
+            	 scheduleId : scheduleObj.SCHEDULE_ID
+            	,today		: today
+            }
+            C_POP.open('popup_sched_updateSchedulePopup', parm, function(obj) {
+                if( obj.refresh == 'Y' ){
+                    <@compId>.loadScheduleList();
+                }
+            });        	 
+    	 }
 		
 	}
 	// Component Load가 완료된후 실행 된다.
@@ -54,8 +69,8 @@ var <@compId> = {
 		</ul>
 		<script type="text/x-jsrender" id="scheduleList_template">
 			{{for list}}
-			<li>
-				<span class="txt"><span>{{:START_DATETIME}} </span><span>: {{:TITLE}}</span></span><button class="pay_close">닫기</button>
+			<li onclick="<@compId>.modifySchedule({{:#index}})">
+				<span class="txt"><span>{{:SCHEDULE_START_DATE}} {{:START_TIME_HOUR}}:{{:START_TIME_MINUTE}}</span><span>: {{:TITLE}}</span></span>
 			</li>
 			{{/for}}
 		</script>

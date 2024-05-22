@@ -64,6 +64,10 @@
 			C_COM.requestQuery(parm, function(resultData) {
 				<@pageId>.projectList = resultData.data;
 				
+				$.each(<@pageId>.projectList, function(idx) {
+					<@pageId>.projectList[idx].realIndex = idx;
+				});
+				
 				let cardListMap = {}
 				 
 				$.each(<@pageId>.projectList, function(){
@@ -154,8 +158,8 @@
 			});
 		 }
 		,openBigCard	: function(index) {
+			alert(index);
 			let projectInfo = <@pageId>.projectList[index];
-
 			C_POP.open('popup_biz_adviceStatusPopup', projectInfo, function(retData) {
 				
 			});
@@ -251,10 +255,10 @@
 		{{for list 	~targetId=targetId}}
 
 			<div class="cont_top clearFix">
-				<h4 class="fl">{{:BUYER_NM}} / {{:CONSULTING_NM}}</h4>
+				<h4 class="fl"><span style="color:#33CCCC">{{:BUYER_NM}}</span> / {{:CONSULTING_NM}}</h4>
 				<div class="fr inlineBlock_wrap">
-					<button class="btn small" onclick="<@pageId>.openBigCard({{:#index}})">카드크게보기</button>
-					<button class="btn small" onclick="<@pageId>.openFolderMng('{{:BUYER_ID}}', {{:#index}})">기업폴더보기</button>
+					<button class="btn small" onclick="<@pageId>.openBigCard({{:realIndex}})">카드크게보기</button>
+					<button class="btn small" onclick="<@pageId>.openFolderMng('{{:BUYER_ID}}', {{:realIndex}})">기업폴더보기</button>
 					<button class="btn small upDownToggle"><i class="up" name="updownButton" id="updownButton{{:#index}}"></i></button>
 				</div>
 			</div>
