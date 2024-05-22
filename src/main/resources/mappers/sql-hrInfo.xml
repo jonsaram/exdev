@@ -127,6 +127,7 @@
         	 )
         	 </when>
       	</choose>
+<!--       	
        	<if test=" parm.BASE_BRANCH != null and !parm.BASE_BRANCH.equals('') ">
 	    AND BR.BASE_BRANCH_ID = #{parm.BASE_BRANCH}  
        	</if>
@@ -136,7 +137,7 @@
        	<if test=" parm.BRANCH != null and !parm.BRANCH.equals('') ">
 	    AND BR.BRANCH_ID = #{parm.BRANCH}  
        	</if>
-				
+				 -->
 	</sql>
 	<select id="getHrInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	hrInfo.getHrInfoList
@@ -343,7 +344,7 @@
 			AND OWNER_CD 	= 'USER_FACE'
 			AND DEL_YN 		= 'N' 
    	</update>
-   	
+<!--    	
 	<select id="getBaseBranchList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	hrInfo.getBaseBranchList
 			본부 리스트 조회 
@@ -383,7 +384,7 @@
 		AND SP_BRANCH_ID = #{SP_BRANCH_ID}
 		</if>
 	</select>
-	
+	 -->
 	<update id="updateSuretyInsurance" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	hrInfo.updateSuretyInsurance
 			보증보험  저장

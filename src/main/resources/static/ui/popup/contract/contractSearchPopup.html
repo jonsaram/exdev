@@ -78,8 +78,8 @@
 		if( userId ){
 			$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
 			$("#<@popupId>_items #CPY_USER_NM").text(userNm);
-			const branchId = $("#<@popupId>_items #BRANCH_ID").val();
-			if( branchId )<@popupId>.selectHierarchyList(branchId);
+/* 			const branchId = $("#<@popupId>_items #BRANCH_ID").val();
+			if( branchId )<@popupId>.selectHierarchyList(branchId); */
 		}
 
 	}
@@ -185,7 +185,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<tbody  id="<@popupId>_contractList">
 						</tbody>			 					
 						
-<script type="text/x-jsrender" id="<@popupId>_contractList_template">						
+						<script type="text/x-jsrender" id="<@popupId>_contractList_template">						
 						{{for list}}
 							<tr class="select"	name="<@popupId>_tr_{{:#index}}" value='{{:CONTRACT_ID}}'>
 							<td id='BUYER_ID'			class='tl'>{{:BUYER_ID}}</td>
@@ -196,12 +196,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<td id='CONTRACT_DATE'		class='tc'>{{:CONTRACT_DATE}}</td>							
 							</tr>
 						{{/for}}
-</script>
-<script type="text/x-jsrender" id="<@popupId>_contractList_noData_template">	
-				<tr>	
-					<td colspan=6>자료가 없습니다.</td>	
-				</tr>
-</script>					
+						</script>
+						<script type="text/x-jsrender" id="<@popupId>_contractList_noData_template">	
+						<tr>	
+							<td colspan=6>자료가 없습니다.</td>	
+						</tr>
+						</script>					
 				</table>
 			</div>
 				<input type="hidden" id="USER_ID">

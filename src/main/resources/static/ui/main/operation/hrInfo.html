@@ -6,19 +6,10 @@ var <@pageId> = {
  		,excelParam : {}
  		,SEARCH_COLUMN:[]
  		,SEARCH_WORD:''
-		,BRANCH_DATA : {}
-		,pageInit : (BRANCH_DATA) =>{
-			
-			<@pageId>.BRANCH_DATA = BRANCH_DATA;
-			
-			_setSearchListCnt("<@pageId>_pagingChunk" );
 
-			const baseBranchTarget = "<@pageId>_selectBaseBranch";
- 			C_UICOM.makeSelectBox({ 
- 				 defaultItem 	: ["--", "전체"]
-				,data : <@pageId>.BRANCH_DATA["BASE_BRANCH"	]
-	 			,targetId : baseBranchTarget }, "single");	
- 			$("#"+baseBranchTarget).trigger('change');
+
+
+		,pageInit : () =>{
  			
 		}
 		,searchList : () => {
@@ -253,7 +244,7 @@ var <@pageId> = {
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
 
-	_getBranchSelectData(<@pageId>.pageInit);
+	<@pageId>.pageInit();
 	<@pageId>.searchList();
 	<@pageId>.setHandler();
 
@@ -280,17 +271,14 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					</div>
 					<button type="button" class="btn select fr" id="<@pageId>_searchBtn" style='margin-left:8px;'>조회</button>
 					<button type="button" class="btn fl" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
-					
 				</div>
 	
-				<div class="search_right">
-				
+				<div class="search_right" style='width:470px;'>
 					<button type="button" class="btn select fl" onclick="javascript:<@pageId>.openPopup();"><i class="icon_user_plus"></i>직원 추가</button>
 					<button type="button" class="btn fl" id="<@pageId>_excelDownloadBtn"><i class="icon_download"></i>직원 Download</button>
 					<button type="button" class="btn fl" onclick="javascript:<@pageId>.checkedMemberExcelDownload()"><i class="icon_download"></i>선택 직원 Download</button>
 					<div 	style="width:107px"			 id="<@pageId>_pagingChunk" ></div>
 					<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
-					
 	            </div>
 			</div>
 			<!-- 테이블 -->
