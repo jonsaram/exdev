@@ -1160,7 +1160,7 @@
 		    TBL_EXP_USER
 		WHERE 1=1	
 			AND SP_CSTM_ID = #{sessionVo.spCstmId}
-		<if test="USER_ID != null and !ROLE_ID.equals('') ">
+		<if test="USER_ID != null and !USER_ID.equals('') ">
 			AND USER_ID LIKE '%'||#{USER_ID}||'%'
 		</if>
 			

@@ -20,7 +20,8 @@ var <@pageId> = {
 								, TEL				: searchText
 								, ADDR 				: searchText
 								, HOW_GET			: searchText
-								, CHECK_MEMBER : $("#mainMenuList .active").text() == '업무관리' ? 'Y' :'N'
+								, CHECK_MEMBER 		: C_MENU.getCurrentMenuInfo().MENU_ID == 'MN_BIZ_CST' ? 'Y' :'N'
+								, MENU_ID			: C_MENU.getCurrentMenuInfo().MENU_ID
 								};
 			
 			var parm = {
@@ -257,9 +258,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<div class="fl">
 				
 					<div class="search_inputWrap fl" style='width:195px;'>
-<!-- 						<div class="dropdown fl" id="<@pageId>_selectSearchItem"  style="width:150px;">
-						</div>
- -->
  						<div class="search_inputWrap">
 							<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn" onclick="<@pageId>.iconSearch();"><i class="icon_search"></i></button>
 						</div>

@@ -20,16 +20,32 @@
 			WHEN  ( SELECT COUNT(1) 
 					FROM TBL_EXP_CONTRACT I 
 					WHERE I.BUYER_ID = B.BUYER_ID 
-					AND I.USE_YN ='Y' AND DEL_YN='N') 
+					AND I.USE_YN ='Y' AND DEL_YN='N'	) 
 					<![CDATA[ > ]]> 0 
 			THEN 'N'
 			ELSE 'Y'
 		END AS CAN_DEL
 		, CASE 
-			WHEN  ( SELECT COUNT(1) 
-					FROM TBL_EXP_CONTRACT I 
-					WHERE I.BUYER_ID = B.BUYER_ID 
-					AND I.USE_YN ='Y' AND DEL_YN='N') 
+			WHEN  ( 
+ 					SELECT COUNT(1) 
+					FROM TBL_EXP_CONTRACT C 
+					, TBL_EXP_CONTRACT_MEMBER CM 
+					WHERE 1=1
+					AND C.CONTRACT_ID 	= CM.CONTRACT_ID
+					AND C.USE_YN 		= 'Y' 
+					AND C.DEL_YN 		= 'N'
+			        <choose>
+			       	<when test='MENU_ID != null'> 
+			        	<if test=" MENU_ID == 'MN_MNG_CUS'  " >
+					    AND 1=1  
+			        	</if>
+			        	<if test=" MENU_ID != 'MN_MNG_CUS' " >
+						AND CM.USER_ID 		= #{sessionVo.userId}
+			        	</if>
+					</when>
+					</choose>		
+					AND C.BUYER_ID = B.BUYER_ID 
+					AND C.USE_YN ='Y' AND C.DEL_YN='N'	) 
 					<![CDATA[ > ]]> 0 
 			THEN 'Y'
 			ELSE 'N'
