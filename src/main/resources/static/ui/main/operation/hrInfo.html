@@ -204,28 +204,7 @@ var <@pageId> = {
 		    })
 		    
 		    $("#<@pageId>_pagingChunk"	).off().on('change',() =><@pageId>.searchList());
-/* 		    
-			$("[id^='<@pageId>_select']").on('change', (e) => {
-
-				const id = $(e.target).attr("id");
-				
-				if( id.indexOf("selectBaseBranch") > -1){
-					
-					const sel_BRANCH_ID = C_UICOM.getData("<@pageId>_selectBaseBranch");
-					<@pageId>.selSearchList( "SP_BRANCH", sel_BRANCH_ID );
-					
-				}else if( id.indexOf("selectSpBranch") > -1){
-					
-					const sel_BRANCH_ID = C_UICOM.getData("<@pageId>_selectSpBranch");
-					<@pageId>.selSearchList( "BRANCH", sel_BRANCH_ID );
-					
-				}else if( id.indexOf("selectBranch") > -1){
-					
-				}
-				
-			})		    
-		    
- */		}
+		}
 		,chkHandler : () => {
 
 			_chkHandler("<@pageId>",<@pageId>);
@@ -299,11 +278,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<div class="search_inputWrap fl" style='width:200px;'>
 						<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
 					</div>
-<!-- 					
-					<div id="<@pageId>_selectBaseBranch" column = "BASE_BRANCH_ID" class="select_box" style="width:85px;"></div>
-					<div id="<@pageId>_selectSpBranch" column = "SP_BRANCH_ID" class="select_box" style="width:115px;"></div>
-					<div id="<@pageId>_selectBranch" column = "BRANCH_ID" class="select_box" style="width:125px;"></div>
- -->			
 					<button type="button" class="btn select fr" id="<@pageId>_searchBtn" style='margin-left:8px;'>조회</button>
 					<button type="button" class="btn fl" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
 					

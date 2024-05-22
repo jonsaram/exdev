@@ -7,10 +7,10 @@ function _yearMonthSelectBox(obj) {
 	const yearMonths = [];
 	[dayjs().year(),dayjs().year() - 1].forEach( year => {
 		
-				const monthsArray = Array.from({ length: 12 }, (_, indexm) => {
-					  const months = ("0"+(1 + indexm) ).slice(-2);
-					  return yearMonths.push( [year.toString()+"-"+months.toString(), year+"년  "+ months + "월"] );
-				});				  
+		const monthsArray = Array.from({ length: 12 }, (_, indexm) => {
+			  const months = ("0"+(1 + indexm) ).slice(-2);
+			  return yearMonths.push( [year.toString()+"-"+months.toString(), year+"년  "+ months + "월"] );
+		});				  
 		
 	});
 		  
