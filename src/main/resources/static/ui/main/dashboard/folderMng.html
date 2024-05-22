@@ -43,25 +43,21 @@
 	       		            }
 	       		        }
         			]
-        			let folderList = ["회의록", "기업파일", "견적서", "계약서"];
         			
-        			$.each(folderList, function() {
-            			let addParm = {
-           					 queryId 		: "faDashboard.saveFolder"
-           					,requestParm	: {
-             					 FOLDER_ID 		: C_COM.makeUniqueId()
-               					,FOLDER_NM 		: this
-               					,BUYER_ID		: BUYER_ID
-               					,UP_FOLDER_ID	: topFolderId
-               				 }
-          				}
-            			queryGroup.push(addParm);
-        			});
-
         			let parm = {
-        				queryGroup : queryGroup
+          				 queryId 		: "faDashboard.insertFolder"
+                		,requestParmList: []
         			}
-        			
+                			
+        			let folderList = ["회의록", "기업파일", "견적서", "계약서"];
+        			$.each(folderList, function() {
+            			parm.requestParmList.push({
+	   					 	 FOLDER_ID 		: C_COM.makeUniqueId()
+	       					,FOLDER_NM 		: this
+	       					,BUYER_ID		: BUYER_ID
+	       					,UP_FOLDER_ID	: topFolderId
+	       				 });
+        			});
        		        C_COM.requestQuery(parm, function(resultData) {
        					if(resultData.state == "S") {
        						execFn(topFolderId);

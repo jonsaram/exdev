@@ -426,6 +426,28 @@
 	</select>
 
 	
+	<update id="insertFolder">
+		INSERT INTO TBL_EXP_FOLDER( 
+			 FOLDER_ID
+			,FOLDER_NM
+			,UP_FOLDER_ID
+			,BUYER_ID
+			,ORDER_IDX
+		    ,UPDATE_DATE
+		    ,UPDATE_USER
+		    ,SP_CSTM_ID
+		) VALUES ( 
+			 #{FOLDER_ID   }
+			,#{FOLDER_NM   }			
+			,#{UP_FOLDER_ID}	
+			,#{BUYER_ID    }
+			,NVL((SELECT MAX(ORDER_IDX) + 1 FROM TBL_EXP_FOLDER WHERE UP_FOLDER_ID = #{UP_FOLDER_ID}), 1)
+   			,sysdate
+   			,#{sessionVo.userId		}
+			,#{sessionVo.spCstmId	}
+		)
+	</update>
+
 	<update id="saveFolder">
 		/*	faDashboard.saveFolder
 			FA 대시보드 기업폴더관리 폴더 등록

@@ -505,6 +505,7 @@ public class ExcelService  extends ExdevBaseService{
 
         // Fill data rows
         int rowCount = 3;
+        int rowidx = 1;
         for (Map<String, Object> rowData : dataList) {
             Row dataRow = sheet.createRow(rowCount++);
             for (int i = 0; i < columnNames.length; i++) {
@@ -512,10 +513,12 @@ public class ExcelService  extends ExdevBaseService{
                 Object value = rowData.get(columnOrders[i]);
                 String colName = columnNames[i];
 
-                if (value != null) {
-                    
+                if("ROWNUM".equals(columnOrders[i])) {
+                	cell.setCellValue( rowidx++ );
+                } else if (value != null) {
                     cell.setCellValue(this.getCellValue(colName,value));
                 }
+
                 cell.setCellStyle(bodyCellStyle);
             }
         }
