@@ -50,24 +50,6 @@ public class ScheduleService extends ExdevBaseService{
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
         
-        System.out.println("scheduleId["+map.get("scheduleId")+"]   ");
-        System.out.println("scheduleGrpId["+map.get("scheduleGrpId")+"]   ");
-        System.out.println("title["+map.get("title")+"]   ");
-        System.out.println("workType["+map.get("workType")+"]   ");
-        System.out.println("orgDateStart["+map.get("orgDateStart")+"]   ");
-        
-        System.out.println("scheduleStartDate["+map.get("scheduleStartDate")+"]   ");
-        System.out.println("scheduleEndDate["+map.get("scheduleEndDate")+"]   ");
-        System.out.println("TIME_TYPE["+map.get("TIME_TYPE")+"]   ");
-        System.out.println("startTimeH["+map.get("startTimeH")+"]   ");
-        System.out.println("startTimeM["+map.get("startTimeM")+"]   ");
-        System.out.println("endTimeH["+map.get("endTimeH")+"]   ");
-        System.out.println("endTimeM["+map.get("endTimeM")+"]   ");
-        System.out.println("position["+map.get("position")+"]   ");
-        System.out.println("secretYn["+map.get("secretYn")+"]   ");
-        System.out.println("description["+map.get("description")+"]   ");
-        System.out.println("allApplyYn["+map.get("allApplyYn")+"]   ");
-
         result += commonDao.update("schedule.updateSchedule", map);
         result += deleteScheduleShare(map);
         result += saveScheduleShare(map, apprUserList );

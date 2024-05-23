@@ -4,6 +4,7 @@
              searchedRows : [] // 페이지
             ,selectGroup1 : 'ALL'
             ,selectGroup2 : 'ALL'
+            ,selectMonth  : 'ALL'
             ,pageInit : () => {
 
                 const yearsArray = Array.from({ length: 6 }, (_, index) => {
@@ -14,40 +15,16 @@
                 C_UICOM.makeSelectBox(yearsArrayList, "single");
                 C_UICOM.setSingleBox("<@compId>_selectBoxYear", dayjs().year());
                 
-                var startYearsArrayList = { data : yearsArray,targetId : "<@compId>_selectStartBoxYear"}
-                C_UICOM.makeSelectBox(startYearsArrayList, "single");
-                C_UICOM.setSingleBox("<@compId>_selectStartBoxYear", dayjs().year());
-                
-                /*
-                var endYearsArrayList = { data : yearsArray,targetId : "<@compId>_selectEndBoxYear"}
-                C_UICOM.makeSelectBox(endYearsArrayList, "single");
-                C_UICOM.setSingleBox("<@compId>_selectEndBoxYear", dayjs().year());
-                */
-                
                 // 월
-                /*
                 var monthList = C_COM.getCodeList("STORE_MONTH");
                 
-                var selectBoxMonthList = { 
-                     data : monthList
+                var selectBoxMonthList = {
+                	 defaultItem    : ["ALL", "전체"]
+                    ,data : monthList
                     ,targetId : "<@compId>_selectBoxMonth" 
                 }
                 C_UICOM.makeSelectBox(selectBoxMonthList, "single");
                 
-                var selectStartBoxMonthList = { 
-                     data : monthList
-                    ,targetId : "<@compId>_selectStartBoxMonth" 
-                }
-                C_UICOM.makeSelectBox(selectStartBoxMonthList, "single");
-                */
-                
-                /*
-                var selectEndBoxMontht = { 
-                     data : monthList
-                    ,targetId : "<@compId>_selectEndBoxMonth" 
-                }
-                C_UICOM.makeSelectBox(selectEndBoxMontht, "single");
-                */ 
                 <@compId>.getSelectMenu();
                 
                 // 권역
@@ -193,28 +170,19 @@
                 });
             }
 
-            ,setChartData : function( resultData,subject ) {
-                //console.log("=== setChart21Data");
-                let resultList = [];
-                var j = 0;
-                for (var i=0; i< resultData.data.length; i++){
-                    if( resultData.data[i].SUBJECT == subject ){
-                        resultList[j++] = resultData.data[i].AMOUNT;
-                    }
-                }
-                return resultList;
-             }
-            
             /*============= 매출 비교 그래프    매출 비교 그래프    매출 비교 그s래프    매출 비교 그래프    매출 비교 그래프    =============*/
-            ,searchList1 : () => {
-            	console.log(" searchList1");
+            ,searchList1 : (requestParm) => {
             	
-                let requestParm = {};
-                requestParm["spCstmId"] = "starasset";
-                requestParm["year"]     = "2023";
-                
+                var month = requestParm["month"];
+                var serviceUrl = '';
+                if( month == 'ALL'){
+                	serviceUrl = 'dashboardCorPerformance.getmenuSalesMonthTop5';
+                }else{
+                	serviceUrl = 'dashboardCorPerformance.getmenuSalesDayTop5';
+                }
+
                 var parm = {
-                        queryId  : "dashboardCorPerformance.getMenuMonthSales"
+                        queryId  : serviceUrl
                        ,requestParm   : requestParm
                 }
         
@@ -225,16 +193,82 @@
             	
             }
 
-            ,setChart1 : (resultData) =>{
-                console.log("=== setChart22");
-                 
-                 var categories1Arr = <@compId>.setChartData( resultData, "SUBJECT_001");
-                 var categories2Arr = <@compId>.setChartData( resultData, "SUBJECT_003");
-                 var categories3Arr = <@compId>.setChartData( resultData, "SUBJECT_005");
-                 var categories4Arr = <@compId>.setChartData( resultData, "SUBJECT_010");
-                 
-                 $('#<@compId>_chart22').highcharts({
+            ,setChartData : function( resultData, menuKey) {
+                //console.log("=== setChart21Data");
+                let resultList = [];
+                var j = 0;
+                for (var i=0; i< resultData.data.length; i++){
+                    if( resultData.data[i].MENU_KEY == menuKey ){
+                        resultList[j++] = resultData.data[i].SALES;
+                    }
+                }
+                return resultList;
+             }
+            ,getSeriesArry : function( resultData) {
+            	let arr = [];
+                //중복 제거된 메뉴 찾기
+                for (var i=0; i< resultData.data.length; i++){
+                	
+                    let menuMap = {};
+                	menuMap.menuKey = resultData.data[i].MENU_KEY
+                    menuMap.menuNm  = resultData.data[i].MENU_NM
+                    arr.push(menuMap);
+                }
+                
+                // Map을 사용하여 중복을 제거
+                let map = new Map();
+                arr.forEach(item => map.set(item.menuKey, item));
+ 
+                // Map을 다시 배열로 변환
+                let uniqueArr = Array.from(map.values());
 
+                let seriesArr = [];
+                for (let item of uniqueArr) {
+                  var categoriesArr = <@compId>.setChartData( resultData, item.menuKey);
+                  let seriesMap = {};
+                  seriesMap.name = item.menuNm
+                  seriesMap.data = categoriesArr
+                  seriesArr.push(seriesMap);
+                }
+                return seriesArr;
+             }
+            ,getCategoryArr : function( resultData) {
+                let arr = [];
+                
+                //중복 제거된 데이터 찾기
+                for (var i=0; i< resultData.data.length; i++){
+                    
+                    let dataMap = {};
+                    if( <@compId>.selectMonth == 'ALL'){
+                    	dataMap.data = resultData.data[i].MONTH+"월";	
+                    }else{
+                    	dataMap.data = resultData.data[i].DAY+"일";
+                    }
+                    arr.push(dataMap);
+                }
+                
+                // Map을 사용하여 중복을 제거
+                let map = new Map();
+                arr.forEach(item => map.set(item.data, item));
+ 
+                // Map을 다시 배열로 변환
+                let uniqueArr = Array.from(map.values());
+
+                let dataArr = [];
+                
+                for (let item of uniqueArr) {
+                  let dataMap = {};
+                  dataMap.data = item.data
+                  dataArr.push(item.data);
+                }
+                return dataArr;
+             }
+            ,setChart1 : (resultData) =>{
+                 
+                 var seriesArr = <@compId>.getSeriesArry( resultData);
+                 var categoryArr = <@compId>.getCategoryArr( resultData);
+                 
+                 $('#<@compId>_chart1').highcharts({
                      title: {
                          text: '',
                          align: 'left'
@@ -245,34 +279,20 @@
                              text: ''
                          }
                      },
-                     colors: ['#27187F', '#F29423','#66ff00', '#0099ff'],
+                     colors: ['#3399ff', '#66ff00','#ffcc00', '#006600', '#ff0000'],
                      xAxis: {
-                         categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                         categories: categoryArr,
                          accessibility: {
                              rangeDescription: '2'
                          }
                      },
-
                      plotOptions: {
                          column: {
                              pointPadding: 0.2,
                              borderWidth: 0
                          }
                      },
-
-                     series: [{
-                         name: '매출액',
-                         data: categories1Arr
-                     }, {
-                         name: '매출총이익',
-                         data: categories2Arr
-                     }, {
-                         name: '당기순이익',
-                         data: categories4Arr
-                     }, {
-                         name: '영업이익',
-                         data: categories3Arr
-                     }],
+                     series: seriesArr,
 
                      responsive: {
                          rules: [{
@@ -294,22 +314,16 @@
             /*############# 매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    매출 비교 그래프    #############*/
             
             /*============= 분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    =============*/
-            ,searchList2 : () => {
-                console.log(" searchList2 1");
-                let requestParm2 = {};
-                requestParm2["spCstmId"] = "starasset";
-                requestParm2["year"]     = "2023";
-                requestParm2["subject"]  = "SUBJECT_001";
+            ,searchList2 : (requestParm) => {
                 
                 var parm = {
-                        queryId  : "dashboardCorPerformance.getMenuGrp1SalesRanking"
-                       ,requestParm   : requestParm2
+                        queryId       : 'dashboardCorPerformance.getMenuGrp1SalesRanking'
+                       ,requestParm   : requestParm
                 }
-                console.log(" searchList2 1");
        
                 C_COM.requestQuery(parm, function(resultData) { 
                     <@compId>.setTotal2(resultData);
-                    
+                    let isOnCall = true;
                     var rparm = {
                          targetId       : "<@compId>_tableId2"
                         ,list           : resultData.data
@@ -318,7 +332,10 @@
                         ,pagingDomId    : "<@compId>_pageDiv2" // Page가 표시되는 Dom Id
                         ,totalCntDomId  : "<@compId>_total2"
                         ,onPageClickCallback : function(pageInfo) {
-                            <@compId>.setChart2(pageInfo);
+                        	if (isOnCall) {
+                                <@compId>.setChart2(pageInfo);
+                                isOnCall = false;
+                        	}
                          }
                     }
                     C_PAGING.renderHtml("<@compId>", rparm);
@@ -337,117 +354,71 @@
             }//searchList
             ,setChart2 : (resultData) =>{
 
-                var categoriesArr = []; 
-                var dataArr = [];
+                let seriesArr = [];
+                let top5Sales = 0;
 
                 for (var i=0; i<resultData.list.length; i++){
-                    categoriesArr[i] = resultData.list[i].GROUP_1_NM;
-                    dataArr[i] = resultData.list[i].SALES;
-                     
+
+                    let seriesMap = {};
+                    seriesMap.name = resultData.list[i].GROUP_1_NM;
+                    seriesMap.y    = Number(resultData.list[i].SALES); 
+                    seriesArr.push(seriesMap);
+                    
                 }
+                var totalAmount = $('#<@compId>_totalAmount2').text();
+                
+                let seriesMap = {};
+                seriesMap.name = '기타';
+                seriesMap.y    = Number(totalAmount); 
+                seriesArr.push(seriesMap);
+                
                 
                 $("#<@compId>_chart2").highcharts({
                    
-                    credits: {enabled: false},// 하이차트 워터마크 삭제
+
+                    colors: ['#3399ff', '#66ff00','#ffcc00', '#006600', '#ff0000','#cc6633'],
+                    chart: {
+                        type: 'pie'
+                    },
+                    accessibility: {
+                        point: {
+                            valueSuffix: '%'
+                        }
+                    },
                     title: {
-                        text: '',
-                        align: 'left'
+                        text: ''
                     },
                     subtitle: {
-                        text: '',
-                        align: 'left'
+                        text: ''
                     },
-                    xAxis: [{
-                        labels: {
-                            style: {
-                                color: '#8A8C92',
-                                fontFamily: 'Noto Sans KR',
-                                fontSize: '11px'
-                            }
-                        },
-                        lineColor: '#DADADA', /* x축 라인색 */
-                        categories: categoriesArr,
-                        crosshair: true
-                    }],
-                    yAxis: [{
-                        labels: {
-                            format: '{value}',
-                            style: {
-                                color: '#8A8C92',
-                                fontFamily: 'Noto Sans KR',
-                                fontSize: '11px'
-                            }
-                        },
-                        title: {
-                            text: ''
-                        }
-                    }, { // Secondary yAxis
-                        title: {
-                            text: '',
-                            style: {
-                            }
-                        },
-                        labels: {
-                            format: ' '
-                        },
-                        opposite: true
-                    }],
                     tooltip: {
-                        shared: true
+                        pointFormat: '{series.name}: <b>{point.percentage:.0f}%</b>'
                     },
-                    legend: {
-                        align: 'right',
-                        x:0,
-                        verticalAlign: 'top',
-                        y: 0,
-                        itemStyle: {
-                            color: '#8A8C92',
-                            fontFamily: 'Noto Sans KR',
-                            fontSize: '11px'
-                        },
-                        symbolRadius:0,//범례 심볼 radius 지정
-                        symbolWidth:10,
-                        symbolHeight:10,
-                        x: 0,//가로 위치 지정.
-                        y: -2,//세로 위치 지정.
-                    },
-                    plotOptions: {//라인에 원표시 삭제
-                        line:{
-                            marker: {
-                                enabled: false
-                            }
-                        }
+                    plotOptions: {
+                       
                     },
                     series: [{
-                        name: '',
-                        type: 'column',
-                        yAxis: 0,
-                        data: dataArr,
-                        tooltip: {
-                            valueSuffix: ''
-                        }
+                        name: 'Registrations',
+                        colorByPoint: true,
+                        innerSize: '70%',
+                        data: seriesArr
                     }]
                 });
             }//setChart11
             /*############# 분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    분류명별 매출액    #############*/
             
             /*============= 상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    =============*/
-            ,searchList3 : () => {
-                console.log(" searchList3");
-                let requestParm2 = {};
-                requestParm2["spCstmId"] = "starasset";
-                requestParm2["year"]     = "2023";
-                requestParm2["subject"]  = "SUBJECT_001";
-                
+            ,searchList3 : (requestParm) => {
+            	
                 var parm = {
-                        queryId  : "dashboardCorPerformance.getMenuSalesRanking"
-                       ,requestParm   : requestParm2
+                        queryId       : 'dashboardCorPerformance.getMenuSalesRanking'
+                       ,requestParm   : requestParm
                 }
                 console.log(" searchList3 1");
        
                 C_COM.requestQuery(parm, function(resultData) { 
                     <@compId>.setTotal3(resultData);
-                    
+                    let isOnCall = true;
                     var rparm = {
                          targetId       : "<@compId>_tableId3"
                         ,list           : resultData.data
@@ -456,7 +427,10 @@
                         ,pagingDomId    : "<@compId>_pageDiv3" // Page가 표시되는 Dom Id
                         ,totalCntDomId  : "<@compId>_total3"
                         ,onPageClickCallback : function(pageInfo) {
-                            <@compId>.setChart3(pageInfo);
+                        	if (isOnCall) {
+                        		<@compId>.setChart3(pageInfo);
+                        		isOnCall = false;
+                        	}
                          }
                     }
                     C_PAGING.renderHtml("<@compId>", rparm);
@@ -473,132 +447,328 @@
                 
             }
             ,setChart3 : (resultData) => {
-                console.log(" setChart3");
+                
 
                 var categoriesArr = []; 
                 var dataArr = [];
-
+                
+                let seriesArr = [];
+                let top5Sales = 0;
+                
                 for (var i=0; i<resultData.list.length; i++){
-                    categoriesArr[i] = resultData.list[i].MENU_NM;
-                    dataArr[i] = resultData.list[i].SALES;
-                     
+
+                    let seriesMap = {};
+                    seriesMap.name = resultData.list[i].MENU_NM;
+                    seriesMap.y    = Number(resultData.list[i].SALES); 
+                    seriesArr.push(seriesMap);
+                    
                 }
+                var totalAmount3 = $('#<@compId>_totalAmount3').text();
+                
+                let seriesMap = {};
+                seriesMap.name = '기타';
+                seriesMap.y    = Number($('#<@compId>_totalAmount3').text()); 
+                seriesArr.push(seriesMap);
                 
                 $("#<@compId>_chart3").highcharts({
-                   
-                    credits: {enabled: false},// 하이차트 워터마크 삭제
+                	colors: ['#3399ff', '#66ff00','#ffcc00', '#006600', '#ff0000','#cc6633'],
+                    chart: {
+                        type: 'pie'
+                    },
+                    accessibility: {
+                        point: {
+                            valueSuffix: '%'
+                        }
+                    },
                     title: {
-                        text: '',
-                        align: 'left'
+                        text: ''
                     },
                     subtitle: {
-                        text: '',
-                        align: 'left'
+                        text: ''
                     },
-                    xAxis: [{
-                        labels: {
-                            style: {
-                                color: '#8A8C92',
-                                fontFamily: 'Noto Sans KR',
-                                fontSize: '11px'
-                            }
-                        },
-                        lineColor: '#DADADA', /* x축 라인색 */
-                        categories: categoriesArr,
-                        crosshair: true
-                    }],
-                    yAxis: [{
-                        labels: {
-                            format: '{value}',
-                            style: {
-                                color: '#8A8C92',
-                                fontFamily: 'Noto Sans KR',
-                                fontSize: '11px'
-                            }
-                        },
-                        title: {
-                            text: ''
-                        }
-                    }, { // Secondary yAxis
-                        title: {
-                            text: '',
-                            style: {
-                            }
-                        },
-                        labels: {
-                            format: ' '
-                        },
-                        opposite: true
-                    }],
                     tooltip: {
-                        shared: true
+                        pointFormat: '{series.name}: <b>{point.percentage:.0f}%</b>'
                     },
-                    legend: {
-                        align: 'right',
-                        x:0,
-                        verticalAlign: 'top',
-                        y: 0,
-                        itemStyle: {
-                            color: '#8A8C92',
-                            fontFamily: 'Noto Sans KR',
-                            fontSize: '11px'
-                        },
-                        symbolRadius:0,//범례 심볼 radius 지정
-                        symbolWidth:10,
-                        symbolHeight:10,
-                        x: 0,//가로 위치 지정.
-                        y: -2,//세로 위치 지정.
-                    },
-                    plotOptions: {//라인에 원표시 삭제
-                        line:{
-                            marker: {
-                                enabled: false
-                            }
-                        }
+                    plotOptions: {
+                       
                     },
                     series: [{
-                        name: '',
-                        type: 'column',
-                        yAxis: 0,
-                        data: dataArr,
-                        tooltip: {
-                            valueSuffix: ''
-                        }
+                        name: 'Registrations',
+                        colorByPoint: true,
+                        innerSize: '70%',
+                        data: seriesArr
                     }]
                 });
             }
             /*############# 상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    #############*/
             
             /*============= 마진비교           마진비교          마진비교           마진비교           마진비교           =============*/
-            ,searchList4 : () => {
+            ,searchList4 : (requestParm) => {
                 console.log(" searchList4");
-                <@compId>.setChart4();
+                
+                var month = requestParm["month"];
+                var serviceUrl = '';
+                if( month == 'ALL'){
+                    serviceUrl = 'dashboardCorPerformance.getmenuMarginMonthTop5';
+                }else{
+                    serviceUrl = 'dashboardCorPerformance.getmenuMarginDayTop5';
+                }
+
+                var parm = {
+                        queryId  : serviceUrl
+                       ,requestParm   : requestParm
+                }
+        
+                C_COM.requestQuery(parm, function(resultData) {
+                    <@compId>.setChart4(resultData);
+                });
+                 
             }
 
-            ,setChart4 : () => {
-                console.log(" setChart4");
+            ,setChart4 : (resultData) => {
+                console.log("=== setChart4");
+                
+                var seriesArr = <@compId>.getSeriesArry( resultData);
+                var categoryArr = <@compId>.getCategoryArr( resultData);
+                
+                $('#<@compId>_chart4').highcharts({
+                    title: {
+                        text: '',
+                        align: 'left'
+                    },
+
+                    yAxis: {
+                        title: {
+                            text: ''
+                        }
+                    },
+                    colors: ['#3399ff', '#66ff00','#ffcc00', '#006600', '#ff0000'],
+                    xAxis: {
+                        categories: categoryArr,
+                        accessibility: {
+                            rangeDescription: '2'
+                        }
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: seriesArr,
+
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 500
+                            },
+                            chartOptions: {
+                                legend: {
+                                    layout: 'horizontal',
+                                    align: 'center',
+                                    verticalAlign: 'bottom'
+                                }
+                            }
+                        }]
+                    }
+
+                });
             }
             /*############# 마진비교           마진비교          마진비교           마진비교           마진비교           #############*/
             
             /*============= 상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트     =============*/
-            ,searchList5 : () => {
+            ,searchList5 : (requestParm) => {
                 console.log(" searchList5");
-                <@compId>.setChart5();
+                var month = requestParm["month"];
+                var serviceUrl = '';
+                if( month == 'ALL'){
+                    serviceUrl = 'dashboardCorPerformance.getMenuMonthCostRanking';
+                }else{
+                    serviceUrl = 'dashboardCorPerformance.getMenuMonthCostRanking';
+                    //serviceUrl = 'dashboardCorPerformance.getMenuDayGrp1SalesRanking'; kbntt
+                }
+                
+                var parm = {
+                        queryId       : serviceUrl
+                       ,requestParm   : requestParm
+                }
+       
+                C_COM.requestQuery(parm, function(resultData) { 
+                    <@compId>.setTotal5(resultData);
+                    let isOnCall = true;
+                    var rparm = {
+                         targetId       : "<@compId>_tableId5"
+                        ,list           : resultData.data
+                        ,listRange      : 5         // 리스트 범위
+                        ,pageRange      : 5         // Page 범위
+                        ,pagingDomId    : "<@compId>_pageDiv5" // Page가 표시되는 Dom Id
+                        ,totalCntDomId  : "<@compId>_total5"
+                        ,onPageClickCallback : function(pageInfo) {
+                            if (isOnCall) {
+                                <@compId>.setChart5(pageInfo);
+                                isOnCall = false;
+                            }
+                         }
+                    }
+                    C_PAGING.renderHtml("<@compId>", rparm);
+                });
             }
 
-            ,setChart5 : () => {
-                console.log(" setChart5");
+            ,setTotal5 : (resultData) =>{
+                
+                let total = 0;
+                for (var i=0; i<resultData.data.length; i++){
+                    total += resultData.data[i].COST_PRICE;
+                }
+                $('#<@compId>_totalAmount5').text(total);
+                
+            }
+            ,setChart5 : (resultData) => {
+                console.log(" setChart6");
+                var categoriesArr = []; 
+                var dataArr = [];
+                
+                let seriesArr = [];
+                let top5Sales = 0;
+                
+                for (var i=0; i<resultData.list.length; i++){
+
+                    let seriesMap = {};
+                    seriesMap.name = resultData.list[i].MENU_NM;
+                    seriesMap.y    = Number(resultData.list[i].COST_PRICE); 
+                    seriesArr.push(seriesMap);
+                    
+                }
+                var totalAmount3 = $('#<@compId>_totalAmount5').text();
+                
+                let seriesMap = {};
+                seriesMap.name = '기타';
+                seriesMap.y    = Number($('#<@compId>_totalAmount5').text()); 
+                seriesArr.push(seriesMap);
+                
+                $("#<@compId>_chart5").highcharts({
+                    colors: ['#3399ff', '#66ff00','#ffcc00', '#006600', '#ff0000','#cc6633'],
+                    chart: {
+                        type: 'pie'
+                    },
+                    accessibility: {
+                        point: {
+                            valueSuffix: '%'
+                        }
+                    },
+                    title: {
+                        text: ''
+                    },
+                    subtitle: {
+                        text: ''
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.0f}%</b>'
+                    },
+                    plotOptions: {
+                       
+                    },
+                    series: [{
+                        name: 'Registrations',
+                        colorByPoint: true,
+                        innerSize: '70%',
+                        data: seriesArr
+                    }]
+                });
             }
             /*============= 상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트     =============*/
             
             /*============= 상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    =============*/
-            ,searchList6 : () => {
-                console.log(" searchList6");
-                <@compId>.setChart6();
+            ,searchList6 : (requestParm) => {
+                
+                var parm = {
+                        queryId     : 'dashboardCorPerformance.getmenuMarginRanking'
+                       ,requestParm : requestParm
+                }
+                console.log(" searchList3 1");
+       
+                C_COM.requestQuery(parm, function(resultData) { 
+                    <@compId>.setTotal6(resultData);
+                    let isOnCall = true;
+                    var rparm = {
+                         targetId       : "<@compId>_tableId6"
+                        ,list           : resultData.data
+                        ,listRange      : 5         // 리스트 범위
+                        ,pageRange      : 5         // Page 범위
+                        ,pagingDomId    : "<@compId>_pageDiv6" // Page가 표시되는 Dom Id
+                        ,totalCntDomId  : "<@compId>_total6"
+                        ,onPageClickCallback : function(pageInfo) {
+                            if (isOnCall) {
+                                <@compId>.setChart6(pageInfo);
+                                isOnCall = false;
+                            }
+                         }
+                    }
+                    C_PAGING.renderHtml("<@compId>", rparm);
+                });
             }
 
-            ,setChart6 : () => {
+            ,setTotal6 : (resultData) =>{
+                
+                let total = 0;
+                for (var i=0; i<resultData.data.length; i++){
+                    total += resultData.data[i].MARGIN;
+                }
+                $('#<@compId>_totalAmount6').text(total);
+                
+            }
+            ,setChart6 : (resultData) => {
                 console.log(" setChart6");
+                var categoriesArr = []; 
+                var dataArr = [];
+                
+                let seriesArr = [];
+                let top5Sales = 0;
+                
+                for (var i=0; i<resultData.list.length; i++){
+
+                    let seriesMap = {};
+                    seriesMap.name = resultData.list[i].MENU_NM;
+                    seriesMap.y    = Number(resultData.list[i].MARGIN); 
+                    seriesArr.push(seriesMap);
+                    
+                }
+                var totalAmount3 = $('#<@compId>_totalAmount6').text();
+                
+                let seriesMap = {};
+                seriesMap.name = '기타';
+                seriesMap.y    = Number($('#<@compId>_totalAmount6').text()); 
+                seriesArr.push(seriesMap);
+                
+                $("#<@compId>_chart6").highcharts({
+                    colors: ['#3399ff', '#66ff00','#ffcc00', '#006600', '#ff0000','#cc6633'],
+                    chart: {
+                        type: 'pie'
+                    },
+                    accessibility: {
+                        point: {
+                            valueSuffix: '%'
+                        }
+                    },
+                    title: {
+                        text: ''
+                    },
+                    subtitle: {
+                        text: ''
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.0f}%</b>'
+                    },
+                    plotOptions: {
+                       
+                    },
+                    series: [{
+                        name: 'Registrations',
+                        colorByPoint: true,
+                        innerSize: '70%',
+                        data: seriesArr
+                    }]
+                });
             }
             /*============= 상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    상세메뉴 마진금액    =============*/
             
@@ -606,13 +776,38 @@
             ,setHandler : () => {
 
                 $("#<@compId>_searchBtn").click( () =>{
-                    console.log(" search 클릭");
-                    //<@compId>.searchList1();//매출 비교
-                    <@compId>.searchList2();//분류명별 매출액
-                    <@compId>.searchList3();//상세메뉴 매출액
-                    //<@compId>.searchList4();//마진비교
-                    //<@compId>.searchList5();//상세메뉴 코스트
-                    //<@compId>.searchList6();//상세메뉴 마진금액
+                	
+                	var buyerId = G_VAL.session.BUYER_ID;
+
+                    var year        = C_UICOM.getData("<@compId>_selectBoxYear");
+                    var month       = C_UICOM.getData("<@compId>_selectBoxMonth");
+                    var group1      = C_UICOM.getData("<@compId>_selectGroup1");
+                    var group2      = C_UICOM.getData("<@compId>_selectGroup2");
+                    var menu        = C_UICOM.getData("<@compId>_selectBoxMenu");
+                    var region      = C_UICOM.getData("<@compId>_selectBoxRegion");
+                    var store       = C_UICOM.getData("<@compId>_selectBoxStore");
+                    var supervisor  = C_UICOM.getData("<@compId>_selectBoxSupervisor");
+                    
+                    let requestParm = {};
+                    requestParm["buyerId"]       = buyerId;
+                    requestParm["year"]          = year;
+                    requestParm["month"]         = month;
+                    requestParm["group1"]        = group1;
+                    requestParm["group2"]        = group2;
+                    requestParm["menu"]          = menu;
+                    requestParm["region"]        = region;
+                    requestParm["store"]         = store;
+                    requestParm["menu"]          = menu;
+                    requestParm["supervisor"]    = supervisor;
+                    
+                    <@compId>.selectMonth = month;
+                    
+                    <@compId>.searchList1(requestParm);//매출 비교
+                    <@compId>.searchList2(requestParm);//분류명별 매출액
+                    <@compId>.searchList3(requestParm);//상세메뉴 매출액
+                    <@compId>.searchList4(requestParm);//마진비교
+                    <@compId>.searchList5(requestParm);//상세메뉴 코스트
+                    <@compId>.searchList6(requestParm);//상세메뉴 마진금액
                 })            
                 
             } 
@@ -633,11 +828,11 @@
             <div class="select_box fl" style="width:132px">
                 <div id="<@compId>_selectBoxYear" style="width:132px"></div>
             </div>
-            <!--
+            <!-- -->
             <div class="select_box fl" style="width:132px">
                 <div id="<@compId>_selectBoxMonth" style="width:132px"></div>
             </div>
-             -->
+            
             <!-- 대분류 선택 -->
             <div class="select_box fl" style="width:130px">
                 <div id="<@compId>_selectGroup1" style="width:130px"></div>
@@ -675,9 +870,10 @@
             <div class="cont_box">
                 <h3>매출 비교 그래프</h3>
                 <figure class="highcharts-figure2">
-                    <div class="chart02_01" style="width:100%;height:280px;margin:0 auto">
-                        <!-- 임시 차트 이미지 -->
+                    <div class="chart02_01" id="<@compId>_chart1" style="width:100%;height:280px;margin:0 auto">
+                        <!-- 임시 차트 이미지
                         <img src="../img/img_chart_list11.png" style="width:100%;height:280px;">
+                         -->
                     </div>
                 </figure>
             </div>
@@ -754,6 +950,7 @@
                         </div>
                     </figure>
                     <div class="fl ml15" style="width:calc(55% - 15px)">
+                        <h3>매출 TOP5 Total : <span id="<@compId>_total3"></span></h3>
                         <!-- 테이블 -->
                         <div class="tbl01 col noScroll small">
                             <table>
@@ -807,9 +1004,10 @@
             <div class="cont_box">
                 <h3>마진 비교 그래프</h3>
                 <figure class="highcharts-figure2">
-                    <div class="chart02_01" style="width:100%;height:280px;margin:0 auto">
-                        <!-- 임시 차트 이미지 -->
+                    <div class="chart02_01" id="<@compId>_chart4" style="width:100%;height:280px;margin:0 auto">
+                        <!-- 임시 차트 이미지
                         <img src="../img/img_chart_list12.png" style="width:100%;height:280px;">
+                         -->
                     </div>
                 </figure>
             </div>
@@ -820,12 +1018,14 @@
                 <h3>상세 메뉴 코스트 금액</h3>
                 <div class="clearFix">
                     <figure class="highcharts-figure2 fl mt20" style="width:45%">
-                        <div class="chart02_01" style="width:100%;height:210px;margin:0 auto">
-                            <!-- 임시 차트 이미지 -->
+                        <div class="chart02_01"  id="<@compId>_chart5" style="width:100%;height:210px;margin:0 auto">
+                            <!-- 임시 차트 이미지
                             <img src="../img/img_chart_list15.png" style="width:100%;height:210px;">
+                             -->
                         </div>
                     </figure>
                     <div class="fl ml15" style="width:calc(55% - 15px)">
+                        <h3>메뉴 Total : <span id="<@compId>_total5"></span></h3>
                         <!-- 테이블 -->
                         <div class="tbl01 col noScroll small">
                             <table>
@@ -833,8 +1033,8 @@
                                 <colgroup>
                                     <col style="width:50px;"/>
                                     <col style="*"/>
-                                    <col style="width:80px;"/>
-                                    <col style="width:150px;"/>
+                                    <col style="width:70px;"/>
+                                    <col style="width:90px;"/>
                                 </colgroup>
                                 <thead>
                                     <tr>
@@ -844,60 +1044,35 @@
                                         <th scope="col" class="tr">코스트금액</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="tl">1.</td>
-                                        <td class="tl">참이슬</td>
-                                        <td>25.8%</td>
-                                        <td class="tr">75,963,229</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">2.</td>
-                                        <td class="tl">스페셜모듬과일</td>
-                                        <td>22.32%</td>
-                                        <td class="tr">57,472,366.99</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">3.</td>
-                                        <td class="tl">카스(500ml)</td>
-                                        <td>30.18%</td>
-                                        <td class="tr">55,710,656.36</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">4.</td>
-                                        <td class="tl">스페셜과일화채</td>
-                                        <td>26.21%</td>
-                                        <td class="tr">
-                                        23,024,288.05</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">5.</td>
-                                        <td class="tl">테라(500ml)</td>
-                                        <td>30.18%</td>
-                                        <td class="tr">21,804,794.18</td>
-                                    </tr>
+                                <tbody id="<@compId>_tableId5">
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td></td>
                                         <td class="tl">총 합계</td>
-                                        <td>28.04%</td>
-                                        <td class="tr">513,409,534...</td>
+                                        <td></td>
+                                        <td class="tr" id="<@compId>_totalAmount5"></td>
                                     </tr>
                                 </tfoot>
+                                <script type="text/x-jsrender" id="<@compId>_tableId5_template">   
+                                    {{for list}}
+                                    <tr>     
+                                        <td class="tl">{{:rownum}}</td>    
+                                        <td class="tl">{{:MENU_NM}}</td>   
+                                        <td class="tl">{{:COST_RATIO}}%</td> 
+                                        <td class="tr">{{:COST_PRICE}}</td>  
+                                    </tr>
+                                    {{/for}}
+                                </script>
+                                <script type="text/x-jsrender" id="<@compId>_tableId5_noData_template">    
+                                    <tr>    
+                                        <td colspan=3>자료가 없습니다.</td>    
+                                    </tr>
+                                </script>
                             </table>
                         </div>
                         <!-- paging -->
-                        <div class="paging small">
-                            <a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-                            <a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-                            <strong title="현재 페이지">1</strong>
-                            <a href="#none">2</a>
-                            <a href="#none">3</a>
-                            <a href="#none">4</a>
-                            <a href="#none">5</a>
-                            <a href="#none" class="btn_pg_next">다음 페이지</a>
-                            <a href="#none" class="btn_pg_last">마지막 페이지</a>
+                        <div class="paging" id="<@compId>_pageDiv5">
                         </div>
                     </div>
                 </div>
@@ -906,12 +1081,14 @@
                 <h3>상세 메뉴 마진 금액</h3>
                 <div class="clearFix">
                     <figure class="highcharts-figure2 fl mt20" style="width:45%">
-                        <div class="chart02_01" style="width:100%;height:210px;margin:0 auto">
-                            <!-- 임시 차트 이미지 -->
+                        <div class="chart02_01" id="<@compId>_chart6" style="width:100%;height:210px;margin:0 auto">
+                            <!-- 임시 차트 이미지
                             <img src="../img/img_chart_list16.png" style="width:100%;height:210px;">
+                             -->
                         </div>
                     </figure>
                     <div class="fl ml15" style="width:calc(55% - 15px)">
+                        <h3>메뉴 Total : <span id="<@compId>_total6"></span></h3>
                         <!-- 테이블 -->
                         <div class="tbl01 col noScroll small">
                             <table>
@@ -931,53 +1108,33 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="tl">1.</td>
-                                        <td class="tl">참이슬</td>
-                                        <td class="tr">218,482,271</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">2.</td>
-                                        <td class="tl">스페셜모듬과일</td>
-                                        <td class="tr">200,040,133.01</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">3.</td>
-                                        <td class="tl">카스(500ml)</td>
-                                        <td class="tr">128,872,843.64</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">4.</td>
-                                        <td class="tl">진로이즈벡</td>
-                                        <td class="tr">65,617,936.18</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="tl">5.</td>
-                                        <td class="tl">스페셜과일화채</td>
-                                        <td class="tr">64,831,911.95</td>
-                                    </tr>
+                                <tbody id="<@compId>_tableId6">
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td></td>
-                                        <td class="tl">총 합계</td>
-                                        <td class="tr">1,999,430,165.3</td>
+                                        <td class="tl">총합계</td>
+                                        <td class="tr" id="<@compId>_totalAmount6"></td>
                                     </tr>
                                 </tfoot>
+                                <script type="text/x-jsrender" id="<@compId>_tableId6_template">   
+                                    {{for list}}
+                                    <tr>     
+                                        <td class="tl">{{:rownum}}</td>    
+                                        <td class="tl">{{:MENU_NM}}</td> 
+                                        <td class="tr">{{:MARGIN}}</td>  
+                                    </tr>
+                                    {{/for}}
+                                </script>
+                                <script type="text/x-jsrender" id="<@compId>_tableId6_noData_template">    
+                                    <tr>    
+                                        <td colspan=3>자료가 없습니다.</td>    
+                                    </tr>
+                                </script>
                             </table>
                         </div>
                         <!-- paging -->
-                        <div class="paging small">
-                            <a href="#none" class="btn_pg_first disabled">첫번째 페이지</a>
-                            <a href="#none" class="btn_pg_prev disabled">이전 페이지</a>
-                            <strong title="현재 페이지">1</strong>
-                            <a href="#none">2</a>
-                            <a href="#none">3</a>
-                            <a href="#none">4</a>
-                            <a href="#none">5</a>
-                            <a href="#none" class="btn_pg_next">다음 페이지</a>
-                            <a href="#none" class="btn_pg_last">마지막 페이지</a>
+                        <div class="paging" id="<@compId>_pageDiv6">
                         </div>
                     </div>
                 </div>
