@@ -206,12 +206,13 @@ public class ExcelService  extends ExdevBaseService{
 	            		String columnList = (String)lm.get("COLUMN_LIST");
 	            		String columnArray [] = columnList.split("/");
 	            		int cidx = 1;
+	            		int keyIdx = 0;
 	            		for (String column : columnArray) {
 		            		headerList.add(column);
 		            		for (String num : prmKeyNumAttr) {
 								if((cidx + "").equals(num)) {
 									//엑셀에서 지정한 Primary Key를 구한다.
-									prmKeyAttr[cidx - 1] = column;
+									prmKeyAttr[keyIdx++] = column;
 									break;
 								}
 							}
