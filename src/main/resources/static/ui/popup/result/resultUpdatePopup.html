@@ -583,11 +583,13 @@ var <@popupId> = {
 	}
 	,setTitleHeight : (parentData) => {
 		
+		const consultingTypeNm = <@popupId>.recvData.contractItem.CONSULTING_TYPE_NM;
+		
 		let title = "<@mode>" == "I" ? "실적 등록" : "실적 정보 수정";
 		if( parentData.contractItem.PROCESS_STATE.indexOf("COMPLETE") > -1 
 		||	"<@mode>" == "V") title = "실적 정보";
 		
-  	 	$("#<@popupId> .tit").html( title );
+  	 	$("#<@popupId> .tit").html(consultingTypeNm+" "+ title );
 		
 	}
 	,changeRateVal : (obj) =>{
@@ -690,7 +692,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				</ul>
 				<div class="tab_content">
 					<div id="<@popupId>_tab1" class="display">
-						<h4><i class="icon_bullet"></i>계약 정보</h4>
+						<h4 id="<@popupId>_contractTitle"><i class="icon_bullet" ></i>계약 정보</h4>
 						<div class="tbl01 row" id="<@popupId>_contractInfo">
 							<table>
 								<caption>표 캡션</caption>

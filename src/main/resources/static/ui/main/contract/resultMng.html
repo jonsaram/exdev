@@ -202,6 +202,14 @@ var <@pageId> = {
 				return;
 	    		
 	    	}
+	    	
+			if( <@pageId>.contractItem["PROCESS_STATE"].indexOf("COMPLETED") > -1 )
+			{
+				C_POP.alert('실행 완료된 계약은 실적 등록 할 수 없습니다.');
+				return;
+			}
+
+	    	
 	    	// remainingCost to reload
 			const requestParm = {CONTRACT_ID : contractId , USER_ID : <@pageId>.contractItem.USER_ID };
 			
@@ -256,12 +264,6 @@ var <@pageId> = {
 						
 					});
 					
-					if( <@pageId>.contractItem["PROCESS_STATE"].indexOf("COMPLETED") > -1 )
-					{
-						$("#<@pageId>_regResult").hide();
-					}else{
-						$("#<@pageId>_regResult").show();
-					}
 					<@pageId>.searchList();
 				});
 				
@@ -291,15 +293,41 @@ var <@pageId> = {
 			
 		}
 
- 		C_POP.open('popup_result_resultUpdatePopup', {	  mode:mode
- 												, resultItem:param 
- 												, contractItem :<@pageId>.contractItem }
-			, function(retData) {
+		let goPopup = false;
+		if( mode == "I"){
 
-				if(isValid(retData)){
-						<@pageId>.updateItem( retData ) ; 
-				}
-		});
+			const today = dayjs();
+			const expireDate = dayjs(<@pageId>.contractItem.EXPIRE_DATE);
+			
+			const isExpired = today.isAfter(expireDate);
+			if( isExpired){ 
+				
+		    	C_POP.confirm('계약만료일이 지난 실적을 입력하시겠습니까?', function() {
+
+		    		goPopup = true;
+
+				});
+		    	
+			}else{
+				goPopup = true;
+			}
+		}else{
+			
+			goPopup = true;			
+		}
+		
+		if( goPopup ){
+			
+	 		C_POP.open('popup_result_resultUpdatePopup', {	  mode:mode
+	 												, resultItem:param 
+	 												, contractItem :<@pageId>.contractItem }
+				, function(retData) {
+	
+					if(isValid(retData)){
+							<@pageId>.updateItem( retData ) ; 
+					}
+			});
+		}
 	}
 }
 // Page Load가 완료된후 실행 된다.
