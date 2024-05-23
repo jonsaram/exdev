@@ -241,6 +241,7 @@
 				,TBL_EXP_CONTRACT 		B
 			WHERE 1=1
 				AND	A.BUYER_ID 		= B.BUYER_ID
+				AND B.USER_ID		= #{USER_ID}
 				AND A.USE_YN = 'Y'
 				AND A.DEL_YN = 'N'
 				AND B.USE_YN = 'Y'
@@ -673,6 +674,16 @@
 			SET PROCESS_STATE = #{PROCESS_STATE}
 		WHERE 
 			CONTRACT_ID = #{CONTRACT_ID}
+	</update>
+
+	<update id="updateBaseFolderIdOfProject">
+		/*	contract.updateBaseFolderIdOfProject
+			Project 기본 폴더 ID Update
+		*/
+		UPDATE TBL_EXP_CONTRACT
+			SET BASE_FOLDER_ID 	= #{BASE_FOLDER_ID}
+		WHERE 
+			CONTRACT_ID 		= #{CONTRACT_ID}
 	</update>
 
 
