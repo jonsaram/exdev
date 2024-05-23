@@ -81,14 +81,31 @@ var <@pageId> = {
 						 queryId 			: "financialanalysis.getFinAnalStockholder"
 						,requestParm	: pmt
 					}
+					,
+					{
+						 queryId 			: "financialanalysis.getFinAnalLifecycleIssue"
+						,requestParm	: pmt
+					}
+					,
+					{
+						 queryId 			: "financialanalysis.getFinAnalStockholderStr"
+						,requestParm	: pmt
+					}
 				]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				<@pageId>.showObject(resultData.data['financialanalysis.getBuyerDetail'][0],'');
-				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');				
+				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');
+				<@pageId>.showObject(resultData.data['financialanalysis.getFinAnalStockholderStr'][0],'');
 				<@pageId>.showList("<@pageId>_getBasis02", resultData.data['financialanalysis.getBasis02']);				
 				<@pageId>.showList("<@pageId>_getFinAnalStockholder", resultData.data['financialanalysis.getFinAnalStockholder']);
+				if(resultData.data['financialanalysis.getFinAnalStockholder'].length > 0){
+					$("#<@pageId>_getFinAnalStockholder_baseDate").text(resultData.data['financialanalysis.getFinAnalStockholder'][0].BASE_DATE);
+				}
 				<@pageId>.showList("<@pageId>_getFinAnalExecutive", resultData.data['financialanalysis.getFinAnalExecutive']);
+				if(resultData.data['financialanalysis.getFinAnalExecutive'].length > 0){
+					$("#<@pageId>_getFinAnalExecutive_baseDate").text(resultData.data['financialanalysis.getFinAnalExecutive'][0].BASE_DATE);
+				}
 				<@pageId>.showList("<@pageId>_getFinAnalRate01", resultData.data['financialanalysis.getFinAnalRate']);
 				<@pageId>.showList("<@pageId>_getFinAnalRate02", resultData.data['financialanalysis.getFinAnalRate']);
 				<@pageId>.showList("<@pageId>_getFinAnalRate03", resultData.data['financialanalysis.getFinAnalRate']);
@@ -100,6 +117,9 @@ var <@pageId> = {
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl04", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl06", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.showList("<@pageId>_getFinAnalResult01", resultData.data['financialanalysis.getFinAnalResult']);
+				<@pageId>.showList("<@pageId>_getFinAnalResult02", resultData.data['financialanalysis.getFinAnalResult']);
+				<@pageId>.showList("<@pageId>_getFinAnalLifecycleIssue", resultData.data['financialanalysis.getFinAnalLifecycleIssue']);
 				
 				<@pageId>.setChart('Sales',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.setChart('Personal',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
@@ -530,7 +550,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<div class="com_cont_tit">주주 및 임원</div>
 
 							<div class="com_cont_stit">주요 주주현황
-								<div class="re_date">기준일&nbsp;&nbsp;<span>2023.08.01</span></div>
+								<div class="re_date">기준일&nbsp;&nbsp;<span id="<@pageId>_getFinAnalStockholder_baseDate"></span></div>
 							</div>
 							<div class="com_tbl col">
 								<table>
@@ -562,7 +582,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<tr>
 											<td>{{:STOCKHOLDER_NM}}</td>
 											<td>{{:STOCK_CNT}}</td>
-											<td>{{:SHARE_RATIO}}</td>
+											<td>{{:SHARE_RATIO}}%</td>
 											<td>{{:STOCK_KIND}}</td>
 											<td>{{:OWNER_RELATIONSHIP}}</td>
 											<td>{{:COMPANY_RELATIONSHIP}}</td>
@@ -581,7 +601,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<div class="info_txt">데이터 출처: 직접입력 정보</div>
 
 							<div class="com_cont_stit">임원 현황
-								<div class="re_date">기준일&nbsp;&nbsp;<span>2023.08.22</span></div>
+								<div class="re_date">기준일&nbsp;&nbsp;<span id="<@pageId>_getFinAnalExecutive_baseDate"></span></div>
 							</div>
 							<div class="com_tbl col">
 								<table>
@@ -1332,12 +1352,12 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<div class="company_left">
 							<div class="com_left_checkP"><i class="icon_analysis"></i>Check Point</div>
 							<img class="com_img" src="../img/icon_company02.png">
-							<div class="com_left_name">이오에프씨(주)</div>
+							<div class="com_left_name"><font class="<@pageId>_COMPANY_NM"></font></div>
 							<dl class="com_left_his">
 								<dt>설립일</dt>
-								<dd>2019.06.11</dd>
+								<dd class="<@pageId>_ESTABLISHMENT_DATE"></dd>
 								<dt>경영기간</dt>
-								<dd>4.3년</dd>
+								<dd><span class="<@pageId>_MANAGEMENT_PERIOD"></span>년</dd>
 								<dt>대표자 나이</dt>
 								<dd>만47세</dd>
 							</dl>
@@ -1345,139 +1365,26 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<div class="company_cont">
 							<div class="com_cont_tit">기업 라이프 사이클별 경영이슈</div>
 							<div class="com_info">
-								귀사의 <span class="point_color">경영기간은 4.3년</span>으로 <span class="point_color">성장기 단계</span>에 해당하는 경영이슈를 중점적으로 점검할 필요가 있습니다.
+								귀사의 <span class="point_color">경영기간은 <font class="<@pageId>_MANAGEMENT_PERIOD"></font>년으로</span> <span class="point_color">성장기 단계</span>에 해당하는 경영이슈를 중점적으로 점검할 필요가 있습니다.
 							</div>
 
-							<div class="lifeCycle_wrap mt25">
-								<div class="col4">
+							<div class="lifeCycle_wrap mt25" id="<@pageId>_getFinAnalLifecycleIssue">
+					            <script type="text/x-jsrender" id="<@pageId>_getFinAnalLifecycleIssue_template">
+						 		{{for list}}
+								<div class="col4 {{:CHECK_STR}}">
 									<div class="box_lifeCycle">
 										<div class="box_lifeCycle_tit">
-											<strong>창업기</strong><br>
-											성장을 위한 준비 단계
+											<strong>{{:ISSUE_TITLE}}</strong><br>
+											{{:ISSUE_EXPLAIN}}
 										</div>
 										<ol class="box_lifeCycle_cot">
-											<li><strong><span>1</span>법인설립</strong>
-												<ul>
-													<li>신규설립, 법인전환</li>
-												</ul>
-											</li>
-											<li><strong><span>2</span>지분설계</strong>
-												<ul>
-													<li>가족주주, 창업멤버 최적의<br>
-													지분설계, 스톡옵션 부여</li>
-												</ul>
-											</li>
-											<li><strong><span>3</span>기업제도정비</strong>
-												<ul>
-													<li>정관 세팅 및 임원보수<strong>·</strong>퇴직금<br>
-													지급규정 제정</li>
-													<li>노무제도(근로계약서, 임금대장,<br>
-													취업규칙 등)</li>
-													<li>고용지원금제도, 정책자금 활용</li>
-													<li>기업연구소 설립<strong>·</strong>벤처인증</li>
-												</ul>
-											</li>
+											{{:ISSUE_DETAIL}}
 										</ol>
 									</div>
 								</div>
-								<div class="col4">
-									<div class="box_lifeCycle">
-										<div class="box_lifeCycle_tit">
-											<strong>성장기</strong><br>
-											본격성장을 위한 시스템 구축
-										</div>
-										<ol class="box_lifeCycle_cot">
-											<li><strong><span>1</span>자금조달 및 특허권 활용</strong>
-												<ul>
-													<li>정부지원과제, 정책자금대출,<br>
-														투자유치(IR),  팁스(TIPS)
-													</li>
-													<li>특허<strong>·</strong>상표권 등록, 이노비즈,<br>
-														메인비즈, ISO 인증
-													</li>
-												</ul>
-											</li>
-											<li><strong><span>2</span>주식 이동 및 배당정책</strong>
-												<ul>
-													<li>주식 양수도 및 증여,<br>
-													차명주식환원</li>
-													<li>미처분이익잉여금 진단,<br>
-													중간배당(현금,현물) 검토</li>
-												</ul>
-											</li>
-											<li><strong><span>3</span>CEO 보장 자산 준비</strong>
-												<ul>
-													<li>CEO 유고시 리스크 관리,<br>
-													퇴직금 재원 마련 준비</li>
-												</ul>
-											</li>
-										</ol>
-									</div>
-								</div>
-								<div class="col4">
-									<div class="box_lifeCycle">
-										<div class="box_lifeCycle_tit">
-											<strong>성숙기</strong><br>
-											잉여금 활용 및 지속성장 검토
-										</div>
-										<ol class="box_lifeCycle_cot">
-											<li><strong><span>1</span>이익환원</strong>
-												<ul>
-													<li>적정보수 책정</li>
-													<li>예상퇴직금 및 준비재원 검토</li>
-													<li>자기주식취득 활용</li>
-													<li>주식소각(이익소각, 감자)</li>
-													<li>배당 최적화 플랜</li>
-													<li>산업재산권 활용전략</li>
-												</ul>
-											</li>
-											<li><strong><span>2</span>세무관리</strong>
-												<ul>
-													<li>가지급금<strong>·</strong>가수금 해결</li>
-													<li>세무조사 대응, 경정청구 검토</li>
-													<li>상속<strong>·</strong>증여 사전검토</li>
-													<li>사내근로복지금 활용</li>
-													<li>외부감사 준비</li>
-												</ul>
-											</li>
-										</ol>
-									</div>
-								</div>
-								<div class="col4 active">
-									<div class="box_lifeCycle">
-										<div class="box_lifeCycle_tit">
-											<strong>정리기/재성장</strong><br>
-											성공적인 Exit또는 가업승계
-										</div>
-										<ol class="box_lifeCycle_cot">
-											<li><strong><span>1</span>사업정리</strong>
-												<ul>
-													<li>기업자산 매각 및 정리 플랜</li>
-													<li>인수합병(M&A)</li>
-													<li>우리사주조합 활용(근로자 승계)</li>
-												</ul>
-											</li>
-											<li><strong><span>2</span>가업승계</strong>
-												<ul>
-													<li>승계유형 검토, 후계자 양성</li>
-													<li>가업승계지원제도 활용<br>
-														(창업증여특례, 가업증여특례,<br>
-														가업상속 공제)
-													</li>
-													<li>승계 재원 마련</li>
-													<li>기업공개(IPO) 준비</li>
-												</ul>
-											</li>
-											<li><strong><span>3</span>신사업 검토</strong>
-												<ul>
-													<li>신사업 R&D 투자</li>
-													<li>지배구조 조정, 지주회사 검토</li>
-												</ul>
-											</li>
-										</ol>
-									</div>
-								</div>
-							</div>
+						 		{{/for}}
+				            	</script>
+				            </div>
 						</div>
 					</div>
 
@@ -1487,7 +1394,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<div class="company_left">
 							<div class="com_left_checkP"><i class="icon_analysis"></i>Check Point</div>
 							<img class="com_img" src="../img/icon_company02.png">
-							<div class="com_left_name">이오에프씨(주)</div>
+							<div class="com_left_name"><font class="<@pageId>_COMPANY_NM"></font></div>
 							<div class="com_left_cont mt25">
 								최근 결산기말 기준 회사의 <span class="point_color">기업가치는<br> 0.0억원</span>입니다.
 							</div>
@@ -1506,65 +1413,31 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<div class="com_info">
 								<i class="icon_check_consult"></i>표시 항목은 컨설팅이 필요한 영역입니다.
 							</div>
-							<ul class="com_cont_list">
-								<li class="active">
+							<ul id="<@pageId>_getFinAnalResult01" class="com_cont_list">
+							</ul>							
+				            <script type="text/x-jsrender" id="<@pageId>_getFinAnalResult01_template">
+						 	{{for list}}
+							   {{if #getIndex() < 5 }}
+								<li {{if CHECK_YN == 'Y'}}class="active"{{/if}}>
 									<dl>
 										<dt>
 											<i class="icon_check_consult"></i>
-											<span class="com_cont_list_stit">재무건성<br>개선</span>
+											<span class="com_cont_list_stit">{{:ITEM_NM}}</span>
 										</dt>
-										<dd>
-											최근 3년간 순이익률 및 ROE가 증가추세에 있습니다. 또한 순이익률, 영업이익률, ROE 등을 분석했을때
-											전반적으로 높은 수익성을 기반으로 기업의 미래 성장이 기대됩니다. 동시에 부족한 현금성자산, 높은 부채부담률이라는 측면에서 <span>기업의 유동성 리스크 관리와 차입금상환 계획 등이 필요</span>해 보입니다.
-										</dd>
+										<dd>{{:CONSULT_MSG}}</dd>
 									</dl>
 								</li>
-								<li class="active">
-									<dl>
-										<dt>
-											<i class="icon_check_consult"></i>
-											<span class="com_cont_list_stit">기업가치평가</span>
-										</dt>
-										<dd>
-											<span>매년 기업가치 평가를 통해 배당, 주식 이동(증여,양도), 차명주식회수, 상속 플랜 등을 실행할 떄 예상되는 세금의 증가 속도를 정기적으로 확인</span>하는 것이 좋습니다. 아울러 매년 적정규모의 비용처리, 정기적인 배당 등을 활용하여 기업가치 증가 속도를 늦추는 방안을 검토해 볼 수 있습니다.
-										</dd>
-									</dl>
-								</li>
-								<li class="active">
-									<dl>
-										<dt>
-											<i class="icon_check_consult"></i>
-											<span class="com_cont_list_stit">배당정책 검토</span>
-										</dt>
-										<dd>
-											<span>지난 4년간 배당한 이력이 없습니다.</span> 현재 기업의 규모, 향후 성장 가능성을 고려했을 때 소득분산, 자금출처, 개인차원 속득세 절감 차원에서 배당정책 수립이 필요합니다. 아울러 정관에 중간배당, 현물배당 등 배당관련 규정을 정비하고, 매년 미처분이익여금 규모를 파악해 적정수준으로 관리하는 전략을 함께 검토하는 것이 좋습니다.
-										</dd>
-									</dl>
-								</li>
-								<li class="active">
-									<dl>
-										<dt>
-											<i class="icon_check_consult"></i>
-											<span class="com_cont_list_stit">급여 및 퇴직금<br>
-											플랜 수립</span>
-										</dt>
-										<dd>
-											<span>임원퇴직금지급규정 재검토(또는 신규 제정)가 필요합니다.</span> 기존에 퇴직금규정이 있다 하더라도 대표이사가 회사에 기여한 만큼 충분한 퇴직금을 보상받도록 하기 위해서는 희망 퇴직금 규모에 맞는 급여설계와 규정정비가 수반되어야 합니다. 또한 매년 퇴직시점 예상퇴지금 규모와 세금을 계산해 보고, 퇴직금 재원을 마련할 수 있는 구체적인 방안을 함께 수립해야 합니다.
-										</dd>
-									</dl>
-								</li>
-								<li class="active">
-									<dl>
-										<dt>
-											<i class="icon_check_consult"></i>
-											<span class="com_cont_list_stit">CEO 유고시<br>
-											유동성 리스크</span>
-										</dt>
-										<dd>
-											<span>최근 결산기말 기준 법인의 비상운영자금이 부족합니다.</span> 갑작스런 CEO유고시 기업이 직면할 유동성 리스크에 대비해 사업용부채(단기부재+연간 판관비의 50%)를 감당할 수 있는 비상 현금성 자산을 별도로 준비하고 있는지, 이를 확보 할 수 있는 구체적인 대비책을 가지고 있는지, 면밀한 검토가 필요합니다.
-										</dd>
-									</dl>
-								</li>
+								{{/if}}
+						 	{{/for}}
+				            </script>
+				            <script type="text/x-jsrender" id="<@pageId>_getFinAnalResult01_noData_template">
+						 	        <li>	
+						 	        	<dl>
+											<dt></dt>
+											<dd>자료가 없습니다.</dt>
+										</dl>	
+						 	        </li>
+						    </script>
 							</ul>
 						</div>
 					</div>
@@ -1574,15 +1447,15 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<div class="company_left">
 							<div class="com_left_checkP"><i class="icon_analysis"></i>Check Point</div>
 							<img class="com_img" src="../img/icon_company02.png">
-							<div class="com_left_name">이오에프씨(주)</div>
+							<div class="com_left_name"><font class="<@pageId>_COMPANY_NM"></font></div>
 							<div class="com_left_cont mt25">
-								주요주주로는 <span class="point_color">이성욱(49%), 신승환(25%),<br> 배상수(20%)</span>이(가) 있습니다.
+								주요주주로는 <span class="point_color"><font class="<@pageId>_STOCKHOLDER_NM"></font></span>이(가) 있습니다.
 							</div>
 							<div class="com_left_cont mt25">
-								보유 지분가치를 반영한 이성욱 대표님 <br><span class="point_color">예상 상속세는 0.0억원</span>입니다.
+								보유 지분가치를 반영한 <font class="<@pageId>_OWNER_NM"></font> 대표님 <br><span class="point_color">예상 상속세는 0.0억원</span>입니다.
 							</div>
 							<div class="com_left_cont mt25">
-								<span class="point_color">상시 근로자수는 1명</span>입니다.
+								<span class="point_color">상시 근로자수는 <font class="<@pageId>_EMPLOYEE_CNT"></font>명</span>입니다.
 							</div>
 						</div>
 						<div class="company_cont">
@@ -1590,63 +1463,31 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<div class="com_info">
 								<i class="icon_check_consult"></i>표시 항목은 컨설팅이 필요한 영역입니다.
 							</div>
-							<ul class="com_cont_list v2">
-								<li>
+							<ul id="<@pageId>_getFinAnalResult02" class="com_cont_list v2">
+							</ul>							
+				            <script type="text/x-jsrender" id="<@pageId>_getFinAnalResult02_template">
+						 	{{for list}}
+							   {{if #getIndex() >= 5 }}
+								<li {{if CHECK_YN == 'Y'}}class="active"{{/if}}>
 									<dl>
 										<dt>
 											<i class="icon_check_consult"></i>
-											<span class="com_cont_list_stit">차명주식 해결</span>
+											<span class="com_cont_list_stit">{{:ITEM_NM}}</span>
 										</dt>
-										<dd>
-											상법상 발기인 1명 이상이면 법인설립이 가능해진 2002년 이후에 설립된 법인이라 하더라도 잘못된 정보, 과점주주를 피하기 위해서 등의 이유로 여전히 차명주주를 두는 경우가 의외로 많습니다. 현재 해당법인에 차명주주가 있는지 추가적으로 확인해 볼 필요는 있습니다.
-										</dd>
+										<dd>{{:CONSULT_MSG}}</dd>
 									</dl>
 								</li>
-								<li>
-									<dl>
-										<dt>
-											<i class="icon_check_consult"></i>
-											<span class="com_cont_list_stit">가지급금 이슈</span>
-										</dt>
-										<dd>
-											최근 결산기말 재무상태표 가지급금 잔액은 크게 문제가 되지 않는 수준입니다. 다만 연도 중 정확한 가지급금 규모와 이자부담액을 파악하고자 한다면 세무조정계산서상 가지급금인정이자 명세서를 확인해 볼 수 있습니다.
-										</dd>
-									</dl>
-								</li>
-								<li>
-									<dl>
-										<dt>
-											<i class="icon_check_consult"></i>
-											<span class="com_cont_list_stit">상속 및<br>가업승계 검토</span>
-										</dt>
-										<dd>
-											대다수 중소기업 CEO의 예상상속재산의 상당한 부분이 보유지분 가치입니다. 기업가치 상승에 따른 예상 상속세를 정기적으로 계산해 보고, 사전에 적은 부담으로 상속세 재원을 마련할 수 있는 대비책을 준비하는 것이 좋습니다.
-										</dd>
-									</dl>
-								</li>
-								<li class="active">
-									<dl>
-										<dt>
-											<i class="icon_check_consult"></i>
-											<span class="com_cont_list_stit">기업제도<br>및 인증</span>
-										</dt>
-										<dd>
-											<span>상법내용에 맞는 정관을 잘 갖추고 있는지 재검토</span>하고, 필요 시 정관변경 작업을 진행할 수 있습니다.
-											아울러 임원퇴지금 및 임원보수규정, 임원유족보상금규정, 복리후생구정도 함께 정비합니다. 경영기간 3년 이상 법인이라면 정부시책, 정책자금, 정책참여 등의 다양한 지원 혜택을 누릴 수 있는 <span>메인비즈, 이노비즈 인증을 검토</span>해 볼 수 있습니다. 다만, 그에 앞서 <span>연구소 설립과 특허권 보유는 필수적으로 선행</span>되야 할 과제입니다.
-										</dd>
-									</dl>
-								</li>
-								<li class="active">
-									<dl>
-										<dt>
-											<i class="icon_check_consult"></i>
-											<span class="com_cont_list_stit">인사노무검토</span>
-										</dt>
-										<dd>
-											상시근로자 5인 미만 기업의 경우 연장<strong>·</strong>야간 휴일근로 등에 대한 가산수당이나 연차휴가, 공휴일 유급휴일 등의 의무규정이 적용되진 않지만, <span>임금대장 작성, 근로계약서 및 급여명세서 작성 및 배포 등 모든 사업장에 적용되는 기본 규정은 엄격하게 준수</span>해야 합니다. 해당 사항에 미비한 점은 없는지 정기적인 점검이 필요합니다.
-										</dd>
-									</dl>
-								</li>
+								{{/if}}
+						 	{{/for}}
+				            </script>
+				            <script type="text/x-jsrender" id="<@pageId>_getFinAnalResult02_noData_template">
+						 	        <li>	
+						 	        	<dl>
+											<dt></dt>
+											<dd>자료가 없습니다.</dt>
+										</dl>	
+						 	        </li>
+						    </script>
 							</ul>
 						</div>
 					</div>
