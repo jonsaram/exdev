@@ -206,12 +206,13 @@ public class ExcelService  extends ExdevBaseService{
 	            		String columnList = (String)lm.get("COLUMN_LIST");
 	            		String columnArray [] = columnList.split("/");
 	            		int cidx = 1;
+	            		int keyIdx = 0;
 	            		for (String column : columnArray) {
 		            		headerList.add(column);
 		            		for (String num : prmKeyNumAttr) {
 								if((cidx + "").equals(num)) {
 									//엑셀에서 지정한 Primary Key를 구한다.
-									prmKeyAttr[cidx - 1] = column;
+									prmKeyAttr[keyIdx++] = column;
 									break;
 								}
 							}
@@ -505,6 +506,7 @@ public class ExcelService  extends ExdevBaseService{
 
         // Fill data rows
         int rowCount = 3;
+        int rowidx = 1;
         for (Map<String, Object> rowData : dataList) {
             Row dataRow = sheet.createRow(rowCount++);
             for (int i = 0; i < columnNames.length; i++) {
@@ -512,10 +514,12 @@ public class ExcelService  extends ExdevBaseService{
                 Object value = rowData.get(columnOrders[i]);
                 String colName = columnNames[i];
 
-                if (value != null) {
-                    
+                if("ROWNUM".equals(columnOrders[i])) {
+                	cell.setCellValue( rowidx++ );
+                } else if (value != null) {
                     cell.setCellValue(this.getCellValue(colName,value));
                 }
+
                 cell.setCellStyle(bodyCellStyle);
             }
         }

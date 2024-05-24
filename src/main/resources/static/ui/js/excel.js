@@ -18,7 +18,13 @@ function _excelDownload ( $hds ,$tds,requestParm , title , isPaging , checkedRow
 				}
 			} 
 					
+		});
+		
+		let newList = []
+		$.each(excelColumnNames, function() {
+			if(isValid(this.trim())) newList.push(this);
 		})
+		excelColumnNames = newList;
 
 		let excelParam = {};
 		excelParam["queryId"		] = requestParm.queryId; 

@@ -3,6 +3,7 @@
 	var <@pageId> = {
 		 projectList	: []
 		,cardListMap	: {}
+		,buyerCompObjMap: {}
 		,pageInit		: function() {
 			// 첫번째 SelectBox 세팅	    
 			let parm = {
@@ -140,6 +141,13 @@
 				C_COMP.import(key_wk, "component_biz_compConsultingProcess"		, {contractInfo : this}, function(data) {
 					//dalert(data);
 				});
+				
+				<@pageId>.buyerCompObjMap[this.CONTRACT_ID] = {
+					 key_cslist : key_cslist
+					,key_sch	: key_sch
+					,key_todo	: key_todo
+					,key_wk		: key_wk
+				}
 			});
 		 }
 		,openFolderMng : function(BUYER_ID, index) {
@@ -160,7 +168,9 @@
 		,openBigCard	: function(index) {
 			let projectInfo = <@pageId>.projectList[index];
 			C_POP.open('popup_biz_adviceStatusPopup', projectInfo, function(retData) {
-								
+				<@pageId>[<@pageId>.buyerCompObjMap[projectInfo.CONTRACT_ID].key_sch	].loadScheduleList();				
+				<@pageId>[<@pageId>.buyerCompObjMap[projectInfo.CONTRACT_ID].key_todo	].loadTodoList();				
+				<@pageId>[<@pageId>.buyerCompObjMap[projectInfo.CONTRACT_ID].key_wk		].loadCmmtList();				
 			});
 		 }
 		,expandAllCard : function(targetId) {

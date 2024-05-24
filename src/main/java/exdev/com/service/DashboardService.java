@@ -27,8 +27,8 @@ public class DashboardService extends ExdevBaseService{
 	
 
     /** 
-     * 내용        : 일정관리 수정(addSchedulePopup.html)
-     *               일정관리(TBL_EXP_SCHEDULE)
+     * 내용        : 가맹점 리스트및 현황
+     *               compPerformanceTab4.html
      * @생 성 자   : 이응규
      * @생 성 일자 : 2024. 02. 27 : 최초 생성
      * @수 정 자   : 
@@ -49,8 +49,6 @@ public class DashboardService extends ExdevBaseService{
         
 	    int startDateNum = Integer.parseInt(startDate.replace("-", ""));
         int endDateNum = Integer.parseInt(endDate.replace("-", ""));
-        
-        System.out.println("startDateNum["+startDateNum+"]   endDateNum["+endDateNum+"]   ");
         
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         
@@ -87,10 +85,47 @@ public class DashboardService extends ExdevBaseService{
             list.add(addMap);
         }
         map.put("list", list);
-        System.out.println("DashboardService.getOpenCloseCnt 11");
         return map;
     }
 
+    /** 
+     * 내용        : 매장별 메뉴 매출
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 05. 22 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Object getMenuMonthSales(Map map) throws Exception {
+
+        String buyerId    = (String)map.get("buyerId");
+        String year       = (String)map.get("year");
+        String month      = (String)map.get("month");
+        String group1     = (String)map.get("group1");
+        String group2     = (String)map.get("group2");
+        String menu       = (String)map.get("menu");
+        String region     = (String)map.get("region");
+
+        System.out.println("buyerId["+buyerId   +"]    ");
+        System.out.println("year["+year   +"]    ");
+        System.out.println("month["+month  +"]    ");
+        System.out.println("group1["+group1 +"]    ");
+        System.out.println("group2["+group2 +"]    ");
+        System.out.println("menu["+menu   +"]    ");
+        System.out.println("region["+region +"]    ");
+        System.out.println("menu["+menu   +"]    ");
+        
+        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        List<Map> resultList = commonDao.getList("dashboardCorPerformance.getmenuSalesMonthTop5", map);
+        
+        for(Map resultMap : resultList) {
+            
+            
+        }
+        map.put("list", list);
+        return map;
+    }
 	
 }
 /*

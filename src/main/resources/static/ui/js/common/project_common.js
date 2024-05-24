@@ -13,6 +13,7 @@ var C_COM = {
 		 "ENTER" 	: 13
 		,"DEL"		: 46
 	 }
+	,sessionConfirmCheck : ""
 	,_DEFAULT_FIX : 0	// 소수점 기본 자리수
 	 // Session저장
 	,init : function() {
@@ -179,8 +180,11 @@ var C_COM = {
 				if(resultData.state == "S") {
 					return resultData;
 				} else if(resultData.state == "NO_SESSION"){
-					C_POP.alert('Session 정보가 없습니다.\n\n로그인 화면으로 이동합니다.');
-					location.href="/";
+					if(C_COM.sessionConfirmCheck != "Y") {
+						C_POP.alert('Session 정보가 없습니다.\n\n로그인 화면으로 이동합니다.');
+						C_COM.sessionConfirmCheck = "Y";
+						location.href="/";
+					}
 					return null;
 				} else {
 					C_POP.alert(resultData.msg);
@@ -218,8 +222,11 @@ var C_COM = {
 					if(resultData.state == "S") {
 						if(typeof callback == "function") callback(resultData);
 					} else if(resultData.state == "NO_SESSION"){
-						C_POP.alert('Session 정보가 없습니다.\n\n로그인 화면으로 이동합니다.');
-						location.href="/";
+						if(C_COM.sessionConfirmCheck != "Y") {
+							C_POP.alert('Session 정보가 없습니다.\n\n로그인 화면으로 이동합니다.');
+							C_COM.sessionConfirmCheck = "Y";
+							location.href="/";
+						}
 						return null;
 					} else {
 						if(typeof errCallback == "function") {

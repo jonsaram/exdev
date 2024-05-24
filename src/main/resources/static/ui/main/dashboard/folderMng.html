@@ -1,123 +1,119 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
+		init : function() {
+			let BUYER_ID = G_VAL.session.BUYER_ID;
+	        let parm = {
+	            queryId        : "faDashboard.getBuyerFolder"
+	           ,requestParm    : {BUYER_ID 	: BUYER_ID} 
+	        }
+	        C_COM.requestQuery(parm, function(retData) {
 
+	        	if(retData.state == "S") {
+					let execFn = function(topFolderId) {
+						
+						if(G_VAL.session.LOGIN_TYPE == "USER") topFolderId = "BASE";
+						
+	        			let parm = {
+	       					 BASE_FOLDER_ID	: topFolderId
+	       					,TOP_FOLDER_ID	: topFolderId
+	       					,BUYER_ID		: BUYER_ID
+	       				}
+	       				C_COMP.import("folderMng", "component_dashboard_compFolderMng", parm , function() {
+
+	       				});
+	        		}        		
+	        		
+	        		
+	        		if(isValid(retData.data)) {
+	        			let topFolderId = retData.data[0].FOLDER_ID
+	        			execFn(topFolderId);
+	        		} else {
+	        			let topFolderId = C_COM.makeUniqueId(); 
+	        			let baseFolderParm = {
+	          				 queryId 		: "faDashboard.insertFolder"
+	                		,requestParmList: []
+	        			}
+	        			let folderList = ["회의록", "기업파일", "견적서", "계약서"];
+	        			$.each(folderList, function() {
+	        				baseFolderParm.requestParmList.push({
+		   					 	 FOLDER_ID 		: C_COM.makeUniqueId()
+		       					,FOLDER_NM 		: this
+		       					,BUYER_ID		: BUYER_ID
+		       					,UP_FOLDER_ID	: topFolderId
+		       				 });
+	        			});
+	        			let queryGroup = [
+	        				 {
+		       		             queryId        : "faDashboard.makeBuyerFolder"
+		       		            ,requestParm    : {
+		       		            	 FOLDER_ID 	: topFolderId
+		       		            	,BUYER_ID 	: BUYER_ID 
+		       		            	,FOLDER_NM 	: '기업공유폴더'
+		       		            }
+		       		         }
+	        				,baseFolderParm
+	        			]
+	        			let sendParm = {
+        					queryGroup : queryGroup
+	        			}
+	       		        C_COM.requestQuery(sendParm, function(resultData) {
+	       					if(resultData.state == "S") {
+	       						execFn(topFolderId);
+	       					}					
+	       		        });
+	        		}
+	        	}
+	        });
+		 }
+		,makeProjectFolder : function() {
+			let BUYER_ID = G_VAL.session.BUYER_ID;
+			
+	        let parm = {
+	            queryId        : "contract.getProjectList"
+	           ,requestParm    : {} 
+	        }
+	        C_COM.requestQuery(parm, function(retData) {
+	        	debugger;
+				$.each(retData.data, function() {
+					if(isEmpty(this.BASE_FOLDER_ID)) {
+						let projectInfo = this;
+						let folderId	= C_COM.makeUniqueId();
+						let folderNm	= `${projectInfo.BUYER_NM}_${projectInfo.CONSULTING_NM}`;
+						projectInfo.BASE_FOLDER_ID = folderId
+						
+						// 프로젝트 폴더 생성
+						let parm1 ={
+							 queryId 		: "contract.updateBaseFolderIdOfProject"
+							,requestParm	: projectInfo
+						}
+						dalert(parm1);
+						let parm2 = {
+							 queryId 		: "faDashboard.saveFolder"
+							,requestParm	: {
+								 FOLDER_ID 		: folderId
+								,FOLDER_NM 		: folderNm
+								,BUYER_ID		: BUYER_ID
+								,UP_FOLDER_ID	: 'BASE'
+							}
+						}
+						let parm = { queryGroup : [parm1, parm2] }
+						C_COM.requestQuery(parm, function(resultData) {
+							
+						});
+					}
+				});
+	        });
+		 }
 	}
 	
 	C_PM.onLoadPage("<@pageId>", function() {
-		let BUYER_ID = G_VAL.session.BUYER_ID;
-        let parm = {
-            queryId        : "faDashboard.getBuyerFolder"
-           ,requestParm    : {BUYER_ID 	: BUYER_ID} 
-        }
-        C_COM.requestQuery(parm, function(retData) {
 
-        	if(retData.state == "S") {
-				let execFn = function(topFolderId) {
-					
-					if(G_VAL.session.LOGIN_TYPE == "USER") topFolderId = "BASE";
-					
-        			let parm = {
-       					 BASE_FOLDER_ID	: topFolderId
-       					,TOP_FOLDER_ID	: topFolderId
-       					,BUYER_ID		: BUYER_ID
-       				}
-       				C_COMP.import("folderMng", "component_dashboard_compFolderMng", parm , function() {
-
-       				});
-        		}        		
-        		
-        		
-        		if(isValid(retData.data)) {
-        			let topFolderId = retData.data[0].FOLDER_ID
-        			execFn(topFolderId);
-        		} else {
-        			let topFolderId = C_COM.makeUniqueId(); 
-        			let queryGroup = [
-        				{
-	       		             queryId        : "faDashboard.makeBuyerFolder"
-	       		            ,requestParm    : {
-	       		            	 FOLDER_ID 	: topFolderId
-	       		            	,BUYER_ID 	: BUYER_ID 
-	       		            	,FOLDER_NM 	: '기업공유폴더'
-	       		            }
-	       		        }
-        			]
-        			let folderList = ["회의록", "기업파일", "견적서", "계약서"];
-        			
-        			$.each(folderList, function() {
-            			let addParm = {
-           					 queryId 		: "faDashboard.saveFolder"
-           					,requestParm	: {
-             					 FOLDER_ID 		: C_COM.makeUniqueId()
-               					,FOLDER_NM 		: this
-               					,BUYER_ID		: BUYER_ID
-               					,UP_FOLDER_ID	: topFolderId
-               				 }
-          				}
-            			queryGroup.push(addParm);
-        			});
-
-        			let parm = {
-        				queryGroup : queryGroup
-        			}
-        			
-       		        C_COM.requestQuery(parm, function(resultData) {
-       					if(resultData.state == "S") {
-       						execFn(topFolderId);
-       					}					
-       		        });
-        		}
-        	}
-        });
+		<@pageId>.makeProjectFolder();
         
-/*        
-        if( rdata.state == "S") {
-        	let FOLDER_ID = rdata.data[0].FOLDER_ID;
-			let parm = {
-				 BASE_FOLDER_ID	: FOLDER_ID
-				,TOP_FOLDER_ID	: FOLDER_ID
-			}
-			C_COMP.import("folderMng", "component_dashboard_compFolderMng", parm , function() {
-				alert();
-			});
-        }
+		<@pageId>.init();
 		
 		
-		
-		
-		let parm = {
-             queryId        : "faDashboard.makeBuyerFolder"
-            ,requestParm    : {
-            	 FOLDER_ID 	: C_COM.makeUniqueId()
-            	,BUYER_ID 	: G_VAL.session.BUYER_ID 
-            	,FOLDER_NM 	: '기업공유폴더'
-            }
-        }
-        
-        C_COM.requestQuery(parm, function(resultData) {
-			if(resultData.state == "S") {
-				
-		        let parm = {
-	                queryId        : "faDashboard.getBuyerFolder"
-	               ,requestParm    : {BUYER_ID 	: G_VAL.session.BUYER_ID} 
-	            }
-		        let rdata = C_COM.requestQuery(parm);
-		        
-		        if( rdata.state == "S") {
-		        	let FOLDER_ID = rdata.data[0].FOLDER_ID;
-					let parm = {
-						 BASE_FOLDER_ID	: FOLDER_ID
-						,TOP_FOLDER_ID	: FOLDER_ID
-					}
-					C_COMP.import("folderMng", "component_dashboard_compFolderMng", parm , function() {
-						alert();
-					});
-		        }
-			}					
-        });
-*/	
-	
 	});
 	
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.

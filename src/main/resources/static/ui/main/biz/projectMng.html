@@ -3,6 +3,7 @@
 	var <@pageId> = {
 		 projectList 	: []
 		,projectMap 	: {}
+		,excelParam 	: {}
 		,teamMemberList	: []
 		,openProjectPopup : function() {
 			C_POP.open('popup_operation_projectRegistPopup', {}, function(retData) {
@@ -21,6 +22,8 @@
 				 queryId 		: "contract.getProjectList"
 				,requestParm	: {searchWord : searchWord}
 			}
+			<@pageId>.excelParam = parm;
+			
 			C_COM.requestQuery(parm, function(resultData) {
 				
 				let projectList = resultData.data;
@@ -197,6 +200,11 @@
 			
 			C_COM.saveWorkHistory(projectInfo.USER_ID, content);
 		 }
+		,excelDown : function() {
+	    	const $hds = $("#<@pageId>_headingColName th").not(":contains('결재')");
+	    	const $tds = $("[name='<@pageId>_tr_0'] td");
+	    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"프로젝트 리스트");  
+		 }
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -223,7 +231,7 @@
                 <button class="btn select fl" onclick="<@pageId>.loadData()">검색</button>
             </div>
             <div class="search_right">
-				<button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>
+				<button type="button" class="btn fl" onclick="<@pageId>.excelDown()"><i class="icon_download"></i> Excel 다운로드</button>
 				<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt">0</span></strong>
             </div>
 		</div>
@@ -244,7 +252,7 @@
 						<col style="width:150px;"/>
 					</colgroup>
 					<thead>
-						<tr>
+						<tr id="<@pageId>_headingColName">
 							<th scope="col">No.</th>
 							<th scope="col">고객명</th>
 							<th scope="col">영업담당자명</th>
@@ -276,14 +284,14 @@
 					</tbody>
 					<script type="text/x-jsrender" id="<@pageId>_projectList_template">						
 						{{for list}}
-						<tr>
-							<td>{{:#index + 1}}</td>
-							<td>{{:BUYER_NM}}</td>
-							<td>{{:USER_NM}}</td>
-							<td>{{:CONSULTANT_USER_NM}}</td>
-							<td>{{:CONSULTING_NM}}</td>
-							<td>{{:PROCESS_STATE_NM}}</td>
-							<td>{{:UPDATE_DATE}}{{:#index}}</td>
+						<tr name="<@pageId>_tr_{{:#index}}">
+							<td id="ROWNUM"				>{{:#index + 1}}</td>
+							<td id="BUYER_NM"			>{{:BUYER_NM}}</td>
+							<td id="USER_NM"			>{{:USER_NM}}</td>
+							<td id="CONSULTANT_USER_NM"	>{{:CONSULTANT_USER_NM}}</td>
+							<td id="CONSULTING_NM"		>{{:CONSULTING_NM}}</td>
+							<td id="PROCESS_STATE_NM"	>{{:PROCESS_STATE_NM}}</td>
+							<td id="UPDATE_DATE"		>{{:UPDATE_DATE}}{{:#index}}</td>
 							<td>
 							{{if SHOW_BTN=="Y" ~index=#index}} 
 								<button type="button" class="btn fc tc" onclick="<@pageId>.makeTeamMember({{:~index}})">{{:APPR_BTN_TITLE}}</button>
