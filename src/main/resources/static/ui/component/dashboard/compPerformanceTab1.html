@@ -498,12 +498,30 @@ var <@compId> = {
             return resultList;
          }
         ,setChart21 : (resultData ) =>{
-            //console.log("=== setChart21");
             
-            var categories1Arr = <@compId>.setChartData( resultData, "SUBJECT_001");
-            var categories2Arr = <@compId>.setChartData( resultData, "SUBJECT_003");
-            var categories3Arr = <@compId>.setChartData( resultData, "SUBJECT_005");
-            var categories4Arr = <@compId>.setChartData( resultData, "SUBJECT_010");
+            let categories1Arr = [];
+            let categories2Arr = [];
+            let categories3Arr = [];
+            let categories4Arr = [];
+            let categoryArr    = [];
+            
+            let accrue1      = 0;
+            let accrue2      = 0;
+            let accrue3      = 0;
+            let accrue4      = 0;
+            
+            for (var i=0; i< resultData.data.length; i++){
+               accrue1 =  accrue1 + resultData.data[i].SUBJECT_001;
+               accrue2 =  accrue2 + resultData.data[i].SUBJECT_003;
+               accrue3 =  accrue3 + resultData.data[i].SUBJECT_010;
+               accrue4 =  accrue4 + resultData.data[i].SUBJECT_005;
+               categories1Arr[i] = accrue1;
+               categories2Arr[i] = accrue2;
+               categories3Arr[i] = accrue3;
+               categories4Arr[i] = accrue4;
+               
+               categoryArr[i]    = resultData.data[i].MONTH +'월';
+            }
             
             $('#<@compId>_chart21').highcharts({
                 chart: {
@@ -515,7 +533,7 @@ var <@compId> = {
                 },
                 colors: ['#27187F', '#F29423','#66ff00', '#0099ff'],
                 xAxis: {
-                    categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                    categories: categoryArr,
                     crosshair: true,
                     lineColor: '#66ff00', /* x축 라인색 */
                     accessibility: {
@@ -523,7 +541,7 @@ var <@compId> = {
                     }
                 },
                 yAxis: {
-                	format: '{value}억',
+                	format: '{value}',
                     min: 0,
                     title: {
                         text: ''
@@ -578,11 +596,11 @@ var <@compId> = {
         }//setChart21
         /* 2-1 #######  누적 매출 현황    누적 매출 현황    누적 매출 현황    누적 매출 현황    누적 매출 현황    */
         
-        /* 2-2 *******  월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    */
+        /* 2-2 *******  월별 매출 그래프    월별 매출 그래프    월별 매출 그래프    월별 매출 그래프    월별 매출 그래프    */
         ,searchList22 : (requestParm) => {
             
             var parm = {
-                    queryId  : "dashboardCorPerformance.getMonthSales"
+                    queryId  : "dashboardCorPerformance.getMonthAccrue"
                    ,requestParm   : requestParm
             }
    
@@ -594,10 +612,20 @@ var <@compId> = {
         ,setChart22 : (resultData) =>{
            console.log("=== setChart22");
             
-            var categories1Arr = <@compId>.setChartData( resultData, "SUBJECT_001");
-            var categories2Arr = <@compId>.setChartData( resultData, "SUBJECT_003");
-            var categories3Arr = <@compId>.setChartData( resultData, "SUBJECT_005");
-            var categories4Arr = <@compId>.setChartData( resultData, "SUBJECT_010");
+            let categories1Arr = [];
+            let categories2Arr = [];
+            let categories3Arr = [];
+            let categories4Arr = [];
+            let categoryArr    = [];
+            
+            for (var i=0; i< resultData.data.length; i++){
+               categories1Arr[i] = resultData.data[i].SUBJECT_001;
+               categories2Arr[i] = resultData.data[i].SUBJECT_003;
+               categories3Arr[i] = resultData.data[i].SUBJECT_010;
+               categories4Arr[i] = resultData.data[i].SUBJECT_005;
+               
+               categoryArr[i]    = resultData.data[i].MONTH +'월';
+            }
             
             $('#<@compId>_chart22').highcharts({
 
@@ -657,11 +685,210 @@ var <@compId> = {
 
             });
         }//setChart22
-        /* 2-2 #######  월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    */
+        /* 2-2 #######  월별 매출 그래프    월별 매출 그래프    월별 매출 그래프    월별 매출 그래프    월별 매출 그래프    */
         
+        
+        /* 3-1 *******  월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    */
+        ,searchList31 : (requestParm) => {
+
+            var parm = {
+                    queryId  : "dashboardCorPerformance.getMonthRatio"
+                   ,requestParm   : requestParm
+            }
+   
+            C_COM.requestQuery(parm, function(resultData) {
+                <@compId>.setChart31( resultData );
+            });
+            
+        }//searchList31
+        ,setChart31 : (resultData) =>{
+             
+             let categories1Arr = [];
+             let categories2Arr = [];
+             let categories3Arr = [];
+             let categoryArr    = [];
+             
+             
+             for (var i=0; i< resultData.data.length; i++){
+                categories1Arr[i] = resultData.data[i].SUBJECT_003;
+                categories2Arr[i] = resultData.data[i].SUBJECT_010;
+                categories3Arr[i] = resultData.data[i].SUBJECT_005;
+                categoryArr[i]    = resultData.data[i].MONTH +'월';     
+                console.log("==============================");     
+                console.log(typeof resultData.data[i].SUBJECT_005);
+             }
+             
+             $('#<@compId>_chart31').highcharts({
+
+                 title: {
+                     text: '',
+                     align: 'left'
+                 },
+                 yAxis: {
+                	 labels: {
+                         format: '{value} %'
+                     },
+                     title: {
+                         text: ''
+                     }
+                 },
+                 colors: ['#27187F', '#F29423','#66ff00'],
+                 xAxis: {
+                     categories: categoryArr,
+                     accessibility: {
+                         rangeDescription: '2'
+                     }
+                 },
+                 tooltip: {
+                     pointFormat: '{point.y} %'
+                 },
+                 plotOptions: {
+                     column: {
+                         pointPadding: 0.2,
+                         borderWidth: 0
+                     }
+                 },
+
+                 series: [{
+                     name: 'Ⅲ.매출총이익',
+                     data: categories1Arr
+                 }, {
+                     name: 'Ⅹ.당기순이익',
+                     data: categories2Arr
+                 }, {
+                     name: 'Ⅴ.영업이익',
+                     data: categories3Arr
+                 }],
+
+                 responsive: {
+                     rules: [{
+                         condition: {
+                             maxWidth: 500
+                         },
+                         chartOptions: {
+                             legend: {
+                                 layout: 'horizontal',
+                                 align: 'center',
+                                 verticalAlign: 'bottom'
+                             }
+                         }
+                     }]
+                 }
+
+             });
+         }//setChart31
+        /* 3-1 #######  월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    */
+        
+        /* 3-2 *******  지검별 비율 그래프    지검별 비율 그래프    지검별 비율 그래프    지검별 비율 그래프    지검별 비율 그래프    */
+        ,searchList32 : (requestParm) => {
+
+            var parm = {
+                    queryId  : "dashboardCorPerformance.getStoreRatio"
+                   ,requestParm   : requestParm
+            }
+   
+            C_COM.requestQuery(parm, function(resultData) {
+                <@compId>.setChart32( resultData );
+            });
+            
+        }//searchList32
+        ,setChart32 : (resultData) =>{
+             
+             let categories1Arr = [];
+             let categories2Arr = [];
+             let categories3Arr = [];
+             let categoryArr    = [];
+             
+             
+             for (var i=0; i< resultData.data.length; i++){
+                categories1Arr[i] = resultData.data[i].SUBJECT_003;
+                categories2Arr[i] = resultData.data[i].SUBJECT_010;
+                categories3Arr[i] = resultData.data[i].SUBJECT_005;
+                categoryArr[i]    = resultData.data[i].STORE_NM3;     
+                console.log("==============================");     
+                console.log(typeof resultData.data[i].SUBJECT_005);
+             }
+             
+             $('#<@compId>_chart32').highcharts({
+
+                 title: {
+                     text: '',
+                     align: 'left'
+                 },
+                 yAxis: {
+                     labels: {
+                         format: '{value} %'
+                     },
+                     title: {
+                         text: ''
+                     }
+                 },
+                 colors: ['#27187F', '#F29423','#66ff00'],
+                 xAxis: {
+                     categories: categoryArr,
+                     accessibility: {
+                         rangeDescription: '2'
+                     }
+                 },
+                 tooltip: {
+                     pointFormat: '{point.y} %'
+                 },
+                 plotOptions: {
+                     column: {
+                         pointPadding: 0.2,
+                         borderWidth: 0
+                     }
+                 },
+
+                 series: [{
+                     name: 'Ⅲ.매출총이익',
+                     data: categories1Arr
+                 }, {
+                     name: 'Ⅹ.당기순이익',
+                     data: categories2Arr
+                 }, {
+                     name: 'Ⅴ.영업이익',
+                     data: categories3Arr
+                 }],
+
+                 responsive: {
+                     rules: [{
+                         condition: {
+                             maxWidth: 500
+                         },
+                         chartOptions: {
+                             legend: {
+                                 layout: 'horizontal',
+                                 align: 'center',
+                                 verticalAlign: 'bottom'
+                             }
+                         }
+                     }]
+                 }
+
+             });
+         }//setChart32
+        /* 3-2 #######  지검별 비율 그래프    지검별 비율 그래프    지검별 비율 그래프    지검별 비율 그래프    지검별 비율 그래프    */
+        
+        ,getMonthDifference : (start, end) =>{
+            var startYear = parseInt(start.split('-')[0], 10);
+            var startMonth = parseInt(start.split('-')[1], 10);
+            var endYear = parseInt(end.split('-')[0], 10);
+            var endMonth = parseInt(end.split('-')[1], 10);
+
+            var yearDifference = endYear - startYear;
+            var monthDifference = endMonth - startMonth;
+
+            return yearDifference * 12 + monthDifference;
+         }
+
+          
+         
         ,setHandler : () => {
 
             $("#<@compId>_searchBtn").click( () =>{
+
+                var buyerId = G_VAL.session.BUYER_ID;
             	var startYears  = C_UICOM.getData("<@compId>_startYears");
             	var startMonths = C_UICOM.getData("<@compId>_startMonths");
             	var endYears    = C_UICOM.getData("<@compId>_endYears");
@@ -671,19 +898,40 @@ var <@compId> = {
             	
             	var startDate  = startYears+"-"+startMonths;
                 var endDate    = endYears+"-"+endMonths;
-            	
+                
+                var dateStart  = startYears+startMonths;
+                var dateEnd    = endYears+endMonths;
+                
+                
             	let requestParm = {};
+                requestParm["buyerId"]    = buyerId;
                 requestParm["year"]       = startYears;
                 requestParm["startDate"]  = startDate;
+                requestParm["startYMD"]   = startDate+"-01";
                 requestParm["endDate"]    = endDate;
+                requestParm["endYMD"]     = endDate+"-01";
                 requestParm["region"]     = region;
                 requestParm["supervisor"] = supervisor;
+
+                if( Number(dateStart) > Number(dateEnd) ){
+                    C_POP.alert("시작일이 종료일보다 클 수 없습니다.");
+                    return true;
+                }
+                
+                var monthDifference = <@compId>.getMonthDifference(startDate, endDate);
+
+                if( 12 <= monthDifference  ){
+                    C_POP.alert("조회 기간은 12 개월 이내로 하세요");
+                    return true;
+                }
                 
                 <@compId>.searchList11(requestParm);
                 <@compId>.searchList12(requestParm);
                 <@compId>.searchList13(requestParm);
                 <@compId>.searchList21(requestParm);
                 <@compId>.searchList22(requestParm);
+                <@compId>.searchList31(requestParm);
+                <@compId>.searchList32(requestParm);
             })            
             
         } 
@@ -939,18 +1187,14 @@ C_HM.onReturn("<@compId>", function(pageId, data) {
         <div class="cont_box col2">
             <h3>월별 비율 그래프</h3>
             <figure class="highcharts-figure2">
-                <div class="chart02_01" style="width:100%;height:345px;margin:0 auto">
-                    <!-- 임시 차트 이미지 -->
-                    <img src="../img/img_chart_list03.png" style="width:100%;height:345px;">
+                <div class="chart02_01" id="<@compId>_chart31" style="width:100%;height:345px;margin:0 auto">
                 </div>
             </figure>
         </div>
         <div class="cont_box col2">
             <h3>지점별 비율 그래프</h3>
             <figure class="highcharts-figure2">
-                <div class="chart02_02" style="width:100%;height:345px;margin:0 auto">
-                    <!-- 임시 차트 이미지 -->
-                    <img src="../img/img_chart_list04.png" style="width:100%;height:345px;">
+                <div class="chart02_02" id="<@compId>_chart32" style="width:100%;height:345px;margin:0 auto">
                 </div>
             </figure>
         </div>
