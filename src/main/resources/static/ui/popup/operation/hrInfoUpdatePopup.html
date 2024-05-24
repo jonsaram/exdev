@@ -445,13 +445,16 @@
 			//이름/ 핸드폰 / 주민번호 / 성별 / 이메일 / 주소  / DESC // 추천인
 			$("#<@popupId>_USER_NM,#<@popupId>_PHONE_NUM,#<@popupId>_JUMIN")					.prop("disabled",false);
 			$("#<@popupId>_E_MAIL,#<@popupId>_POST_NUM,#<@popupId>_ADDR1,#<@popupId>_ADDR2")	.prop("disabled",false);
-			$("#<@popupId><@popupId>_RECOMMENDER_val,#<@popupId>_USER_DESC")					.prop("disabled",false);
+			$("#<@popupId>_USER_DESC")															.prop("disabled",false);
+			
 			
 			C_UICOM.setSelectBoxOption("<@popupId>_selectGender", "readOnly", "N");// 성별
 			
 			$("#<@popupId>_divisionPopupBtn").remove();
 			$("#<@popupId>_DIVISION").css("width", "100%");
 			
+			$("#<@popupId><@popupId>_RECOMMENDER_val+a").remove();// search
+			$("#<@popupId><@popupId>_RECOMMENDER_val").css("background-color","#fafafa")
 			setTimeout( () =>{$(".ui-datepicker-trigger").remove();},150)
 			
 		}
