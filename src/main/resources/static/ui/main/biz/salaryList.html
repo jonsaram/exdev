@@ -75,9 +75,9 @@ var <@pageId> = {
 				
 				let sumPayment=0,sumTax=0,sumRealPay=0;
 				resultData.data.forEach(item=>{
-					sumPayment		+=item.PAYMENT;
-					sumTax			+=item.TAX;
-					sumRealPay		+=item.REAL_PAY;
+					sumPayment		+= isEmpty(item.PAYMENT) ? 0 :item.PAYMENT ;
+					sumTax			+= isEmpty(item.TAX) ? 0 : item.TAX;
+					sumRealPay		+= isEmpty(item.REAL_PAY) ? 0 : item.REAL_PAY;
 				})
 
 				$("#<@pageId>_sumIncome").text(sumIncome.toLocaleString());

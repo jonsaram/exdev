@@ -42,8 +42,22 @@ var <@pageId> = {
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 				
-	        	mergeTableTD('<@pageId>_resultList', {startIdx : 8, endIdx : 8, startRowIdx : 1});;
+	        	mergeTableTD('<@pageId>_resultList', {startIdx : 8, endIdx : 8, startRowIdx : 1});
 	        	mergeTableTD('<@pageId>_resultList', {startIdx : 2, endIdx : 7, startRowIdx : 1});
+	        	
+	        	
+				let sumTotalCost=0,sumIncome=0,sumCost=0,sumOrg=0;
+				resultData.data.forEach(item=>{
+					sumTotalCost		+=item.TOTAL_COST;
+					sumIncome			+= isEmpty(item.INCOME) ? 0:item.INCOME;
+					sumCost				+= isEmpty(item.SUM_COST_PRICE) ? 0: item.SUM_COST_PRICE;
+					sumOrg				+= isEmpty(item.ORG_SELLING_PRICE) ? 0: item.ORG_SELLING_PRICE ;
+				})
+
+				$("#<@pageId>_sumTotalCost").text(sumTotalCost.toLocaleString());
+				$("#<@pageId>_sumIncome").text(sumIncome.toLocaleString());
+				$("#<@pageId>_sumCost").text(sumCost.toLocaleString());
+				$("#<@pageId>_sumOrgSellingPrice").text(sumOrg.toLocaleString());
 
 			});  
 		}
@@ -178,6 +192,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<td colspan=11>자료가 없습니다.</td>	
 				</tr>
 			</script>
+				<tfoot>
+					<tr>
+						<td></td>
+						<td colspan="4" >총계</td>
+						<td class="tr" id="<@pageId>_sumTotalCost"></td>
+						<td colspan="2"></td>
+						<td class="tr" id="<@pageId>_sumIncome"></td>
+						<td class="tr" id="<@pageId>_sumCost"></td>
+						<td class="tr" id="<@pageId>_sumOrgSellingPrice"></td>
+					</tr>
+				</tfoot>			
 		</table>
 	</div>
 	</section>
