@@ -1934,15 +1934,17 @@
                      FROM   TBL_EXP_STORE_INFO A
                             JOIN TBL_EXP_STORE_MENU_SALES B
                                 ON  1 = 1
+                                AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+                                AND B.BUYER_ID   = #{buyerId}
                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
                                 AND A.BUYER_ID   = B.BUYER_ID
                                 AND A.STORE_ID   = B.STORE_ID                  
                                 <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                     AND B.YEAR   = #{year}
                                 </if>
-						        <if test=" !'ALL'.equals(group1) and group1 != null and group1 != ''  ">
-						            AND B.GROUP_1  = #{group1}
-						        </if>
+                                <if test=" !'ALL'.equals(group1) and group1 != null and group1 != ''  ">
+                                    AND B.GROUP_1  = #{group1}
+                                </if>
                                 <if test=" !'ALL'.equals(group2) and group2 != null and group2 != ''  ">
                                     AND B.GROUP_2  = #{group2}
                                 </if>
@@ -1953,7 +1955,7 @@
                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                 ON  1 = 1
                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                AND A.BUYER_ID   = B.BUYER_ID
+                                AND B.BUYER_ID   = C.BUYER_ID
                                 AND B.MENU_ID    = C.MENU_ID
                                 AND B.GROUP_1    = C.GROUP_1
                                 AND B.GROUP_2    = C.GROUP_2
@@ -1998,7 +2000,7 @@
                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                 ON  1 = 1
                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                AND A.BUYER_ID   = B.BUYER_ID
+                                AND B.BUYER_ID   = C.BUYER_ID
                                 AND B.MENU_ID    = C.MENU_ID
                                 AND B.GROUP_1    = C.GROUP_1
                                 AND B.GROUP_2    = C.GROUP_2
@@ -2035,7 +2037,7 @@
                  AND A.SP_CSTM_ID = B.SP_CSTM_ID
                  AND A.BUYER_ID   = B.BUYER_ID
                  AND A.MENU_KEY   = B.MENU_KEY
-    </select>    
+    </select>   
     
     <select id="getmenuSalesDayTop5" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getmenuSalesDayTop5 */
@@ -2055,6 +2057,8 @@
                      FROM   TBL_EXP_STORE_INFO A
                             JOIN TBL_EXP_STORE_MENU_SALES B
                                 ON  1 = 1
+                                AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
+                                AND B.BUYER_ID   = #{buyerId}
                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
                                 AND A.BUYER_ID   = B.BUYER_ID
                                 AND A.STORE_ID   = B.STORE_ID
@@ -2076,7 +2080,7 @@
                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                 ON  1 = 1
                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                AND A.BUYER_ID   = B.BUYER_ID
+                                AND B.BUYER_ID   = C.BUYER_ID
                                 AND B.MENU_ID    = C.MENU_ID
                                 AND B.GROUP_1    = C.GROUP_1
                                 AND B.GROUP_2    = C.GROUP_2
@@ -2135,7 +2139,7 @@
                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                 ON  1 = 1
                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                AND A.BUYER_ID   = B.BUYER_ID
+                                AND B.BUYER_ID   = C.BUYER_ID
                                 AND B.MENU_ID    = C.MENU_ID
                                 AND B.GROUP_1    = C.GROUP_1
                                 AND B.GROUP_2    = C.GROUP_2
@@ -2662,7 +2666,7 @@
                                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                                 ON  1 = 1
                                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                                AND A.BUYER_ID   = B.BUYER_ID
+                                                AND B.BUYER_ID   = C.BUYER_ID
                                                 AND B.MENU_ID    = C.MENU_ID
                                                 AND B.GROUP_1    = C.GROUP_1
                                                 AND B.GROUP_2    = C.GROUP_2
