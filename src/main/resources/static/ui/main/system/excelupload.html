@@ -72,6 +72,10 @@
 					$("#<@pageId> #sheetNum").html(retData.sheetNum);
 					
 					$("#<@pageId> #stopIdx").html(retData.stopIdx);
+					
+					if(isValid(retData.dupleNum)) {
+						$("#<@pageId> #errorMsg").append(":" + retData.dupleNum);
+					}
 				} else {
 					dwrite(retData);
 				}

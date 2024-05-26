@@ -60,6 +60,8 @@
 				$.each(allList, function() {
 					let item = this;
 					
+					if(isEmpty(item.WORK_CONTENT)) return true;
+					
 					item.WORK_CONTENT = item.WORK_CONTENT.replaceAll(`<1>`, `<span class="custom">`	);
 					item.WORK_CONTENT = item.WORK_CONTENT.replaceAll(`<2>`, `<span class="state">`	);
 					item.WORK_CONTENT = item.WORK_CONTENT.replaceAll(`</>`, `</span>`				);

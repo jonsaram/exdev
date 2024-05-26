@@ -34,8 +34,19 @@
 			 returnData["OLD_BUYER_ID"] = <@popupId>.OLD_BUYER_ID ;
 			 returnData["ID_CHANGE"] 	= <@popupId>.mode == "I"? false : <@popupId>.ID_CHANGE ;
 			 
+			 <@popupId>.saveWorkHistory(returnData);
+			 
 			 <@popupId>.close(returnData);
 			 
+		  }
+		 ,saveWorkHistory : function(returnData) {
+			let content = '';
+			if(isValid(returnData["OLD_BUYER_ID"])) {
+				content = `<1>${returnData.BUYER_NM}</> 고객 정보 <2>수정</>`;
+			} else {
+				content = `<1>${returnData.BUYER_ID} / ${returnData.BUYER_NM}</> 신규 고객 <2>등록</>`;
+			}
+			C_COM.saveWorkHistory(G_VAL.session.USER_ID, content);
 		 }
 		 ,validation : () =>{
 
