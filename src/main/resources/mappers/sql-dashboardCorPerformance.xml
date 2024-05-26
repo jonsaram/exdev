@@ -102,39 +102,78 @@
     
     <select id="getMonthAccrue" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getMonthAccrue */
-        WITH STORE_FINANCIAL AS (
-            SELECT MONTH
-                  ,SUBJECT
-                  ,SUM(AMOUNT) AS AMOUNT
-            FROM   TBL_EXP_STORE_FINANCIAL
-            WHERE  1 = 1
-            AND    SUBJECT IN ('SUBJECT_001','SUBJECT_003','SUBJECT_010','SUBJECT_005')
-            AND    SP_CSTM_ID = #{sessionVo.spCstmId}
-            AND    YEAR = #{year}
-            GROUP BY MONTH
-                    ,SUBJECT
-            ORDER BY MONTH
-                    ,SUBJECT
+        WITH TABLE_FINANCIAL AS (
+             SELECT    A.SP_CSTM_ID
+                      ,A.BUYER_ID
+                      ,A.YEAR
+                      ,A.MONTH
+                      ,A.SUBJECT_001
+                      ,A.SUBJECT_003
+                      ,A.SUBJECT_005
+                      ,A.SUBJECT_010
+                FROM   (
+                        SELECT B.SP_CSTM_ID
+                              ,B.BUYER_ID
+                              ,B.YEAR
+                              ,B.MONTH
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_001', AMOUNT, 0)) AS SUBJECT_001 /*매출액*/
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_003', AMOUNT, 0)) AS SUBJECT_003 /*매출총이익*/
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_005', AMOUNT, 0)) AS SUBJECT_005 /*영업이익*/
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_010', AMOUNT, 0)) AS SUBJECT_010 /*당기순이익 */  
+                        FROM   TBL_EXP_STORE_INFO A
+                               JOIN TBL_EXP_STORE_FINANCIAL B
+                                   ON  1 = 1
+                                   AND B.SUBJECT IN ('SUBJECT_001','SUBJECT_003','SUBJECT_010','SUBJECT_005')
+                                   AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                   AND A.STORE_ID   = B.STORE_ID
+                                   AND TO_DATE( (B.YEAR||'-'||B.MONTH||'-01') , 'YYYY-MM-DD') BETWEEN TO_DATE(#{startYMD} , 'YYYY-MM-DD') AND TO_DATE( #{endYMD} , 'YYYY-MM-DD')
+                        WHERE  1 = 1
+                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    A.BUYER_ID   = #{buyerId} 
+                        <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                            AND    A.REGION =  #{region} 
+                        </if>
+                        <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                            AND    A.STORE_ID = #{store} 
+                        </if>
+                        <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                          AND    A.SUPERVISOR = #{supervisor}
+                        </if>
+                        GROUP BY  B.SP_CSTM_ID
+                                 ,B.BUYER_ID
+                                 ,B.YEAR
+                                 ,B.MONTH
+                ) A
+                WHERE 1 = 1 
+                ORDER BY A.SP_CSTM_ID
+                         ,A.BUYER_ID
+                         ,A.YEAR
+                         ,A.MONTH
         )
-		SELECT MONTH
-		      ,SUBJECT
-		      ,AMOUNT
-		FROM   (
-		        SELECT SUBJECT, '01' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01') GROUP BY SUBJECT, '01' UNION ALL
-		        SELECT SUBJECT, '02' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02') GROUP BY SUBJECT, '02' UNION ALL
-		        SELECT SUBJECT, '03' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03') GROUP BY SUBJECT, '03' UNION ALL
-		        SELECT SUBJECT, '04' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04') GROUP BY SUBJECT, '04' UNION ALL
-		        SELECT SUBJECT, '05' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05') GROUP BY SUBJECT, '05' UNION ALL
-		        SELECT SUBJECT, '06' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06') GROUP BY SUBJECT, '06' UNION ALL
-		        SELECT SUBJECT, '07' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07') GROUP BY SUBJECT, '07' UNION ALL
-		        SELECT SUBJECT, '08' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07','08') GROUP BY SUBJECT, '08' UNION ALL
-		        SELECT SUBJECT, '09' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07','08','09') GROUP BY SUBJECT, '09' UNION ALL
-		        SELECT SUBJECT, '10' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07','08','09','10') GROUP BY SUBJECT, '10' UNION ALL
-		        SELECT SUBJECT, '11' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07','08','09','10','11') GROUP BY SUBJECT, '11' UNION ALL
-		        SELECT SUBJECT, '12' AS MONTH, SUM(AMOUNT) AS AMOUNT FROM STORE_FINANCIAL WHERE MONTH IN ('01','02','03','04','05','06','07','08','09','10','11','12') GROUP BY SUBJECT, '12'
-		        ) A
-		ORDER BY MONTH
-		        ,SUBJECT
+       ,TABLE_YEAR_MONTH  AS (
+                SELECT TO_CHAR(ADD_MONTHS(TRUNC(TO_DATE(#{startYMD}, 'YYYY-MM-DD'), 'MM'), LEVEL - 1), 'YYYY-MM')               AS YEAR_MONTH
+                      ,SUBSTR(TO_CHAR(ADD_MONTHS(TRUNC(TO_DATE(#{startYMD}, 'YYYY-MM-DD'), 'MM'), LEVEL - 1), 'YYYY-MM'), 0, 4) AS YEAR
+                      ,SUBSTR(TO_CHAR(ADD_MONTHS(TRUNC(TO_DATE(#{startYMD}, 'YYYY-MM-DD'), 'MM'), LEVEL - 1), 'YYYY-MM'), 6, 2) AS MONTH
+                FROM  (
+                       SELECT TO_DATE(#{startYMD}, 'YYYY-MM-DD') AS START_DATE, 
+                              TO_DATE(#{endYMD}, 'YYYY-MM-DD') AS END_DATE
+                       FROM DUAL
+                      ) A
+                CONNECT BY LEVEL <![CDATA[<=]]>  MONTHS_BETWEEN(TRUNC(TO_DATE(A.END_DATE, 'YYYY-MM-DD'), 'MM'), TRUNC(TO_DATE(A.START_DATE, 'YYYY-MM-DD'), 'MM')) + 1
+        )
+        SELECT TABLE_YEAR_MONTH.YEAR
+              ,TABLE_YEAR_MONTH.MONTH
+              ,NVL(TABLE_FINANCIAL.SUBJECT_001,0) AS SUBJECT_001 
+              ,NVL(TABLE_FINANCIAL.SUBJECT_003,0) AS SUBJECT_003
+              ,NVL(TABLE_FINANCIAL.SUBJECT_005,0) AS SUBJECT_005
+              ,NVL(TABLE_FINANCIAL.SUBJECT_010,0) AS SUBJECT_010
+        FROM   TABLE_YEAR_MONTH
+               LEFT OUTER JOIN TABLE_FINANCIAL
+                   ON  1 = 1
+                   AND TABLE_YEAR_MONTH.YEAR = TABLE_FINANCIAL.YEAR
+                   AND TABLE_YEAR_MONTH.MONTH = TABLE_FINANCIAL.MONTH
+        ORDER BY TABLE_YEAR_MONTH.YEAR
+               ,TABLE_YEAR_MONTH.MONTH
     </select>
     
     <select id="getMonthSales" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -2709,5 +2748,192 @@
                       ,BASE_TABLE.MENU_KEY   
                       ,BASE_TABLE.MENU_NM
                 ORDER BY SUM(BASE_TABLE.COST) DESC
-    </select>       
+    </select> 
+
+    <select id="getMonthRatio1" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getMonthRatio */
+        SELECT A.SP_CSTM_ID
+              ,A.BUYER_ID
+              ,A.YEAR
+              ,A.MONTH
+              ,SUBJECT_001    AS SUBJECT1
+              ,SUBJECT_003    AS SUBJECT2
+              ,SUBJECT_005    AS SUBJECT3
+              ,SUBJECT_010    AS SUBJECT4
+              ,ROUND(SUBJECT_003 * 100/SUBJECT_001) AS SUBJECT_003
+              ,ROUND(SUBJECT_005 * 100/SUBJECT_001) AS SUBJECT_005
+              ,ROUND(SUBJECT_010 * 100/SUBJECT_001) AS SUBJECT_010
+        FROM   (
+                SELECT B.SP_CSTM_ID
+                      ,B.BUYER_ID
+                      ,B.YEAR
+                      ,B.MONTH
+                      ,SUM(DECODE(B.SUBJECT, 'SUBJECT_001', AMOUNT, 0)) AS SUBJECT_001 /*매출액*/
+                      ,SUM(DECODE(B.SUBJECT, 'SUBJECT_003', AMOUNT, 0)) AS SUBJECT_003 /*매출총이익*/
+                      ,SUM(DECODE(B.SUBJECT, 'SUBJECT_005', AMOUNT, 0)) AS SUBJECT_005 /*영업이익*/
+                      ,SUM(DECODE(B.SUBJECT, 'SUBJECT_010', AMOUNT, 0)) AS SUBJECT_010 /*당기순이익 */  
+                FROM   TBL_EXP_STORE_INFO A
+                       JOIN TBL_EXP_STORE_FINANCIAL B
+                           ON  1 = 1
+                           AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                           AND A.STORE_ID   = B.STORE_ID
+                WHERE  1 = 1
+                AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    A.BUYER_ID   = #{buyerId} 
+                <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                    AND    A.REGION =  #{region} 
+                </if>
+                <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                    AND    A.STORE_ID = #{store} 
+                </if>
+                <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                  AND    A.SUPERVISOR = #{supervisor}
+                </if>
+                GROUP BY  B.SP_CSTM_ID
+                         ,B.BUYER_ID
+                         ,B.YEAR
+                         ,B.MONTH
+        ) A
+        WHERE 1 = 1
+        AND   SUBJECT_001 != 0
+        AND   TO_DATE( (A.YEAR||'-'||A.MONTH||'-01') , 'YYYY-MM-DD') BETWEEN TO_DATE('2023-01-01' , 'YYYY-MM-DD') AND TO_DATE( '2023-12-01' , 'YYYY-MM-DD')
+        ORDER BY A.SP_CSTM_ID
+                 ,A.BUYER_ID
+                 ,A.YEAR
+                 ,A.MONTH
+    </select>  
+    
+    <select id="getMonthRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getMonthRatio */
+        WITH TABLE_FINANCIAL AS (
+             SELECT    A.SP_CSTM_ID
+                      ,A.BUYER_ID
+                      ,A.YEAR
+                      ,A.MONTH
+                      ,SUBJECT_001    AS SUBJECT1
+                      ,SUBJECT_003    AS SUBJECT2
+                      ,SUBJECT_005    AS SUBJECT3
+                      ,SUBJECT_010    AS SUBJECT4
+                      ,ROUND(SUBJECT_003 * 100/SUBJECT_001) AS SUBJECT_003
+                      ,ROUND(SUBJECT_005 * 100/SUBJECT_001) AS SUBJECT_005
+                      ,ROUND(SUBJECT_010 * 100/SUBJECT_001) AS SUBJECT_010
+                FROM   (
+                        SELECT B.SP_CSTM_ID
+                              ,B.BUYER_ID
+                              ,B.YEAR
+                              ,B.MONTH
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_001', AMOUNT, 0)) AS SUBJECT_001 /*매출액*/
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_003', AMOUNT, 0)) AS SUBJECT_003 /*매출총이익*/
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_005', AMOUNT, 0)) AS SUBJECT_005 /*영업이익*/
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_010', AMOUNT, 0)) AS SUBJECT_010 /*당기순이익 */  
+                        FROM   TBL_EXP_STORE_INFO A
+                               JOIN TBL_EXP_STORE_FINANCIAL B
+                                   ON  1 = 1
+                                   AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                   AND A.STORE_ID   = B.STORE_ID
+                        WHERE  1 = 1
+                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    A.BUYER_ID   = #{buyerId} 
+                        <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                            AND    A.REGION =  #{region} 
+                        </if>
+                        <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                            AND    A.STORE_ID = #{store} 
+                        </if>
+                        <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                          AND    A.SUPERVISOR = #{supervisor}
+                        </if>
+                        GROUP BY  B.SP_CSTM_ID
+                                 ,B.BUYER_ID
+                                 ,B.YEAR
+                                 ,B.MONTH
+                ) A
+                WHERE 1 = 1
+                AND   SUBJECT_001 != 0 
+                AND   TO_DATE( (A.YEAR||'-'||A.MONTH||'-01') , 'YYYY-MM-DD') BETWEEN TO_DATE(#{startYMD} , 'YYYY-MM-DD') AND TO_DATE( #{endYMD} , 'YYYY-MM-DD')
+                ORDER BY A.SP_CSTM_ID
+                         ,A.BUYER_ID
+                         ,A.YEAR
+                         ,A.MONTH
+        )
+       ,TABLE_YEAR_MONTH  AS (
+                SELECT TO_CHAR(ADD_MONTHS(TRUNC(TO_DATE(#{startYMD}, 'YYYY-MM-DD'), 'MM'), LEVEL - 1), 'YYYY-MM')               AS YEAR_MONTH
+                      ,SUBSTR(TO_CHAR(ADD_MONTHS(TRUNC(TO_DATE(#{startYMD}, 'YYYY-MM-DD'), 'MM'), LEVEL - 1), 'YYYY-MM'), 0, 4) AS YEAR
+                      ,SUBSTR(TO_CHAR(ADD_MONTHS(TRUNC(TO_DATE(#{startYMD}, 'YYYY-MM-DD'), 'MM'), LEVEL - 1), 'YYYY-MM'), 6, 2) AS MONTH
+                FROM  (
+                       SELECT TO_DATE(#{startYMD}, 'YYYY-MM-DD') AS START_DATE, 
+                              TO_DATE(#{endYMD}, 'YYYY-MM-DD') AS END_DATE
+                       FROM DUAL
+                      ) A
+                CONNECT BY LEVEL <![CDATA[<=]]>  MONTHS_BETWEEN(TRUNC(TO_DATE(A.END_DATE, 'YYYY-MM-DD'), 'MM'), TRUNC(TO_DATE(A.START_DATE, 'YYYY-MM-DD'), 'MM')) + 1
+        )
+        SELECT TABLE_YEAR_MONTH.YEAR
+              ,TABLE_YEAR_MONTH.MONTH
+              ,TABLE_FINANCIAL.SUBJECT1
+              ,TABLE_FINANCIAL.SUBJECT2
+              ,TABLE_FINANCIAL.SUBJECT3
+              ,TABLE_FINANCIAL.SUBJECT4
+              ,NVL(TABLE_FINANCIAL.SUBJECT_003,0) AS SUBJECT_003
+              ,NVL(TABLE_FINANCIAL.SUBJECT_005,0) AS SUBJECT_005
+              ,NVL(TABLE_FINANCIAL.SUBJECT_010,0) AS SUBJECT_010
+        FROM   TABLE_YEAR_MONTH
+               LEFT OUTER JOIN TABLE_FINANCIAL
+                   ON  1 = 1
+                   AND TABLE_YEAR_MONTH.YEAR = TABLE_FINANCIAL.YEAR
+                   AND TABLE_YEAR_MONTH.MONTH = TABLE_FINANCIAL.MONTH
+        ORDER BY TABLE_YEAR_MONTH.YEAR
+               ,TABLE_YEAR_MONTH.MONTH   
+    </select>
+            
+    <select id="getStoreRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getStoreRatio */
+             SELECT    A.SP_CSTM_ID
+                      ,A.BUYER_ID
+                      ,A.STORE_ID
+                      ,A.STORE_NM3
+                      ,ROUND(SUBJECT_003 * 100/SUBJECT_001) AS SUBJECT_003
+                      ,ROUND(SUBJECT_005 * 100/SUBJECT_001) AS SUBJECT_005
+                      ,ROUND(SUBJECT_010 * 100/SUBJECT_001) AS SUBJECT_010
+                FROM   (
+                        SELECT A.SP_CSTM_ID
+                              ,A.BUYER_ID
+                              ,A.STORE_ID
+                              ,A.STORE_NM3
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_001', AMOUNT, 0)) AS SUBJECT_001 /*매출액*/
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_003', AMOUNT, 0)) AS SUBJECT_003 /*매출총이익*/
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_005', AMOUNT, 0)) AS SUBJECT_005 /*영업이익*/
+                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_010', AMOUNT, 0)) AS SUBJECT_010 /*당기순이익 */  
+                        FROM   TBL_EXP_STORE_INFO A
+                               JOIN TBL_EXP_STORE_FINANCIAL B
+                                   ON  1 = 1
+                                   AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                                   AND A.STORE_ID   = B.STORE_ID
+                        WHERE  1 = 1
+                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    A.BUYER_ID   = #{buyerId} 
+                        <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                            AND    A.REGION =  #{region} 
+                        </if>
+                        <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                            AND    A.STORE_ID = #{store} 
+                        </if>
+                        <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                          AND    A.SUPERVISOR = #{supervisor}
+                        </if>
+                        AND   TO_DATE( (B.YEAR||'-'||B.MONTH||'-01') , 'YYYY-MM-DD') BETWEEN TO_DATE(#{startYMD} , 'YYYY-MM-DD') AND TO_DATE( #{endYMD} , 'YYYY-MM-DD')
+                        GROUP BY  A.SP_CSTM_ID
+                                 ,A.BUYER_ID
+                                 ,A.STORE_ID
+                                 ,A.STORE_NM3
+                        ORDER BY  A.SP_CSTM_ID
+                                 ,A.BUYER_ID
+                                 ,A.STORE_ID
+                                 ,A.STORE_NM3
+                ) A
+                WHERE 1 = 1
+                AND   SUBJECT_001 != 0 
+                ORDER BY  A.SP_CSTM_ID
+                         ,A.BUYER_ID
+                         ,A.STORE_NM3
+    </select>  
 </mapper>
