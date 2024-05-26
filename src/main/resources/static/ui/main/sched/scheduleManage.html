@@ -109,9 +109,7 @@
             
             $("#<@pageId> .fc-button-group button").bind("click", function() {
             	let title = $(this).attr("title");
-            	//dalert(title);
             	let cd = <@pageId>.calendar.getCurrentData();
-            	//dalert(cd.dateProfile.currentRange);
             	
             	var start = cd.dateProfile.currentRange.start;
             	var end   = cd.dateProfile.currentRange.end;
@@ -265,7 +263,7 @@
                ,requestParm            : requestParm
            }
            C_COM.requestService(parm, function(resultData) {
-               //dalert(resultData);
+               
                for (var i=0; i<resultData.data.list.length; i++){
                    
                    let length = 24; // 표시할 글자수 기준
