@@ -172,7 +172,7 @@
 
             /*============= 매출 비교 그래프    매출 비교 그래프    매출 비교 그s래프    매출 비교 그래프    매출 비교 그래프    =============*/
             ,searchList1 : (requestParm) => {
-            	
+            	console.log("searchList1 1")
                 var month = requestParm["month"];
                 var serviceUrl = '';
                 if( month == 'ALL'){
@@ -264,10 +264,11 @@
                 return dataArr;
              }
             ,setChart1 : (resultData) =>{
-                 
+
+                 console.log("searchList1 2")
                  var seriesArr = <@compId>.getSeriesArry( resultData);
                  var categoryArr = <@compId>.getCategoryArr( resultData);
-                 
+                 console.log("searchList1 3")
                  $('#<@compId>_chart1').highcharts({
                      title: {
                          text: '',

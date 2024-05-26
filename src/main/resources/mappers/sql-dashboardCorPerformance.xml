@@ -1853,7 +1853,7 @@
               JOIN TBL_EXP_STORE_MENU_MASTER C
                    ON  1 = 1
                    AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                   AND A.BUYER_ID   = B.BUYER_ID
+                   AND B.BUYER_ID   = C.BUYER_ID
                    AND B.MENU_ID    = C.MENU_ID
                    AND B.GROUP_1    = C.GROUP_1
                    AND B.GROUP_2    = C.GROUP_2
@@ -2214,7 +2214,7 @@
                                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                                 ON  1 = 1
                                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                                AND A.BUYER_ID   = B.BUYER_ID
+                                                AND B.BUYER_ID   = C.BUYER_ID
                                                 AND B.MENU_ID    = C.MENU_ID
                                                 AND B.GROUP_1    = C.GROUP_1
                                                 AND B.GROUP_2    = C.GROUP_2
@@ -2517,7 +2517,7 @@
                                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                                 ON  1 = 1
                                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                                AND A.BUYER_ID   = B.BUYER_ID
+                                                AND B.BUYER_ID   = C.BUYER_ID
                                                 AND B.MENU_ID    = C.MENU_ID
                                                 AND B.GROUP_1    = C.GROUP_1
                                                 AND B.GROUP_2    = C.GROUP_2
@@ -2619,7 +2619,7 @@
                       ) A
                       JOIN BASE_TABLE B
                           ON  1 = 1
-                          AND  A.SP_CSTM_ID = A.SP_CSTM_ID
+                          AND  A.SP_CSTM_ID = B.SP_CSTM_ID
                           AND  A.BUYER_ID   = B.BUYER_ID
                           AND  A.MENU_KEY   = B.MENU_KEY
                 GROUP BY A.SP_CSTM_ID
