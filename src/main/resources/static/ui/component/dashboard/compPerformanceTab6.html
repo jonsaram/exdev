@@ -80,11 +80,10 @@
 	            var month   = C_UICOM.getData("<@compId>_selectBoxMonth");
 	            var storeId = C_UICOM.getData("<@compId>_selectBoxStoreList");
 	            var subject = C_UICOM.getData("<@compId>_selectBoxSubjectList");
-	            
-	            console.log("  years["+years+"]   month["+month+"]   storeId["+storeId+"]   subject["+subject+"]   ");
+	            var buyerId = G_VAL.session.BUYER_ID;
 	            
 	            let requestParm = {};
-	            requestParm["spCstmId"]  = "starasset";
+                requestParm["buyerId"]   = buyerId;
 	            requestParm["storeId"]   = storeId;
 	            requestParm["year"]      = years;
 	            requestParm["month"]     = month;
