@@ -137,11 +137,11 @@
 		    AND 1=1  
         	</if>
         	<if test=" !parm.PA_ROLE.equals('SYSTEM') and !parm.PA_ROLE.equals('MANAGER')">
-			AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_TEAM_MEMBER WHERE USER_ID = #{sessionVo.userId})
+			AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_CONTRACT_MEMBER WHERE USER_ID = #{sessionVo.userId})
         	</if>
 		</when>
        	<when test= "parm.CALL_TYPE != null and parm.CALL_TYPE.equals('USER')"> 
-			AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_TEAM_MEMBER WHERE USER_ID = #{sessionVo.userId})
+			AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_CONTRACT_MEMBER WHERE USER_ID = #{sessionVo.userId})
 		</when>		
 		</choose>		
 	
