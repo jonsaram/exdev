@@ -30,7 +30,7 @@
 
                 // 권역
                 var regionList = C_COM.getCodeList("STORE_REGION");
-                //dalert(regionList);
+                
                 var selectBoxRegionList = { 
                      defaultItem    : ["ALL", "전체"] 
                     ,data : regionList
@@ -155,7 +155,10 @@
                console.log('endDatePre : ' +endDatePre );
                console.log('storeId : ' +storeId );
 
+               var buyerId = G_VAL.session.BUYER_ID;
+               
                let requestParm = {};
+               requestParm["buyerId"]    = buyerId;
                requestParm["dateStart"]     = startDate;
                requestParm["dateEnd"]       = endDate;
                requestParm["startDatePre"]  = startDatePre;
@@ -422,7 +425,7 @@
                                     <tr>
                                         <th scope="col">기간</th>
                                         <th scope="col" class="tl">테이블수</th>
-                                        <th scope="col" class="tr">순매출액</th>
+                                        <th scope="col" class="tr">매출액</th>
                                     </tr>
                                 </thead>
                                 <tbody id="<@compId>_tableId1">
@@ -469,7 +472,7 @@
                                     <tr>
                                         <th scope="col">기간</th>
                                         <th scope="col" class="tl">테이블수</th>
-                                        <th scope="col" class="tr">순매출액</th>
+                                        <th scope="col" class="tr">매출액</th>
                                     </tr>
                                 </thead>
                                 <tbody id="<@compId>_tableId2">

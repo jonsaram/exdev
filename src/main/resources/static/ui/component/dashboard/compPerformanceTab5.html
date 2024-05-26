@@ -72,7 +72,7 @@
                 
             }
             /* 가맹점 리스트    가맹점 리스트    가맹점 리스트    가맹점 리스트    가맹점 리스트    가맹점 리스트    가맹점 리스트    */
-            ,searchList : ( startDate, endDate ) => {
+            ,searchList : ( startDate, endDate, buyerId ) => {
                 
                 if( Number(startDate.replace(/-/gi,"")) > Number(endDate.replace(/-/gi,"")) ){
                     C_POP.alert("시작일이 종료일보다 클 수 없습니다.");
@@ -86,6 +86,7 @@
                 console.log("region["+region+"]   supervisor["+supervisor+"]   ");
                 
                 let requestParm = {};
+                requestParm["buyerId"]    = buyerId;
                 requestParm["spCstmId"]   = "starasset";
                 requestParm["dateStart"]  = startDate;
                 requestParm["dateEnd"]    = endDate;
@@ -122,10 +123,11 @@
             }/* 가맹점 리스트    가맹점 리스트    가맹점 리스트    가맹점 리스트    가맹점 리스트    가맹점 리스트    가맹점 리스트    */
             
             /* 신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    */
-            ,searchList1 : ( startDate, endDate ) => {
-                console.log("=== searchList1  1  ===");
+            ,searchList1 : ( startDate, endDate, buyerId ) => {
+                console.log("=== searchList1  1  buyerId ===>"+buyerId);
 
-                let requestParm = {};            
+                let requestParm = {};   
+                requestParm["buyerId"]     = buyerId;         
                 requestParm["startDate"]   = startDate+"-01";
                 requestParm["endDate"]     = endDate+"-01";           
                 requestParm["region"]      = <@compId>.region ;
@@ -235,13 +237,14 @@
             /* 신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    */
             
             /* 지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    */
-            ,searchList2 : ( startDate, endDate ) => {
+            ,searchList2 : ( startDate, endDate, buyerId ) => {
                 console.log("=== searchList2  1  ===");
 
                 
                 //console.log("=== mapData ===>"+<@compId>.mapData);
-                //dalert(<@compId>.mapData);
-                let requestParm = {};            
+                
+                let requestParm = {};
+                requestParm["buyerId"]     = buyerId;            
                 requestParm["startDate"]   = startDate+"-01";
                 requestParm["endDate"]     = endDate+"-01";           
                 requestParm["region"]      = <@compId>.region ;
@@ -320,13 +323,14 @@
             /* 지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    */
             
             /* 사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    */
-            ,searchList3 : ( startDate, endDate ) => {
+            ,searchList3 : ( startDate, endDate, buyerId ) => {
                 console.log("=== searchList3  1  ===");
 
                 
                 //console.log("=== mapData ===>"+<@compId>.mapData);
-                //dalert(<@compId>.mapData);
-                let requestParm = {};            
+                
+                let requestParm = {};
+                requestParm["buyerId"]     = buyerId;            
                 requestParm["startDate"]   = startDate+"-01";
                 requestParm["endDate"]     = endDate+"-01";           
                 requestParm["region"]      = <@compId>.region ;
@@ -404,11 +408,12 @@
 
                     let startDate = startYear + '-' + startMonth;
                     let endDate   = endYear + '-' + endMonth;
+                    var buyerId = G_VAL.session.BUYER_ID;
                     
-                    <@compId>.searchList( startDate, endDate );
-                    <@compId>.searchList1( startDate, endDate );
-                    <@compId>.searchList2( startDate, endDate );
-                    <@compId>.searchList3( startDate, endDate );
+                    <@compId>.searchList(  startDate, endDate, buyerId );
+                    <@compId>.searchList1( startDate, endDate, buyerId );
+                    <@compId>.searchList2( startDate, endDate, buyerId );
+                    <@compId>.searchList3( startDate, endDate, buyerId );
                 })
             }
     }
