@@ -2,6 +2,7 @@
 <script type="text/javascript">
 	var <@pageId> = {
 		 projectList	: []
+		,cardGroupList	: {}
 		,cardListMap	: {}
 		,buyerCompObjMap: {}
 		,pageInit		: function() {
@@ -52,15 +53,18 @@
 
 			filterMap.consultingList 	= C_UICOM.getData("<@pageId>_consultingSelectBox");
 			filterMap.buyerList 		= C_UICOM.getData("<@pageId>_customerSelectBox");
-			
 			return filterMap;
 			
 		 }
 		,loadCardList 	: function() {
 			
+			let requestParm = <@pageId>.makeFilterMap();
+			
+			dwrite(requestParm);
+			
 			var parm = {
 				 queryId 		: "contract.getProjectList"
-				,requestParm	: {}
+				,requestParm	: requestParm
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				<@pageId>.projectList = resultData.data;
@@ -106,7 +110,6 @@
 		    
 		 }
 		,setCard : function(targetId, contractState, cardTitle) {
-			
 			let list = [];
 			
 			$.each(contractState, function() {
@@ -149,6 +152,7 @@
 					,key_wk		: key_wk
 				}
 			});
+			<@pageId>.cardGroupList[targetId] = list;
 		 }
 		,openFolderMng : function(BUYER_ID, index) {
 			let projectInfo = <@pageId>.projectList[index];
@@ -176,6 +180,11 @@
 		,expandAllCard : function(targetId) {
 			$(`#<@pageId> #${targetId} i[name=updownButton]`	).removeClass('down');
 			$(`#<@pageId> #${targetId} div[name=cardBody]`		).removeClass('upDown');
+			
+			$.each(<@pageId>.cardGroupList[targetId], function(idx) {
+				<@pageId>[`${targetId}_sch${idx}`].loadInitScheduleList();
+			});
+			
 		 }
 		,foldAllCard : function(targetId) {
 			$(`#<@pageId> #${targetId} i[name=updownButton]`	).addClass('down');
@@ -184,12 +193,18 @@
 		,expandCard : function(targetId, idx) {
 			$(`#<@pageId> #${targetId} #updownButton${idx}`	).removeClass('down');
 			$(`#<@pageId> #${targetId} #cardBody${idx}`		).removeClass('upDown');
+			if(isValid(<@pageId>[`${targetId}_sch${idx}`])) {
+				<@pageId>[`${targetId}_sch${idx}`].loadScheduleList();
+			}
 		 }
 		,foldCard	: function(targetId, idx) {
 			$(`#<@pageId> #${targetId} #updownButton${idx}`	).addClass('down');
 			$(`#<@pageId> #${targetId} #cardBody${idx}`		).addClass('upDown');
 		 }
-		
+		,toggleCard : function(targetId, idx) {
+			let isExpand = $(`#<@pageId> #${targetId} #updownButton${idx}`).hasClass('down');
+			if( isExpand ) <@pageId>[`${targetId}_sch${idx}`].loadInitScheduleList();
+		 }
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -222,7 +237,7 @@
                 <div id="<@pageId>_consultingSelectBox" class="select_box fl" style="width:250px"></div>
                 <span class="tit01 fl lh33 tr" style="min-width:40px;">내용</span>
                 <input type="text" name="" class="fl">
-                <button class="btn select fl" onclick="<@pageId>.makeFilterMap()">검색</button>
+                <button class="btn select fl" onclick="<@pageId>.loadCardList()">검색</button>
 			</div>
 		</li>
 	</ul>
@@ -268,7 +283,7 @@
 				<div class="fr inlineBlock_wrap">
 					<button class="btn small" onclick="<@pageId>.openBigCard({{:realIndex}})">카드크게보기</button>
 					<button class="btn small" onclick="<@pageId>.openFolderMng('{{:BUYER_ID}}', {{:realIndex}})">기업폴더보기</button>
-					<button class="btn small upDownToggle"><i class="up" name="updownButton" id="updownButton{{:#index}}"></i></button>
+					<button class="btn small upDownToggle" onclick="<@pageId>.toggleCard('{{:~targetId}}', {{:#index}})"><i class="up" name="updownButton" id="updownButton{{:#index}}"></i></button>
 				</div>
 			</div>
 			<div class="cont_box" name="cardBody" id="cardBody{{:#index}}">

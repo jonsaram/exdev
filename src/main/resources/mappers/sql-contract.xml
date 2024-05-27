@@ -660,6 +660,18 @@
 				OR	D.CONSULTING_NM			LIKE '%${searchWord}%'
 			)
 			</if>
+			<if test=" buyerList != null and buyerList.size() > 0">
+				AND A.BUYER_ID	IN 
+				<foreach item="buyerId" collection="buyerList" open="(" close=")" separator=",">
+					#{buyerId}		
+				</foreach>	
+			</if>
+			<if test=" consultingList != null and consultingList.size() > 0">
+				AND A.CONSULTING_ID	IN 
+				<foreach item="consultingId" collection="consultingList" open="(" close=")" separator=",">
+					#{consultingId}		
+				</foreach>	
+			</if>
 		ORDER BY UPDATE_DATE DESC			
 				
 	</select>	

@@ -43,23 +43,21 @@
 		       					,UP_FOLDER_ID	: topFolderId
 		       				 });
 	        			});
-	        			let queryGroup = [
-	        				 {
-		       		             queryId        : "faDashboard.makeBuyerFolder"
-		       		            ,requestParm    : {
-		       		            	 FOLDER_ID 	: topFolderId
-		       		            	,BUYER_ID 	: BUYER_ID 
-		       		            	,FOLDER_NM 	: '기업공유폴더'
-		       		            }
-		       		         }
-	        				,baseFolderParm
-	        			]
-	        			let sendParm = {
-        					queryGroup : queryGroup
-	        			}
-	       		        C_COM.requestQuery(sendParm, function(resultData) {
+	       		        C_COM.requestQuery(baseFolderParm, function(resultData) {
 	       					if(resultData.state == "S") {
-	       						execFn(topFolderId);
+	    	        			let sendParm = {
+    		       		             queryId        : "faDashboard.makeBuyerFolder"
+    		       		            ,requestParm    : {
+    		       		            	 FOLDER_ID 	: topFolderId
+    		       		            	,BUYER_ID 	: BUYER_ID 
+    		       		            	,FOLDER_NM 	: '기업공유폴더'
+    		       		            }
+    		       		        }
+	    	       		        C_COM.requestQuery(sendParm, function(resultData2) {
+	    	       					if(resultData2.state == "S") {
+	    	       						execFn(topFolderId);
+	    	       					}
+	    	       		        });
 	       					}					
 	       		        });
 	        		}

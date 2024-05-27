@@ -1,9 +1,14 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@compId> = {
-		 contractInfo : {}
-		,scheduleList	  : []
+		 contractInfo	: {}
+		,scheduleList	: []
+		,iniLoadCheck	: false
+		,loadInitScheduleList : function() {
+			if(!<@compId>.iniLoadCheck) <@compId>.loadScheduleList();
+		 }
 		,loadScheduleList : function() {
+			<@compId>.iniLoadCheck = true;
 			let today = getDateFormat(getToday(), 8, "-");
 			let nxtDay = getDateFormat(getDateByAddDayFromNow(30), 8, "-");
 
@@ -54,7 +59,7 @@ var <@compId> = {
 		
 		<@compId>.contractInfo =  data.contractInfo;
 
-		<@compId>.loadScheduleList();
+		//<@compId>.loadScheduleList();
 	});
 </script>
 <div>
