@@ -46,9 +46,6 @@ public class DashboardService extends ExdevBaseService{
         String buyerId = (String)map.get("buyerId");
         String spCstmId = (String)map.get("spCstmId");
         
-        
-        System.out.println("spCstmId["+spCstmId+"]   buyerId["+buyerId+"]   startDate["+startDate+"]   endDate["+endDate+"]   region["+region+"]   supervisor["+supervisor+"]   ");
-        
 	    int startDateNum = Integer.parseInt(startDate.replace("-", ""));
         int endDateNum = Integer.parseInt(endDate.replace("-", ""));
         
@@ -58,8 +55,6 @@ public class DashboardService extends ExdevBaseService{
            
             String addMonth  = DateUtil.AddDate(startDate, 0, i, 0);
             startDateNum = Integer.parseInt(addMonth.replace("-", ""));
-            System.out.println("addMonth["+addMonth+"]    startDateNum["+startDateNum+"]    ");
-            System.out.println(addMonth.substring(0, 7));
             
             Map<String, String> searchMap = new HashMap<String, String>();
             searchMap.put("spCstmId", spCstmId);
@@ -102,23 +97,6 @@ public class DashboardService extends ExdevBaseService{
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public Object getMenuMonthSales(Map map) throws Exception {
 
-        String buyerId    = (String)map.get("buyerId");
-        String year       = (String)map.get("year");
-        String month      = (String)map.get("month");
-        String group1     = (String)map.get("group1");
-        String group2     = (String)map.get("group2");
-        String menu       = (String)map.get("menu");
-        String region     = (String)map.get("region");
-
-        System.out.println("buyerId["+buyerId   +"]    ");
-        System.out.println("year["+year   +"]    ");
-        System.out.println("month["+month  +"]    ");
-        System.out.println("group1["+group1 +"]    ");
-        System.out.println("group2["+group2 +"]    ");
-        System.out.println("menu["+menu   +"]    ");
-        System.out.println("region["+region +"]    ");
-        System.out.println("menu["+menu   +"]    ");
-        
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         List<Map> resultList = commonDao.getList("dashboardCorPerformance.getmenuSalesMonthTop5", map);
         
@@ -143,7 +121,6 @@ public class DashboardService extends ExdevBaseService{
         
         for (int i=0; i<userIdList.size(); i++) {
             userIds[i] = userIdList.get(i);
-            System.out.println("====== userId====>"+userIds[i]);
         }
         
         Map<String, Object> searchMap = new HashMap<String, Object>();

@@ -160,7 +160,7 @@
                               TO_DATE(#{endYMD}, 'YYYY-MM-DD') AS END_DATE
                        FROM DUAL
                       ) A
-                CONNECT BY LEVEL <![CDATA[<=]]>  MONTHS_BETWEEN(TRUNC(TO_DATE(A.END_DATE, 'YYYY-MM-DD'), 'MM'), TRUNC(TO_DATE(A.START_DATE, 'YYYY-MM-DD'), 'MM')) + 1
+                CONNECT BY LEVEL <![CDATA[<=]]>  MONTHS_BETWEEN(TRUNC(A.END_DATE, 'MM'), TRUNC(A.START_DATE, 'MM')) + 1
         )
         SELECT TABLE_YEAR_MONTH.YEAR
               ,TABLE_YEAR_MONTH.MONTH
@@ -2888,7 +2888,7 @@
                               TO_DATE(#{endYMD}, 'YYYY-MM-DD') AS END_DATE
                        FROM DUAL
                       ) A
-                CONNECT BY LEVEL <![CDATA[<=]]>  MONTHS_BETWEEN(TRUNC(TO_DATE(A.END_DATE, 'YYYY-MM-DD'), 'MM'), TRUNC(TO_DATE(A.START_DATE, 'YYYY-MM-DD'), 'MM')) + 1
+                CONNECT BY LEVEL <![CDATA[<=]]>  MONTHS_BETWEEN(TRUNC(A.END_DATE, 'MM'), TRUNC(A.START_DATE, 'MM')) + 1
         )
         SELECT TABLE_YEAR_MONTH.YEAR
               ,TABLE_YEAR_MONTH.MONTH
