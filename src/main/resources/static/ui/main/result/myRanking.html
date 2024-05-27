@@ -1,376 +1,332 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@pageId> = {
+		 thisYear:''
+		,thisYearMonth:''
+		,lastYear:''
+		,lastYearMonth:''
+		,createChart 		: (container, categories, series, unit)=>_createChart(container, categories, series, null,null,unit)
 
+		,pageInit  : () =>{
+
+			<@pageId>.thisYear = dayjs().year();
+			<@pageId>.thisYearMonth = dayjs().year()+("0"+(dayjs().month()+1)).slice(-2);
+			<@pageId>.lastYear = <@pageId>.thisYear - 1;
+			<@pageId>.lastYearMonth = (<@pageId>.thisYear - 1)+("0"+(dayjs().month()+1)).slice(-2);
+		}
+		,chartInit : () =>{
+			
+			//월별 매출 누적합계 , 전월대비 매출 증감분 , 계약 건수(전체)
+ 			var parm = {
+				queryGroup : [{queryId	: "rstMgn.getMyPaymentList"		,requestParm	: {UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+							 //,{queryId 	: "rstMgn.getMyPaymentList"		,requestParm	: {UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+							 ,{queryId 	: "rstMgn.getContarctCntList"	,requestParm	: {UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+							 ]
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+
+				<@pageId>.setChart(resultData )
+			});
+			
+			//FA 월별 매출 누적합계 , FA 전월대비 매출 증감분 , FA 계약 건수(전체)
+ 			var parm = {
+				queryGroup : [{queryId	: "rstMgn.getMyPaymentList"		,requestParm	: {GUBUN:'FA' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+							 ,{queryId 	: "rstMgn.getContarctCntList"	,requestParm	: {GUBUN:'FA' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+							 ]
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+
+				<@pageId>.setBubbleChart(resultData )
+			});
+			
+		}
+		,setChart : (resultData) =>{
+
+			//월별 매출 누적합계 , 전월대비 매출 증감분
+			const paymentListMONTHLY_DATA		=  resultData.data["rstMgn.getMyPaymentList"	];  
+			
+			let ACCUM_PAYMENT = 0;
+			let lastYearThisMonth = 0;
+			let thisYearThisMonth = 0;
+			//월별 매출 누적합계
+			const paymentListMONTHLY_DATA_SUM	=  paymentListMONTHLY_DATA.map( (item,idx, originalArray) => {
+				
+														if( item.MONTH.indexOf(<@pageId>.lastYear) > -1 ) {
+															
+															if( isEmpty(item["ACCUM_PAYMENT"] ) ){
+																ACCUM_PAYMENT += item["SUM_PAYMENT"];
+																item["ACCUM_PAYMENT"] = ACCUM_PAYMENT;
+																
+																if(Number(item.MONTH) == Number(<@pageId>.lastYearMonth) ){
+																	lastYearThisMonth = ACCUM_PAYMENT;
+																}
+															}
+														}
+														if( idx == 12)ACCUM_PAYMENT = 0;
+														
+														if( item.MONTH.indexOf(<@pageId>.thisYear) > -1 ) {
+	
+															if( Number(item.MONTH) <= Number(<@pageId>.thisYearMonth) ){
+																if( isEmpty(item["ACCUM_PAYMENT"] ) ){
+																	ACCUM_PAYMENT += item["SUM_PAYMENT"];
+																	item["ACCUM_PAYMENT"] = ACCUM_PAYMENT;
+																}
+															}else{
+
+																if( isEmpty(item["ACCUM_PAYMENT"] ) ){
+																	item["ACCUM_PAYMENT"] = 0;
+																}
+																
+															}
+															
+															if(Number(item.MONTH) ==  Number(<@pageId>.thisYearMonth) ){
+																thisYearThisMonth = ACCUM_PAYMENT;
+															}
+
+														}	
+														return item;
+			});
+			
+			//전월대비 매출 증감분
+			let lastSumPayment = 0;// 지난달 수수료
+			let thisSumPayment = 0;// 이번달 수수료
+			let lastYearSumPayment = 0;//작년 이번달까지 수수료 합계
+			let thisYearSumPayment = 0;//올해 이번달까지 수수료 합계
+  			const paymentListINCDEC_DATA_SUM	=  paymentListMONTHLY_DATA.map( (item,idx, originalArray) => {
+				
+														if( item.MONTH.indexOf(<@pageId>.lastYear) > -1 ) {
+															
+															if( isEmpty(item["INCDEC_PAYMENT"] ) ){
+
+																thisSumPayment = item["SUM_PAYMENT"];
+																item["INCDEC_PAYMENT"] = lastSumPayment == 0 ? 0 : (thisSumPayment-lastSumPayment)*100/lastSumPayment;
+																
+																lastSumPayment = item["SUM_PAYMENT"];
+																
+																if(Number(item.MONTH) <= Number(<@pageId>.lastYearMonth) ){
+																	lastYearSumPayment += item["SUM_PAYMENT"];
+																}
+
+															}
+														}
+														
+														//if( idx == 12)ACCUM_PAYMENT = 0;
+														
+														if( item.MONTH.indexOf(<@pageId>.thisYear) > -1 ) {
+	
+															if( Number(item.MONTH) <= Number(<@pageId>.thisYearMonth) ){
+
+																if( isEmpty(item["INCDEC_PAYMENT"] ) ){
+																	thisSumPayment = item["SUM_PAYMENT"];
+																	item["INCDEC_PAYMENT"] = lastSumPayment == 0 ? 0 : (thisSumPayment-lastSumPayment)*100/lastSumPayment;
+																	
+																	lastSumPayment = item["SUM_PAYMENT"];
+																}
+																
+															}else{
+
+																if( isEmpty(item["INCDEC_PAYMENT"] ) ){
+																	item["INCDEC_PAYMENT"] = 0;
+																}
+																
+															}
+															
+															if(Number(item.MONTH) <=  Number(<@pageId>.thisYearMonth) ){
+																thisYearSumPayment += item["SUM_PAYMENT"];
+															}
+
+														}	
+														return item;
+			});	
+			
+			//계약 건수(전체)
+			let lastYearSumContractCnt = 0;//작년 이번달까지 계약건수 합계
+			let thisYearSumContractCnt = 0;//올해 이번달까지 계약건수 합계
+			const contractCntMONTHLY_DATA		=  resultData.data["rstMgn.getContarctCntList"	];  
+			
+  			contractCntMONTHLY_DATA.forEach( (item,idx, originalArray) => {
+				
+				if( item.MONTH.indexOf(<@pageId>.lastYear) > -1 ) {
+					
+						if(Number(item.MONTH) <= Number(<@pageId>.lastYearMonth) ){
+							lastYearSumContractCnt += item["CONTRACT_CNT"];
+						}
+
+				}
+				
+				if( item.MONTH.indexOf(<@pageId>.thisYear) > -1 ) {
+
+					if(Number(item.MONTH) <=  Number(<@pageId>.thisYearMonth) ){
+						thisYearSumContractCnt += item["CONTRACT_CNT"];
+					}
+
+				}	
+				return item;
+			});				
+ 
+			const getPaymentByMonth					=  paymentListMONTHLY_DATA_SUM.map( (item,idx) =>  item.ACCUM_PAYMENT );
+			const getPaymentINCDECByMonth			=  paymentListINCDEC_DATA_SUM.map((item,idx) =>   item.INCDEC_PAYMENT );
+			const getContractCntByMonth				=  contractCntMONTHLY_DATA.map( (item,idx) =>   item.CONTRACT_CNT );
+		    
+			const thisYear 							= <@pageId>.thisYear;
+			const lastYear 							= <@pageId>.lastYear;
+			const containerList 	= [	"<@pageId>_monthlySI_chart","<@pageId>_monthlySII_chart","<@pageId>_monthlyCC_chart"];
+			const categoriesList 	= [  _monthArray,_monthArray,_monthArray ];
+			const seriesList		= [
+										[
+										 {  name: thisYear+'년',type: 'column',	data: getPaymentByMonth.slice(12)	,tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])},yAxis: 0}
+										,{  name: lastYear+'년',type: 'line',	data: getPaymentByMonth.slice(0,12)	,tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}}
+										],
+				 						[
+										 {  name: thisYear+'년',type: 'column',	data: getPaymentINCDECByMonth.slice(12)	,tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])},yAxis: 0}
+										,{  name: lastYear+'년',type: 'line',	data: getPaymentINCDECByMonth.slice(0,12),tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])}}
+										],
+										[
+										 {  name: thisYear+'년',type: 'column',	data: getContractCntByMonth.slice(12)	,tooltip: {valueSuffix: ' 건'},yAxis: 0}
+										,{  name: lastYear+'년',type: 'line',	data: getContractCntByMonth.slice(0,12)	,tooltip: {valueSuffix:	' 건'}}
+										],
+									 ];
+
+			<@pageId>.createChart( containerList[0] , categoriesList[0] , seriesList[0], <@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
+			<@pageId>.createChart( containerList[1] , categoriesList[1] , seriesList[1], <@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
+			<@pageId>.createChart( containerList[2] , categoriesList[2] , seriesList[2], '건');
+			
+ 			let sum = getPaymentByMonth.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_monthly_sumPayment").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
+
+			let growth = Number(lastYearThisMonth)==0 ? 0 : (Number(thisYearThisMonth)-Number(lastYearThisMonth))*100/Number(lastYearThisMonth);
+			$("#<@pageId>_monthly_sumPayment").parents("div").siblings(".percent").text(growth >= 0 ? "+"+growth.toFixed(2)+"%": "-"+growth.toFixed(2)+"%") ;
+			
+			if( Number(thisYearThisMonth)-Number(lastYearThisMonth) < 0){
+				$("#<@pageId>_monthly_sumPayment").parents("div").siblings(".percent").addClass("minus");
+			}else {
+				$("#<@pageId>_monthly_sumPayment").parents("div").siblings(".percent").removeClass("minus");
+			}
+////////////
+					
+			sum = getPaymentINCDECByMonth.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_monthly_sumIncomeIncrease").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
+			
+			let incdec = Number(lastYearSumPayment)==0 ? 0 : (Number(thisYearSumPayment)-Number(lastYearSumPayment))*100/Number(lastYearSumPayment);
+			$("#<@pageId>_monthly_sumIncomeIncrease").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+incdec.toFixed(2)+"%") ;
+			
+			if( Number(thisYearSumPayment)-Number(lastYearSumPayment) < 0){
+				$("#<@pageId>_monthly_sumIncomeIncrease").parents("div").siblings(".percent").addClass("minus");
+			}else{
+				$("#<@pageId>_monthly_sumIncomeIncrease").parents("div").siblings(".percent").removeClass("minus");
+			}
+////////////			
+			sum = getContractCntByMonth.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+			$("#<@pageId>_monthly_cntContract").text(sum.toLocaleString() + '건') ;
+
+			incdec = Number(lastYearSumContractCnt)==0 ? 0 : (Number(thisYearSumContractCnt)-Number(lastYearSumContractCnt))*100/Number(lastYearSumContractCnt);
+			$("#<@pageId>_monthly_cntContract").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+toFixed.toFix(2)+"%") ;
+
+			if( Number(thisYearSumContractCnt)-Number(lastYearSumContractCnt) < 0){
+				$("#<@pageId>_monthly_cntContract").parents("div").siblings(".percent").addClass("minus");
+			}else{
+				$("#<@pageId>_monthly_cntContract").parents("div").siblings(".percent").removeClass("minus");
+			}
+			
+			_setRemoveHighChartCredits();
+	
+		}
+		,getUnitStr : (str, gubun) =>{
+			
+			if( str == "억원"){
+				
+				if( gubun == 'SMALL')return "백만원";
+				else return str;
+				
+			}
+			if( str == "억"){
+				
+				if( gubun == 'SMALL')return "백만";
+				else return str;
+				
+			}
+		}
+		,setBubbleChart : () => {
+
+			
+			Highcharts.setOptions({
+				colors: ['#27187F', '#F29423']
+			});
+
+			$('.chart4').highcharts({
+				chart: {
+			        type: 'bubble',
+			        zoomType: 'xy'
+			    },
+			    credits: {enabled: false},// 하이차트 워터마크 삭제
+			    title: {
+			        text: '',
+			        align: 'left'
+			    },
+			    legend: {
+			        enabled: false
+			    },
+			    colors: ['#3ba8c3', '#8A8C92'],
+			    xAxis: {
+			        labels: {
+			          style: {
+			            color: '#8A8C92',
+			            fontFamily: 'Noto Sans KR',
+			            fontSize: '11px'
+			          }
+			        },
+			      lineColor: '#DADADA', /* x축 라인색 */
+			    },
+
+			    yAxis: {
+			        labels: {
+			          format: '{value}억',
+			          style: {
+			            color: '#8A8C92',
+			            fontFamily: 'Noto Sans KR',
+			            fontSize: '11px'
+			          }
+			        },
+			        title: {
+			          text: ''
+			        }
+			    },
+
+			    series: [{
+			        data: [
+			            [1, 110, 90]
+
+			        ]
+			    }, {
+			        data: [
+			            [42, 38, 20],
+			            [6, 18, 1],
+			            [57, 10, 2],
+			            [70, 76, 22],
+			            [11, 74, 15],
+			            [75, 56, 10],
+			            [30, 47, 20],
+			            [57, 62, 10],
+			            [4, 16, 16],
+			            [46, 10, 11],
+			            [22, 87, 40],
+			            [57, 91, 50],
+			            [45, 15, 20]
+			        ]
+			    }]
+			});
+		}
 	}
+	
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
 
+		<@pageId>.pageInit();
+		setTimeout( ()=>{<@pageId>.chartInit();},700)
 		
-		Highcharts.setOptions({
-			colors: ['#27187F', '#F29423']
-		});
-		$('.chart').highcharts({
-		    chart: {
-		        zoomType: 'xy',
-	            margin: [50, 0, 40, 45],
-		    },
-		    credits: {enabled: false},// 하이차트 워터마크 삭제
-		    title: {
-		        text: '',
-		        align: 'left'
-		    },
-		    subtitle: {
-		        text: '',
-		        align: 'left'
-		    },
-		    xAxis: [{
-		    	labels: {
-		            style: {
-		                color: '#8A8C92',
-		                fontFamily: 'Noto Sans KR',
-		                fontSize: '11px'
-		            }
-		        },
-		        lineColor: '#DADADA', /* x축 라인색 */
-		        categories: ['1월', '2월', '3월', '4월', '5월', '6월',
-		            '7월', '8월', '9월', '10월', '11월', '12월'],
-		        crosshair: true
-		    }],
-		    yAxis: [{
-		        labels: {
-		            format: '{value}억',
-		            style: {
-		                color: '#8A8C92',
-		                fontFamily: 'Noto Sans KR',
-		                fontSize: '11px'
-		            }
-		        },
-		        title: {
-		            text: ''
-		        }
-		    }, { // Secondary yAxis
-		        title: {
-		            text: '',
-		            style: {
-		            }
-		        },
-		        labels: {
-		            format: ' '
-		        },
-		        opposite: true
-		    }],
-		    tooltip: {
-		        shared: true
-		    },
-		    legend: {
-		        align: 'right',
-		        x:0,
-		        verticalAlign: 'top',
-		        y: 0,
-		        itemStyle: {
-					color: '#8A8C92',
-					fontFamily: 'Noto Sans KR',
-					fontSize: '11px'
-				},
-				symbolRadius:0,//범례 심볼 radius 지정
-	          	symbolWidth:10,
-	          	symbolHeight:10,
-	          	x: 0,//가로 위치 지정.
-	            y: -2,//세로 위치 지정.
-		    },
-		    plotOptions: {//라인에 원표시 삭제
-		        line:{
-	        		marker: {
-	                	enabled: false
-	            	}
-		        }
-		    },
-		    series: [{
-		        name: '2023년',
-		        type: 'column',
-		        yAxis: 0,
-		        data: [70, 140, 190, 180, 195, 240, 160, 140, 0,
-		            0, 0, 0],
-		        tooltip: {
-		            valueSuffix: '억'
-		        }
-
-		    }, {
-		        name: '2022년',
-		        type: 'line',
-		        data: [155, 170, 185, 170, 160, 175, 165, 190, 160, 170, 160, 150],
-		        tooltip: {
-		            valueSuffix: '억'
-		        }
-		    }]
-		});
-
-		$('.chart2').highcharts({
-		    chart: {
-		        zoomType: 'xy',
-	            margin: [50, 0, 40, 45],
-		    },
-		    credits: {enabled: false},// 하이차트 워터마크 삭제
-		    title: {
-		        text: '',
-		        align: 'left'
-		    },
-		    subtitle: {
-		        text: '',
-		        align: 'left'
-		    },
-		    xAxis: [{
-		    	labels: {
-		            style: {
-		                color: '#8A8C92',
-		                fontFamily: 'Noto Sans KR',
-		                fontSize: '11px'
-		            }
-		        },
-		        lineColor: '#DADADA', /* x축 라인색 */
-		        categories: ['1월', '2월', '3월', '4월', '5월', '6월',
-		            '7월', '8월', '9월', '10월', '11월', '12월'],
-		        crosshair: true
-		    }],
-		    yAxis: [{
-		        labels: {
-		            format: '{value}억',
-		            style: {
-		                color: '#8A8C92',
-		                fontFamily: 'Noto Sans KR',
-		                fontSize: '11px'
-		            }
-		        },
-		        title: {
-		            text: ''
-		        }
-		    }, { // Secondary yAxis
-		        title: {
-		            text: '',
-		            style: {
-		            }
-		        },
-		        labels: {
-		            format: ' '
-		        },
-		        opposite: true
-		    }],
-		    tooltip: {
-		        shared: true
-		    },
-		    legend: {
-		        align: 'right',
-		        x:0,
-		        verticalAlign: 'top',
-		        y: 0,
-		        itemStyle: {
-					color: '#8A8C92',
-					fontFamily: 'Noto Sans KR',
-					fontSize: '11px'
-				},
-				symbolRadius:0,//범례 심볼 radius 지정
-	          	symbolWidth:10,
-	          	symbolHeight:10,
-	          	x: 0,//가로 위치 지정.
-	            y: -2,//세로 위치 지정.
-		    },
-		    plotOptions: {//라인에 원표시 삭제
-		        line:{
-	        		marker: {
-	                	enabled: false
-	            	}
-		        }
-		    },
-		    series: [{
-		        name: '2023년',
-		        type: 'column',
-		        yAxis: 0,
-		        data: [70, 140, 160, 180, 190, 240, 160, 140, 0,
-		            0, 0, 0],
-		        tooltip: {
-		            valueSuffix: '억'
-		        }
-
-		    }, {
-		        name: '2022년',
-		        type: 'line',
-		        data: [155, 160, 180, 170, 140, 180, 160, 180, 160, 155, 180, 150],
-		        tooltip: {
-		            valueSuffix: '억'
-		        }
-		    }]
-		});
-
-
-		$('.chart3').highcharts({
-		    chart: {
-		        zoomType: 'xy',
-	            margin: [50, 0, 55, 45],
-		    },
-		    credits: {enabled: false},// 하이차트 워터마크 삭제
-		    title: {
-		        text: '',
-		        align: 'left'
-		    },
-		    subtitle: {
-		        text: '',
-		        align: 'left'
-		    },
-		    xAxis: [{
-		    	labels: {
-		            style: {
-		                color: '#8A8C92',
-		                fontFamily: 'Noto Sans KR',
-		                letterSpacing:'-0.19em',
-		                fontSize: '10.5px'
-		            }
-		        },
-		        lineColor: '#DADADA', /* x축 라인색 */
-		        categories: ['1월', '2월', '3월', '4월', '5월', '6월',
-		            '7월', '8월', '9월', '10월', '11월', '12월'],
-		        crosshair: true
-		    }],
-		    yAxis: [{
-		        labels: {
-		            format: '{value}건',
-		            style: {
-		                color: '#8A8C92',
-		                fontFamily: 'Noto Sans KR',
-		                fontSize: '11px'
-		            }
-		        },
-		        title: {
-		            text: ''
-		        }
-		    }, { // Secondary yAxis
-		        title: {
-		            text: '',
-		            style: {
-		            }
-		        },
-		        labels: {
-		            format: ' '
-		        },
-		        opposite: true
-		    }],
-		    tooltip: {
-		        shared: true
-		    },
-		    legend: {
-		        align: 'right',
-		        x:0,
-		        verticalAlign: 'top',
-		        y: 0,
-		        itemStyle: {
-					color: '#8A8C92',
-					fontFamily: 'Noto Sans KR',
-					fontSize: '11px'
-				},
-				symbolRadius:0,//범례 심볼 radius 지정
-	          	symbolWidth:10,
-	          	symbolHeight:10,
-	          	x: 0,//가로 위치 지정.
-	            y: -2,//세로 위치 지정.
-		    },
-		    plotOptions: {//라인에 원표시 삭제
-		    	line:{
-	        		marker: {
-	                	enabled: false
-	            	}
-		        }
-
-		    },
-		    series: [{
-		        name: '2023년',
-		        type: 'column',
-		        yAxis: 0,
-		        data: [5, 21, 15, 28, 12, 10, 8, 9, 15, 5, 25, 15],
-		        tooltip: {
-		            valueSuffix: '건'
-		        }
-
-		    }, {
-		        name: '2022년',
-		        type: 'line',
-		        data: [10, 28, 10, 30, 15, 14, 12, 15, 20, 10, 28, 20],
-		        tooltip: {
-		            valueSuffix: '건'
-		        }
-		    }]
-		});
-
-
-		$('.chart4').highcharts({
-			chart: {
-		        type: 'bubble',
-		        zoomType: 'xy'
-		    },
-		    credits: {enabled: false},// 하이차트 워터마크 삭제
-		    title: {
-		        text: '',
-		        align: 'left'
-		    },
-		    legend: {
-		        enabled: false
-		    },
-		    colors: ['#3ba8c3', '#8A8C92'],
-		    xAxis: {
-		        labels: {
-		          style: {
-		            color: '#8A8C92',
-		            fontFamily: 'Noto Sans KR',
-		            fontSize: '11px'
-		          }
-		        },
-		      lineColor: '#DADADA', /* x축 라인색 */
-		    },
-
-		    yAxis: {
-		        labels: {
-		          format: '{value}억',
-		          style: {
-		            color: '#8A8C92',
-		            fontFamily: 'Noto Sans KR',
-		            fontSize: '11px'
-		          }
-		        },
-		        title: {
-		          text: ''
-		        }
-		    },
-
-		    series: [{
-		        data: [
-		            [1, 110, 90]
-
-		        ]
-		    }, {
-		        data: [
-		            [42, 38, 20],
-		            [6, 18, 1],
-		            [57, 10, 2],
-		            [70, 76, 22],
-		            [11, 74, 15],
-		            [75, 56, 10],
-		            [30, 47, 20],
-		            [57, 62, 10],
-		            [4, 16, 16],
-		            [46, 10, 11],
-		            [22, 87, 40],
-		            [57, 91, 50],
-		            [45, 15, 20]
-		        ]
-		    }]
-		});
-		
-		
-		
-		
-		
-		
-		
-	});
+	});	
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
 
@@ -384,29 +340,29 @@
 		<section class="sec_wrap">
 			<div class="cont_box col3">
 				<h3>월별 매출 누적합계</h3>
-				<div class="price"><span>13,844,381,010</span>원</div>
-				<span class="prepare">전월 대비</span><span class="percent">+2.2%</span>
+				<div class="price"><span  id="<@pageId>_monthly_sumPayment">13,844,381,010</span></div>
+				<span class="prepare">전년 대비</span><span class="percent">+2.2%</span>
 
 				<figure class="highcharts-figure">
-			    	<div class="chart" style="width:100%; height:280px; margin:0 auto"></div>
+			    	<div class="chart"  id="<@pageId>_monthlySI_chart"  style="width:100%; height:280px; margin:0 auto"></div>
 				</figure>
 			</div>
 			<div class="cont_box col3">
 				<h3>전월대비 매출 증감분</h3>
-				<div class="price"><span>+100,356,153</span>원</div>
-				<span class="prepare">전월 대비</span><span class="percent">+95%</span>
+				<div class="price"><span  id="<@pageId>_monthly_sumIncomeIncrease">+100,356,153</span></div>
+				<span class="prepare">전년 대비</span><span class="percent">+95%</span>
 
 				<figure class="highcharts-figure">
-			    	<div class="chart2" style="width:100%; height:280px; margin:0 auto"></div>
+			    	<div class="chart2" id="<@pageId>_monthlySII_chart" style="width:100%; height:280px; margin:0 auto"></div>
 				</figure>
 			</div>
 			<div class="cont_box col3">
 				<h3>계약 건수(전체)</h3>
-				<div class="price"><span>106</span>건</div>
-				<span class="prepare">전월 대비</span><span class="percent minus">-2.2%</span>
+				<div class="price"><span  id="<@pageId>_monthly_cntContract">106</span></div>
+				<span class="prepare">전년 대비</span><span class="percent minus">-2.2%</span>
 
 				<figure class="highcharts-figure">
-			    	<div class="chart3" style="width:100%; height:280px; margin:0 auto"></div>
+			    	<div class="chart3"  id="<@pageId>_monthlyCC_chart" style="width:100%; height:280px; margin:0 auto"></div>
 				</figure>
 			</div>
 		</section>

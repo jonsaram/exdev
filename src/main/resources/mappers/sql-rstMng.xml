@@ -709,4 +709,63 @@
 		 FETCH NEXT #{parm.RANK} ROWS ONLY
 		 </if>
 	</select>	
+	
+	<select id="getMyPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getMyPaymentList
+			월별 매출 누적합계 , 전월대비 매출 증감분 
+		*/
+		SELECT MONTH
+		<choose>
+			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('BIG') ">
+			, ROUND(nvl(sum_payment ,0)/100000000,2) AS SUM_PAYMENT 
+			</when>
+			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('SMALL') ">
+			, ROUND(nvl(sum_payment ,0)/1000000,2) AS SUM_PAYMENT 
+			</when>
+		</choose>			
+
+		FROM ( <include refid="MONTHS_24" /> ) M
+			 ,(
+				SELECT TO_CHAR(UPDATE_DATE,'YYYYMM') UPDATE_DATE, SUM( PAYMENT  ) SUM_PAYMENT
+				FROM TBL_EXP_PAYMENT p
+				WHERE 1=1
+				<choose>
+					<when test=" GUBUN != null and GUBUN.equals('FA') ">
+					AND 
+					</when>
+					<when test=" GUBUN == null or GUBUN.equals('') ">
+					AND p.USER_ID = #{sessionVo.userId}
+					</when>
+				</choose>				
+				AND P.PAYMENT IS NOT NULL 
+				AND TO_CHAR(p.UPDATE_DATE, 'YYYY')   <![CDATA[ >= ]]>   TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),	-12), 'YYYY')
+				AND TO_CHAR(p.UPDATE_DATE, 'YYYY')   <![CDATA[ <= ]]>   TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),	  0), 'YYYY')
+				GROUP BY TO_CHAR(P.UPDATE_DATE,'YYYYMM')
+			) Data 
+		WHERE  M.month = Data.UPDATE_DATE(+)
+		ORDER BY M.MONTH 
+	</select>	
+	
+	<select id="getContarctCntList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getContarctCntList
+			계약 건수(전체) 
+		*/
+		SELECT MONTH, NVL(CONTRACT_CNT, 0) AS CONTRACT_CNT
+		FROM ( <include refid="MONTHS_24" /> ) M
+			,(
+				SELECT TO_CHAR(CONTRACT_DATE,'YYYYMM') CONTRACT_DATE, COUNT(*) CONTRACT_CNT
+				FROM TBL_EXP_CONTRACT C
+				,TBL_EXP_BUYER B
+				WHERE 1=1
+				AND <include refid="CONTRACTED_STATE"/>
+				AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
+				AND B.USE_YN = 'Y' AND B.DEL_YN = 'N'
+				AND C.BUYER_ID	= B.BUYER_ID
+				AND C.USER_ID	= #{sessionVo.userId}
+				GROUP BY TO_CHAR(CONTRACT_DATE,'YYYYMM')
+				ORDER BY CONTRACT_DATE
+		) DATA 
+		WHERE  M.month = Data.CONTRACT_DATE(+)
+		ORDER BY M.MONTH
+	</select>	
 </mapper>
