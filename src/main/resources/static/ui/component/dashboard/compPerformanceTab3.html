@@ -50,7 +50,7 @@
                 <@compId>.getSelectStore();
                 
                 // 슈퍼바이저
-                /*
+                /**/
                 var supervisorList = C_COM.getCodeList("SUPERVISOR");
                 
                 var selectBoxSupervisorList = {
@@ -66,7 +66,7 @@
                     console.log("_selectBoxSupervisor  =>"+dataObj);
                     <@compId>.supervisor = dataObj;
                 });
-                */
+                
                 
                 $("#<@compId>_chart1_no").show();
                 $("#<@compId>_chart1").hide();
@@ -148,23 +148,8 @@
             }
 
             /* 주차별 순매출액 */
-           ,searchSalesByWeek : ( startDate, endDate, startDatePre, endDatePre, storeId ) => {
+           ,searchSalesByWeek : ( requestParm) => {
                
-               console.log('startDate : ' +startDate );
-               console.log('endDate : ' +endDate );
-               console.log('startDatePre : ' +startDatePre );
-               console.log('endDatePre : ' +endDatePre );
-               console.log('storeId : ' +storeId );
-
-               var buyerId = G_VAL.session.BUYER_ID;
-               
-               let requestParm = {};
-               requestParm["buyerId"]    = buyerId;
-               requestParm["dateStart"]     = startDate;
-               requestParm["dateEnd"]       = endDate;
-               requestParm["startDatePre"]  = startDatePre;
-               requestParm["endDatePre"]    = endDatePre;
-               requestParm["storeId"]       = storeId;
                
                let parm = {
                     queryId        : "dashboardCorPerformance.getSalesByWeek"
@@ -323,14 +308,9 @@
            ,setHandler : () => {
                 
                 $("#<@compId>_searchBtn").click( () =>{
-                    console.log(" _searchBtn 클릭");
-                    /**/
+
                     let selectBoxWeek        = C_UICOM.getData('<@compId>_selectBoxWeek');
                     let selectBoxStore       = C_UICOM.getData('<@compId>_selectBoxStore');
-                    if( selectBoxStore == "ALL" ){
-                    	alert("지점을 선택해 주세요.");
-                    }
-                    
                     console.log(" selectBoxWeek ==>"+selectBoxWeek);
                     console.log(" selectBoxStore ==>"+selectBoxStore);
                     let trimWeekArr = selectBoxWeek.trim().replaceAll(' ', '').split("~");
@@ -351,7 +331,22 @@
                     const endDatePre = <@compId>.getAddDay( endY, endM, endD, -7  );
 
 
-                    <@compId>.searchSalesByWeek( startDate, endDate, startDatePre, endDatePre, selectBoxStore );
+                    var buyerId = G_VAL.session.BUYER_ID;
+                    
+                    let region      = C_UICOM.getData('<@compId>_selectBoxRegion');
+                    let supervisor  = C_UICOM.getData('<@compId>_selectBoxSupervisor');
+                    
+                    let requestParm = {};
+                    requestParm["buyerId"]       = buyerId;
+                    requestParm["dateStart"]     = startDate;
+                    requestParm["dateEnd"]       = endDate;
+                    requestParm["startDatePre"]  = startDatePre;
+                    requestParm["endDatePre"]    = endDatePre;
+                    requestParm["store"]         = selectBoxStore;
+                    requestParm["region"]        = region;
+                    requestParm["supervisor"]    = supervisor;
+                    
+                    <@compId>.searchSalesByWeek( requestParm );
                     
                     
                 })
@@ -386,13 +381,11 @@
             <div class="select_box fl" style="width:170px">
                 <div id="<@compId>_selectBoxStore" style="width:170px"></div>
             </div> 
-            <!--   
             <span class="tit01 fl lh33">슈퍼바이저</span>
-            슈퍼바이저 선택
             <div class="select_box fl" style="width:132px">
                  <div id="<@compId>_selectBoxSupervisor" style="width:132px"></div>
             </div>
-             -->
+             
             <button type="button" class="btn select fl" id="<@compId>_searchBtn">조회</button>
         </div>
     </div>

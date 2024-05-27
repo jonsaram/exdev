@@ -1570,7 +1570,9 @@
 		        ,A.WEEK_START||' ~ '||A.WEEK_END AS START_END
 		        ,A.WEEK_OF_YEAR_ISO 
 		        ,A.WEEK_OF_MONTH 
-		FROM ISO A     
+		FROM ISO A   
+        WHERE 1 = 1
+        AND   A.WEEK_START <![CDATA[ <= ]]> TO_CHAR(SYSDATE, 'YYYY-MM-DD')   
     </select>
     
     <select id="getSalesByWeek" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -1594,7 +1596,15 @@
                     WHERE  1 = 1
                     AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
                     AND    A.BUYER_ID   = #{buyerId}
-                    AND    A.STORE_ID = #{storeId}
+			        <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+			            AND    A.STORE_ID   = #{store}
+			        </if>
+			        <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+			            AND    A.REGION   = #{region}
+			        </if>
+			        <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+			            AND    A.SUPERVISOR   = #{supervisor}
+			        </if>
                     ORDER BY A.SP_CSTM_ID
                             ,A.STORE_ID
                             ,B.YEAR
@@ -1602,8 +1612,6 @@
                             ,B.DAY
                    )
         SELECT A.SP_CSTM_ID
-              ,A.STORE_ID
-              ,A.STORE_NM3
               ,A.STR_DATE     
               ,TO_CHAR(TO_DATE(A.STR_DATE     , 'YYYY-MM-DD HH24:MI:SS') -7, 'YYYY-MM-DD')  AS PRE_STR_DATE
               ,A.NET_SALES      
@@ -1612,8 +1620,6 @@
               ,A.PRE_RECEIPT_CNT
         FROM   (
                 SELECT A.SP_CSTM_ID
-                      ,A.STORE_ID
-                      ,A.STORE_NM3
                       ,A.STR_DATE             AS STR_DATE
                       ,SUM(A.NET_SALES)       AS NET_SALES
                       ,SUM(A.RECEIPT_CNT)     AS RECEIPT_CNT
@@ -1647,11 +1653,8 @@
                         AND     BASE_TB.STR_DATE BETWEEN TO_DATE( #{startDatePre} , 'YYYY-MM-DD') AND TO_DATE( #{endDatePre} , 'YYYY-MM-DD')
                         ) A
                 GROUP BY A.SP_CSTM_ID
-                        ,A.STORE_ID
-                        ,A.STORE_NM3
                         ,A.STR_DATE         
                 ORDER BY A.SP_CSTM_ID
-                        ,A.STORE_ID
                         ,A.STR_DATE    
                ) A  
     </select>

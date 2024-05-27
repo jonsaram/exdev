@@ -87,10 +87,11 @@
 
         ,getTechnicalSkills : function() {
            console.log("getTechnicalSkills");
+           var buyerId = G_VAL.session.BUYER_ID;
            
            /* 기술력 */
            let requestParm = {};
-           requestParm["buyerId"]    = "18da16ec36b14eb7";
+           requestParm["buyerId"]    = buyerId;
            requestParm["comCodeId"]  = "";
            requestParm["grpCodeId"]  = "TECHNICAL";
            requestParm["comCode"]    = "TECHNICAL_SKILLS_GRADE";
@@ -110,7 +111,7 @@
 
            /* 기업인증 */
            let certificationRequestParm = {};
-           certificationRequestParm["buyerId"]    = "18da16ec36b14eb7";
+           certificationRequestParm["buyerId"]    = buyerId;
            certificationRequestParm["comCodeId"]  = "CORPORATE_CERTIFICATION";
            certificationRequestParm["grpCodeId"]  = "CERTIFICATION";
            certificationRequestParm["comCode"]    = "CERTIFICATION_COMPLETE";
@@ -134,7 +135,7 @@
            
            /* 산업재산권 */
            let propertyRequestParm = {};
-           propertyRequestParm["buyerId"]      = "18da16ec36b14eb7";
+           propertyRequestParm["buyerId"]      = buyerId;
            propertyRequestParm["comCodeId"]    = "INDUSTRIAL_PROPERTY";
            propertyRequestParm["grpCodeId"]    = "PROPERTY";
            propertyRequestParm["comCode"]      = "";
