@@ -287,11 +287,14 @@ public class ExcelService  extends ExdevBaseService{
 	            		if(columnArry.length > 1 && "D".equals(columnArry[1])) {
                             
 	            			Date date = cell.getDateCellValue();
-                            // yyyy-MM-dd 형식으로 변환
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            String formattedDate = sdf.format(date);
-                            cellValue = formattedDate;
-                            
+	            			if(date == null) {
+	            				cellValue = "";
+	            			} else {
+	                            // yyyy-MM-dd 형식으로 변환
+	                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	                            String formattedDate = sdf.format(date);
+	                            cellValue = formattedDate;
+	            			}
 	            		} else if(cell.getCellType() == CellType.NUMERIC) {
 	                		
 	            			cell.setCellType(CellType.STRING);
