@@ -11,14 +11,12 @@
         /*  dashboardCorPerformance.getSalesRanking */
         SELECT SP_CSTM_ID
               ,STORE_ID
-              ,STORE_NM
               ,STORE_NM3
               ,AMOUNT
               ,AMOUNT1
         FROM   (
                 SELECT B.SP_CSTM_ID
                       ,B.STORE_ID
-                      ,B.STORE_NM
                       ,B.STORE_NM3
                       ,SUM(A.AMOUNT)         AS AMOUNT
                       ,SUM(A.AMOUNT)/1000000 AS AMOUNT1
@@ -42,7 +40,6 @@
                 AND    TO_DATE(A.YEAR||'-'||A.MONTH , 'YYYY-MM')  BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM') 
                 GROUP BY B.SP_CSTM_ID
                         ,B.STORE_ID
-                        ,B.STORE_NM
                         ,B.STORE_NM3
                 ORDER BY  SUM(A.AMOUNT) DESC
                )
@@ -574,7 +571,6 @@
         /*  dashboardCorPerformance.getStore */
         SELECT SP_CSTM_ID
               ,STORE_ID
-              ,STORE_NM
               ,STORE_NM1
               ,STORE_NM2
               ,STORE_NM3
@@ -616,7 +612,6 @@
         SELECT ROW_NUMBER() OVER (ORDER BY  SP_CSTM_ID, STORE_ID) AS RN
               ,SP_CSTM_ID
               ,STORE_ID
-              ,STORE_NM
               ,STORE_NM1
               ,STORE_NM2
               ,STORE_NM3
