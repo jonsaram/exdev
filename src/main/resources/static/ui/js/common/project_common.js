@@ -1409,11 +1409,17 @@ var C_UICOM = {
 	,setSingleBox : function(targetId, val) {
 		var templateId = C_COM.getCurrentTemplateId();
 		var templateWebId = "#" + templateId + " #" + targetId + " ";
+		var templateUlId = "#" + templateId + " #" + targetId + "_ul ";
 		var templateTargetId = templateId + targetId;
 		
-		$(templateWebId + " input[value='" + val + "']").each(function(){
-			C_UICOM.setDataSingleBox(this, targetId);
-			return false;
+		let scrollTop = 0;
+		$(templateWebId + " input").each(function(idx){
+			if( idx > 1 ) scrollTop += 30;
+			if( $(this).val() == val ) {
+				C_UICOM.setDataSingleBox(this, targetId);
+				$(templateUlId).scrollTop(scrollTop);
+				return false;
+			}
 		});
 	 }
 	,setDataSingleBox : function(dom, targetId) {
@@ -2256,13 +2262,11 @@ window.onpopstate = function () {
 
 var C_WIN = {
 	 callbackMap: {}
-	,addListenerWindowResize : function(pageId, callback) {
-		C_WIN.callbackMap[pageId] = callback;
+	,addListenerWindowResize : function(templateId, callback) {
+		C_WIN.callbackMap[templateId] = callback;
 	 }
 	,onWindowResize : function() {
-		
-		var pageId = C_PM.getCurrentPageId();
-		
+		var pageId = C_PM.getCurrentTemplateId();
 		if(isValid(C_WIN.callbackMap[pageId])) {
 			C_WIN.callbackMap[pageId]();
 		}
@@ -2272,8 +2276,7 @@ var C_WIN = {
 $(window).resize(function() {
 	//hasYScrollBar();
 	//hasXScrollBar();
-	
-	//C_WIN.onWindowResize();
+	C_WIN.onWindowResize();
 });
 
 

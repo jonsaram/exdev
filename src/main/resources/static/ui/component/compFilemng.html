@@ -47,7 +47,6 @@
 	            formData.append("attach_file"	, <@compId>.filesArr[i]);
 	            formData.append("FILE_IDS"		, C_COM.makeUniqueId());
 		    }
-
 		    let fn = function() {
 			    $.ajax({
 			    	url: '/multiFileUpload.do',
@@ -56,12 +55,11 @@
 			        contentType: false,
 			        processData: false,
 			        success: function (response) {
-				    	dlog(response);
+			        	// 파일 초기화
+			        	<@compId>.filesArr = [];
 			        	const msg = response.msg;
-			        	
 			        	// 첨부 결과 File ID를 Import 대상으로 리턴한다.
 			        	C_COMP.callback("<@compId>", response.list[0]);
-			        	
 			        	if(typeof <@compId>.callback == "function") <@compId>.callback(response.list[0]);
 			        },
 			        error: function (xhr, desc, err) {
@@ -87,7 +85,6 @@
 	            // 파일 배열에 담기
 	            var reader = new FileReader();
 	            reader.onload = function () {
-	            	debugger;
 	            	<@compId>.filesArr.push(file);
 			    	<@compId>.uploadMultiFile();		    	
 				    // 초기화

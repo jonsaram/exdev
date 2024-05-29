@@ -5,10 +5,10 @@
 			
 			var selectBoxVal = C_UICOM.getData("selectBoxId");
 			
-			dalert(selectBoxVal);
 		 }
 		,setSelectBoxData : function() {
-			C_UICOM.setSingleBox("selectBoxId", "MANAGER");
+			debugger;
+			C_UICOM.setSingleBox("selectBoxId", "FA");
 		 }
 
 		,getSelectBoxPopup : function() {
@@ -26,13 +26,13 @@
 		
 		
 		// Code List 읽어오기
-		var userRoleList = C_COM.getCodeList("USER_ROLE");
+		var userRoleList = C_COM.getCodeList("GRADE");
 		dalert(userRoleList);
 		var singleboxList = { 
 			 defaultItem 	: ["111", "선택"]
 			,data 			: userRoleList
 		 	,targetId 		: "selectBoxId"
-		 	,readOnly		: "Y"
+//		 	,readOnly		: "Y"
 		}
 		C_UICOM.makeSelectBox(singleboxList, "single");
 		

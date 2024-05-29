@@ -72,7 +72,6 @@
 	           ,requestParm    : {} 
 	        }
 	        C_COM.requestQuery(parm, function(retData) {
-	        	debugger;
 				$.each(retData.data, function() {
 					if(isEmpty(this.BASE_FOLDER_ID)) {
 						let projectInfo = this;
@@ -85,7 +84,6 @@
 							 queryId 		: "contract.updateBaseFolderIdOfProject"
 							,requestParm	: projectInfo
 						}
-						dalert(parm1);
 						let parm2 = {
 							 queryId 		: "faDashboard.saveFolder"
 							,requestParm	: {
