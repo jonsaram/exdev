@@ -336,22 +336,22 @@
 		function searchEtcUserInfo(){
 			
 			var parm = {
-					 queryId 		: "system.getEtcUserInfo"
-					,requestParm	: {}
-				}	
-				C_COM.requestQuery(parm, function(resultData) {
-					G_VAL.session.etcUserInfo = resultData.data[0];
+				 queryId 		: "system.getEtcUserInfo"
+				,requestParm	: {}
+			}	
+			let resultData = C_COM.requestQuery(parm);
 
-					if( G_VAL.session.etcUserInfo.PIC_NUM > 0){
-						
-						$("#userImg").attr("src","../img/picture/picture"+G_VAL.session.etcUserInfo.PIC_NUM+".png");					
-					}else{
-						
-						$("#userImg").attr("src","/filedownload.do?FILE_ID="+G_VAL.session.etcUserInfo.USER_IMG_ID);
-					}
-					
-					$("#loginUserNm").text(G_VAL.session.etcUserInfo.USER_NM );
-				});
+			G_VAL.session.etcUserInfo = resultData.data[0];
+
+			if( G_VAL.session.etcUserInfo.PIC_NUM > 0){
+				
+				$("#userImg").attr("src","../img/picture/picture"+G_VAL.session.etcUserInfo.PIC_NUM+".png");					
+			}else{
+				
+				$("#userImg").attr("src","/filedownload.do?FILE_ID="+G_VAL.session.etcUserInfo.USER_IMG_ID);
+			}
+			
+			$("#loginUserNm").text(G_VAL.session.etcUserInfo.USER_NM );
 		}
 		
 		
