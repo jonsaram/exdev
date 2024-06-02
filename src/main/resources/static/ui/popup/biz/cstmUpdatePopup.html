@@ -67,7 +67,8 @@
 			 }
 	 
 			 if(<@popupId>.mode == "I" )
-			 if( $("#<@popupId>_items #BUYER_NM").val() 		== "" ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #BUYER_NM").val() 		== "" ) {C_POP.alert("회사명을 입력하여 주십시오."); return false;}
+			 if( $("#<@popupId>_items #CEO_NM").val() 			== "" ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
 			 if( $("#<@popupId>_items #TEL").val() 				== "" ) {C_POP.alert("연락처를 입력하여 주십시오."); return false;}
 			 if( $("#<@popupId>_items #ADDR").val() 			== "" ) {C_POP.alert("본점주소를 입력하여 주십시오."); return false;}
 			 if( $("#<@popupId>_items #COMPANY_REGNUM").val()	== "" ) {C_POP.alert("사업자등록번호를 입력하여 주십시오."); return false;}
@@ -185,7 +186,7 @@
 </script>
 
 <div class="modal_wrap" id="modal-ex">
-	<div class="modal" style="width:450px;height:420px;">
+	<div class="modal" style="width:450px;height:460px;">
 		<div class="modal_header">
 			<strong class="tit">고객등록</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
@@ -202,8 +203,12 @@
 						</div>
 					</li>
 					<li>
-						<label>고객명</label>
+						<label>회사명</label>
 						<div class="info"><input type="text" id="BUYER_NM" style="width:100%"></div>
+					</li>
+					<li>
+						<label>고객명</label>
+						<div class="info"><input type="text" id="CEO_NM" style="width:100%"></div>
 					</li>
 					<li>
 						<label>연락처</label>

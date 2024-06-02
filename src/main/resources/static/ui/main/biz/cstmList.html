@@ -279,25 +279,26 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<table>
 						<caption>고객 리스트</caption>
 						<colgroup>
-								<col style="width:40px;"/>
-								<col style="width:40px;"/>
-								<col style="width:110px;">
-								<col style="width:140px;"/>
-								<col style="width:150px;"/>
-								<col style="width:150px;"/>
-								<col style="width:150px;"/>
-								<col style="width:80px;"/>
-								<col style="width:80px;"/>
-								<col style="width:100px;"/>
-								<col style="width:120px;"/>
-								<col style="width:40px;"/>
-								<col style="width:40px;"/>
+							<col style="width:3.5%;"/>
+							<col style="width:4%;"/><!-- NO -->
+							<col style="width:9%;"/><!-- 고객번호 -->
+							<col style="width:16%;"/><!-- 회사명 -->
+							<col style="width:13%;"/><!-- 고객명 -->
+							<col style="width:11%;"/><!-- 사업자등록번호 -->
+							<col style="width:13%;"/>
+							<col style="width:13%;"/>
+							<col style="width:7%;"/>
+							<col style="width:7%;"/>
+							<col style="width:11%;"/>
+							<col style="width:11%;"/>
+							<col style="width:4%;"/> 						
 						</colgroup>
 						<thead>
 							<tr id="<@pageId>_headingColName">
 								<th scope="col"><input type="checkbox"  id="<@pageId>_ckAll"></th>
 								<th scope="col">No.</th>
 								<th scope="col">고객번호</th>
+								<th scope="col">회사명</th>
 								<th scope="col">고객명</th>
 								<th scope="col">사업자등록번호</th>
 								<th scope="col">연락처</th>
@@ -315,19 +316,19 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<div class="tbl01 col tbl_body_scroll">
 					<table>
 						<colgroup>
-								<col style="width:40px;"/>
-								<col style="width:40px;"/>
-								<col style="width:110px;">
-								<col style="width:140px;"/>
-								<col style="width:150px;"/>
-								<col style="width:150px;"/>
-								<col style="width:150px;"/>
-								<col style="width:80px;"/>
-								<col style="width:80px;"/>
-								<col style="width:100px;"/>
-								<col style="width:120px;"/>
-								<col style="width:40px;"/>
-								<col style="width:40px;"/>
+							<col style="width:3.5%;"/>
+							<col style="width:4%;"/><!-- NO -->
+							<col style="width:9%;"/><!-- 고객번호 -->
+							<col style="width:16%;"/><!-- 회사명 -->
+							<col style="width:13%;"/><!-- 고객명 -->
+							<col style="width:11%;"/><!-- 사업자등록번호 -->
+							<col style="width:13%;"/>
+							<col style="width:13%;"/>
+							<col style="width:7%;"/>
+							<col style="width:7%;"/>
+							<col style="width:11%;"/>
+							<col style="width:11%;"/>
+							<col style="width:4%;"/> 						
 						</colgroup>
 						<tbody  id="<@pageId>_cstmList">
 						</tbody>
@@ -335,16 +336,17 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						{{for list}}
 							<tr name="<@pageId>_tr_{{:#index}}">
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}"></td>
-			 					<td id='RN'			class='tc'>{{:ROWIDX}}</td>
-			 					<td id='BUYER_ID'		class='tl'>{{:BUYER_ID}}</td>
-			 					<td id='BUYER_NM'		class='tc'>{{:BUYER_NM}}</a></td>
-			 					<td id='COMPANY_REGNUM'	class='tc'>{{:COMPANY_REGNUM}}</a></td>
-			 					<td id='TEL'			class='tc'>{{:TEL}}</td>
-								<td id='ADDR'			class='tl'>{{:ADDR}}</td>
-								<td id='HOW_GET_NM'		class='tc'>{{:HOW_GET_NM}}</td>
-								<td id='CONTRACT_YN'	class='tc'>{{:CONTRACT_YN}}</td>
-								<td id='CREATE_USER_NM'	class='tc'>{{:CREATE_USER_NM}}</td>
-								<td id='CREATE_DATE'	class='tc'>{{:CREATE_DATE}}</td>
+			 					<td id='RN'				class='tc'>{{:ROWIDX}}</td>
+			 					<td id='BUYER_ID'		class='tl' title="{{:BUYER_ID}}">{{:BUYER_ID}}</td>
+			 					<td id='BUYER_NM'		class='tl' title="{{:BUYER_NM}}">{{:BUYER_NM}}</a></td>
+			 					<td id='CEO_NM'			class='tl' title="{{:CEO_NM}}">{{:CEO_NM}}</a></td>
+			 					<td id='COMPANY_REGNUM'	class='tc' title="{{:COMPANY_REGNUM}}">{{:COMPANY_REGNUM}}</a></td>
+			 					<td id='TEL'			class='tc' title="{{:TEL}}">{{:TEL}}</td>
+								<td id='ADDR'			class='tl' title="{{:ADDR}}">{{:ADDR}}</td>
+								<td id='HOW_GET_NM'		class='tc' title="{{:HOW_GET_NM}}">{{:HOW_GET_NM}}</td>
+								<td id='CONTRACT_YN'	class='tc' title="{{:CONTRACT_YN}}">{{:CONTRACT_YN}}</td>
+								<td id='CREATE_USER_NM'	class='tc' title="{{:CREATE_USER_NM}}">{{:CREATE_USER_NM}}</td>
+								<td id='CREATE_DATE'	class='tc' title="{{:CREATE_DATE}}">{{:CREATE_DATE}}</td>
 			 					<td><button onclick="javascript:<@pageId>.openPopup('{{:#index}}');"><i class="icon_pen"></i></button></td>
 								<td><button onclick="javascript:<@pageId>.deleteRow('{{:#index}}');"><i class="icon_trash"></i></button></td>
 							</tr>
