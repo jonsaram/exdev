@@ -18,19 +18,6 @@
 			
 			//월별 매출 누적합계 , 전월대비 매출 증감분 , 계약 건수(전체)
  			var parm = {
-				queryGroup : [{queryId	: "rstMgn.getMyPaymentList"		,requestParm	: {UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
-							 //,{queryId 	: "rstMgn.getMyPaymentList"		,requestParm	: {UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
-							 ,{queryId 	: "rstMgn.getContarctCntList"	,requestParm	: {UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
-							 ]
-			}
-
-			C_COM.requestQuery(parm, function(resultData) {
-
-				<@pageId>.setChart(resultData )
-			});
-			
-			//FA 월별 매출 누적합계 , FA 전월대비 매출 증감분 , FA 계약 건수(전체)
- 			var parm = {
 				queryGroup : [{queryId	: "rstMgn.getMyPaymentList"		,requestParm	: {GUBUN:'FA' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
 							 ,{queryId 	: "rstMgn.getContarctCntList"	,requestParm	: {GUBUN:'FA' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
 							 ]
@@ -38,11 +25,24 @@
 
 			C_COM.requestQuery(parm, function(resultData) {
 
-				<@pageId>.setBubbleChart(resultData )
+				<@pageId>.setChart(resultData , false)
+			});
+			
+			// STARTASSET 전체 실적
+ 			//월별 매출 누적합계 , 전월대비 매출 증감분 , 계약 건수(전체)
+ 			var parm = {
+				queryGroup : [{queryId	: "rstMgn.getMyPaymentList"		,requestParm	: {GUBUN:'' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+							 ,{queryId 	: "rstMgn.getContarctCntList"	,requestParm	: {GUBUN:'' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+							 ]
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+
+				<@pageId>.setChart(resultData ,true)
 			});
 			
 		}
-		,setChart : (resultData) =>{
+		,setChart : (resultData, starassetAll) =>{
 
 			//월별 매출 누적합계 , 전월대비 매출 증감분
 			const paymentListMONTHLY_DATA		=  resultData.data["rstMgn.getMyPaymentList"	];  
@@ -101,7 +101,8 @@
 															if( isEmpty(item["INCDEC_PAYMENT"] ) ){
 
 																thisSumPayment = item["SUM_PAYMENT"];
-																item["INCDEC_PAYMENT"] = lastSumPayment == 0 ? 0 : (thisSumPayment-lastSumPayment)*100/lastSumPayment;
+																//item["INCDEC_PAYMENT"] = lastSumPayment == 0 ? 0 : (thisSumPayment-lastSumPayment)*100/lastSumPayment;
+																item["INCDEC_PAYMENT"] = (thisSumPayment-lastSumPayment);
 																
 																lastSumPayment = item["SUM_PAYMENT"];
 																
@@ -120,7 +121,8 @@
 
 																if( isEmpty(item["INCDEC_PAYMENT"] ) ){
 																	thisSumPayment = item["SUM_PAYMENT"];
-																	item["INCDEC_PAYMENT"] = lastSumPayment == 0 ? 0 : (thisSumPayment-lastSumPayment)*100/lastSumPayment;
+																	//item["INCDEC_PAYMENT"] = lastSumPayment == 0 ? 0 : (thisSumPayment-lastSumPayment)*100/lastSumPayment;
+																	item["INCDEC_PAYMENT"] = (thisSumPayment-lastSumPayment);
 																	
 																	lastSumPayment = item["SUM_PAYMENT"];
 																}
@@ -172,8 +174,10 @@
 		    
 			const thisYear 							= <@pageId>.thisYear;
 			const lastYear 							= <@pageId>.lastYear;
-			const containerList 	= [	"<@pageId>_monthlySI_chart","<@pageId>_monthlySII_chart","<@pageId>_monthlyCC_chart"];
-			const categoriesList 	= [  _monthArray,_monthArray,_monthArray ];
+			const myResult							= [	"<@pageId>_monthlySI_chart","<@pageId>_monthlySII_chart","<@pageId>_monthlyCC_chart"];
+			const starassetResult					= [	"<@pageId>_monthlySI_ALLchart","<@pageId>_monthlySII_ALLchart","<@pageId>_monthlyCC_ALLchart"];
+			const containerList 					= starassetAll ? starassetResult : myResult;
+			const categoriesList 					= [  _monthArray,_monthArray,_monthArray ];
 			const seriesList		= [
 										[
 										 {  name: thisYear+'년',type: 'column',	data: getPaymentByMonth.slice(12)	,tooltip: {valueSuffix: ' '+<@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])},yAxis: 0}
@@ -194,40 +198,52 @@
 			<@pageId>.createChart( containerList[2] , categoriesList[2] , seriesList[2], '건');
 			
  			let sum = getPaymentByMonth.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_monthly_sumPayment").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
+ 			if( starassetAll )	$("#<@pageId>_monthly_sumPaymentALL").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
+ 			else 				$("#<@pageId>_monthly_sumPayment").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 
 			let growth = Number(lastYearThisMonth)==0 ? 0 : (Number(thisYearThisMonth)-Number(lastYearThisMonth))*100/Number(lastYearThisMonth);
-			$("#<@pageId>_monthly_sumPayment").parents("div").siblings(".percent").text(growth >= 0 ? "+"+growth.toFixed(2)+"%": "-"+growth.toFixed(2)+"%") ;
+			if( starassetAll )	$("#<@pageId>_monthly_sumPaymentALL").parents("div").siblings(".percent").text(growth >= 0 ? "+"+growth.toFixed(2)+"%": "-"+growth.toFixed(2)+"%") ;
+			else 				$("#<@pageId>_monthly_sumPayment").parents("div").siblings(".percent").text(growth >= 0 ? "+"+growth.toFixed(2)+"%": "-"+growth.toFixed(2)+"%") ;
 			
 			if( Number(thisYearThisMonth)-Number(lastYearThisMonth) < 0){
-				$("#<@pageId>_monthly_sumPayment").parents("div").siblings(".percent").addClass("minus");
+				if(  starassetAll )	$("#<@pageId>_monthly_sumPaymentALL").parents("div").siblings(".percent").addClass("minus");
+				else 				$("#<@pageId>_monthly_sumPayment").parents("div").siblings(".percent").addClass("minus");
 			}else {
-				$("#<@pageId>_monthly_sumPayment").parents("div").siblings(".percent").removeClass("minus");
+				if(  starassetAll )	$("#<@pageId>_monthly_sumPaymentALL").parents("div").siblings(".percent").removeClass("minus");
+				else				$("#<@pageId>_monthly_sumPayment").parents("div").siblings(".percent").removeClass("minus");
 			}
 ////////////
 					
 			sum = getPaymentINCDECByMonth.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_monthly_sumIncomeIncrease").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
+			if( starassetAll )	$("#<@pageId>_monthly_sumIncomeIncreaseALL").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
+			else				$("#<@pageId>_monthly_sumIncomeIncrease").text(sum.toLocaleString() + <@pageId>.getUnitStr('억원',G_VAL.session.etcUserInfo["UNIT_TYPE"])) ;
 			
 			let incdec = Number(lastYearSumPayment)==0 ? 0 : (Number(thisYearSumPayment)-Number(lastYearSumPayment))*100/Number(lastYearSumPayment);
-			$("#<@pageId>_monthly_sumIncomeIncrease").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+incdec.toFixed(2)+"%") ;
+			if( starassetAll )	$("#<@pageId>_monthly_sumIncomeIncreaseALL").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+incdec.toFixed(2)+"%") ;
+			else				$("#<@pageId>_monthly_sumIncomeIncrease").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+incdec.toFixed(2)+"%") ;
 			
 			if( Number(thisYearSumPayment)-Number(lastYearSumPayment) < 0){
-				$("#<@pageId>_monthly_sumIncomeIncrease").parents("div").siblings(".percent").addClass("minus");
+				if( starassetAll )	$("#<@pageId>_monthly_sumIncomeIncreaseALL").parents("div").siblings(".percent").addClass("minus");
+				else				$("#<@pageId>_monthly_sumIncomeIncrease").parents("div").siblings(".percent").addClass("minus");
 			}else{
-				$("#<@pageId>_monthly_sumIncomeIncrease").parents("div").siblings(".percent").removeClass("minus");
+				if( starassetAll )	$("#<@pageId>_monthly_sumIncomeIncreaseALL").parents("div").siblings(".percent").removeClass("minus");
+				else				$("#<@pageId>_monthly_sumIncomeIncrease").parents("div").siblings(".percent").removeClass("minus");
 			}
 ////////////			
 			sum = getContractCntByMonth.slice(12).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-			$("#<@pageId>_monthly_cntContract").text(sum.toLocaleString() + '건') ;
+			if( starassetAll )	$("#<@pageId>_monthly_cntContractALL").text(sum.toLocaleString() + '건') ;
+			else				$("#<@pageId>_monthly_cntContract").text(sum.toLocaleString() + '건') ;
 
 			incdec = Number(lastYearSumContractCnt)==0 ? 0 : (Number(thisYearSumContractCnt)-Number(lastYearSumContractCnt))*100/Number(lastYearSumContractCnt);
-			$("#<@pageId>_monthly_cntContract").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+toFixed.toFix(2)+"%") ;
+			if( starassetAll )	$("#<@pageId>_monthly_cntContractALL").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+toFixed.toFix(2)+"%") ;
+			else				$("#<@pageId>_monthly_cntContract").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+toFixed.toFix(2)+"%") ;
 
 			if( Number(thisYearSumContractCnt)-Number(lastYearSumContractCnt) < 0){
-				$("#<@pageId>_monthly_cntContract").parents("div").siblings(".percent").addClass("minus");
+				if( starassetAll )	$("#<@pageId>_monthly_cntContractALL").parents("div").siblings(".percent").addClass("minus");
+				else				$("#<@pageId>_monthly_cntContract").parents("div").siblings(".percent").addClass("minus");
 			}else{
-				$("#<@pageId>_monthly_cntContract").parents("div").siblings(".percent").removeClass("minus");
+				if( starassetAll )	$("#<@pageId>_monthly_cntContractALL").parents("div").siblings(".percent").removeClass("minus");
+				else				$("#<@pageId>_monthly_cntContract").parents("div").siblings(".percent").removeClass("minus");
 			}
 			
 			_setRemoveHighChartCredits();
@@ -247,77 +263,7 @@
 				else return str;
 				
 			}
-		}
-		,setBubbleChart : () => {
-
-			
-			Highcharts.setOptions({
-				colors: ['#27187F', '#F29423']
-			});
-
-			$('.chart4').highcharts({
-				chart: {
-			        type: 'bubble',
-			        zoomType: 'xy'
-			    },
-			    credits: {enabled: false},// 하이차트 워터마크 삭제
-			    title: {
-			        text: '',
-			        align: 'left'
-			    },
-			    legend: {
-			        enabled: false
-			    },
-			    colors: ['#3ba8c3', '#8A8C92'],
-			    xAxis: {
-			        labels: {
-			          style: {
-			            color: '#8A8C92',
-			            fontFamily: 'Noto Sans KR',
-			            fontSize: '11px'
-			          }
-			        },
-			      lineColor: '#DADADA', /* x축 라인색 */
-			    },
-
-			    yAxis: {
-			        labels: {
-			          format: '{value}억',
-			          style: {
-			            color: '#8A8C92',
-			            fontFamily: 'Noto Sans KR',
-			            fontSize: '11px'
-			          }
-			        },
-			        title: {
-			          text: ''
-			        }
-			    },
-
-			    series: [{
-			        data: [
-			            [1, 110, 90]
-
-			        ]
-			    }, {
-			        data: [
-			            [42, 38, 20],
-			            [6, 18, 1],
-			            [57, 10, 2],
-			            [70, 76, 22],
-			            [11, 74, 15],
-			            [75, 56, 10],
-			            [30, 47, 20],
-			            [57, 62, 10],
-			            [4, 16, 16],
-			            [46, 10, 11],
-			            [22, 87, 40],
-			            [57, 91, 50],
-			            [45, 15, 20]
-			        ]
-			    }]
-			});
-		}
+		} 
 	}
 	
 	// Page Load가 완료된후 실행 된다.
@@ -367,64 +313,38 @@
 			</div>
 		</section>
 
+	<div class="cont_top" style='margin-top:40px;'>
+		<h2><i class="icon_bullet"></i>STARASSET 전체 실적</h2>
+	</div>
+	<div class="sec_scroll">
 		<section class="sec_wrap">
 			<div class="cont_box col3">
-				<h3>FA 월별 매출 누적합계</h3>
-				<figure class="clearFix">
-			    	<div class="chart4 fl" style="width:calc(60% - 7.5px); height:280px; margin:0 auto"></div>
-			    	<div class="zt-span fl ml15" style="width:calc(40% - 7.5px)">
-			    		<h4 class="mb5">내 랭킹</h4>
-						<div class="zt-skill-bar"><div class="data" data-width="100" style=""><div class="txtWrap"><span>#1</span>이희성<em>(<span>138.4</span>억)</em></div></div></div>
+				<h3>월별 매출 누적합계</h3>
+				<div class="price"><span  id="<@pageId>_monthly_sumPaymentALL">13,844,381,010</span></div>
+				<span class="prepare">전년 대비</span><span class="percent">+2.2%</span>
 
-			    		<h4 class="mb5 mt20">전체 랭킹</h4>
-						<div class="zt-skill-bar my"><div class="data" data-width="100" style=""><div class="txtWrap"><span>#1</span>이희성<em>(<span>138.4</span>억)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="92" style=""><div class="txtWrap"><span>#2</span>백보경<em>(<span>133.1</span>억)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="85" style=""><div class="txtWrap"><span>#3</span>이주현<em>(<span>120.5</span>억)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="80" style=""><div class="txtWrap"><span>#4</span>정승택<em>(<span>102.5</span>억)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="70" style=""><div class="txtWrap"><span>#5</span>김상아<em>(<span>99.3</span>억)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="60" style=""><div class="txtWrap"><span>#6</span>김용진<em>(<span>80.1</span>억)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="50" style=""><div class="txtWrap"><span>#7</span>최현성<em>(<span>70.1</span>억)</em></div></div></div>
-					</div>
+				<figure class="highcharts-figure">
+			    	<div class="chart"  id="<@pageId>_monthlySI_ALLchart"  style="width:100%; height:280px; margin:0 auto"></div>
 				</figure>
 			</div>
 			<div class="cont_box col3">
-				<h3>FA 전월대비 매출 증감분</h3>
-				<figure class="clearFix">
-			    	<div class="chart5 fl" style="width:calc(60% - 7.5px); height:280px; margin:0 auto"></div>
-			    	<div class="zt-span fl ml15" style="width:calc(40% - 7.5px)">
-			    		<h4 class="mb5">내 랭킹</h4>
-						<div class="zt-skill-bar"><div class="data" data-width="100" style=""><div class="txtWrap"><span>#1</span>이희성<em>(<span>23</span>억)</em></div></div></div>
+				<h3>전월대비 매출 증감분</h3>
+				<div class="price"><span  id="<@pageId>_monthly_sumIncomeIncreaseALL">+100,356,153</span></div>
+				<span class="prepare">전년 대비</span><span class="percent">+95%</span>
 
-			    		<h4 class="mb5 mt20">전체 랭킹</h4>
-						<div class="zt-skill-bar my"><div class="data" data-width="100" style=""><div class="txtWrap"><span>#1</span>이희성<em>(<span>45.6</span>억)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="92" style=""><div class="txtWrap"><span>#2</span>백보경<em>(<span>25.7</span>억)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="85" style=""><div class="txtWrap"><span>#3</span>이주현<em>(<span>15.3</span>억)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="80" style=""><div class="txtWrap"><span>#4</span>정승택<em>(<span>10.9</span>억)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="70" style=""><div class="txtWrap"><span>#5</span>김상아<em>(<span>7.1</span>억)</em></div></div></div>
-						<div class="zt-skill-bar minus"><div class="data" data-width="10" style=""><div class="txtWrap"><span>#6</span>김용진<em>(<span>-3.5</span>억)</em></div></div></div>
-						<div class="zt-skill-bar minus"><div class="data" data-width="50" style=""><div class="txtWrap"><span>#7</span>최현성<em>(<span>-10.4</span>억)</em></div></div></div>
-					</div>
+				<figure class="highcharts-figure">
+			    	<div class="chart2" id="<@pageId>_monthlySII_ALLchart" style="width:100%; height:280px; margin:0 auto"></div>
 				</figure>
 			</div>
 			<div class="cont_box col3">
-				<h3>FA 계약 건수(전체)</h3>
-				<figure class="clearFix">
-			    	<div class="chart6 fl" style="width:calc(60% - 7.5px); height:280px; margin:0 auto"></div>
-			    	<div class="zt-span fl ml15" style="width:calc(40% - 7.5px)">
-			    		<h4 class="mb5">내 랭킹</h4>
-						<div class="zt-skill-bar"><div class="data" data-width="30" style=""><div class="txtWrap"><span>#7</span>이희성<em>(<span>23</span>건)</em></div></div></div>
+				<h3>계약 건수(전체)</h3>
+				<div class="price"><span  id="<@pageId>_monthly_cntContractALL">106</span></div>
+				<span class="prepare">전년 대비</span><span class="percent minus">-2.2%</span>
 
-			    		<h4 class="mb5 mt20">전체 랭킹</h4>
-						<div class="zt-skill-bar"><div class="data" data-width="100" style=""><div class="txtWrap"><span>#1</span>최현성<em>(<span>131</span>건)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="92" style=""><div class="txtWrap"><span>#2</span>이주현<em>(<span>118</span>건)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="85" style=""><div class="txtWrap"><span>#3</span>백보경<em>(<span>92</span>건)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="80" style=""><div class="txtWrap"><span>#4</span>김상아<em>(<span>66</span>건)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="70" style=""><div class="txtWrap"><span>#5</span>정승택<em>(<span>57</span>건)</em></div></div></div>
-						<div class="zt-skill-bar"><div class="data" data-width="60" style=""><div class="txtWrap"><span>#6</span>김용진<em>(<span>46</span>건)</em></div></div></div>
-						<div class="zt-skill-bar my"><div class="data" data-width="30" style=""><div class="txtWrap"><span>#7</span>이희성<em>(<span>23</span>건)</em></div></div></div>
-					</div>
+				<figure class="highcharts-figure">
+			    	<div class="chart3"  id="<@pageId>_monthlyCC_ALLchart" style="width:100%; height:280px; margin:0 auto"></div>
 				</figure>
 			</div>
 		</section>
-	</div>
+</div>
 </div>
