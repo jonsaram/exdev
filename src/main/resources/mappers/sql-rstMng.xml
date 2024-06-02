@@ -729,14 +729,7 @@
 				SELECT TO_CHAR(UPDATE_DATE,'YYYYMM') UPDATE_DATE, SUM( PAYMENT  ) SUM_PAYMENT
 				FROM TBL_EXP_PAYMENT p
 				WHERE 1=1
-				<choose>
-					<when test=" GUBUN != null and GUBUN.equals('FA') ">
-					AND 
-					</when>
-					<when test=" GUBUN == null or GUBUN.equals('') ">
-					AND p.USER_ID = #{sessionVo.userId}
-					</when>
-				</choose>				
+				AND p.USER_ID = #{sessionVo.userId}
 				AND P.PAYMENT IS NOT NULL 
 				AND TO_CHAR(p.UPDATE_DATE, 'YYYY')   <![CDATA[ >= ]]>   TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),	-12), 'YYYY')
 				AND TO_CHAR(p.UPDATE_DATE, 'YYYY')   <![CDATA[ <= ]]>   TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),	  0), 'YYYY')
