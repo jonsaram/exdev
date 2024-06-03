@@ -8,45 +8,56 @@
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
-		C_COMP.import("<@popupId>_cslist"	, "component_biz_compConsultingContent"	, {contractInfo : data, minHeight : "100px"}, function(data) {
+		
+		C_COMP.import("<@popupId>_cslist"	, "component_biz_compConsultingContent"	, {contractInfo : data, btnDisplay : "display:none"		}, function(data) {
 			//dalert(data);
 		});
-		C_COMP.import("<@popupId>_schlist"	, "component_biz_compScheduleList"		, {contractInfo : data, minHeight : "100px"}, function(data) {
+		C_COMP.import("<@popupId>_schlist"	, "component_biz_compScheduleList"		, {contractInfo : data									}, function(data) {
 			//dalert(data);
 		});
-		C_COMP.import("<@popupId>_todolist", "component_biz_compTodoList"			, {contractInfo : data, minHeight : "100px"}, function(data) {
+		C_COMP.import("<@popupId>_todolist", "component_biz_compTodoList"			, {contractInfo : data									}, function(data) {
 			//dalert(data);
 		});
-		C_COMP.import("<@popupId>_wklist"	, "component_biz_compConsultingProcess"	, {contractInfo : data, minHeight : "100px"}, function(data) {
+		C_COMP.import("<@popupId>_wklist"	, "component_biz_compConsultingProcess"	, {contractInfo : data, topBtnDisplay :"display:none"	}, function(data) {
 			//dalert(data);
 		});
 		C_POP.maxSize("<@popupId>");
+		
 	});
 </script>
 
-<!-- 진행 현황 팝업 -->
-<div class="modal_wrap" id="modal-ex03">
-	<div class="modal" style="width:800px;height:600px;">
+<div class="modal_wrap">
+	<div class="modal" style="width:97%;height:97%;">
 		<div class="modal_header">
-		<strong class="tit"><span style="color:#33CCCC"><@BUYER_NM></span> / <@CONSULTING_NM></strong>
-            <button type="button" class="btn_zoomInOut"><span class="txt">확대</span></button>
+			<strong class="tit"><span style="color:#33CCCC"><@BUYER_NM></span> / <@CONSULTING_NM></strong>
+            <button type="button" class="btn_zoomInOut in"><span class="txt">축소</span></button>
 			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body">
-			<div class="project_list" style="margin-left:-5px;width:calc(100% + 5px);">
-				<div class="cont_box">
-					<!-- 컨설팅 진행 목록 -->
-					<div id="<@popupId>_cslist">
+			<div class="project_list h100" style="margin-left:-5px;width:calc(100% + 5px);">
+				<div class="cont_box h100">
+					<!-- 진행 사항 -->
+					<component id="<@popupId>_cslist">
+					</component>
+					<div class="clearFix" style="height:calc(100% - 172px);">
+						<div class="fl w50 h100">								
+							<!-- Schedule -->
+							<component id="<@popupId>_schlist">
+							</component>
+							
+							<!-- TO-DO List -->
+							<component id="<@popupId>_todolist">					
+							</component>
+
+						</div>
+
+						<div class="fl w50 h100">
+							<!-- 메모하기 -->
+							<component id="<@popupId>_wklist">
+							</component>
+						</div>
 					</div>
-					<!-- Schedule -->
-					<div id="<@popupId>_schlist">
-					</div>
-					<!-- TO-DO List -->
-					<div id="<@popupId>_todolist">					
-					</div>
-					<!-- 메모하기 -->
-					<div id="<@popupId>_wklist">
-					</div>
+
 				</div>
 			</div>
 		</div>
@@ -55,3 +66,5 @@
 		</div>
 	</div>
 </div>
+
+

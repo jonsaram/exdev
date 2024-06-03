@@ -13,6 +13,9 @@
 			 BASE_FOLDER_ID : '<@BASE_FOLDER_ID>'
 			,TOP_FOLDER_ID 	: '<@TOP_FOLDER_ID>'
 			,BUYER_ID 		: '<@BUYER_ID>'
+			,mt15			: "mt15"
+			,calc			: "105"
+			,mtb0			: "mtb0"
 		}
 		C_COMP.import("folderMng", "component_dashboard_compFolderMng", parm , function() {
 
@@ -20,9 +23,11 @@
 	});
 </script>
 <div class="modal_wrap">
-	<div class="modal" style="width:97%;height:97%;">
-		<div class="modal_header mb10">
+	<div class="modal" style="width:97%;height:97%">
+		<div class="modal_header">
 			<strong class="tit">기업폴더관리</strong>
+			<!-- <button type="button" class="btn_zoomInOut"><span class="txt">확대</span></button> -->
+			<button type="button" class="btn_zoomInOut in"><span class="txt">축소</span></button>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body">
@@ -30,7 +35,8 @@
 			</component>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
+			<button type="button" class="btn btn_close" onclick="<@popupId>.close()">닫기</button>
 		</div>
 	</div>
 </div>
+		

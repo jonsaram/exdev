@@ -11,7 +11,7 @@
 		,selectFolderId		: ""
 		,shareMsgList		: []
 		,loadLeftFolderList	: function(defaultIdx) {
-			
+
 			let baseFolderId = <@compId>.baseFolderId;
 			
 			if(isEmpty(defaultIdx)) defaultIdx = 0;
@@ -46,6 +46,16 @@
 					<@compId>.upFolderId = resultData.data["faDashboard.getFolderInfo"][0].UP_FOLDER_ID;
 				}
 				
+				// 경로 설정
+				let folderPathList 	= resultData.data["faDashboard.getFolderPath"];
+
+				let buyerInfo		= getBuyerInfo("<@BUYER_ID>");
+				var rparm = {
+					 targetId 		: "folderPath"
+					,list			: folderPathList
+					,buyerInfo		: buyerInfo
+				}
+				C_COM.renderHtml("<@compId>", rparm);
 				
 				<@compId>.leftFolderList = resultData.data["faDashboard.getSubFolderList"];
 				
@@ -78,17 +88,6 @@
 				} else {
 					<@compId>.clearRightBlock();					
 				}
-				
-				// 경로 설정
-				let folderPathList 	= resultData.data["faDashboard.getFolderPath"];
-				let buyerInfo		= getBuyerInfo("<@BUYER_ID>");
-				var rparm = {
-					 targetId 		: "folderPath"
-					,list			: folderPathList
-					,buyerInfo		: buyerInfo
-				}
-				C_COM.renderHtml("<@compId>", rparm);
-				
 			});  
 		 }
 		,clearRightBlock : function() {
@@ -110,12 +109,12 @@
 				,OWNER_CD 		: "NA"
 				,mode			: "M"
 				,title			: "NA"
-				,hideButton		: "Y"
+				,hideComponent	: "Y"		// 화면에 보여주지 않고 기능만 활용함.
 				,templateId		: "<@compId>"
 			}
 
 			C_COMP.import("folderFileMng", "component_compMultiFilemng", parm , function() {
-
+				
 			});
 			
 		 }
@@ -398,6 +397,32 @@
 				});  
 			});
 		 }
+		,addFile : function() {
+			let selectFolderInfo = "";
+			$("#<@compId> #leftFolder li[class=active]").each(function() {
+				let idx = $(this).attr("idx");
+				selectFolderInfo = <@compId>.leftFolderList[idx];
+			});
+			if(isEmpty(selectFolderInfo)) {
+				C_POP.alert('상위 폴더를 선택해 주세요.')
+				return;
+			}
+			<@compId>.folderFileMng.selectFile();
+		 }
+		,renderFileList : function(fileList) {
+			let rparm = {
+			     targetId   : "fileList"
+			    ,list       : fileList
+			}
+			C_COM.renderHtml("<@compId>", rparm);
+/*			
+			if(isEmpty(fileList)) {
+				$("#<@compId> #fileList").parent().addClass("flex-midle");
+			} else {
+				$("#<@compId> #fileList").parent().removeClass("flex-midle");
+			}
+*/
+		 }
 	}
 	// Component Load가 완료된후 실행 된다.
 	C_COMP.onLoadComp("<@compId>", function(data) {
@@ -413,25 +438,22 @@
 		} else {
 			<@compId>.loadLeftFolderList();
 		}
-		
 		var parm = {
 			 GRP_FILE_ID 	: "NA"
 			,OWNER_CD 		: "NA"
 			,mode			: "M"
 			,title			: "NA"
-			,hideButton		: "Y"
+			,hideComponent	: "Y"		// 화면에 보여주지 않고 기능만 활용함.
 			,templateId		: "<@compId>"
 		}
-
-		C_COMP.import("folderFileMng", "component_compMultiFilemng", parm , function() {
-
+		C_COMP.import("folderFileMng", "component_compMultiFilemng", parm , function(fileList) {
+			<@compId>.renderFileList(fileList);
 		});
-		
 	});
 </script>
 <component>
-	<section class="sec_wrap mb5">
-		<div class="cont_box font12" id="folderPath" style="padding:10px">
+	<section class="sec_wrap mb15 <@mt15>">
+		<div class="cont_box font12" id="folderPath">
 		</div>
 		<script type="text/x-jsrender" id="folderPath_template">
 			<a href="javascript:<@compId>.moveFolder('BASE')"><strong>{{:buyerInfo.BUYER_NM}}</strong></a> 
@@ -443,7 +465,7 @@
 			<a href="javascript:<@compId>.moveFolder('BASE')"><strong>{{:buyerInfo.BUYER_NM}}</strong></a> 
 		</script>
 	</section>
-	<div class="sec_scroll" style="height:calc(100% - 105px);">
+	<div class="sec_scroll" style="height:calc(100% - <@calc>px);">
 		<section class="sec_wrap h100">
 			<!-- 분류별 실적 -->
 			<div class="cont_box left v2 h100">
@@ -465,64 +487,79 @@
 					<button class="btn small select" onclick="<@compId>.deleteFolder()">삭제</button>
 				</div>
 			</div>
-			<div class="cont_box right v2 h100" style="overflow-y:auto;">
+			<div class="cont_box right v2 h100" style="overflow-y:auto;">							
 				<!--// 폴더 등록 -->
 				<div class="clearFix mb10">
-					<h3 class="fl mtb0">폴더</h3>
-					<a href="javascript:;" class="btn small fl" onclick="<@compId>.addSubFolder()">등록</a>
+					<h3 class="fl <@mtb0>">폴더</h3>
+					<a href="#modal-ex02" class="btn small fl" onclick="<@compId>.addSubFolder()">등록</a>
 				</div>
-				<div class="approver_list_wrap person">
-					<ul class="listBtn v2" id="subFolder" style="margin-top:7px;margin-left:7px;margin-bottom:7px;">
-					</ul>
-					<script type="text/x-jsrender" id="subFolder_template">	
-					{{for list}}
-						<li>
-							<a href="javascript:;" class="btn" onDblClick="<@compId>.moveFolder('{{:UP_FOLDER_ID}}', {{:#index}} )">{{:FOLDER_NM}}</a>
-							<button class="close" onclick="<@compId>.deleteSubFolder('{{:FOLDER_ID}}')">닫기</button>
-						</li>
-					{{/for}}
-					</script>
-					<script type="text/x-jsrender" id="subFolder_noData_template">	
-						<li>
-							등록된 폴더가 없습니다.
-						</li>
-					</script>
-					
-				</div>
-				<!-- 폴더 등록 //-->
-	
-				<!--// 파일 등록 -->
-				<div class="clearFix mb10 mt15">
-					<h3 class="fl mtb0">첨부파일</h3>
-					<button type="button" class="stateBtn file fl mt0" onclick="<@compId>.selectFile()"><span>등록</span></button>
-				</div>
-				<div id="folderFileMng">
-				</div>
-				<!-- 파일 등록 //-->
-	
-				<!--// 공유 메시지 -->
-				<h3 class="mt25 mb10">공유 메시지</h3>
-				<ul class="share_msg" id="shareMsg" style="min-height:80px">
+				<ul class="listBtn v2" id="subFolder">
 				</ul>
-				<script type="text/x-jsrender" id="shareMsg_template">	
+				<script type="text/x-jsrender" id="subFolder_template">	
 				{{for list}}
-					<li><span class="time">{{:UPDATE_DATE}}</span> <strong>{{:UPDATE_USER_NM}}</strong> <span class="txt">{{:CONTENT}}</span>
-						<div class="fr"><button onclick="<@compId>.modifyMsg({{:#index}})"><i class="icon_pen"></i></button><button onclick="<@compId>.delShareMsg({{:#index}})"><i class="icon_trash"></i></button></div>
+					<li>
+						<a href="javascript:;" class="btn" onDblClick="<@compId>.moveFolder('{{:UP_FOLDER_ID}}', {{:#index}} )">{{:FOLDER_NM}}</a>
+						<button class="close" onclick="<@compId>.deleteSubFolder('{{:FOLDER_ID}}')">닫기</button>
 					</li>
 				{{/for}}
 				</script>
-				<script type="text/x-jsrender" id="shareMsg_noData_template">	
-					<li class="tc">
-						<span class="txt">등록된 내용이 없습니다.</span>
+				<script type="text/x-jsrender" id="subFolder_noData_template">	
+					<li>
+						등록된 폴더가 없습니다.
 					</li>
 				</script>
-				
-				<div class="comment clearFix mt10">
-					<strong class="fl lh33">메시지</strong>
-					<input class="fl" type="text" style="width:calc(100% - 120px);" value="" id="folderMsg" onEnter="<@compId>.addShareMsg()">
-					<button class="btn fl" onclick="<@compId>.addShareMsg()">등록</button>
+				<!-- 폴더 등록 //-->
+
+				<div class="clearFix" style="height:calc(100% - 153px);">
+					<div class="fl w50 h100">
+						<!--// 파일 등록 -->
+						<div class="clearFix mb10 mt15">
+							<h3 class="fl <@mtb0>">첨부파일</h3>
+							<button type="button" class="stateBtn file fl mt0" onclick="<@compId>.addFile()"><span>등록</span></button>
+						</div>
+						<input name="file" type="file" id="file-input" tabindex="-1" title="파일찾기">
+						<div class="approver_list_wrap person" style="max-height:calc(100% - 49px);height:calc(100% - 49px)">
+							<ul class="approver_list" id="fileList">
+							</ul>
+							<script type="text/x-jsrender" id="fileList_template">
+							{{for list}}
+								<li><span class="txt" onclick="<@compId>.folderFileMng.download('{{:FILE_ID}}')"><span>{{:ORG_FILE_NM}}</span> / <span>{{toKb:FILE_SIZE}}</span> Kb</span><button class="pay_close" onclick="<@compId>.folderFileMng.deleteFile('{{:FILE_ID}}')">닫기</button></li>
+							{{/for}}
+							</script>
+							<script type="text/x-jsrender" id="fileList_noData_template">	
+								<li class="tc"><span class="txt"><span>첨부파일이 없습니다.</span></li>
+							</script>
+						</div>
+						<component id="folderFileMng">
+						</component>
+						<!-- 파일 등록 //-->
+					</div>
+					<div class="fl w50 h100">
+						<!--// 공유 메시지 -->
+						<h3 class="mt15 mb10">공유 메시지</h3>
+						<ul class="share_msg" id="shareMsg" style="max-height:calc(100% - 92px);height:calc(100% - 92px);">
+						</ul>
+						<script type="text/x-jsrender" id="shareMsg_template">	
+						{{for list}}
+							<li><span class="time">{{:UPDATE_DATE}}</span> <strong>{{:UPDATE_USER_NM}}</strong> <span class="txt">{{:CONTENT}}</span> 
+								<div class="fr"><button onclick="<@compId>.modifyMsg({{:#index}})"><i class="icon_pen"></i></button><button onclick="<@compId>.delShareMsg({{:#index}})"><i class="icon_trash"></i></button></div>
+							</li>
+						{{/for}}
+						</script>
+						<script type="text/x-jsrender" id="shareMsg_noData_template">	
+							<li class="tc">
+								<span class="txt">등록된 내용이 없습니다.</span>
+							</li>
+						</script>
+						<div class="comment clearFix mt10">
+							<strong class="fl lh33">메시지</strong>
+							<input class="fl" type="text" style="width:calc(100% - 120px);" value="" id="folderMsg" onEnter="<@compId>.addShareMsg()">
+							<button class="btn fl" onclick="<@compId>.addShareMsg()">등록</button>
+						</div>
+						<!-- 공유 메시지 //-->
+					</div>
+					
 				</div>
-				<!-- 공유 메시지 //-->
 			</div>
 		</section>
 	</div>
