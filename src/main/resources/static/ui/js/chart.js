@@ -183,7 +183,7 @@
 		    chart: {
 		        type: 'column',
 
-                margin: [50, 50, 60, 60],
+                margin: [50, 50, 40, 50],
 		    },
 		    xAxisData,
 		    title: {
@@ -215,14 +215,21 @@
 		    tooltip: {
 		        shared: true,
 		    },
-		    xAxis: {
-		        type: 'category',
-		        accessibility: {
-		            description: 'xAxisData'
-		        },
-		        max: isEmpty(getData(data["months"]).slice()) ? 0 : xAxisData.length,
-
-		    },
+			xAxis: {
+			    type: 'category',
+			    accessibility: {
+			        description: 'xAxisData'
+			    },
+			    max: isEmpty(getData(data["months"]).slice()) ? 0 : xAxisData.length,
+			    labels: {
+			        rotation: 0, // 라벨을 0도로 회전 설정
+			        style: {
+			            textOverflow: 'ellipsis',
+			            whiteSpace: 'nowrap',
+			            overflow: 'hidden'
+			        }
+			    }
+			},
 		    yAxis: [{
 		        title: {
 		            text: ''
