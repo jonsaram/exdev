@@ -137,10 +137,13 @@ var <@pageId> = {
 				
 			}
 			, deleteOne : (index) =>{
-				let row = <@pageId>.searchedRows[index];
-
-				const MENU_ID 		= row["MENU_ID"];
-				<@pageId>.deleteItem( { MENU_ID:MENU_ID } )
+				let row = <@pageId>.curSearchList[index];
+				
+		    	C_POP.confirm('선택하신 메뉴를 삭제하시겠습니까?', function() {
+					const MENU_ID 		= row["MENU_ID"];
+					<@pageId>.deleteItem( { MENU_ID:MENU_ID } )
+		    	});
+				
 			  		
 			}
 			,setHandler : () => {
@@ -196,10 +199,16 @@ var <@pageId> = {
 			    
 			    $("[id^='<@pageId>_delete_']").click(function(){
 
-			    	const hasChild = $(this).parent().siblings("#HAS_CHILD").attr("value") == "Y" ? true : false;
-			    	if( hasChild ){ C_POP.alert("하위 메뉴를 먼저 삭제하신 후 삭제할 수 있습니다. "); return; }
-			    	const key = $(this).attr("key");
-					<@pageId>.deleteOne(key);
+			        event.preventDefault();
+			        event.stopPropagation();
+
+			    	const index = $(this).attr("index");
+
+			    	const selectedMenu = <@pageId>.curSearchList[index];
+			    	const hasChild = selectedMenu.HAS_CHILD;
+			    	if( hasChild == "Y" ){ C_POP.alert("하위 메뉴를 먼저 삭제하신 후 삭제할 수 있습니다. "); return; }
+
+					<@pageId>.deleteOne(index);
 			    })
 
 			    
@@ -368,7 +377,7 @@ td {
  					<td id='ATTR2'				value='{{:ATTR2}}' 			style='display:none'>{{:ATTR2}}</td>
  					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}' class='tl'>
 						<button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
-					<td><button id="<@pageId>_delete_{{:#index}}" key='{{:SP_CSTM_ID}}||{{:MENU_ID}}'><i class="icon_trash"></i></button></td>
+					<td><button id="<@pageId>_delete_{{:#index}}" index="{{:#index}}"><i class="icon_trash"></i></button></td>
 				</tr>
 				{{/for}}
 				</script>

@@ -466,8 +466,8 @@
 		GROUP BY CT.CONSULTING_ID, CT.CONSULTING_NM, TO_CHAR(RST.RESULT_DATE, 'YYYY') 
 	)
 	GROUP BY CONSULTING_ID, CONSULTING_NM, YEAR
-	ORDER BY CONSULTING_NM
-	FETCH NEXT 12 ROWS ONLY
+	ORDER BY ORG_SELLING_PRICE DESC
+	FETCH NEXT 5 ROWS ONLY
 	</select>		
 
 	
@@ -731,9 +731,6 @@
 				WHERE 1=1
 				<choose>
 					<when test=" GUBUN != null and GUBUN.equals('FA') ">
-					AND 
-					</when>
-					<when test=" GUBUN == null or GUBUN.equals('') ">
 					AND p.USER_ID = #{sessionVo.userId}
 					</when>
 				</choose>				
@@ -761,7 +758,11 @@
 				AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
 				AND B.USE_YN = 'Y' AND B.DEL_YN = 'N'
 				AND C.BUYER_ID	= B.BUYER_ID
+				<choose>
+					<when test=" GUBUN != null and GUBUN.equals('FA') ">
 				AND C.USER_ID	= #{sessionVo.userId}
+					</when>
+				</choose>				
 				GROUP BY TO_CHAR(CONTRACT_DATE,'YYYYMM')
 				ORDER BY CONTRACT_DATE
 		) DATA 

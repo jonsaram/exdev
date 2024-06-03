@@ -129,8 +129,8 @@
 		<if test=" SORT_ORDER != null and !SORT_ORDER.equals('') ">
 		AND T.SORT_ORDER = #{SORT_ORDER}
 		</if>
-		AND T.DEL_YN = 'N'
-		AND T.USE_YN = 'Y'
+<!--  		AND T.DEL_YN = 'N'
+		AND T.USE_YN = 'Y' -->
 		ORDER BY SORT_ORDER
 	</select>
 		
@@ -182,6 +182,7 @@
 		*/
 		UPDATE TBL_EXP_MENU
 		SET DEL_YN = 'Y',
+		USE_YN		='N',
 		UPDATE_USER = 'system',
 		UPDATE_DATE = SYSDATE 
 		WHERE SP_CSTM_ID = #{sessionVo.spCstmId} 
