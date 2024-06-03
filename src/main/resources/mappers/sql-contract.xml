@@ -764,19 +764,19 @@
 		*/
 		SELECT 
 			 WORK_CMMT_ID
-			,CONTRACT_ID
+			,A.CONTRACT_ID
 			,CMMT
-			,TO_CHAR( UPDATE_DATE , 'MM-DD HH24:MI' ) AS UPDATE_DATE
-			
+			,GET_USER_NM(A.UPDATE_USER) AS USER_NM
+			,TO_CHAR( A.UPDATE_DATE , 'MM-DD HH24:MI' ) AS UPDATE_DATE
 		FROM 
-		 	TBL_EXP_WORK_CMMT  A
-		WHERE  1=1
-			AND	CONTRACT_ID = #{CONTRACT_ID}
-			AND	UPDATE_USER = #{sessionVo.userId}
-			AND	SP_CSTM_ID	= #{sessionVo.spCstmId}
-			AND DEL_YN		= 'N'
+		 	 TBL_EXP_WORK_CMMT  A
+		WHERE 1=1
+			AND	A.CONTRACT_ID 	= #{CONTRACT_ID}
+			AND A.DEL_YN		= 'N'
 		ORDER BY UPDATE_DATE DESC		
 	</select>	
+	
+	
 	<update id="registWorkCmmt">
 		/*	contract."registWorkCmmt"
 			자문 진행 현황 / 진행 현황 등록
