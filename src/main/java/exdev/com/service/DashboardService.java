@@ -131,7 +131,6 @@ public class DashboardService extends ExdevBaseService{
         List<Map> list = commonDao.getList("schedule.getUserList1", searchMap);
        
         map.put("list", list);
-        System.out.println("ScheduleService.getUserList1 11");
         return map;
     }
  

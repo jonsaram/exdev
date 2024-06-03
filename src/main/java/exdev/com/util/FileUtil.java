@@ -33,27 +33,20 @@ public class FileUtil {
         try {
             fileName = uploadFile.getOriginalFilename();
             byte[] bytes = uploadFile.getBytes();
-            System.out.println("UtilFile fileUpload fileName : " + fileName);
-            System.out.println("UtilFile fileUpload uploadPath : " + path);
             //"\/tomcat\/webapps\/ROOT\/File\/notice/"
             File file = new File(path);
             
             
             if (fileName != null && !fileName.equals("")) {
                 if (file.exists()) {
-                	System.out.println("####### 파일이 존해하는경우 #######" + fileName);
-                    //  파일명 앞에 업로드 시간 초단위로 붙여 파일명 중복을 방지
+                	//  파일명 앞에 업로드 시간 초단위로 붙여 파일명 중복을 방지
                 	String orgFileName = getFileName( fileName );
-                	System.out.println("orgFileName : " + orgFileName);
                 	String orgFileExt = getFileExt( fileName );
-                	System.out.println("orgFileExt : " + orgFileExt);
                 	
-                    
                 	newFilename = orgFileName+"_"+System.currentTimeMillis()+"."+orgFileExt;
-                	System.out.println("newFilename : " + newFilename);
                 	file = new File( path+newFilename );
                 }else {
-                	System.out.println("XXXXXXX 파일이 존해하는경우 XXXXXXX" + fileName);
+                	
                 }
             }
             
@@ -89,8 +82,6 @@ public class FileUtil {
         
         String uploadPath = request.getSession().getServletContext().getRealPath("/");
         String attachPath = "";//Code.PATH_NOTICE;
-        
-        System.out.println("UtilFile getSaveLocation path : " + uploadPath + attachPath);
         
         return uploadPath + attachPath;
     }

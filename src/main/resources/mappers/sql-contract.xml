@@ -676,6 +676,52 @@
 				
 	</select>	
 
+    <select id="getProjectInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  contract.getProjectInfo
+            프로젝트 정보 조회 
+        */
+
+        SELECT 
+             A.CONTRACT_ID
+            ,A.USER_ID
+            ,GET_USER_NM(A.USER_ID) AS USER_NM
+            ,B.USER_ID AS CONSULTANT_USER_ID
+            ,E.USER_NM AS CONSULTANT_USER_NM
+            ,A.BUYER_ID
+            ,C.BUYER_NM
+            ,A.CONSULTING_ID
+            ,D.CONSULTING_NM
+            ,A.PROCESS_STATE
+            ,GET_CODE_NM('PROCESS_STATE', PROCESS_STATE) AS PROCESS_STATE_NM
+            ,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) AS UPDATE_DATE
+            ,(  
+                SELECT GET_CODE_NM('APPROVAL_USER_PROC', B.STATE) FROM TBL_EXP_APPROVAL B WHERE A.CONTRACT_ID = B.RELATION_ID
+                ORDER BY APPROVAL_DATE DESC FETCH FIRST 1 ROW ONLY
+             ) AS APP_STATE_NM
+            ,A.BASE_FOLDER_ID
+        FROM 
+              TBL_EXP_CONTRACT      A
+             ,TBL_EXP_TEAM_MEMBER   B
+             ,TBL_EXP_BUYER         C
+             ,TBL_EXP_CONSULTING    D
+             ,TBL_EXP_USER          E
+        WHERE  1=1
+            AND B.CONTRACT_ID(+)    = A.CONTRACT_ID
+            AND B.TEAM_USER_ROLE(+) IN ('EXEC')
+            AND (
+                    A.CONTRACT_ID   IN ( SELECT CONTRACT_ID FROM TBL_EXP_TEAM_MEMBER WHERE USER_ID = #{sessionVo.userId})
+                OR  A.USER_ID       = #{sessionVo.userId}
+            )
+            AND A.BUYER_ID              = C.BUYER_ID
+            AND A.CONSULTING_ID         = D.CONSULTING_ID
+            AND B.USER_ID               = E.USER_ID(+)
+            AND A.DEL_YN                = 'N'
+            AND A.CONTRACT_ID           = #{CONTRACT_ID}
+        ORDER BY UPDATE_DATE DESC           
+                
+    </select>   
+
+
 
 	<update id="updateProject">
 		/*	contract.updateProject

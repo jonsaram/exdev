@@ -13,6 +13,13 @@
         ,orgEndTimeMinute : ''
         ,scheduleGrpId    : ''
         ,today : ''
+        ,loopTypeDtlCd : ''
+        ,loopTypeDtlVal : ''
+        ,isEndDayOfMonth : false
+        ,isLoopTypeMonth : false
+        ,isLoopTypeQuarter : false
+        ,isLoopTypeYear : false
+            
         ,close : function() {
             var obj = new Object();
             C_POP.close(obj);
@@ -154,6 +161,7 @@
             if( <@popupId>.saveCheck(<@popupId>.loopType) ){
                 return;
             }
+            let contractNm = $('#<@popupId>_contractNm').val();
             
             let requestParm = {};            
             requestParm["scheduleGrpId"]      = <@popupId>.scheduleGrpId;
@@ -171,14 +179,27 @@
             requestParm["endTimeH"]           = <@popupId>.endTimeH;
             requestParm["endTimeM"]           = <@popupId>.endTimeM;
             requestParm["secretYn"]           = <@popupId>.secretYn;
+            if( "" == contractNm ){ requestParm["contractId"] = "";}
             
+           
             // 반복안함선택시 종료일 제한은 일정 종료일로 세팅
             if("NOT_REPEAT" == <@popupId>.loopType ){
                 requestParm["loopLimitDate"] = $('#<@popupId>_dateEnd').val();
             }else{
                 requestParm["loopLimitDate"] = $('#<@popupId>_loopLimitDate').val();
             }
-         
+
+            if ( (<@popupId>.isEndDayOfMonth && <@popupId>.isLoopTypeMonth) ||  
+                 (<@popupId>.isEndDayOfMonth && <@popupId>.isLoopTypeYear) ||
+                 (<@popupId>.isEndDayOfMonth && <@popupId>.isLoopTypeQuarter)
+               ) {//시작일이 선택월의 마지막날인가
+                requestParm["loopTypeDtlCd"]      = <@popupId>.loopTypeDtlCd;
+                requestParm["loopTypeDtlVal"]     = <@popupId>.loopTypeDtlVal;
+            }else{
+                requestParm["loopTypeDtlCd"]      = '';
+                requestParm["loopTypeDtlVal"]     = '';    
+            }
+            
             // 참석자 추가
             let mlst = <@popupId>.getAppMemberToList();
             requestParm["users"]  = JSON.stringify(mlst);
@@ -394,6 +415,77 @@
             });
          }
 
+        ,setSelectBoxLoopTypeDtl : function(selectDay) {
+
+            //************** 반복상세 **************
+            var loopTypeList = [
+                  ['SELECT_DAY', selectDay+'일 마다 반복']
+                , ['END_OF_MONTH', '매월 마지막 날 반복']
+              ];
+            
+            var loopTypeDtlBoxList = { 
+                 data           : loopTypeList
+                ,targetId       : "<@popupId>_selectBoxLoopTypeDtl"  
+            }
+            C_UICOM.makeSelectBox(loopTypeDtlBoxList, "single");
+               
+            var loopTypeDtlCodeAttrList = C_COM.getCodeAttr("SCHEDULE_LOOP_TYPE", "NOT_REPEAT");// 코드 Attr 읽어오기  
+            
+            C_UICOM.setSingleBox("<@popupId>_selectBoxLoopTypeDtl", "SELECT_DAY");//초기값 세팅
+            <@popupId>.loopTypeDtlCd = "SELECT_DAY";
+            <@popupId>.loopTypeDtlVal = selectDay;
+            
+            C_UICOM.addChangeListener("<@popupId>_selectBoxLoopTypeDtl", function(dataObj) {
+                <@popupId>.loopTypeDtlCd = dataObj;
+                
+                if( dataObj == 'SELECT_DAY'){
+                    <@popupId>.loopTypeDtlVal = selectDay;
+                }else{
+                    <@popupId>.loopTypeDtlVal = '';
+                }
+            });
+            //============== 반복유형 ==============
+         }
+         /* 일정의 시작일과 반복주기 선택이 변경될때 호출*/
+        ,setEndDayOfMonth : function() {
+            
+            var dateStart = $('#<@popupId>_dateStart').val();
+
+            let lastDate = new Date(Number(dateStart.substr(0, 4)), Number(dateStart.substr(5, 2)), 0);//월의 마지막일
+            if ( Number(dateStart.substr(8, 2)) == lastDate.getDate() ) {//시작일이 선택월의 마지막날인가
+                <@popupId>.isEndDayOfMonth = true;
+            }
+            
+            //var loopType = $('#<@popupId>_selectBoxLoopType').val();
+            
+            if ( <@popupId>.loopType == 'MONTH' ) {//시작일이 선택월의 마지막날인가
+                <@popupId>.isLoopTypeMonth = true;
+            }else{
+                <@popupId>.isLoopTypeMonth = false;
+            }
+
+            if ( <@popupId>.loopType == 'QUARTER' ) {//시작일이 선택월의 마지막날인가
+                <@popupId>.isLoopTypeQuarter = true;
+            }else{
+                <@popupId>.isLoopTypeQuarter = false;
+            }
+            
+            if ( <@popupId>.loopType == 'YEAR' ) {//시작일이 선택월의 마지막날인가
+                <@popupId>.isLoopTypeYear = true;
+            }else{
+                <@popupId>.isLoopTypeYear = false;
+            }
+            
+            if ( (<@popupId>.isEndDayOfMonth && <@popupId>.isLoopTypeMonth) || 
+                 (<@popupId>.isEndDayOfMonth && <@popupId>.isLoopTypeYear) ||
+                 (<@popupId>.isEndDayOfMonth && <@popupId>.isLoopTypeQuarter)
+               ) {//시작일이 선택월의 마지막날인가
+                $("#<@popupId>_showLoopTypeDtl").show();    
+                <@popupId>.setSelectBoxLoopTypeDtl(dateStart.substr(8, 2));
+            }else{
+                $("#<@popupId>_showLoopTypeDtl").hide();    
+            }
+         }
         //종료시간 세팅
        ,setEndTime : function(timeHour) {
            var endHour ;
@@ -460,6 +552,12 @@
             }else{
             	$("#<@popupId>_showLimitDate").show();
                 let setDate = <@popupId>.getLimitDate( <@popupId>.loopType, $('#<@popupId>_dateStart').val() );
+                <@popupId>.limitDate = setDate;
+                //$('#<@popupId>_dateEnd').val(setDate);
+                $('#<@popupId>_loopLimitDate').val(setDate);
+                
+                //월의 마지막 일자 세팅
+                <@popupId>.setEndDayOfMonth();
             }
             
         });
@@ -639,6 +737,26 @@
                             </div>
                         </div>
                     </dd>
+                    <div id="<@popupId>_showLoopTypeDtl" style="display:none;" > <!-- div style="display:block;"  display:none-->
+                        <dt>월반복</dt>
+                        <dd>
+                            <div class="clearFix">
+                                <div class="select_box fl" style="width:180px">
+                                    <div id="<@popupId>_selectBoxLoopTypeDtl" style="width:100%"></div>
+                                </div>
+                            </div>
+                        </dd>
+                    </div>
+                    <div id="<@popupId>_showLimitDate" style="display:none;" > <!-- div style="display:block;"  display:none-->
+                        <dt>반복종료</dt>
+                        <dd>
+                            <div class="clearFix">
+                                <div class="calendar_wrap fl">
+                                    <input type="text" class="datepicker" id="<@popupId>_loopLimitDate" style="width:150px" readonly>
+                                </div>
+                            </div>
+                        </dd>
+                    </div>
                     <dt>시간</dt>
                     <dd>
                         <div class="clearFix mt10">
