@@ -1,29 +1,109 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="EUC-KR">
-<title>Insert title here</title>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/translations/ko.js"></script>
-</head>
-<body>
-<form action="/save" method="POST">
-<div id="editor">
-    <p>Here goes the initial content of the editor.</p>
-</div>
-</form>
-<script>
-	    
-	ClassicEditor.create( document.querySelector( '#editor' ) )
-	.then( editor => {
-	    console.log( editor );
-	} )
-	.catch( error => {
-	    console.error( error );
-	} );
-	        
-</script>
-</body>
+	<!-- include libraries(jQuery, bootstrap) -->
+	<link href="./css/libs/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="./css/libs/jquery-ui.css"		/>
+	<link href="./modulelib/summernote/summernote.min.css" rel="stylesheet">
+	
+	<script type="text/javascript" src="./js/libs/jquery-1.12.4.min.js"			></script>
+	<script type="text/javascript" src="./js/libs/jquery-ui.js"					></script>
+ 	<script type="text/javascript" src="./js/libs/highcharts.js"				></script>
+	<script type="text/javascript" src="./js/libs/highcharts-more.js"			></script>
+	<script type="text/javascript" src="./js/libs/highcharts-treemap.js"		></script>
+	<script type="text/javascript" src="./js/libs/highcharts-heatmap.js"		></script>
+	<script type="text/javascript" src="./js/libs/highcharts-accessibility.js"	></script>
+	<script type="text/javascript" src="./js/libs/index.global.js"				></script>
+	<script type="text/javascript" src="./js/common.js"							></script>
+	
+	<script type="text/javascript" 	src="./ui/js/lib/jsrender.js"				></script>
+	<script type="text/javascript" 	src="./ui/js/common/config.js"				></script>
+	<script type="text/javascript" 	src="./ui/js/common/function_ajax.js"		></script>
+	<script type="text/javascript" 	src="./ui/js/common/function_common.js"		></script>
+	<script type="text/javascript" 	src="./ui/js/common/project_common.js"		></script>
+    <script type="text/javascript" src="./ui/js/common.js" 						></script>
+    <script type="text/javascript" src="./ui/js/excel.js"  						></script>
+    <script type="text/javascript" src="./ui/js/chart.js"  						></script>
+    <script type="text/javascript" src="./ui/js/lodash.js" 						></script>
+    <script type="text/javascript" src="./ui/js/dayjs.js"						></script>
+    <script type="text/javascript" src="./ui/js/schedule.js"					></script>
+
+	<script src="./js/libs/bootstrap.min.js"></script>
+	<script src="./modulelib/summernote/summernote.min.js"></script>
+
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"		></script>
+
+	<script>
+		$(function() {
+			$('#summernote').summernote({
+				 tabsize	: 4
+				,lang		: "ko-KR"
+				,callbacks : { 
+	            	onImageUpload : function(files, editor, welEditable) {
+	                    // 파일 업로드(다중업로드를 위해 반복문 사용)
+	                    for (var i = files.length - 1; i >= 0; i--) {
+		                    uploadSummernoteImageFile(files[i], this);
+	               		}
+					}
+				}
+			});
+			
+			$(".note-editable").height(500);
+			
+		});
+		
+		function uploadSummernoteImageFile(file, el) {
+			
+		    // 폼데이터 담기
+		    var form = document.querySelector("#theForm");
+		    
+		    var formData = new FormData(form);
+		    
+		    formData.append("GRP_FILE_ID"	, "TEXTEDITOR"	);
+		    formData.append("OWNER_CD"		, "IMPORT_IMAGE");
+		    
+            formData.append("attach_file"	, file);
+            formData.append("FILE_IDS"		, C_COM.makeUniqueId());
+
+		    $.ajax({
+		    	url: '/multiFileUpload.do',
+		        method: 'POST',
+		        data: formData,
+		        contentType: false,
+		        processData: false,
+		        success: function (response) {
+			    	dlog(response);
+		        	const msg = response.msg;
+		        	
+		        	// 첨부 결과 File ID를 Import 대상으로 리턴한다.
+		        	dalert(response.list[0]);
+		        	
+		        	let fileId = response.list[0];
+		        	if(isValid(fileId)) {
+		        		let imageUrl = C_COM.getImageUrl(fileId);
+			        	$(el).summernote('editor.insertImage', imageUrl);
+		        	}
+		        },
+		        error: function (xhr, desc, err) {
+			    	dlog(err);
+		            alert('에러가 발생 하였습니다.');
+		            return;
+		        }
+		    });
+		}
+		
+		
+	</script>
+  </head>
+
+  <body>
+  	<div style="height:500px;width:500px">
+		<div id="summernote" style="height:500px;width:500px">Hello Summernote</div>
+	</div>
+	
+	<form id=theForm></form>
+  </body>
 </html>
-

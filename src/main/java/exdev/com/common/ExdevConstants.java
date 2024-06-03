@@ -6,6 +6,6 @@ public class ExdevConstants {
     public static final String REQUEST_SUCCESS 	= "S";
     public static final String REQUEST_FAIL    	= "F";
     public static final String FILE_UPLOAD_PATH	= "uploadFiles";
-    //public static final String FILE_DIRECTORY_PATH= "D:/OCI/workspace/exdev/";
-    public static final String FILE_DIRECTORY_PATH= "/home/ubuntu/spring-boot";
+    public static final String FILE_DIRECTORY_PATH= "D:/OCI/workspace/exdev/";
+    //public static final String FILE_DIRECTORY_PATH= "/home/ubuntu/spring-boot";
 }
