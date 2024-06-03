@@ -59,17 +59,17 @@ var <@compId> = {
 		
 		<@compId>.contractInfo =  data.contractInfo;
 
-		//<@compId>.loadScheduleList();
+		<@compId>.loadScheduleList();
 	});
 </script>
-<div>
+<component>
 	<div class="cont_top clearFix">
 		<h4 class="fl lh24">- Schedule</h4>
 		<div class="fr inlineBlock_wrap">
 			<a href="javascript:<@compId>.addSchedule()" class="btn small">등록</a>
 		</div>
 	</div>
-	<div class="approver_list_wrap person mb15" style="min-height:<@minHeight>">
+	<div class="approver_list_wrap person mb15" style="height:calc(50% - 36px);">
 		<ul class="approver_list" id="scheduleList">
 		</ul>
 		<script type="text/x-jsrender" id="scheduleList_template">
@@ -83,4 +83,4 @@ var <@compId> = {
 			<li><span class="txt tc">등록된 내용이 없습니다.</span></li>
 		</script>
 	</div>
-</div>
+</component>

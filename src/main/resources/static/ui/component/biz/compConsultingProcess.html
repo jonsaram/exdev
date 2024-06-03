@@ -32,6 +32,16 @@
 				}
 			});
 		 }
+		,addCmmt : function() {
+			let cmmt = $("#<@compId> #cmmtContent").val()
+			if(isEmpty(cmmt)) {
+				C_POP.alert('메모를 입력해주세요.');
+				return;
+			} else {
+				<@compId>.registCmmtProcess(cmmt);
+				$("#<@compId> #cmmtContent").val("")
+			}
+		 }
 		,registCmmtProcess : function(cmmt) {
 			let parm = {
 				 queryId 		: "contract.registWorkCmmt"
@@ -70,7 +80,8 @@
 	
 	});
 </script>
-<div>
+<component>
+<!-- 
 	<div class="cont_top clearFix">
 		<h4 class="fl lh24">- 메모하기</h4>
 		<div class="fr inlineBlock_wrap">
@@ -90,4 +101,29 @@
 		</script>
 		
 	</div>
-</div>
+ -->
+	
+	<!-- memo 하기 -->
+	<div class="cont_top clearFix">
+		<h4 class="fl lh24">- 메모하기</h4>
+		<div class="fr inlineBlock_wrap" style="<@topBtnDisplay>">
+			<a href="javascript:<@compId>.registCmmt()" class="btn small">등록</a>
+		</div>
+	</div>
+	<ul class="share_msg" id="cmmtList" style="max-height:calc(100% - 92px);height:calc(100% - 92px);">
+	</ul>
+	<script type="text/x-jsrender" id="cmmtList_template">
+	{{for list}}
+		<li><span class="time">{{:UPDATE_DATE}}</span> <strong>뉴코뮤직타운</strong> <span class="txt">{{:CMMT}}</span> <div class="fr"><button><i class="icon_pen"></i></button><button onclick="<@compId>.deleteCmmt({{:#index}})"><i class="icon_trash"></i></button></div></li>
+	{{/for}}
+	</script>
+	<script type="text/x-jsrender" id="cmmtList_noData_template">	
+		<li class="tc"><span class="txt">메모가 없습니다.</span></li>
+	</script>
+	<div class="comment clearFix mt10" style="<@inputDisplay>">
+		<strong class="fl lh33">메모</strong>
+		<input class="fl" type="text" id="cmmtContent" style="width:calc(100% - 120px)" onEnter="<@compId>.addCmmt()">
+		<button class="btn fl" onclick="<@compId>.addCmmt()">등록</button>
+	</div>
+	
+</component>

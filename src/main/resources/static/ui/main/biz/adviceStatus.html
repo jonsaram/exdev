@@ -124,22 +124,22 @@
 				,cardCnt		: list.length
 			}
 			C_COM.renderHtml("<@pageId>", parm);
-			
+
 			$.each(list, function(idx) {
 				let key_cslist = `${parm.targetId}_cslist${idx}`;
-				C_COMP.import(key_cslist, "component_biz_compConsultingContent"	, {contractInfo : this}, function(data) {
+				C_COMP.import(key_cslist, "component_biz_compConsultingContent"	, {contractInfo : this									}, function(data) {
 					//dalert(data);
 				});
 				let key_sch = `${parm.targetId}_sch${idx}`;
-				C_COMP.import(key_sch, "component_biz_compScheduleList"			, {contractInfo : this}, function(data) {
+				C_COMP.import(key_sch, "component_biz_compScheduleList"			, {contractInfo : this									}, function(data) {
 					//dalert(data);
 				});
 				let key_todo = `${parm.targetId}_todo${idx}`;
-				C_COMP.import(key_todo, "component_biz_compTodoList"			, {contractInfo : this}, function(data) {
+				C_COMP.import(key_todo, "component_biz_compTodoList"			, {contractInfo : this									}, function(data) {
 					//dalert(data);
 				});
 				let key_wk = `${parm.targetId}_wk${idx}`;
-				C_COMP.import(key_wk, "component_biz_compConsultingProcess"		, {contractInfo : this}, function(data) {
+				C_COMP.import(key_wk, "component_biz_compConsultingProcess"		, {contractInfo : this, inputDisplay :"display:none"	}, function(data) {
 					//dalert(data);
 				});
 				
@@ -279,7 +279,6 @@
 			<div class="cont_top clearFix">
 				<h4 class="fl"><span style="color:#33CCCC">{{:BUYER_NM}}</span> / {{:CONSULTING_NM}}</h4>
 				<div class="fr inlineBlock_wrap">
-					<button class="btn small" onclick="<@pageId>.openBigCard({{:realIndex}})">카드크게보기</button>
 					<button class="btn small" onclick="<@pageId>.openFolderMng('{{:BUYER_ID}}', {{:realIndex}})">기업폴더보기</button>
 					<button class="btn small upDownToggle" onclick="<@pageId>.toggleCard('{{:~targetId}}', {{:#index}})"><i class="up" name="updownButton" id="updownButton{{:#index}}"></i></button>
 				</div>

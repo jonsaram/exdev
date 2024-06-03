@@ -422,8 +422,10 @@
 .modal_header .btn_close .sp:after{position:absolute;left:8px;content:' ';height:20px;width:2px;background-color:#000;}
 .modal_header .btn_close .sp:before{transform:rotate(45deg);}
 .modal_header .btn_close .sp:after{transform:rotate(-45deg);}
-.modal_header .btn_zoomInOut{position:absolute;top:11px;right:30px;width:16px;height:20px;background:url(../img/icon_enlarge.png) no-repeat;}
-.modal_header .btn_zoomInOut.in{background:url(../img/icon_reduction.png) no-repeat;}
+.modal_header .btn_zoomInOut,.btn_zoomInOut{position:absolute;top:11px;right:30px;width:16px;height:20px;background:url(../img/icon_enlarge.png) no-repeat;}
+.modal_header .btn_zoomInOut.in, .btn_zoomInOut.in{background:url(../img/icon_reduction.png) no-repeat;}
+.btn_zoomInOut.in{top:5px;right: 0}
+.modal_header .btn_zoomInOut.in{top: 11px;right: 30px;}
 .modal_header .btn_zoomInOut .txt{font-size:0;opacity:0;}
 .modal_body{padding:0 5px;text-align:left;height:calc(100% - 45px)}
 .modal_body.resize{margin-right:-10px}
@@ -469,6 +471,8 @@
 .approver_list li:first-child .txt{width:calc(100% - 143px)}
 .approver_list_wrap.person .approver_list .txt{padding:0 8px;margin-left:0;width:100%;}
 .approver_list_wrap.person{margin-top:5px;max-height:200px;border:1px solid #DADADA;border-radius:4px;min-height:28px}
+.modal_wrap .w50 .approver_list_wrap.person{max-height: calc(50% - 36px)}
+
 .approver_list .pay_close{font-size:0;position:absolute;top:calc(50% - 6px);right:8px;display:inline-block;width:12px;height:12px;}
 .approver_list .pay_close:before{position:absolute;top:0;left:6px;content:' ';width:1px;height:12px;background-color:#333;transform:rotate(45deg);}
 .approver_list .pay_close:after{position:absolute;top:0;left:6px;content:' '; width:1px;height:12px;background-color:#333;transform:rotate(-45deg);}
@@ -707,7 +711,7 @@ figure .status_wrap li{margin-bottom:17px}
 .project_list.line{max-height:140px;overflow:auto;border:1px solid #d8d8d8;background:#fff}
 .project_list ol li{padding-bottom:8px}
 .project_list ol li:last-child{padding-bottom:0;}
-.project_list .cont_top{min-height:24px}
+.project_list .cont_top{min-height:24px;position:relative;}
 .project_list .cont_box{min-height:75px;}
 .down.up{margin-top:9px;display:inline-block;border:5px solid transparent;border-top-color:#333;}
 .up{margin-top:0;margin-bottom:4px;display:inline-block;border:5px solid transparent;border-bottom-color:#333;}
@@ -925,7 +929,7 @@ figure .status_wrap li{margin-bottom:17px}
 .folder_menu li{padding:0 5px;margin-bottom:5px;font-size:13px;height:28px;line-height:28px}
 .folder_menu li:hover,.folder_menu li.active{color:#fff;background:#3ba8c3;font-weight:600;cursor:pointer;}
 
-.share_msg{padding:5px 15px;min-height:42px;border:1px solid #DADADA;border-radius:4px;}
+.share_msg{padding:5px 15px;min-height:42px;border:1px solid #DADADA;border-radius:4px;overflow:auto;}
 .share_msg li{height:30px;line-height:30px;border-bottom:1px solid #DADADA;position:relative;}
 .share_msg li:last-child{border-bottom:0}
 .share_msg li:after{display:block;content:'';clear:both;}
@@ -942,6 +946,20 @@ figure .status_wrap li{margin-bottom:17px}
 .photo_list li{margin-left:15px;float:left;text-align:center;}
 .photo_list li .photo_wrap{margin-bottom:10px}
 .photo_list li .btn{margin-bottom:10px;display:block;width:100px;height:130px;}
+
+.in_de_rate_wrap{text-align:center;height:130px}
+.in_de_rate_wrap .totalNum{padding:12px 0 5px;font-size:40px;font-weight:600;color:#333;letter-spacing:-0.05em;}
+.in_de_rate_wrap .inc{color:#0066FF;}
+.in_de_rate_wrap .dec{color:#FF0000;}
+.in_de_rate_wrap .percent,.in_de_rate_wrap .num{font-size:18px;font-weight:600;}
+.comArrow{margin:0 8px -2px 0;display:inline-block;width:6px;height:6px;position:relative;}
+.comArrow:before,.comArrow:after{content:'';position:absolute;}
+.comArrow:before{width:100%;height:100%;border:3px solid #FF0000;border-right:0;border-bottom:0}
+.comArrow:after{margin-left:1px;width:12px;height:3px;background:#FF0000;transform-origin:0 100%;transform:rotate(45deg);}
+.arrow-top.comArrow:before{width:100%;height:100%;border:3px solid #0066FF;border-right:0;border-bottom:0}
+.arrow-top.comArrow:after{margin-left:1px;width:12px;height:3px;background:#0066FF;transform-origin:0 100%;transform:rotate(45deg);}
+.arrow-bottom{transform:rotate(225deg);}
+.arrow-top{margin:0 12px 10px 0;transform:rotate(45deg);}
 
 /* loadingBar */
 .preloader-wrapper {

@@ -68,7 +68,6 @@
 			} else {
 				setBuyerListOfUser();
 			}
-			changePwd("Y");
 		}
 		
 		function setBuyerSession(BUYER_ID) {
@@ -151,6 +150,11 @@
 				G_VAL.PAGE_AUTH_MAP = Object.fromEntries(resultData.data.map( menu => {return [menu.PAGE_ID , menu]}))
 			});
 			
+			setTimeout(function() {
+				changePwd("Y");	
+			}, 1000);
+			
+			
 		});	
 		
 		var sessionInfo = {}
@@ -171,7 +175,7 @@
 			,initMenu : function() {
 				var parm = {
 					 queryId 		: "system.getMenuList"
-					,requestParm	: {DEL_YN:'N', USE_YN:'Y'}
+					,requestParm	: {}
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 					let menuOrgList 	= resultData.data;

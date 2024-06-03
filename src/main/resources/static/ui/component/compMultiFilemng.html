@@ -25,6 +25,7 @@
 		,mode			: ""
 		,allowExt		: []
 		,filesArr		: []
+		,fileList		: []
 		,init : function(GRP_FILE_ID, OWNER_CD) {
 			if(isValid(GRP_FILE_ID) && isValid(OWNER_CD)) {
 				<@compId>.GRP_FILE_ID 	= GRP_FILE_ID	;
@@ -38,16 +39,22 @@
 				}
 			}
 			C_COM.requestQuery(parm, function(resultData) {
+				<@compId>.fileList = resultData.data;
 				<@compId>.viewFileList(resultData.data);
 				// 읽기모드인경우
 				if(<@compId>.mode == "R") {
 					$("#<@compId> button"		).hide();
 					$("#<@compId> .pay_close"	).hide();
 				}
+				
+				C_COMP.callback("<@compId>", <@compId>.fileList);
 			});
 			
 			<@compId>.filesArr = [];			
 			
+		 }
+		,getFileList : function() {
+			return <@compId>.fileList;
 		 }
 		,viewFileList : function(list) {
            let rparm = {
@@ -194,12 +201,17 @@
 			$("#<@compId> #title").html(parm.title);
 		}
 		
+		// Component 노출 처리
+		if(parm.hideComponent == "Y") {
+			$("#<@compId>").hide();
+		}
+		// 버튼 노출 처리
 		if(parm.hideButton == "Y") {
 			$("#<@compId>_button").hide();
 		}
 	});
 </script>
-<div>
+<component>
 	<h4 id="title">첨부파일</h4>
 	<button type="button" class="stateBtn file" onclick="<@compId>.selectFile()" id="<@compId>_button"><span>파일선택</span></button>
 	<form method="POST" id="<@compId>_form" onsubmit="return false;" enctype="multipart/form-data">
@@ -218,4 +230,4 @@
 			<li class="tc"><span class="txt"><span>첨부파일이 없습니다.</span></li>
 		</script>
 	</div>
-</div>
+</component>
