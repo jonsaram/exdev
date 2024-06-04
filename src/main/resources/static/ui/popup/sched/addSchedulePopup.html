@@ -67,6 +67,11 @@
             
             <@popupId>.loadAppMember();
          }
+        ,delMember : function(userId) {/* 참석자 삭제 */
+            <@popupId>.appMember = removeMember(<@popupId>.appMember, userId);
+            <@popupId>.loadAppMember();
+         }
+         
         ,save : function( ) {
 
             if( <@popupId>.saveCheck(<@popupId>.loopType) ){
@@ -436,7 +441,7 @@
             C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", endHour);
             <@popupId>.endTimeH = endHour;
         }
-         
+        
     }//var <@popupId>
     
     // Popup Load가 완료된후 실행 된다.
@@ -736,6 +741,7 @@
                                 {{for list}}    
                                 <li>
                                     <span class="txt">{{:USER_NM}} / {{:GRADE}} / {{:E_MAIL}}</span>
+                                    <button class="pay_close"   onclick="<@popupId>.delMember('{{:USER_ID}}')">삭제</button>
                                 </li>
                                 {{/for}}
                             </script>

@@ -68,7 +68,6 @@
                 <@compId>.region = "ALL";
                 
                 C_UICOM.addChangeListener("<@compId>_selectBoxRegion", function(dataObj) {
-                    console.log("_selectBoxRegion  =>"+dataObj);
                     <@compId>.region = dataObj;
                     <@compId>.getSelectStore();
                 });
@@ -89,7 +88,6 @@
                 <@compId>.supervisor = "ALL";
                 
                 C_UICOM.addChangeListener("<@compId>_selectBoxSupervisor", function(dataObj) {
-                    console.log("_selectBoxSupervisor  =>"+dataObj);
                     <@compId>.supervisor = dataObj;
                 });
                 
@@ -97,13 +95,9 @@
 
             ,getSelectStore : () => {
                 
-                console.log("getSelectStore =>"+<@compId>.region );
-                
                 let requestParm = {};
                 requestParm["spCstmId"] = G_VAL.session.spCstmId ;
                 requestParm["region"] = <@compId>.region ;
-                
-                console.log("=== region ===>"+<@compId>.region);
                 
                 var parm1 = {
                         queryId  : "dashboardCorPerformance.getStore"
@@ -139,11 +133,7 @@
                     categoriesList[i] = resultData.data[i].STORE_NM3;
                     salesList[i]      = resultData.data[i].AMOUNT;
                     goalSalesList[i]  = resultData.data[i].AMOUNT_PREVIOUS;
-                    /*
-                    console.log("STORE_NM3 =>"+categoriesList[i]);
-                    console.log("AMOUNT =>"+salesList[i]);
-                    console.log("AMOUNT_PREVIOUS =>"+goalSalesList[i]);
-                    */
+                    
                 }
                 /* */
                 $("#<@compId>_chart231").highcharts({
@@ -198,9 +188,6 @@
             
             /* 목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    */
             ,searchGoals1 : (  year, month, region, store, supervisor  ) => {
-                console.log("=== searchGoals  1  ===");
-                
-                console.log("=== year["+year+"]   month["+month+"]   region["+region+"]   store["+store+"]   supervisor["+supervisor+"]  ===");
                 
                 let requestParm = {};            
                 requestParm["year"]       = year;
@@ -229,7 +216,7 @@
                 }
                 C_COM.requestQuery(parm1, function(resultData) {
                    for(var i =0; i < resultData.data.length; i++){
-                       console.log("=== resultData.data["+i+"] ===>"+resultData.data[i]);
+                       
                        if( resultData.data[i] == null){
                            $('#<@compId>_goals2').text('No Data');
                        }else{
@@ -239,9 +226,7 @@
                    }
                 });
 
-                console.log("=== year ===>"+year);
                 let previousYear = Number(year)-1;
-                console.log("=== previousYear ===>"+previousYear);
                 
                 requestParm["previousYear"]       = previousYear;
                 
@@ -254,7 +239,6 @@
                        if( resultData.data[i] == null){
                            $('#<@compId>_goals3').text('No Data');
                        }else{
-                           console.log("=== GROWTH_RATE  1  ===>"+resultData.data[i].GROWTH_RATE);
                            if( resultData.data[i].GROWTH_RATE == 0){
                                $('#<@compId>_goals3').text('No Data');
                            }else{
@@ -267,8 +251,7 @@
             }            
             /* 목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    */
             ,searchChart11 : ( year, month, region, store, supervisor ) => {
-                 console.log("=== searchList1  1  ===");
-
+                 
                  let requestParm = {};            
                  requestParm["year"]       = year;
                  requestParm["month"]      = month;           
@@ -290,8 +273,6 @@
 
 
             ,setChart11 : (resultData) =>{
-                
-                console.log("=== setChart1");
 
                 let storeNmArry = [];
                 let achieveRatioArry = [];
@@ -356,8 +337,6 @@
             
             /* 목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    */
             ,searchChart12 : ( year, month, region, store, supervisor ) => {
-            
-                 console.log("=== searchChart12  1  ===");
 
                  let requestParm = {};            
                  requestParm["year"]       = year;
@@ -378,8 +357,6 @@
                 
             }
             ,setChart12 : (resultData) =>{
-                
-                console.log("=== setChart12");
 
                 let storeNmArry = [];
                 let tbRotationRatioArry = [];
@@ -444,7 +421,6 @@
             
             /* 전월대비 달성률,테이블 회전률    전월대비 달성률,테이블 회전률    전월대비 달성률,테이블 회전률    전월대비 달성률,테이블 회전률    */
             ,searchPreMonth : (  year, month, region, store, supervisor  ) => {
-                console.log("=== searchPreMonth  1  ===");
                 
                 let prevYear  ;
                 let prevMonth ;
@@ -465,9 +441,6 @@
                 requestParm["region"]     = region ;
                 requestParm["store"]      = store ;
                 requestParm["supervisor"] = supervisor ;
-                
-                console.log("year["+year+"]   prevYear["+prevYear+"]   month["+month+"]   prevMonth["+prevMonth+"]   ");
-                
 
                 /* 달성률*/ 
                 let parm = {
@@ -505,8 +478,6 @@
             
             /* 전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    */
             ,searchChart21 : ( year, month, region, store, supervisor ) => {
-            
-                 console.log("=== searchChart21  1  ===");
 
                  let prevYear  ;
                  let prevMonth ;
@@ -540,8 +511,6 @@
 
 
             ,setChart21 : (resultData) =>{
-                
-                console.log("=== setChart21");
 
                 let storeNmArry = [];
                 let valueArry   = [];
@@ -605,7 +574,6 @@
             
             /* 전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    */
             ,searchChart22 : (year, month, region, store, supervisor) => {
-                 console.log("=== searchChart22  1  ===");
                  
                  let prevYear  ;
                  let prevMonth ;
@@ -641,8 +609,6 @@
 
 
             ,setChart22 : (resultData) =>{
-                
-                console.log("=== setChart22");
 
                 let storeNmArry = [];
                 let valueArry   = [];
@@ -653,7 +619,6 @@
                         valueArry[i] = resultData.data[i].TB_ROTATION_RATIO;
                     }                
                 }
-                
                 
                 $('#<@compId>_chart22').highcharts({
 
@@ -803,7 +768,6 @@
                     prevYear = year;
                     prevMonth = String(Number(month)-1).padStart(2, "0"); 
                 }
-                console.log("=== searchChart32 year["+year+"] month["+month+"] prevYear["+prevYear+"] prevMonth["+prevMonth+"]  ===");
                 
                 let requestParm = {};            
                 requestParm["year"]       = year;
@@ -887,7 +851,7 @@
             ,setHandler : () => {
                 
                 $("#<@compId>_searchBtn1").click( () =>{
-                    console.log(" _searchBtn 클릭");
+                    
                     /**/
                     let year        = C_UICOM.getData("<@compId>_selectBoxYear");
                     let month       = C_UICOM.getData('<@compId>_selectBoxMonth');
@@ -907,7 +871,6 @@
                 })
                 
                 $("#<@compId>_searchBtn2").click( () =>{
-                    console.log(" _searchBtn 클릭");
 
                     let startYear      = C_UICOM.getData("<@compId>_selectStartBoxYear");
                     let startMonth     = C_UICOM.getData('<@compId>_selectStartBoxMonth');

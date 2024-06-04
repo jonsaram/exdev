@@ -61,11 +61,6 @@ var <@compId> = {
         /* 1-1 *******  매출액 순위    매출액 순위    매출액 순위    매출액 순위    매출액 순위    매출액 순위    */
         ,searchList11 : (requestParm) => {
         	
-            console.log("=== startDate  ===>"+requestParm["startDate"]);
-            console.log("=== endDate    ===>"+requestParm["endDate"]);
-            console.log("=== region     ===>"+requestParm["region"]);
-            console.log("=== supervisor ===>"+requestParm["supervisor"]);
-            
             requestParm["subject"]  = "SUBJECT_001";
             
             var parm11 = {
@@ -495,7 +490,6 @@ var <@compId> = {
         }//searchList
 
         ,setChartData : function( resultData,subject ) {
-            //console.log("=== setChart21Data");
             let resultList = [];
             var j = 0;
             for (var i=0; i< resultData.data.length; i++){
@@ -618,7 +612,6 @@ var <@compId> = {
             
         }//searchList
         ,setChart22 : (resultData) =>{
-           console.log("=== setChart22");
             
             let categories1Arr = [];
             let categories2Arr = [];
@@ -722,8 +715,7 @@ var <@compId> = {
                 categories2Arr[i] = resultData.data[i].SUBJECT_010;
                 categories3Arr[i] = resultData.data[i].SUBJECT_005;
                 categoryArr[i]    = resultData.data[i].MONTH +'월';     
-                console.log("==============================");     
-                console.log(typeof resultData.data[i].SUBJECT_005);
+                
              }
              
              $('#<@compId>_chart31').highcharts({
@@ -812,9 +804,7 @@ var <@compId> = {
                 categories1Arr[i] = resultData.data[i].SUBJECT_003;
                 categories2Arr[i] = resultData.data[i].SUBJECT_010;
                 categories3Arr[i] = resultData.data[i].SUBJECT_005;
-                categoryArr[i]    = resultData.data[i].STORE_NM3;     
-                console.log("==============================");     
-                console.log(typeof resultData.data[i].SUBJECT_005);
+                categoryArr[i]    = resultData.data[i].STORE_NM3;
              }
              
              $('#<@compId>_chart32').highcharts({

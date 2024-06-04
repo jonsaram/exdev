@@ -50,10 +50,15 @@
                 ,requestParm    : requestParm
             }
             C_COM.requestQuery(parm, function(resultData) {
-                
-                <@popupId>.setSchedule(resultData.data[0]);
+            	<@popupId>.setSchedule(resultData.data[0]);
+            	<@popupId>.searchScheduleMember(scheduleId);
             });
             
+         }
+        ,searchScheduleMember : function(scheduleId) {
+        	
+        	let requestParm = {};
+            requestParm["scheduleId"]  = scheduleId;
             /* 참석자 조회*/
             let parmDtl = {
                  queryId        : "schedule.getScheduleShareList"
@@ -64,9 +69,8 @@
                     <@popupId>.addMember(resultData.data[i]);
                 }
             });
-         }
+        }
         ,setSchedule : function( data ) {
-            
             
             $('#<@popupId>_title').val(data.TITLE);
             $('#<@popupId>_position').val(data.POSITION);
@@ -161,6 +165,8 @@
             if( <@popupId>.saveCheck(<@popupId>.loopType) ){
                 return;
             }
+            
+            let contractId = $('#<@popupId>_contractId').val();
             let contractNm = $('#<@popupId>_contractNm').val();
             
             let requestParm = {};            
@@ -179,9 +185,14 @@
             requestParm["endTimeH"]           = <@popupId>.endTimeH;
             requestParm["endTimeM"]           = <@popupId>.endTimeM;
             requestParm["secretYn"]           = <@popupId>.secretYn;
-            if( "" == contractNm ){ requestParm["contractId"] = "";}
             
-           
+            
+            if( "" == contractNm ){ 
+            	requestParm["contractId"] = "";
+            }else { 
+            	requestParm["contractId"] = $('#<@popupId>_contractId').val(); 
+            }
+            
             // 반복안함선택시 종료일 제한은 일정 종료일로 세팅
             if("NOT_REPEAT" == <@popupId>.loopType ){
                 requestParm["loopLimitDate"] = $('#<@popupId>_dateEnd').val();
@@ -814,6 +825,7 @@
                                 {{for list}}    
                                 <li>
                                     <span class="txt">{{:USER_NM}} / {{:GRADE}} / {{:E_MAIL}}</span>
+                                    <button class="pay_close"   onclick="<@popupId>.delMember('{{:USER_ID}}')">삭제</button>
                                 </li>
                                 {{/for}}
                             </script>

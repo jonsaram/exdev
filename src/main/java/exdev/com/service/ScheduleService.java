@@ -48,37 +48,6 @@ public class ScheduleService extends ExdevBaseService{
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
 
-        
-        String scheduleId           = (String)map.get("scheduleId");
-        String title                = (String)map.get("title");
-        String workType             = (String)map.get("workType");
-        String scheduleStartDate    = (String)map.get("scheduleStartDate");
-        String startTimeH           = (String)map.get("startTimeH");
-        String startTimeM           = (String)map.get("startTimeM");
-        String scheduleEndDate      = (String)map.get("scheduleEndDate");
-        String endTimeH             = (String)map.get("endTimeH");
-        String endTimeM             = (String)map.get("endTimeM");
-        String loopLimitDate        = (String)map.get("loopLimitDate");
-        String position             = (String)map.get("position");
-        String secretYn             = (String)map.get("secretYn");
-        String description          = (String)map.get("description");
-        String contractId           = (String)map.get("contractId");
-
-        System.out.println("scheduleId         =>"+scheduleId        );
-        System.out.println("title              =>"+title             );
-        System.out.println("workType           =>"+workType          );
-        System.out.println("scheduleStartDate  =>"+scheduleStartDate );
-        System.out.println("startTimeH         =>"+startTimeH        );
-        System.out.println("startTimeM         =>"+startTimeM        );
-        System.out.println("scheduleEndDate    =>"+scheduleEndDate   );
-        System.out.println("endTimeH           =>"+endTimeH          );
-        System.out.println("endTimeM           =>"+endTimeM          );
-        System.out.println("loopLimitDate      =>"+loopLimitDate     );
-        System.out.println("position           =>"+position          );
-        System.out.println("secretYn           =>"+secretYn          );
-        System.out.println("description        =>"+description       );
-        System.out.println("contractId         =>"+contractId        );
-        
         result += commonDao.update("schedule.updateSchedule", map);
         result += deleteScheduleShare(map);
         result += saveScheduleShare(map, apprUserList );
@@ -430,12 +399,12 @@ public class ScheduleService extends ExdevBaseService{
         
         List<Map> listMap = new ArrayList<Map>();
         
-        /* 매월반복 말일선택 */  
+        /* 매월반복 말일선택 */
         List<Map> monthListSelectDay = commonDao.getList("schedule.getMonthRepeatSelectDay", map);
         for(Map resultMap : monthListSelectDay) {
           listMap.add(resultMap); 
-        }
-
+        } 
+        
         /* 매월반복 */  
         List<Map> monthList = commonDao.getList("schedule.getMonthRepeat", map);
         for(Map resultMap : monthList) {
