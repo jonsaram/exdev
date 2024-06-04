@@ -320,7 +320,7 @@
 		         #{BUYER_ID} 							AS BUYER_ID,
 		         TO_DATE(#{CONTACT_DATE},'YYYY-MM-DD') 	AS CONTACT_DATE,
 		         TO_DATE(#{CONTRACT_DATE},'YYYY-MM-DD')	AS CONTRACT_DATE,
-		         #{CONTRACT_TYPE} 						AS CONTRACT_TYPE,
+		         TRIM(#{CONTRACT_TYPE})					AS CONTRACT_TYPE,
 		         TO_DATE(#{EXPIRE_DATE},'YYYY-MM-DD')	AS EXPIRE_DATE,
 		         REPLACE(#{TOTAL_COST},',','') 			AS TOTAL_COST,
 		         #{TAX_MNG} 							AS TAX_MNG,
