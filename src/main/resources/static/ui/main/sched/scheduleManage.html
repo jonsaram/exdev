@@ -11,8 +11,6 @@
        ,endDate   : ''
        ,addSchedulePopup : function() {    
 
-            console.log("====== addSchedulePopup ======");
-           
             let date = new Date();
             let todayPop = date.getFullYear() +
                       '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
@@ -137,7 +135,6 @@
            
        }
        ,getAllschedule : function( requestParm ) {
-           console.log("getAllschedule");
            
            let cd = <@pageId>.calendar.getCurrentData();
            
@@ -170,11 +167,6 @@
            const plus14Month = (plusDay14.getMonth() + 1).toString().padStart(2, '0');
            const plus14Day = plusDay14.getDate().toString().padStart(2, '0');
            const plusDateString = plus14Year + '-' + plus14Month + '-' + plus14Day;
-           
-           console.log("kbntt start["+start+"]");
-           console.log("kbntt end["+end+"]");
-           console.log("kbntt minusDateString["+minusDateString+"]  plusDateString["+plusDateString+"] ");
-           console.log("kbntt startDateString["+startDateString+"]   endDateString["+endDateString+"]   ");
            
            <@pageId>.removeAllschedule();
            
@@ -200,7 +192,6 @@
        }
 
        ,getTeamschedule : function( requestParm ) {
-           console.log("getTeamschedule");
            
            let cd = <@pageId>.calendar.getCurrentData();
            
@@ -234,11 +225,6 @@
            const plus14Day = plusDay14.getDate().toString().padStart(2, '0');
            const plusDateString = plus14Year + '-' + plus14Month + '-' + plus14Day;
            
-           console.log("kbntt start["+start+"]");
-           console.log("kbntt end["+end+"]");
-           console.log("kbntt minusDateString["+minusDateString+"]  plusDateString["+plusDateString+"] ");
-           console.log("kbntt startDateString["+startDateString+"]   endDateString["+endDateString+"]   ");
-           
            let requestParm1 = {};            
            requestParm1["startDate"]   = startDateString;
            requestParm1["endDate"]     = endDateString;
@@ -255,8 +241,6 @@
            
        }
        ,serviceCall : function( requestParm, serviceId ) {
-           
-    	   console.log("serviceCall teamYn =>"+requestParm["teamYn"]);
            
            var parm = {
                 serviceId              : serviceId
@@ -295,18 +279,13 @@
 
        }
        ,removeTeamschedule : function(  ) {
-    	   console.log("removeTeamschedule ==>");
+    	   
     	   var eventArray = <@pageId>.calendar.getEvents();
            eventArray.forEach(function(element) {
-             console.log("id ==>"+element.id);
-             console.log("teamYn ==>"+element.extendedProps.teamYn);
-             console.log("start ==>"+element.start);
-             console.log("end ==>"+element.end);
              
              var event = <@pageId>.calendar.getEventById(element.id) 
              let teamYn = event.extendedProps.teamYn;
              
-             console.log("=== teamYn ==>"+teamYn);
              if( teamYn == 'Y' ){
                  event.remove()  
              }
@@ -345,7 +324,6 @@
        }
        
        ,setCalendar : function(dateString) {
-           console.log(" dateString ==>"+dateString);
            <@pageId>.calendar.gotoDate( new Date(dateString) );
            let parm = {};
            <@pageId>.getAllschedule(parm);
@@ -354,11 +332,8 @@
        }
 
        ,searchSchedule : function(  ) {
-           
-           
+    	   
            let title = $('#<@pageId>_searchTitle').val();
-           
-           console.log("searchSchedule =>"+title.length);
            
            if ( title.length < 2 ){
            
@@ -376,7 +351,6 @@
            }
             
            C_COM.requestQuery(parm, function(resultData) {
-               console.log( resultData.data);
                
                let rparm = {
                         targetId   : "<@pageId>_tableId"
@@ -390,8 +364,7 @@
            
        }
        ,getTeamUser : function() {
-           console.log(" getTeamUser ==>");
-
+           
            let requestParm = {};
             
            let parm = {
@@ -400,8 +373,6 @@
            }
             
            C_COM.requestQuery(parm, function(resultData) {
-               console.log("schedule.getTeamMember");
-               console.log( resultData.data);
                let rparm = {
                         targetId   : "teamUserTableId"
                        ,list       : resultData.data
@@ -411,7 +382,6 @@
        }
        //팀전체 클릭
       ,teamUserAllClick : (cb) =>  {
-           console.log("teamUserAllClick ==>"+ cb.checked);
            if( cb.checked ){
                $("input[name=<@pageId>_chk]").prop("checked", true);
            }else{
@@ -421,7 +391,6 @@
        }
        //팀원 클릭 
       ,teamUserClick : (cb) =>  {
-           console.log("teamUserClick ==>"+ cb.checked);
            <@pageId>.searchTeamSchedule();
        }
       
@@ -433,7 +402,6 @@
           
           $("input[name=<@pageId>_chk]:checked").each(function(e){
               var value = $(this).val();
-              console.log("== 2 value["+value+"]  ==");
               userIdList[i++] = value;
           })
           

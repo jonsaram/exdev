@@ -91,14 +91,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					<table>
 						<caption>컨설팅 리스트</caption>
 						<colgroup>
-							<col style="width:20%;"/>
 							<col style="width:30%;"/>
 							<col style="width:20%;"/>
-							<col style="width:30%;"/>
+							<col style="width:*"/>
 						</colgroup>
 						<thead>
 							<tr>
-								<th scope="col">컨설팅 번호</th>
 								<th scope="col">컨설팅 명</th>
 								<th scope="col">타입</th>
 								<th scope="col">설명</th>
@@ -109,7 +107,6 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<script type="text/x-jsrender" id="<@popupId>_consultingList_template">						
 						{{for list}}
 							<tr name="<@popupId>_tr_{{:#index}}" ondblclick="javascript:<@popupId>.getRow('{{:#index}}')">
-								<td class='tl'>{{:CONSULTING_ID}}</td>
 			 					<td class='tl'>{{:CONSULTING_NM}}</td>
 			 					<td class='tl'>{{:CONSULTING_TYPE_NM}}</td>
 			 					<td class='tl'>{{:CONSULTING_DESC}}</td>
@@ -118,7 +115,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						</script>
 						<script type="text/x-jsrender" id="<@popupId>_consultingList_noData_template">	
 							<tr>	
-								<td colspan=4>자료가 없습니다.</td>	
+								<td colspan=3>자료가 없습니다.</td>	
 							</tr>
 						</script>
 					</table>

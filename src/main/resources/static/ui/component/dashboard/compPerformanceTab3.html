@@ -23,7 +23,6 @@
                 
 
                 C_UICOM.addChangeListener("<@compId>_selectBoxYear", function(dataObj) {
-                    console.log("_selectBoxRegion  =>"+dataObj);
                     <@compId>.getSelectWeek(dataObj);
                 });
                 
@@ -41,7 +40,6 @@
                 <@compId>.region = "ALL";
                 
                 C_UICOM.addChangeListener("<@compId>_selectBoxRegion", function(dataObj) {
-                    console.log("_selectBoxRegion  =>"+dataObj);
                     <@compId>.region = dataObj;
                     <@compId>.getSelectStore();
                 });
@@ -63,7 +61,6 @@
                 <@compId>.supervisor = "ALL";
                 
                 C_UICOM.addChangeListener("<@compId>_selectBoxSupervisor", function(dataObj) {
-                    console.log("_selectBoxSupervisor  =>"+dataObj);
                     <@compId>.supervisor = dataObj;
                 });
                 
@@ -73,13 +70,9 @@
             }
             ,getSelectStore : () => {
                 
-                console.log("getSelectStore =>"+<@compId>.region );
-                
                 let requestParm = {};
                 requestParm["spCstmId"] = G_VAL.session.spCstmId ;
                 requestParm["region"] = <@compId>.region ;
-                
-                console.log("=== region ===>"+<@compId>.region);
                 
                 var parm1 = {
                         queryId  : "dashboardCorPerformance.getStore"
@@ -106,14 +99,9 @@
 
             ,getSelectWeek : (dataObj) => {
                 
-                console.log("getSelectWeek =>"+dataObj );
-                
                 let requestParm = {};
                 requestParm["weekStart"] = dataObj+"01"+"01" ;
                 requestParm["weekEnd"]   = dataObj+"12"+"31" ;
-                
-                console.log("=== weekStart ===>"+dataObj+"01"+"01");
-                console.log("=== weekEnd ===>"+dataObj+"12"+"31" );
                 
                 var parm1 = {
                         queryId  : "dashboardCorPerformance.getWeekList"
@@ -311,8 +299,6 @@
 
                     let selectBoxWeek        = C_UICOM.getData('<@compId>_selectBoxWeek');
                     let selectBoxStore       = C_UICOM.getData('<@compId>_selectBoxStore');
-                    console.log(" selectBoxWeek ==>"+selectBoxWeek);
-                    console.log(" selectBoxStore ==>"+selectBoxStore);
                     let trimWeekArr = selectBoxWeek.trim().replaceAll(' ', '').split("~");
                     
                     

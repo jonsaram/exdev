@@ -5,7 +5,7 @@
         		 
              }
              ,setChart : (data) =>{
-                 console.log("=== setChart data =>"+data);
+                 
                  let dataNum = parseInt(data);
                  
                  let chartColor   = "";
@@ -86,7 +86,7 @@
          }//setChart11
 
         ,getTechnicalSkills : function() {
-           console.log("getTechnicalSkills");
+           
            var buyerId = G_VAL.session.BUYER_ID;
            
            /* 기술력 */
@@ -102,9 +102,8 @@
            }
             
            C_COM.requestQuery(parm, function(resultData) {
-               console.log("length ==>"+resultData.data.length);
+               
                let infoData    = resultData.data[0].INFO_DATA;
-               console.log("INFO_DATA ==>"+resultData.data.INFO_DATA);
                <@pageId>.setChart( infoData );
                
             });
@@ -123,7 +122,6 @@
            
            C_COM.requestQuery(certificationParm, function(resultData) {
                
-               console.log( resultData.data);
                let rparm = {
                         targetId   : "certificationTableId"
                        ,list       : resultData.data
@@ -146,7 +144,7 @@
                ,requestParm    : propertyRequestParm
            }
            C_COM.requestQuery(propertyParm, function(resultData) {
-               console.log( resultData.data);
+               
                for (var i=0; i<resultData.data.length; i++){
                    
                    var codeId = resultData.data[i].CODE_ID;

@@ -9,7 +9,6 @@
                C_POP.close(obj);
          }
 	    ,searchSchedule : function(scheduleId) {
-	        console.log("== searchSchedule =>"+scheduleId);
 	        
 	        let requestParm = {};
 	        requestParm["scheduleId"]  = scheduleId;
@@ -19,9 +18,8 @@
 	        }
 	        C_COM.requestQuery(parm, function(resultData) {
 	        	
-	        	console.log("== resultData =>"+resultData);
 	        	for(var i =0; i <resultData.data.length; i++){
-	        		console.log(resultData.data[i]);
+	        	
 	        		$('#<@popupId>_shareUser').val(resultData.data[i].USER_NM);
                     $('#<@popupId>_title').val(resultData.data[i].TITLE);
 	                $('#<@popupId>_workType').val(resultData.data[i].WORK_TYPE_NM);
@@ -34,13 +32,6 @@
                     let endTimeHourNm     = resultData.data[i].END_TIME_HOUR_NM;
                     let endTimeMinuteNm   = resultData.data[i].END_TIME_MINUTE_NM;
                     
-                    console.log("== scheduleStartYmd =>"+scheduleStartYmd);
-                    console.log("== startTimeHourNm =>"+startTimeHourNm);
-                    console.log("== startTimeMinuteNm =>"+startTimeMinuteNm);
-                    console.log("== scheduleEndYmd =>"+scheduleEndYmd);
-                    console.log("== endTimeHourNm =>"+endTimeHourNm);
-                    console.log("== endTimeMinuteNm =>"+endTimeMinuteNm);
-	                
                     $('#<@popupId>_scheduleDate').val(scheduleStartYmd+" "+startTimeHourNm+":"+startTimeMinuteNm+" ~ "+scheduleEndYmd+" "+endTimeHourNm+":"+endTimeMinuteNm );
                     $('#<@popupId>_loopTypeNm').val(resultData.data[i].LOOP_TYPE_NM);
                     $('#<@popupId>_contract').val(resultData.data[i].CONTRACT);
@@ -101,8 +92,6 @@
         var teamYn = data["teamYn"];
         var title = "";
         <@popupId>.scheduleDay   = data["today"];
-        
-        console.log("scheduleDay["+<@popupId>.scheduleDay+"]");
         
         if(shareYn == 'Y'){ title ="공유자";}
         if(teamYn == 'Y'){ title ="팀원";}

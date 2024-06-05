@@ -54,7 +54,6 @@
                 <@compId>.region = "ALL";
                 
                 C_UICOM.addChangeListener("<@compId>_selectBoxRegion", function(dataObj) {
-                    console.log("_selectBoxRegion  =>"+dataObj);
                     <@compId>.region = dataObj;
                 });
                 
@@ -71,7 +70,6 @@
                 <@compId>.supervisor = "ALL";
                 
                 C_UICOM.addChangeListener("<@compId>_selectBoxSupervisor", function(dataObj) {
-                    console.log("_selectBoxSupervisor  =>"+dataObj);
                     <@compId>.supervisor = dataObj;
                 });
                 
@@ -90,8 +88,6 @@
                 var region     = C_UICOM.getData("<@compId>_selectBoxRegion");
                 var supervisor = C_UICOM.getData("<@compId>_selectBoxSupervisor");
                 
-                console.log("region["+region+"]   supervisor["+supervisor+"]   ");
-                
                 let requestParm = {};
                 requestParm["buyerId"]    = buyerId;
                 requestParm["spCstmId"]   = "starasset";
@@ -101,7 +97,6 @@
                 requestParm["supervisor"] = supervisor;
                 
                 const listRange = C_UICOM.getData("<@compId>_pagingChunk");
-                console.log("tab5  listRange["+listRange+"]    ");
                 
                 // 페이징 처리 초기화
                 C_PAGING.create({
@@ -131,8 +126,7 @@
             
             /* 신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    신규,폐점가맹점    */
             ,searchList1 : ( startDate, endDate, buyerId ) => {
-                console.log("=== searchList1  1  buyerId ===>"+buyerId);
-
+                
                 let requestParm = {};   
                 requestParm["buyerId"]     = buyerId;         
                 requestParm["startDate"]   = startDate+"-01";
@@ -153,10 +147,7 @@
             }//searchList1
 
             ,setChart1 : (resultData) =>{
-                
-                console.log("=== setChart1");
 
-                //console.log("=== setChart21Data");
                 let ymdArry = [];
                 let openArry = [];
                 let closeArry = [];
@@ -245,11 +236,7 @@
             
             /* 지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    지도챠트    */
             ,searchList2 : ( startDate, endDate, buyerId ) => {
-                console.log("=== searchList2  1  ===");
-
-                
-                //console.log("=== mapData ===>"+<@compId>.mapData);
-                
+                                
                 let requestParm = {};
                 requestParm["buyerId"]     = buyerId;            
                 requestParm["startDate"]   = startDate+"-01";
@@ -258,7 +245,6 @@
                 requestParm["supervisor"]  = <@compId>.supervisor ;
                 requestParm["spCstmId"]    = G_VAL.session.spCstmId ;
                 
-
                 let parm = {
                      queryId        : "dashboardCorPerformance.getRegionCnt"
                     ,requestParm    : requestParm
@@ -272,8 +258,6 @@
             }//searchList1
 
             ,setChart2 : (resultData) =>{
-                
-                console.log("=== setChart2");
 
                 let regionNm = [];
                 let cnt      = [];
@@ -282,7 +266,6 @@
                     regionNm[i] = resultData.data[i].REGION_NM;
                     cnt[i]      = resultData.data[i].CNT;
                 }
-                
                 
                 $('#<@compId>_chart2').highcharts({
                     chart: {
@@ -331,11 +314,7 @@
             
             /* 사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    사인보드    */
             ,searchList3 : ( startDate, endDate, buyerId ) => {
-                console.log("=== searchList3  1  ===");
-
-                
-                //console.log("=== mapData ===>"+<@compId>.mapData);
-                
+                                
                 let requestParm = {};
                 requestParm["buyerId"]     = buyerId;            
                 requestParm["startDate"]   = startDate+"-01";
@@ -361,10 +340,7 @@
             	
                 
                 for(var i =0; i < resultData.data.length; i++){
-                    console.log("resultData.data["+i+"].ALL_CNT ==>"+resultData.data[i].ALL_CNT);
-                    console.log("resultData.data["+i+"].CLOSE_CNT ==>"+resultData.data[i].CLOSE_CNT);
-                    console.log("resultData.data["+i+"].OPEN_CNT ==>"+resultData.data[i].OPEN_CNT);
-
+                    
                     $('#<@compId>_franchiseCnt').text(resultData.data[i].ALL_CNT);
                     $('#<@compId>_openCnt').text(resultData.data[i].OPEN_CNT);
                     $('#<@compId>_closeCnt').text(resultData.data[i].CLOSE_CNT);
@@ -380,16 +356,12 @@
                 $("#<@compId>_pagingChunk"  ).off().on('change',() =><@compId>.searchList(""));
                 
                 $("#<@compId>_searchBtn").click( () =>{
-                    console.log(" _searchBtn 클릭");
 
                     let startYear   = C_UICOM.getData("<@compId>_startYears");
                     let startMonth  = C_UICOM.getData('<@compId>_startMonths');
 
                     let endYear     = C_UICOM.getData('<@compId>_endYears');
                     let endMonth    = C_UICOM.getData('<@compId>_endMonths');
-                    
-                    
-                    console.log("searchList 2 startYear["+startYear+"]  startMonth["+startMonth+"]  endYear["+endYear+"]  endMonth["+endMonth+"]  ");
                     
                     if ( startYear.length < 1) {
                         C_POP.alert("조회 시작년을 선택해 주세요.");

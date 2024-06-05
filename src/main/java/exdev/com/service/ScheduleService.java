@@ -42,14 +42,12 @@ public class ScheduleService extends ExdevBaseService{
      */
     public Map<String,Object>  updateSchedule(Map map ) throws Exception {
         
-        System.out.println("================================= updateSchedule =================================");
-        
         int result = 0;
         
         String json = (String)map.get("users");
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
-        
+
         result += commonDao.update("schedule.updateSchedule", map);
         result += deleteScheduleShare(map);
         result += saveScheduleShare(map, apprUserList );
@@ -77,7 +75,6 @@ public class ScheduleService extends ExdevBaseService{
      */
     public int deleteScheduleShare(Map map) throws Exception {
         
-        System.out.println("================================= deleteScheduleShare =================================");
         int result = 0;
         result += commonDao.delete("schedule.deleteScheduleShare", map);
         
@@ -95,16 +92,12 @@ public class ScheduleService extends ExdevBaseService{
      */
     public Map<String,Object>  deleteSchedule(Map map ) throws Exception {
         
-        System.out.println("================================= deleteSchedule =================================");
-        
         int result = 0;
         
         
         String scheduleGrpId = (String)map.get("scheduleGrpId");
         String scheduleId    = (String)map.get("scheduleId");
         String allApplyYn    = (String)map.get("allApplyYn");
-        
-        System.out.println("scheduleGrpId["+scheduleGrpId+"] scheduleId["+scheduleId+"]  allApplyYn["+allApplyYn+"]  ");
         
         if( "Y".equals(allApplyYn)) {
             //result += commonDao.delete("schedule.deleteScheduleMsater", map);
@@ -115,7 +108,6 @@ public class ScheduleService extends ExdevBaseService{
             // TBL_EXP_SCHEDULE_MASTER 에서 scheduleId 리스트를 조회한다.
             List<Map> list = commonDao.getList("schedule.getScheduleList", scheduleMap);
             for(Map getMap : list) {
-                System.out.println("SCHEDULE_ID =>"+(String)getMap.get("SCHEDULE_ID"));
                 
                 Map<String, String> delScheduleMap = new HashMap<String, String>();
                 delScheduleMap.put("scheduleId", (String)getMap.get("SCHEDULE_ID"));
@@ -153,8 +145,6 @@ public class ScheduleService extends ExdevBaseService{
      */
     public Map<String,Object>  saveSchedule(Map map ) throws Exception {
         
-        System.out.println("saveSchedule 1=========");
-        
         int result = 0;
         
         ArrayList<String> scheduleIdArry = new ArrayList<>();
@@ -175,8 +165,6 @@ public class ScheduleService extends ExdevBaseService{
             resultInfo = makeResult(ExdevBaseService.REQUEST_FAIL, "", null);
         }
         
-        System.out.println("saveSchedule 2=========");
-        
         return resultInfo;
     }
 
@@ -192,59 +180,9 @@ public class ScheduleService extends ExdevBaseService{
      */
     public Map<String,Object>  saveScheduleAndShare(Map map ) throws Exception {
         
-        System.out.println("saveScheduleAndShare 1=========");
-        
         int result = 0;
         
-        String scheduleGrpId     = (String)map.get("scheduleGrpId");     
-        String scheduleId        = (String)map.get("scheduleId");        
-        String title             = (String)map.get("title");             
-        String date              = (String)map.get("date");              
-        String scheduleStartDate = (String)map.get("scheduleStartDate"); 
-        String scheduleEndDate   = (String)map.get("scheduleEndDate");   
-        String position          = (String)map.get("position");          
-        String description       = (String)map.get("description");       
-        String contractId        = (String)map.get("contractId");        
-        String loopTypeDtlCd     = (String)map.get("loopTypeDtlCd");     
-        String loopTypeDtlVal    = (String)map.get("loopTypeDtlVal");    
-        String loopLimitDate     = (String)map.get("loopLimitDate");     
-        String loopType          = (String)map.get("loopType");          
-        String workType          = (String)map.get("workType");          
-        String startTimeH        = (String)map.get("startTimeH");        
-        String startTimeM        = (String)map.get("startTimeM");        
-        String endTimeH          = (String)map.get("endTimeH");          
-        String endTimeM          = (String)map.get("endTimeM");          
-        String secretYn          = (String)map.get("secretYn");          
-        String limitDate         = (String)map.get("limitDate");
-        String timeType          = (String)map.get("timeType");
-        
-        
         String json              = (String)map.get("users");
-        
-        System.out.println("scheduleGrpId      ==>"+scheduleGrpId     );
-        System.out.println("scheduleId         ==>"+scheduleId        );
-        System.out.println("title              ==>"+title             );
-        System.out.println("date               ==>"+date              );
-        System.out.println("scheduleStartDate  ==>"+scheduleStartDate );
-        System.out.println("scheduleEndDate    ==>"+scheduleEndDate   );
-        System.out.println("position           ==>"+position          );
-        System.out.println("description        ==>"+description       );
-        System.out.println("contractId         ==>"+contractId        );
-        System.out.println("loopTypeDtlCd      ==>"+loopTypeDtlCd     );
-        System.out.println("loopTypeDtlVal     ==>"+loopTypeDtlVal    );
-        System.out.println("loopLimitDate      ==>"+loopLimitDate     );
-        System.out.println("loopType           ==>"+loopType          );
-        System.out.println("workType           ==>"+workType          );
-        System.out.println("startTimeH         ==>"+startTimeH        );
-        System.out.println("startTimeM         ==>"+startTimeM        );
-        System.out.println("endTimeH           ==>"+endTimeH          );
-        System.out.println("endTimeM           ==>"+endTimeM          );
-        System.out.println("secretYn           ==>"+secretYn          );
-        System.out.println("secretYn           ==>"+secretYn          );
-        System.out.println("limitDate          ==>"+limitDate         );
-        System.out.println("timeType           ==>"+timeType         );
-        
-        
         
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
@@ -258,7 +196,7 @@ public class ScheduleService extends ExdevBaseService{
         }else {
             resultInfo = makeResult(ExdevBaseService.REQUEST_FAIL, "", null);
         }
-        System.out.println("saveScheduleAndShare 2=========");
+        
         return resultInfo;
     }
 
@@ -272,8 +210,6 @@ public class ScheduleService extends ExdevBaseService{
      * @수 정 자
      */
     public Map<String,Object>  saveScheduleAndShare_bak(Map map ) throws Exception {
-        
-        System.out.println("saveScheduleAndShare 1=========");
         
         int result = 0;
         
@@ -385,7 +321,6 @@ public class ScheduleService extends ExdevBaseService{
         }else {
             resultInfo = makeResult(ExdevBaseService.REQUEST_FAIL, "", null);
         }
-        System.out.println("saveScheduleAndShare 2=========");
         return resultInfo;
     }
     /** 
@@ -399,7 +334,6 @@ public class ScheduleService extends ExdevBaseService{
      */
     public int saveScheduleShare(Map map, List<Map<String, Object>> userList ) throws Exception {
         
-        System.out.println("================================= scheduleShareSave =================================");
         int result = 0;
         
         for(Map<String, Object> userMap : userList){
@@ -457,7 +391,6 @@ public class ScheduleService extends ExdevBaseService{
         }
         
         map.put("list", listMap);
-        System.out.println("ScheduleService.getUserList1 11");
         return map;
     }
 
@@ -466,9 +399,14 @@ public class ScheduleService extends ExdevBaseService{
         
         List<Map> listMap = new ArrayList<Map>();
         
+        /* 매월반복 말일선택 */
+        List<Map> monthListSelectDay = commonDao.getList("schedule.getMonthRepeatSelectDay", map);
+        for(Map resultMap : monthListSelectDay) {
+          listMap.add(resultMap); 
+        } 
+        
         /* 매월반복 */  
         List<Map> monthList = commonDao.getList("schedule.getMonthRepeat", map);
-
         for(Map resultMap : monthList) {
           listMap.add(resultMap); 
         }
@@ -533,6 +471,13 @@ public class ScheduleService extends ExdevBaseService{
         List<Map> weekRepeatlist = commonDao.getList("schedule.getTeamWeekRepeat", map);
         for(Map resultMap : weekRepeatlist) {
             listMap.add(resultMap); 
+        }
+
+        /* 매월 말일선택 반복 */
+        /* */
+        List<Map> monthRepeatlistSelectDay = commonDao.getList("schedule.getTeamMonthRepeatSelectDay", map);
+        for(Map resultMap : monthRepeatlistSelectDay) {
+            listMap.add(resultMap);  
         }
         
         /* 매월 반복 */

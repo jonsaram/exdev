@@ -219,12 +219,6 @@ public class FileService extends ExdevBaseService{
 				
 				Map insertMap = (Map)fileList.get(i);
 				
-		        System.out.println("2=================================================================");
-		        System.out.println("=================================================================");
-		        System.out.println((String)insertMap.get("FILE_PATH"));
-		        System.out.println("=================================================================");
-		        System.out.println("=================================================================");
-				
 				File uploadFile = new File((String)insertMap.get("FILE_PATH"));
 				
 				multiFileList.get(i).transferTo(uploadFile);

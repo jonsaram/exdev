@@ -46,7 +46,6 @@
                 <@compId>.region = "ALL";
                 
                 C_UICOM.addChangeListener("<@compId>_selectBoxRegion", function(dataObj) {
-                    console.log("_selectBoxRegion  =>"+dataObj);
                     <@compId>.region = dataObj;
                     <@compId>.getSelectStore();
                 });
@@ -62,7 +61,6 @@
                 C_UICOM.makeSelectBox(selectBoxMenuGroup1List, "single");
                 
                 C_UICOM.addChangeListener("<@compId>_selectGroup1", function(dataObj) {
-                    console.log("_selectGroup1  =>"+dataObj);
                     <@compId>.selectGroup1 = dataObj;
                     <@compId>.getSelectMenu();
                 });
@@ -78,7 +76,6 @@
                 C_UICOM.makeSelectBox(selectBoxMenuGroup2List, "single");
                 
                 C_UICOM.addChangeListener("<@compId>_selectGroup2", function(dataObj) {
-                    console.log("_selectGroup2  =>"+dataObj);
                     <@compId>.selectGroup2 = dataObj;
                     <@compId>.getSelectMenu();
                 });
@@ -102,7 +99,6 @@
                 <@compId>.supervisor = "ALL";
                 
                 C_UICOM.addChangeListener("<@compId>_selectBoxSupervisor", function(dataObj) {
-                    console.log("_selectBoxSupervisor  =>"+dataObj);
                     <@compId>.supervisor = dataObj;
                 });
                 
@@ -110,20 +106,15 @@
 
             ,getSelectMenu : () => {
                 
-                console.log("getSelectMenu 1" );
-                
                 let requestParm = {};
                 requestParm["group1"] = <@compId>.selectGroup1 ;
                 requestParm["group2"] = <@compId>.selectGroup2 ;
                 
-                console.log("getSelectMenu 2" );
                 var parm1 = {
                         queryId  : "dashboardCorPerformance.getMenuList"
                        ,requestParm   : requestParm
                 }
 
-                console.log("getSelectMenu 3" );
-                
                 C_COM.requestQuery(parm1, function(resultData) {
                     
                     const DATA = resultData.data.map( item => [ item.MENU_ID, item.MENU_NM ]);
@@ -137,8 +128,6 @@
                     C_UICOM.makeSelectBox(selectBoxMenuList, "single");
                 });
 
-                console.log("getSelectMenu 4" );
-                
                 C_UICOM.addChangeListener("<@compId>_selectBoxMenu", function(dataObj) {
                     //<@compId>.select = dataObj;
                 });
@@ -146,13 +135,9 @@
             
             ,getSelectStore : () => {
                 
-                console.log("getSelectStore =>"+<@compId>.region );
-                
                 let requestParm = {};
                 requestParm["spCstmId"] = G_VAL.session.spCstmId ;
                 requestParm["region"] = <@compId>.region ;
-                
-                console.log("=== region ===>"+<@compId>.region);
                 
                 var parm1 = {
                         queryId  : "dashboardCorPerformance.getStore"
@@ -179,7 +164,7 @@
 
             /*============= 매출 비교 그래프    매출 비교 그래프    매출 비교 그s래프    매출 비교 그래프    매출 비교 그래프    =============*/
             ,searchList1 : (requestParm) => {
-            	console.log("searchList1 1")
+            	
                 var month = requestParm["month"];
                 var serviceUrl = '';
                 if( month == 'ALL'){
@@ -201,7 +186,6 @@
             }
 
             ,setChartData : function( resultData, menuKey) {
-                //console.log("=== setChart21Data");
                 let resultList = [];
                 var j = 0;
                 for (var i=0; i< resultData.data.length; i++){
@@ -272,10 +256,9 @@
              }
             ,setChart1 : (resultData) =>{
 
-                 console.log("searchList1 2")
                  var seriesArr = <@compId>.getSeriesArry( resultData);
                  var categoryArr = <@compId>.getCategoryArr( resultData);
-                 console.log("searchList1 3")
+
                  $('#<@compId>_chart1').highcharts({
                      title: {
                          text: '',
@@ -422,7 +405,6 @@
                         queryId       : 'dashboardCorPerformance.getMenuSalesRanking'
                        ,requestParm   : requestParm
                 }
-                console.log(" searchList3 1");
        
                 C_COM.requestQuery(parm, function(resultData) { 
                     <@compId>.setTotal3(resultData);
@@ -512,7 +494,6 @@
             
             /*============= 마진비교           마진비교          마진비교           마진비교           마진비교           =============*/
             ,searchList4 : (requestParm) => {
-                console.log(" searchList4");
                 
                 var month = requestParm["month"];
                 var serviceUrl = '';
@@ -534,7 +515,6 @@
             }
 
             ,setChart4 : (resultData) => {
-                console.log("=== setChart4");
                 
                 var seriesArr = <@compId>.getSeriesArry( resultData);
                 var categoryArr = <@compId>.getCategoryArr( resultData);
@@ -586,7 +566,7 @@
             
             /*============= 상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트    상세메뉴 코스트     =============*/
             ,searchList5 : (requestParm) => {
-                console.log(" searchList5");
+                
                 var month = requestParm["month"];
                 var serviceUrl = '';
                 if( month == 'ALL'){
@@ -632,7 +612,6 @@
                 
             }
             ,setChart5 : (resultData) => {
-                console.log(" setChart6");
                 var categoriesArr = []; 
                 var dataArr = [];
                 
@@ -693,8 +672,7 @@
                         queryId     : 'dashboardCorPerformance.getmenuMarginRanking'
                        ,requestParm : requestParm
                 }
-                console.log(" searchList3 1");
-       
+                
                 C_COM.requestQuery(parm, function(resultData) { 
                     <@compId>.setTotal6(resultData);
                     let isOnCall = true;
@@ -726,7 +704,6 @@
                 
             }
             ,setChart6 : (resultData) => {
-                console.log(" setChart6");
                 var categoriesArr = []; 
                 var dataArr = [];
                 
