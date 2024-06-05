@@ -120,11 +120,11 @@
                ,requestParm    : certificationRequestParm
            }
            
-           C_COM.requestQuery(certificationParm, function(resultData) {
+           C_COM.requestQuery(certificationParm, function(resultData1) {
                
                let rparm = {
                         targetId   : "certificationTableId"
-                       ,list       : resultData.data
+                       ,list       : resultData1.data
                    }
                C_COM.renderHtml("<@pageId>", rparm);
         	   
@@ -143,12 +143,12 @@
                 queryId        : "dashboardCertification.getCrtInfo"
                ,requestParm    : propertyRequestParm
            }
-           C_COM.requestQuery(propertyParm, function(resultData) {
+           C_COM.requestQuery(propertyParm, function(resultData2) {
                
-               for (var i=0; i<resultData.data.length; i++){
+               for (var i=0; i<resultData2.data.length; i++){
                    
-                   var codeId = resultData.data[i].CODE_ID;
-                   var data   = resultData.data[i].INFO_DATA;
+                   var codeId = resultData2.data[i].CODE_ID;
+                   var data   = resultData2.data[i].INFO_DATA;
 
                    if( codeId == "PATENT" ){
                        $('#<@pageId>_patent').text(data+"건");
@@ -238,9 +238,9 @@
                                     {{for list}}
                                         <li>
                                             {{if INFO_DATA =='COMPLETED' }}
-                                                <img src="../img/img_cer_comp.png">
+                                                <img src="../img/img_cer_comp.png"  height="200" width="210">
                                             {{else}}
-                                                <img src="../img/img_cer_uncom.png">
+                                                <img src="../img/img_cer_uncom.png"  height="200" width="210">
                                             {{/if}}
                                             <div class="cer_comp_stit">{{:CODE_ID_NM}}</div>
                                         </li>
