@@ -272,6 +272,20 @@
 		<@pageId>.pageInit();
 		setTimeout( ()=>{<@pageId>.chartInit();},700)
 		
+	    var singleboxList = { 
+            data 		: [
+	 		 	 ["2024", "2024"	]
+		 		,["2023", "2023"	]
+		 		,["2022", "2022"	]
+		 		,["2021", "2021"	]
+			]
+		   ,defaultItem 	: ["", "전체"]
+           ,targetId 	: "<@pageId>_year" 
+		}
+	    
+		C_UICOM.makeSelectBox(singleboxList, "single");	
+		
+		
 	});	
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
 	C_HM.onReturn("<@pageId>", function(pageId, data) {
@@ -281,6 +295,7 @@
 <div class="cont_wrap">
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>내 실적</h2>
+		<div id="<@pageId>_year" style="margin-left: 5px;width:130px"></div>
 	</div>
 	<div class="sec_scroll">
 		<section class="sec_wrap">
