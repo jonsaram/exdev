@@ -16,7 +16,7 @@
 		, B.ADDR
 		, B.COMPANY_REGNUM
 		, B.HOW_GET
-		, GET_CODE_NM( 'HOW_GET', B.HOW_GET ) HOW_GET_NM 
+		, GET_CODE_NM( 'FUNNEL', B.HOW_GET ) HOW_GET_NM 
 		, CASE 
 			WHEN  ( SELECT COUNT(1) 
 					FROM TBL_EXP_CONTRACT I 
@@ -144,8 +144,12 @@
 		  SELECT #{BUYER_ID}		AS BUYER_ID,
 		         #{BUYER_NM}		AS BUYER_NM,
 		         #{CEO_NM}			AS CEO_NM,
+		         <if test=" TEL != null and !TEL.equals('') ">
 		         #{TEL} 			AS TEL,
+		         </if>
+		         <if test=" ADDR != null and !ADDR.equals('') ">
 		         #{ADDR} 			AS ADDR,
+		         </if>
 		         #{COMPANY_REGNUM} 	AS COMPANY_REGNUM,
 		         #{HOW_GET}		 	AS HOW_GET,
 		         #{sessionVo.spCstmId} AS SP_CSTM_ID,
@@ -163,8 +167,12 @@
 		  UPDATE SET
 		    T.BUYER_NM			= S.BUYER_NM,
 		    T.CEO_NM			= S.CEO_NM,
+			<if test=" TEL != null and !TEL.equals('') ">
 		    T.TEL 				= S.TEL,
+		    </if>
+		    <if test=" ADDR != null and !ADDR.equals('') ">
 		    T.ADDR 				= S.ADDR,
+ 			</if>		    
 		    T.COMPANY_REGNUM	= S.COMPANY_REGNUM,
 		    T.HOW_GET			= S.HOW_GET,
 		    T.SP_CSTM_ID		= S.SP_CSTM_ID,
@@ -173,8 +181,8 @@
 		    T.UPDATE_USER		= S.UPDATE_USER,
 		    T.UPDATE_DATE		= S.UPDATE_DATE
 		WHEN NOT MATCHED THEN 
-    		INSERT (   BUYER_ID,   BUYER_NM,   CEO_NM,   TEL,   ADDR,   COMPANY_REGNUM,   HOW_GET,   SP_CSTM_ID,   USE_YN,   DEL_YN,   UPDATE_USER,   UPDATE_DATE ,   CREATE_USER,   CREATE_DATE, BUYER_PW )
-   			VALUES ( S.BUYER_ID, S.BUYER_NM, S.CEO_NM, S.TEL, S.ADDR, S.COMPANY_REGNUM, S.HOW_GET, S.SP_CSTM_ID, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE	, S.CREATE_USER, S.CREATE_DATE,	'1234' )
+    		INSERT (   BUYER_ID,   BUYER_NM,   CEO_NM,<if test=" TEL != null and !TEL.equals('') ">   TEL,</if>   <if test=" ADDR != null and !ADDR.equals('') ">ADDR, </if>  COMPANY_REGNUM,   HOW_GET,   SP_CSTM_ID,   USE_YN,   DEL_YN,   UPDATE_USER,   UPDATE_DATE ,   CREATE_USER,   CREATE_DATE, BUYER_PW )
+   			VALUES ( S.BUYER_ID, S.BUYER_NM, S.CEO_NM,<if test=" TEL != null and !TEL.equals('') ">   S.TEL,</if> <if test=" ADDR != null and !ADDR.equals('') ">S.ADDR,</if> S.COMPANY_REGNUM, S.HOW_GET, S.SP_CSTM_ID, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE	, S.CREATE_USER, S.CREATE_DATE,	'1234' )
 	</update>
 	
 	<delete id="deleteCstm" parameterType="java.util.HashMap"  flushCache="true" >

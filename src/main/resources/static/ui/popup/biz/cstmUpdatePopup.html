@@ -69,8 +69,8 @@
 			 if(<@popupId>.mode == "I" )
 			 if( $("#<@popupId>_items #BUYER_NM").val() 		== "" ) {C_POP.alert("회사명을 입력하여 주십시오."); return false;}
 			 if( $("#<@popupId>_items #CEO_NM").val() 			== "" ) {C_POP.alert("고객명을 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #TEL").val() 				== "" ) {C_POP.alert("연락처를 입력하여 주십시오."); return false;}
-			 if( $("#<@popupId>_items #ADDR").val() 			== "" ) {C_POP.alert("본점주소를 입력하여 주십시오."); return false;}
+			 //if( $("#<@popupId>_items #TEL").val() 				== "" ) {C_POP.alert("연락처를 입력하여 주십시오."); return false;}
+			 //if( $("#<@popupId>_items #ADDR").val() 			== "" ) {C_POP.alert("본점주소를 입력하여 주십시오."); return false;}
 			 if( $("#<@popupId>_items #COMPANY_REGNUM").val()	== "" ) {C_POP.alert("사업자등록번호를 입력하여 주십시오."); return false;}
 			 if( isEmpty(C_UICOM.getData("<@popupId>_selectHowgetId"))) {C_POP.alert("유입경로를 선택하여 주십시오."); return false;}
 			 return true;
@@ -80,7 +80,7 @@
 
 			<@popupId>.setTitleHeight();
 			const selectTargetId = "<@popupId>_selectHowgetId" ;
-			var codeList = C_COM.getCodeList("HOW_GET");
+			var codeList = C_COM.getCodeList("FUNNEL");
 
 			var singleboxList = { 
 				 defaultItem 	: ["", "선택"]
@@ -184,7 +184,13 @@
 		
 	});
 </script>
-
+<style>
+.required-label::after {
+    content: "*";
+    color: red;
+    margin-left: 5px; /* 별표와 텍스트 사이의 간격 조정 */
+}
+</style>
 <div class="modal_wrap" id="modal-ex">
 	<div class="modal" style="width:450px;height:460px;">
 		<div class="modal_header">
@@ -197,17 +203,17 @@
 			<div class="clearFix mt15">
 				<ul class="info_wrap">
 					<li>
-						<label>고객ID</label>
+						<label><span class="required-label">고객ID</span></label>
 						<div class="info"><input type="text" id="BUYER_ID" style="width:67%">
 						<button class="btn" style="width:80px;" id="redundCheck" onclick="<@popupId>.redundCheck();">중복체크</button>
 						</div>
 					</li>
 					<li>
-						<label>회사명</label>
+						<label><span class="required-label">회사명</span></label>
 						<div class="info"><input type="text" id="BUYER_NM" style="width:100%"></div>
 					</li>
 					<li>
-						<label>고객명</label>
+						<label><span class="required-label">고객명</span></label>
 						<div class="info"><input type="text" id="CEO_NM" style="width:100%"></div>
 					</li>
 					<li>
@@ -219,11 +225,11 @@
 						<div class="info"><input type="text" id="ADDR" style="width:100%"></div>
 					</li>
 					<li>
-						<label>사업자등록번호</label>
+						<label><span class="required-label">사업자번호</span></label>
 						<div class="info"><input type="text" id="COMPANY_REGNUM" style="width:100%"></div>
 					</li>
 					<li>
-						<label>유입경로</label>
+						<label>유<span class="required-label">유입경로</span></label>
 						<div class="info"><div id="<@popupId>_selectHowgetId" style="width:100%"></div></div>
 					</li>
 				</ul>

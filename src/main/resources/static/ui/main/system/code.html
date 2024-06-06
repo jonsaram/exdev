@@ -6,6 +6,7 @@ var <@pageId> = {
 		 ,selectedRow:{}
 		 ,excelParamGrp : {}
 		 ,excelParamCd : {}
+		 ,codeList: {}
 		 ,pageInit : () =>{
 			 
 				<@pageId>.showChildInsertBtn(false);
@@ -63,6 +64,8 @@ var <@pageId> = {
 							
 						}
 						if( mode == "ALL" || mode == "CD" ){
+							
+							<@pageId>.codeList 		= resultData.data["system.getCodeList"];
 							
 							rparm = {
 									 targetId 		: "codeList"
@@ -146,16 +149,20 @@ var <@pageId> = {
    			<@pageId>.deleteItem(sectionId,delObj)
    		
 		}		
-		,openPopup : (sectionId, $tds) => {
+		,openPopup : (sectionId, $tds ,codeData) => {
 
 			let param = [];	 
-			$.each( $tds , function(){
-				console.log(""+this)
-				const key = $(this).attr("id");
-				const val = $(this).attr("value");
-				param.push( { "key": key, "val": val } );
+			if( codeData ){
+				param = Object.entries(codeData).map(([key, val]) => ({ key, val }));			
+			}else{
 				
-			})
+				$.each( $tds , function(){
+					console.log(""+this)
+					const key = $(this).attr("id");
+					const val = $(this).attr("value");
+					param.push( { "key": key, "val": val } );
+				})
+			}
 
 			C_POP.open('popup_system_codeUpdatePopup'
 					, {	  sectionId:sectionId.replace("<@pageId>_", "")
@@ -164,7 +171,8 @@ var <@pageId> = {
 						, nextSortOrder:<@pageId>.getNextSortOrder(sectionId)
 						, parentCode 	:	{
 											 SORT_ORDER		:	+<@pageId>.selectedRow["NEXT_SORT_ORDER"]				
-											}						
+											}	
+						, codeData : codeData
 					}
 			, function(retData) {
 				
@@ -250,10 +258,11 @@ var <@pageId> = {
 		    
 		    $("[id^='<@pageId>_modify_']").off().on("click",function(){
 
-		    	const sectionId = $(this).closest("section").attr("id");
 		    	const index = $(this).attr("index");
+				const codeData = <@pageId>.codeList[index]; 
+		    	const sectionId = $(this).closest("section").attr("id");
 				const $tds = $("#"+sectionId+" [name='<@pageId>_tr_"+index+"'] td");
-				<@pageId>.openPopup(sectionId,$tds);
+				<@pageId>.openPopup(sectionId,$tds,codeData);
 				
 		    })
 		    

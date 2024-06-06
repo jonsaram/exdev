@@ -13,6 +13,24 @@ var <@pageId> = {
 			_yearMonthSelectBox("<@pageId>_yearMonths");
 			<@pageId>.YEAR_MONTHS		= dayjs( C_UICOM.getData("<@pageId>_yearMonths"		) ,"YYYYMM" ).format('YYYY-MM');
 			<@pageId>.setHanler();
+			<@pageId>.searchUsers();
+
+		}
+		,searchUsers : () => {
+			
+			var parm = {
+					 queryId 		: "system.getUser"
+					,requestParm	: {}
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+
+				const USERS = resultData.data.map( item=> {return [item.USER_ID,item.USER_NM]});
+				C_UICOM.makeSelectBox({ 
+					 data 			: USERS
+				 	,targetId 		: "<@pageId>_USER" 
+				}, "multi");	
+			});
 			
 		}
 		,searchList : () => {
@@ -22,6 +40,7 @@ var <@pageId> = {
 			const requestParm = {
 					RESULT_DATE_YM 	: contractDate	
 					,CONTRACT_ID	: <@pageId>.CONTRACT_ID
+					,USER_IDS		: C_UICOM.getData("<@pageId>_USER")
 			};
 			
 			if( isEmpty($("[name='<@pageId>_contract']" ).val()) ){
@@ -131,12 +150,16 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			</div>
 			<span class="tit01 fl lh33">계약선택</span>
 			<div class="search_inputWrap fl">
-				<input 	type="search" name="<@pageId>_contract" style="width:300px;" 
+				<input 	type="search" name="<@pageId>_contract" style="width:200px;" 
 						onclick="<@pageId>.openSelectContract();" placeholder="컨설팅명(고객명)" >
 						<a  href="javascript:void(0);" onclick="<@pageId>.openSelectContract();" class="search_btn">
 						<i class="icon_search"></i></a>
 			</div>
-			<button class="btn select fl" id="<@pageId>_search" >검색</button>
+ 			<span class="tit01 fl lh33">담당자</span>
+			<div class="search_inputWrap fl">
+				<div style="width:200px;margin-bottom:10px;"  id="<@pageId>_USER">
+			</div>
+		<button class="btn select fl" id="<@pageId>_search" >검색</button>
 		</div>
 		<div class="search_right">
 			<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt"></span></strong>

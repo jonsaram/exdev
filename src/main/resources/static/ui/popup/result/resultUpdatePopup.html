@@ -91,10 +91,23 @@ var <@popupId> = {
 		$.each( $(list).children("tr[name^='<@popupId>_tr_']") , (idx, tr) => {
 
 			let trObj = {};
+			
 			$.each( $(tr).children("td"), (idx2, td) => {
  				 
 				const id 		=  	$(td).attr("id");
-				const value 	=	$(td).attr("value") == "" ? $(td).children("input").val() : $(td).attr("value");
+				let value ;
+				
+		        if ($(td).attr("value") == "") {
+		            const input = $(td).children("input");
+		            if (input.attr("type") == 'checkbox') {
+		                value = input.is(":checked") ? "Y":"N";
+		            } else {
+		                value = input.val();
+		            }
+		        } else {
+		            value = $(td).attr("value");
+		        }
+		        
 				if(id)trObj[id]= 	value;
 			})
 			 
@@ -195,6 +208,14 @@ var <@popupId> = {
 			}
 		
 			C_COM.renderHtml("<@popupId>", rparm);
+			
+			resultData.data.forEach( (row,index) => {
+				// 면세 항목인 경우 체크 
+				if( row["TAX_FREE_YN"] == "Y"){
+					$(`#<@popupId>_costList tr[name='<@popupId>_tr_${index}'] [type='checkbox']`).prop("checked", true);
+				}
+			})
+			
 			
 			//비용산출이 끝난 후에 순매출 다시 계산.
 			<@popupId>.callOrgSellingPrice();		
@@ -535,6 +556,28 @@ var <@popupId> = {
 		    
 		});			
 	}
+	,costCk : (obj) => {
+		
+		const isChecked = $(obj).is(":checked");
+		const costPrice = $(obj).parent().siblings("#COST_PRICE").attr("value");
+		if( isChecked && !isEmpty(costPrice)	){
+			
+			$(obj).parent().siblings("#COST_SUPP_PRICE"	).attr("value", costPrice).text(Number(costPrice));
+			$(obj).parent().siblings("#COST_TAX_PRICE"	).attr("value", 0).text(Number(0));
+		}else{
+
+			$(obj).parent().siblings("#COST_PRICE").attr("value",'0').html(`<input type='text' style="width:100%;text-align: right;"  number/>`);
+			$(obj).parent().siblings("#COST_SUPP_PRICE"	).attr("value", 0).text('');
+			$(obj).parent().siblings("#COST_TAX_PRICE"	).attr("value", 0).text('');
+		}
+		
+		<@popupId>.costPriceHandler();
+		
+		const incomeMinusCostPrice = <@popupId>.callOrgSellingPrice();
+		<@popupId>.calcPayment(incomeMinusCostPrice);
+
+		
+	}
 	,costPriceHandler : () =>{
 		
 		$("#<@popupId>_costList tr td[id='COST_PRICE'] input[type='text']").off().on('input',function(key){
@@ -625,8 +668,12 @@ var <@popupId> = {
 				if( $(row).is(":visible") ) {
 					
 					const COST_PRICE	= $(row).find("td[id='COST_PRICE']").attr("value");
+
+					const IS_CHECK_ROW	= $(row).find("td[id='TAX_FREE_YN']").children("[type='checkbox']").is(":checked");
 					if( Number(COST_PRICE) ){
-						const supplytax 	= <@popupId>.supply_tax_cal( Number(COST_PRICE) ) ;
+
+						//면세항목일 경우 공급가:비용, 부가세:0
+						const supplytax 	= IS_CHECK_ROW ? {supplyCost:COST_PRICE , tax:0} : <@popupId>.supply_tax_cal( Number(COST_PRICE) ) ;
 						const nsupplyCost 	= $(row).find("td[id='COST_SUPP_PRICE']").val(	supplytax.supplyCost	).nval();
 						const ntax			= $(row).find("td[id='COST_TAX_PRICE']"	).val(	supplytax.tax			).nval();
 						
@@ -766,11 +813,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							<table>
 								<caption>표 캡션</caption>
 								<colgroup>
-									<col style="width:16%;"/>
+									<col style="width:15%;"/>
 									<col style="width:20%;"/>
-									<col style="width:21%;"/>
-									<col style="width:16%;"/>
-									<col style="width:16%;"/>
+									<col style="width:19%;"/>
+									<col style="width:15%;"/>
+									<col style="width:12%;"/>
+									<col style="width:8%;"/>
 									<col style="width:10%;"/>
 								</colgroup>
 								<thead>
@@ -780,6 +828,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 										<th scope="col">비용금액</th>
 										<th scope="col">공급액</th>
 										<th scope="col">부가세</th>
+										<th scope="col">면세</th>
 										<th scope="col"><button><i class="icon_trash"></i></button></th>
 									</tr>
 								</thead>
@@ -796,6 +845,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<td id='COST_PRICE'		 class="tr"	 value='{{:COST_PRICE}}'		><input type='text' style="width:100%;text-align: right;" value="{{numb:COST_PRICE}}"  number/></td>
 									<td id='COST_SUPP_PRICE' class="tr"	 value='{{:COST_SUPP_PRICE}}'	>{{numb:COST_SUPP_PRICE}}</td>
 									<td id='COST_TAX_PRICE'	 class="tr"	 value='{{:COST_TAX_PRICE}}'	>{{numb:COST_TAX_PRICE}}</td>
+									<td id='TAX_FREE_YN'	 class="tc"	 value=''><input type='checkbox' id="<@popupId>_costCk_{{:cnt}}" onclick='<@popupId>.costCk(this);'/></td>
 									<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'	style='display:none'></td>
 									<td id='RESULT_ID'			value='{{:RESULT_ID}}'		style='display:none'></td>
 									<td id='COST_ID'			 value='{{:COST_ID}}' style='display:none'></td>				
@@ -807,7 +857,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							</script>
 							<script type="text/x-jsrender" id="<@popupId>_costList_noData_template">	
 							<tr name="<@popupId>_tr_-1">	
-								<td colspan=6>자료가 없습니다.</td>	
+								<td colspan=7>자료가 없습니다.</td>	
 							</tr>
 							</script>
 							<script type="text/x-jsrender" id="<@popupId>_costList_add_template">	
@@ -817,6 +867,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<td id='COST_PRICE'  	 class="tr"><input type='text' style="width:100%;text-align: right;"  number/></td>
 								<td id='COST_SUPP_PRICE' class="tr"></td>
 								<td id='COST_TAX_PRICE'  class="tr"></td>
+								<td id='TAX_FREE_YN'	 class="tc"	 value=''><input type='checkbox' id="<@popupId>_costCk_{{:cnt}}" onclick='<@popupId>.costCk(this);'/></td>
 								<td id='CONTRACT_ID'		value='{{:CONTRACT_ID}}'	style='display:none'></td>
 								<td id='RESULT_ID'			value='{{:RESULT_ID}}'		style='display:none'></td>
 								<td id='COST_ID'			value='{{:COST_ID}}' 		style='display:none'></td>								

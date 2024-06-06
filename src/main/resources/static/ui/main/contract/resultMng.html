@@ -80,13 +80,15 @@ var <@pageId> = {
     			
     			<@pageId>.contractItem.REMAINING_SUM = Math.min( ...REMAINING_SUM_LIST );
     			
-				if( <@pageId>.contractItem.REMAINING_SUM == 0){
-	    			// 잔금 0 이라도 월자문컨설팅에서는 계속됨 ( 잔금 차감 방식 아님. )
-					if( <@pageId>.contractItem.CONSULTING_TYPE != "MONTHLY" ){
-						
-						$("#<@pageId>_regResult").hide();
-					}
-				}
+				//if( <@pageId>.contractItem.REMAINING_SUM == 0){
+					
+	    			//실적입력에서 실적 등록 버튼 나오지 않는 경우 => 월자문 : 실행완료 / 일회성 : 계약만기
+	    			let isAfter = false,isCompleted = false;
+	    			if( dayjs(<@pageId>.contractItem.EXPIRE_DATE ).isAfter(dayjs())) isAfter = true;
+	    			if( <@pageId>.contractItem["PROCESS_STATE"].indexOf("COMPLETED") > -1) isCompleted = true;
+					if( <@pageId>.contractItem.CONSULTING_TYPE == "MONTHLY"	&& isCompleted		)$("#<@pageId>_regResult").hide();
+					if( <@pageId>.contractItem.CONSULTING_TYPE == "ONCE"	&& isAfter			)$("#<@pageId>_regResult").hide();
+				//}
 				
 				let totalORGSP 		= Number(TOTAL_ROW["ORG_SELLING_PRICE"]).toFixed(2);	totalORGSP 		= totalORGSP.replace(/\.00$/, "");
 				let totalRATE 		= Number((TOTAL_ROW["RATE"] / resultIdCnt)).toFixed(2);	totalRATE 		= totalRATE.replace(/\.00$/, "");
@@ -381,7 +383,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<tr>
 						<th scope="row">상담일</th>
 						<td id="CONTACT_DATE"></td>
-						<th scope="row">자문계약일</th>
+						<th scope="row">계약일</th>
 						<td id="CONTRACT_DATE"></td>
 					</tr>
 					<tr>

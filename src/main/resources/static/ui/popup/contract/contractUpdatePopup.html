@@ -34,7 +34,11 @@ var <@popupId> = {
 
 		// 계약 구분은 상품에 따라 설정.
 		returnData["CONTRACT_TYPE"]		= 	<@popupId>.updatingData["CONSULTING_TYPE"] == "MONTHLY" ? "MONTHLY" : 
-											<@popupId>.updatingData["CONSULTING_TYPE"] == "ONCE" 	? "ONLY_ONE" : "PARTNER"
+											<@popupId>.updatingData["CONSULTING_TYPE"] == "ONCE" 	? "ONLY_ONE" : "PARTNER" ;
+											
+		if( returnData["CONTRACT_TYPE"] == "ONCE"){
+			returnData["EXPIRE_DATE"] = returnData["CONTRACT_DATE"];
+		}
 												
 		returnData["CONSULTING_CLASS"]	= C_UICOM.getData("<@popupId>_selectConsultingClass");
 		 
@@ -146,8 +150,11 @@ var <@popupId> = {
 		if( !buyerValid 	|| isEmpty(returnData["BUYER_ID"]) 	) {C_POP.alert("고객명을 조회하여 입력하여 주십시오."); return false;}
 		if( !userValid		|| isEmpty(returnData["USER_ID"]) 	) {C_POP.alert("계약담당자를 조회하여 입력하여 주십시오."); return false;}
 		if( isEmpty(returnData["CONTACT_DATE"]) 				) {C_POP.alert("상담일을 선택하여 주십시오."); return false;}
-		if( isEmpty(returnData["CONTRACT_DATE"]) 				) {C_POP.alert("자문계약일을 선택하여 주십시오."); return false;}
-		if( isEmpty(returnData["EXPIRE_DATE"]) 					) {C_POP.alert("만료일을 선택하여 주십시오."); return false;}
+		if( isEmpty(returnData["CONTRACT_DATE"]) 				) {C_POP.alert("계약일을 선택하여 주십시오."); return false;}
+		
+		if( <@popupId>.updatingData["CONSULTING_TYPE"] != "ONCE" 
+				&& isEmpty(returnData["EXPIRE_DATE"]) 			) {C_POP.alert("만료일을 선택하여 주십시오."); return false;}
+		
 		//if( returnData["CONTRACT_TYPE"] == '--'  				) {C_POP.alert("계약구분을 선택하여 주십시오."); return false;}
 		if( isEmpty(returnData["TOTAL_COST"]) 					) {C_POP.alert("총계약금액을 입력하여 주십시오."); return false;}
 		if( isEmpty(returnData["CONSULTING"]) 					) {C_POP.alert("컨설팅 상품을 입력하여 주십시오."); return false;}
@@ -578,6 +585,14 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.mode				= <@popupId>.recvData.mode;
 	<@popupId>.updatingData		= <@popupId>.recvData.param;
 	
+	//컨설팅 상품이 1회성인경우 만료일은 계약일과 동일.
+	if( <@popupId>.updatingData.CONSULTING_TYPE == "ONCE"){
+		
+		<@popupId>.updatingData.EXPIRE_DATE = <@popupId>.updatingData.CONTRACT_DATE
+		 $("#<@popupId>_EXPIRE_DATE").prop("disabled",true);
+		setTimeout( ()=>{$("#<@popupId>_EXPIRE_DATE + .ui-datepicker-trigger").remove();},200)
+	}
+	
 	//현 상태 저장.
 	<@popupId>.processState		= <@popupId>.recvData.param.PROCESS_STATE;
 	<@popupId>.preProcessState	= <@popupId>.recvData.param.PRE_PROCESS_STATE;
@@ -651,7 +666,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									</div>
 								</li>
 								<li >
-									<label>자문계약일</label>
+									<label>계약일</label>
 									<div class="info">
 										<div class="calendar_wrap">
 											<input type="text" class="datepicker" id="<@popupId>_CONTRACT_DATE" style="width:197px;">

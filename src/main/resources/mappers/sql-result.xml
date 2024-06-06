@@ -184,7 +184,11 @@
 				AND C.CONSULTING_ID = CS.CONSULTING_ID 
 				AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
 				AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
-			
+				<if test=" USER_IDS != null and !USER_IDS.equals('') ">
+				    <foreach item="USER_ID" collection="USER_IDS" open="AND U.USER_ID  IN (" close=")" separator=",">
+					#{USER_ID}
+					</foreach>
+				</if>  
 			)
 			WHERE RESULT_DATE_YM = #{RESULT_DATE_YM}
 			<if test=" CONTRACT_ID != null and !CONTRACT_ID.equals('') ">  
@@ -372,11 +376,22 @@
 				           							AND 	USE_YN= 'Y' AND DEL_YN = 'N'
 				          						) 	,
 					T.ORG_SELLING_PRICE		= NVL(T.INCOME * 10/11  - 						  
-												NVL(( SELECT SUM(COST_PRICE) * 10/11 FROM TBL_EXP_COST
-				           							WHERE CONTRACT_ID = p_CONTRACT_ID
-				           							AND   RESULT_ID	  = p_RESULT_ID
-				           							AND   USE_YN= 'Y' AND DEL_YN = 'N'
-				          						),0)
+											  NVL(
+													(
+														SELECT SUM(SUM_COST_PRICE )
+														FROM (
+															SELECT SUM(COST_PRICE) * 10/11 AS SUM_COST_PRICE  FROM TBL_EXP_COST
+															WHERE CONTRACT_ID = p_CONTRACT_ID
+															AND   RESULT_ID	  = p_RESULT_ID
+															AND   USE_YN= 'Y' AND DEL_YN = 'N' AND TAX_FREE_YN = 'N'
+															UNION ALL 	
+														 	SELECT SUM(COST_PRICE) FROM TBL_EXP_COST
+															WHERE CONTRACT_ID = p_CONTRACT_ID
+															AND   RESULT_ID	  = p_RESULT_ID
+															AND   USE_YN= 'Y' AND DEL_YN = 'N' AND TAX_FREE_YN = 'Y'
+														)		          						
+													)
+				          						,0)
 				          						,0)
 		   		WHERE  T.CONTRACT_ID	= p_CONTRACT_ID
 				   AND T.RESULT_ID		= p_RESULT_ID	
@@ -587,6 +602,7 @@
 		, DEL_YN
 		, UPDATE_USER
 		, UPDATE_DATE
+		, TAX_FREE_YN
 		FROM TBL_EXP_COST
 		WHERE 1=1
 		AND CONTRACT_ID = #{CONTRACT_ID}
@@ -612,7 +628,8 @@
 		         							AS COST_PRICE,
 		         'Y'	 					AS USE_YN,
 		         'N' 						AS DEL_YN,
-		         #{sessionVo.userId}		AS UPDATE_USER
+		         #{sessionVo.userId}		AS UPDATE_USER,
+		         #{TAX_FREE_YN}				AS TAX_FREE_YN
 		  FROM dual
 		  
 		) S
@@ -627,10 +644,11 @@
 		         T.COST_PRICE 		= S.COST_PRICE,
 		         T.DEL_YN			= S.DEL_YN,
 		         T.UPDATE_USER		= S.UPDATE_USER,
-		         T.UPDATE_DATE		= SYSDATE
+		         T.UPDATE_DATE		= SYSDATE,
+		         T.TAX_FREE_YN		= S.TAX_FREE_YN
 		WHEN NOT MATCHED THEN 
-    		INSERT (  CONTRACT_ID,   RESULT_ID,   COST_ID,   COST_NM,   COST_DESC,   COST_PRICE, USE_YN, DEL_YN,   UPDATE_USER, UPDATE_DATE)
-   			VALUES (S.CONTRACT_ID, S.RESULT_ID, S.COST_ID, S.COST_NM, S.COST_DESC, S.COST_PRICE,    'Y',    'N', S.UPDATE_USER, SYSDATE    )
+    		INSERT (  CONTRACT_ID,   RESULT_ID,   COST_ID,   COST_NM,   COST_DESC,   COST_PRICE, USE_YN, DEL_YN,   UPDATE_USER, UPDATE_DATE, TAX_FREE_YN)
+   			VALUES (S.CONTRACT_ID, S.RESULT_ID, S.COST_ID, S.COST_NM, S.COST_DESC, S.COST_PRICE,    'Y',    'N', S.UPDATE_USER, SYSDATE , S.TAX_FREE_YN )
 
 	</update>
 	
