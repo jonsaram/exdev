@@ -3,6 +3,12 @@
     var <@compId> = {
     		 selectYear : ''
     		,selectWeek : ''
+    		,TB_percent : ''
+            ,TB_num     : ''
+            ,TB_arrow   : ''
+            ,SALES_percent : ''
+            ,SALES_num     : ''
+            ,SALES_arrow   : ''
             ,pageInit : () => {
             	var now = new Date();   // 현재 날짜 및 시간
             	var thisYear = now.getFullYear();   // 연도
@@ -179,12 +185,42 @@
                    var totalPreTB = $('#<@compId>_totalPreTB').text();
                    
                    if(!(typeof totalPreTB == "undefined" || totalPreTB == null || totalPreTB == "0")){
-                	   var tableRate =  Number(totalTB)/Number(totalPreTB) * 100;
+                	   var tableRate =  ((Number(totalTB) - Number(totalPreTB)) / Number(totalPreTB)) * 100;
                 	   var tableRateRound =  Math.ceil(tableRate * 100) / 100
-                	   $('#<@compId>_tableIncDecRate').text(tableRateRound+"%");
+
+                       //css Class 삭제  
+                       $('#<@compId>_table_percent').removeClass(<@compId>.TB_percent);//숫자변경
+                       $('#<@compId>_table_num').removeClass(<@compId>.TB_num);//숫자변경
+                       $('#<@compId>_table_percent_arrow').removeClass(<@compId>.TB_arrow);//화살표 변경
+                       $('#<@compId>_table_num_arrow').removeClass(<@compId>.TB_arrow);//화살표 변경
+                       
+                       $('#<@compId>_table_totalNum').text(Number(totalTB).toLocaleString('ko-KR'));
+                       $('#<@compId>_table_percent_txt').text(tableRateRound+'%');                       
+                       $('#<@compId>_table_num_txt').text(Number(totalTB-totalPreTB).toLocaleString('ko-KR'));
+
+                	   if( tableRateRound < 0){// 감소
+                		   <@compId>.TB_percent = "percent dec";
+                		   <@compId>.TB_num     = "num dec";
+                		   <@compId>.TB_arrow   = "comArrow arrow-bottom";
+                	   }else if( tableRateRound > 0){//증가
+                		   <@compId>.TB_percent = "percent inc";
+                		   <@compId>.TB_num     = "num inc";
+                		   <@compId>.TB_arrow   = "comArrow arrow-top";
+                		   
+                	   }else{//증감없음
+                           <@compId>.TB_percent = "percent zero";
+                           <@compId>.TB_num     = "num zero";
+                           <@compId>.TB_arrow   = "";
+                	   }
                 	   
+                	   $('#<@compId>_table_percent').addClass(<@compId>.TB_percent);//숫자변경
+                       $('#<@compId>_table_num').addClass(<@compId>.TB_num);//숫자변경
+                       $('#<@compId>_table_percent_arrow').addClass(<@compId>.TB_arrow);//화살표 변경
+                       $('#<@compId>_table_num_arrow').addClass(<@compId>.TB_arrow);//화살표 변경
+                       
+                                              
                    }else{
-                	   $('#<@compId>_tableIncDecRate').text("");
+                	   //$('#<@compId>_tableIncDecRate').text("");
                    }
                    
                    // 순매출액 증감률
@@ -192,12 +228,42 @@
                    var totalPreSale = $('#<@compId>_totalPreSale').text();
                    
                    if(!(typeof totalPreSale == "undefined" || totalPreSale == null || totalPreSale == "0")){
-                       var saleRate =  Number(totalSale)/Number(totalPreSale) * 100;
-                       var saleRateRound =  Math.ceil(saleRate * 100) / 100
-                       $('#<@compId>_salesIncDecRate').text(saleRateRound+"%");
                        
+                       var saleRate =  ((Number(totalSale) - Number(totalPreSale)) / Number(totalPreSale)) * 100;
+                       var saleRateRound =  Math.ceil(saleRate * 100) / 100
+
+                       //css Class 삭제  
+                       $('#<@compId>_sales_percent').removeClass(<@compId>.SALES_percent);//숫자변경
+                       $('#<@compId>_sales_num').removeClass(<@compId>.SALES_num);//숫자변경
+                       $('#<@compId>_sales_percent_arrow').removeClass(<@compId>.SALES_arrow);//화살표 변경
+                       $('#<@compId>_sales_num_arrow').removeClass(<@compId>.SALES_arrow);//화살표 변경
+                       
+                       //
+                       $('#<@compId>_sales_totalNum').text(Number(totalSale).toLocaleString('ko-KR'));
+                       $('#<@compId>_sales_percent_txt').text(saleRateRound+'%');                       
+                       $('#<@compId>_sales_num_txt').text(Number(totalSale-totalPreSale).toLocaleString('ko-KR'));
+                       
+                       if( saleRateRound < 0){// 감소
+                           <@compId>.SALES_percent = "percent dec";
+                           <@compId>.SALES_num     = "num dec";
+                           <@compId>.SALES_arrow   = "comArrow arrow-bottom";
+                       }else if( saleRateRound > 0){//증가
+                           <@compId>.SALES_percent = "percent inc";
+                           <@compId>.SALES_num     = "num inc";
+                           <@compId>.SALES_arrow   = "comArrow arrow-top";
+                           
+                       }else{//증감없음
+                           <@compId>.SALES_percent = "percent zero";
+                           <@compId>.SALES_num     = "num zero";
+                           <@compId>.SALES_arrow   = "";
+                       }
+                       
+                       $('#<@compId>_sales_percent').addClass(<@compId>.SALES_percent);//숫자변경
+                       $('#<@compId>_sales_num').addClass(<@compId>.SALES_num);//숫자변경
+                       $('#<@compId>_sales_percent_arrow').addClass(<@compId>.SALES_arrow);//화살표 변경
+                       $('#<@compId>_sales_num_arrow').addClass(<@compId>.SALES_arrow);//화살표 변경
                    }else{
-                       $('#<@compId>_salesIncDecRate').text("");
+                	   //$('#<@compId>_salesIncDecRate').text("");
                    }
                    
                });
@@ -488,19 +554,34 @@
             <section class="sec_wrap ml-10">
                 <div class="cont_box">
                     <h3>테이블 수 증감률</h3>
-                    <div class="nodata_txt" style="height:130px;"  id="<@compId>_tableIncDecRate">
-                        No Data
+                    <div class="in_de_rate_wrap">
+                        <div class="totalNum" id="<@compId>_table_totalNum"></div>
+                        <div class="" id="<@compId>_table_percent">
+                            <span class="" id="<@compId>_table_percent_arrow"></span>
+                            <span id="<@compId>_table_percent_txt"></span>
+                        </div>
+                        <div class=""     id="<@compId>_table_num">
+                            <span class=""  id="<@compId>_table_num_arrow"></span>
+                            <span id="<@compId>_table_num_txt"></span>
+                        </div>
                     </div>
                 </div>
             </section>
             <section class="sec_wrap ml-10">
                 <div class="cont_box">
                     <h3>순매출액 증감률</h3>
-                    <div class="nodata_txt" style="height:130px;" id="<@compId>_salesIncDecRate">
-                        No Data
+                    <div class="in_de_rate_wrap">
+                        <div class="totalNum"    id="<@compId>_sales_totalNum"></div>
+                        <div class="" id="<@compId>_sales_percent">
+                            <span class="" id="<@compId>_sales_percent_arrow"></span>
+                            <span id="<@compId>_sales_percent_txt"></span>
+                        </div>
+                        <div class=""     id="<@compId>_sales_num">
+                            <span class=""  id="<@compId>_sales_num_arrow"></span>
+                            <span id="<@compId>_sales_num_txt"></span>
+                        </div>
                     </div>
                 </div>
-                 
             </section>
         </div>
     </div>

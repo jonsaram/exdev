@@ -113,11 +113,11 @@
     <update id="updateSchedule" parameterType="java.util.HashMap"  flushCache="true" >
         /*  schedule.updateSchedule */
         UPDATE TBL_EXP_SCHEDULE        
-        SET    TITLE                   = #{title}
+        SET    TITLE                   = #{title, jdbcType=VARCHAR}
               ,WORK_TYPE               = #{workType} 
               ,LOOP_TYPE               = #{loopType} 
-              ,LOOP_TYPE_DTL_CD        = #{loopTypeDtlCd} 
-              ,LOOP_TYPE_DTL_VAL       = #{loopTypeDtlVal}  
+              ,LOOP_TYPE_DTL_CD        = #{loopTypeDtlCd, jdbcType=VARCHAR} 
+              ,LOOP_TYPE_DTL_VAL       = #{loopTypeDtlVal, jdbcType=VARCHAR}  
               ,SCHEDULE_LOOP_END_DATE  = (TO_DATE(#{loopLimitDate}, 'yyyy-mm-dd'))
               ,TIME_TYPE               = 'TIME_TYPE'
               ,SCHEDULE_START_DATE     = (TO_DATE(#{scheduleStartDate}, 'yyyy-mm-dd'))
@@ -126,10 +126,10 @@
               ,SCHEDULE_END_DATE       = (TO_DATE(#{scheduleEndDate}, 'yyyy-mm-dd'))
               ,END_TIME_HOUR           = #{endTimeH}
               ,END_TIME_MINUTE         = #{endTimeM}
-              ,POSITION                = #{position}
-              ,SECRET_YN               = #{secretYn}
-              ,DESCRIPTION             = #{description}
-              ,CONTRACT_ID             = #{contractId}
+              ,POSITION                = #{position, jdbcType=VARCHAR}
+              ,SECRET_YN               = #{secretYn, jdbcType=VARCHAR}
+              ,DESCRIPTION             = #{description, jdbcType=VARCHAR}
+              ,CONTRACT_ID             = #{contractId, jdbcType=VARCHAR}
               ,UPDATE_USER             = #{sessionVo.userId}
               ,UPDATE_DATE             = SYSDATE
         WHERE 1 = 1

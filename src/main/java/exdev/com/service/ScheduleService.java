@@ -47,7 +47,7 @@ public class ScheduleService extends ExdevBaseService{
         String json = (String)map.get("users");
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
-
+        
         result += commonDao.update("schedule.updateSchedule", map);
         result += deleteScheduleShare(map);
         result += saveScheduleShare(map, apprUserList );

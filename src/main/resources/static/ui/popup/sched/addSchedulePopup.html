@@ -16,11 +16,205 @@
         ,loopTypeDtlCd : ''
         ,loopTypeDtlVal : ''
         ,timeType : ''
+        ,contractId : ''
         ,isEndDayOfMonth : false
         ,isLoopTypeMonth : false
         ,isLoopTypeQuarter : false
         ,isLoopTypeYear : false
-        
+
+        ,init : function(data) {
+
+            <@popupId>.scheduleId = C_COM.makeUniqueId();// PK 생성
+
+            //************** 업무유형 **************
+            var workTypeList = C_COM.getCodeList("SCHEDULE_WORK_TYPE");
+            var workTypeBoxList = { 
+                 data           : workTypeList
+                ,targetId       : "<@popupId>_selectBoxWorkType" 
+            }
+            C_UICOM.makeSelectBox(workTypeBoxList, "single");
+              
+            var workTypeCodeAttrList = C_COM.getCodeAttr("SCHEDULE_WORK_TYPE", "OTHER_WORK");// 코드 Attr 읽어오기
+            
+            C_UICOM.setSingleBox("<@popupId>_selectBoxWorkType", "OTHER_WORK");//초기값 세팅
+            <@popupId>.workType = "OTHER_WORK";
+            
+            C_UICOM.addChangeListener("<@popupId>_selectBoxWorkType", function(dataObj) {
+                <@popupId>.workType = dataObj;
+            });
+            //============== 업무유형 ==============
+          
+            //************** 반복유형 **************
+            var loopTypeList = C_COM.getCodeList("SCHEDULE_LOOP_TYPE");
+            
+            var loopTypeBoxList = { 
+                 data           : loopTypeList
+                ,targetId       : "<@popupId>_selectBoxLoopType"  
+            }
+            C_UICOM.makeSelectBox(loopTypeBoxList, "single");
+            
+            // 코드 Attr 읽어오기     
+            var loopTypeCodeAttrList = C_COM.getCodeAttr("SCHEDULE_LOOP_TYPE", "NOT_REPEAT");
+            
+            //초기값 세팅
+            C_UICOM.setSingleBox("<@popupId>_selectBoxLoopType", "NOT_REPEAT");
+            <@popupId>.loopType = "NOT_REPEAT";
+            
+            C_UICOM.addChangeListener("<@popupId>_selectBoxLoopType", function(dataObj) {
+                
+                <@popupId>.loopType = dataObj;
+                if ( <@popupId>.loopType == 'NOT_REPEAT') {
+                    $("#<@popupId>_showLimitDate").hide();
+                    //$("#<@popupId>_showLoopTypeDtl").hide();
+                    
+                }else{
+
+                    $("#<@popupId>_showLimitDate").show();
+                    let setDate = <@popupId>.getLimitDate( <@popupId>.loopType, $('#<@popupId>_dateStart').val() );
+                    <@popupId>.limitDate = setDate;
+                    //$('#<@popupId>_dateEnd').val(setDate);
+                    $('#<@popupId>_loopLimitDate').val(setDate);
+                    
+                    //월의 마지막 일자 세팅
+                    <@popupId>.setEndDayOfMonth();
+                }
+                
+            });
+            //============== 반복유형 ==============
+                
+            //************** 공개여부 **************
+            var secretYnList = C_COM.getCodeList("SCHEDULE_SECRET_YN");
+            
+            var secretYnBoxList = { 
+                 data           : secretYnList
+                ,targetId       : "<@popupId>_scheduleSecretYn" 
+            }
+            C_UICOM.makeSelectBox(secretYnBoxList, "single");
+            
+            // 코드 Attr 읽어오기     
+            var secretYnCodeAttrList = C_COM.getCodeAttr("SCHEDULE_SECRET_YN", "N");
+
+            //초기값 세팅
+            C_UICOM.setSingleBox("<@popupId>_scheduleSecretYn", "N");
+            <@popupId>.secretYn = "N";
+            
+            C_UICOM.addChangeListener("<@popupId>_scheduleSecretYn", function(dataObj) {
+                //dalert(dataObj);
+                <@popupId>.secretYn = dataObj;
+                
+            });
+            //============== 공개여부 ==============
+                
+            //************** 시작시간 **************
+            var startTimeList = C_COM.getCodeList("TIME_HOUR_24");
+            
+            var startTimeBoxList = { 
+                 data           : startTimeList
+                ,targetId       : "<@popupId>_selectBoxStartTime" 
+            }
+
+            C_UICOM.makeSelectBox(startTimeBoxList, "single");
+            
+            // 코드 Attr 읽어오기     
+            var startTimeCodeAttrList = C_COM.getCodeAttr("TIME_HOUR_24", "00");
+
+            //초기값 세팅
+            C_UICOM.setSingleBox("<@popupId>_selectBoxStartTime", "00");
+            <@popupId>.startTimeH = "00";
+            
+            C_UICOM.addChangeListener("<@popupId>_selectBoxStartTime", function(dataObj) {
+                <@popupId>.startTimeH = dataObj;
+                
+                //종료시간 세팅
+                <@popupId>.setEndTime(dataObj);
+            });
+
+            //============== 시작시간 ==============
+            
+            //************** 시작분 **************
+            var startMinuteList = C_COM.getCodeList("TIME_MINUTE_30");
+            
+            var startMinutBoxList = { 
+                 data           : startMinuteList
+                ,targetId       : "<@popupId>_selectBoxStartMinute" 
+            }
+
+            C_UICOM.makeSelectBox(startMinutBoxList, "single");
+            
+            // 코드 Attr 읽어오기     
+            var startMinutCodeAttrList = C_COM.getCodeAttr("TIME_MINUTE_30", "00");
+            <@popupId>.startTimeM = "00";
+
+            //초기값 세팅
+            C_UICOM.setSingleBox("<@popupId>_selectBoxStartMinute", "00");
+            
+            C_UICOM.addChangeListener("<@popupId>_selectBoxStartMinute", function(dataObj) {
+                <@popupId>.startTimeM = dataObj;
+            });
+
+            //============== 시작시간 ==============
+                
+            //************** 종료시간 **************
+            var endTimeList = C_COM.getCodeList("TIME_HOUR_24");
+            
+            var endTimeBoxList = { 
+                 data           : startTimeList
+                ,targetId       : "<@popupId>_selectBoxEndTime" 
+            }
+
+            C_UICOM.makeSelectBox(endTimeBoxList, "single");
+            
+            // 코드 Attr 읽어오기     
+            var endTimeCodeAttrList = C_COM.getCodeAttr("TIME_HOUR_24", "00");
+
+            //초기값 세팅
+            C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", "01");
+            <@popupId>.endTimeH = "01";
+            
+            C_UICOM.addChangeListener("<@popupId>_selectBoxEndTime", function(dataObj) {
+                <@popupId>.endTimeH = dataObj;
+            });
+
+            //============== 종료시간 ==============
+                
+            //************** 종료분 **************
+            var endMinuteList = C_COM.getCodeList("TIME_MINUTE_30");
+            
+            var endMinutBoxList = { 
+                 data           : endMinuteList
+                ,targetId       : "<@popupId>_selectBoxEndMinute" 
+            }
+
+            C_UICOM.makeSelectBox(endMinutBoxList, "single");
+            
+            // 코드 Attr 읽어오기     
+            var startMinutCodeAttrList = C_COM.getCodeAttr("TIME_MINUTE_30", "00");
+
+            //초기값 세팅
+            C_UICOM.setSingleBox("<@popupId>_selectBoxEndMinute", "00");
+            <@popupId>.endTimeM = "00";
+            
+            C_UICOM.addChangeListener("<@popupId>_selectBoxEndMinute", function(dataObj) {
+                <@popupId>.endTimeM = dataObj;
+            });
+
+            $("#<@popupId>_allDay").change(function(){
+                if($("#<@popupId>_allDay").is(":checked")){
+                    <@popupId>.setSelectBoxTime( "00", "00", "23", "30" );
+                    <@popupId>.timeType = 'ALL';
+                }else{  
+                    <@popupId>.setSelectBoxTime( "00", "00", "00", "00" );
+                }
+            });
+            var today = data["today"];
+            $('#<@popupId>_dateStart').val(today);
+            $('#<@popupId>_dateEnd').val(today);
+            $('#<@popupId>_loopLimitDate').val(today);
+            
+            <@popupId>.today = today;
+            <@popupId>.limitDate = today;
+            <@popupId>.contractId =  data["contractId"];
+        }
         ,close : function() {
             var obj = new Object();
             C_POP.close(obj);
@@ -347,7 +541,7 @@
                         
          }
         /* 위성열 / 프로젝트 선택 */
-        ,selectProject : function() {
+        ,selectProjectPop : function() {
             C_POP.open('popup_operation_projectSearchPopup', {}, function(retData) {
                 if(isValid(retData)) {
                     let projectNm = `${retData.BUYER_NM}/${retData.CONSULTING_NM}`;
@@ -356,7 +550,30 @@
                 }
             });
          }
-
+        /* 일정추가 팜팝업호출시 프로젝트 아이디를 받았을경우 */
+        ,selectProject : function() {
+        	
+        	let requestParm = {};
+            requestParm["CONTRACT_ID"]  = <@popupId>.contractId;
+            if( !<@popupId>.contractId ){
+        		return;
+        	}
+            
+            let parm = {
+                 queryId        : "contract.getProjectInfo"
+                ,requestParm    : requestParm
+            }
+            C_COM.requestQuery(parm, function(resultData) {
+                
+                //중복 제거된 메뉴 찾기
+                for (var i=0; i< resultData.data.length; i++){
+                     
+                    let projectNm = resultData.data[i].BUYER_NM+"/"+resultData.data[i].CONSULTING_NM;
+                     $("#<@popupId>_contractId").val(resultData.data[i].CONTRACT_ID);
+                     $("#<@popupId>_contractNm").val(projectNm);
+                }
+            });
+         }
         ,setSelectBoxLoopTypeDtl : function(selectDay) {
 
             //************** 반복상세 **************
@@ -392,7 +609,13 @@
         ,setEndDayOfMonth : function() {
         	
         	var dateStart = $('#<@popupId>_dateStart').val();
-
+        	var dateEnd = $('#<@popupId>_dateEnd').val();
+        	
+        	//일정시작일이 일정 종료일 보다 뒤일경우 일정 종료일을 시작일로 변경
+        	if( dateStart > dateEnd ){
+        		$('#<@popupId>_dateEnd').val(dateStart);
+        	}
+        	
             let lastDate = new Date(Number(dateStart.substr(0, 4)), Number(dateStart.substr(5, 2)), 0);//월의 마지막일
             if ( Number(dateStart.substr(8, 2)) == lastDate.getDate() ) {//시작일이 선택월의 마지막날인가
             	<@popupId>.isEndDayOfMonth = true;
@@ -430,6 +653,14 @@
          }
          //종료시간 세팅
         ,setEndTime : function(timeHour) {
+
+            let dateStart = $('#<@popupId>_dateStart').val();
+            let dateEnd   = $('#<@popupId>_dateEnd').val();
+            
+            if( dateStart != dateEnd){
+                return;
+            }
+            
         	var endHour ;
             if( timeHour == "23"){ endHour = "00";}
             else{
@@ -446,198 +677,10 @@
     
     // Popup Load가 완료된후 실행 된다.
     C_POP.onLoadPopup("<@popupId>", function(data) {
-
-        <@popupId>.scheduleId = C_COM.makeUniqueId();// PK 생성
         
-        //************** 업무유형 **************
-        var workTypeList = C_COM.getCodeList("SCHEDULE_WORK_TYPE");
-        var workTypeBoxList = { 
-             data           : workTypeList
-            ,targetId       : "<@popupId>_selectBoxWorkType" 
-        }
-        C_UICOM.makeSelectBox(workTypeBoxList, "single");
-          
-        var workTypeCodeAttrList = C_COM.getCodeAttr("SCHEDULE_WORK_TYPE", "OTHER_WORK");// 코드 Attr 읽어오기
+        <@popupId>.init(data);// 초기화
         
-        C_UICOM.setSingleBox("<@popupId>_selectBoxWorkType", "OTHER_WORK");//초기값 세팅
-        <@popupId>.workType = "OTHER_WORK";
-        
-        C_UICOM.addChangeListener("<@popupId>_selectBoxWorkType", function(dataObj) {
-            <@popupId>.workType = dataObj;
-        });
-        //============== 업무유형 ==============
-      
-        //************** 반복유형 **************
-        var loopTypeList = C_COM.getCodeList("SCHEDULE_LOOP_TYPE");
-        
-        var loopTypeBoxList = { 
-             data           : loopTypeList
-            ,targetId       : "<@popupId>_selectBoxLoopType"  
-        }
-        C_UICOM.makeSelectBox(loopTypeBoxList, "single");
-        
-        // 코드 Attr 읽어오기     
-        var loopTypeCodeAttrList = C_COM.getCodeAttr("SCHEDULE_LOOP_TYPE", "NOT_REPEAT");
-        
-        //초기값 세팅
-        C_UICOM.setSingleBox("<@popupId>_selectBoxLoopType", "NOT_REPEAT");
-        <@popupId>.loopType = "NOT_REPEAT";
-        
-        C_UICOM.addChangeListener("<@popupId>_selectBoxLoopType", function(dataObj) {
-            
-            <@popupId>.loopType = dataObj;
-            if ( <@popupId>.loopType == 'NOT_REPEAT') {
-            	$("#<@popupId>_showLimitDate").hide();
-                //$("#<@popupId>_showLoopTypeDtl").hide();
-                
-            }else{
-
-                $("#<@popupId>_showLimitDate").show();
-                let setDate = <@popupId>.getLimitDate( <@popupId>.loopType, $('#<@popupId>_dateStart').val() );
-                <@popupId>.limitDate = setDate;
-                //$('#<@popupId>_dateEnd').val(setDate);
-                $('#<@popupId>_loopLimitDate').val(setDate);
-                
-            	//월의 마지막 일자 세팅
-            	<@popupId>.setEndDayOfMonth();
-            }
-            
-        });
-        //============== 반복유형 ==============
-            
-        //************** 공개여부 **************
-        var secretYnList = C_COM.getCodeList("SCHEDULE_SECRET_YN");
-        
-        var secretYnBoxList = { 
-             data           : secretYnList
-            ,targetId       : "<@popupId>_scheduleSecretYn" 
-        }
-        C_UICOM.makeSelectBox(secretYnBoxList, "single");
-        
-        // 코드 Attr 읽어오기     
-        var secretYnCodeAttrList = C_COM.getCodeAttr("SCHEDULE_SECRET_YN", "N");
-
-        //초기값 세팅
-        C_UICOM.setSingleBox("<@popupId>_scheduleSecretYn", "N");
-        <@popupId>.secretYn = "N";
-        
-        C_UICOM.addChangeListener("<@popupId>_scheduleSecretYn", function(dataObj) {
-            //dalert(dataObj);
-            <@popupId>.secretYn = dataObj;
-            
-        });
-        //============== 공개여부 ==============
-            
-        //************** 시작시간 **************
-        var startTimeList = C_COM.getCodeList("TIME_HOUR_24");
-        
-        var startTimeBoxList = { 
-             data           : startTimeList
-            ,targetId       : "<@popupId>_selectBoxStartTime" 
-        }
-
-        C_UICOM.makeSelectBox(startTimeBoxList, "single");
-        
-        // 코드 Attr 읽어오기     
-        var startTimeCodeAttrList = C_COM.getCodeAttr("TIME_HOUR_24", "00");
-
-        //초기값 세팅
-        C_UICOM.setSingleBox("<@popupId>_selectBoxStartTime", "00");
-        <@popupId>.startTimeH = "00";
-        
-        C_UICOM.addChangeListener("<@popupId>_selectBoxStartTime", function(dataObj) {
-            <@popupId>.startTimeH = dataObj;
-            
-            //종료시간 세팅
-            <@popupId>.setEndTime(dataObj);
-        });
-
-        //============== 시작시간 ==============
-        
-        //************** 시작분 **************
-        var startMinuteList = C_COM.getCodeList("TIME_MINUTE_30");
-        
-        var startMinutBoxList = { 
-             data           : startMinuteList
-            ,targetId       : "<@popupId>_selectBoxStartMinute" 
-        }
-
-        C_UICOM.makeSelectBox(startMinutBoxList, "single");
-        
-        // 코드 Attr 읽어오기     
-        var startMinutCodeAttrList = C_COM.getCodeAttr("TIME_MINUTE_30", "00");
-        <@popupId>.startTimeM = "00";
-
-        //초기값 세팅
-        C_UICOM.setSingleBox("<@popupId>_selectBoxStartMinute", "00");
-        
-        C_UICOM.addChangeListener("<@popupId>_selectBoxStartMinute", function(dataObj) {
-            <@popupId>.startTimeM = dataObj;
-        });
-
-        //============== 시작시간 ==============
-            
-        //************** 종료시간 **************
-        var endTimeList = C_COM.getCodeList("TIME_HOUR_24");
-        
-        var endTimeBoxList = { 
-             data           : startTimeList
-            ,targetId       : "<@popupId>_selectBoxEndTime" 
-        }
-
-        C_UICOM.makeSelectBox(endTimeBoxList, "single");
-        
-        // 코드 Attr 읽어오기     
-        var endTimeCodeAttrList = C_COM.getCodeAttr("TIME_HOUR_24", "00");
-
-        //초기값 세팅
-        C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", "01");
-        <@popupId>.endTimeH = "01";
-        
-        C_UICOM.addChangeListener("<@popupId>_selectBoxEndTime", function(dataObj) {
-            <@popupId>.endTimeH = dataObj;
-        });
-
-        //============== 종료시간 ==============
-            
-        //************** 종료분 **************
-        var endMinuteList = C_COM.getCodeList("TIME_MINUTE_30");
-        
-        var endMinutBoxList = { 
-             data           : endMinuteList
-            ,targetId       : "<@popupId>_selectBoxEndMinute" 
-        }
-
-        C_UICOM.makeSelectBox(endMinutBoxList, "single");
-        
-        // 코드 Attr 읽어오기     
-        var startMinutCodeAttrList = C_COM.getCodeAttr("TIME_MINUTE_30", "00");
-
-        //초기값 세팅
-        C_UICOM.setSingleBox("<@popupId>_selectBoxEndMinute", "00");
-        <@popupId>.endTimeM = "00";
-        
-        C_UICOM.addChangeListener("<@popupId>_selectBoxEndMinute", function(dataObj) {
-            <@popupId>.endTimeM = dataObj;
-        });
-
-        var today = data["today"];
-        
-        $('#<@popupId>_dateStart').val(today);
-        $('#<@popupId>_dateEnd').val(today);
-        $('#<@popupId>_loopLimitDate').val(today);
-        
-        <@popupId>.today = today;
-        <@popupId>.limitDate = today;
-
-        $("#<@popupId>_allDay").change(function(){
-            if($("#<@popupId>_allDay").is(":checked")){
-                <@popupId>.setSelectBoxTime( "00", "00", "23", "30" );
-                <@popupId>.timeType = 'ALL';
-            }else{  
-            	<@popupId>.setSelectBoxTime( "00", "00", "00", "00" );
-            }
-        });        
+        <@popupId>.selectProject();// 프로젝트 조회
         
     });
     
@@ -719,7 +762,7 @@
                             <div class="search_inputWrap" style="width:100%">
                                 <input type="hidden" id="<@popupId>_contractId">
                                 <input type="search" placeholder="프로젝트선택" id="<@popupId>_contractNm">
-                                <a href="javascript:void(0);" onclick="<@popupId>.selectProject();" class="search_btn"><i class="icon_search"></i></a>
+                                <a href="javascript:void(0);" onclick="<@popupId>.selectProjectPop();" class="search_btn"><i class="icon_search"></i></a>
                             </div>
                         </div>
                     </dd>
