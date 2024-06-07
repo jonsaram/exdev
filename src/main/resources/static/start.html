@@ -64,9 +64,6 @@
 			// 고객 로그인인경우
 			if(userInfo.LOGIN_TYPE == "BUYER") {
 				G_VAL.session.BUYER_ID = userInfo.USER_ID;
-				setBuyerSession(userInfo.USER_ID);
-			} else {
-				setBuyerListOfUser();
 			}
 		}
 		
@@ -154,6 +151,12 @@
 				changePwd("Y");	
 			}, 1000);
 			
+			// 고객 로그인인경우
+			if(G_VAL.session.LOGIN_TYPE == "BUYER") {
+				setBuyerSession(G_VAL.session.USER_ID);
+			} else {
+				setBuyerListOfUser();
+			}
 			
 		});	
 		

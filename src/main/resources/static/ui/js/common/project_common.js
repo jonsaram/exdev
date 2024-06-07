@@ -237,6 +237,7 @@ var C_COM = {
 						return null;
 					}
 				});
+				sleep(30);
 			} else {
 				var resultData = ajaxRequest(sendParm);
 				if(resultData.state == "S") {

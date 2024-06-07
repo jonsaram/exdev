@@ -1048,7 +1048,10 @@
 	    const consonantCode = (charCode - 44032) % 28;
 	    return consonantCode !== 0; // 0이면 받침 없음, 1 이상이면 받침 있음
 	}
-	
+	function sleep(ms) {
+		const wakeUpTime = Date.now() + ms;
+		while (Date.now() < wakeUpTime) {}
+	}	
 	
 	
 	//Json Debugging
