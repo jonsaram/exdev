@@ -205,6 +205,7 @@
 		OR    UPPER(BUYER_NM)	like '%' || UPPER( #{SEARCH_ID} ) || '%'
 		OR    UPPER(ADDR) 		like '%' || UPPER( #{SEARCH_ID} ) || '%'
 		)
+		AND CREATE_USER = #{sessionVo.userId}
 		AND USE_YN = 'Y'
 		AND DEL_YN = 'N'
 	</select>		
@@ -598,6 +599,8 @@
 				,BASE_FOLDER_ID
 				,UPDATE_DATE
 				,UPDATE_USER
+				,CREATE_DATE
+				,CREATE_USER
 				,SP_CSTM_ID
 			) VALUES ( 
 				 #{CONTRACT_ID			}
@@ -608,6 +611,8 @@
 				,'Y'
 				,'N' 
 				,#{BASE_FOLDER_ID		}
+	   			,sysdate
+	   			,#{sessionVo.userId		}
 	   			,sysdate
 	   			,#{sessionVo.userId		}
 				,#{sessionVo.spCstmId	}
@@ -649,6 +654,7 @@
 			AND (
 					A.CONTRACT_ID 	IN ( SELECT CONTRACT_ID FROM TBL_EXP_TEAM_MEMBER WHERE USER_ID = #{sessionVo.userId})
 				OR	A.USER_ID 		= #{sessionVo.userId}
+				OR	A.CREATE_USER	= #{sessionVo.userId}
 			)
 			AND A.BUYER_ID				= C.BUYER_ID
 			AND A.CONSULTING_ID			= D.CONSULTING_ID

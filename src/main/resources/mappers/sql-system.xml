@@ -1122,8 +1122,15 @@
    			,PIC_NUM
 		FROM
 		    TBL_EXP_USER A		
-		WHERE
-				USER_ID 	= #{sessionVo.userId	}
+		WHERE 1=1
+	    <choose>
+        <when test="USER_ID != null and !USER_ID.equals('') ">
+			AND	USER_ID 	= #{USER_ID}
+        </when>
+        <otherwise>
+			AND	USER_ID 	= #{sessionVo.userId	}
+        </otherwise>
+	    </choose>		
 			AND SP_CSTM_ID 	= #{sessionVo.spCstmId	}
 			AND USE_YN	= 'Y'
 			AND DEL_YN	= 'N'

@@ -81,7 +81,8 @@
 	
 				if( resultData.state == "S"){
 					
-					C_POP.alert('등록되었습니다.');
+					if("<@mode>" == "M") 	C_POP.alert('수정되었습니다.');
+					else					C_POP.alert('등록되었습니다.');
 					
 					setBuyerSession(saveData.BUYER_ID);
 					
@@ -111,6 +112,9 @@
 			$("#<@popupId>_BUYER"			).val(projectItem.BUYER_NM				);
 			$("#<@popupId>_CONSULTING"		).val(projectItem.CONSULTING_NM			);
 			
+			$("#<@popupId> #projectTitle").html("프로젝트 수정");
+			$("#<@popupId> #buyerBtn").remove();
+			
 			<@popupId>.CONTRACT_ID = projectItem.CONTRACT_ID
 		} else {
 			<@popupId>.CONTRACT_ID = C_COM.makeUniqueId();
@@ -124,7 +128,7 @@
 <div class="modal_wrap">
 	<div class="modal" style="width:570px;height:350px;">
 		<div class="modal_header">
-			<strong class="tit">프로젝트 등록</strong>
+			<strong class="tit" id="projectTitle">프로젝트 등록</strong>
 			<button type="button" class="btn_zoomInOut"><span class="txt">확대</span></button>
 			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 		</div>
@@ -134,8 +138,8 @@
 					<label>고객선택</label>
 					<div class="info">
 						<div class="search_inputWrap" style="width:100%">
-							<input type="search" id="<@popupId>_BUYER" placeholder="고객명(고객번호)">
-							<a href="javascript:void(0);" onclick="<@popupId>.buyerSearchPopup('BUYER');" class="search_btn"><i class="icon_search"></i></a>
+							<input type="search" id="<@popupId>_BUYER" placeholder="고객명(고객번호)" readOnly>
+							<a href="javascript:void(0);" onclick="<@popupId>.buyerSearchPopup('BUYER');" class="search_btn" id="buyerBtn"><i class="icon_search"></i></a>
 						</div>
 					</div>
 				</li>
@@ -144,6 +148,7 @@
 					<div class="info">
 						<div class="search_inputWrap" style="width:100%">
 							<input type="search" id="<@popupId>_USER" readOnly>
+							<a href="javascript:void(0);" onclick="<@popupId>.userSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
 						</div>
 					</div>
 				</li>

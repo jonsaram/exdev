@@ -150,9 +150,11 @@
 	C_POP.onLoadPopup("<@popupId>", function(data) {
 	
 		<@popupId>.projectInfo	= data.projectInfo;
-
+		
 		// 상신자 영업 등록
-		let userInfo = G_VAL.session.etcUserInfo;
+		var parm = {queryId	: "system.getEtcUserInfo" ,requestParm	: {USER_ID : data.projectInfo.USER_ID} }
+		let resultData = C_COM.requestQuery(parm);
+		let userInfo = resultData.data[0]; 
 		
 		userInfo["CONSULTING_TYPE"] =	<@popupId>.projectInfo["CONSULTING_TYPE"];
 		if( userInfo["CONSULTING_TYPE"] == "COWORK"){
