@@ -123,17 +123,17 @@ var <@pageId> = {
 				
 				const targetPayment = data.TARGET_PAYMENT;
 				const curMonthOSP = "<@pageId>_curMonthOSP+.sales_wrap";
-				const monthlyTargetPayment = ( (targetPayment / _HUNDRED_MILLION)/12 ).toFixed(2);
+				const monthlyTargetPayment = ( targetPayment/12 ).toFixed(2);
 				
 				$("#"+curMonthOSP+" .big_won 	.num"	).text( addComma(data.SUM_PAYMENT) 				);
-				$("#"+curMonthOSP+" .small_won	.num"	).text( addComma(monthlyTargetPayment) +'억원' 	);
+				$("#"+curMonthOSP+" .small_won	.num"	).text( addComma(monthlyTargetPayment) +'원' 	);
 				$("#"+curMonthOSP+" .potential  .num"	).text( addComma(data.POTENTIAL_CUSTOMER) 		);
 				$("#"+curMonthOSP+" .customer   .num"	).text( addComma(data.AFFILIATE_CNT) 			);
 				
 				$("#<@pageId>_exec	.num"				).text( addComma(data.EXEC_PAYMENT) 			);
 				$("#<@pageId>_sales .num"				).text( addComma(data.SALES_SUM_PAYMENT) 		);
 				
-				$("#<@pageId>_yearlyGoal").val( addComma(targetPayment / _HUNDRED_MILLION) );	
+				$("#<@pageId>_yearlyGoal").val( addComma(targetPayment) );	
 				
 				<@pageId>.YEARLY_TARGET_PAYMENT = targetPayment;
 				if(callback ) callback();
@@ -188,15 +188,16 @@ var <@pageId> = {
 				const monthlyPayment		= resultData.data ;
 				
 				<@pageId>.YEARLY_TARGET_PAYMENT = resultData.data[0].TARGET_PAYMENT;
-				
+			
 				const monthlyPaymentArr = [];
 				const paymentTrend = [];
 				let cumulativePayment = 0;
-				let maxVal = <@pageId>.YEARLY_TARGET_PAYMENT / _HUNDRED_MILLION + 0.5;
+				let maxVal = <@pageId>.YEARLY_TARGET_PAYMENT / 1000000 * 1.2;
+debugger;				
 				monthlyPayment.forEach( monthPay => {
 					
 				    cumulativePayment += monthPay.SUM_PAYMENT;
-				    paymentTrend.push(cumulativePayment);
+				    paymentTrend.push(Number(cumulativePayment.toFixed(2)));
 				    monthlyPaymentArr.push(monthPay.SUM_PAYMENT);
 				    const tmp = cumulativePayment >= monthPay.SUM_PAYMENT ? cumulativePayment: monthPay.SUM_PAYMENT;
 				    if( maxVal <= tmp)maxVal=tmp;
@@ -240,7 +241,7 @@ var <@pageId> = {
 					            }
 					        },
 					        labels: {
-					            format: '{value}'+'억' ,
+					            format: '{value}'+<@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE ) ,
 					            style: {
 			                        color: '#8A8C92',
 			                        fontFamily: 'Noto Sans KR',
@@ -250,11 +251,11 @@ var <@pageId> = {
 					        opposite: true,
 					        max: maxVal,
 					        plotLines: [{
-								value: <@pageId>.YEARLY_TARGET_PAYMENT / _HUNDRED_MILLION,
+								value: <@pageId>.YEARLY_TARGET_PAYMENT / 1000000 ,
 					            color: "#75ba75",
 					            width: 2,
 					            label: {
-					                text: '목표 '+<@pageId>.YEARLY_TARGET_PAYMENT / _HUNDRED_MILLION+" 억",
+					                text: '목표 '+<@pageId>.YEARLY_TARGET_PAYMENT / 1000000 +" 백만",
 					                align: 'right'
 					            },
 					            id: 'plot-line-id'
@@ -383,7 +384,7 @@ var <@pageId> = {
 			const val = Number($(obj).nval());
 			const targetPayment = val ;	
 			
-			<@pageId>.YEARLY_TARGET_PAYMENT = targetPayment *  _HUNDRED_MILLION;
+			<@pageId>.YEARLY_TARGET_PAYMENT = targetPayment;
 			
 			var parm = {
 				 queryId 		: "faDashboard.updateTargetPayment"
@@ -417,7 +418,7 @@ var <@pageId> = {
 		,updateYearyTargetPayment : () => {
 			
 			const plotObj = {
-			        value: <@pageId>.YEARLY_TARGET_PAYMENT / _HUNDRED_MILLION,
+			        value: <@pageId>.YEARLY_TARGET_PAYMENT,
 			        color: "#75ba75",
 			        width: 2,
 			        label: {
@@ -450,9 +451,10 @@ var <@pageId> = {
 C_PM.onLoadPage("<@pageId>", function() {
 	
 		<@pageId>.pageInit();
-		
-		C_COMP.import("<@pageId>_toDoList", "main_dashboard_compTodoList", {}, function(data) {
-		});
+		setTimeout( ()=>{
+			C_COMP.import("<@pageId>_toDoList", "main_dashboard_compTodoList", {}, function(data) {
+			});
+		},1000)
 		
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -488,7 +490,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<div class="customer">
 									<i class="icon_users_group"></i>
 									<div class="member_wrap">
-										<span class="txt">가맹 수</span>
+										<span class="txt">고객 수</span>
 										<span class="num_wrap"><span class="num">16</span>명</span>
 									</div>
 								</div>
@@ -508,7 +510,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<div class='search_inputWrap' style='width:100px;'>
 										<input type='search' id="<@pageId>_yearlyGoal" style='width:100%;padding:0'oninput='<@pageId>.changeGoalVal(this)' onblur='<@pageId>.blurGoalVal(this)' fix="2" number/>
 									</div>											
-									</span>억원</div>
+									</span>원</div>
 								</div>
 							</div>
 						</div>
