@@ -367,6 +367,33 @@
                 }
             });
         }
+        ,delete : function() {
+            
+            
+            let requestParm = {};            
+            requestParm["scheduleGrpId"]      = <@popupId>.scheduleGrpId;
+            requestParm["scheduleId"]         = <@popupId>.scheduleId;
+            
+            // 데이타 삭제
+            var parm = {
+                 serviceId              : "ScheduleService.deleteSchedule"
+                ,requestParm            : requestParm
+            }
+            C_COM.requestService(parm, function(resultData) {
+                
+                if("S" == resultData.data.state){
+                    C_POP.alert("일정이 삭제에 성공하였습니다.");
+                    var obj = new Object();
+                    obj.refresh = 'Y';
+                     
+                    C_POP.close(obj);
+                }else{
+                    C_POP.alert("일정이 삭제에 실패하였습니다.");
+                }
+                
+            });
+            
+        }
         ,update : function() {
             
             var loopType = C_UICOM.getData("<@popupId>_selectBoxLoopType");

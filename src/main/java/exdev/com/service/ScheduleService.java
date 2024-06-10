@@ -497,9 +497,96 @@ public class ScheduleService extends ExdevBaseService{
         map.put("list", listMap);
         return map;
     }
-    
-    
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Object getTeamDayRepeatSchedule(Map map) throws Exception {
+        
+        List<Map> listMap = new ArrayList<Map>();
+        
+        /* 매일반복 */
+        /**/
+        List<Map> daylist = commonDao.getList("schedule.getTeamDayRepeat", map);
+        for(Map resultMap : daylist) {
+            listMap.add(resultMap); 
+        }
+        
+        map.put("list", listMap);
+        return map;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Object getTeamNotRepeatSchedule(Map map) throws Exception {
+        
+        List<Map> listMap = new ArrayList<Map>();
+
+        /* 반복안함 */
+        /**/
+        List<Map> notRepeatlist = commonDao.getList("schedule.getTeamNotRepeat", map);
+        for(Map resultMap : notRepeatlist) {
+            listMap.add(resultMap); 
+        }
+        
+        map.put("list", listMap);
+        return map;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Object getTeamWeekRepeatSchedule(Map map) throws Exception {
+        
+        List<Map> listMap = new ArrayList<Map>();
+
+        /* 매주 반복 */
+        /**/
+        List<Map> weekRepeatlist = commonDao.getList("schedule.getTeamWeekRepeat", map);
+        for(Map resultMap : weekRepeatlist) {
+            listMap.add(resultMap); 
+        }
+
+        
+        map.put("list", listMap);
+        return map;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Object getTeamMonthRepeatSchedule(Map map) throws Exception {
+        
+        List<Map> listMap = new ArrayList<Map>();
+
+        /* 매월 말일선택 반복 */
+        /* */
+        List<Map> monthRepeatlistSelectDay = commonDao.getList("schedule.getTeamMonthRepeatSelectDay", map);
+        for(Map resultMap : monthRepeatlistSelectDay) {
+            listMap.add(resultMap);  
+        }
+        
+        /* 매월 반복 */
+        /* */
+        List<Map> monthRepeatlist = commonDao.getList("schedule.getTeamMonthRepeat", map);
+        for(Map resultMap : monthRepeatlist) {
+            listMap.add(resultMap);  
+        }
+
+        
+        map.put("list", listMap);
+        return map;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Object getTeamYearRepeatSchedule(Map map) throws Exception {
+        
+        List<Map> listMap = new ArrayList<Map>();
+
+        /* 매년 반복 */
+        /**/
+        List<Map> yearRepeatlist = commonDao.getList("schedule.getTeamYearRepeat", map);
+        for(Map resultMap : yearRepeatlist) {
+            listMap.add(resultMap); 
+        }
+
+        
+        map.put("list", listMap);
+        return map;
+    }
 	
 }
 
