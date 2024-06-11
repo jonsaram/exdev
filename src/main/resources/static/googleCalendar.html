@@ -14,7 +14,28 @@
           events: {
               googleCalendarId: '7838b8bc9283596ac5cfb9510977b466792487fa29200862bad1b7ea1e09266f@group.calendar.google.com'
             	  
-          }
+          },
+          eventClick : function(obj) {
+        	 obj.jsEvent.preventDefault();
+             console.log(obj.event);
+             console.log(" allDay ==>"+obj.event.allDay);
+             console.log(" defId ==>"+obj.event.defId);
+             console.log(" extendedProps.location: ==>"+obj.event.extendedProps.location);
+             console.log(" extendedProps.description:: ==>"+obj.event.extendedProps.description);
+             console.log(" title ==>"+obj.event.title);
+             console.log(" start ==>"+obj.event.start);
+             console.log(" startStr ==>"+obj.event.startStr);
+             console.log(" end ==>"+obj.event.end);
+             console.log(" endStr ==>"+obj.event.endStr);
+             
+             
+             var arrAttachments = obj.event.extendedProps.attachments; 
+             for (var i = 0; i < arrAttachments.length; i++) {
+                 console.log(arrAttachments[i]);
+             }    
+             
+             
+          },
         });
         calendar.render();
       });
