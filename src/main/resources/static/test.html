@@ -1,29 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="EUC-KR">
-<title>Insert title here</title>
-
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/translations/ko.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel 파일 읽기</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
 </head>
 <body>
-<form action="/save" method="POST">
-<div id="editor">
-    <p>Here goes the initial content of the editor.</p>
-</div>
-</form>
-<script>
-	    
-	ClassicEditor.create( document.querySelector( '#editor' ) )
-	.then( editor => {
-	    console.log( editor );
-	} )
-	.catch( error => {
-	    console.error( error );
-	} );
-	        
-</script>
+  <h1>Excel 파일 읽기</h1>
+  <input type="file" onchange="readExcel()">
+  <pre id="output"></pre>
+
+  <script>
+  function readExcel() {
+	    let input = event.target;
+	    let reader = new FileReader();
+	    reader.onload = function () {
+	        let data = reader.result;
+	        let workBook = XLSX.read(data, { type: 'binary' });
+	        workBook.SheetNames.forEach(function (sheetName) {
+	            console.log('SheetName: ' + sheetName);
+	            let rows = XLSX.utils.sheet_to_json(workBook.Sheets[sheetName]);
+	            console.log(JSON.stringify(rows));
+	        })
+	    };
+	    reader.readAsBinaryString(input.files[0]);
+	}
+  </script>
 </body>
 </html>
-
