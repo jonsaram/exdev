@@ -150,10 +150,75 @@
 			)
 	</update>	
 	
+
+	<sql id="getContractedBy">
+	/*
+		계약체결 계약금액, 계약종류 
+	*/
+		SELECT  MONTH , NULL, NULL, NULL 
+		<choose>
+			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('BIG') "> 
+			, ROUND(NVL(SUM(MONTHLY_TOTAL_COST)/100000000,0),2)	AS MONTHLY_TOTAL_COST
+			, ROUND(NVL(SUM(ONCE_TOTAL_COST)/100000000,0),2) 	AS ONCE_TOTAL_COST
+			, ROUND(NVL(SUM(COWORK_TOTAL_COST)/100000000,0),2) 	AS COWORK_TOTAL_COST
+			</when>
+			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('SMALL') "> 
+			, ROUND(NVL(SUM(MONTHLY_TOTAL_COST)/1000000,0),2)	AS MONTHLY_TOTAL_COST
+			, ROUND(NVL(SUM(ONCE_TOTAL_COST)/1000000,0),2) 		AS ONCE_TOTAL_COST
+			, ROUND(NVL(SUM(COWORK_TOTAL_COST)/1000000,0),2)	AS COWORK_TOTAL_COST
+			</when>
+		</choose>
+			,SUM(MONTHLY_CNT) 	MONTHLY_CNT
+			,SUM(ONCE_CNT)	 	ONCE_CNT
+			,SUM(COWORK_CNT)	COWORK_CNT
+		FROM(
+			SELECT MONTH 
+			, DECODE( CONSULTING_TYPE , 'MONTHLY'	, SUM_TOTAL_COST , 0) AS MONTHLY_TOTAL_COST , DECODE( CONSULTING_TYPE , 'MONTHLY'	, CNT , 0) AS MONTHLY_CNT
+			, DECODE( CONSULTING_TYPE , 'ONCE'		, SUM_TOTAL_COST , 0) AS ONCE_TOTAL_COST	, DECODE( CONSULTING_TYPE , 'ONCE'		, CNT , 0) AS ONCE_CNT
+			, DECODE( CONSULTING_TYPE , 'COWORK'	, SUM_TOTAL_COST , 0) AS COWORK_TOTAL_COST	, DECODE( CONSULTING_TYPE , 'COWORK'	, CNT , 0) AS COWORK_CNT
+			FROM (	
+				SELECT TO_CHAR(C.CONTRACT_DATE,'YYYY-MM') AS MONTH , CS.CONSULTING_TYPE , SUM(C.TOTAL_COST) SUM_TOTAL_COST , COUNT(*) CNT 
+				FROM 	TBL_EXP_CONTRACT C
+				,		TBL_EXP_CONSULTING CS
+				,		TBL_EXP_PAYMENT P
+				WHERE C.CONSULTING_ID  = CS.CONSULTING_ID 
+				AND C.CONTRACT_ID = P.CONTRACT_ID 
+				AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
+				AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
+				AND TO_CHAR(C.CONTRACT_DATE,'YYYY') = #{CUR_YEAR_DATE} 	
+				<if test = " personalSearch != null">
+			        <choose>
+			       	<when test='gubun != null '> 
+			        	<if test=" gubun.equals('execBosu') ">
+					    AND P.USER_ID	= #{sessionVo.userId	}  
+					    AND P.RELATION_TYPE = 'EXECUTE'
+			        	</if>
+			        	<if test=" gubun.equals('salesBosu') ">
+					    AND P.USER_ID	= #{sessionVo.userId	}  
+					    AND P.RELATION_TYPE != 'EXECUTE'
+			        	</if>
+					</when>	
+			       	<when test='gubun == null '> 
+					    AND P.USER_ID	= #{sessionVo.userId	}  
+					</when>						
+					</choose>						
+				</if>	
+				GROUP BY TO_CHAR(C.CONTRACT_DATE,'YYYY-MM') ,CS.CONSULTING_TYPE  
+			)
+		)
+		GROUP BY MONTH
+		ORDER BY MONTH	
+	</sql>
+	
+	<select id="getContractedByAll" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		<include refid="getContractedBy"/>
+	</select>
+	
 	<select id="getPaymentByMonth" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	faDashboard.getPaymentByMonth
 			월별 수수료 조회 ( 수수료 합계 추이 구하기 위함 )
 			( 실행 수수료 , 영업 수수료 )
+			( 계약체결 계약금액, 계약 종류)
 		*/
 		WITH MONTHS AS (
 		  SELECT DISTINCT  TO_CHAR(TO_DATE( #{CUR_YEAR_DATE}||'-01-01', 'YYYY-MM-DD') + LEVEL - 1, 'YYYY-MM') AS month
@@ -167,27 +232,36 @@
 			, ROUND(NVL(MAX(A.SUM_PAYMENT)/100000000,0),2)	 		AS SUM_PAYMENT
 			, ROUND(NVL(MAX(A.SUM_EXEC_PAYMENT)/100000000,0),2) 	AS SUM_EXEC_PAYMENT
 			, ROUND(NVL(MAX(A.SUM_SALES_PAYMENT)/100000000,0),2) 	AS SUM_SALES_PAYMENT
-			, NVL(MAX(A.SUM_CUSTOMER),0)							AS SUM_COSTOMER
 			</when>
 			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('SMALL') "> 
 			, ROUND(NVL(MAX(A.SUM_PAYMENT)/1000000,0),2)	 		AS SUM_PAYMENT
 			, ROUND(NVL(MAX(A.SUM_EXEC_PAYMENT)/1000000,0),2) 		AS SUM_EXEC_PAYMENT
 			, ROUND(NVL(MAX(A.SUM_SALES_PAYMENT)/1000000,0),2) 		AS SUM_SALES_PAYMENT
-			, NVL(MAX(A.SUM_CUSTOMER),0)							AS SUM_COSTOMER
 			</when>
-		</choose>		
-		, NVL((SELECT TARGET_PAYMENT FROM TBL_EXP_USER_CONFIG CF
-				WHERE	CF.SP_CSTM_ID 	= #{sessionVo.spCstmId}
-				AND		CF.USER_ID		= #{sessionVo.userId}
-				AND		CF.TARGET_YEAR	= #{CUR_YEAR_DATE} 	
-		 ),0) AS TARGET_PAYMENT
+		</choose>
+			, NVL(MAX(A.MONTHLY_TOTAL_COST),0)					AS MONTHLY_TOTAL_COST
+			, NVL(MAX(A.MONTHLY_CNT),0)							AS MONTHLY_CNT
+			, NVL(MAX(A.ONCE_TOTAL_COST),0)						AS ONCE_TOTAL_COST
+			, NVL(MAX(A.ONCE_CNT),0)							AS ONCE_CNT
+			, NVL(MAX(A.COWORK_TOTAL_COST),0)					AS COWORK_TOTAL_COST
+			, NVL(MAX(A.COWORK_CNT),0)							AS COWORK_CNT
+			, NVL((SELECT TARGET_PAYMENT FROM TBL_EXP_USER_CONFIG CF
+					WHERE	CF.SP_CSTM_ID 	= #{sessionVo.spCstmId}
+					AND		CF.USER_ID		= #{sessionVo.userId}
+					AND		CF.TARGET_YEAR	= #{CUR_YEAR_DATE} 	
+			 ),0) AS TARGET_PAYMENT
 		FROM(
 			SELECT 
 				TO_CHAR(RESULT_DATE,'YYYY-MM') AS MONTH
 				,SUM(PAYMENT) AS SUM_PAYMENT
 				,SUM(EXEC_PAYMENT) AS SUM_EXEC_PAYMENT
 				,SUM(SALES_PAYMENT) AS SUM_SALES_PAYMENT
-				,null AS SUM_CUSTOMER
+				,null AS MONTHLY_TOTAL_COST
+				,null AS MONTHLY_CNT
+				,null AS ONCE_TOTAL_COST
+				,null AS ONCE_CNT
+				,null AS COWORK_TOTAL_COST
+				,null AS COWORK_CNT
 			FROM(					
 						SELECT P.USER_ID
 						,R.RESULT_DATE
@@ -223,27 +297,7 @@
 			
 			UNION ALL 
 			
-			SELECT MONTH  
-					,NULL,NULL,NULL
-					,COUNT( CUSTOMER ) AS SUM_CUSTOMER
-			FROM(
-						SELECT DISTINCT TO_CHAR(RESULT_DATE,'YYYY-MM') AS MONTH , CUSTOMER ,BUYER_NM
-						FROM(
-							SELECT DISTINCT C.BUYER_ID AS CUSTOMER, B.BUYER_NM ,R.RESULT_DATE
-							FROM TBL_EXP_BUYER B ,TBL_EXP_CONTRACT C , TBL_EXP_RESULT R
-							,TBL_EXP_CONTRACT_MEMBER CM
-							WHERE B.USE_YN = 'Y' AND B.DEL_YN = 'N' AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
-							AND C.CONTRACT_ID = R.CONTRACT_ID
-							AND TO_CHAR(R.RESULT_DATE,'YYYY') = #{CUR_YEAR_DATE}
-							AND B.BUYER_ID = C.BUYER_ID
-							AND 'PRE_CONTRACT' != C.PROCESS_STATE
-							AND C.CONTRACT_ID = CM.CONTRACT_ID
-						    AND CM.USER_ID	= #{sessionVo.userId	}
-					    )
-					    ORDER BY MONTH 
-					    
-			)
-			GROUP BY MONTH
+			<include refid="getContractedBy"/>
 
 		) A
 		,MONTHS B 

@@ -757,3 +757,154 @@
         });
     }
 	
+	function _1stacked1LineChart(container, categories, series, unit ) {
+		
+		Highcharts.chart(container, {
+			 	    chart: {
+			 	        type: 'column'
+			 	    },
+ 					credits: {enabled: false},// 하이차트 워터마크 삭제
+			 	    title: {
+			 	        text: '',
+			 	        align: 'left'
+			 	    },
+				    legend: {
+				        x:200,
+				        verticalAlign: 'top',
+				        y:0,
+		        		floating: true,
+				        itemStyle: {
+				            fontWeight:'bold',
+				            fontFamily: 'Noto Sans KR',
+				            fontSize: '12px'
+				        },
+				    },
+			 	    xAxis: {
+			 	        categories: categories
+			 	    },
+			 	    yAxis: [{
+			 	        allowDecimals: false,
+			 	        min: 0,
+			 	        title: {
+			 	            text: '계약금액',
+				            style:{
+				            	color:"#27187F",
+		                        fontFamily: 'Noto Sans KR',
+		                        fontSize: '12px',
+		                        fontWeight: 'bold'
+				            }
+			 	        },
+				        labels: {
+				            format: '{value} '+unit,
+				            style: {
+				                color: Highcharts.getOptions().colors[0]
+				            }
+				        },
+
+			 	    }, {
+			 	        title: {
+			 	            text: '계약건수',
+					            style: {
+					                color: Highcharts.getOptions().colors[1]
+					            }
+			 	        },
+				        labels: {
+				            format: '{value} 건',
+				            style: {
+				                color: Highcharts.getOptions().colors[0]
+				            }
+				        },
+			 	        opposite: true
+			 	    }],
+			 	    tooltip: {
+		        		shared: true
+/*			 	        pointFormat: 
+							'<b>{key}</b><br/>{series.name}: {y}<br/>' +
+			 	            'Total: {point.stackTotal}'*/
+			 	    },
+			 	    plotOptions: {
+			 	        column: {
+			 	            stacking: 'normal'
+			 	        }
+			 	    },
+			 	    series: series
+			 	}); 
+
+	}	
+	
+	//  FA 수수료 차트 
+	function _1Bar1Line1HorizentalLineChart(container,maxVal, yearlyTargetPayment, series, unit ) {
+		
+		return  Highcharts.chart(container, {
+						chart: {
+					        zoomType: 'xy'
+					    },
+					    credits: {enabled: false},
+					    title: {
+					        text: '',
+					        align: 'left'
+					    },
+					    xAxis: [{
+					        categories: _monthArray,
+					        crosshair: true
+					    }],
+					    yAxis: [
+					    	{
+						        title: {
+						            text: '월별 수수료',
+						            style:{
+						            	color:"#27187F",
+				                        fontFamily: 'Noto Sans KR',
+				                        fontSize: '12px',
+				                        fontWeight: 'bold'
+						            }
+						        },
+						        labels: {
+						            format: '{value} '+unit,
+						        },
+						    },
+					    	{
+						        title: {
+						            text: '수수료 합계 추이',
+						            style: {
+						                color: Highcharts.getOptions().colors[1]
+						            }
+						        },
+						        labels: {
+						            format: '{value}'+unit ,
+						            style: {
+				                        color: '#8A8C92',
+				                        fontFamily: 'Noto Sans KR',
+				                        fontSize: '11px'
+				                    }
+						        },
+						        opposite: true,
+						        max: maxVal,
+						        plotLines: [{
+									value: yearlyTargetPayment ,
+						            color: "#75ba75",
+						            width: 2,
+						            label: {
+						                text: '목표 '+yearlyTargetPayment +" 백만",
+						                align: 'right'
+						            },
+						            id: 'plot-line-id'
+											}]
+					    	}
+						],
+					    tooltip: {
+					        shared: true
+					    },
+					    legend: {
+					        align: 'left',
+					        x: 630,
+					        verticalAlign: 'top',
+					        y: -15,
+					        floating: true,
+					        backgroundColor:
+					            Highcharts.defaultOptions.legend.backgroundColor ||
+					            'rgba(255,255,255,0.25)'
+					    },
+	 				    series: series  
+					});	
+	}	
