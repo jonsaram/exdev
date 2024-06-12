@@ -116,7 +116,7 @@ var <@pageId> = {
 				
 				let monthly	= {name:'월자문',data:[],stack:'consultingType' }
 				let once 	= {name:'일회성',data:[],stack:'consultingType' }
-				let contractCnt = {type:'line', name:'계약건수',data:[], yAxis:1, marker:{symbol: 'circle'} }
+				let contractCnt = {type:'line', name:'계약건수',color: "#75ba75", data:[],data2:[], yAxis:1, marker:{symbol: 'circle'} }
 				
 				const thisYear = dayjs().format("YYYY");
 				let accContractCnt= 0 
@@ -124,28 +124,19 @@ var <@pageId> = {
 						
 						const month = thisYear+"-"+m;
 						const match = data.filter( d => d.MONTH === month);
-////////// FOR TEST						
-						if( month == "2024-06"){
-
+							
+						if( match.length > 0 ){
+							
+							monthly.data.push	(match[0].MONTHLY_TOTAL_COST);
+							once.data.push		(match[0].ONCE_TOTAL_COST);
+							
+							accContractCnt += Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT);
+							contractCnt.data.push(accContractCnt	);
+						
+						}else{
 							monthly.data.push(0);
 							once.data.push(0);
 							contractCnt.data.push(accContractCnt);
-							
-						}else {
-							
-							if( match.length > 0 ){
-								
-								monthly.data.push	(match[0].MONTHLY_TOTAL_COST);
-								once.data.push		(match[0].ONCE_TOTAL_COST);
-								
-								accContractCnt += Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT);
-								contractCnt.data.push(accContractCnt	);
-							
-							}else{
-								monthly.data.push(0);
-								once.data.push(0);
-								contractCnt.data.push(accContractCnt);
-							}
 						}
 					
 				})
@@ -253,7 +244,7 @@ var <@pageId> = {
   					
   					let monthly	= {name:'월자문',data:[],stack:'consultingType' }
   					let once 	= {name:'일회성',data:[],stack:'consultingType' }
-  					let contractCnt = {type:'line', name:'계약건수',data:[], yAxis:1, marker:{symbol: 'circle'} }
+  					let contractCnt = {type:'line', name:'계약건수',color: "#75ba75", data:[],data2:[], yAxis:1, marker:{symbol: 'circle'} }
   					
   					const thisYear = dayjs().format("YYYY");
   					let accContractCnt= 0 
@@ -261,29 +252,22 @@ var <@pageId> = {
   							
   							const month = thisYear+"-"+m;
   							const match = data.filter( d => d.MONTH === month);
-  	////////// FOR TEST						
-  							if( month == "2024-06"){
-
-  								monthly.data.push(0);
-  								once.data.push(0);
-  								contractCnt.data.push(accContractCnt);
   								
-  							}else {
-  								
-  								if( match.length > 0 ){
-  									
-  									monthly.data.push	(match[0].MONTHLY_TOTAL_COST);
-  									once.data.push		(match[0].ONCE_TOTAL_COST);
-  									
-  									accContractCnt += Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT);
-  									contractCnt.data.push(accContractCnt	);
-  								
-  								}else{
-  									monthly.data.push(0);
-  									once.data.push(0);
-  									contractCnt.data.push(accContractCnt);
-  								}
-  							}
+							if( match.length > 0 ){
+								
+								monthly.data.push	(match[0].MONTHLY_TOTAL_COST);
+								once.data.push		(match[0].ONCE_TOTAL_COST);
+								
+								accContractCnt += Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT);
+								contractCnt.data.push(accContractCnt	);
+								contractCnt.data2.push(Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT))
+							
+							}else{
+								monthly.data.push(0);
+								once.data.push(0);
+								contractCnt.data.push(accContractCnt);
+								contractCnt.data2.push(0);
+							}
   						
   					})
   					

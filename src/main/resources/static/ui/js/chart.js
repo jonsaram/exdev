@@ -757,6 +757,7 @@
         });
     }
 	
+	// 고객 체결 추이 
 	function _1stacked1LineChart(container, categories, series, unit ) {
 		
 		Highcharts.chart(container, {
@@ -811,16 +812,30 @@
 				        labels: {
 				            format: '{value} 건',
 				            style: {
-				                color: Highcharts.getOptions().colors[0]
+				                color: Highcharts.getOptions().colors[2]
 				            }
 				        },
 			 	        opposite: true
 			 	    }],
 			 	    tooltip: {
 		        		shared: true
-/*			 	        pointFormat: 
-							'<b>{key}</b><br/>{series.name}: {y}<br/>' +
-			 	            'Total: {point.stackTotal}'*/
+					    ,formatter: function () {
+
+							const idx		= Number(this.x.replace("월","")) -1;
+							const monthly 	= this.points[0].series.userOptions;
+							const once 		= this.points[1].series.userOptions;
+							const contractedCnt = this.points[2].series.userOptions;
+					        let tooltip = '<b>' + this.x + '</b><br/>';
+				            	tooltip += '<span style="color:' + this.points[0].color + '">\u25CF</span> ';
+					            tooltip += monthly.name 		+ ': ' + monthly.data[idx] + unit +'<br>';
+					            tooltip += '<span style="color:' + this.points[1].color + '">\u25CF</span> ';
+					            tooltip += once.name 			+ ': ' + once.data[idx] + unit +'<br>';
+					            tooltip += '<span style="color:' + this.points[2].color + '">\u25CF</span> ';
+					            tooltip += contractedCnt.name 	+ ': ' + contractedCnt.data2[idx] +'건'+' <br>( 누적'+ contractedCnt.data[idx] + '건)';
+					        
+					        return tooltip;
+					    }
+						 
 			 	    },
 			 	    plotOptions: {
 			 	        column: {
@@ -832,7 +847,7 @@
 
 	}	
 	
-	//  FA 수수료 차트 
+	//  FA 수수료 합계 추이 차트 
 	function _1Bar1Line1HorizentalLineChart(container,maxVal, yearlyTargetPayment, series, unit ) {
 		
 		return  Highcharts.chart(container, {
