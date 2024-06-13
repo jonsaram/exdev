@@ -41,6 +41,17 @@
 				<@pageId>.setChart(resultData ,true)
 			});
 			
+			
+ 			// FA 월별 매출 누적합계 , FA 전월대비 매출 증감분 , FA 계약 건수(전체)
+			var parmBubble = {
+					 queryId 		: "rstMgn.getFaPaymentAcc"
+					,requestParm	: {GUBUN:'' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}
+			}
+
+			C_COM.requestQuery(parmBubble, function(resultData) {
+
+ 					<@pageId>.setBubbleChart(resultData)
+			});
 		}
 		,setChart : (resultData, starassetAll) =>{
 
@@ -247,7 +258,90 @@
 			}
 			
 			_setRemoveHighChartCredits();
-	
+			
+		}
+		,setBubbleChart : (resultData) =>{
+			
+			// FA 월별 매출 누적합계 , FA 전월대비 매출 증감분 , FA 계약 건수(전체)
+			const data =  _.orderBy(_.cloneDeep(resultData.data),['RANK'], ['asc']) ;
+			let firstData = data.splice(0,1)[0];
+			let bubleData = [];
+			data.forEach( item =>{
+				
+				bubleData.push( {	x: item.CONTRACT_CNT,	y: item.YEARLY_PAYMENT,	z: item.PERCENT,	name: item.USER_NM	} )
+				
+			})
+			
+			let series =[
+			{
+		        data: [
+						{	x: firstData.CONTRACT_CNT,	y: firstData.YEARLY_PAYMENT,	z: firstData.PERCENT,	name: firstData.USER_NM	}
+		        ]
+   			}
+			, 
+			{
+       			data: bubleData
+   			}
+			]
+			_bubbleChart('#bubbleChart1',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
+			<@pageId>.rankBoard('#bubbleChart1', resultData.data);
+			
+			//_bubbleChart('#bubbleChart2',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
+			
+			
+			const data3 =  _.orderBy(_.cloneDeep(resultData.data),['CC_RANK'], ['asc']) ;
+			firstData = data3.splice(0,1)[0];
+			bubleData = [];
+			data3.forEach( item =>{
+				
+				bubleData.push( {	x: item.YEARLY_PAYMENT,	y: item.CONTRACT_CNT,	z: item.CC_PERCENT,	name: item.USER_NM	} )
+				
+			})
+			
+			series =[
+			{
+		        data: [
+						{	x: firstData.YEARLY_PAYMENT,	y: firstData.CONTRACT_CNT,	z: firstData.CC_PERCENT,	name: firstData.USER_NM	}
+		        ]
+   			}
+			, 
+			{
+       			data: bubleData
+   			}
+			]
+			
+			_bubbleChart('#bubbleChart3',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
+			<@pageId>.rankBoard('#bubbleChart3', resultData.data);
+		}
+		,rankBoard : ( container, resultData ) => {
+			
+		    const percentField	= container === '#bubbleChart3' ? 'CC_PERCENT' 		: 'PERCENT';
+		    const valueField 	= container === '#bubbleChart3' ? 'CONTRACT_CNT' 	: 'YEARLY_PAYMENT';
+		    const unit	 		= container === '#bubbleChart3' ? '건' 				: '억';
+		    const rankField		= container === '#bubbleChart3' ? 'CC_RANK'			: 'RANK';
+			const data = _.orderBy(_.cloneDeep(resultData),[rankField], ['asc'])
+
+			
+			const myRankData = data.filter( item => item.IS_MY_RANK == "Y" )[0];
+			
+     		const myRank = `<h4 class="mb5" name='myRank'>내 랭킹</h4>
+							<div class="zt-skill-bar"><div class="data" data-width="${myRankData[percentField]}" style="width:${myRankData[percentField]}%!important"><div class="txtWrap"><span>#${myRankData[rankField]}</span>${myRankData.USER_NM}
+							<em>(<span>${myRankData[valueField]}</span>${unit})</em>
+							</div></div>
+							</div>`;
+
+			const rankAllData = data;
+			let rankAll = `<h4 class="mb5 mt20">전체 랭킹</h4>` ;
+			
+			rankAllData.forEach( item => {
+				
+				rankAll += `<div class="zt-skill-bar ${item.IS_MY_RANK === 'Y' ? 'my' : ''}"><div class="data" data-width="${item[percentField]}" style="width:${item[percentField]}%!important"><div class="txtWrap"><span>#${item[rankField]}</span>${item.USER_NM}<em>(<span>${item[valueField]}</span>${unit})</em></div></div></div>` ;
+				
+			})
+			
+    		
+			$(container).siblings("div.zt-span").append(myRank + rankAll);
+			
 		}
 		,getUnitStr : (str, gubun) =>{
 			
@@ -328,10 +422,10 @@
 			</div>
 		</section>
 
-	<div class="cont_top" style='margin-top:40px;'>
-		<h2><i class="icon_bullet"></i>STARASSET 전체 실적</h2>
-	</div>
-	<div class="sec_scroll">
+		<div class="cont_top" style='margin-top:40px;'>
+			<h2><i class="icon_bullet"></i>STARASSET 전체 실적</h2>
+		</div>
+		
 		<section class="sec_wrap">
 			<div class="cont_box col3">
 				<h3>월별 매출 누적합계</h3>
@@ -361,5 +455,43 @@
 				</figure>
 			</div>
 		</section>
-</div>
+
+		<section class="sec_wrap">
+			<div class="cont_box col3">
+				<h3>FA 매출 누적합계</h3>
+				<figure class="clearFix">
+			    	<div id="bubbleChart1" class="chart4 fl" style="width:calc(60% - 7.5px); height:280px; margin:0 auto"></div>
+			    	<div class="zt-span fl ml15" style="width:calc(40% - 7.5px)">
+					</div>
+				</figure>
+			</div>
+			<div class="cont_box col3">
+				<h3>FA 별 당월 매출</h3>
+				<figure class="clearFix">
+			    	<div id="bubbleChart2"  class="chart5 fl" style="width:calc(60% - 7.5px); height:280px; margin:0 auto"></div>
+			    	<div class="zt-span fl ml15" style="width:calc(40% - 7.5px)">
+			    		<h4 class="mb5">내 랭킹</h4>
+						<div class="zt-skill-bar"><div class="data" data-width="100" style=""><div class="txtWrap"><span>#1</span>이희성<em>(<span>23</span>억)</em></div></div></div>
+
+			    		<h4 class="mb5 mt20">전체 랭킹</h4>
+						<div class="zt-skill-bar my"><div class="data" data-width="100" style=""><div class="txtWrap"><span>#1</span>이희성<em>(<span>45.6</span>억)</em></div></div></div>
+						<div class="zt-skill-bar"><div class="data" data-width="92" style=""><div class="txtWrap"><span>#2</span>백보경<em>(<span>25.7</span>억)</em></div></div></div>
+						<div class="zt-skill-bar"><div class="data" data-width="85" style=""><div class="txtWrap"><span>#3</span>이주현<em>(<span>15.3</span>억)</em></div></div></div>
+						<div class="zt-skill-bar"><div class="data" data-width="80" style=""><div class="txtWrap"><span>#4</span>정승택<em>(<span>10.9</span>억)</em></div></div></div>
+						<div class="zt-skill-bar"><div class="data" data-width="70" style=""><div class="txtWrap"><span>#5</span>김상아<em>(<span>7.1</span>억)</em></div></div></div>
+						<div class="zt-skill-bar minus"><div class="data" data-width="10" style=""><div class="txtWrap"><span>#6</span>김용진<em>(<span>-3.5</span>억)</em></div></div></div>
+						<div class="zt-skill-bar minus"><div class="data" data-width="50" style=""><div class="txtWrap"><span>#7</span>최현성<em>(<span>-10.4</span>억)</em></div></div></div>
+					</div>
+				</figure>
+			</div>
+			<div class="cont_box col3">
+				<h3>FA 계약 건수(전체)</h3>
+				<figure class="clearFix">
+			    	<div id="bubbleChart3"  class="chart6 fl" style="width:calc(60% - 7.5px); height:280px; margin:0 auto"></div>
+			    	<div class="zt-span fl ml15" style="width:calc(40% - 7.5px)">
+					</div>
+				</figure>
+			</div>
+		</section>
+	</div><!-- sec_scroll -->				
 </div>

@@ -922,4 +922,70 @@
 					    },
 	 				    series: series  
 					});	
-	}	
+	}
+	
+	function _bubbleChart (container , series , unit) {
+		
+		const formatter =  function() {
+					if( container == "#bubbleChart1")
+		            return '<span style="color:#27187F">\u25CF</span> ' + 
+						'<b>' + this.point.name + '</b><br>' +
+		                '계약건수: ' + this.x + '건<br>' +
+		                '매출: ' + this.y + unit+'<br>' +
+		                '전체매출대비: ' + this.point.z+'%';
+					if( container == "#bubbleChart3")
+		            return '<span style="color:#27187F">\u25CF</span> ' + 
+						'<b>' + this.point.name + '</b><br>' +
+		                '계약건수: ' + this.y + '건<br>' +
+		                '매출: ' + this.x + unit+'<br>' +
+		                '전체계약대비: ' + this.point.z+'%';
+			
+        }
+
+		$(container).highcharts({
+			chart: {
+		        type: 'bubble',
+		        zoomType: 'xy'
+		    },
+		    credits: {enabled: false},// 하이차트 워터마크 삭제
+		    title: {
+		        text: '',
+		        align: 'left'
+		    },
+		    legend: {
+		        enabled: false
+		    },
+		    colors: ['#3ba8c3', '#8A8C92'],
+		    xAxis: {
+		        labels: {
+		          style: {
+		            color: '#8A8C92',
+		            fontFamily: 'Noto Sans KR',
+		            fontSize: '11px'
+		          }
+		        },
+		      lineColor: '#DADADA', /* x축 라인색 */
+		    },
+	
+		    yAxis: {
+		        labels: {
+		          format: '{value}'+ (container == "#bubbleChart3" ? "건" : unit),
+		          style: {
+		            color: '#8A8C92',
+		            fontFamily: 'Noto Sans KR',
+		            fontSize: '11px'
+		          }
+		        },
+		        title: {
+		          text: ''
+		        }
+		    },
+
+		    tooltip: {
+        		shared: true,
+		        formatter: formatter
+			},
+		    series: series
+		});		
+		
+	}

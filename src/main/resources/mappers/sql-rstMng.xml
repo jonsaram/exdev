@@ -769,4 +769,185 @@
 		WHERE  M.month = Data.CONTRACT_DATE(+)
 		ORDER BY M.MONTH
 	</select>	
+	
+	<select id="getFaPaymentAcc" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getFaPaymentAcc
+			FA 월별 매출 누적합계 , FA 계약건수( 전체 )
+		*/
+		SELECT 
+	    USER_ID
+	    ,GET_USER_NM(USER_ID) AS USER_NM
+	    ,DECODE( USER_ID, #{sessionVo.userId},'Y','N') AS IS_MY_RANK
+	    ,RANK() OVER (ORDER BY YEARLY_PAYMENT DESC, CONTRACT_CNT DESC) AS RANK
+	    ,RANK() OVER (ORDER BY CONTRACT_CNT DESC ,YEARLY_PAYMENT DESC ) AS CC_RANK
+	    ,CONTRACT_CNT
+	    ,ROUND( CONTRACT_CNT / SUM(CONTRACT_CNT) OVER() * 100, 2) AS CC_PERCENT
+		<choose>
+			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('BIG') ">
+			, ROUND(	YEARLY_PAYMENT /100000000, 2)			AS YEARLY_PAYMENT 
+			, ROUND(	(YEARLY_PAYMENT /100000000 
+			/ SUM(YEARLY_PAYMENT /100000000) OVER()) * 100, 2) 	AS PERCENT
+			</when>
+			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('SMALL') ">
+			, ROUND(	YEARLY_PAYMENT /1000000,2) 				AS YEARLY_PAYMENT 
+			, ROUND(	(YEARLY_PAYMENT  /1000000
+			/ SUM(YEARLY_PAYMENT /1000000) OVER()) * 100, 2) 	AS PERCENT
+			</when>
+		</choose>		
+		FROM (
+		    SELECT 
+		        USER_ID,
+		        SUM(YEARLY_PAYMENT) AS YEARLY_PAYMENT,
+		        SUM(CONTRACT_CNT) AS CONTRACT_CNT
+		    FROM (
+		        SELECT 
+		            USER_ID,
+		            SUM(YEARLY_PAYMENT) AS YEARLY_PAYMENT,
+		            0 AS CONTRACT_CNT
+		        FROM (
+		            SELECT DISTINCT 
+		                P.USER_ID,
+		                CASE 
+		                    WHEN TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY') 
+		                    THEN P.PAYMENT 
+		                    ELSE 0 
+		                END AS YEARLY_PAYMENT
+		            FROM 
+		                TBL_EXP_CONTRACT C,
+		                TBL_EXP_RESULT R,
+		                TBL_EXP_CONTRACT_MEMBER CM,
+		                TBL_EXP_PAYMENT P
+		            WHERE 
+		                C.CONTRACT_ID = R.CONTRACT_ID 
+		                AND C.CONTRACT_ID = CM.CONTRACT_ID 
+		                AND C.CONTRACT_ID = P.CONTRACT_ID 
+		                AND R.CONTRACT_ID = P.CONTRACT_ID 
+		                AND P.RELATION_TYPE = CM.RELATION_TYPE
+		                AND C.USE_YN = 'Y' 
+		                AND C.DEL_YN = 'N' 
+		                AND R.USE_YN = 'Y' 
+		                AND R.DEL_YN = 'N'
+		                AND CM.USE_YN = 'Y' 
+		                AND CM.DEL_YN = 'N' 
+		                AND P.USE_YN = 'Y' 
+		                AND P.DEL_YN = 'N'
+		                AND TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+		                AND CM.RELATION_TYPE = 'SALES'
+		        )
+		        GROUP BY USER_ID
+		
+		        UNION ALL 
+		
+		        SELECT 
+		            USER_ID,
+		            0 AS YEARLY_PAYMENT,
+		            COUNT(CONTRACT_ID) AS CONTRACT_CNT
+		        FROM (
+		            SELECT DISTINCT 
+		                P.USER_ID,
+		                C.CONTRACT_ID
+		            FROM 
+		                TBL_EXP_CONTRACT C,
+		                TBL_EXP_RESULT R,
+		                TBL_EXP_CONTRACT_MEMBER CM,
+		                TBL_EXP_PAYMENT P
+		            WHERE 
+		                C.CONTRACT_ID = R.CONTRACT_ID 
+		                AND C.CONTRACT_ID = CM.CONTRACT_ID 
+		                AND C.CONTRACT_ID = P.CONTRACT_ID 
+		                AND R.CONTRACT_ID = P.CONTRACT_ID 
+		                AND P.RELATION_TYPE = CM.RELATION_TYPE
+		                AND C.USE_YN = 'Y' 
+		                AND C.DEL_YN = 'N' 
+		                AND R.USE_YN = 'Y' 
+		                AND R.DEL_YN = 'N'
+		                AND CM.USE_YN = 'Y' 
+		                AND CM.DEL_YN = 'N' 
+		                AND P.USE_YN = 'Y' 
+		                AND P.DEL_YN = 'N'
+		                AND TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+		                AND CM.RELATION_TYPE = 'SALES'
+		        )
+		        GROUP BY USER_ID
+		    )
+		    GROUP BY USER_ID
+		)
+	</select>	
+	
+	<select id="getFaPaymentRate" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	rstMgn.getFaPaymentRate
+			FA 전월대비 매출 증감분
+		*/
+		SELECT USER_ID 
+		, GET_USER_NM( USER_ID ) 			AS USER_NM 
+		, MAX( YEARLY_PAYMENT ) 			AS YEARLY_PAYMENT 
+		, MAX( CONTRACT_CNT ) 				AS CONTRACT_CNT
+		, SUM(MAX( YEARLY_PAYMENT )) OVER() AS TOTAL_YEARLY_PAYMENT
+		, MAX( YEARLY_PAYMENT ) 
+		/ SUM(MAX( YEARLY_PAYMENT )) OVER() AS PERCENT
+		FROM(
+			SELECT USER_ID
+			, SUM(YEARLY_PAYMENT) 	AS YEARLY_PAYMENT
+			,NULL AS CONTRACT_CNT
+			FROM(
+
+				SELECT DISTINCT P.USER_ID
+				,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = TO_DATE( sysdate , 'YYYY') THEN P.PAYMENT ELSE 0 END 								AS YEARLY_PAYMENT /* 연간 수수료 */ 
+				,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = TO_DATE( sysdate , 'YYYY') THEN DECODE( P.EXEC_TYPE,'EXEC', PAYMENT, 0) ELSE 0 END 	AS YEARLY_EXEC_PAYMENT 
+				,CASE WHEN  TO_CHAR(R.RESULT_DATE,'YYYY') = TO_DATE( sysdate , 'YYYY') THEN DECODE( P.EXEC_TYPE,'EXEC', 0 ,PAYMENT) ELSE 0 END 	AS YEARLY_SALES_PAYMENT 
+				FROM TBL_EXP_CONTRACT C , TBL_EXP_RESULT R , TBL_EXP_CONTRACT_MEMBER CM
+				,TBL_EXP_PAYMENT P
+				WHERE 1=1 
+				AND C.CONTRACT_ID	= R.CONTRACT_ID 
+				AND C.CONTRACT_ID	= CM.CONTRACT_ID 
+				AND C.CONTRACT_ID 	= P.CONTRACT_ID 
+				AND R.CONTRACT_ID 	= P.CONTRACT_ID 
+				AND P.RELATION_TYPE	= CM.RELATION_TYPE
+				AND C.USE_YN 		= 'Y' 	
+				AND C.DEL_YN 		= 'N' 	
+				AND R.USE_YN 		= 'Y' 
+				AND R.DEL_YN 		= 'N'
+				AND CM.USE_YN 		= 'Y' 
+				AND CM.DEL_YN 		= 'N' 
+				AND P.USE_YN 		= 'Y' 
+				AND P.DEL_YN 		= 'N'
+				AND TO_CHAR(R.RESULT_DATE,'YYYY') = TO_DATE( sysdate , 'YYYY')
+				AND CM.RELATION_TYPE = 'SALES'
+			)
+			GROUP BY USER_ID
+
+			UNION ALL 
+		
+			SELECT USER_ID
+			, NULL 
+			, COUNT(CONTRACT_ID) 	AS CONTRACT_CNT
+			FROM(			
+				SELECT DISTINCT P.USER_ID
+				,C.CONTRACT_ID
+				FROM TBL_EXP_CONTRACT C , TBL_EXP_RESULT R , TBL_EXP_CONTRACT_MEMBER CM
+				,TBL_EXP_PAYMENT P
+				WHERE 1=1 
+				AND C.CONTRACT_ID	= R.CONTRACT_ID 
+				AND C.CONTRACT_ID	= CM.CONTRACT_ID 
+				AND C.CONTRACT_ID 	= P.CONTRACT_ID 
+				AND R.CONTRACT_ID 	= P.CONTRACT_ID 
+				AND P.RELATION_TYPE	= CM.RELATION_TYPE
+				AND C.USE_YN 		= 'Y' 	
+				AND C.DEL_YN 		= 'N' 	
+				AND R.USE_YN 		= 'Y' 
+				AND R.DEL_YN 		= 'N'
+				AND CM.USE_YN 		= 'Y' 
+				AND CM.DEL_YN 		= 'N' 
+				AND P.USE_YN 		= 'Y' 
+				AND P.DEL_YN 		= 'N'
+				AND TO_CHAR(R.RESULT_DATE,'YYYY') = TO_DATE( sysdate , 'YYYY')
+				AND CM.RELATION_TYPE = 'SALES'	
+			)
+			GROUP BY USER_ID
+			ORDER BY USER_ID		
+		)
+		GROUP BY USER_ID 
+		ORDER BY YEARLY_PAYMENT DESC , 	CONTRACT_CNT DESC
+	</select>	
+	
 </mapper>
