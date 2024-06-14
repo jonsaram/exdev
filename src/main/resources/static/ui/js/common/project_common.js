@@ -1479,19 +1479,43 @@ var C_UICOM = {
 		var templatetext 	= "";
 		var valList		= [];
 		var selectCnt   = -1;
-		$(pageWebId + " input[type=checkbox]:checked").each(function(idx) {
+		var allCnt		= $(pageWebId + " input[type=checkbox]").length - 1;
+		var idx = 1
+		$(pageWebId + " input[type=checkbox]:checked").each(function() {
+			var id	 = $(this).attr("id");
+			if(id == `mutli${targetId}_all`) return true;  // 전체인경우 Skip
 			var val  = $(this).val();
 			var name = $(this).attr("nametext");
 			if(templatetext == "") templatetext = name;
 			valList.push(val);
-			selectCnt = idx;
+			selectCnt = idx++;
 		});
 		if(selectCnt < 0) templatetext = "선택";
 		if(selectCnt > 0) templatetext = templatetext + " 외 " + selectCnt;
+
+		if(allCnt == selectCnt) {
+			$(`#${templateId} #mutli${targetId}_all`).prop("checked", true);
+		} else {
+			$(`#${templateId} #mutli${targetId}_all`).prop("checked", false);
+		}
 		
 		$(pageWebId + " .hida").html(templatetext);
 
 		C_UICOM._setDataListMap(targetId, valList); 
+		
+	 }
+	,clickMultiBoxAllCheck : function(targetId, thisDom) {
+		var templateId = C_COM.getCurrentTemplateId();
+		
+		var pageWebId = "#" + templateId + " #" + targetId + " ";
+
+		var templateTargetId = templateId + targetId;
+		
+		let check = $(thisDom).prop("checked");
+		
+		$(pageWebId + " input[type=checkbox]").prop("checked", check);
+		
+		C_UICOM.clickMultiBox(targetId);
 		
 	 }
 	,setMultiBox : function(targetId, valList) {

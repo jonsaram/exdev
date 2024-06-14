@@ -775,14 +775,18 @@
 			,CMMT
 			,GET_USER_NM(A.UPDATE_USER) AS USER_NM
 			,TO_CHAR( A.UPDATE_DATE , 'MM-DD HH24:MI' ) AS UPDATE_DATE
+			,A.UPDATE_DATE AS UPDATE_DATE_ORD
 		FROM 
 		 	 TBL_EXP_WORK_CMMT  A
 		WHERE 1=1
 			AND	A.CONTRACT_ID 	= #{CONTRACT_ID}
 			AND A.DEL_YN		= 'N'
-		ORDER BY UPDATE_DATE DESC		
+		<if test=" lastReadTime != null and !lastReadTime.equals('') ">
+		    AND A.UPDATE_DATE > TO_DATE( #{lastReadTime} , 'YYYY-MM-DD HH24:MI:SS' )  
+       	</if>
+			
+		ORDER BY UPDATE_DATE_ORD ASC		
 	</select>	
-	
 	
 	<update id="registWorkCmmt">
 		/*	contract."registWorkCmmt"
