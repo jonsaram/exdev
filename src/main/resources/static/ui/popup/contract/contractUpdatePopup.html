@@ -150,17 +150,17 @@ var <@popupId> = {
 		if( !buyerValid 	|| isEmpty(returnData["BUYER_ID"]) 	) {C_POP.alert("고객명을 조회하여 입력하여 주십시오."); return false;}
 		if( !userValid		|| isEmpty(returnData["USER_ID"]) 	) {C_POP.alert("계약담당자를 조회하여 입력하여 주십시오."); return false;}
 		if( isEmpty(returnData["CONTACT_DATE"]) 				) {C_POP.alert("상담일을 선택하여 주십시오."); return false;}
-		if( isEmpty(returnData["CONTRACT_DATE"]) 				) {C_POP.alert("계약일을 선택하여 주십시오."); return false;}
+		if( isEmpty(returnData["CONTRACT_DATE"]) 				) {
+			$("#<@popupId>_EXPIRE_DATE").val('');
+			C_POP.alert("계약일을 선택하여 주십시오."); return false;
+		}
 		
-		if( <@popupId>.updatingData["CONSULTING_TYPE"] != "ONCE" 
+		if( <@popupId>.updatingData["CONSULTING_TYPE"] == "MONTHLY" 
 				&& isEmpty(returnData["EXPIRE_DATE"]) 			) {C_POP.alert("만료일을 선택하여 주십시오."); return false;}
 		
-		//if( returnData["CONTRACT_TYPE"] == '--'  				) {C_POP.alert("계약구분을 선택하여 주십시오."); return false;}
 		if( isEmpty(returnData["TOTAL_COST"]) 					) {C_POP.alert("총계약금액을 입력하여 주십시오."); return false;}
-		if( isEmpty(returnData["CONSULTING"]) 					) {C_POP.alert("컨설팅 상품을 입력하여 주십시오."); return false;}
 		if( returnData["CONSULTING_CLASS"] == '--'  			) {C_POP.alert("컨설팅 분야를 선택하여 주십시오."); return false;}
-		if( isEmpty(returnData["TAX_MNG"]) 						) {C_POP.alert("세무담당을 입력하여 주십시오."); return false;}
-		if( isEmpty(returnData["LABOR_MNG"]) 					) {C_POP.alert("노무담당을 입력하여 주십시오."); return false;}
+		if( isEmpty(returnData["CONSULTING"]) 					) {C_POP.alert("컨설팅 상품을 입력하여 주십시오."); return false;}
 		if( <@popupId>.getContractMember().length == 0			) {C_POP.alert("코웍 사원을 등록하여 주십시오."); return false;}
 
 		const sps = C_UICOM.getData("<@popupId>_selectProcessStatus");
@@ -592,6 +592,11 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 		 $("#<@popupId>_EXPIRE_DATE").prop("disabled",true);
 		setTimeout( ()=>{$("#<@popupId>_EXPIRE_DATE + .ui-datepicker-trigger").remove();},200)
 	}
+	//컨설팅 상품이 월자문인경우 만료일은 필수입력항목.
+	if( <@popupId>.updatingData.CONSULTING_TYPE == "MONTHLY"){
+		
+		$("#<@popupId>_expireDateLabel").html(`<span class="required-label">만료일</span>`)
+	}
 	
 	//현 상태 저장.
 	<@popupId>.processState		= <@popupId>.recvData.param.PROCESS_STATE;
@@ -611,8 +616,15 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.setHandler();
 });
 </script>
+<style>
+.required-label::after {
+    content: "*";
+    color: red;
+    margin-left: 5px; /* 별표와 텍스트 사이의 간격 조정 */
+}
+</style>
 <div class="modal_wrap">
-	<div class="modal" style="width:680px;height:700px;">
+	<div class="modal" style="width:680px;height:730px;">
 		<div class="modal_header">
 			<strong class="tit">계약 등록</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
@@ -644,21 +656,22 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								
 
 								<li class="w100" >
-									<label>고객선택</label>
+									<label><span class="required-label">고객선택</span></label>
+									
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%" id="<@popupId>_BUYER">
 										</div>
 									</div>
 								</li>
 								<li class="w100 ml0" >
-									<label>계약담당자</label>
+									<label><span class="required-label">계약담당자</span></label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%" id="<@popupId>_USER">
 										</div>
 									</div>
 								</li>
 								<li >
-									<label>상담일</label>
+									<label><span class="required-label">상담일</span></label>
 									<div class="info">
 										<div class="calendar_wrap">
 											<input type="text" class="datepicker" id="<@popupId>_CONTACT_DATE" style="width:100%" required>
@@ -666,7 +679,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									</div>
 								</li>
 								<li >
-									<label>계약일</label>
+									<label><span class="required-label">계약일</span></label>
 									<div class="info">
 										<div class="calendar_wrap">
 											<input type="text" class="datepicker" id="<@popupId>_CONTRACT_DATE" style="width:197px;">
@@ -675,7 +688,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								</li>
 								
 								<li>
-									<label>만료일</label>
+									<label id='<@popupId>_expireDateLabel'>만료일</label>
 									<div class="info">
 										<div class="calendar_wrap">
 											<input type="text" class="datepicker" id="<@popupId>_EXPIRE_DATE"  style="width:100%">
@@ -698,13 +711,13 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								</li>
  -->																
 								<li class="ml0">
-									<label>총계약금액</label>
+									<label><span class="required-label">총계약금액</span></label>
 									<div class="info">
 										<input type="text"  id="<@popupId>_TOTAL_COST" style="width:96%" number>
 									</div>
 								</li>
 								<li class="w100 ml0">
-									<label>컨설팅 분야</label>
+									<label><span class="required-label">컨설팅 분야</span></label>
 									<div class="info">
 										<!-- 싱글 선택 -->
 										<div id="<@popupId>_selectConsultingClass" column = "CONSULTING_CLASS" class="select_box" style="width:100%"></div>
@@ -712,7 +725,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								</li>
 								
 								<li class="w100 ml0">
-									<label>컨설팅 상품</label>
+									<label><span class="required-label">컨설팅 상품</span></label>
 									<div class="info">
 										<div class="search_inputWrap" style="width:100%">
 											<input type="search" id="<@popupId>_CONSULTING" placeholder="상품명(상품TYPE)">
@@ -731,6 +744,12 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<label>노무담당</label>
 									<div class="info">
 										<input type="text" id='<@popupId>_LABOR_MNG' style="width:100%">
+									</div>
+								</li>
+								<li class="w100 ml0">
+									<label>기타 전문가</label>
+									<div class="info">
+										<input type="text" id='<@popupId>_ANOTHER_EXPERT' style="width:100%">
 									</div>
 								</li>
 							</ul>

@@ -24,7 +24,10 @@
 		,C.CONTRACT_TYPE
 		,GET_CODE_NM('CONTRACT_TYPE', C.CONTRACT_TYPE)	AS CONTRACT_TYPE_NM
 		,TO_CHAR( C.CONTRACT_DATE , 'YYYY-MM-DD' ) 	AS CONTRACT_DATE 
-		,TO_CHAR( C.EXPIRE_DATE , 'YYYY-MM-DD' ) 	AS EXPIRE_DATE 
+		,CASE WHEN CT.CONSULTING_TYPE = 'ONCE' 
+				THEN TO_CHAR( C.CONTRACT_DATE , 'YYYY-MM-DD' )
+				ELSE TO_CHAR( C.EXPIRE_DATE , 'YYYY-MM-DD' ) 
+		END											AS EXPIRE_DATE 
 		,C.TOTAL_COST /* 총계약금액 */
 		,C.CONSULTING_ID
 		,CT.CONSULTING_NM/* 컨설팅명 */
@@ -32,6 +35,7 @@
 		,GET_CODE_NM('CONSULTING_TYPE', CT.CONSULTING_TYPE )  CONSULTING_TYPE_NM
 		,TAX_MNG
 		,LABOR_MNG
+		,ANOTHER_EXPERT
 		,CONSULTING_CLASS
 		,GET_CODE_NM('CONSULTING_CLASS', C.CONSULTING_CLASS)	AS CONSULTING_CLASS_NM
 		,C.USE_YN
@@ -324,8 +328,15 @@
 		         TRIM(#{CONTRACT_TYPE})					AS CONTRACT_TYPE,
 		         TO_DATE(#{EXPIRE_DATE},'YYYY-MM-DD')	AS EXPIRE_DATE,
 		         REPLACE(#{TOTAL_COST},',','') 			AS TOTAL_COST,
+		         <if test=" TAX_MNG != null and !TAX_MNG.equals('') ">
 		         #{TAX_MNG} 							AS TAX_MNG,
+		         </if>
+		         <if test=" LABOR_MNG != null and !LABOR_MNG.equals('') ">
 		         #{LABOR_MNG} 							AS LABOR_MNG,
+		         </if>
+		         <if test=" ANOTHER_EXPERT != null and !ANOTHER_EXPERT.equals('') ">
+		         #{ANOTHER_EXPERT} 						AS ANOTHER_EXPERT,
+		         </if>
 		         #{CONSULTING_CLASS} 					AS CONSULTING_CLASS,
 				 #{CONSULTING_ID} 						AS CONSULTING_ID,
 				 <if test=" PROCESS_STATE != null and !PROCESS_STATE.equals('') ">
@@ -348,8 +359,15 @@
 		         T.CONTRACT_TYPE 	= S.CONTRACT_TYPE,
 		         T.EXPIRE_DATE 		= S.EXPIRE_DATE,
 		         T.TOTAL_COST 		= S.TOTAL_COST,
+		         <if test=" TAX_MNG != null and !TAX_MNG.equals('') ">
 		         T.TAX_MNG 			= S.TAX_MNG,
+		         </if>
+		         <if test=" LABOR_MNG != null and !LABOR_MNG.equals('') ">
 		         T.LABOR_MNG 		= S.LABOR_MNG,
+		         </if>
+		         <if test=" ANOTHER_EXPERT != null and !ANOTHER_EXPERT.equals('') ">
+		         T.ANOTHER_EXPERT 	= S.ANOTHER_EXPERT,
+		         </if>
 		         T.CONSULTING_CLASS	= S.CONSULTING_CLASS,
  		         T.CONSULTING_ID 	= S.CONSULTING_ID,
 				 <if test=" PROCESS_STATE != null and !PROCESS_STATE.equals('') ">
@@ -362,7 +380,17 @@
 		         T.UPDATE_DATE		= SYSDATE
 		WHEN NOT MATCHED THEN 
      		INSERT (  CONTRACT_ID, USER_ID, BUYER_ID, CONTACT_DATE, CONTRACT_DATE, CONTRACT_TYPE, EXPIRE_DATE
-    				, TOTAL_COST,  TAX_MNG, LABOR_MNG , PROCESS_STATE	, CONSULTING_ID
+    				, TOTAL_COST
+    				<if test=" TAX_MNG != null and !TAX_MNG.equals('') ">
+    				, TAX_MNG
+    				</if>
+    				<if test=" LABOR_MNG != null and !LABOR_MNG.equals('') ">
+    				, LABOR_MNG 
+    				</if>
+    				<if test=" ANOTHER_EXPERT != null and !ANOTHER_EXPERT.equals('') ">
+    				, ANOTHER_EXPERT
+    				</if>
+    				, PROCESS_STATE	, CONSULTING_ID
     				, CONSULTING_CLASS
 					 <if test=" LAST_SOLUTION != null and !LAST_SOLUTION.equals('') ">
 	    				, LAST_SOLUTION
@@ -373,7 +401,17 @@
 	    			 , DEL_YN
     				)
    			VALUES (  S.CONTRACT_ID, S.USER_ID, S.BUYER_ID, S.CONTACT_DATE, S.CONTRACT_DATE, S.CONTRACT_TYPE, S.EXPIRE_DATE
-    				, S.TOTAL_COST, S.TAX_MNG, S.LABOR_MNG , 'PRE_CONTRACT' , S.CONSULTING_ID 
+    				, S.TOTAL_COST
+    				<if test=" TAX_MNG != null and !TAX_MNG.equals('') ">
+    				, S.TAX_MNG
+    				</if>
+    				<if test=" LABOR_MNG != null and !LABOR_MNG.equals('') ">
+    				, S.LABOR_MNG 
+    				</if>
+    				<if test=" ANOTHER_EXPERT != null and !ANOTHER_EXPERT.equals('') ">
+    				, S.ANOTHER_EXPERT 
+    				</if>
+    				, 'PRE_CONTRACT' , S.CONSULTING_ID 
     				, S.CONSULTING_CLASS
 					<if test=" LAST_SOLUTION != null and !LAST_SOLUTION.equals('') ">
 	    				, S.LAST_SOLUTION
