@@ -553,6 +553,9 @@
 			</button>
 		    <div class="mutliSelect" uid="{{:targetId}}">
 		        <ul uid="{{:targetId}}" id="{{:targetId}}_ul">
+					<li uid="{{:targetId}}">
+		                <input type="checkbox" nametext="ALL" value="" id="mutli{{:targetId}}_all" onClick="C_UICOM.clickMultiBoxAllCheck('{{:targetId}}', this)"><label for="mutli{{:targetId}}_all">ALL</label>
+		    		</li>
 				{{for list ~targetId=targetId}}
 		            <li uid="{{:targetId}}">
 		                <input uid="{{:targetId}}" type="checkbox" nametext="{{:NM}}" value="{{:CD}}" id="mutli{{:~targetId}}{{:#index}}" onClick="C_UICOM.clickMultiBox('{{:~targetId}}')"><label uid="{{:targetId}}" for="mutli{{:~targetId}}{{:#index}}">{{:NM}}</label>
