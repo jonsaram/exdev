@@ -808,7 +808,14 @@
 		            SELECT DISTINCT 
 		                P.USER_ID,
 		                CASE 
-		                    WHEN TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY') 
+							<choose>
+								<when test=" YEAR_MONTH != null and YEAR_MONTH == 'YEAR' ">
+			                    WHEN TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY') 
+								</when>
+								<when test=" YEAR_MONTH != null and YEAR_MONTH == 'MONTH' ">
+			                    WHEN TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(SYSDATE, 'YYYYMM') 
+								</when>
+							</choose>		
 		                    THEN P.PAYMENT 
 		                    ELSE 0 
 		                END AS YEARLY_PAYMENT
@@ -831,7 +838,14 @@
 		                AND CM.DEL_YN = 'N' 
 		                AND P.USE_YN = 'Y' 
 		                AND P.DEL_YN = 'N'
-		                AND TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+						<choose>
+							<when test=" YEAR_MONTH != null and YEAR_MONTH == 'YEAR' ">
+			                AND TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+							</when>
+							<when test=" YEAR_MONTH != null and YEAR_MONTH == 'MONTH' ">
+			                AND TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(SYSDATE, 'YYYYMM')
+							</when>
+						</choose>		
 		                AND CM.RELATION_TYPE = 'SALES'
 		        )
 		        GROUP BY USER_ID
@@ -865,7 +879,14 @@
 		                AND CM.DEL_YN = 'N' 
 		                AND P.USE_YN = 'Y' 
 		                AND P.DEL_YN = 'N'
-		                AND TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+						<choose>
+							<when test=" YEAR_MONTH != null and YEAR_MONTH == 'YEAR' ">
+			                AND TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+							</when>
+							<when test=" YEAR_MONTH != null and YEAR_MONTH == 'MONTH' ">
+			                AND TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(SYSDATE, 'YYYYMM')
+							</when>
+						</choose>		
 		                AND CM.RELATION_TYPE = 'SALES'
 		        )
 		        GROUP BY USER_ID
