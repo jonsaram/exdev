@@ -150,15 +150,15 @@
 					if( <@popupId>.OLD_BUYER_ID != val ){
 
 						<@popupId>.ID_CHANGE = true;
-						$("#<@popupId>_items #BUYER_ID").css("width","67%");
-						$("#<@popupId>_items #redundCheck").show();
+						$("#<@popupId>_items #BUYER_ID").css("width","100%");
+						//$("#<@popupId>_items #redundCheck").show();
 						<@popupId>.ID_CHECKED = false;	
 						
 					}else{
 						
 						<@popupId>.ID_CHANGE = false;
 						$("#<@popupId>_items #BUYER_ID").css("width","100%");
-						$("#<@popupId>_items #redundCheck").hide();
+						//$("#<@popupId>_items #redundCheck").hide();
 						
 					}
 
@@ -177,6 +177,14 @@
 			<@popupId>.OLD_BUYER_ID = <@popupId>.recvData.param["BUYER_ID"];
 			$("#<@popupId>_items #BUYER_ID").css("width","100%");
 			$("#<@popupId>_items #redundCheck").hide();
+		}else{
+	
+			var param = {
+					 queryId 		: "cstm.getCstmNo"
+					,requestParm	: {}
+			}
+			const cstmNo =  C_COM.requestQuery(param);
+			$("#<@popupId>_items #BUYER_ID").val(cstmNo.data[0].BUYER_ID);
 		}
 		<@popupId>.pageInit();
 		
@@ -204,8 +212,8 @@
 				<ul class="info_wrap">
 					<li>
 						<label><span class="required-label">고객ID</span></label>
-						<div class="info"><input type="text" id="BUYER_ID" style="width:67%">
-						<button class="btn" style="width:80px;" id="redundCheck" onclick="<@popupId>.redundCheck();">중복체크</button>
+						<div class="info"><input type="text" id="BUYER_ID" style="width:100%" disabled>
+						<!-- <button class="btn" style="width:80px;" id="redundCheck" onclick="<@popupId>.redundCheck();">중복체크</button> -->
 						</div>
 					</li>
 					<li>

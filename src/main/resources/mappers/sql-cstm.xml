@@ -134,7 +134,17 @@
 		<include refid="getCstmList_body"/>
 		<include refid="common.pagingWrapEnd"/>
 	</select>
-		 	
+
+	<select id="getCstmNo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	cstm.getCstmNo
+			고객 ID 생성
+		*/
+		SELECT  
+		'star' || LPAD(TO_CHAR(MAX(TO_NUMBER(REPLACE(BUYER_ID, 'star', ''))) + 1), 3, '0') AS BUYER_ID
+		FROM TBL_EXP_BUYER 
+		WHERE BUYER_ID LIKE 'star%'
+	</select>	
+			 	
 	<update id="updateCstm" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	cstm.updateCstm
 			고객  저장
