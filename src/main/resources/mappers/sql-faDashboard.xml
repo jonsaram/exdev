@@ -277,13 +277,13 @@
 						AND R.RESULT_ID = P.RESULT_ID 
 			        <choose>
 			       	<when test='gubun != null '> 
-			        	<if test=" gubun.equals('execBosu') ">
+			        	<if test=" gubun.equals('execBosu') "><!-- 실행수수료 -->
 					    AND P.USER_ID	= #{sessionVo.userId	}  
 					    AND P.RELATION_TYPE = 'EXECUTE'
 			        	</if>
-			        	<if test=" gubun.equals('salesBosu') ">
+			        	<if test=" gubun.equals('salesBosu') "><!-- 영업수수료 -->
 					    AND P.USER_ID	= #{sessionVo.userId	}  
-					    AND P.RELATION_TYPE != 'EXECUTE'
+					    AND P.RELATION_TYPE = 'SALES'
 			        	</if>
 					</when>	
 			       	<when test='gubun == null '> 
