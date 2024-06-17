@@ -65,12 +65,12 @@
 	        	}
 	        });
 		 }
-		,makeProjectFolder : function() {
+		,makeProjectFolder : function(callback) {
 			let BUYER_ID = G_VAL.session.BUYER_ID;
 			
 	        let parm = {
 	            queryId        : "contract.getProjectList"
-	           ,requestParm    : {} 
+	           ,requestParm    : {BUYER_ID : G_VAL.session.BUYER_ID} 
 	        }
 	        C_COM.requestQuery(parm, function(retData) {
 				$.each(retData.data, function() {
@@ -95,9 +95,12 @@
 							}
 						}
 						let parm = { queryGroup : [parm1, parm2] }
+
 						C_COM.requestQuery(parm, function(resultData) {
-							
+							callback();							
 						});
+					} else {
+						callback();
 					}
 				});
 	        });
@@ -106,11 +109,8 @@
 	
 	C_PM.onLoadPage("<@pageId>", function() {
 
-		<@pageId>.makeProjectFolder();
-        
-		<@pageId>.init();
-		
-		
+		<@pageId>.makeProjectFolder(<@pageId>.init);
+
 	});
 	
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.

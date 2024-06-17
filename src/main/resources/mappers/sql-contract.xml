@@ -209,7 +209,6 @@
 		OR    UPPER(BUYER_NM)	like '%' || UPPER( #{SEARCH_ID} ) || '%'
 		OR    UPPER(ADDR) 		like '%' || UPPER( #{SEARCH_ID} ) || '%'
 		)
-		AND CREATE_USER = #{sessionVo.userId}
 		AND USE_YN = 'Y'
 		AND DEL_YN = 'N'
 	</select>		
@@ -679,7 +678,7 @@
                 SELECT GET_CODE_NM('APPROVAL_USER_PROC', B.STATE) FROM TBL_EXP_APPROVAL B WHERE A.CONTRACT_ID = B.RELATION_ID
                 ORDER BY APPROVAL_DATE DESC FETCH FIRST 1 ROW ONLY
              ) AS APP_STATE_NM
-            ,A.BASE_FOLDER_ID
+            ,(SELECT FOLDER_ID FROM TBL_EXP_FOLDER F WHERE F.FOLDER_ID = A.BASE_FOLDER_ID) AS BASE_FOLDER_ID
 		FROM 
 		 	  TBL_EXP_CONTRACT  	A
 		 	 ,TBL_EXP_TEAM_MEMBER 	B
@@ -697,6 +696,9 @@
 			AND A.BUYER_ID				= C.BUYER_ID
 			AND A.CONSULTING_ID			= D.CONSULTING_ID
 			AND B.USER_ID				= E.USER_ID(+)
+			<if test=" BUYER_ID != null and BUYER_ID != '' " >
+			AND C.BUYER_ID				= #{BUYER_ID}
+			</if>
 			AND A.DEL_YN 				= 'N'
 			<if test=" searchWord != null and searchWord != '' " >
 			AND (
