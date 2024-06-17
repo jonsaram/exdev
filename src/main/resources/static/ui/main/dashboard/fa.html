@@ -132,11 +132,13 @@ var <@pageId> = {
 							
 							accContractCnt += Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT);
 							contractCnt.data.push(accContractCnt	);
+							contractCnt.data2.push(Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT))
 						
 						}else{
 							monthly.data.push(0);
 							once.data.push(0);
 							contractCnt.data.push(accContractCnt);
+							contractCnt.data2.push(0);
 						}
 					
 				})
