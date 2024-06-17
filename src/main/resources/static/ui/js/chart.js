@@ -772,7 +772,7 @@
 				    legend: {
 				        x:200,
 				        verticalAlign: 'top',
-				        y:0,
+				        y:-10,
 		        		floating: true,
 				        itemStyle: {
 				            fontWeight:'bold',

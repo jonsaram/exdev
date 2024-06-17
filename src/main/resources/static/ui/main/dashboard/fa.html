@@ -112,42 +112,49 @@ var <@pageId> = {
 			C_COM.requestQuery(parm, function(resultData) {
 
 			 	const data	= 	resultData.data;
-				const month =	Array.from({ length: 12 }, (_, i) => i < 9 ? '0' + (1+i) : '' + (1+i) );
-				
-				let monthly	= {name:'월자문',data:[],stack:'consultingType' }
-				let once 	= {name:'일회성',data:[],stack:'consultingType' }
-				let contractCnt = {type:'line', name:'계약건수',color: "#75ba75", data:[],data2:[], yAxis:1, marker:{symbol: 'circle'} }
-				
-				const thisYear = dayjs().format("YYYY");
-				let accContractCnt= 0 
-				month. forEach ( m => {
-						
-						const month = thisYear+"-"+m;
-						const match = data.filter( d => d.MONTH === month);
-							
-						if( match.length > 0 ){
-							
-							monthly.data.push	(match[0].MONTHLY_TOTAL_COST);
-							once.data.push		(match[0].ONCE_TOTAL_COST);
-							
-							accContractCnt += Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT);
-							contractCnt.data.push(accContractCnt	);
-							contractCnt.data2.push(Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT))
-						
-						}else{
-							monthly.data.push(0);
-							once.data.push(0);
-							contractCnt.data.push(accContractCnt);
-							contractCnt.data2.push(0);
-						}
-					
-				})
-				
-				const series = [monthly, once, contractCnt]
-				_1stacked1LineChart("<@pageId>_transition_chart3", _monthArray,	series, <@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE )) ;
- 
+  				<@pageId>.firstStacked1LineChart(data) ;
 			});  
-		} 		
+		}
+		// 수수료 합계 추이 차트
+		,firstStacked1LineChart : (data,gubun) =>{
+			
+			const month =	Array.from({ length: 12 }, (_, i) => i < 9 ? '0' + (1+i) : '' + (1+i) );
+			
+			let monthly	= {name:'월자문',data:[],stack:'consultingType' }
+			let once 	= {name:'일회성',data:[],stack:'consultingType' }
+			let contractCnt = {type:'line', name:'계약건수',color: "#75ba75", data:[],data2:[], yAxis:1, marker:{symbol: 'circle'} }
+			
+			const thisYear = dayjs().format("YYYY");
+			let accContractCnt= 0 
+			month. forEach ( m => {
+					
+					const month = thisYear+"-"+m;
+					const match = data.filter( d => d.MONTH === month);
+						
+					if( match.length > 0 ){
+						
+						monthly.data.push	(match[0].MONTHLY_TOTAL_COST);
+						once.data.push		(match[0].ONCE_TOTAL_COST);
+						
+						accContractCnt += Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT);
+						contractCnt.data.push(accContractCnt	);
+						contractCnt.data2.push(Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT))
+					
+					}else{
+						monthly.data.push(0);
+						once.data.push(0);
+						contractCnt.data.push(accContractCnt);
+						contractCnt.data2.push(0);
+					}
+				
+			})
+			
+			const series = [monthly, once, contractCnt];
+			let target = "<@pageId>_transition_chart3"
+			if( gubun )target = "<@pageId>_transition_chart"+gubun;
+			_1stacked1LineChart(target, _monthArray, series, <@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE )) ;
+
+		}
 		,searchMonthlyPayment	: (callback) =>{
 			
 			let ACHIEVE_RATE = 0;
@@ -242,40 +249,8 @@ var <@pageId> = {
   				if( chart == "customerTrend"){
 
   				 	const data	= 	<@pageId>.searchedPayment;
-  					const month =	Array.from({ length: 12 }, (_, i) => i < 9 ? '0' + (1+i) : '' + (1+i) );
-  					
-  					let monthly	= {name:'월자문',data:[],stack:'consultingType' }
-  					let once 	= {name:'일회성',data:[],stack:'consultingType' }
-  					let contractCnt = {type:'line', name:'계약건수',color: "#75ba75", data:[],data2:[], yAxis:1, marker:{symbol: 'circle'} }
-  					
-  					const thisYear = dayjs().format("YYYY");
-  					let accContractCnt= 0 
-  					month. forEach ( m => {
-  							
-  							const month = thisYear+"-"+m;
-  							const match = data.filter( d => d.MONTH === month);
-  								
-							if( match.length > 0 ){
-								
-								monthly.data.push	(match[0].MONTHLY_TOTAL_COST);
-								once.data.push		(match[0].ONCE_TOTAL_COST);
-								
-								accContractCnt += Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT);
-								contractCnt.data.push(accContractCnt	);
-								contractCnt.data2.push(Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT))
-							
-							}else{
-								monthly.data.push(0);
-								once.data.push(0);
-								contractCnt.data.push(accContractCnt);
-								contractCnt.data2.push(0);
-							}
-  						
-  					})
-  					
-  					const series = [monthly, once, contractCnt]
-  					_1stacked1LineChart("<@pageId>_transition_chart"+gubun, _monthArray,	series, <@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE )) ;  					
-  					
+  				 	<@pageId>.firstStacked1LineChart(data,gubun) ;
+  				 	
   				}else{
 
 					<@pageId>.YEARLY_TARGET_PAYMENT = resultData.data[0].TARGET_PAYMENT;
