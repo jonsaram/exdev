@@ -18,8 +18,8 @@
 			
 			//월별 매출 누적합계 , 전월대비 매출 증감분 , 계약 건수(전체)
  			var parm = {
-				queryGroup : [{queryId	: "rstMgn.getMyPaymentList"		,requestParm	: {GUBUN:'FA' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
-							 ,{queryId 	: "rstMgn.getContarctCntList"	,requestParm	: {GUBUN:'FA' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+				queryGroup : [{queryId	: "rstMgn.getMyPaymentList"		,requestParm	: {GUBUN:'FA' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"] , YEAR : <@pageId>.thisYear}}
+							 ,{queryId 	: "rstMgn.getContarctCntList"	,requestParm	: {GUBUN:'FA' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"] , YEAR : <@pageId>.thisYear}}
 							 ]
 			}
 
@@ -31,8 +31,8 @@
 			// STARTASSET 전체 실적
  			//월별 매출 누적합계 , 전월대비 매출 증감분 , 계약 건수(전체)
  			var parm = {
-				queryGroup : [{queryId	: "rstMgn.getMyPaymentList"		,requestParm	: {GUBUN:'' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
-							 ,{queryId 	: "rstMgn.getContarctCntList"	,requestParm	: {GUBUN:'' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}}
+				queryGroup : [{queryId	: "rstMgn.getMyPaymentList"		,requestParm	: {GUBUN:'' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"] , YEAR : <@pageId>.thisYear}}
+							 ,{queryId 	: "rstMgn.getContarctCntList"	,requestParm	: {GUBUN:'' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"] , YEAR : <@pageId>.thisYear}}
 							 ]
 			}
 
@@ -45,7 +45,7 @@
  			// FA 월별 매출 누적합계 , FA 계약 건수(전체)
 			var parmBubble = {
 					 queryId 		: "rstMgn.getFaPaymentAcc"
-					,requestParm	: {YEAR_MONTH:'YEAR' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"]}
+					,requestParm	: {YEAR_MONTH:'YEAR' , UNIT_TYPE : G_VAL.session.etcUserInfo["UNIT_TYPE"] , YEAR : <@pageId>.thisYear}
 			}
 
 			C_COM.requestQuery(parmBubble, function(resultData) {
@@ -254,8 +254,8 @@
 			else				$("#<@pageId>_monthly_cntContract").text(sum.toLocaleString() + '건') ;
 
 			incdec = Number(lastYearSumContractCnt)==0 ? 0 : (Number(thisYearSumContractCnt)-Number(lastYearSumContractCnt))*100/Number(lastYearSumContractCnt);
-			if( starassetAll )	$("#<@pageId>_monthly_cntContractALL").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+toFixed.toFix(2)+"%") ;
-			else				$("#<@pageId>_monthly_cntContract").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+toFixed.toFix(2)+"%") ;
+			if( starassetAll )	$("#<@pageId>_monthly_cntContractALL").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+incdec.toFixed(2)+"%") ;
+			else				$("#<@pageId>_monthly_cntContract").parents("div").siblings(".percent").text(incdec >= 0 ? "+"+incdec.toFixed(2)+"%": "-"+incdec.toFixed(2)+"%") ;
 
 			if( Number(thisYearSumContractCnt)-Number(lastYearSumContractCnt) < 0){
 				if( starassetAll )	$("#<@pageId>_monthly_cntContractALL").parents("div").siblings(".percent").addClass("minus");
@@ -274,76 +274,94 @@
 				
 				// FA 월별 매출 누적합계 , FA 별 당월 매출 , FA 계약 건수(전체)
 				const data =  _.orderBy(_.cloneDeep(resultData.data),['RANK'], ['asc']) ;
-				let firstData = data.splice(0,1)[0];
-				let bubleData = [];
-				data.forEach( item =>{
+				if( data.length != 0 ){
 					
-					bubleData.push( {	x: item.CONTRACT_CNT,	y: item.YEARLY_PAYMENT,	z: item.PERCENT,	name: item.USER_NM	} )
-					
-				})
-				
-				let series =[
-				{
-			        data: [
-							{	x: firstData.CONTRACT_CNT,	y: firstData.YEARLY_PAYMENT,	z: firstData.PERCENT,	name: firstData.USER_NM	}
-			        ]
-	   			}
-				, 
-				{
-	       			data: bubleData
-	   			}
-				]
-				_bubbleChart('#bubbleChart1',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
-				<@pageId>.rankBoard('#bubbleChart1', resultData.data);
+					let firstData = data.splice(0,1)[0];
+					let bubleData = [];
+					data.forEach( item =>{
+						
+						bubleData.push( {	x: item.CONTRACT_CNT,	y: item.YEARLY_PAYMENT,	z: item.PERCENT,	name: item.USER_NM	} )
+						
+					})
+					let series = [];
+					if( !isEmpty(firstData) ){
+						
+						series =[
+						{
+					        data: [
+									{	x: firstData.CONTRACT_CNT,	y: firstData.YEARLY_PAYMENT,	z: firstData.PERCENT,	name: firstData.USER_NM	}
+					        ]
+			   			}
+						, 
+						{
+			       			data: bubleData
+			   			}
+						]
+					}
+					_bubbleChart('#bubbleChart1',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
+					<@pageId>.rankBoard('#bubbleChart1', resultData.data);
+				}
 				
 				const data3 =  _.orderBy(_.cloneDeep(resultData.data),['CC_RANK'], ['asc']) ;
-				firstData = data3.splice(0,1)[0];
-				bubleData = [];
-				data3.forEach( item =>{
-					
-					bubleData.push( {	x: item.YEARLY_PAYMENT,	y: item.CONTRACT_CNT,	z: item.CC_PERCENT,	name: item.USER_NM	} )
-					
-				})
-				
-				series =[
-				{
-			        data: [
-							{	x: firstData.YEARLY_PAYMENT,	y: firstData.CONTRACT_CNT,	z: firstData.CC_PERCENT,	name: firstData.USER_NM	}
-			        ]
-	   			}
-				, 
-				{
-	       			data: bubleData
-	   			}
-				]
-				
-				_bubbleChart('#bubbleChart3',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
-				<@pageId>.rankBoard('#bubbleChart3', resultData.data);
-				
+				if( data.length != 0 ){
+					firstData = data3.splice(0,1)[0];
+					bubleData = [];
+					data3.forEach( item =>{
+						
+						bubleData.push( {	x: item.YEARLY_PAYMENT,	y: item.CONTRACT_CNT,	z: item.CC_PERCENT,	name: item.USER_NM	} )
+						
+					})
+					 series = [];
+					if( !isEmpty(firstData) ){
+						series =[
+						{
+					        data: [
+									{	x: firstData.YEARLY_PAYMENT,	y: firstData.CONTRACT_CNT,	z: firstData.CC_PERCENT,	name: firstData.USER_NM	}
+					        ]
+			   			}
+						, 
+						{
+			       			data: bubleData
+			   			}
+						]
+					}
+					_bubbleChart('#bubbleChart3',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
+					<@pageId>.rankBoard('#bubbleChart3', resultData.data);
+				}
 			}else{
-				
+			//당월				
 				const data =  _.orderBy(_.cloneDeep(resultData.data),['RANK'], ['asc']) ;
-				let firstData = data.splice(0,1)[0];
-				let bubleData = [];
-				data.forEach( item =>{
+				if( data.length != 0 ){
 					
-					bubleData.push( {	x: item.CONTRACT_CNT,	y: item.YEARLY_PAYMENT,	z: item.PERCENT,	name: item.USER_NM	} )
+					let firstData = data.splice(0,1)[0];
+					let bubleData = [];
+					data.forEach( item =>{
+						
+						bubleData.push( {	x: item.CONTRACT_CNT,	y: item.YEARLY_PAYMENT,	z: item.PERCENT,	name: item.USER_NM	} )
+						
+					})
+					let series = [];
+					if( !isEmpty(firstData) ){
 					
-				})
-				
-				let series =[
-				{
-			        data: [
-							{	x: firstData.CONTRACT_CNT,	y: firstData.YEARLY_PAYMENT,	z: firstData.PERCENT,	name: firstData.USER_NM	}
-			        ]
-	   			}
-				, 
-				{
-	       			data: bubleData
-	   			}
-				]
-				_bubbleChart('#bubbleChart2',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
-				<@pageId>.rankBoard('#bubbleChart2', resultData.data);				
+						series =[
+						{
+					        data: [
+									{	x: firstData.CONTRACT_CNT,	y: firstData.YEARLY_PAYMENT,	z: firstData.PERCENT,	name: firstData.USER_NM	}
+					        ]
+			   			}
+						, 
+						{
+			       			data: bubleData
+			   			}
+						]
+					}
+					_bubbleChart('#bubbleChart2',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
+					<@pageId>.rankBoard('#bubbleChart2', resultData.data);				
+				}
+				else{
+					_bubbleChart('#bubbleChart2', [] ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
+					<@pageId>.rankBoard('#bubbleChart2', []);	
+				}
 
 			}
 
@@ -359,21 +377,30 @@
 			
 			const myRankData = data.filter( item => item.IS_MY_RANK == "Y" )[0];
 			
-     		const myRank = `<h4 class="mb5" name='myRank'>내 랭킹</h4>
-							<div class="zt-skill-bar"><div class="data" data-width="${myRankData[percentField]}" style="width:${myRankData[percentField]}%!important"><div class="txtWrap"><span>#${myRankData[rankField]}</span>${myRankData.USER_NM}
-							<em>(<span>${myRankData[valueField]}</span>${unit})</em>
+			let myRank =   `<h4 class="mb5" name='myRank'>내 랭킹</h4>
+							<div class="zt-skill-bar"><div class="data" data-width="0" style="width:0%!important"><div class="txtWrap"><span>#</span>''
+							<em>(<span></span>)</em>
 							</div></div>
 							</div>`;
-
+				
+			if( myRankData ){
+				
+	     		 myRank =  `<h4 class="mb5" name='myRank'>내 랭킹</h4>
+								<div class="zt-skill-bar"><div class="data" data-width="${myRankData[percentField]}" style="width:${myRankData[percentField]}%!important"><div class="txtWrap"><span>#${myRankData[rankField]}</span>${myRankData.USER_NM}
+								<em>(<span>${myRankData[valueField]}</span>${unit})</em>
+								</div></div>
+								</div>`
+			}
+			
 			const rankAllData = data;
 			let rankAll = `<h4 class="mb5 mt20">전체 랭킹</h4>` ;
 			
 			rankAllData.forEach( item => {
 				
-				rankAll += `<div class="zt-skill-bar ${item.IS_MY_RANK === 'Y' ? 'my' : ''}"><div class="data" data-width="${item[percentField]}" style="width:${item[percentField]}%!important"><div class="txtWrap"><span>#${item[rankField]}</span>${item.USER_NM}<em>(<span>${item[valueField]}</span>${unit})</em></div></div></div>` ;
-				
+				if( item ){
+					rankAll += `<div class="zt-skill-bar ${item.IS_MY_RANK === 'Y' ? 'my' : ''}"><div class="data" data-width="${item[percentField]}" style="width:${item[percentField]}%!important"><div class="txtWrap"><span>#${item[rankField]}</span>${item.USER_NM}<em>(<span>${item[valueField]}</span>${unit})</em></div></div></div>` ;
+				}
 			})
-			
     		
 			$(container).siblings("div.zt-span").append(myRank + rankAll);
 			
@@ -403,17 +430,26 @@
 		
 	    var singleboxList = { 
             data 		: [
-	 		 	 ["2024", "2024"	]
 		 		,["2023", "2023"	]
 		 		,["2022", "2022"	]
 		 		,["2021", "2021"	]
 			]
-		   ,defaultItem 	: ["", "전체"]
+		   ,defaultItem 	: [dayjs().year(), dayjs().year()	]
            ,targetId 	: "<@pageId>_year" 
 		}
 	    
-		C_UICOM.makeSelectBox(singleboxList, "single");	
-		
+		C_UICOM.makeSelectBox(singleboxList, "single");
+		C_UICOM.setSingleBox("<@pageId>_year" , dayjs().year());
+		C_UICOM.addChangeListener("<@pageId>_year" , function(dataObj) {
+
+			<@pageId>.thisYear = dataObj;
+			<@pageId>.thisYearMonth = dataObj+("0"+(dayjs().month()+1)).slice(-2);
+			<@pageId>.lastYear = <@pageId>.thisYear - 1;
+			<@pageId>.lastYearMonth = (<@pageId>.thisYear - 1)+("0"+(dayjs().month()+1)).slice(-2);
+			
+			$("#bubbleChart1,#bubbleChart2,#bubbleChart3").siblings("div.zt-span").children().remove();
+			setTimeout( ()=>{<@pageId>.chartInit();},700);
+		});
 		
 	});	
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.

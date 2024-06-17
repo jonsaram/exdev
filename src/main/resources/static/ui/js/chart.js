@@ -942,6 +942,12 @@
 			                '전체매출대비: ' + this.point.z+'%';
         }
 
+		if ( series.length == 0 ){
+			
+			series.push({data:{x:0,y:0,z:0,name:''}});
+			
+		}
+		
 		$(container).highcharts({
 			chart: {
 		        type: 'bubble',

@@ -172,6 +172,12 @@
 		CONNECT BY LEVEL <![CDATA[ <= ]]> 24
 	</sql>
 	
+	<sql id="MONTHS_24_YEAR_PARM"> 
+		SELECT TO_CHAR(ADD_MONTHS(TO_DATE(#{YEAR}||'01','YYYYMM'), -12 + LEVEL - 1), 'YYYYMM') AS month
+		FROM DUAL
+		CONNECT BY LEVEL <![CDATA[ <= ]]> 24
+	</sql>
+	
 	<select id="getOrgSellingPriceList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	rstMgn.getOrgSellingPriceList
 			순매출 (월자문/1회성컨설팅/외주자문) 
@@ -724,7 +730,7 @@
 			</when>
 		</choose>			
 
-		FROM ( <include refid="MONTHS_24" /> ) M
+		FROM ( <include refid="MONTHS_24_YEAR_PARM" /> ) M
 			 ,(
 				SELECT TO_CHAR(UPDATE_DATE,'YYYYMM') UPDATE_DATE, SUM( PAYMENT  ) SUM_PAYMENT
 				FROM TBL_EXP_PAYMENT p
@@ -735,8 +741,8 @@
 					</when>
 				</choose>				
 				AND P.PAYMENT IS NOT NULL 
-				AND TO_CHAR(p.UPDATE_DATE, 'YYYY')   <![CDATA[ >= ]]>   TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),	-12), 'YYYY')
-				AND TO_CHAR(p.UPDATE_DATE, 'YYYY')   <![CDATA[ <= ]]>   TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),	  0), 'YYYY')
+				AND TO_CHAR(p.UPDATE_DATE, 'YYYY')   <![CDATA[ >= ]]>   TO_CHAR(ADD_MONTHS(TO_DATE(#{YEAR}||'01','YYYYMM'),	-12), 'YYYY')
+				AND TO_CHAR(p.UPDATE_DATE, 'YYYY')   <![CDATA[ <= ]]>   TO_CHAR(ADD_MONTHS(TO_DATE(#{YEAR}||'01','YYYYMM'),	  0), 'YYYY')
 				GROUP BY TO_CHAR(P.UPDATE_DATE,'YYYYMM')
 			) Data 
 		WHERE  M.month = Data.UPDATE_DATE(+)
@@ -748,7 +754,7 @@
 			계약 건수(전체) 
 		*/
 		SELECT MONTH, NVL(CONTRACT_CNT, 0) AS CONTRACT_CNT
-		FROM ( <include refid="MONTHS_24" /> ) M
+		FROM ( <include refid="MONTHS_24_YEAR_PARM" /> ) M
 			,(
 				SELECT TO_CHAR(CONTRACT_DATE,'YYYYMM') CONTRACT_DATE, COUNT(*) CONTRACT_CNT
 				FROM TBL_EXP_CONTRACT C
@@ -790,8 +796,8 @@
 			</when>
 			<when test=" UNIT_TYPE != null and UNIT_TYPE.equals('SMALL') ">
 			, ROUND(	YEARLY_PAYMENT /1000000,2) 				AS YEARLY_PAYMENT 
-			, ROUND(	(YEARLY_PAYMENT  /1000000
-			/ SUM(YEARLY_PAYMENT /1000000) OVER()) * 100, 2) 	AS PERCENT
+			,DECODE( SUM(YEARLY_PAYMENT /1000000) OVER(), 0, 0, ROUND(	(YEARLY_PAYMENT  /1000000
+			/ SUM(YEARLY_PAYMENT /1000000) OVER()) * 100, 2) ) 	AS PERCENT
 			</when>
 		</choose>		
 		FROM (
@@ -810,10 +816,12 @@
 		                CASE 
 							<choose>
 								<when test=" YEAR_MONTH != null and YEAR_MONTH == 'YEAR' ">
-			                    WHEN TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY') 
+									<if test=" YEAR != null and !YEAR.equals('')">
+				                    	WHEN TO_CHAR(R.RESULT_DATE, 'YYYY') = #{YEAR} 
+				                    </if>
 								</when>
 								<when test=" YEAR_MONTH != null and YEAR_MONTH == 'MONTH' ">
-			                    WHEN TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(SYSDATE, 'YYYYMM') 
+			                    WHEN TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(TO_DATE( #{YEAR},'YYYY'), 'YYYYMM') 
 								</when>
 							</choose>		
 		                    THEN P.PAYMENT 
@@ -840,10 +848,10 @@
 		                AND P.DEL_YN = 'N'
 						<choose>
 							<when test=" YEAR_MONTH != null and YEAR_MONTH == 'YEAR' ">
-			                AND TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+			                AND TO_CHAR(R.RESULT_DATE, 'YYYY') = #{YEAR}
 							</when>
 							<when test=" YEAR_MONTH != null and YEAR_MONTH == 'MONTH' ">
-			                AND TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(SYSDATE, 'YYYYMM')
+			                AND TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(TO_DATE( #{YEAR},'YYYY'), 'YYYYMM') 
 							</when>
 						</choose>		
 		                AND CM.RELATION_TYPE = 'SALES'
@@ -884,7 +892,7 @@
 			                AND TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
 							</when>
 							<when test=" YEAR_MONTH != null and YEAR_MONTH == 'MONTH' ">
-			                AND TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(SYSDATE, 'YYYYMM')
+			                AND TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(TO_DATE( #{YEAR},'YYYY'), 'YYYYMM') 
 							</when>
 						</choose>		
 		                AND CM.RELATION_TYPE = 'SALES'
