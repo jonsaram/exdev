@@ -79,16 +79,16 @@
 							<button type="button" class="btn radio"><span>고객명</span></button>
 		                    <ul class="select_lst">
 		                        <li>
-		                            <input name="number" id="num01" type="radio" value="">
-		                            <label for="num01">고객명<i class="icon_check"></i></label>
+		                            <input name="customer" id="cust01" type="radio" value="">
+		                            <label for="cust01">고객명<i class="icon_check"></i></label>
 		                        </li>
 		                        <li>
-		                            <input name="number" id="num02" type="radio" value="">
-		                            <label for="num02">고객번호<i class="icon_check"></i></label>
+		                            <input name="customer" id="cust02" type="radio" value="">
+		                            <label for="cust02">고객번호<i class="icon_check"></i></label>
 		                        </li>
 		                        <li>
-		                            <input name="number" id="num03" type="radio" value="">
-		                            <label for="num03">영업담당자<i class="icon_check"></i></label>
+		                            <input name="customer" id="cust03" type="radio" value="">
+		                            <label for="cust03">영업담당자<i class="icon_check"></i></label>
 		                        </li>
 		                    </ul>
 		                </div>
@@ -96,6 +96,7 @@
 		                <button class="btn select fl">검색</button>
 		            </div>
 		            <div class="search_right">
+		            	<a href="#modal-ex04" class="btn fl">기업자문보고서</a>
 						<button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>
 						<!-- 실글 선택 -->
 						<div class="select_box fl" style="width:132px">
@@ -374,6 +375,89 @@
 			</div>
 			<div class="modal_footer">
 				<button type="button" class="btn close">닫기</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- 기업자문보고서 등록 팝업 -->
+	<div class="modal_wrap" id="modal-ex04">
+		<div class="modal" style="width:600px;height:630px;">
+			<div class="modal_header">
+				<strong class="tit">기업자문보고서 등록</strong>
+				<button type="button" class="btn_close"><span class="sp">팝업 닫기</span></button>
+			</div>
+			<div class="modal_body">
+				<div class="tbl_scroll mt15" style="height:calc(100% - 30px);">
+					<div class="tbl01 col tbl_body_scroll h100">
+						<table>
+							<caption></caption>
+							<colgroup>
+								<col style="width:90px;">
+								<col style="*">
+								<col style="width:90px;">
+								<col style="*">
+							</colgroup>
+							<tbody>
+								<tr>
+									<th>회사명</th>
+									<td class="tl">이오에프</td>
+									<th>고년월</th>
+									<td class="tl visible">
+										<!-- 실글 선택 -->
+										<div class="select_box fl" style="width:132px">
+											<button type="button" class="btn radio"><span>2024년05월</span></button>
+						                    <ul class="select_lst">
+						                        <li>
+						                            <input name="yearday" id="yearday01" type="radio" value="">
+						                            <label for="yearday01">2024년05월<i class="icon_check"></i></label>
+						                        </li>
+						                        <li>
+						                            <input name="yearday" id="yearday02" type="radio" value="">
+						                            <label for="yearday02">2024년04월<i class="icon_check"></i></label>
+						                        </li>
+						                        <li>
+						                            <input name="yearday" id="yearday03" type="radio" value="">
+						                            <label for="yearday03">2024년03월<i class="icon_check"></i></label>
+						                        </li>
+						                    </ul>
+						                </div>
+									</td>								
+								</tr>
+								<tr>
+									<th>싱품명</th>
+									<td class="tl">월자문 50만</td>
+									<th>보고자</th>
+									<td class="tl">위성열</td>								
+								</tr>
+								<tr>
+									<th>보고내용</th>
+									<td colspan="3"  class="tl">
+										<textarea class="w100" rows="12"></textarea>
+									</td>
+								</tr>
+								<tr>
+									<th>첨부파일</th>
+									<td colspan="3"  class="tl">
+										<button type="button" class="stateBtn file"><span>파일선택</span></button>
+					            		<input name="file" type="file" id="file-input" tabindex="-1" title="파일찾기">
+										<div class="approver_list_wrap person" style="max-height:95px">
+											<ul class="approver_list">
+												<li><span class="txt">첨부파일 입니다.txt / 15.1 Mb</span><button class="pay_close">닫기</button></li>
+												<li><span class="txt">첨부파일 입니다2.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
+												<li><span class="txt">첨부파일 입니다3.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
+												<li><span class="txt">첨부파일 입니다4.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
+											</ul>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="modal_footer">
+				<button type="button" class="btn select">등록</button>
+				<button type="button" class="btn close">취소</button>
 			</div>
 		</div>
 	</div>

@@ -120,8 +120,8 @@
 				<div class="clearFix mt15" style="height: calc(100% - 53px);">
 					<div class="fl h100 mr15" style="width:calc(35% - 15px);">
 						<div class="cont_top clearFix">
-							<h3 class="fl font16">급여 내역 리스트</h3>
-							<div class="fr"><strong class="total">Total: <span class="pointColr">3</span></strong></div>
+							<h3 class="fl font16 lh24">급여 내역 리스트</h3>
+							<div class="fr lh24"><strong class="total">Total: <span class="pointColr">3</span></strong></div>
 						</div>
 
 						<!-- 테이블 -->
@@ -277,8 +277,10 @@
 					</div>
 					<div class="fl h100 ml15" style="width:calc(65% - 15px);">
 						<div class="cont_top clearFix">
-							<h3 class="fl font16">급여 상세</h3>
-							<div class="fr">
+							<h3 class="fl font16 lh24">급여 상세</h3>
+							<div class="fr lh24 clearFix">
+								<a href="#modal-ex02" class="btn small fl">기타 수수료 입력</a>
+								<a href="#modal-ex01" class="btn small fl">급여명세표 출력</a>
 								<span class="info"><strong>위성열</strong> l <strong>2024년 01월</strong> l</span>
 								<strong class="total">Total: <span class="pointColr">3</span></strong>
 							</div>
@@ -498,5 +500,209 @@
 		</div>
 	</div>
 </body>
+	<!-- 급여 명세서 팝업 -->
+	<div class="modal_wrap" id="modal-ex01">
+		<div class="modal" style="width:600px;height:600px;">
+			<div class="modal_header">
+				<strong class="tit">급여 명세서</strong>
+				<button type="button" class="btn_close"><span class="sp">팝업 닫기</span></button>
+			</div>
+			<div class="modal_body">
+				<div class="cont_top clearFix mt20">
+					<!-- <h3 class="fl font16 lh33 mtb0">급여 명세서</h3> -->
+					<a href="#modal-ex01" class="btn fl">출력</a>
+				</div>
+				<div class="tbl01 col">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">컨설팅 종류</th>
+								<th scope="col">급여(세전)</th>
+								<th scope="col">원천세(3.3%)</th>
+								<th scope="col">급여(세후)</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div class="tbl01 col" style="max-height:336px;overflow-y:auto;">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+						</colgroup>
+						<tbody>
+							<tr>
+								<td class="tl">일회성</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr>
+								<td class="tl">월자문</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr>
+								<td class="tl">외주</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr>
+								<td class="tl">AC사업</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr>
+								<td class="tl">투자유치</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr>
+								<td class="tl">기타</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+						</tbody>
+						<tfoot>
+							<tr>
+								<td>계</td>
+								<td>9,000,000</td>
+								<td>66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr class="tax">
+								<td>세금</td>
+								<td colspan="3">1,000,000</td>								
+							</tr>
+							<tr class="minus">
+								<td>차감지금액</td>
+								<td colspan="3">8,000,000</td>	
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+			<div class="modal_footer">
+				<button type="button" class="btn btn_close">닫기</button>
+			</div>
+		</div>
+	</div>
 
+	<!-- 기타 수수료 관리 팝업 -->
+	<div class="modal_wrap" id="modal-ex02">
+		<div class="modal" style="width:600px;height:500px;">
+			<div class="modal_header">
+				<strong class="tit">기타 수수료 관리</strong>
+				<button type="button" class="btn_close"><span class="sp">팝업 닫기</span></button>
+			</div>
+			<div class="modal_body">
+				<div class="cont_top clearFix mt20">
+					<h3 class="fl font16 mtb0">기타 수수료 관리</h3>
+					<a href="#modal-ex01" class="btn fr small">추가</a>
+				</div>
+				<div class="tbl01 col">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:50%;" />
+							<col style="width:50%;" />
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">기타 수수료명</th>
+								<th scope="col">수수료</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div class="tbl01 col" style="max-height:252px;overflow-y:auto;">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:50%;" />
+							<col style="width:50%;" />
+						</colgroup>
+						<tbody>
+							<tr>
+								<td>
+									<div class="search_inputWrap">
+										<input type="search" name=""><a href="#modal-ex03" class="search_btn"><i class="icon_search"></i></a>
+									</div>
+								</td>
+								<td>
+									<input class="tr" type="text" name="">
+								</td>								
+							</tr>
+							<tr>
+								<td>
+									<div class="search_inputWrap">
+										<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+									</div>
+								</td>
+								<td>
+									<input class="tr" type="text" name="">
+								</td>								
+							</tr>							
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal_footer">
+				<button type="button" class="btn select">저장</button>
+				<button type="button" class="btn close">취소</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- 기타 수수료명 선택 팝업 -->
+	<div class="modal_wrap" id="modal-ex03">
+		<div class="modal" style="width:400px;height:420px;">
+			<div class="modal_header">
+				<strong class="tit">기타 수수료명 선택</strong>
+				<button type="button" class="btn_close"><span class="sp">팝업 닫기</span></button>
+			</div>
+			<div class="modal_body">
+				<div class="tbl01 col mt20" style="max-height:253px;overflow-y:auto;">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:100%;" />
+						</colgroup>
+						<tbody>
+							<tr>
+								<td class="tl">투자 유치</td>
+							</tr>
+							<tr>
+								<td class="tl">이름이 긴 수수료 명</td>
+							</tr>
+							<tr>
+								<td class="tl">수수료명</td>
+							</tr>
+							<tr>
+								<td class="tl">이름이 더더더 긴 수수료 명</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal_footer">
+				<button type="button" class="btn close">취소</button>
+			</div>
+		</div>
+	</div>
 </html>
