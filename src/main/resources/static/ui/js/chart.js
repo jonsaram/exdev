@@ -944,7 +944,7 @@
 
 		if ( series.length == 0 ){
 			
-			series.push({data:{x:0,y:0,z:0,name:''}});
+			series.push({data:{x:1,y:1,z:0,name:''}});
 			
 		}
 		
