@@ -57,16 +57,23 @@
 			
 			let folderNm = `${<@popupId>.buyerInfo.BUYER_NM}_${<@popupId>.consultingInfo.CONSULTING_NM}`;
 			
-			let folderId = C_COM.makeUniqueId();
+			let folderId = "";
+			
+			if("<@mode>" == "M") {
+				// 기존 ID
+				folderId = "<@projectItem.BASE_FOLDER_ID>";
+			} else {
+				// 신규 ID
+				folderId = C_COM.makeUniqueId();
+			}
 			
 			saveData.BASE_FOLDER_ID = folderId;
-			
+
 			let parm1 ={
 				 queryId 		: "contract.registProject"
 				,requestParm	: saveData
 			}
 
-			
 			let parm2 = {
 				 queryId 		: "faDashboard.saveFolder"
 				,requestParm	: {
@@ -100,14 +107,14 @@
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(parm) {
-		
 		if(parm.mode == 'M') {
 			let projectItem = parm.projectItem;
 
 			<@popupId>.userInfo				.USER_ID 			= projectItem.USER_ID;
 			<@popupId>.buyerInfo			.BUYER_ID 			= projectItem.BUYER_ID;
+			<@popupId>.buyerInfo			.BUYER_NM 			= projectItem.BUYER_NM;
 			<@popupId>.consultingInfo		.CONSULTING_ID 		= projectItem.CONSULTING_ID;
-			
+
 			$("#<@popupId>_USER"			).val(projectItem.USER_NM				);
 			$("#<@popupId>_BUYER"			).val(projectItem.BUYER_NM				);
 			$("#<@popupId>_CONSULTING"		).val(projectItem.CONSULTING_NM			);
@@ -126,15 +133,15 @@
 	});
 </script>
 <div class="modal_wrap">
-	<div class="modal" style="width:570px;height:350px;">
+	<div class="modal" style="width:570px;height:300px;">
 		<div class="modal_header">
 			<strong class="tit" id="projectTitle">프로젝트 등록</strong>
 			<button type="button" class="btn_zoomInOut"><span class="txt">확대</span></button>
 			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 		</div>
-		<div class="modal_body mt15">
-			<ul class="info_wrap col2 pay">
-				<li class="w100">
+		<div class="modal_body">
+			<ul class="info_wrap pay">
+				<li>
 					<label>고객선택</label>
 					<div class="info">
 						<div class="search_inputWrap" style="width:100%">
@@ -143,7 +150,7 @@
 						</div>
 					</div>
 				</li>
-				<li class="w100 ml0">
+				<li>
 					<label>영업담당자</label>
 					<div class="info">
 						<div class="search_inputWrap" style="width:100%">
@@ -152,7 +159,7 @@
 						</div>
 					</div>
 				</li>
-				<li class="w100 ml0">
+				<li>
 					<label>컨설팅 상품</label>
 					<div class="info">
 						<div class="search_inputWrap" style="width:100%">

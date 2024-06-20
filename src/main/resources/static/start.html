@@ -46,7 +46,8 @@
 
 		if(isEmpty(userInfo)) {
 			C_POP.alert('Session정보가 없습니다. 로그인을 해주세요.');
-			location.replace("/");
+			C_COM.sessionConfirmCheck = "Y";
+			location.href="/";
 			
 		} else {
 			if(isEmpty(userInfo.SYSTEM_ROLE_ID)) {

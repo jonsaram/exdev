@@ -10,6 +10,7 @@
 			C_COM.requestQuery(parm, function(resultData) {
 				if(isValid(resultData.data)) {
 					let content = resultData.data[0].CONSULTING_DESC;
+					if(isEmpty(content)) content = "";
 					content = content.replaceAll("\n", "<br/>");
 					$("#<@compId> #consultingContent").html(content);
 				}
@@ -42,9 +43,6 @@
 -->	
 	<div class="cont_top clearFix">
 		<h4 class="fl lh24">- 컨설팅 프로세스</h4>							
-		<div class="fr inlineBlock_wrap" style="<@btnDisplay>">
-			<a href="javascript:<@parentId>.openBigCard('<@contractInfo.realIndex>')" class="btn_zoomInOut in"><span class="txt">Popup</span></a>
-		</div>
 	</div>
 	<div class="approver_list_wrap person mb15">
 		<ul class="approver_list" id="consultingContentList" style="max-height:125px;">
