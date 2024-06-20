@@ -22,7 +22,7 @@
 		, CS.REPORT_YEAR_MONTH
 		, TO_CHAR( TO_DATE( CS.REPORT_YEAR_MONTH , 'YYYY-MM'), 'YYYY')	AS REPORT_YEAR 
 		, TO_CHAR( TO_DATE( CS.REPORT_YEAR_MONTH , 'YYYY-MM'), 'MM') 	AS REPORT_MONTH 
-		, CS.APPROVAL_STATE
+		, NVL( CS.APPROVAL_STATE , '-' ) AS APPROVAL_STATE
 		, NVL( GET_CODE_NM('APPROVAL_USER_PROC', CS.APPROVAL_STATE),'-') APPROVAL_STATE_NM
 		, CS.DEL_YN
 		, CS.UPDATE_USER
@@ -41,10 +41,10 @@
 		WHERE 1=1
 		AND CS.CONTRACT_ID = C.CONTRACT_ID
 		<if test=" BUYER_ID != null and !BUYER_ID.equals('')">
-		AND BUYER_ID = #{BUYER_ID} 
+		AND CS.BUYER_ID = #{BUYER_ID} 
 		</if>
 		AND CS.DEL_YN = 'N'
-		ORDER BY UPDATE_DATE DESC	
+		ORDER BY CS.UPDATE_DATE DESC	
 	</select>
 	
 	<select id="getConsultingList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -63,12 +63,14 @@
 		AND C.BUYER_ID = B.BUYER_ID 
 		AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
 		AND B.USE_YN = 'Y' AND B.DEL_YN = 'N'
+		<if test=' MODE != null and MODE.toString() == "I" '>
 		AND NOT EXISTS (
 				SELECT 1 
 				FROM TBL_EXP_BUYER_CONSULTING BC 
 				WHERE BC.BUYER_ID = #{BUYER_ID} AND BC.CONSULTING_NM = CT.CONSULTING_NM
 				AND BC.DEL_YN = 'N'  
 		)
+		</if>
 		ORDER BY CONSULTING_NM
 	</select>
 	
@@ -144,14 +146,6 @@
 		*/
 		UPDATE TBL_EXP_BUYER_CONSULTING
 		SET APPROVAL_STATE = #{APPROVAL_STATE}
-		<if test=" PRE_PROCESS_STATE != null and !PRE_PROCESS_STATE.equals('') ">
-		,	PRE_PROCESS_STATE =  #{PRE_PROCESS_STATE}
-		</if>
-		<if test=" PRE_PROCESS_STATE == null or PRE_PROCESS_STATE.equals('') ">
-		,	PRE_PROCESS_STATE =  PROCESS_STATE
-		</if>
-		,	UPDATE_USER = #{sessionVo.userId}
-		,	UPDATE_DATE = SYSDATE
 		WHERE	BUYER_CONSULTING_ID = #{BUYER_CONSULTING_ID	}	
 		
 	</update>

@@ -24,13 +24,15 @@
 			C_UICOM.makeSelectBox(dateList, "single");
 			C_UICOM.setSingleBox("<@popupId>_yearMonths", dayjs().year()+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
 		
-			$("#<@popupId>_reporter").text(G_VAL.session.USER_NM)
-			$("#<@popupId>_buyerNm").text("<@BUYER_NM>")
+			$("#<@popupId>_reporter").text(G_VAL.session.USER_NM);
+			$("#<@popupId>_buyerNm").text("<@BUYER_NM>");
+			
 			const parm = {
 					 queryId 		: "custDashboard.getConsultingList"
 					,requestParm	: 
 									{
 										BUYER_ID		: "<@BUYER_ID>"
+										,MODE			: "<@mode>"
 									}
 			}
 
@@ -38,8 +40,8 @@
 				
 				<@popupId>.BUYER_CONSULTING_LIST = resultData.data;
 				
-				if( isEmpty(<@popupId>.BUYER_CONSULTING_LIST) || <@popupId>.BUYER_CONSULTING_LIST.length == 0){
-					alert('더 이상 자문한 상품이 존재하지 않습니다. ');
+				if( "<@mode>" == "I" && (isEmpty(<@popupId>.BUYER_CONSULTING_LIST) || <@popupId>.BUYER_CONSULTING_LIST.length == 0) ){
+					alert('이미 기업자문보고서 작성된 상품 외 다른 계약 상품이 존재하지 않습니다. ');
 					<@popupId>.close();
 					return;
 				}
@@ -69,36 +71,70 @@
 		}
 		,save : () => {
 			
-			const buyerConId 	= <@popupId>.SELECTED_CONSULTING.BUYER_CONSULTING_ID;
+			if( "<@mode>" == "U"){
+
+				if( <@popupId>.rcvData.param.APPROVAL_STATE != "-" ){
+					alert("결재중이거나 결재완료된 보고서는 수정할 수 없습니다. ");
+					return;
+				}
+			}
+			
 			const consultingId	= C_UICOM.getData("<@popupId>_consultingNms");
 			const parm = {
 					 queryId 		: "custDashboard.registProject"
 					,requestParm	: 
-									{	BUYER_CONSULTING_ID : !isEmpty(buyerConId) ? buyerConId : C_COM.makeUniqueId()
-										,BUYER_ID		: <@popupId>.SELECTED_CONSULTING.BUYER_ID
-										,BUYER_NM		: <@popupId>.SELECTED_CONSULTING.BUYER_NM
-										,CONSULTING_ID	: <@popupId>.SELECTED_CONSULTING.CONSULTING_ID
-										,CONSULTING_NM	: <@popupId>.SELECTED_CONSULTING.CONSULTING_NM
-										,REPORT_YEAR_MONTH : C_UICOM.getData("<@popupId>_yearMonths") 
-										,CONTRACT_ID	:  <@popupId>.SELECTED_CONSULTING.CONTRACT_ID
-										,CONTENT		: $("#<@popupId>_content").val()
+									{	BUYER_CONSULTING_ID	:	<@popupId>.BUYER_CONSULTING_ID
+										,BUYER_ID			:	<@popupId>.SELECTED_CONSULTING.BUYER_ID
+										,BUYER_NM			:	<@popupId>.SELECTED_CONSULTING.BUYER_NM
+										,CONSULTING_ID		:	<@popupId>.SELECTED_CONSULTING.CONSULTING_ID
+										,CONSULTING_NM		:	<@popupId>.SELECTED_CONSULTING.CONSULTING_NM
+										,REPORT_YEAR_MONTH 	:	C_UICOM.getData("<@popupId>_yearMonths") 
+										,CONTRACT_ID		:	<@popupId>.SELECTED_CONSULTING.CONTRACT_ID
+										,CONTENT			: 	$("#<@popupId>_content").val()
 									}
 			}
 			
-			<@popupId>.returnData.BUYER_CONSULTING_ID = parm.requestParm.BUYER_CONSULTING_ID;
+			<@popupId>.returnData.BUYER_CONSULTING_ID = <@popupId>.BUYER_CONSULTING_ID;
 		
 			C_COM.requestQuery(parm, function(resultData) {
 				alert("저장되었습니다.");
 				<@popupId>.close(<@popupId>.returnData);
 			});
 		}
+		,fileAttach : () => {
+			
+			var parm = {
+					 GRP_FILE_ID 	: <@popupId>.BUYER_CONSULTING_ID
+					,OWNER_CD 		: "BOARD"
+					,mode			: "M"
+					,allowExt		: ["jpg", "jpeg", "png", "gif", "bmp"]
+			}
+			C_COMP.import("<@popupId>_importMultiFilemng", "component_compMultiFilemng", parm , function() {
+				
+			});
+
+			$("#<@popupId><@popupId>_importMultiFilemng #title").remove();			
+			
+		}
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
 	
 		<@popupId>.rcvData = data;
+		<@popupId>.BUYER_CONSULTING_ID = isEmpty(<@popupId>.rcvData?.param?.BUYER_CONSULTING_ID) ?  C_COM.makeUniqueId()
+										: <@popupId>.rcvData?.param?.BUYER_CONSULTING_ID ;
 		<@popupId>.pageInit();
 		
+		<@popupId>.fileAttach();
+		
+		if("<@mode>" == "I"){
+			
+		}else{
+			$("#<@popupId> .title").text("기업자문보고서");
+		}
+		
+		
+
 	});
 </script>
 <div class="modal_wrap" id="modal-ex04">
@@ -143,17 +179,7 @@
 							</tr>
 							<tr>
 								<th>첨부파일</th>
-								<td colspan="3"  class="tl">
-									<button type="button" class="stateBtn file"><span>파일선택</span></button>
-				            		<input name="file" type="file" id="file-input" tabindex="-1" title="파일찾기">
-									<div class="approver_list_wrap person" style="max-height:95px">
-										<ul class="approver_list">
-											<li><span class="txt">첨부파일 입니다.txt / 15.1 Mb</span><button class="pay_close">닫기</button></li>
-											<li><span class="txt">첨부파일 입니다2.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
-											<li><span class="txt">첨부파일 입니다3.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
-											<li><span class="txt">첨부파일 입니다4.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
-										</ul>
-									</div>
+								<td colspan="3"  class="tl" id="<@popupId>_importMultiFilemng" >
 								</td>
 							</tr>
 						</tbody>

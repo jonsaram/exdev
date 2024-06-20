@@ -8,7 +8,7 @@
 		}
 		,searchList : () => {
 
-			const requestParm = { BUYER_ID 			: ''
+			const requestParm = { BUYER_ID 			: $("#selectBuyerId option:selected").val()
 								};
 			
 			var parm = {
@@ -81,6 +81,12 @@
 			
 			let row = <@pageId>.searchedRows[idx];
 			
+			if( row.APPROVAL_STATE != "-" ){
+				alert("결재중이거나 결재완료된 보고서는 삭제할 수 없습니다. ");
+				return;
+			}
+
+			
 	    	C_POP.confirm('선택하신 기업자문보고서를 삭제 하시겠습니까?', function() {
 	    		
 				<@pageId>.deleteOne(idx);
@@ -128,7 +134,6 @@
 			let title 		= "";
 			let appTitle	= "";
 			if( selectedRow["APPROVAL_STATE_NM"] == '-' ){title	= "결재요청";afterState	= "ONGOING";}
-			if( selectedRow["APPROVAL_STATE_NM"] == 'ONGOING' ){title	= "실행 완료 결재 요청";afterState	= "COMPLETED";}
 			appTitle	= title.replace(" 결재 요청","");
 			
 			const totalCost = addComma(selectedRow.TOTAL_COST);
@@ -143,8 +148,8 @@
 
 			let requestParm = {
 		        	 RELATION_ID 	: BUYER_CONSULTING_ID
-		        	,AFTER_SERVICE	: `ApprovalAfterService.updateContractProcess`
-		        	,AFTER_PARM		: `{"APPROVAL_STATE" : "${afterState}" }`
+		        	,AFTER_SERVICE	: `ApprovalAfterService.updateBuyerConsultingProcess`
+		        	,AFTER_PARM		: `{"APPROVAL_STATE" : "COMPLETE" }`
 		        	,TITLE			: title
 		        	,CONTENT		: appContent
 			}
@@ -155,7 +160,7 @@
 						 queryId 		: "custDashboard.updateProject"
 						,requestParm	: {
 							BUYER_CONSULTING_ID 	: BUYER_CONSULTING_ID
-				        	,PROCESS_STATE			: `${afterState}`
+				        	,PROCESS_STATE			: "ONGOING"
 						}
 					}
 					C_COM.requestQuery(parm, function(resultData) {
@@ -257,7 +262,7 @@
 							<td class="tc">{{:APPROVAL_STATE_NM}}</td>
 							<td>
 								{{if APPROVAL_STATE_NM =="-" ~index=#index}} 
-									<button type="button" title="계약 체결 완료 결재" class="btn tc" onclick="<@pageId>.approval({{:#getIndex()}})">결재</button>
+									<button type="button" title="결재" class="btn tc" onclick="<@pageId>.approval({{:#getIndex()}})">결재</button>
 								{{else}}
 									{{:APPROVAL_STATE_NM }}	
 								{{/if}}
