@@ -108,7 +108,7 @@
 			let buyerInfo = G_VAL.myBuyerMap[buyerId];
 			G_VAL.session.buyerInfo = buyerInfo;
 			if(G_VAL.session.LOGIN_TYPE == "USER") {
-				let selectStr = `<select id="selectBuyerId" onchange="changeBuyer()">`;
+				let selectStr = `<select id="selectBuyerId" onchange="changeBuyer()" style="width:160px">`;
 				$.each(G_VAL.myBuyerList, function() {
 					selectStr += `<option value="${this.BUYER_ID}">${this.BUYER_NM}</option>`;
 				});

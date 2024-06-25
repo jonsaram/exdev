@@ -9,16 +9,17 @@
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
 		
-		C_COMP.import("<@popupId>_cslist"	, "component_biz_compConsultingContent"	, {contractInfo : data, btnDisplay : "display:none"		}, function(data) {
+		C_COMP.import("<@popupId>_cslist"	, "component_biz_compConsultingContent"	, {contractInfo : data, btnDisplay : "display:none"									}, function(data) {
 			//dalert(data);
 		});
-		C_COMP.import("<@popupId>_schlist"	, "component_biz_compScheduleList"		, {contractInfo : data									}, function(data) {
+		C_COMP.import("<@popupId>_schlist"	, "component_biz_compScheduleList"		, {contractInfo : data																}, function(data) {
 			//dalert(data);
 		});
-		C_COMP.import("<@popupId>_todolist", "component_biz_compTodoList"			, {contractInfo : data									}, function(data) {
+		C_COMP.import("<@popupId>_todolist", "component_biz_compTodoList"			, {contractInfo : data																}, function(data) {
 			//dalert(data);
 		});
-		C_COMP.import("<@popupId>_wklist"	, "component_biz_compConsultingProcess"	, {contractInfo : data, topBtnDisplay :"display:none"	}, function(data) {
+		let scrollStyle = "max-height:calc(100% - 92px);height:calc(100% - 92px);";
+		C_COMP.import("<@popupId>_wklist"	, "component_biz_compConsultingProcess"	, {contractInfo : data, topBtnDisplay :"display:none", scrollStyle : scrollStyle	}, function(data) {
 			//dalert(data);
 		});
 		C_POP.maxSize("<@popupId>");

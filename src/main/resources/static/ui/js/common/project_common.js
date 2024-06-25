@@ -161,6 +161,13 @@ var C_COM = {
 					
 					if(resultData.state == "S") {
 						if(typeof callback == "function") callback(resultData);
+					} else if(resultData.state == "NO_SESSION"){
+						if(C_COM.sessionConfirmCheck != "Y") {
+							C_POP.alert('Session 정보가 없습니다.\n\n로그인 화면으로 이동합니다.');
+							C_COM.sessionConfirmCheck = "Y";
+							location.href="/";
+						}
+						return null;
 					} else {
 						if(resultData.STATUS == "FAIL") {
 							C_POP.alert(resultData.STATUS_MESSAGE);

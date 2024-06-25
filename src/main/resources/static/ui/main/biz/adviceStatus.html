@@ -127,19 +127,20 @@
 
 			$.each(list, function(idx) {
 				let key_cslist = `${parm.targetId}_cslist${idx}`;
-				C_COMP.import(key_cslist, "component_biz_compConsultingContent"	, {contractInfo : this									}, function(data) {
+				C_COMP.import(key_cslist, "component_biz_compConsultingContent"	, {contractInfo : this															}, function(data) {
 					//dalert(data);
 				});
 				let key_sch = `${parm.targetId}_sch${idx}`;
-				C_COMP.import(key_sch, "component_biz_compScheduleList"			, {contractInfo : this									}, function(data) {
+				C_COMP.import(key_sch, "component_biz_compScheduleList"			, {contractInfo : this															}, function(data) {
 					//dalert(data);
 				});
 				let key_todo = `${parm.targetId}_todo${idx}`;
-				C_COMP.import(key_todo, "component_biz_compTodoList"			, {contractInfo : this									}, function(data) {
+				C_COMP.import(key_todo, "component_biz_compTodoList"			, {contractInfo : this															}, function(data) {
 					//dalert(data);
 				});
 				let key_wk = `${parm.targetId}_wk${idx}`;
-				C_COMP.import(key_wk, "component_biz_compConsultingProcess"		, {contractInfo : this, inputDisplay :"display:none"	}, function(data) {
+				let scrollStyle = "max-height:250px";
+				C_COMP.import(key_wk, "component_biz_compConsultingProcess"		, {contractInfo : this, inputDisplay :"display:none", scrollStyle : scrollStyle	}, function(data) {
 					//dalert(data);
 				});
 				
@@ -171,7 +172,7 @@
 			let projectInfo = <@pageId>.projectList[index];
 			C_POP.open('popup_biz_adviceStatusPopup', projectInfo, function(retData) {
 				<@pageId>[<@pageId>.buyerCompObjMap[projectInfo.CONTRACT_ID].key_sch	].loadScheduleList();				
-				<@pageId>[<@pageId>.buyerCompObjMap[projectInfo.CONTRACT_ID].key_todo	].loadTodoList();				
+				<@pageId>[<@pageId>.buyerCompObjMap[projectInfo.CONTRACT_ID].key_todo	].loadTodoList();		
 				<@pageId>[<@pageId>.buyerCompObjMap[projectInfo.CONTRACT_ID].key_wk		].loadCmmtList();				
 			});
 		 }

@@ -5,6 +5,7 @@
 		,cmmtList	  : []
 		,runLoop	  : false
 		,loadCmmtList : function() {
+			<@compId>.contractInfo.lastReadTime = undefined;
 			var parm = {
 				 queryId 		: "contract.getWorkCmmtList"
 				,requestParm	: <@compId>.contractInfo
@@ -31,8 +32,9 @@
 			C_POP.open('popup_common_inputOnelinePopup', parm, function(retData) {
 				if(isValid(retData.msg)) {
 					// cmmt 등록
-					<@compId>.registCmmtProcess(retData.msg);
-					
+					<@compId>.registCmmtProcess(retData.msg, function() {
+						<@compId>.loadCmmtList();
+					});
 				}
 			});
 		 }
@@ -46,7 +48,7 @@
 				$("#<@compId> #cmmtContent").val("")
 			}
 		 }
-		,registCmmtProcess : function(cmmt) {
+		,registCmmtProcess : function(cmmt, callback) {
 			let parm = {
 				 queryId 		: "contract.registWorkCmmt"
 				,requestParm	: {
@@ -57,7 +59,7 @@
 				,noLoadingBar	: "Y"
 			}
 			C_COM.requestQuery(parm, function(resultData) {
-				//<@compId>.loadCmmtList();
+				if(typeof callback == "function") callback();
 			});  
 			
 		 }
@@ -152,7 +154,7 @@
 			<a href="javascript:<@compId>.registCmmt()" class="btn small">등록</a>
 		</div>
 	</div>
-	<ul class="share_msg" id="cmmtList" style="max-height:calc(100% - 92px);height:calc(100% - 92px);">
+	<ul class="share_msg" id="cmmtList" style="<@scrollStyle>">
 	</ul>
 	<script type="text/x-jsrender" id="cmmtList_template">
 	{{for list}}
