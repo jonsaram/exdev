@@ -136,6 +136,22 @@
 				<@popupId>.close(teamMemberList);
 			}
 		 }
+	 	,userSearchPopup : function(gubun) {
+			let param = {};
+			C_POP.open('popup_system_memberSearchPopup', {param : {}, gubun:gubun}, function(retData) {
+				
+				const userInfo = retData;
+				const user = <@popupId>.salesMember ;
+				const $tds  = $("#<@popupId>_USER").parent().parent().siblings("td");
+				$tds.eq(1).text(retData.USER_ID);
+				$("#<@popupId>_USER").val(retData.USER_NM);
+				$tds.eq(4).attr("title",retData.GRADE_NM).text(retData.GRADE_NM);
+				
+				<@popupId>.salesMember = userInfo;
+				<@popupId>.salesMember["TEAM_USER_ROLE"] = "SALES";
+				<@popupId>.salesMember["HEADER_YN"] 		= "N";
+			});
+		 }		
 		,setHeader : function(USER_ID) {
 			$("#<@popupId> input[name=headerCheck]").prop("checked", false);
 			$(`#<@popupId> #headerCheck_${USER_ID}`).prop("checked", true);
@@ -250,12 +266,13 @@
 						<tr>
 							<td>1</td>
 							<td>{{:data.USER_ID}}</td>
-							<td>{{:data.USER_NM}}</td>
-							{{if data.CONSULTING_TYPE =="COWORK"}} 
-							<td>실행/영업</td>
-							{{else}}
+							<td>
+								<div class="search_inputWrap" style="width:100%">
+									<input type="search" id="<@popupId>_USER" readOnly value="{{:data.USER_NM}}">
+									<a href="javascript:void(0);" onclick="<@popupId>.userSearchPopup('USER');" class="search_btn"><i class="icon_search"></i></a>
+								</div>
+							</td>
 							<td>영업</td>
-							{{/if}}
 							<td>&nbsp;</td>
 							<td title="{{:data.GRADE_NM}}">{{:data.GRADE_NM}}</td>
 							<td></td>

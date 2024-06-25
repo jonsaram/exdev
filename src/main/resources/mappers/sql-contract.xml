@@ -801,6 +801,17 @@
 			CONTRACT_ID = #{CONTRACT_ID}
 	</update>
 
+	<update id="updateProjectUserId">
+		/*	contract.updateProjectUserId
+			Project등록시 Sales User 변경 
+		*/
+		UPDATE 
+			TBL_EXP_CONTRACT 
+		SET USER_ID = #{USER_ID} 
+		WHERE 
+			CONTRACT_ID = #{CONTRACT_ID}
+	</update>
+	
 	<update id="updateBaseFolderIdOfProject">
 		/*	contract.updateBaseFolderIdOfProject
 			Project 기본 폴더 ID Update

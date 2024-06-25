@@ -167,6 +167,8 @@
 				
 				<@pageId>.teamMemberList = retData;
 
+				<@pageId>.saveSalesUser(<@pageId>.teamMemberList[0],projectInfo);
+
 				let appContent   = `* 고객명 : ${projectInfo.BUYER_NM}\n`;
 				appContent 		+= `* 상품명 : ${projectInfo.CONSULTING_NM}\n\n`;
 				appContent 		+= `* 프로젝트 담당자\n\n`;
@@ -205,6 +207,20 @@
 	    	const $tds = $("[name='<@pageId>_tr_0'] td");
 	    	_excelDownload($hds,$tds, <@pageId>.excelParam ,"프로젝트 리스트");  
 		 }
+		,saveSalesUser : function(salesMember,projectInfo) {
+
+			var parm = {
+					 queryId 		: "contract.updateProjectUserId"
+					,requestParm	: {"CONTRACT_ID":projectInfo.CONTRACT_ID, "USER_ID":salesMember.USER_ID }
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					
+					if( resultData.state == 'S'){
+						<@pageId>.loadData();
+					}				
+				});	
+			
+		}
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
