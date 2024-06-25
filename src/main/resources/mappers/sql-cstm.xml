@@ -140,7 +140,7 @@
 			고객 ID 생성
 		*/
 		SELECT  
-		'star' || LPAD(TO_CHAR(MAX(TO_NUMBER(REPLACE(BUYER_ID, 'star', ''))) + 1), 3, '0') AS BUYER_ID
+		'star' || TO_CHAR(MAX(TO_NUMBER(REPLACE(BUYER_ID, 'star', ''))) + 1) AS BUYER_ID
 		FROM TBL_EXP_BUYER 
 		WHERE BUYER_ID LIKE 'star%'
 	</select>	
