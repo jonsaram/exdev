@@ -1,0 +1,115 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+ 
+		close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(parm) {
+
+	});
+</script>
+	<div class="modal_wrap" id="modal-ex01">
+		<div class="modal" style="width:600px;height:600px;">
+			<div class="modal_header">
+				<strong class="tit">급여 명세서</strong>
+				<button type="button" class="btn_close"><span class="sp">팝업 닫기</span></button>
+			</div>
+			<div class="modal_body">
+				<div class="cont_top clearFix mt20">
+					<!-- <h3 class="fl font16 lh33 mtb0">급여 명세서</h3> -->
+					<a href="#modal-ex01" class="btn fl">출력</a>
+				</div>
+				<div class="tbl01 col">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">컨설팅 종류</th>
+								<th scope="col">급여(세전)</th>
+								<th scope="col">원천세(3.3%)</th>
+								<th scope="col">급여(세후)</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div class="tbl01 col" style="max-height:336px;overflow-y:auto;">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+							<col style="width:25%;" />
+						</colgroup>
+						<tbody>
+							<tr>
+								<td class="tl">일회성</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr>
+								<td class="tl">월자문</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr>
+								<td class="tl">외주</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr>
+								<td class="tl">AC사업</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr>
+								<td class="tl">투자유치</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr>
+								<td class="tl">기타</td>
+								<td class="tr">2,000,000</td>
+								<td class="tr">66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+						</tbody>
+						<tfoot>
+							<tr>
+								<td>계</td>
+								<td>9,000,000</td>
+								<td>66,000</td>
+								<td class="tr">1,980,000</td>
+							</tr>
+							<tr class="tax">
+								<td>세금</td>
+								<td colspan="3">1,000,000</td>								
+							</tr>
+							<tr class="minus">
+								<td>차감지금액</td>
+								<td colspan="3">8,000,000</td>	
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+			<div class="modal_footer">
+				<button type="button" class="btn btn_close">닫기</button>
+			</div>
+		</div>
+	</div>

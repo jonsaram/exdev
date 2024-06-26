@@ -118,4 +118,44 @@
 
 	</select>
 
+    <insert id="insertEtcPayment" parameterType="map" >
+        /* salary.insertEtcPayment */
+        INSERT INTO TBL_EXP_PAYMENT_ETC (
+              ADD_DATE_MONTH     
+             ,USER_ID           
+             ,BUYER_ID 
+             ,BUYER_NM
+             ,PAYMENT_NM
+             ,PAYMENT
+        )
+        VALUES(
+              #{ADD_DATE_MONTH}
+             ,#{USER_ID}
+             ,#{BUYER_ID}
+             ,#{BUYER_NM}
+             ,#{PAYMENT_NM}
+             ,#{PAYMENT}
+        ) 
+    </insert>
+    
+	<select id="getEtcPaymentDetailList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	salary.getEtcPaymentDetailList
+			ETC 급여 상세 리스트 조회 
+		*/
+	 	SELECT 
+			 ADD_DATE_MONTH     
+			,USER_ID           
+			,BUYER_ID 
+			,BUYER_NM
+			,PAYMENT_NM
+			,ROUND(P.PAYMENT) 						AS PAYMENT
+			,ROUND(P.PAYMENT * 0.033) 				AS TAX
+			,ROUND(P.PAYMENT - P.PAYMENT * 0.033)   AS REAL_PAY
+	 	FROM TBL_EXP_PAYMENT_ETC P
+	 	WHERE ADD_DATE_MONTH = #{RESULT_DATE_MONTH}
+	 	AND USER_ID	= #{USER_ID}
+	 	AND BUYER_ID = #{BUYER_ID}
+	 	ORDER BY PAYMENT_NM
+	</select>
+
 </mapper>

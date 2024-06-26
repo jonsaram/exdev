@@ -2,6 +2,7 @@
 <script type="text/javascript">
 var <@pageId> = {
 		searchedRows : []
+		,paymentDetailList: []
 		,searchedUser : {}
 		,pageInit : () =>{
 			
@@ -81,13 +82,35 @@ var <@pageId> = {
 			}
 
 			C_COM.requestQuery(parm, function(resultData) {
+
+				<@pageId>.paymentDetailList = resultData.data;
+				
+				const requestParm2 = <@pageId>.paymentDetailList[0];
 				
 				var rparm = {
 						 targetId 		: "<@pageId>_paymentDetailList"
-						,list			: resultData.data
+						,list			: <@pageId>.paymentDetailList
 						,targetTotalId	: "<@pageId>_totalCntDetail"
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
+				
+				
+				// ETC 상세 리스트 조회
+				var parm = {
+						 queryId 		: "salary.getEtcPaymentDetailList"
+						,requestParm	: requestParm2
+				}
+
+				const etcDetailList = C_COM.requestQuery(parm);				
+				if( etcDetailList.data ){
+					
+					etcDetailList.data.forEach( etc => {
+						
+			 			const trTemplate = $("#<@pageId>_paymentDetailList_ETC_template").render({PAYMENT_NM : etc.PAYMENT_NM , PAYMENT : etc.PAYMENT, TAX :  etc.TAX , REAL_PAY : etc.REAL_PAY });
+						$("#<@pageId>_paymentDetailList").append(trTemplate);
+						
+					})
+				}
 				
 	        	mergeTableTD('<@pageId>_paymentDetailList', {startIdx : 2, endIdx : 4, startRowIdx : 1});
 
@@ -106,12 +129,20 @@ var <@pageId> = {
 				})
 				
 				let sumPayment=0,sumTax=0,sumRealPay=0;
-				resultData.data.forEach(item=>{
+				<@pageId>.paymentDetailList.forEach(item=>{
 					sumPayment		+=item.PAYMENT;
 					sumTax			+=item.TAX;
 					sumRealPay		+=item.REAL_PAY;
 				})
-
+				// ETC 
+				if( etcDetailList.data ){
+					etcDetailList.data.forEach(item=>{
+						sumPayment		+=item.PAYMENT;
+						sumTax			+=item.TAX;
+						sumRealPay		+=item.REAL_PAY;
+					})
+					
+				}
 				$("#<@pageId>_sumTotalCost").text(sumTotalCost.toLocaleString());
 				$("#<@pageId>_sumIncome").text(sumIncome.toLocaleString());
 				$("#<@pageId>_sumPayment").text(sumPayment.toLocaleString());
@@ -135,6 +166,26 @@ var <@pageId> = {
 		              
 		    	})
 		    }
+		}
+		,etcPayment : () =>{
+
+			let param = <@pageId>.paymentDetailList;
+			C_POP.open('popup_operation_etcPaymentManagePopup', {param:param}, function(retData) {
+				
+				if(isValid(retData)){
+					searchList();
+				}
+			});
+		}
+		,paymentSpec : () =>{
+
+			let param = [];
+			C_POP.open('popup_operation_paymentSpecPopup', {param:param}, function(retData) {
+				
+				if(isValid(retData)){
+
+				}
+			});
 		}
 }
 // Page Load가 완료된후 실행 된다.
@@ -220,7 +271,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<div class="fl h100 ml15" style="width:calc(72% - 15px);">
 						<div class="cont_top clearFix">
 							<h3 class="fl font16">급여 상세</h3>
-							<div class="fr">
+							<div class="fr lh24 clearFix">
+								<a href="javascript:<@pageId>.etcPayment()" class="btn small fl" id="<@popupId>_etcPaymentMng">기타 수수료 입력</a>
+								<a href="javascript:<@pageId>.paymentSpec()" class="btn small fl" id="<@popupId>_paymentSpec">급여명세표 출력</a>
 								<span class="info"><strong id="<@pageId>_payUserName"></strong> l <strong  id="<@pageId>_payDate"></strong> l</span>
 								<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCntDetail"></span></strong>
 							</div>
@@ -286,6 +339,20 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<tr>	
 									<td colspan=7>자료가 없습니다.</td>	
 								</tr>
+							</script>
+							<script type="text/x-jsrender" id="<@pageId>_paymentDetailList_ETC_template">	
+									<tr>
+										<td id='RN'							>{{:RN}}</td>
+										<td id='BUYER_NM'					></td>
+										<td id='CONSULTING_NM'				></td>
+										<td id='TOTAL_COST'	class="tr"		></td>
+										<td id='INCOME'		class="tr"		></td>
+										<td class="tc" colspan="3"			>{{:PAYMENT_NM}}</td>
+										<td id='PAYMENT' class="tr"			>{{numb:PAYMENT}}</td>
+										<td class="tr">{{numb:TAX}}</td>
+										<td class="tr">{{numb:REAL_PAY}}</td>
+									</tr>
+
 							</script>
 							<tfoot>
 								<tr>

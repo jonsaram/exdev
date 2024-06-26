@@ -1,0 +1,139 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+ 		curRow : 0
+ 		,paymentDetailObj : {}
+		,close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+		,save : () => {
+
+			let rows = [];
+			$.each($("#<@popupId>_paymentList tr"), function(index, element) {
+			    
+				const $PAYMENT_NM 	= $(element).children().find("input[type='search']");
+				const $PAYMENT		= $(element).children().find("input[name='PAYMENT']");
+				const row = {ADD_DATE_MONTH: <@popupId>.paymentDetailObj.RESULT_DATE_MONTH}
+				row.USER_ID		= <@popupId>.paymentDetailObj.USER_ID;
+				row.BUYER_ID	= <@popupId>.paymentDetailObj.BUYER_ID;
+				row.BUYER_NM	= <@popupId>.paymentDetailObj.BUYER_NM;
+				row.PAYMENT_NM	= $PAYMENT_NM.data("codeNm");
+				row.PAYMENT		= $PAYMENT.val();
+			    	
+			    rows.push(row );
+
+			});			
+			
+			var parm = {
+					 queryId 		: "salary.insertEtcPayment"
+					,requestParmList: rows
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				alert('저장되었습니다.' );
+				
+				<@popupId>.close();
+				
+			});			
+			
+		}
+		,payments : (curRow) => {
+
+			let param = [];//$("#<@popupId>_paymentList tr [name='<@popupId>_curRow']").data("codeNm");
+			C_POP.open('popup_operation_etcPaymentSelectPopup', {param:param}, function(retData) {
+				
+				if(isValid(retData)){
+
+					$("#<@popupId>_paymentList tr[id='"+curRow+"'] [type='search']").data("codeId",retData.CODE_ID);
+					$("#<@popupId>_paymentList tr[id='"+curRow+"'] [type='search']").data("codeNm",retData.CODE_NM);
+					$("#<@popupId>_paymentList tr[id='"+curRow+"'] [type='search']").val(retData.CODE_NM);
+				}
+			});
+		}
+		,addPayment : () => {
+			
+ 			const trTemplate = $("#<@popupId>_paymentList_add_template").render({curRow:<@popupId>.curRow++});
+			$("#<@popupId>_paymentList").append(trTemplate);
+			
+		}
+		,deleteRow : (curRow) =>{
+			
+			C_POP.confirm(`해당 항목을 삭제 하시겠습니까?`, function() {
+				
+				$("#<@popupId>_paymentList [id='"+curRow+"']").remove();
+				
+			});
+		}
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(parm) {
+		
+		if( parm.param && parm.param.length > 0 ){
+			<@popupId>.paymentDetailObj = parm.param[0];
+		}
+		
+	});
+</script>
+<div class="modal_wrap">
+		<div class="modal" style="width:600px;height:500px;">
+			<div class="modal_header">
+				<strong class="tit">기타 수수료 관리</strong>
+				<button type="button" class="btn_close"><span class="sp">팝업 닫기</span></button>
+			</div>
+			<div class="modal_body">
+				<div class="cont_top clearFix mt20">
+					<h3 class="fl font16 mtb0">기타 수수료 관리</h3>
+					<a href="javascript:<@popupId>.addPayment();" class="btn fr small" >추가</a>
+				</div>
+				<div class="tbl01 col">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:50%;" />
+							<col style="width:40%;" />
+							<col style="width:40px;"/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">기타 수수료명</th>
+								<th scope="col">수수료</th>
+								<th scope="col"></th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div class="tbl01 col" style="max-height:252px;overflow-y:auto;">
+					<table>
+						<caption>표 캡션</caption>
+						<colgroup>
+							<col style="width:50%;" />
+							<col style="width:50%;" />
+							<col style="width:40px;"/>
+						</colgroup>
+						<tbody id="<@popupId>_paymentList">
+						</tbody>
+						<script type="text/x-jsrender" id="<@popupId>_paymentList_add_template">	
+							<tr id="{{:curRow}}" >
+								<td>
+									<div class="search_inputWrap">
+										<input type="search" name=""  data-codeId="", data-codeNm="" >
+											<a href="javascript:<@popupId>.payments('{{:curRow}}')" class="search_btn"><i class="icon_search"></i></a>
+									</div>
+								</td>
+								<td>
+									<input class="tr" type="text" name="PAYMENT" number/>
+								</td>
+			 					<td class='tl'>
+									<button onclick="<@popupId>.deleteRow('{{:curRow}}')" index="{{:curRow}}"><i class="icon_trash"></i></button>
+								</td>
+							</tr>
+						</script>
+					</table>
+				</div>
+			</div>
+			<div class="modal_footer">
+				<button type="button" class="btn select" onclick="<@popupId>.save()">저장</button>
+				<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
+			</div>
+		</div>
+</div>
