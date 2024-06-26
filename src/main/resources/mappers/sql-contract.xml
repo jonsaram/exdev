@@ -376,7 +376,7 @@
 		         T.LAST_SOLUTION 	= S.LAST_SOLUTION, 
 		         </if>
 		         T.UPDATE_USER		= S.UPDATE_USER,
-		         T.UPDATE_DATE		= SYSDATE
+		         T.UPDATE_DATE		= GET_KRDT(SYSDATE)
 		WHEN NOT MATCHED THEN 
      		INSERT (  CONTRACT_ID, USER_ID, BUYER_ID, CONTACT_DATE, CONTRACT_DATE, CONTRACT_TYPE, EXPIRE_DATE
     				, TOTAL_COST
@@ -416,7 +416,7 @@
 	    				, S.LAST_SOLUTION
 	    			 </if>
     				 , S.UPDATE_USER
-	    			 , SYSDATE
+	    			 , GET_KRDT(SYSDATE)
 	    			 , 'Y'
 	    			 , 'N' 
     				)
@@ -454,10 +454,10 @@
 		WHEN MATCHED THEN
 		  UPDATE SET
 		         T.UPDATE_USER 		= #{sessionVo.userId	},
-		         T.UPDATE_DATE		= SYSDATE
+		         T.UPDATE_DATE		= GET_KRDT(SYSDATE)
 		WHEN NOT MATCHED THEN 
      		INSERT (  CONTRACT_ID, USER_ID, RELATION_TYPE, USE_YN, DEL_YN, UPDATE_USER, UPDATE_DATE )
-   			VALUES (  S.CONTRACT_ID, S.USER_ID, S.RELATION_TYPE,'Y', 'N', #{sessionVo.userId	}, SYSDATE)		
+   			VALUES (  S.CONTRACT_ID, S.USER_ID, S.RELATION_TYPE,'Y', 'N', #{sessionVo.userId	}, GET_KRDT(SYSDATE))		
 		
 	</update>	
 	
@@ -499,7 +499,7 @@
 		,	PRE_PROCESS_STATE =  PROCESS_STATE
 		</if>
 		,	UPDATE_USER = #{sessionVo.userId}
-		,	UPDATE_DATE = SYSDATE
+		,	UPDATE_DATE = GET_KRDT(SYSDATE)
 		WHERE CONTRACT_ID	 = #{CONTRACT_ID}
 	</update>
 	
@@ -511,7 +511,7 @@
 		SET USE_YN = 'N'
 		,	DEL_YN = 'Y'
 		,	UPDATE_USER = #{sessionVo.userId}
-		,	UPDATE_DATE = SYSDATE
+		,	UPDATE_DATE = GET_KRDT(SYSDATE)
 		WHERE CONTRACT_ID	 = #{CONTRACT_ID}
 	</delete>
 	
@@ -572,10 +572,10 @@
 		         T.USE_YN					= S.USE_YN,
 		         T.DEL_YN					= S.DEL_YN,
 		         T.UPDATE_USER				= S.UPDATE_USER,
-		         T.UPDATE_DATE				= SYSDATE
+		         T.UPDATE_DATE				= GET_KRDT(SYSDATE)
 		WHEN NOT MATCHED THEN 
     		INSERT (    CONTRACT_ID,   USER_ID,   RELATION_TYPE,  USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
-   			VALUES (  S.CONTRACT_ID, S.USER_ID, S.RELATION_TYPE,  'Y'	 , 	 'N'   , S.UPDATE_USER, SYSDATE)
+   			VALUES (  S.CONTRACT_ID, S.USER_ID, S.RELATION_TYPE,  'Y'	 , 	 'N'   , S.UPDATE_USER, GET_KRDT(SYSDATE))
 	</update>
 	
 	<delete id="deleteContractMember" parameterType="java.util.HashMap"  flushCache="true" >
@@ -623,7 +623,7 @@
 				,T.BUYER_ID 			= #{BUYER_ID			}
 				,T.CONSULTING_ID 		= #{CONSULTING_ID		}
 				,T.UPDATE_USER			= #{sessionVo.userId	}
-				,T.UPDATE_DATE			= SYSDATE
+				,T.UPDATE_DATE			= GET_KRDT(SYSDATE)
 		WHEN NOT MATCHED THEN 
 			INSERT ( 
 				 CONTRACT_ID
@@ -648,9 +648,9 @@
 				,'Y'
 				,'N' 
 				,#{BASE_FOLDER_ID		}
-	   			,sysdate
+	   			,GET_KRDT(SYSDATE)
 	   			,#{sessionVo.userId		}
-	   			,sysdate
+	   			,GET_KRDT(SYSDATE)
 	   			,#{sessionVo.userId		}
 				,#{sessionVo.spCstmId	}
 			)
@@ -811,7 +811,7 @@
 		WHERE 
 			CONTRACT_ID = #{CONTRACT_ID}
 	</update>
-	
+
 	<update id="updateBaseFolderIdOfProject">
 		/*	contract.updateBaseFolderIdOfProject
 			Project 기본 폴더 ID Update
@@ -874,7 +874,7 @@
 			 #{WORK_CMMT_ID	}
 			,#{CONTRACT_ID	}
 			,#{CMMT			}
-   			,sysdate
+   			,TO_DATE(#{updateDate}, 'YYYY-MM-DD HH24:MI:SS')
    			,#{sessionVo.userId		}
 			,#{sessionVo.spCstmId	}
 		)
@@ -930,7 +930,7 @@
 			,#{CONTRACT_ID	}
 			,#{TODO			}
 			,'N'
-   			,sysdate
+   			,GET_KRDT(SYSDATE)
    			,#{sessionVo.userId		}
 			,#{sessionVo.spCstmId	}
 		)
@@ -989,7 +989,7 @@
 		) VALUES (
 			 #{CONTRACT_ID}
 			,'N'
-   			,sysdate
+   			,GET_KRDT(SYSDATE)
    			,#{sessionVo.userId		}
 			,#{sessionVo.spCstmId	}
 		)
@@ -1014,7 +1014,7 @@
 			,#{TEAM_USER_ROLE}
 			,'${COWORK_RATE  }'
 			,'${HEADER_YN    }'
-   			,sysdate
+   			,GET_KRDT(SYSDATE)
    			,#{sessionVo.userId		}
 			,#{sessionVo.spCstmId	}
 		)

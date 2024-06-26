@@ -340,7 +340,7 @@
 				         'Y'	 					AS USE_YN,
 				         'N'	 					AS DEL_YN,
 				         #{sessionVo.userId}		AS UPDATE_USER,
-				         SYSDATE					AS UPDATE_DATE
+				         GET_KRDT(SYSDATE)					AS UPDATE_DATE
 				  FROM dual
 				  
 				) S
@@ -355,7 +355,7 @@
 				         T.USE_YN				= S.USE_YN,
 				         T.DEL_YN				= S.DEL_YN,
 				         T.UPDATE_USER			= S.UPDATE_USER,
-				         T.UPDATE_DATE			= SYSDATE
+				         T.UPDATE_DATE			= GET_KRDT(SYSDATE)
 				WHEN NOT MATCHED THEN 
 		    		INSERT (  CONTRACT_ID,   RESULT_ID,   RESULT_DATE,   INCOME,   INCOME_TYPE,   USE_YN,   DEL_YN,   UPDATE_USER,   UPDATE_DATE)
 		   			VALUES (S.CONTRACT_ID, S.RESULT_ID, TO_DATE(S.RESULT_DATE,'YYYY-MM-DD'), S.INCOME, S.INCOME_TYPE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE)
@@ -411,7 +411,7 @@
 		SET USE_YN = 'N'
 		,	DEL_YN = 'Y'
 		,	UPDATE_USER = #{sessionVo.userId}
-		,	UPDATE_DATE = SYSDATE
+		,	UPDATE_DATE = GET_KRDT(SYSDATE)
 		WHERE CONTRACT_ID	= #{CONTRACT_ID}
 		AND RESULT_ID	 	= #{RESULT_ID}
 	</delete>
@@ -644,11 +644,11 @@
 		         T.COST_PRICE 		= S.COST_PRICE,
 		         T.DEL_YN			= S.DEL_YN,
 		         T.UPDATE_USER		= S.UPDATE_USER,
-		         T.UPDATE_DATE		= SYSDATE,
+		         T.UPDATE_DATE		= GET_KRDT(SYSDATE),
 		         T.TAX_FREE_YN		= S.TAX_FREE_YN
 		WHEN NOT MATCHED THEN 
     		INSERT (  CONTRACT_ID,   RESULT_ID,   COST_ID,   COST_NM,   COST_DESC,   COST_PRICE, USE_YN, DEL_YN,   UPDATE_USER, UPDATE_DATE, TAX_FREE_YN)
-   			VALUES (S.CONTRACT_ID, S.RESULT_ID, S.COST_ID, S.COST_NM, S.COST_DESC, S.COST_PRICE,    'Y',    'N', S.UPDATE_USER, SYSDATE , S.TAX_FREE_YN )
+   			VALUES (S.CONTRACT_ID, S.RESULT_ID, S.COST_ID, S.COST_NM, S.COST_DESC, S.COST_PRICE,    'Y',    'N', S.UPDATE_USER, GET_KRDT(SYSDATE) , S.TAX_FREE_YN )
 
 	</update>
 	
@@ -660,7 +660,7 @@
 		SET USE_YN = 'N'
 		,	DEL_YN = 'Y'
 		,	UPDATE_USER = #{sessionVo.userId}
-		,   UPDATE_DATE = SYSDATE
+		,   UPDATE_DATE = GET_KRDT(SYSDATE)
 		WHERE CONTRACT_ID	= #{CONTRACT_ID}
 		AND RESULT_ID	 	= #{RESULT_ID}
 		AND COST_ID	 		= #{COST_ID}
@@ -704,10 +704,10 @@
 		         T.USE_YN			= S.USE_YN,
 		         T.DEL_YN			= S.DEL_YN,
 		         T.UPDATE_USER		= S.UPDATE_USER,
-		         T.UPDATE_DATE		= SYSDATE
+		         T.UPDATE_DATE		= GET_KRDT(SYSDATE)
 		WHEN NOT MATCHED THEN 
     		INSERT (  CONTRACT_ID,   USER_ID,   RESULT_ID,   PAYMENT,   PAYMENT_ID,   EXEC_TYPE,  RELATION_TYPE,  PAY_ID,   RATE,   USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
-   			VALUES (S.CONTRACT_ID, S.USER_ID, S.RESULT_ID, S.PAYMENT, S.PAYMENT_ID, S.EXEC_TYPE,S.RELATION_TYPE,S.PAY_ID, S.RATE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, SYSDATE)
+   			VALUES (S.CONTRACT_ID, S.USER_ID, S.RESULT_ID, S.PAYMENT, S.PAYMENT_ID, S.EXEC_TYPE,S.RELATION_TYPE,S.PAY_ID, S.RATE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, GET_KRDT(SYSDATE))
 	</update>
 	
 	<delete id="deletePaymentItem" parameterType="java.util.HashMap"  flushCache="true" >
@@ -718,7 +718,7 @@
 		SET USE_YN = 'N'
 		,	DEL_YN = 'Y'
 		,	UPDATE_USER = #{sessionVo.userId}
-		,	UPDATE_DATE = SYSDATE
+		,	UPDATE_DATE = GET_KRDT(SYSDATE)
 		WHERE CONTRACT_ID	= #{CONTRACT_ID}
 		AND USER_ID	 		= #{USER_ID}
 		AND RESULT_ID	 	= #{RESULT_ID}
@@ -742,7 +742,7 @@
 		        SET USE_YN = 'N'
 		        ,   DEL_YN = 'Y'
 				,	UPDATE_USER = #{sessionVo.userId}
-				,	UPDATE_DATE = SYSDATE
+				,	UPDATE_DATE = GET_KRDT(SYSDATE)
 		        WHERE CONTRACT_ID = p_CONTRACT_ID
 		        AND RESULT_ID     = p_RESULT_ID
 		        ;
@@ -751,7 +751,7 @@
 		        SET USE_YN = 'N'
 		        ,   DEL_YN = 'Y'
 				,	UPDATE_USER = #{sessionVo.userId}
-				,	UPDATE_DATE = SYSDATE
+				,	UPDATE_DATE = GET_KRDT(SYSDATE)
 		        WHERE CONTRACT_ID = p_CONTRACT_ID
 		        AND RESULT_ID     = p_RESULT_ID
 		        ;
@@ -760,7 +760,7 @@
 		        SET USE_YN = 'N'
 		        ,   DEL_YN = 'Y'
 				,	UPDATE_USER = #{sessionVo.userId}
-				,	UPDATE_DATE = SYSDATE
+				,	UPDATE_DATE = GET_KRDT(SYSDATE)
 		        WHERE CONTRACT_ID = p_CONTRACT_ID
 		        AND RESULT_ID     = p_RESULT_ID
 		        ;

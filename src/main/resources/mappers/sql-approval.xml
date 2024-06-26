@@ -130,11 +130,11 @@
 		   ,#{TITLE         	}
 		   ,#{CONTENTS      	}
 		   ,#{STATE		      	}
-		   ,sysdate
+		   ,GET_KRDT(SYSDATE)
 		   ,#{AFTER_SERVICE		}
 		   ,#{AFTER_PARM		}
            ,#{sessionVo.userId 	}
-           ,sysdate
+           ,GET_KRDT(SYSDATE)
            ,#{sessionVo.spCstmId}
         )   
     </insert>
@@ -163,7 +163,7 @@
             ,#{APPROVAL_TYPE    	}
             ,NULL
             ,#{sessionVo.userId 	}
-            ,sysdate
+            ,GET_KRDT(SYSDATE)
             ,#{sessionVo.spCstmId	}
         )    
     </insert>
@@ -315,9 +315,9 @@
 		UPDATE TBL_EXP_APPROVAL_USER SET
 			 STATE 				= #{STATE				}
 			,APPROVAL_COMMENT 	= #{APPROVAL_COMMENT	}
-			,COMPLETE_DATE 		= sysdate
+			,COMPLETE_DATE 		= GET_KRDT(SYSDATE)
 			,UPDATE_USER 		= #{sessionVo.userId 	}
-			,UPDATE_DATE 		= sysdate
+			,UPDATE_DATE 		= GET_KRDT(SYSDATE)
 		WHERE 1=1
 			AND APPROVAL_ID 	= #{APPROVAL_ID			}     
 			AND USER_ID 		= #{sessionVo.userId 	}
@@ -332,9 +332,9 @@
         /* approval.saveCompleteMainAppr */
 		UPDATE TBL_EXP_APPROVAL SET
 			 STATE 				= #{STATE				}
-			,COMPLETE_DATE 		= sysdate
+			,COMPLETE_DATE 		= GET_KRDT(SYSDATE)
 			,UPDATE_USER 		= #{sessionVo.userId 	}
-			,UPDATE_DATE 		= sysdate
+			,UPDATE_DATE 		= GET_KRDT(SYSDATE)
 		WHERE 1=1
 			AND APPROVAL_ID 	= #{APPROVAL_ID			}     
     </update>
@@ -350,9 +350,9 @@
         /* approval.saveNoticeAppr */
 		UPDATE TBL_EXP_APPROVAL_USER SET
 			 STATE 				= 'NOTICE'
-			,COMPLETE_DATE 		= sysdate
+			,COMPLETE_DATE 		= GET_KRDT(SYSDATE)
 			,UPDATE_USER 		= #{sessionVo.userId 	}
-			,UPDATE_DATE 		= sysdate
+			,UPDATE_DATE 		= GET_KRDT(SYSDATE)
 		WHERE 1=1
 			AND APPROVAL_ID 	= #{APPROVAL_ID			}     
 			AND APPROVAL_TYPE 	= 'NOTICE'

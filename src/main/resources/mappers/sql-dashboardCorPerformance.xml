@@ -1567,7 +1567,7 @@
 		        ,A.WEEK_OF_MONTH 
 		FROM ISO A   
         WHERE 1 = 1
-        AND   A.WEEK_START <![CDATA[ <= ]]> TO_CHAR(SYSDATE, 'YYYY-MM-DD')   
+        AND   A.WEEK_START <![CDATA[ <= ]]> TO_CHAR(GET_KRDT(SYSDATE), 'YYYY-MM-DD')   
     </select>
     
     <select id="getSalesByWeek" resultType="java.util.HashMap" flushCache="true"  useCache="false">

@@ -70,7 +70,7 @@
 			#{setInfo.data}
 			</if>
    		</foreach>
-   			,sysdate
+   			,GET_KRDT(SYSDATE)
    			,#{sessionVo.userId}
 			,#{sessionVo.spCstmId}
 		)
@@ -105,7 +105,7 @@
 	   		</foreach>
 	   		
 	   			 ,T.UPDATE_USER		 = #{sessionVo.userId}
-	   			 ,T.UPDATE_DATE		 = sysdate 
+	   			 ,T.UPDATE_DATE		 = GET_KRDT(SYSDATE) 
 		WHEN NOT MATCHED THEN 
 			INSERT (
 		    <foreach item="setInfo" collection="setInfoList" separator=",">
@@ -123,7 +123,7 @@
 				#{setInfo.data}
 				</if>
 	   		</foreach>
-	   			,sysdate
+	   			,GET_KRDT(SYSDATE)
 	   			,#{sessionVo.userId}
 				,#{sessionVo.spCstmId}
 			)
@@ -175,7 +175,7 @@
 			,#{BK_TYPE}
 			,#{BACKUP_DATE}
 			,#{sessionVo.userId}
-			,sysdate
+			,GET_KRDT(SYSDATE)
 		)
    	</update>
 	<update id="deleteTable" flushCache="true">
@@ -263,7 +263,7 @@
 			,'Y'
 			,'${DIRECT_EXEC		}'
 			,'N'
-   			,sysdate
+   			,GET_KRDT(SYSDATE)
    			,#{sessionVo.userId		}
 			,#{sessionVo.spCstmId	}
 		)

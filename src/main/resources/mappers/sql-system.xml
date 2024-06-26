@@ -35,7 +35,7 @@
 		         #{USE_YN} AS USE_YN,
 		         #{DEL_YN} AS DEL_YN,
 		         #{sessionVo.userId} AS UPDATE_USER,
-		         SYSDATE AS UPDATE_DATE
+		         GET_KRDT(SYSDATE) AS UPDATE_DATE
 		  FROM dual
 		) S
 		ON (T.SP_CSTM_ID = S.SP_CSTM_ID)
@@ -152,7 +152,7 @@
 		         NVL(#{DEL_YN},'N') AS DEL_YN,
 		         NVL(TO_NUMBER(#{SORT_ORDER}), 100) AS SORT_ORDER,
 		         #{sessionVo.userId} AS UPDATE_USER,
-		         SYSDATE AS UPDATE_DATE
+		         GET_KRDT(SYSDATE) AS UPDATE_DATE
 		  FROM dual
 		) S
 		ON (T.SP_CSTM_ID = S.SP_CSTM_ID
@@ -184,7 +184,7 @@
 		SET DEL_YN = 'Y',
 		USE_YN		='N',
 		UPDATE_USER = 'system',
-		UPDATE_DATE = SYSDATE 
+		UPDATE_DATE = GET_KRDT(SYSDATE) 
 		WHERE SP_CSTM_ID = #{sessionVo.spCstmId} 
 		AND MENU_ID = #{MENU_ID} 
 	</delete>
@@ -313,7 +313,7 @@
 				 #{DEL_YN} 		AS DEL_YN,
 				 #{SORT_ORDER} 	AS SORT_ORDER,
 				 #{sessionVo.userId}	AS UPDATE_USER,
-				 SYSDATE 		AS UPDATE_DATE 
+				 GET_KRDT(SYSDATE) 		AS UPDATE_DATE 
 		  FROM dual
 		) S
 		ON (T.GRP_CODE_ID = S.GRP_CODE_ID)
@@ -345,7 +345,7 @@
 				 #{DEL_YN}		AS DEL_YN,      
 				 #{SORT_ORDER} 	AS SORT_ORDER,  
 				 #{sessionVo.userId}		AS UPDATE_USER, 
-				 SYSDATE		AS UPDATE_DATE  
+				 GET_KRDT(SYSDATE)		AS UPDATE_DATE  
 		  FROM dual
 		) S
 		ON (T.GRP_CODE_ID = S.GRP_CODE_ID
@@ -421,7 +421,7 @@
 		         #{DEL_YN} AS DEL_YN,
 		         #{SORT_ORDER} AS SORT_ORDER,
 		         #{sessionVo.userId} AS UPDATE_USER,
-		         SYSDATE AS UPDATE_DATE
+		         GET_KRDT(SYSDATE) AS UPDATE_DATE
 		  FROM dual
 		) S
 		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
@@ -614,7 +614,7 @@
 		         #{USE_YN}	 	AS USE_YN,
 		         #{DEL_YN} 		AS DEL_YN,
 		         #{sessionVo.userId}	AS UPDATE_USER,
-		         SYSDATE 		AS UPDATE_DATE
+		         GET_KRDT(SYSDATE) 		AS UPDATE_DATE
 		  FROM dual
 		) S
 		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
@@ -926,7 +926,7 @@
 		  	 T.COLUMN_LIST 	= #{COLUMN_LIST		}
 		  	,T.TBL_CMMT		= #{TBL_CMMT		}
 		    ,T.UPDATE_USER 	= #{sessionVo.userId}
-		    ,T.UPDATE_DATE 	= sysdate
+		    ,T.UPDATE_DATE 	= GET_KRDT(SYSDATE)
 		WHEN NOT MATCHED THEN 
     		INSERT (
     			 TABLE_NAME	 
@@ -942,7 +942,7 @@
                 ,#{COLUMN_LIST			}
                 ,#{TBL_CMMT				}
                 ,#{sessionVo.userId		}
-                ,sysdate                
+                ,GET_KRDT(SYSDATE)                
                 ,#{sessionVo.spCstmId	}
 			)
 	</update>
@@ -1201,7 +1201,7 @@
 						,#{ROLE_ID} 			AS ROLE_ID
 						</if>
 						,'system'				AS UPDATE_USER
-						,SYSDATE				AS UPDATE_DATE
+						,GET_KRDT(SYSDATE)				AS UPDATE_DATE
 				  FROM dual
 				) S
 				ON (T.SP_CSTM_ID	= S.SP_CSTM_ID

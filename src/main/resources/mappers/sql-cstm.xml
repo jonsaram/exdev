@@ -8,7 +8,7 @@
 	업무 관리 
 	 -->	
 	<sql id="getCstmList_body">
-		SELECT ROW_NUMBER() OVER( ORDER BY CASE WHEN B.UPDATE_DATE > SYSDATE-1 THEN 0 ELSE 1 END ,B.BUYER_NM) RN
+		SELECT ROW_NUMBER() OVER( ORDER BY CASE WHEN B.UPDATE_DATE > GET_KRDT(SYSDATE)-1 THEN 0 ELSE 1 END ,B.BUYER_NM) RN
 		, B.BUYER_ID
 		, B.BUYER_NM
 		, B.CEO_NM
@@ -97,7 +97,7 @@
 			<include refid="userContectedBuyers"/>
 		</if>
 		
-		ORDER BY CASE WHEN B.UPDATE_DATE > SYSDATE-1 THEN 0 ELSE 1 END ,B.BUYER_NM		
+		ORDER BY CASE WHEN B.UPDATE_DATE > GET_KRDT(SYSDATE)-1 THEN 0 ELSE 1 END ,B.BUYER_NM		
 	</sql>
 	<sql id="userContectedBuyers">
 		/* 고객을 등록 / 고객과 연계된 계약의 멤버들 */
@@ -166,9 +166,9 @@
 		         'Y' 				AS USE_YN,
 		         'N'	 			AS DEL_YN,
 		         #{sessionVo.userId} 	AS UPDATE_USER,
-		         SYSDATE				AS UPDATE_DATE,
+		         GET_KRDT(SYSDATE)				AS UPDATE_DATE,
 		         #{sessionVo.userId} 	AS CREATE_USER,
-		         SYSDATE				AS CREATE_DATE
+		         GET_KRDT(SYSDATE)				AS CREATE_DATE
 		  FROM dual
 		) S
 		ON (T.BUYER_ID	= S.BUYER_ID 
@@ -203,7 +203,7 @@
 		SET USE_YN = 'N' 
 		, DEL_YN = 'Y' 
 		,UPDATE_USER = #{sessionVo.userId}
-		,UPDATE_DATE = SYSDATE
+		,UPDATE_DATE = GET_KRDT(SYSDATE)
 		WHERE BUYER_ID = #{BUYER_ID}  
 	</delete> 
 
@@ -221,7 +221,7 @@
 		    T.COMPANY_REGNUM	= #{COMPANY_REGNUM},
 		    T.HOW_GET			= #{HOW_GET},
 		    T.UPDATE_USER		= #{sessionVo.userId},
-		    T.UPDATE_DATE		= SYSDATE
+		    T.UPDATE_DATE		= GET_KRDT(SYSDATE)
 		WHERE T.BUYER_ID		= #{OLD_BUYER_ID}
 	</update>
 	
@@ -241,7 +241,7 @@
 		        UPDATE TBL_EXP_BUYER
 		        SET BUYER_ID 		= p_BUYER_ID 
 				,	UPDATE_USER 	= #{sessionVo.userId}
-				,	UPDATE_DATE 	= SYSDATE
+				,	UPDATE_DATE 	= GET_KRDT(SYSDATE)
 		        WHERE BUYER_ID		= p_OLD_BUYER_ID
 		        ;
 		        

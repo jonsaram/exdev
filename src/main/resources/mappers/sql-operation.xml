@@ -49,7 +49,7 @@
 		         #{CONSULTING_TYPE} AS CONSULTING_TYPE,
 		         #{CONSULTING_DESC} AS CONSULTING_DESC,
 		         #{sessionVo.userId} AS UPDATE_USER, 
-           		 sysdate			AS UPDATE_DATE,
+           		 GET_KRDT(SYSDATE)			AS UPDATE_DATE,
            		#{sessionVo.spCstmId} AS SP_CSTM_ID
 		  FROM dual
 		) S
@@ -162,7 +162,7 @@
 		   ,#{USER_ID     		}   
 		   ,#{WORK_CONTENT		}
            ,#{sessionVo.userId 	}
-           ,sysdate
+           ,GET_KRDT(SYSDATE)
            ,#{sessionVo.spCstmId}
         )   
 	</update>

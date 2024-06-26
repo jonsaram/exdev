@@ -340,7 +340,7 @@
 			 #{TODO_ID		}
 			,#{TODO			}
 			,'N'
-   			,sysdate
+   			,GET_KRDT(SYSDATE)
    			,#{sessionVo.userId		}
 			,#{sessionVo.spCstmId	}
 		)
@@ -409,7 +409,7 @@
 	       WHERE 1=1 
 	       AND S.CONTRACT_ID  = C.CONTRACT_ID(+)
 	       AND C.BUYER_ID = B.BUYER_ID (+)
-	       AND S.SCHEDULE_DATE >= SYSDATE - 100 /* FOR TEST */
+	       AND S.SCHEDULE_DATE >= GET_KRDT(SYSDATE) - 100 /* FOR TEST */
 	       AND S.USER_ID = 'jonsaram' /* sessionVo.userId */
 	       AND rownum <![CDATA[ < ]]> 5
 	       ORDER BY S.SCHEDULE_DATE		
@@ -505,7 +505,7 @@
 			,#{UP_FOLDER_ID}	
 			,#{BUYER_ID    }
 			,NVL((SELECT MAX(ORDER_IDX) + 1 FROM TBL_EXP_FOLDER WHERE UP_FOLDER_ID = #{UP_FOLDER_ID}), 1)
-   			,sysdate
+   			,GET_KRDT(SYSDATE)
    			,#{sessionVo.userId		}
 			,#{sessionVo.spCstmId	}
 		)
@@ -543,7 +543,7 @@
 				,#{UP_FOLDER_ID}	
 				,#{BUYER_ID    }
 				,NVL((SELECT MAX(ORDER_IDX) + 1 FROM TBL_EXP_FOLDER WHERE UP_FOLDER_ID = #{UP_FOLDER_ID}), 1)
-	   			,sysdate
+	   			,GET_KRDT(SYSDATE)
 	   			,#{sessionVo.userId		}
 				,#{sessionVo.spCstmId	}
 			)
@@ -619,7 +619,7 @@
 				,'${FOLDER_ID    }'			
 				,NULL			
 				,NULL			
-	   			,sysdate
+	   			,GET_KRDT(SYSDATE)
 	   			,#{sessionVo.userId		}
 				,#{sessionVo.spCstmId	}
 			)
@@ -683,7 +683,7 @@
 				,'BASE'	
 				,#{BUYER_ID    }
 				,0
-	   			,sysdate
+	   			,GET_KRDT(SYSDATE)
 	   			,#{sessionVo.userId		}
 				,#{sessionVo.spCstmId	}
 			)

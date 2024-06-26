@@ -8,7 +8,7 @@
 	인사정보 관리 
 	 -->	
 	<sql id="getHrInfoList_body">
-		SELECT ROW_NUMBER() OVER( ORDER BY CASE WHEN U.UPDATE_DATE > sysdate - 1 THEN 0 ELSE 1 END , U.USER_ID) RN
+		SELECT ROW_NUMBER() OVER( ORDER BY CASE WHEN U.UPDATE_DATE > GET_KRDT(SYSDATE) - 1 THEN 0 ELSE 1 END , U.USER_ID) RN
 			,U.SP_CSTM_ID
 			,U.USER_ID
 			,U.USER_NM
@@ -43,7 +43,7 @@
 			,NVL(TO_CHAR( I.AMOUNT   , '999,999,999,999,999'),'0')	AS AMOUNT 
 			,TO_CHAR( I.REG_DATE ,'YYYY-MM-DD'  ) 		AS INSURANCE_REG_DATE
 			,TO_CHAR( I.EXP_DATE ,'YYYY-MM-DD'  ) 		AS INSURANCE_EXP_DATE
-			,CASE 	WHEN I.EXP_DATE - SYSDATE <![CDATA[ < ]]> 0 
+			,CASE 	WHEN I.EXP_DATE - GET_KRDT(SYSDATE) <![CDATA[ < ]]> 0 
 					THEN 'OVER'
 			        ELSE 'NOT'
 			 END 													AS INSURANCE_EXP_DATE_OVER			
@@ -144,7 +144,7 @@
 			인사정보 리스트 조회 
 		*/
 		<include refid="getHrInfoList_body"/>
-         ORDER BY CASE WHEN U.UPDATE_DATE > sysdate - 1 THEN 0 ELSE 1 END , USER_ID
+         ORDER BY CASE WHEN U.UPDATE_DATE > GET_KRDT(SYSDATE) - 1 THEN 0 ELSE 1 END , USER_ID
 	</select>	
 	<select id="getHrInfoList_totalCnt" resultType="Integer">
 		/* hrInfo.getHrInfoList_totalCnt  */
@@ -156,7 +156,7 @@
 		/* hrInfo.getHrInfoList_paging  */
 		<include refid="common.pagingWrapStart"/>
 		<include refid="getHrInfoList_body"/>
-        ORDER BY CASE WHEN U.UPDATE_DATE > sysdate - 1 THEN 0 ELSE 1 END , USER_ID
+        ORDER BY CASE WHEN U.UPDATE_DATE > GET_KRDT(SYSDATE) - 1 THEN 0 ELSE 1 END , USER_ID
 		<include refid="common.pagingWrapEnd"/>
 	</select>
 		 	
@@ -211,7 +211,7 @@
 					</when>
 				</choose>		         
 		        #{sessionVo.userId}	AS UPDATE_USER,
-		         SYSDATE 		AS UPDATE_DATE
+		         GET_KRDT(SYSDATE) 		AS UPDATE_DATE
 		  FROM dual
 		) S
 		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
@@ -282,7 +282,7 @@
 				</when>
 			</choose>		         
 		    T.UPDATE_USER 	= #{sessionVo.userId	},
-		    T.UPDATE_DATE 	= SYSDATE
+		    T.UPDATE_DATE 	= GET_KRDT(SYSDATE)
 		WHERE T.SP_CSTM_ID	= #{sessionVo.spCstmId	}
 		AND T.USER_ID 		= #{sessionVo.userId	}
 		
@@ -303,7 +303,7 @@
 				,USE_YN = 'N'
 				,DEL_YN = 'Y'
 				,UPDATE_USER = #{sessionVo.userId}
-				,UPDATE_DATE = SYSDATE
+				,UPDATE_DATE = GET_KRDT(SYSDATE)
 				WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
 				AND	  USER_ID	 = #{USER_ID}
 		        ;

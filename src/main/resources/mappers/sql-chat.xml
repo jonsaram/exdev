@@ -53,7 +53,7 @@
 										#{OPENROOM_YN},
 										'N',
 										'정빈',
-										SYSDATE)
+										GET_KRDT(SYSDATE))
 	</insert>
 		
 	<delete id="deleteChatRoom" parameterType="java.util.HashMap"  flushCache="true" >
@@ -96,7 +96,7 @@
 												#{CHATROOM_ID},
 												#{MESSAGE},
 												#{USER_ID},
-												SYSDATE)
+												GET_KRDT(SYSDATE))
 	</insert>
 	
 </mapper>

@@ -98,7 +98,7 @@
 				,T.APPROVAL_STATE 			= #{APPROVAL_STATE}
 				</if>
 				,T.UPDATE_USER				= #{sessionVo.userId	}
-				,T.UPDATE_DATE				= SYSDATE
+				,T.UPDATE_DATE				= GET_KRDT(SYSDATE)
 				,T.SP_CSTM_ID				= #{sessionVo.spCstmId	}
 				,T.CONTENT					= #{CONTENT}
 		WHEN NOT MATCHED THEN 
@@ -125,7 +125,7 @@
 				,#{CONTRACT_ID			}
 				,'N' 
 	   			,#{sessionVo.userId		}
-	   			,sysdate
+	   			,GET_KRDT(SYSDATE)
 				,#{sessionVo.spCstmId	}
 				,#{CONTENT	}
 			)

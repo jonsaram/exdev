@@ -131,7 +131,7 @@
               ,DESCRIPTION             = #{description, jdbcType=VARCHAR}
               ,CONTRACT_ID             = #{contractId, jdbcType=VARCHAR}
               ,UPDATE_USER             = #{sessionVo.userId}
-              ,UPDATE_DATE             = SYSDATE
+              ,UPDATE_DATE             = GET_KRDT(SYSDATE)
         WHERE 1 = 1
         AND    SCHEDULE_ID = #{scheduleId}
         AND    USER_ID     = #{sessionVo.userId}
@@ -216,7 +216,7 @@
              ,#{description}                                     
              ,#{sessionVo.userId}                                
              ,#{sessionVo.userId}                                
-             ,SYSDATE  
+             ,GET_KRDT(SYSDATE)  
         )
     </insert>
     
