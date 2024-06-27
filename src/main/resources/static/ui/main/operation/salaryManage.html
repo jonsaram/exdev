@@ -94,7 +94,7 @@ var <@pageId> = {
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 				
-				
+				let paymentDetailListCnt = <@pageId>.paymentDetailList.length+1;
 				// ETC 상세 리스트 조회
 				var parm = {
 						 queryId 		: "salary.getEtcPaymentDetailList"
@@ -106,7 +106,7 @@ var <@pageId> = {
 					
 					etcDetailList.data.forEach( etc => {
 						
-			 			const trTemplate = $("#<@pageId>_paymentDetailList_ETC_template").render({PAYMENT_NM : etc.PAYMENT_NM , PAYMENT : etc.PAYMENT, TAX :  etc.TAX , REAL_PAY : etc.REAL_PAY });
+			 			const trTemplate = $("#<@pageId>_paymentDetailList_ETC_template").render({RN : paymentDetailListCnt++ , PAYMENT_NM : etc.PAYMENT_NM , PAYMENT : etc.PAYMENT, TAX :  etc.TAX , REAL_PAY : etc.REAL_PAY });
 						$("#<@pageId>_paymentDetailList").append(trTemplate);
 						
 					})
@@ -167,13 +167,21 @@ var <@pageId> = {
 		    	})
 		    }
 		}
-		,etcPayment : () =>{
+		,etcPayment : (mode,paymentNm, payment) =>{
 
 			let param = <@pageId>.paymentDetailList;
+			
+			if( mode == "U"){
+				
+				param.mode='U'				;
+				param.PAYMENT_NM 	= paymentNm;
+				param.PAYMENT 		= payment;
+				
+			}
 			C_POP.open('popup_operation_etcPaymentManagePopup', {param:param}, function(retData) {
 				
 				if(isValid(retData)){
-					searchList();
+					<@pageId>.searchList();
 				}
 			});
 		}
@@ -343,11 +351,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<script type="text/x-jsrender" id="<@pageId>_paymentDetailList_ETC_template">	
 									<tr>
 										<td id='RN'							>{{:RN}}</td>
-										<td id='BUYER_NM'					></td>
-										<td id='CONSULTING_NM'				></td>
-										<td id='TOTAL_COST'	class="tr"		></td>
-										<td id='INCOME'		class="tr"		></td>
-										<td class="tc" colspan="3"			>{{:PAYMENT_NM}}</td>
+										<td class="tc" colspan="7"			>
+											<span class="clickable-underline" style="cursor: pointer; text-decoration: underline;" onclick="<@pageId>.etcPayment('U','{{:PAYMENT_NM}}',{{:PAYMENT}});">{{:PAYMENT_NM}}</span>
+										</td>
 										<td id='PAYMENT' class="tr"			>{{numb:PAYMENT}}</td>
 										<td class="tr">{{numb:TAX}}</td>
 										<td class="tr">{{numb:REAL_PAY}}</td>

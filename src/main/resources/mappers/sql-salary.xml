@@ -121,7 +121,8 @@
     <insert id="insertEtcPayment" parameterType="map" >
         /* salary.insertEtcPayment */
         INSERT INTO TBL_EXP_PAYMENT_ETC (
-              ADD_DATE_MONTH     
+        	 PAYMENT_ETC_ID
+             ,ADD_DATE_MONTH     
              ,USER_ID           
              ,BUYER_ID 
              ,BUYER_NM
@@ -129,7 +130,8 @@
              ,PAYMENT
         )
         VALUES(
-              #{ADD_DATE_MONTH}
+              #{PAYMENT_ETC_ID}
+             ,#{ADD_DATE_MONTH}
              ,#{USER_ID}
              ,#{BUYER_ID}
              ,#{BUYER_NM}
@@ -138,12 +140,42 @@
         ) 
     </insert>
     
+	<update id="updateEtcPayment" parameterType="java.util.HashMap"  flushCache="true" >
+ 		/* salary.updateEtcPayment */
+		MERGE INTO TBL_EXP_PAYMENT_ETC T
+		USING (
+		  SELECT #{PAYMENT_ETC_ID} 	AS PAYMENT_ETC_ID,
+		         #{ADD_DATE_MONTH} 	AS ADD_DATE_MONTH,
+		         #{USER_ID} 	AS USER_ID,
+		         #{BUYER_ID} 	AS BUYER_ID,
+		         #{BUYER_NM} 	AS BUYER_NM,
+		         #{PAYMENT_NM} 	AS PAYMENT_NM,
+		         #{PAYMENT} 	AS PAYMENT
+		  FROM dual
+		) S
+		ON (T.PAYMENT_ETC_ID	= S.PAYMENT_ETC_ID
+		)
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    T.ADD_DATE_MONTH	= S.ADD_DATE_MONTH,
+		    T.USER_ID 			= S.USER_ID,
+		    T.BUYER_ID 			= S.BUYER_ID,
+		    T.BUYER_NM 			= S.BUYER_NM,
+		    T.PAYMENT_NM 		= S.PAYMENT_NM,
+		    T.PAYMENT 			= S.PAYMENT
+		WHEN NOT MATCHED THEN 
+    		INSERT (  PAYMENT_ETC_ID,   ADD_DATE_MONTH,   USER_ID,   BUYER_ID,   BUYER_NM,   PAYMENT_NM,   PAYMENT)
+   			VALUES (S.PAYMENT_ETC_ID, S.ADD_DATE_MONTH, S.USER_ID, S.BUYER_ID, S.BUYER_NM, S.PAYMENT_NM, S.PAYMENT)
+	</update>
+
+    
 	<select id="getEtcPaymentDetailList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	salary.getEtcPaymentDetailList
 			ETC 급여 상세 리스트 조회 
 		*/
 	 	SELECT 
-			 ADD_DATE_MONTH     
+	 		PAYMENT_ETC_ID
+			,ADD_DATE_MONTH     
 			,USER_ID           
 			,BUYER_ID 
 			,BUYER_NM
@@ -155,7 +187,18 @@
 	 	WHERE ADD_DATE_MONTH = #{RESULT_DATE_MONTH}
 	 	AND USER_ID	= #{USER_ID}
 	 	AND BUYER_ID = #{BUYER_ID}
+	 	<if test=" PAYMENT_NM!= null and !PAYMENT_NM.equals('')">
+	 	AND PAYMENT_NM = #{PAYMENT_NM}
+	 	</if>
 	 	ORDER BY PAYMENT_NM
 	</select>
 
+	<delete id="deleteEtcPayment" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	salary.deleteEtcPayment
+			기타수수료 삭제
+		*/
+		DELETE FROM  TBL_EXP_PAYMENT_ETC
+		WHERE PAYMENT_ETC_ID = #{PAYMENT_ETC_ID} 
+	</delete>
+	
 </mapper>

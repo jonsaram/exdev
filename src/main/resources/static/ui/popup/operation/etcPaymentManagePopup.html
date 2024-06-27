@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@popupId> = {
- 		curRow : 0
+		rcvData : {}
+ 		,curRow : 0
  		,paymentDetailObj : {}
 		,close : function(returnData) {
 			if(isEmpty(returnData)) returnData = {};
@@ -11,49 +12,62 @@
 
 			let rows = [];
 			$.each($("#<@popupId>_paymentList tr"), function(index, element) {
-			    
-				const $PAYMENT_NM 	= $(element).children().find("input[type='search']");
-				const $PAYMENT		= $(element).children().find("input[name='PAYMENT']");
-				const row = {ADD_DATE_MONTH: <@popupId>.paymentDetailObj.RESULT_DATE_MONTH}
-				row.USER_ID		= <@popupId>.paymentDetailObj.USER_ID;
-				row.BUYER_ID	= <@popupId>.paymentDetailObj.BUYER_ID;
-				row.BUYER_NM	= <@popupId>.paymentDetailObj.BUYER_NM;
-				row.PAYMENT_NM	= $PAYMENT_NM.data("codeNm");
-				row.PAYMENT		= $PAYMENT.val();
+
+				const PAYMENT_ETC_ID	= isEmpty($(this).attr("id")) ?  C_COM.makeUniqueId() :  $(this).attr("id");
+				const $PAYMENT_NM 		= $(element).children().find("input[type='search']");
+				const $PAYMENT			= $(element).children().find("input[name='PAYMENT']");
+				
+				const row 				= {ADD_DATE_MONTH: <@popupId>.paymentDetailObj.RESULT_DATE_MONTH}
+				row.USER_ID				= <@popupId>.paymentDetailObj.USER_ID;
+				row.BUYER_ID			= <@popupId>.paymentDetailObj.BUYER_ID;
+				row.BUYER_NM			= <@popupId>.paymentDetailObj.BUYER_NM;
+				row.PAYMENT_NM			= isEmpty($PAYMENT_NM.data("codeNm")) ? $PAYMENT_NM.val() : $PAYMENT_NM.data("codeNm");
+				row.PAYMENT				= $PAYMENT.val();
+				row.PAYMENT_ETC_ID 		= PAYMENT_ETC_ID;
 			    	
 			    rows.push(row );
 
 			});			
 			
 			var parm = {
-					 queryId 		: "salary.insertEtcPayment"
+					 queryId 		: "salary.updateEtcPayment"
 					,requestParmList: rows
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				alert('저장되었습니다.' );
 				
-				<@popupId>.close();
+				<@popupId>.close({MSG:'저장되었습니다.'  });
 				
 			});			
 			
 		}
 		,payments : (curRow) => {
 
-			let param = [];//$("#<@popupId>_paymentList tr [name='<@popupId>_curRow']").data("codeNm");
+			let param = [];
 			C_POP.open('popup_operation_etcPaymentSelectPopup', {param:param}, function(retData) {
-				
+			
 				if(isValid(retData)){
 
-					$("#<@popupId>_paymentList tr[id='"+curRow+"'] [type='search']").data("codeId",retData.CODE_ID);
-					$("#<@popupId>_paymentList tr[id='"+curRow+"'] [type='search']").data("codeNm",retData.CODE_NM);
-					$("#<@popupId>_paymentList tr[id='"+curRow+"'] [type='search']").val(retData.CODE_NM);
+					$("#<@popupId>_paymentList tr [type='search']").data("codeId",retData.CODE_ID);
+					$("#<@popupId>_paymentList tr [type='search']").data("codeNm",retData.CODE_NM);
+					$("#<@popupId>_paymentList tr [type='search']").val(retData.CODE_NM);
 				}
 			});
 		}
-		,addPayment : () => {
+		,addPayment : (etcPayment) => {
 			
- 			const trTemplate = $("#<@popupId>_paymentList_add_template").render({curRow:<@popupId>.curRow++});
+			etcPayment = etcPayment || {PAYMENT_ID:'', PAYMENT_NM:'', PAYMENT:0};
+			
+			etcPayment.curRow	= <@popupId>.curRow++;
+			etcPayment.mode		= <@popupId>.rcvData.param.mode ; 
+ 			const trTemplate = $("#<@popupId>_paymentList_add_template").render(etcPayment);
 			$("#<@popupId>_paymentList").append(trTemplate);
+			
+			if( etcPayment.mode == "U"){
+				$("#<@popupId>_paymentList .icon_trash").remove();
+			}
+			
+			setTimeout( ()=>{<@popupId>.setHandler()},120);
 			
 		}
 		,deleteRow : (curRow) =>{
@@ -64,13 +78,69 @@
 				
 			});
 		}
+		,searchEtcPayment : () => {
+			
+			var parm = {
+					 queryId 		: "salary.getEtcPaymentDetailList"
+					,requestParm	: <@popupId>.paymentDetailObj
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				const etcPayment = resultData.data[0];
+
+				<@popupId>.addPayment(etcPayment)
+				
+				console.log( resultData.data );
+				
+			});	
+			
+		}
+		,delete : () => {
+			
+			const paymentEtcId = $("#<@popupId>_paymentList tr").attr("id");
+			var parm = {
+					 queryId 		: "salary.deleteEtcPayment"
+					,requestParm	: { PAYMENT_ETC_ID : paymentEtcId }
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				alert('삭제되었습니다.' );
+				<@popupId>.close({MSG:'삭제되었습니다.'  });
+				
+			});
+			
+		}
+		,setHandler : () => {
+			
+			$("tr[id^='<@popupId>_etcPaymentRow_'] input[type='search']").on('input',function() {
+			    var inputText = $(this).val();
+			    console.log('입력된 값:', inputText);
+			});
+
+		}
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(parm) {
 		
+		<@popupId>.rcvData = parm;
+		
 		if( parm.param && parm.param.length > 0 ){
+			
 			<@popupId>.paymentDetailObj = parm.param[0];
 		}
+		
+		if(parm.param.mode == "U"){
+			
+			$("#<@popupId>_addBtn").hide();
+			$("#<@popupId>_delete").show();
+			$("#<@popupId>_save").text("수정");
+			$("#<@popupId> .tit").text("기타 수수료 수정");
+			<@popupId>.paymentDetailObj.PAYMENT_NM	= parm.param.PAYMENT_NM;
+			<@popupId>.paymentDetailObj.PAYMENT		= parm.param.PAYMENT;
+			
+			<@popupId>.searchEtcPayment();
+		}
+		
 		
 	});
 </script>
@@ -83,7 +153,7 @@
 			<div class="modal_body">
 				<div class="cont_top clearFix mt20">
 					<h3 class="fl font16 mtb0">기타 수수료 관리</h3>
-					<a href="javascript:<@popupId>.addPayment();" class="btn fr small" >추가</a>
+					<a href="javascript:<@popupId>.addPayment();" class="btn fr small" id="<@popupId>_addBtn">추가</a>
 				</div>
 				<div class="tbl01 col">
 					<table>
@@ -113,15 +183,15 @@
 						<tbody id="<@popupId>_paymentList">
 						</tbody>
 						<script type="text/x-jsrender" id="<@popupId>_paymentList_add_template">	
-							<tr id="{{:curRow}}" >
+							<tr id="{{:PAYMENT_ETC_ID}}" >
 								<td>
 									<div class="search_inputWrap">
-										<input type="search" name=""  data-codeId="", data-codeNm="" >
+										<input type="search" name=""  data-codeId="{{:PAYMENT_ID}}", data-codeNm="{{:PAYMENT_NM}}" value="{{:PAYMENT_NM}}">
 											<a href="javascript:<@popupId>.payments('{{:curRow}}')" class="search_btn"><i class="icon_search"></i></a>
 									</div>
 								</td>
 								<td>
-									<input class="tr" type="text" name="PAYMENT" number/>
+									<input class="tr" type="text" name="PAYMENT" value="{{:PAYMENT}}" number/>
 								</td>
 			 					<td class='tl'>
 									<button onclick="<@popupId>.deleteRow('{{:curRow}}')" index="{{:curRow}}"><i class="icon_trash"></i></button>
@@ -132,7 +202,8 @@
 				</div>
 			</div>
 			<div class="modal_footer">
-				<button type="button" class="btn select" onclick="<@popupId>.save()">저장</button>
+				<button type="button" class="btn select" onclick="<@popupId>.save()" 	id="<@popupId>_save" >저장</button>
+				<button type="button" class="btn select" onclick="<@popupId>.delete()" 	id="<@popupId>_delete" style='display:none'>삭제</button>
 				<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
 			</div>
 		</div>
