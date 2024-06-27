@@ -54,14 +54,17 @@
 				}
 			});
 		}
-		,addPayment : (etcPayment) => {
+		,addPayment : (etcPay) => {
 			
-			etcPayment = etcPayment || {PAYMENT_ID:'', PAYMENT_NM:'', PAYMENT:0};
+			let etcPayment = etcPay || {PAYMENT_ID:'', PAYMENT_NM:'', PAYMENT:0};
 			
 			etcPayment.curRow	= <@popupId>.curRow++;
-			etcPayment.mode		= <@popupId>.rcvData.param.mode ; 
- 			const trTemplate = $("#<@popupId>_paymentList_add_template").render(etcPayment);
-			$("#<@popupId>_paymentList").append(trTemplate);
+			etcPayment.mode		= <@popupId>.rcvData.param.mode ;
+			
+			var rparm = etcPayment;
+			rparm.targetId 	= "<@popupId>_paymentList";
+			rparm.append	= "Y";
+			C_COM.renderHtml("<@popupId>", rparm);
 			
 			if( etcPayment.mode == "U"){
 				$("#<@popupId>_paymentList .icon_trash").remove();
@@ -182,7 +185,7 @@
 						</colgroup>
 						<tbody id="<@popupId>_paymentList">
 						</tbody>
-						<script type="text/x-jsrender" id="<@popupId>_paymentList_add_template">	
+						<script type="text/x-jsrender" id="<@popupId>_paymentList_template">	
 							<tr id="{{:PAYMENT_ETC_ID}}" >
 								<td>
 									<div class="search_inputWrap">
@@ -191,7 +194,7 @@
 									</div>
 								</td>
 								<td>
-									<input class="tr" type="text" name="PAYMENT" value="{{:PAYMENT}}" number/>
+									<input class="tr" type="text" name="PAYMENT" value="{{numb:PAYMENT}}" fix="2" number/>
 								</td>
 			 					<td class='tl'>
 									<button onclick="<@popupId>.deleteRow('{{:curRow}}')" index="{{:curRow}}"><i class="icon_trash"></i></button>
