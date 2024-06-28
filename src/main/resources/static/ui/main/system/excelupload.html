@@ -73,7 +73,10 @@
 					
 					if(isValid(retData.dupleNum)) {
 						$("#<@pageId> #errorMsg").append(":" + retData.dupleNum);
+						
 					}
+					$('#<@pageId> #scrollwrap').scrollTop($('#<@pageId> #scrollwrap')[0].scrollHeight);
+					C_POP.alert('오류가 발생하였습니다.\n\n하단에 오류 메시지를 확인하세요.');
 				} else {
 					dwrite(retData);
 				}
@@ -181,7 +184,7 @@
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>Excel Upload 관리</h2>
 	</div>
-	<div class="sec_scroll">
+	<div class="sec_scroll" id="scrollwrap">
 		<section class="sec_wrap">
 		
 			<div class="tab_wrap">
@@ -302,7 +305,7 @@
 			<div id="errorLog" style="display:none">
 				</br></br>
 				<b>ErrorLog</b></br></br>
-				<textarea cols="100" rows="10" id=errorMsg></textarea></br><br/>
+				<textarea cols="200" rows="10" id=errorMsg></textarea></br><br/>
 				sheetNum   : <span id=sheetNum></span><br/><br/>
 				Error Line : <span id=stopIdx></span><br/>
 			</div>

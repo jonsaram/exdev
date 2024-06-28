@@ -119,6 +119,9 @@ public class ExcelService  extends ExdevBaseService{
         for (int ii = 0; ii < cnt; ii++) {
     		resultMap = commonExcelUploadExec(file, session, ii);
     		resultMap.put("sheetNum", ii);
+    		// error Check
+    		String state = (String)resultMap.get("state");
+    		if("E".equals(state)) break;
 		}
 		return resultMap;
 	}
@@ -223,7 +226,7 @@ public class ExcelService  extends ExdevBaseService{
 	        	} else if (idx == 3) {
 	        		int cellcnt = row.getLastCellNum();
 	        		int headerCnt = headerList.size();
-	        		if(cellcnt != headerCnt) {
+	        		if(cellcnt < headerCnt) {
 	        			// 컬럼 개수가 일치하지 않아 오류처리
 	        			throw new Exception("Column개수가 일치하지 않습니다.");
 	        		}
@@ -276,7 +279,7 @@ public class ExcelService  extends ExdevBaseService{
 
 		            Map<String, Object> cellMap = new LinkedHashMap<>();
 
-		            for (int i = 0; i < row.getLastCellNum(); i++) {
+		            for (int i = 0; i < headerList.size(); i++) {
 		                Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 		                
 		                String cellValue = cell.toString();
@@ -380,7 +383,7 @@ public class ExcelService  extends ExdevBaseService{
             return resultMap;
             
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             resultMap.put("msg"		,e.getMessage());
             resultMap.put("stopIdx"	,(idx - 3));
             resultMap.put("state","E");
