@@ -193,7 +193,7 @@ public class ExcelService  extends ExdevBaseService{
 	        		backupYn	 = cell5.toString();
 	        		
 	        		optionMap.put("TABLE_NAME"		, tableName);
-	        		optionMap.put("BK_TABLE_NAME"	, tableName + "_EXBACKUP");
+	        		optionMap.put("BK_TABLE_NAME"	, "EXBACKUP_" + tableName);
 	        		optionMap.put("CLEAR_CHECK"		, clearCheck);
 	        		optionMap.put("DUPLE_PROCESS"	, dupleProcess);
 	        		optionMap.put("BACKUP_DATE"		, ExdevCommonAPI.getToday("yyyyMMddHHmmss"));

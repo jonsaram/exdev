@@ -73,6 +73,10 @@
 	           ,requestParm    : {BUYER_ID : G_VAL.session.BUYER_ID} 
 	        }
 	        C_COM.requestQuery(parm, function(retData) {
+	        	if(isEmpty(retData.data)) {
+	        		callback();
+	        		return;
+	        	}
 				$.each(retData.data, function() {
 					if(isEmpty(this.BASE_FOLDER_ID)) {
 						let projectInfo = this;
