@@ -132,7 +132,7 @@
 			</if>        	
         	 )
 		</if>			
-		ORDER BY C.UPDATE_DATE DESC
+		ORDER BY C.UPDATE_DATE DESC , BUYER_ID, USER_ID, CONSULTING_ID
 	</select>	
 	<sql id='getContractList_param'>
         <choose>
@@ -190,7 +190,7 @@
 		<include refid="common.pagingWrapStart"/>
 		<include refid="getContractList_body"/>
 		<include refid="getContractList_param"/>
-		ORDER BY C.UPDATE_DATE DESC
+		ORDER BY C.UPDATE_DATE DESC, BUYER_ID, USER_ID, CONSULTING_ID DESC
 		<include refid="common.pagingWrapEnd"/>
 	</select>
 	
