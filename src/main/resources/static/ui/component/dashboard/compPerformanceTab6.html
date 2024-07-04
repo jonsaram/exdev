@@ -30,7 +30,7 @@
 	            
 	            // 지점
 	            let requestParm1 = {};
-	            requestParm1["spCstmId"] = "starasset";
+	            requestParm1["spCstmId"] = G_VAL.session.spCstmId ;
 
 	            var parm1 = {
 	                    queryId  : "dashboardCorPerformance.getStore"
@@ -79,14 +79,21 @@
 
 	        ,searchList : () => {
 	            
+	        	console.log("searchList 1");
+	            
 	            var years   = C_UICOM.getData("<@compId>_years");
 	            var month   = C_UICOM.getData("<@compId>_selectBoxMonth");
 	            var storeId = C_UICOM.getData("<@compId>_selectBoxStoreList");
 	            var subject = C_UICOM.getData("<@compId>_selectBoxSubjectList");
-	            var buyerId = G_VAL.session.BUYER_ID;
-	            
+	            var brandId = <@parentId>.getParentBrandId();
+
+                if(brandId == undefined){
+                    C_POP.alert("브랜드가 없습니다.");
+                    return;
+                }
+                
 	            let requestParm = {};
-                requestParm["buyerId"]   = buyerId;
+                requestParm["brandId"]   = brandId;
 	            requestParm["storeId"]   = storeId;
 	            requestParm["year"]      = years;
 	            requestParm["month"]     = month;

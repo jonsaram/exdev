@@ -9,11 +9,66 @@
         ,subject : ''
         ,searchedRows : [] // 페이지
         ,pageInit : () => {
-
+        	console.log("pageInit");
+            // 브랜드
+        	<@pageId>.setSelectBox(() => {
+                <@pageId>.callTabComponent();
+            });
             
         }
-	    ,setChart : () => {
-		}
+        ,setSelectBox : (callback) => {
+            let requestParm = {};
+            requestParm["spCstmId"] = G_VAL.session.spCstmId ;
+            requestParm["buyerId"]  = G_VAL.session.BUYER_ID;
+            
+            var parm = {
+                    queryId  : "dashboardCorPerformance.getBrand"
+                   ,requestParm   : requestParm
+            }
+            
+            C_COM.requestQuery(parm, function(resultData) {
+                
+                const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
+                
+                var selectBoxBrandList = {
+                        data : DATA
+                       ,targetId : "<@pageId>_brand" 
+                }
+                
+                C_UICOM.makeSelectBox(selectBoxBrandList, "single");
+            });
+            
+            C_UICOM.addChangeListener("<@pageId>_brand", function(dataObj) {
+            });
+
+            // 콜백 함수 호출
+            if (callback) {
+                callback();
+            }
+        }
+        
+        ,getParentBrandId : () => {
+        	return C_UICOM.getData("<@pageId>_brand");
+        }
+        ,callTabComponent : () => {
+        	
+            let parm = {};
+            
+            // Import Tab Component
+            C_COMP.import("<@pageId>_tab1", "component_dashboard_compPerformanceTab1", parm, function(data) {
+            	dalert(data);
+            });
+            C_COMP.import("<@pageId>_tab2", "component_dashboard_compPerformanceTab2", parm, function(data) {
+            });
+            C_COMP.import("<@pageId>_tab3", "component_dashboard_compPerformanceTab3", parm, function(data) {
+            });
+            C_COMP.import("<@pageId>_tab4", "component_dashboard_compPerformanceTab4", parm, function(data) {
+            });
+            C_COMP.import("<@pageId>_tab5", "component_dashboard_compPerformanceTab5", parm, function(data) {
+            });
+            C_COMP.import("<@pageId>_tab6", "component_dashboard_compPerformanceTab6", parm, function(data) {
+            });
+        }
         
 	}
 	
@@ -21,130 +76,7 @@
     C_PM.onLoadPage("<@pageId>", function() {
         
     	<@pageId>.pageInit();
-        <@pageId>.setChart();
-           
-        /*========================================================*/
-        /*
-        (async () => {
-            
-            
-            
-            
-            
-            
-            
-            const H = Highcharts;
-
-            const chart = Highcharts.mapChart('chart31', {
-                title: {
-                    text: 'Highcharts Maps lon/lat demo'
-                },
-                tooltip: {
-                    pointFormat: '{point.capital}, {point.parentState}<br>' +
-                        'Lon: {point.lon}<br>' +
-                        'Lat: {point.lat}<br>' +
-                        'Population: {point.population}'
-                },
-
-                xAxis: {
-                    crosshair: {
-                        zIndex: 5,
-                        dashStyle: 'dot',
-                        snap: false,
-                        color: 'gray'
-                    }
-                },
-
-                yAxis: {
-                    crosshair: {
-                        zIndex: 5,
-                        dashStyle: 'dot',
-                        snap: false,
-                        color: 'gray'
-                    }
-                },
-
-                series: [{
-                    name: 'Basemap',
-                    mapData: topology,
-                    accessibility: {
-                        exposeAsGroupOnly: true
-                    },
-                    borderColor: '#606060',
-                    nullColor: 'rgba(200, 200, 200, 0.2)',
-                    showInLegend: false
-                }, {
-                    type: 'mapbubble',
-                    dataLabels: {
-                        enabled: true,
-                        format: '{point.capital}'
-                    },
-                    accessibility: {
-                        point: {
-                            valueDescriptionFormat: '{point.capital}, {point.parentState}. Population {point.population}. Latitude {point.lat:.2f}, longitude {point.lon:.2f}.'
-                        }
-                    },
-                    name: 'State capital cities',
-                    data: data,
-                    maxSize: '12%',
-                    color: H.getOptions().colors[0]
-                }]
-            });
-
-            // Display custom label with lat/lon next to crosshairs
-            document.getElementById('container').addEventListener('mousemove', e => {
-                if (!chart.lbl) {
-                    chart.lbl = chart.renderer.text('', 0, 0)
-                        .attr({
-                            zIndex: 5
-                        })
-                        .css({
-                            color: '#505050'
-                        })
-                        .add();
-                }
-
-                e = chart.pointer.normalize(e);
-
-                chart.lbl.attr({
-                    x: e.chartX + 5,
-                    y: e.chartY - 22,
-                    text: 'Lat: ' + e.lat.toFixed(2) + '<br>Lon: ' + e.lon.toFixed(2)
-                });
-            });
-
-        })();
-        */
-        /*========================================================*/
-        /* highchart    highchart    highchart    highchart    highchart    highchart    */
         
-        
-        // Import Tab Component
-        
-        C_COMP.import("<@pageId>_tab1", "component_dashboard_compPerformanceTab1", {AA:11}, function(data) {
-            alert("import page");
-            dalert(data);
-        });
-        C_COMP.import("<@pageId>_tab2", "component_dashboard_compPerformanceTab2", {AA:11}, function(data) {
-            alert("import page");
-            dalert(data);
-        });
-        C_COMP.import("<@pageId>_tab3", "component_dashboard_compPerformanceTab3", {AA:11}, function(data) {
-            alert("import page");
-            dalert(data);
-        });
-        C_COMP.import("<@pageId>_tab4", "component_dashboard_compPerformanceTab4", {AA:11}, function(data) {
-            alert("import page");
-            dalert(data);
-        });
-        C_COMP.import("<@pageId>_tab5", "component_dashboard_compPerformanceTab5", {AA:11}, function(data) {
-            alert("import page");
-            dalert(data);
-        });
-        C_COMP.import("<@pageId>_tab6", "component_dashboard_compPerformanceTab6", {AA:11}, function(data) {
-            alert("import page");
-            dalert(data);
-        });
     
     
     });
@@ -157,8 +89,8 @@
 
  <div class="cont_wrap">
      <div class="cont_top">
-         <h2><i class="icon_bullet"></i>기업 퍼포먼스</h2>
-         &nbsp; <select id="BRAND_ID" style="height:30px"><option value="BRAND_ID">newco</option></select>
+         <h2><i class="icon_bullet"></i>기업 퍼포먼스&nbsp;&nbsp;</h2>
+          <div id="<@pageId>_brand" style="width:200px"></div>
      </div>
 
      <section class="sec_wrap list" style="height:calc(100% - 43px);">

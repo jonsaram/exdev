@@ -187,7 +187,7 @@
             }//setChart211
             
             /* 목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    */
-            ,searchGoals1 : (  year, month, region, store, supervisor  ) => {
+            ,searchGoals1 : (  year, month, region, store, supervisor, brandId  ) => {
                 
                 let requestParm = {};            
                 requestParm["year"]       = year;
@@ -195,6 +195,7 @@
                 requestParm["region"]     = region ;
                 requestParm["store"]      = store ;
                 requestParm["supervisor"] = supervisor ;
+                requestParm["brandId"]    = brandId ;
                 
                 let parm = {
                      queryId        : "dashboardCorPerformance.getGoalAchieveRatio"
@@ -250,7 +251,7 @@
                 
             }            
             /* 목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    */
-            ,searchChart11 : ( year, month, region, store, supervisor ) => {
+            ,searchChart11 : ( year, month, region, store, supervisor, brandId ) => {
                  
                  let requestParm = {};            
                  requestParm["year"]       = year;
@@ -259,6 +260,7 @@
                  requestParm["store"]      = store ;
                  requestParm["supervisor"] = supervisor ;
                  requestParm["spCstmId"]   = G_VAL.session.spCstmId ;
+                 requestParm["brandId"]    = brandId ;
 
                  let parm = {
                       queryId        : "dashboardCorPerformance.getGoalAchieveRatioRank"
@@ -336,7 +338,7 @@
             /* 목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    목표대비 달성률    */
             
             /* 목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    목표대비 테이블 회전률    */
-            ,searchChart12 : ( year, month, region, store, supervisor ) => {
+            ,searchChart12 : ( year, month, region, store, supervisor, brandId  ) => {
 
                  let requestParm = {};            
                  requestParm["year"]       = year;
@@ -345,6 +347,7 @@
                  requestParm["store"]      = store ;
                  requestParm["supervisor"] = supervisor ;
                  requestParm["spCstmId"]   = G_VAL.session.spCstmId ;
+                 requestParm["brandId"]    = brandId ;
 
                  let parm = {
                       queryId        : "dashboardCorPerformance.getTbRotationRatioRank"
@@ -420,7 +423,7 @@
             
             
             /* 전월대비 달성률,테이블 회전률    전월대비 달성률,테이블 회전률    전월대비 달성률,테이블 회전률    전월대비 달성률,테이블 회전률    */
-            ,searchPreMonth : (  year, month, region, store, supervisor  ) => {
+            ,searchPreMonth : (  year, month, region, store, supervisor, brandId  ) => {
                 
                 let prevYear  ;
                 let prevMonth ;
@@ -441,6 +444,7 @@
                 requestParm["region"]     = region ;
                 requestParm["store"]      = store ;
                 requestParm["supervisor"] = supervisor ;
+                requestParm["brandId"]    = brandId ;
 
                 /* 달성률*/ 
                 let parm = {
@@ -477,7 +481,7 @@
             /* 전월대비 달성률,테이블 회전률    전월대비 달성률,테이블 회전률    전월대비 달성률,테이블 회전률    전월대비 달성률,테이블 회전률    */
             
             /* 전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    */
-            ,searchChart21 : ( year, month, region, store, supervisor ) => {
+            ,searchChart21 : ( year, month, region, store, supervisor, brandId ) => {
 
                  let prevYear  ;
                  let prevMonth ;
@@ -498,6 +502,7 @@
                  requestParm["region"]     = region ;
                  requestParm["store"]      = store ;
                  requestParm["supervisor"] = supervisor ;
+                 requestParm["brandId"]    = brandId ;
                  
                  let parm = {
                       queryId        : "dashboardCorPerformance.getPreMonthAchieveRatioRank"
@@ -573,7 +578,7 @@
             /* 전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    전월대비 달성률 챠트    */
             
             /* 전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    */
-            ,searchChart22 : (year, month, region, store, supervisor) => {
+            ,searchChart22 : (year, month, region, store, supervisor, brandId) => {
                  
                  let prevYear  ;
                  let prevMonth ;
@@ -594,6 +599,7 @@
                  requestParm["region"]     = region ;
                  requestParm["store"]      = store ;
                  requestParm["supervisor"] = supervisor ;
+                 requestParm["brandId"]    = brandId ;
                  
 
                  let parm = {
@@ -858,14 +864,20 @@
                     let region      = C_UICOM.getData('<@compId>_selectBoxRegion');
                     let store       = C_UICOM.getData('<@compId>_selectBoxStore');
                     let supervisor  = C_UICOM.getData('<@compId>_selectBoxSupervisor');
-
-                    <@compId>.searchGoals1( year, month, region, store, supervisor );
-                    <@compId>.searchChart11( year, month, region, store, supervisor );
-                    <@compId>.searchChart12( year, month, region, store, supervisor );
                     
-                    <@compId>.searchPreMonth( year, month, region, store, supervisor );
-                    <@compId>.searchChart21( year, month, region, store, supervisor );
-                    <@compId>.searchChart22( year, month, region, store, supervisor );
+                    var brandId     = <@parentId>.getParentBrandId();
+                    if(brandId == undefined){
+                        C_POP.alert("브랜드가 없습니다.");
+                        return;
+                    }
+                    
+                    <@compId>.searchGoals1( year, month, region, store, supervisor, brandId );
+                    <@compId>.searchChart11( year, month, region, store, supervisor, brandId  );
+                    <@compId>.searchChart12( year, month, region, store, supervisor, brandId  );
+                    
+                    <@compId>.searchPreMonth( year, month, region, store, supervisor, brandId  );
+                    <@compId>.searchChart21( year, month, region, store, supervisor, brandId  );
+                    <@compId>.searchChart22( year, month, region, store, supervisor, brandId  );
                     
                     
                 })
@@ -876,9 +888,14 @@
                     let startMonth     = C_UICOM.getData('<@compId>_selectStartBoxMonth');
                     let endYear        = null;//C_UICOM.getData("<@compId>_selectEndBoxYear");
                     let endMonth       = null;//C_UICOM.getData('<@compId>_selectEndBoxMonth');
+                    var brandId        = <@parentId>.getParentBrandId();
+                    if(brandId == undefined){
+                        C_POP.alert("브랜드가 없습니다.");
+                        return;
+                    }
                     
-                    <@compId>.searchChart31( startYear, startMonth, endYear, endMonth );
-                    <@compId>.searchChart32( startYear, startMonth );
+                    <@compId>.searchChart31( startYear, startMonth, endYear, endMonth, brandId  );
+                    <@compId>.searchChart32( startYear, startMonth, brandId  );
                 })
             }
     }

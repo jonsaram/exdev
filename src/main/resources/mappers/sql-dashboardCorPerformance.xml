@@ -27,7 +27,7 @@
                          AND A.STORE_ID   = B.STORE_ID
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                AND    A.BUYER_ID   = #{buyerId} 
+                AND    A.BRAND_ID   = #{brandId} 
                 <if test=" !'ALL'.equals(subject) ">
                     AND    A.SUBJECT    = #{subject}
                 </if>
@@ -102,7 +102,7 @@
         /*  dashboardCorPerformance.getMonthAccrue */
         WITH TABLE_FINANCIAL AS (
              SELECT    A.SP_CSTM_ID
-                      ,A.BUYER_ID
+                      ,A.BRAND_ID
                       ,A.YEAR
                       ,A.MONTH
                       ,A.SUBJECT_001
@@ -111,7 +111,7 @@
                       ,A.SUBJECT_010
                 FROM   (
                         SELECT B.SP_CSTM_ID
-                              ,B.BUYER_ID
+                              ,B.BRAND_ID
                               ,B.YEAR
                               ,B.MONTH
                               ,SUM(DECODE(B.SUBJECT, 'SUBJECT_001', AMOUNT, 0)) AS SUBJECT_001 /*매출액*/
@@ -127,7 +127,7 @@
                                    AND TO_DATE( (B.YEAR||'-'||B.MONTH||'-01') , 'YYYY-MM-DD') BETWEEN TO_DATE(#{startYMD} , 'YYYY-MM-DD') AND TO_DATE( #{endYMD} , 'YYYY-MM-DD')
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    A.BUYER_ID   = #{buyerId} 
+                        AND    A.BRAND_ID   = #{brandId} 
                         <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
                             AND    A.REGION =  #{region} 
                         </if>
@@ -138,13 +138,13 @@
                           AND    A.SUPERVISOR = #{supervisor}
                         </if>
                         GROUP BY  B.SP_CSTM_ID
-                                 ,B.BUYER_ID
+                                 ,B.BRAND_ID
                                  ,B.YEAR
                                  ,B.MONTH
                 ) A
                 WHERE 1 = 1 
                 ORDER BY A.SP_CSTM_ID
-                         ,A.BUYER_ID
+                         ,A.BRAND_ID
                          ,A.YEAR
                          ,A.MONTH
         )
@@ -485,7 +485,7 @@
                END AS AMOUNT_RAT
         FROM   (
                 SELECT A.SP_CSTM_ID
-                      ,A.BUYER_ID
+                      ,A.BRAND_ID
                       ,A.STORE_ID
                       ,A.YEAR
                       ,A.MONTH
@@ -497,7 +497,7 @@
                        JOIN TBL_EXP_STORE_INFO C
                          ON  1 = 1
                          AND A.SP_CSTM_ID = C.SP_CSTM_ID
-                         AND A.BUYER_ID   = C.BUYER_ID
+                         AND A.BRAND_ID   = C.BRAND_ID
                          AND A.STORE_ID   = C.STORE_ID  
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
@@ -505,21 +505,21 @@
                     AND    A.STORE_ID = #{parm.storeId} 
                 </if>
                 AND    A.SUBJECT  = #{parm.subject} 
-                AND    A.BUYER_ID = #{parm.buyerId} 
+                AND    A.BRAND_ID = #{parm.brandId} 
                 AND    A.YEAR     = #{parm.year}
                 AND    A.MONTH    = #{parm.month}
                ) A
                JOIN (
                 SELECT A.AMOUNT
                       ,A.SP_CSTM_ID
-                      ,A.BUYER_ID
+                      ,A.BRAND_ID
                       ,A.STORE_ID
                       ,A.YEAR
                       ,A.MONTH
                 FROM   TBL_EXP_STORE_FINANCIAL A
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                AND    A.BUYER_ID   = #{parm.buyerId}
+                AND    A.BRAND_ID   = #{parm.brandId}
                 <if test=" !'ALL'.equals(parm.storeId) ">
                     AND    A.STORE_ID = #{parm.storeId} 
                 </if>
@@ -529,7 +529,7 @@
                ) B
                  ON  1 = 1
                  AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                 AND A.BUYER_ID   = B.BUYER_ID
+                 AND A.BRAND_ID   = B.BRAND_ID
                  AND A.STORE_ID   = B.STORE_ID    
                  AND A.YEAR       = B.YEAR      
                  AND A.MONTH      = B.MONTH     
@@ -638,7 +638,7 @@
         FROM   TBL_EXP_STORE_INFO
         WHERE  1 = 1
         AND    SP_CSTM_ID = #{sessionVo.spCstmId}
-        AND    BUYER_ID   = #{parm.buyerId} 
+        AND    BRAND_ID   = #{parm.brandId} 
         <if test=" parm.dateStart != null and parm.dateStart != '' and parm.dateEnd != null and parm.dateEnd != '' " >
             AND    OPENING_DAY BETWEEN TO_DATE( #{parm.dateStart}, 'YYYY-MM') AND TO_DATE(#{parm.dateEnd}, 'YYYY-MM')
         </if>
@@ -689,11 +689,11 @@
                            JOIN TBL_EXP_STORE_INFO B
                              ON  1 = 1
                              AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                             AND A.BUYER_ID   = B.BUYER_ID
+                             AND A.BRAND_ID   = B.BRAND_ID
                              AND A.STORE_ID   = B.STORE_ID
                     WHERE  1 = 1
                     AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                    AND    A.BUYER_ID   = #{buyerId} 
+                    AND    A.BRAND_ID   = #{brandId} 
                     AND    TO_DATE(A.YEAR||'-'||A.MONTH , 'YYYY-MM')  BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM') 
                     GROUP BY B.SP_CSTM_ID
                             ,B.REGION
@@ -708,7 +708,7 @@
         SELECT 'OPEN'  AS TYPE, COUNT(1) AS CNT 
         FROM   TBL_EXP_STORE_INFO 
         WHERE  SP_CSTM_ID = #{spCstmId} 
-        AND    BUYER_ID   = #{buyerId}
+        AND    BRAND_ID   = #{brandId}
         AND    TO_CHAR( OPENING_DAY,  'YYYY-MM') = #{seartDate}
         <if test=" !'ALL'.equals(region) ">
             AND    REGION     = #{region} 
@@ -720,7 +720,7 @@
         SELECT 'CLOSE' AS TYPE, COUNT(1) AS CNT 
         FROM   TBL_EXP_STORE_INFO 
         WHERE  SP_CSTM_ID = #{spCstmId} 
-        AND    BUYER_ID   = #{buyerId}
+        AND    BRAND_ID   = #{brandId}
         AND    TO_CHAR( CLOSING_DATE, 'YYYY-MM') = #{seartDate} 
         <if test=" !'ALL'.equals(region) ">
             AND    REGION     = #{region} 
@@ -732,7 +732,7 @@
         SELECT 'ALL'   AS TYPE, COUNT(1) AS CNT 
         FROM   TBL_EXP_STORE_INFO 
         WHERE  SP_CSTM_ID = #{spCstmId} 
-        AND    BUYER_ID   = #{buyerId}
+        AND    BRAND_ID   = #{brandId}
         <if test=" !'ALL'.equals(region) ">
             AND    REGION     = #{region} 
         </if> 
@@ -754,7 +754,7 @@
 		             , 0        AS CLOSE_CNT
 		        FROM TBL_EXP_STORE_INFO 
 		        WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
-                AND   BUYER_ID   = #{buyerId}
+                AND   BRAND_ID   = #{brandId}
 		        <if test=" !'ALL'.equals(region) ">
 		            AND    REGION     = #{region} 
 		        </if> 
@@ -766,7 +766,7 @@
 		              ,COUNT(1) AS CLOSE_CNT 
 		        FROM TBL_EXP_STORE_INFO 
 		        WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
-                AND   BUYER_ID   = #{buyerId}
+                AND   BRAND_ID   = #{brandId}
                 <if test=" !'ALL'.equals(region) ">
                     AND    REGION     = #{region} 
                 </if> 
@@ -788,7 +788,7 @@
 		              ,COUNT(1) AS CNT 
 		        FROM TBL_EXP_STORE_INFO 
 		        WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
-                AND   BUYER_ID   = #{buyerId}
+                AND   BRAND_ID   = #{brandId}
 		        AND CLOSING_DATE IS  NULL
 		        GROUP BY REGION
 		        )
@@ -831,8 +831,10 @@
                            AND A.SP_CSTM_ID = B.SP_CSTM_ID
                            AND A.STORE_ID   = B.STORE_ID
                            AND B.YEAR = #{year} 
+                           AND B.BRAND_ID   = #{brandId}
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    A.BRAND_ID   = #{brandId}
                 <if test=" !'ALL'.equals(region) ">
                     AND    A.REGION =  #{region} 
                 </if>
@@ -852,9 +854,11 @@
                              AND A.STORE_ID   = B.STORE_ID
                              AND B.YEAR       = #{year}
                              AND B.MONTH      = #{month} 
+                             AND B.BRAND_ID   = #{brandId}
                     AND    SUBJECT = 'SUBJECT_001'
                     WHERE  1 = 1
                     AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                    AND    A.BRAND_ID   = #{brandId}
                     <if test=" !'ALL'.equals(region) ">
                         AND    A.REGION =  #{region} 
                     </if>
@@ -885,7 +889,8 @@
                          AND A.SP_CSTM_ID = B.SP_CSTM_ID
                          AND A.STORE_ID   = B.STORE_ID
                          AND B.YEAR       = #{year}
-                         AND B.MONTH      = #{month} 
+                         AND B.MONTH      = #{month}  
+                         AND B.BRAND_ID   = #{brandId}
                        JOIN (
                                 SELECT SP_CSTM_ID
                                       ,STORE_ID
@@ -897,6 +902,7 @@
                                 AND    SP_CSTM_ID = #{sessionVo.spCstmId}
                                 AND    YEAR       = #{year}
                                 AND    MONTH      = #{month} 
+                                AND    BRAND_ID   = #{brandId}
                                 AND    RECEIPT_CNT IS NOT NULL
                                 AND    RECEIPT_CNT != 0
                                 GROUP BY SP_CSTM_ID
@@ -911,6 +917,7 @@
                          AND B.MONTH      = C.MONTH
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    A.BRAND_ID   = #{brandId}
                 AND    A.TB_ROTATION IS NOT NULL
                 GROUP BY A.SP_CSTM_ID
                         ,A.STORE_ID
@@ -939,9 +946,11 @@
                          AND A.STORE_ID   = B.STORE_ID
                          AND B.YEAR       = #{year}
                          AND B.MONTH      = #{month} 
+                         AND B.BRAND_ID   = #{brandId}
                 AND    SUBJECT = 'SUBJECT_001'
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    A.BRAND_ID   = #{brandId}
                 UNION ALL
                 /* 조회 전년도 */
                 SELECT 0             AS AMOUNT1
@@ -953,9 +962,11 @@
                          AND A.STORE_ID   = B.STORE_ID
                          AND B.YEAR       = #{previousYear}
                          AND B.MONTH      = #{month} 
+                         AND B.BRAND_ID   = #{brandId} 
                 AND    SUBJECT = 'SUBJECT_001'
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    A.BRAND_ID   = #{brandId}
                 ) A   
     </select>    
 
@@ -1005,8 +1016,10 @@
                                        AND A.STORE_ID   = B.STORE_ID
                                        AND B.MONTH1     IS NOT NULL
                                        AND B.YEAR       = #{year}
+                                       AND B.BRAND_ID   = #{brandId}
                             WHERE  1 = 1
                             AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                            AND    A.BRAND_ID   = #{brandId}
                             <if test=" !'ALL'.equals(region) ">
                                 AND    A.REGION =  #{region} 
                             </if>
@@ -1032,10 +1045,11 @@
                                      AND B.AMOUNT     IS NOT NULL
                                      AND B.YEAR       = #{year}
                                      AND B.MONTH      = #{month} 
-
+                                     AND A.BRAND_ID   = #{brandId}
                             AND    SUBJECT = 'SUBJECT_001'
                             WHERE  1 = 1
                             AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                            AND    A.BRAND_ID   = #{brandId}
                             <if test=" !'ALL'.equals(region) ">
                                 AND    A.REGION =  #{region} 
                             </if>
@@ -1073,6 +1087,7 @@
                          AND A.STORE_ID   = B.STORE_ID
                          AND B.YEAR       = #{year}
                          AND B.MONTH      = #{month} 
+                         AND B.BRAND_ID   = #{brandId}
                        JOIN (
                                 SELECT SP_CSTM_ID
                                       ,STORE_ID
@@ -1084,6 +1099,7 @@
                                 AND    SP_CSTM_ID = #{sessionVo.spCstmId}
                                 AND    YEAR       = #{year}
                                 AND    MONTH      = #{month} 
+                                AND    BRAND_ID   = #{brandId}
                                 AND    RECEIPT_CNT IS NOT NULL
                                 AND    RECEIPT_CNT != 0
                                 GROUP BY SP_CSTM_ID
@@ -1098,6 +1114,7 @@
                          AND B.MONTH      = C.MONTH
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    A.BRAND_ID   = #{brandId}
                 AND    A.TB_ROTATION IS NOT NULL
                 <if test=" !'ALL'.equals(region) ">
                     AND    A.REGION =  #{region} 
@@ -1142,9 +1159,11 @@
                                          AND B.AMOUNT     IS NOT NULL
                                          AND B.YEAR       = #{year}
                                          AND B.MONTH      = #{month} 
+                                         AND B.BRAND_ID   = #{brandId} 
                                          AND B.SUBJECT = 'SUBJECT_001'
-                                WHERE  1 = 1
+                                WHERE  1 = 1 
                                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                                AND    A.BRAND_ID   = #{brandId}
                                 <if test=" !'ALL'.equals(region) ">
                                     AND    A.REGION =  #{region} 
                                 </if>
@@ -1169,10 +1188,11 @@
                                          AND B.AMOUNT     IS NOT NULL
                                          AND B.YEAR       = #{prevYear}
                                          AND B.MONTH      = #{prevMonth}
-                                         AND B.SUBJECT = 'SUBJECT_001'
+                                         AND B.BRAND_ID   = #{brandId}
+                                         AND B.SUBJECT    = 'SUBJECT_001'
                                 WHERE  1 = 1
-                                
                                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                                AND    A.BRAND_ID   = #{brandId} 
                                 <if test=" !'ALL'.equals(region) ">
                                     AND    A.REGION =  #{region} 
                                 </if>
@@ -1220,9 +1240,11 @@
                          AND A.STORE_ID   = B.STORE_ID
                          AND B.YEAR       = #{year} 
                          AND B.MONTH      = #{month}  
+                         AND B.BRAND_ID   = #{brandId}  
                 AND    SUBJECT = 'SUBJECT_001'
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    A.BRAND_ID   = #{brandId}
                <if test=" !'ALL'.equals(region) ">
                    AND    A.REGION =  #{region} 
                </if>
@@ -1250,10 +1272,12 @@
                          AND A.SP_CSTM_ID = B.SP_CSTM_ID
                          AND A.STORE_ID   = B.STORE_ID
                          AND B.YEAR       = #{prevYear}
-                         AND B.MONTH      = #{prevMonth}
+                         AND B.MONTH      = #{prevMonth}  
+                         AND B.BRAND_ID   = #{brandId} 
                 AND    SUBJECT = 'SUBJECT_001'
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    A.BRAND_ID   = #{brandId}
                 <if test=" !'ALL'.equals(region) ">
                     AND    A.REGION =  #{region} 
                 </if>
@@ -1307,6 +1331,7 @@
                                  AND A.STORE_ID   = B.STORE_ID
                                  AND B.YEAR       = #{year} 
                                  AND B.MONTH      = #{month} 
+                                 AND B.BRAND_ID   = #{brandId} 
                                JOIN (
                                         SELECT SP_CSTM_ID
                                               ,STORE_ID
@@ -1318,6 +1343,7 @@
                                         AND    SP_CSTM_ID = #{sessionVo.spCstmId}
                                         AND    YEAR       = #{year} 
                                         AND    MONTH      = #{month} 
+                                        AND    BRAND_ID   = #{brandId} 
                                         AND    RECEIPT_CNT IS NOT NULL
                                         AND    RECEIPT_CNT != 0
                                         GROUP BY SP_CSTM_ID
@@ -1332,6 +1358,7 @@
                                  AND B.MONTH      = C.MONTH
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    A.BRAND_ID   = #{brandId} 
                         <if test=" !'ALL'.equals(region) ">
                             AND    A.REGION =  #{region} 
                         </if>
@@ -1364,6 +1391,7 @@
                                  AND A.STORE_ID   = B.STORE_ID
                                  AND B.YEAR       = #{prevYear}
                                  AND B.MONTH      = #{prevMonth}
+                                 AND B.BRAND_ID   = #{brandId} 
                                JOIN (
                                         SELECT SP_CSTM_ID
                                               ,STORE_ID
@@ -1375,6 +1403,7 @@
                                         AND    SP_CSTM_ID = #{sessionVo.spCstmId}
                                         AND    YEAR       = #{prevYear}
                                         AND    MONTH      = #{prevMonth}
+                                        AND    BRAND_ID   = #{brandId} 
                                         AND    RECEIPT_CNT IS NOT NULL
                                         AND    RECEIPT_CNT != 0
                                         GROUP BY SP_CSTM_ID
@@ -1389,6 +1418,7 @@
                                  AND B.MONTH      = C.MONTH
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    A.BRAND_ID   = #{brandId}
                         <if test=" !'ALL'.equals(region) ">
                             AND    A.REGION =  #{region} 
                         </if>
@@ -1438,6 +1468,7 @@
                                  AND A.STORE_ID   = B.STORE_ID
                                  AND B.YEAR       = #{year} 
                                  AND B.MONTH      = #{month} 
+                                 AND B.BRAND_ID   = #{brandId}
                                JOIN (
                                         SELECT SP_CSTM_ID
                                               ,STORE_ID
@@ -1449,6 +1480,7 @@
                                         AND    SP_CSTM_ID = #{sessionVo.spCstmId}
                                         AND    YEAR       = #{year} 
                                         AND    MONTH      = #{month} 
+                                        AND    BRAND_ID   = #{brandId}
                                         AND    RECEIPT_CNT IS NOT NULL
                                         AND    RECEIPT_CNT != 0
                                         GROUP BY SP_CSTM_ID
@@ -1463,6 +1495,7 @@
                                  AND B.MONTH      = C.MONTH
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    A.BRAND_ID   = #{brandId}
                         <if test=" !'ALL'.equals(region) ">
                             AND    A.REGION =  #{region} 
                         </if>
@@ -1494,7 +1527,8 @@
                                  AND A.SP_CSTM_ID = B.SP_CSTM_ID
                                  AND A.STORE_ID   = B.STORE_ID
                                  AND B.YEAR       = #{prevYear}
-                                 AND B.MONTH      = #{prevMonth}
+                                 AND B.MONTH      = #{prevMonth} 
+                                 AND B.BRAND_ID   = #{brandId}
                                JOIN (
                                         SELECT SP_CSTM_ID
                                               ,STORE_ID
@@ -1506,6 +1540,7 @@
                                         AND    SP_CSTM_ID = #{sessionVo.spCstmId}
                                         AND    YEAR       = #{prevYear}
                                         AND    MONTH      = #{prevMonth}
+                                        AND    BRAND_ID   = #{brandId}
                                         AND    RECEIPT_CNT IS NOT NULL
                                         AND    RECEIPT_CNT != 0
                                         GROUP BY SP_CSTM_ID
@@ -1520,6 +1555,7 @@
                                  AND B.MONTH      = C.MONTH
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    A.BRAND_ID   = #{brandId}
                         <if test=" !'ALL'.equals(region) ">
                             AND    A.REGION =  #{region} 
                         </if>
@@ -1586,11 +1622,11 @@
                            JOIN TBL_EXP_STORE_SALES B
                              ON  1 = 1
                              AND A.SP_CSTM_ID  = B.SP_CSTM_ID
-                             AND A.BUYER_ID    = B.BUYER_ID
+                             AND A.BRAND_ID    = B.BRAND_ID
                              AND A.STORE_ID    = B.STORE_ID
                     WHERE  1 = 1
                     AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                    AND    A.BUYER_ID   = #{buyerId}
+                    AND    A.BRAND_ID   = #{brandId}
 			        <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
 			            AND    A.STORE_ID   = #{store}
 			        </if>
@@ -1801,7 +1837,7 @@
                JOIN TBL_EXP_STORE_MENU_SALES B
                    ON  1 = 1
                    AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                   AND A.BUYER_ID   = B.BUYER_ID
+                   AND A.BRAND_ID   = B.BRAND_ID
                    AND A.STORE_ID   = B.STORE_ID
                    <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                        AND B.YEAR   = #{year}
@@ -1826,7 +1862,7 @@
                    AND B.GROUP_2    = C.GROUP_2
         WHERE  1 = 1 
         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-        AND    A.BUYER_ID   = #{buyerId}
+        AND    A.BRAND_ID   = #{brandId}
         <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
             AND    A.STORE_ID   = #{store}
         </if>
@@ -1850,7 +1886,7 @@
                JOIN TBL_EXP_STORE_MENU_SALES B
                    ON  1 = 1
                    AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                   AND A.BUYER_ID   = B.BUYER_ID
+                   AND A.BRAND_ID   = B.BRAND_ID
                    AND A.STORE_ID   = B.STORE_ID
                    <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                        AND B.YEAR   = #{year}
@@ -1870,13 +1906,13 @@
               JOIN TBL_EXP_STORE_MENU_MASTER C
                    ON  1 = 1
                    AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                   AND B.BUYER_ID   = C.BUYER_ID
+                   AND B.BRAND_ID   = C.BRAND_ID
                    AND B.MENU_ID    = C.MENU_ID
                    AND B.GROUP_1    = C.GROUP_1
                    AND B.GROUP_2    = C.GROUP_2
         WHERE  1 = 1 
         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-        AND    A.BUYER_ID   = #{buyerId}
+        AND    A.BRAND_ID   = #{brandId}
         <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
             AND    A.STORE_ID   = #{store}
         </if>
@@ -1890,61 +1926,17 @@
         ORDER BY SUM(B.SALES) DESC
     </select>
 
-    <sql id="getmenuSalesMonth_body">
-         SELECT A.SP_CSTM_ID
-               ,A.BUYER_ID
-               ,C.GROUP_1
-               ,C.GROUP_2
-               ,C.MENU_ID
-               ,C.MENU_NM
-               ,SUM(B.SALES) SALES
-         FROM   TBL_EXP_STORE_INFO A
-                JOIN TBL_EXP_STORE_MENU_SALES B
-                    ON  1 = 1
-                    AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                    AND A.BUYER_ID   = B.BUYER_ID
-                    AND A.STORE_ID   = B.STORE_ID
-                    AND B.YEAR       = '2023'
-                    /*
-                    AND B.GROUP_1
-                    AND B.GROUP_2
-                    AND B.MENU_ID
-                    */
-               JOIN TBL_EXP_STORE_MENU_MASTER C
-                    ON  1 = 1
-                    AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                    AND A.BUYER_ID   = B.BUYER_ID
-                    AND B.MENU_ID    = C.MENU_ID
-                    AND B.GROUP_1    = C.GROUP_1
-                    AND B.GROUP_2    = C.GROUP_2
-         WHERE  1 = 1
-         AND    A.SP_CSTM_ID = 'starasset'
-         AND    A.BUYER_ID   = #{buyerId}
-         /*
-         AND A.STORE_ID
-         AND    A.REGION
-         AND    A.SUPERVISOR 
-         */
-         GROUP BY A.SP_CSTM_ID
-                 ,A.BUYER_ID
-                 ,C.GROUP_1
-                 ,C.GROUP_2
-                 ,C.MENU_ID
-                 ,C.MENU_NM
-         ORDER BY SUM(B.SALES) DESC
-    </sql>                      
-
     <select id="getmenuSalesMonthTop5" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getmenuSalesMonthTop5 */
         WITH TOP5_MENU AS (
             SELECT  SP_CSTM_ID
-                   ,BUYER_ID
+                   ,BRAND_ID
                    ,MENU_KEY
                    ,MENU_NM
             FROM   (
                      /* 1    1    1    1    1    1    1    1    */
                      SELECT A.SP_CSTM_ID
-                           ,A.BUYER_ID
+                           ,A.BRAND_ID
                            ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID AS MENU_KEY
                            ,C.MENU_NM
                            ,SUM(B.SALES) SALES
@@ -1952,9 +1944,9 @@
                             JOIN TBL_EXP_STORE_MENU_SALES B
                                 ON  1 = 1
                                 AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                AND B.BUYER_ID   = #{buyerId}
+                                AND B.BRAND_ID   = #{brandId}
                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                AND A.BUYER_ID   = B.BUYER_ID
+                                AND A.BRAND_ID   = B.BRAND_ID
                                 AND A.STORE_ID   = B.STORE_ID                  
                                 <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                     AND B.YEAR   = #{year}
@@ -1972,13 +1964,13 @@
                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                 ON  1 = 1
                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                AND B.BUYER_ID   = C.BUYER_ID
+                                AND B.BRAND_ID   = C.BRAND_ID
                                 AND B.MENU_ID    = C.MENU_ID
                                 AND B.GROUP_1    = C.GROUP_1
                                 AND B.GROUP_2    = C.GROUP_2
                      WHERE  1 = 1
                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                     AND    A.BUYER_ID   = #{buyerId}
+                     AND    A.BRAND_ID   = #{brandId}
                      <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
                          AND    A.STORE_ID   = #{store}
                      </if>
@@ -1989,7 +1981,7 @@
                          AND    A.SUPERVISOR   = #{supervisor}
                      </if>
                      GROUP BY A.SP_CSTM_ID
-                             ,A.BUYER_ID
+                             ,A.BRAND_ID
                              ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID 
                              ,C.MENU_NM
                      ORDER BY SUM(B.SALES) DESC
@@ -2000,7 +1992,7 @@
         )
        , MONTH_MENU AS (
                      SELECT A.SP_CSTM_ID
-                           ,A.BUYER_ID
+                           ,A.BRAND_ID
                            ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID AS MENU_KEY
                            ,C.MENU_NM
                            ,B.MONTH
@@ -2009,7 +2001,7 @@
                             JOIN TBL_EXP_STORE_MENU_SALES B
                                 ON  1 = 1
                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                AND A.BUYER_ID   = B.BUYER_ID
+                                AND A.BRAND_ID   = B.BRAND_ID
                                 AND A.STORE_ID   = B.STORE_ID
                                 <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                     AND B.YEAR   = #{year}
@@ -2017,13 +2009,13 @@
                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                 ON  1 = 1
                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                AND B.BUYER_ID   = C.BUYER_ID
+                                AND B.BRAND_ID   = C.BRAND_ID
                                 AND B.MENU_ID    = C.MENU_ID
                                 AND B.GROUP_1    = C.GROUP_1
                                 AND B.GROUP_2    = C.GROUP_2
                      WHERE  1 = 1
                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                     AND    A.BUYER_ID   = #{buyerId}
+                     AND    A.BRAND_ID   = #{brandId}
                      
                      <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
                          AND    A.STORE_ID   = #{store}
@@ -2035,7 +2027,7 @@
                          AND    A.SUPERVISOR   = #{supervisor}
                      </if>
                      GROUP BY A.SP_CSTM_ID
-                             ,A.BUYER_ID
+                             ,A.BRAND_ID
                              ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID
                              ,C.MENU_NM
                              ,B.MONTH
@@ -2043,7 +2035,7 @@
                               ,SUM(B.SALES) DESC
        )
         SELECT A.SP_CSTM_ID
-              ,A.BUYER_ID
+              ,A.BRAND_ID
               ,A.MENU_KEY
               ,A.MENU_NM
               ,A.MONTH
@@ -2052,7 +2044,7 @@
                JOIN TOP5_MENU B
                  ON  1 = 1
                  AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                 AND A.BUYER_ID   = B.BUYER_ID
+                 AND A.BRAND_ID   = B.BRAND_ID
                  AND A.MENU_KEY   = B.MENU_KEY
     </select>   
     
@@ -2060,13 +2052,13 @@
         /* dashboardCorPerformance.getmenuSalesDayTop5 */
         WITH TOP5_MENU AS (
             SELECT  SP_CSTM_ID
-                   ,BUYER_ID
+                   ,BRAND_ID
                    ,MENU_KEY
                    ,MENU_NM
             FROM   (
                      /* 1    1    1    1    1    1    1    1    */
                      SELECT A.SP_CSTM_ID
-                           ,A.BUYER_ID
+                           ,A.BRAND_ID
                            ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID AS MENU_KEY
                            ,C.MENU_NM
                            ,B.MONTH
@@ -2075,9 +2067,9 @@
                             JOIN TBL_EXP_STORE_MENU_SALES B
                                 ON  1 = 1
                                 AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                AND B.BUYER_ID   = #{buyerId}
+                                AND B.BRAND_ID   = #{brandId}
                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                AND A.BUYER_ID   = B.BUYER_ID
+                                AND A.BRAND_ID   = B.BRAND_ID
                                 AND A.STORE_ID   = B.STORE_ID
                                 <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                     AND B.YEAR   = #{year}
@@ -2097,13 +2089,13 @@
                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                 ON  1 = 1
                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                AND B.BUYER_ID   = C.BUYER_ID
+                                AND B.BRAND_ID   = C.BRAND_ID
                                 AND B.MENU_ID    = C.MENU_ID
                                 AND B.GROUP_1    = C.GROUP_1
                                 AND B.GROUP_2    = C.GROUP_2
                      WHERE  1 = 1
                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                     AND    A.BUYER_ID   = #{buyerId}
+                     AND    A.BRAND_ID   = #{brandId}
                      <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
                          AND    A.STORE_ID   = #{store}
                      </if>
@@ -2114,7 +2106,7 @@
                          AND    A.SUPERVISOR   = #{supervisor}
                      </if>
                      GROUP BY A.SP_CSTM_ID
-                             ,A.BUYER_ID
+                             ,A.BRAND_ID
                              ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID 
                              ,C.MENU_NM
                              ,B.MONTH
@@ -2126,7 +2118,7 @@
         )
        , DAY_MENU AS (
                      SELECT A.SP_CSTM_ID
-                           ,A.BUYER_ID
+                           ,A.BRAND_ID
                            ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID AS MENU_KEY
                            ,C.MENU_NM
                            ,B.MONTH
@@ -2136,7 +2128,7 @@
                             JOIN TBL_EXP_STORE_MENU_SALES B
                                 ON  1 = 1
                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                AND A.BUYER_ID   = B.BUYER_ID
+                                AND A.BRAND_ID   = B.BRAND_ID
                                 AND A.STORE_ID   = B.STORE_ID
                                 <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                     AND B.YEAR   = #{year}
@@ -2156,13 +2148,13 @@
                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                 ON  1 = 1
                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                AND B.BUYER_ID   = C.BUYER_ID
+                                AND B.BRAND_ID   = C.BRAND_ID
                                 AND B.MENU_ID    = C.MENU_ID
                                 AND B.GROUP_1    = C.GROUP_1
                                 AND B.GROUP_2    = C.GROUP_2
                      WHERE  1 = 1
                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                     AND    A.BUYER_ID   = #{buyerId}
+                     AND    A.BRAND_ID   = #{brandId}
                      <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
                          AND    A.STORE_ID   = #{store}
                      </if>
@@ -2173,7 +2165,7 @@
                          AND    A.SUPERVISOR   = #{supervisor}
                      </if>
                      GROUP BY A.SP_CSTM_ID
-                             ,A.BUYER_ID
+                             ,A.BRAND_ID
                              ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID
                              ,C.MENU_NM
                              ,B.MONTH
@@ -2183,7 +2175,7 @@
                               ,SUM(B.SALES) DESC
        )
         SELECT A.SP_CSTM_ID
-              ,A.BUYER_ID
+              ,A.BRAND_ID
               ,A.MENU_KEY
               ,A.MENU_NM
               ,A.MONTH
@@ -2193,7 +2185,7 @@
                JOIN TOP5_MENU B
                  ON  1 = 1
                  AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                 AND A.BUYER_ID   = B.BUYER_ID
+                 AND A.BRAND_ID   = B.BRAND_ID
                  AND A.MENU_KEY   = B.MENU_KEY
     </select>    
     
@@ -2202,7 +2194,7 @@
                 WITH BASE_TABLE AS (
                           /*==== 기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    ====*/
                           SELECT A.SP_CSTM_ID 
-                                ,A.BUYER_ID      
+                                ,A.BRAND_ID      
                                 ,A.MONTH   
                                 ,A.MENU_KEY   
                                 ,A.MENU_NM      
@@ -2214,7 +2206,7 @@
                           FROM   (
                                       /* 메뉴별 월 판매금액 */
                                      SELECT A.SP_CSTM_ID
-                                           ,A.BUYER_ID
+                                           ,A.BRAND_ID
                                            ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID AS MENU_KEY
                                            ,C.MENU_NM
                                            ,B.MONTH
@@ -2223,7 +2215,7 @@
                                             JOIN TBL_EXP_STORE_MENU_SALES B
                                                 ON  1 = 1
                                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                                AND A.BUYER_ID   = B.BUYER_ID
+                                                AND A.BRAND_ID   = B.BRAND_ID
                                                 AND A.STORE_ID   = B.STORE_ID
                                                 <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                                     AND B.YEAR   = #{year}
@@ -2231,13 +2223,13 @@
                                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                                 ON  1 = 1
                                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                                AND B.BUYER_ID   = C.BUYER_ID
+                                                AND B.BRAND_ID   = C.BRAND_ID
                                                 AND B.MENU_ID    = C.MENU_ID
                                                 AND B.GROUP_1    = C.GROUP_1
                                                 AND B.GROUP_2    = C.GROUP_2
                                      WHERE  1 = 1
                                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                     AND    A.BUYER_ID   = #{buyerId}
+                                     AND    A.BRAND_ID   = #{brandId}
                                       <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
                                           AND    A.STORE_ID   = #{store}
                                       </if>
@@ -2248,7 +2240,7 @@
                                           AND    A.SUPERVISOR   = #{supervisor}
                                       </if>
                                      GROUP BY A.SP_CSTM_ID
-                                             ,A.BUYER_ID
+                                             ,A.BRAND_ID
                                              ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID
                                              ,C.MENU_NM
                                              ,B.MONTH
@@ -2258,7 +2250,7 @@
                                  JOIN (
                                      /* 메뉴,월별 마진율 */
                                      SELECT   A.SP_CSTM_ID    
-                                             ,A.BUYER_ID      
+                                             ,A.BRAND_ID      
                                              ,A.YEAR          
                                              ,A.MONTH    
                                              ,A.GROUP_1||'-'||A.GROUP_2||'-'||A.MENU_ID AS MENU_KEY
@@ -2270,7 +2262,7 @@
                                                  
                                      FROM   (
                                              SELECT   A.SP_CSTM_ID    
-                                                     ,A.BUYER_ID      
+                                                     ,A.BRAND_ID      
                                                      ,A.MENU_ID       
                                                      ,A.YEAR          
                                                      ,A.GROUP_1       
@@ -2301,32 +2293,32 @@
                                  ON  1 = 1
                                  AND    B.MARGIN != 0
                                  AND    A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                 AND    A.BUYER_ID    = B.BUYER_ID
+                                 AND    A.BRAND_ID    = B.BRAND_ID
                                  AND    A.MENU_KEY    = B.MENU_KEY
                                  AND    A.MONTH       = B.MONTH
                           WHERE  1 = 1
                           /*#### 기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    ####*/
                 )
                 SELECT A.SP_CSTM_ID
-                      ,A.BUYER_ID
+                      ,A.BRAND_ID
                       ,A.MENU_KEY
                       ,A.MENU_NM
                       ,B.MONTH
                       ,B.SALES_MARGIN AS SALES
                 FROM   (
                         SELECT A.SP_CSTM_ID
-                              ,A.BUYER_ID
+                              ,A.BRAND_ID
                               ,A.MENU_KEY
                               ,A.MENU_NM
                         FROM   (
                                 SELECT BASE_TABLE.SP_CSTM_ID 
-                                      ,BASE_TABLE.BUYER_ID
+                                      ,BASE_TABLE.BRAND_ID
                                       ,BASE_TABLE.MENU_KEY   
                                       ,BASE_TABLE.MENU_NM 
                                       ,SUM(BASE_TABLE.SALES_MARGIN)
                                 FROM   BASE_TABLE
                                 GROUP BY BASE_TABLE.SP_CSTM_ID 
-                                        ,BASE_TABLE.BUYER_ID
+                                        ,BASE_TABLE.BRAND_ID
                                         ,BASE_TABLE.MENU_KEY   
                                         ,BASE_TABLE.MENU_NM  
                                 ORDER BY SUM(BASE_TABLE.SALES_MARGIN) DESC
@@ -2337,7 +2329,7 @@
                       JOIN BASE_TABLE B
                           ON  1 = 1
                           AND  A.SP_CSTM_ID = A.SP_CSTM_ID
-                          AND  A.BUYER_ID   = B.BUYER_ID
+                          AND  A.BRAND_ID   = B.BRAND_ID
                           AND  A.MENU_KEY   = B.MENU_KEY
                 
     </select>  
@@ -2347,7 +2339,7 @@
                 WITH BASE_TABLE AS (
                           /*==== 기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    ====*/
                           SELECT A.SP_CSTM_ID 
-                                ,A.BUYER_ID      
+                                ,A.BRAND_ID      
                                 ,A.MONTH        
                                 ,A.DAY   
                                 ,A.MENU_KEY   
@@ -2360,7 +2352,7 @@
                           FROM   (
                                       /* 메뉴별 월 판매금액 */
                                      SELECT A.SP_CSTM_ID
-                                           ,A.BUYER_ID
+                                           ,A.BRAND_ID
                                            ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID AS MENU_KEY
                                            ,C.MENU_NM
                                            ,B.MONTH
@@ -2370,7 +2362,7 @@
                                             JOIN TBL_EXP_STORE_MENU_SALES B
                                                 ON  1 = 1
                                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                                AND A.BUYER_ID   = B.BUYER_ID
+                                                AND A.BRAND_ID   = B.BRAND_ID
                                                 AND A.STORE_ID   = B.STORE_ID
                                                 <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                                     AND B.YEAR   = #{year}
@@ -2381,13 +2373,13 @@
                                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                                 ON  1 = 1
                                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                                AND A.BUYER_ID   = B.BUYER_ID
+                                                AND A.BRAND_ID   = B.BRAND_ID
                                                 AND B.MENU_ID    = C.MENU_ID
                                                 AND B.GROUP_1    = C.GROUP_1
                                                 AND B.GROUP_2    = C.GROUP_2
                                      WHERE  1 = 1
                                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                     AND    A.BUYER_ID   = #{buyerId}
+                                     AND    A.BRAND_ID   = #{brandId}
                                       <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
                                           AND    A.STORE_ID   = #{store}
                                       </if>
@@ -2398,7 +2390,7 @@
                                           AND    A.SUPERVISOR   = #{supervisor}
                                       </if>
                                      GROUP BY A.SP_CSTM_ID
-                                             ,A.BUYER_ID
+                                             ,A.BRAND_ID
                                              ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID
                                              ,C.MENU_NM
                                              ,B.MONTH
@@ -2410,7 +2402,7 @@
                                  JOIN (
                                      /* 메뉴, 월별 마진율 */
                                      SELECT   A.SP_CSTM_ID    
-                                             ,A.BUYER_ID      
+                                             ,A.BRAND_ID      
                                              ,A.YEAR          
                                              ,A.MONTH    
                                              ,A.GROUP_1||'-'||A.GROUP_2||'-'||A.MENU_ID AS MENU_KEY
@@ -2422,7 +2414,7 @@
 
                                      FROM   (
                                              SELECT   A.SP_CSTM_ID    
-                                                     ,A.BUYER_ID      
+                                                     ,A.BRAND_ID      
                                                      ,A.MENU_ID       
                                                      ,A.YEAR          
                                                      ,A.GROUP_1       
@@ -2433,6 +2425,7 @@
                                                      ,NVL(A.SELLING_PRICE, 0) AS SELLING_PRICE_NVL
                                              FROM   TBL_EXP_STORE_MENU_PRICE A
                                              WHERE  1 = 1
+                                             AND    A.BRAND_ID   = #{brandId}
                                              <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                                  AND A.YEAR   = #{year}
                                              </if>
@@ -2453,14 +2446,14 @@
                                  ON  1 = 1
                                  AND    B.MARGIN != 0
                                  AND    A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                 AND    A.BUYER_ID    = B.BUYER_ID
+                                 AND    A.BRAND_ID    = B.BRAND_ID
                                  AND    A.MENU_KEY    = B.MENU_KEY
                                  AND    A.MONTH       = B.MONTH
                           WHERE  1 = 1
                           /*#### 기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    ####*/
                 )
                 SELECT A.SP_CSTM_ID
-                      ,A.BUYER_ID
+                      ,A.BRAND_ID
                       ,A.MENU_KEY
                       ,A.MENU_NM
                       ,B.MONTH
@@ -2468,18 +2461,18 @@
                       ,B.SALES_MARGIN AS SALES
                 FROM   (
                         SELECT A.SP_CSTM_ID
-                              ,A.BUYER_ID
+                              ,A.BRAND_ID
                               ,A.MENU_KEY
                               ,A.MENU_NM
                         FROM   (
                                 SELECT BASE_TABLE.SP_CSTM_ID 
-                                      ,BASE_TABLE.BUYER_ID
+                                      ,BASE_TABLE.BRAND_ID
                                       ,BASE_TABLE.MENU_KEY   
                                       ,BASE_TABLE.MENU_NM 
                                       ,SUM(BASE_TABLE.SALES_MARGIN)
                                 FROM   BASE_TABLE
                                 GROUP BY BASE_TABLE.SP_CSTM_ID 
-                                        ,BASE_TABLE.BUYER_ID
+                                        ,BASE_TABLE.BRAND_ID
                                         ,BASE_TABLE.MENU_KEY   
                                         ,BASE_TABLE.MENU_NM  
                                 ORDER BY SUM(BASE_TABLE.SALES_MARGIN) DESC
@@ -2490,7 +2483,7 @@
                       JOIN BASE_TABLE B
                           ON  1 = 1
                           AND  A.SP_CSTM_ID = A.SP_CSTM_ID
-                          AND  A.BUYER_ID   = B.BUYER_ID
+                          AND  A.BRAND_ID   = B.BRAND_ID
                           AND  A.MENU_KEY   = B.MENU_KEY
                 WHERE  1 = 1
                 ORDER BY B.MONTH
@@ -2502,7 +2495,7 @@
                 WITH BASE_TABLE AS (
                           /*==== 기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    ====*/
                           SELECT A.SP_CSTM_ID 
-                                ,A.BUYER_ID      
+                                ,A.BRAND_ID      
                                 ,A.MONTH   
                                 ,A.MENU_KEY   
                                 ,A.MENU_NM      
@@ -2514,7 +2507,7 @@
                           FROM   (
                                       /* 메뉴별 월 판매금액 */
                                      SELECT A.SP_CSTM_ID
-                                           ,A.BUYER_ID
+                                           ,A.BRAND_ID
                                            ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID AS MENU_KEY
                                            ,C.MENU_NM
                                            ,B.MONTH
@@ -2523,7 +2516,7 @@
                                             JOIN TBL_EXP_STORE_MENU_SALES B
                                                 ON  1 = 1
                                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                                AND A.BUYER_ID   = B.BUYER_ID
+                                                AND A.BRAND_ID   = B.BRAND_ID
                                                 AND A.STORE_ID   = B.STORE_ID
                                                 <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                                     AND B.YEAR   = #{year}
@@ -2534,13 +2527,13 @@
                                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                                 ON  1 = 1
                                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                                AND B.BUYER_ID   = C.BUYER_ID
+                                                AND B.BRAND_ID   = C.BRAND_ID
                                                 AND B.MENU_ID    = C.MENU_ID
                                                 AND B.GROUP_1    = C.GROUP_1
                                                 AND B.GROUP_2    = C.GROUP_2
                                      WHERE  1 = 1
                                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                     AND    A.BUYER_ID   = #{buyerId}
+                                     AND    A.BRAND_ID   = #{brandId}
                                      <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
                                          AND    A.STORE_ID   = #{store}
                                      </if>
@@ -2551,7 +2544,7 @@
                                          AND    A.SUPERVISOR   = #{supervisor}
                                      </if>
                                      GROUP BY A.SP_CSTM_ID
-                                             ,A.BUYER_ID
+                                             ,A.BRAND_ID
                                              ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID
                                              ,C.MENU_NM
                                              ,B.MONTH
@@ -2561,7 +2554,7 @@
                                  JOIN (
                                      /* 메뉴,월별 마진율 */
                                      SELECT   A.SP_CSTM_ID    
-                                             ,A.BUYER_ID      
+                                             ,A.BRAND_ID      
                                              ,A.YEAR          
                                              ,A.MONTH    
                                              ,A.GROUP_1||'-'||A.GROUP_2||'-'||A.MENU_ID AS MENU_KEY
@@ -2573,7 +2566,7 @@
 
                                      FROM   (
                                              SELECT   A.SP_CSTM_ID    
-                                                     ,A.BUYER_ID      
+                                                     ,A.BRAND_ID      
                                                      ,A.MENU_ID       
                                                      ,A.YEAR          
                                                      ,A.GROUP_1       
@@ -2584,6 +2577,7 @@
                                                      ,NVL(A.SELLING_PRICE, 0) AS SELLING_PRICE_NVL
                                              FROM   TBL_EXP_STORE_MENU_PRICE A
                                              WHERE  1 = 1
+                                             AND    A.BRAND_ID   = #{brandId}
                                              <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                                  AND A.YEAR   = #{year}
                                              </if>
@@ -2604,31 +2598,31 @@
                                  ON  1 = 1
                                  AND    B.MARGIN != 0
                                  AND    A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                 AND    A.BUYER_ID    = B.BUYER_ID
+                                 AND    A.BRAND_ID    = B.BRAND_ID
                                  AND    A.MENU_KEY    = B.MENU_KEY
                                  AND    A.MONTH       = B.MONTH
                           WHERE  1 = 1
                           /*#### 기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    ####*/
                 )
                 SELECT A.SP_CSTM_ID
-                      ,A.BUYER_ID
+                      ,A.BRAND_ID
                       ,A.MENU_KEY
                       ,A.MENU_NM
                       ,SUM(B.SALES_MARGIN) AS MARGIN
                 FROM   (
                         SELECT A.SP_CSTM_ID
-                              ,A.BUYER_ID
+                              ,A.BRAND_ID
                               ,A.MENU_KEY
                               ,A.MENU_NM
                         FROM   (
                                 SELECT BASE_TABLE.SP_CSTM_ID 
-                                      ,BASE_TABLE.BUYER_ID
+                                      ,BASE_TABLE.BRAND_ID
                                       ,BASE_TABLE.MENU_KEY   
                                       ,BASE_TABLE.MENU_NM 
                                       ,SUM(BASE_TABLE.SALES_MARGIN)
                                 FROM   BASE_TABLE
                                 GROUP BY BASE_TABLE.SP_CSTM_ID 
-                                        ,BASE_TABLE.BUYER_ID
+                                        ,BASE_TABLE.BRAND_ID
                                         ,BASE_TABLE.MENU_KEY   
                                         ,BASE_TABLE.MENU_NM  
                         ) A
@@ -2637,10 +2631,10 @@
                       JOIN BASE_TABLE B
                           ON  1 = 1
                           AND  A.SP_CSTM_ID = B.SP_CSTM_ID
-                          AND  A.BUYER_ID   = B.BUYER_ID
+                          AND  A.BRAND_ID   = B.BRAND_ID
                           AND  A.MENU_KEY   = B.MENU_KEY
                 GROUP BY A.SP_CSTM_ID
-                        ,A.BUYER_ID
+                        ,A.BRAND_ID
                         ,A.MENU_KEY
                         ,A.MENU_NM
                 ORDER BY SUM(B.SALES_MARGIN) DESC 
@@ -2651,7 +2645,7 @@
                 WITH BASE_TABLE AS (
                           /*==== 기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    ====*/
                           SELECT A.SP_CSTM_ID 
-                                ,A.BUYER_ID      
+                                ,A.BRAND_ID      
                                 ,A.MONTH   
                                 ,A.MENU_KEY   
                                 ,A.MENU_NM      
@@ -2663,7 +2657,7 @@
                           FROM   (
                                       /* 메뉴별 월 판매금액 */
                                      SELECT A.SP_CSTM_ID
-                                           ,A.BUYER_ID
+                                           ,A.BRAND_ID
                                            ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID AS MENU_KEY
                                            ,C.MENU_NM
                                            ,B.MONTH
@@ -2672,7 +2666,7 @@
                                             JOIN TBL_EXP_STORE_MENU_SALES B
                                                 ON  1 = 1
                                                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                                AND A.BUYER_ID   = B.BUYER_ID
+                                                AND A.BRAND_ID   = B.BRAND_ID
                                                 AND A.STORE_ID   = B.STORE_ID
                                                 <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                                     AND B.YEAR   = #{year}
@@ -2683,13 +2677,13 @@
                                            JOIN TBL_EXP_STORE_MENU_MASTER C
                                                 ON  1 = 1
                                                 AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                                AND B.BUYER_ID   = C.BUYER_ID
+                                                AND B.BRAND_ID   = C.BRAND_ID
                                                 AND B.MENU_ID    = C.MENU_ID
                                                 AND B.GROUP_1    = C.GROUP_1
                                                 AND B.GROUP_2    = C.GROUP_2
                                      WHERE  1 = 1
                                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                     AND    A.BUYER_ID   = #{buyerId}
+                                     AND    A.BRAND_ID   = #{brandId}
                                      <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
                                          AND    A.STORE_ID   = #{store}
                                      </if>
@@ -2700,7 +2694,7 @@
                                          AND    A.SUPERVISOR   = #{supervisor}
                                      </if>
                                      GROUP BY A.SP_CSTM_ID
-                                             ,A.BUYER_ID
+                                             ,A.BRAND_ID
                                              ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID
                                              ,C.MENU_NM
                                              ,B.MONTH
@@ -2710,7 +2704,7 @@
                                  JOIN (
                                      /* 메뉴,월별 코드스비용 */
                                      SELECT   A.SP_CSTM_ID    
-                                             ,A.BUYER_ID      
+                                             ,A.BRAND_ID      
                                              ,A.YEAR          
                                              ,A.MONTH    
                                              ,A.GROUP_1||'-'||A.GROUP_2||'-'||A.MENU_ID AS MENU_KEY
@@ -2719,7 +2713,7 @@
                                              ,(A.COST_PRICE /A.SELLING_PRICE) AS COST_RATIO
                                      FROM   (
                                              SELECT   A.SP_CSTM_ID    
-                                                     ,A.BUYER_ID      
+                                                     ,A.BRAND_ID      
                                                      ,A.MENU_ID       
                                                      ,A.YEAR          
                                                      ,A.GROUP_1       
@@ -2729,6 +2723,7 @@
                                                      ,NVL(A.COST_PRICE, 0)    AS COST_PRICE
                                              FROM   TBL_EXP_STORE_MENU_PRICE A
                                              WHERE  1 = 1
+                                             AND    A.BRAND_ID   = #{brandId}
                                              <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                                  AND A.YEAR   = #{year}
                                              </if>
@@ -2750,14 +2745,14 @@
                                  )  B
                                  ON  1 = 1
                                  AND    A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                 AND    A.BUYER_ID    = B.BUYER_ID
+                                 AND    A.BRAND_ID    = B.BRAND_ID
                                  AND    A.MENU_KEY    = B.MENU_KEY
                                  AND    A.MONTH       = B.MONTH
                           WHERE  1 = 1
                           /*#### 기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    ####*/
                 )
                 SELECT BASE_TABLE.SP_CSTM_ID 
-                      ,BASE_TABLE.BUYER_ID
+                      ,BASE_TABLE.BRAND_ID
                       ,BASE_TABLE.MENU_KEY   
                       ,BASE_TABLE.MENU_NM
                       ,SUM(BASE_TABLE.COST) AS   COST_PRICE 
@@ -2765,7 +2760,7 @@
                 FROM   BASE_TABLE
                 WHERE  1 = 1
                 GROUP BY BASE_TABLE.SP_CSTM_ID 
-                      ,BASE_TABLE.BUYER_ID
+                      ,BASE_TABLE.BRAND_ID
                       ,BASE_TABLE.MENU_KEY   
                       ,BASE_TABLE.MENU_NM
                 ORDER BY SUM(BASE_TABLE.COST) DESC
@@ -2774,7 +2769,7 @@
     <select id="getMonthRatio1" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getMonthRatio */
         SELECT A.SP_CSTM_ID
-              ,A.BUYER_ID
+              ,A.BRAND_ID
               ,A.YEAR
               ,A.MONTH
               ,SUBJECT_001    AS SUBJECT1
@@ -2786,7 +2781,7 @@
               ,ROUND(SUBJECT_010 * 100/SUBJECT_001) AS SUBJECT_010
         FROM   (
                 SELECT B.SP_CSTM_ID
-                      ,B.BUYER_ID
+                      ,B.BRAND_ID
                       ,B.YEAR
                       ,B.MONTH
                       ,SUM(DECODE(B.SUBJECT, 'SUBJECT_001', AMOUNT, 0)) AS SUBJECT_001 /*매출액*/
@@ -2800,7 +2795,7 @@
                            AND A.STORE_ID   = B.STORE_ID
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                AND    A.BUYER_ID   = #{buyerId} 
+                AND    A.BRAND_ID   = #{brandId} 
                 <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
                     AND    A.REGION =  #{region} 
                 </if>
@@ -2811,7 +2806,7 @@
                   AND    A.SUPERVISOR = #{supervisor}
                 </if>
                 GROUP BY  B.SP_CSTM_ID
-                         ,B.BUYER_ID
+                         ,B.BRAND_ID
                          ,B.YEAR
                          ,B.MONTH
         ) A
@@ -2819,7 +2814,7 @@
         AND   SUBJECT_001 != 0
         AND   TO_DATE( (A.YEAR||'-'||A.MONTH||'-01') , 'YYYY-MM-DD') BETWEEN TO_DATE('2023-01-01' , 'YYYY-MM-DD') AND TO_DATE( '2023-12-01' , 'YYYY-MM-DD')
         ORDER BY A.SP_CSTM_ID
-                 ,A.BUYER_ID
+                 ,A.BRAND_ID
                  ,A.YEAR
                  ,A.MONTH
     </select>  
@@ -2828,7 +2823,7 @@
         /* dashboardCorPerformance.getMonthRatio */
         WITH TABLE_FINANCIAL AS (
              SELECT    A.SP_CSTM_ID
-                      ,A.BUYER_ID
+                      ,A.BRAND_ID
                       ,A.YEAR
                       ,A.MONTH
                       ,SUBJECT_001    AS SUBJECT1
@@ -2840,7 +2835,7 @@
                       ,ROUND(SUBJECT_010 * 100/SUBJECT_001) AS SUBJECT_010
                 FROM   (
                         SELECT B.SP_CSTM_ID
-                              ,B.BUYER_ID
+                              ,B.BRAND_ID
                               ,B.YEAR
                               ,B.MONTH
                               ,SUM(DECODE(B.SUBJECT, 'SUBJECT_001', AMOUNT, 0)) AS SUBJECT_001 /*매출액*/
@@ -2854,7 +2849,7 @@
                                    AND A.STORE_ID   = B.STORE_ID
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    A.BUYER_ID   = #{buyerId} 
+                        AND    A.BRAND_ID   = #{brandId} 
                         <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
                             AND    A.REGION =  #{region} 
                         </if>
@@ -2865,7 +2860,7 @@
                           AND    A.SUPERVISOR = #{supervisor}
                         </if>
                         GROUP BY  B.SP_CSTM_ID
-                                 ,B.BUYER_ID
+                                 ,B.BRAND_ID
                                  ,B.YEAR
                                  ,B.MONTH
                 ) A
@@ -2873,7 +2868,7 @@
                 AND   SUBJECT_001 != 0 
                 AND   TO_DATE( (A.YEAR||'-'||A.MONTH||'-01') , 'YYYY-MM-DD') BETWEEN TO_DATE(#{startYMD} , 'YYYY-MM-DD') AND TO_DATE( #{endYMD} , 'YYYY-MM-DD')
                 ORDER BY A.SP_CSTM_ID
-                         ,A.BUYER_ID
+                         ,A.BRAND_ID
                          ,A.YEAR
                          ,A.MONTH
         )
@@ -2909,7 +2904,7 @@
     <select id="getStoreRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getStoreRatio */
              SELECT    A.SP_CSTM_ID
-                      ,A.BUYER_ID
+                      ,A.BRAND_ID
                       ,A.STORE_ID
                       ,A.STORE_NM3
                       ,ROUND(SUBJECT_003 * 100/SUBJECT_001) AS SUBJECT_003
@@ -2917,7 +2912,7 @@
                       ,ROUND(SUBJECT_010 * 100/SUBJECT_001) AS SUBJECT_010
                 FROM   (
                         SELECT A.SP_CSTM_ID
-                              ,A.BUYER_ID
+                              ,A.BRAND_ID
                               ,A.STORE_ID
                               ,A.STORE_NM3
                               ,SUM(DECODE(B.SUBJECT, 'SUBJECT_001', AMOUNT, 0)) AS SUBJECT_001 /*매출액*/
@@ -2931,7 +2926,7 @@
                                    AND A.STORE_ID   = B.STORE_ID
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    A.BUYER_ID   = #{buyerId} 
+                        AND    A.BRAND_ID   = #{brandId} 
                         <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
                             AND    A.REGION =  #{region} 
                         </if>
@@ -2943,18 +2938,35 @@
                         </if>
                         AND   TO_DATE( (B.YEAR||'-'||B.MONTH||'-01') , 'YYYY-MM-DD') BETWEEN TO_DATE(#{startYMD} , 'YYYY-MM-DD') AND TO_DATE( #{endYMD} , 'YYYY-MM-DD')
                         GROUP BY  A.SP_CSTM_ID
-                                 ,A.BUYER_ID
+                                 ,A.BRAND_ID
                                  ,A.STORE_ID
                                  ,A.STORE_NM3
                         ORDER BY  A.SP_CSTM_ID
-                                 ,A.BUYER_ID
+                                 ,A.BRAND_ID
                                  ,A.STORE_ID
                                  ,A.STORE_NM3
                 ) A
                 WHERE 1 = 1
                 AND   SUBJECT_001 != 0 
                 ORDER BY  A.SP_CSTM_ID
-                         ,A.BUYER_ID
+                         ,A.BRAND_ID
                          ,A.STORE_NM3
     </select>  
+    <select id="getBrand" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getBrand */
+        SELECT BRAND_ID  AS CODE_ID
+              ,BRAND_NM  AS CODE_NM
+              ,BRAND_ID
+              ,BRAND_NM
+              ,BUYER_ID
+              ,UPDATE_USER
+              ,UPDATE_DATE
+              ,SP_CSTM_ID
+        FROM   TBL_EXP_BUYER_BRAND
+        WHERE  1 = 1
+        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+        <if test=" buyerId != null and buyerId != ''  ">
+            AND    BUYER_ID = #{buyerId} 
+        </if> 
+    </select> 
 </mapper>

@@ -43,7 +43,7 @@ public class DashboardService extends ExdevBaseService{
         String endDate = (String)map.get("endDate");
         String region = (String)map.get("region");
         String supervisor = (String)map.get("supervisor");
-        String buyerId = (String)map.get("buyerId");
+        String brandId = (String)map.get("brandId");
         String spCstmId = (String)map.get("spCstmId");
         
 	    int startDateNum = Integer.parseInt(startDate.replace("-", ""));
@@ -58,7 +58,7 @@ public class DashboardService extends ExdevBaseService{
             
             Map<String, String> searchMap = new HashMap<String, String>();
             searchMap.put("spCstmId", spCstmId);
-            searchMap.put("buyerId", buyerId);
+            searchMap.put("brandId", brandId);
             searchMap.put("seartDate", addMonth.substring(0, 7));
             searchMap.put("region", region);
             searchMap.put("supervisor", supervisor);

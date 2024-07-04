@@ -885,8 +885,8 @@ var <@compId> = {
         ,setHandler : () => {
 
             $("#<@compId>_searchBtn").click( () =>{
-
-                var buyerId = G_VAL.session.BUYER_ID;
+            	                  
+            	var brandId     = <@parentId>.getParentBrandId();
             	var startYears  = C_UICOM.getData("<@compId>_startYears");
             	var startMonths = C_UICOM.getData("<@compId>_startMonths");
             	var endYears    = C_UICOM.getData("<@compId>_endYears");
@@ -900,9 +900,13 @@ var <@compId> = {
                 var dateStart  = startYears+startMonths;
                 var dateEnd    = endYears+endMonths;
                 
+                if(brandId == undefined){
+                	C_POP.alert("브랜드가 없습니다.");
+                	return;
+                }
                 
             	let requestParm = {};
-                requestParm["buyerId"]    = buyerId;
+                requestParm["brandId"]    = brandId;
                 requestParm["year"]       = startYears;
                 requestParm["startDate"]  = startDate;
                 requestParm["startYMD"]   = startDate+"-01";
@@ -938,7 +942,6 @@ var <@compId> = {
 C_COMP.onLoadComp("<@compId>", function(data) {
     <@compId>.pageInit();
     <@compId>.setHandler();
-   
 });
 
 // History back으로 이동해왔을 경우 이루틴이 실행된다.

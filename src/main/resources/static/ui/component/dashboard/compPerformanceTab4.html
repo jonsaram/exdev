@@ -762,8 +762,13 @@
 
                 $("#<@compId>_searchBtn").click( () =>{
                 	
-                	var buyerId = G_VAL.session.BUYER_ID;
+                	var brandId = <@parentId>.getParentBrandId();
 
+                    if(brandId == undefined){
+                        C_POP.alert("브랜드가 없습니다.");
+                        return;
+                    }
+                    
                     var year        = C_UICOM.getData("<@compId>_selectBoxYear");
                     var month       = C_UICOM.getData("<@compId>_selectBoxMonth");
                     var group1      = C_UICOM.getData("<@compId>_selectGroup1");
@@ -774,7 +779,7 @@
                     var supervisor  = C_UICOM.getData("<@compId>_selectBoxSupervisor");
                     
                     let requestParm = {};
-                    requestParm["buyerId"]       = buyerId;
+                    requestParm["brandId"]       = brandId;
                     requestParm["year"]          = year;
                     requestParm["month"]         = month;
                     requestParm["group1"]        = group1;

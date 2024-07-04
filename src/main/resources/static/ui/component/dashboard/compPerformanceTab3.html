@@ -383,13 +383,18 @@
                     const endDatePre = <@compId>.getAddDay( endY, endM, endD, -7  );
 
 
-                    var buyerId = G_VAL.session.BUYER_ID;
+                    var brandId = <@parentId>.getParentBrandId();
+
+                    if(brandId == undefined){
+                        C_POP.alert("브랜드가 없습니다.");
+                        return;
+                    }
                     
                     let region      = C_UICOM.getData('<@compId>_selectBoxRegion');
                     let supervisor  = C_UICOM.getData('<@compId>_selectBoxSupervisor');
                     
                     let requestParm = {};
-                    requestParm["buyerId"]       = buyerId;
+                    requestParm["brandId"]       = brandId;
                     requestParm["dateStart"]     = startDate;
                     requestParm["dateEnd"]       = endDate;
                     requestParm["startDatePre"]  = startDatePre;
