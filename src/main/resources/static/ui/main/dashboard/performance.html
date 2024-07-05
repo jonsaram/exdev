@@ -35,7 +35,12 @@
                        ,targetId : "<@pageId>_brand" 
                 }
                 
-                C_UICOM.makeSelectBox(selectBoxBrandList, "single");
+                if( selectBoxBrandList.data.length == 0){
+                	C_POP.alert("브랜드 정보가 없습니다.");
+                }else{
+                	C_UICOM.makeSelectBox(selectBoxBrandList, "single");	
+                }
+                
             });
             
             C_UICOM.addChangeListener("<@pageId>_brand", function(dataObj) {
@@ -56,7 +61,6 @@
             
             // Import Tab Component
             C_COMP.import("<@pageId>_tab1", "component_dashboard_compPerformanceTab1", parm, function(data) {
-            	dalert(data);
             });
             C_COMP.import("<@pageId>_tab2", "component_dashboard_compPerformanceTab2", parm, function(data) {
             });

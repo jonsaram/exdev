@@ -23,16 +23,30 @@ var <@compId> = {
             var startYearsArrayList = { data : yearsArray,targetId : "<@compId>_startYears"}
             C_UICOM.makeSelectBox(startYearsArrayList, "single");
             C_UICOM.setSingleBox("<@compId>_startYears", dayjs().year());
+            C_UICOM.addChangeListener("<@compId>_startYears", function(dataObj) {
+                <@compId>.checkDay();
+            });
+            
             var startMonthsArrayList = { data : monthsArray,targetId : "<@compId>_startMonths"}
             C_UICOM.makeSelectBox(startMonthsArrayList, "single");
             C_UICOM.setSingleBox("<@compId>_startMonths", ("0"+(dayjs().month() + 1) ).slice(-2));
+            C_UICOM.addChangeListener("<@compId>_startMonths", function(dataObj) {
+                <@compId>.checkDay();
+            });
             
             var endYearsArrayList = { data : yearsArray,targetId : "<@compId>_endYears"}
             C_UICOM.makeSelectBox(endYearsArrayList, "single");
             C_UICOM.setSingleBox("<@compId>_endYears", dayjs().year());
+            C_UICOM.addChangeListener("<@compId>_endYears", function(dataObj) {
+                <@compId>.checkDay();
+            });
+            
             var endMonthsArrayList = { data : monthsArray,targetId : "<@compId>_endMonths"}
             C_UICOM.makeSelectBox(endMonthsArrayList, "single");
             C_UICOM.setSingleBox("<@compId>_endMonths", ("0"+(dayjs().month() + 1) ).slice(-2));
+            C_UICOM.addChangeListener("<@compId>_endMonths", function(dataObj) {
+                <@compId>.checkDay();
+            });
             
 
             // 권역
@@ -83,7 +97,7 @@ var <@compId> = {
                      }
                 }
                 C_PAGING.renderHtml("<@compId>", rparm);
-                
+                <@compId>.searchList12(requestParm);
             });
             
         }//searchList
@@ -222,7 +236,7 @@ var <@compId> = {
                      }
                 }
                 C_PAGING.renderHtml("<@compId>", rparm);
-                
+                <@compId>.searchList13(requestParm);
             });
             
         }//searchList
@@ -340,7 +354,7 @@ var <@compId> = {
         
         /* 1-3 *******  권역별 순위    권역별 순위    권역별 순위    권역별 순위    권역별 순위    권역별 순위        */
         ,searchList13 : (requestParm) => {
-            
+            /**/
             var parm = {
                     queryId  : "dashboardCorPerformance.getRegionsRanking"
                    ,requestParm   : requestParm
@@ -363,6 +377,7 @@ var <@compId> = {
                 C_PAGING.renderHtml("<@compId>", rparm);
                 
             });
+        	
             
         }//searchList
 
@@ -485,6 +500,7 @@ var <@compId> = {
    
             C_COM.requestQuery(parm, function(resultData) {
             	<@compId>.setChart21( resultData );
+                <@compId>.searchList22(requestParm);
             });
             
         }//searchList
@@ -699,6 +715,7 @@ var <@compId> = {
    
             C_COM.requestQuery(parm, function(resultData) {
                 <@compId>.setChart31( resultData );
+                <@compId>.searchList32(requestParm);
             });
             
         }//searchList31
@@ -868,6 +885,7 @@ var <@compId> = {
          }//setChart32
         /* 3-2 #######  지검별 비율 그래프    지검별 비율 그래프    지검별 비율 그래프    지검별 비율 그래프    지검별 비율 그래프    */
         
+        /* ******  UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    */
         ,getMonthDifference : (start, end) =>{
             var startYear = parseInt(start.split('-')[0], 10);
             var startMonth = parseInt(start.split('-')[1], 10);
@@ -880,8 +898,43 @@ var <@compId> = {
             return yearDifference * 12 + monthDifference;
          }
 
-          
-         
+        ,checkDay : () =>{
+
+            var startYears  = C_UICOM.getData("<@compId>_startYears");
+            var startMonths = C_UICOM.getData("<@compId>_startMonths");
+            var endYears    = C_UICOM.getData("<@compId>_endYears");
+            var endMonths   = C_UICOM.getData("<@compId>_endMonths");
+            
+            var startDate  = startYears+"-"+startMonths;
+            var endDate    = endYears+"-"+endMonths;
+            
+            var dateStart  = startYears+startMonths;
+            var dateEnd    = endYears+endMonths;
+            
+            //시작일이 종료일보다 클경우 종료일을 시작일로 변경
+            if( Number(dateStart) > Number(dateEnd) ){
+            	console.log("startYears["+startYears+"]  startMonths["+startMonths+"]  ");
+            	C_UICOM.setSingleBox("<@compId>_endYears", startYears);
+                C_UICOM.setSingleBox("<@compId>_endMonths", startMonths);
+            }
+            
+            var monthDifference = <@compId>.getMonthDifference(startDate, endDate);
+            
+            //조회 기간은 12 개월이상일 경우 종료일을 12개월로 변경
+            if( 12 <= monthDifference  ){
+
+            	var date = new Date(startYears, startMonths - 1);
+            	date.setMonth(date.getMonth() + 11);
+            	var resultYear = date.getFullYear();
+            	var resultMonth = ('0' + (date.getMonth() + 1)).slice(-2); // 월은 0부터 시작하므로 다시 1을 더해주고, 두 자리로 맞춤
+
+                C_UICOM.setSingleBox("<@compId>_endYears", resultYear.toString());
+                C_UICOM.setSingleBox("<@compId>_endMonths", resultMonth.toString());
+                
+            }
+        }
+        /* #######  UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    */
+        
         ,setHandler : () => {
 
             $("#<@compId>_searchBtn").click( () =>{
@@ -928,12 +981,9 @@ var <@compId> = {
                 }
                 
                 <@compId>.searchList11(requestParm);
-                <@compId>.searchList12(requestParm);
-                <@compId>.searchList13(requestParm);
                 <@compId>.searchList21(requestParm);
-                <@compId>.searchList22(requestParm);
                 <@compId>.searchList31(requestParm);
-                <@compId>.searchList32(requestParm);
+                
             })            
             
         } 
