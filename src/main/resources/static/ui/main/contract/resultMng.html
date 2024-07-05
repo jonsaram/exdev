@@ -36,10 +36,10 @@ var <@pageId> = {
         		if( row["RESULT_ID"] != resultId){
         			resultId = row["RESULT_ID"];
 	       			resultIdCnt++;
-	       			TOTAL_ROW["INCOME"] += Number(row["INCOME"]);
-	       			TOTAL_ROW["COST_PRICE"] += Number(row["COST_PRICE"]);
-	       			TOTAL_ROW["ORG_SELLING_PRICE"] += Number(row["ORG_SELLING_PRICE"]);
-	       			TOTAL_ROW["REAL_PROFIT"] += Number(row["REAL_PROFIT"]);        			
+	       			TOTAL_ROW["INCOME"] += isNaN(Number(row["INCOME"])) ? 0 : Number(row["INCOME"]);
+	       			TOTAL_ROW["COST_PRICE"] += isNaN(Number(row["COST_PRICE"])) ? 0 : Number(row["COST_PRICE"]);
+	       			TOTAL_ROW["ORG_SELLING_PRICE"] += isNaN(Number(row["ORG_SELLING_PRICE"])) ? 0 : Number(row["ORG_SELLING_PRICE"]);
+	       			TOTAL_ROW["REAL_PROFIT"] += isNaN(Number(row["REAL_PROFIT"])) ? 0 : Number(row["REAL_PROFIT"]);        			
         			row['RN'] = ++no;
         		}else{
         			row['RN'] = no;
@@ -54,11 +54,10 @@ var <@pageId> = {
         		if( RELATION_TYPE =="COWORK"){
         			row["RATE"]	= (row["RATE"] * EXEC_RATE) /100;
         		}
-        		TOTAL_ROW["RATE"] 		+= Number(row["RATE"]);
-				TOTAL_ROW["PAYMENT"] 	+= Number(row["PAYMENT"]);
+        		TOTAL_ROW["RATE"] 		+= isNaN(Number(row["RATE"])) ? 0 : Number(row["RATE"]);
+				TOTAL_ROW["PAYMENT"] 	+= isNaN(Number(row["PAYMENT"])) ? 0 : Number(row["PAYMENT"]);
 				
 				LAST_RESULT_ID = !isEmpty(row["LAST_RESULT_ID"]) ? row["LAST_RESULT_ID"] :'';
-				
         	})
         	
         	resultData.data.forEach( (row,idx) => {
@@ -67,6 +66,7 @@ var <@pageId> = {
 
         	})
        	
+				debugger;
         	let rparm = {
            			targetId   : "<@pageId>_resultList"
 					,list       : resultData.data

@@ -35,7 +35,7 @@
 			,CS.CONSULTING_ID
 			,CS.CONSULTING_NM
 			,R.INCOME_TYPE
-			,R.INCOME
+			,NVL(TO_CHAR(R.INCOME),'-')  AS INCOME
 			,DECODE( CS.CONSULTING_TYPE , 'MONTHLY' , 'N/A' , R.REMAINING_SUM ) AS REMAINING_SUM
 			,( R.INCOME + R.REMAINING_SUM ) AS LAST_REMAINING_SUM
 			,NVL(CO.SUM_COST_PRICE ,0) AS COST_PRICE
@@ -51,10 +51,10 @@
 			,P.RELATION_TYPE
 			,GET_CODE_NM( 'RELATION_TYPE', P.RELATION_TYPE ) AS RELATION_TYPE_NM
 			,P.RATE
-			,P.PAYMENT
+			,NVL(TO_CHAR(P.PAYMENT),'-') AS PAYMENT
 			,P.PAYMENT_ID
 			,ROUND(R.ORG_SELLING_PRICE,2) AS ORG_SELLING_PRICE
-			,ROUND(TO_NUMBER(R.ORG_SELLING_PRICE) - TO_NUMBER( SUM(P.PAYMENT) OVER(PARTITION BY R.RESULT_ID ) ),2 ) AS REAL_PROFIT
+			,NVL(TO_CHAR(ROUND(TO_NUMBER(R.ORG_SELLING_PRICE) - TO_NUMBER( SUM(P.PAYMENT) OVER(PARTITION BY R.RESULT_ID ) ),2 )),'-') AS REAL_PROFIT
 			,R.USE_YN
 			,R.DEL_YN
 			,R.UPDATE_USER
@@ -247,8 +247,8 @@
 						  	OR  U.USER_NM  LIKE '%' || #{USER_ID} || '%'
 							OR  C.USER_ID  LIKE '%' || #{USER} || '%'
 						  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
-							OR  C.USER_ID  LIKE '%' || NVL(REGEXP_SUBSTR(#{USER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{USER} ) || '%'
-						  	OR  U.USER_NM  LIKE '%' || NVL(REGEXP_SUBSTR(#{USER}, '[^ ]+', 1, 1),#{USER} ) || '%'
+							OR  C.USER_ID  = NVL(REGEXP_SUBSTR(#{USER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{USER} )
+						  	OR  U.USER_NM  = NVL(REGEXP_SUBSTR(#{USER}, '[^ ]+', 1, 1),#{USER} )
 						  	) 
 				</when>
 		       	<when test=" USER_ID != null and !USER_ID.equals('')"> 
@@ -258,20 +258,20 @@
 				</when>
 		       	<when test=" USER != null and !USER.equals('')"> 
 						AND (  C.USER_ID  LIKE '%' || #{USER} || '%'
-						  	OR  U.USER_NM  LIKE '%' || #{USER} || '%'
-							OR  C.USER_ID  LIKE '%' || NVL(REGEXP_SUBSTR(#{USER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{USER} ) || '%'
-						  	OR  U.USER_NM  LIKE '%' || NVL(REGEXP_SUBSTR(#{USER}, '[^ ]+', 1, 1),#{USER} ) || '%'
+						  	OR  U.USER_NM LIKE '%' || #{USER} || '%'
+							OR  C.USER_ID = NVL(REGEXP_SUBSTR(#{USER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{USER} )
+						  	OR  U.USER_NM = NVL(REGEXP_SUBSTR(#{USER}, '[^ ]+', 1, 1),#{USER} )
 						  	)
 				</when>
 				</choose>	
 		       <choose>
 		       	<when test=" BUYER_ID != null and !BUYER_ID.equals('') and BUYER != null and !BUYER.equals('')">  
-						AND ( C.BUYER_ID LIKE '%' || #{BUYER_ID} || '%'
-						   OR B.BUYER_NM LIKE '%' || #{BUYER_ID} || '%'     
-						   OR C.BUYER_ID LIKE '%' || #{BUYER} || '%'
-						   OR B.BUYER_NM LIKE '%' || #{BUYER} || '%'
-						   OR C.BUYER_ID  LIKE '%' || NVL(REGEXP_SUBSTR(#{BUYER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{BUYER} ) || '%'
-						   OR B.BUYER_NM  LIKE '%' || NVL(REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1),#{BUYER} ) || '%'
+						AND ( C.BUYER_ID = #{BUYER_ID}
+						   OR B.BUYER_NM = #{BUYER_ID}     
+						   OR C.BUYER_ID LIKE '%#{BUYER}%'
+						   OR B.BUYER_NM LIKE '%#{BUYER}%'
+						   OR C.BUYER_ID 	= NVL(REGEXP_SUBSTR(#{BUYER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{BUYER} )
+						   OR B.BUYER_NM 	= NVL(REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1),#{BUYER} )
 						   )
 				</when>
 		       	<when test=" BUYER_ID != null and !BUYER_ID.equals('')">  
@@ -282,8 +282,8 @@
 		       	<when test=" BUYER != null and !BUYER.equals('') ">  
 						AND (  C.BUYER_ID   LIKE '%' || #{BUYER} || '%'
 						  	OR B.BUYER_NM   LIKE '%' || #{BUYER} || '%'
-						    OR C.BUYER_ID  LIKE '%' || NVL(REGEXP_SUBSTR(#{BUYER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{BUYER} ) || '%'
-						    OR B.BUYER_NM  LIKE '%' || NVL(REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1),#{BUYER} ) || '%'
+						    OR C.BUYER_ID  = NVL(REGEXP_SUBSTR(#{BUYER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{BUYER} )
+						    OR B.BUYER_NM  = NVL(REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1),#{BUYER} )
 						  	)
 				</when>
 				</choose>							     

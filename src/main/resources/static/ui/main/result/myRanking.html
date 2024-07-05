@@ -341,26 +341,68 @@
 						
 					})
 					let series = [];
-					if( !isEmpty(firstData) ){
+					if( isEmpty(firstData) ){
 					
-						series =[
-						{
-					        data: [
-									{	x: firstData.CONTRACT_CNT,	y: firstData.YEARLY_PAYMENT,	z: firstData.PERCENT,	name: firstData.USER_NM	}
-					        ]
-			   			}
-						, 
-						{
-			       			data: bubleData
-			   			}
+						const series1 =[{"data": [	{"x": 0,"y": 0,"z": 0,"name": "운영자"},
+						            				{"x": 0,"y": 0,"z": 0,"name": "이희성"},
+						            				{"x": 0,"y": 0,"z": 0,"name": "이동원"},
+						            				{"x": 0,"y": 0,"z": 0,"name": "이주현"}
+						        				]}
+										]
+
+						const resdata =[
+						    {
+						        "CONTRACT_CNT": 0,
+						        "CC_PERCENT": 0,
+						        "USER_NM": "이희성",
+						        "YEARLY_PAYMENT": 0,
+						        "PERCENT": 0,
+						        "USER_ID": "k2navyrd",
+						        "RANK": 0,
+						        "IS_MY_RANK": "Y",
+						        "CC_RANK": 0
+						    },
+						    {
+						        "CONTRACT_CNT": 0,
+						        "CC_PERCENT": 0,
+						        "USER_NM": "이주현",
+						        "YEARLY_PAYMENT": 0,
+						        "PERCENT": 0,
+						        "USER_ID": "leejoo0926",
+						        "RANK": 0,
+						        "IS_MY_RANK": "N",
+						        "CC_RANK": 0
+						    },
+						    {
+						        "CONTRACT_CNT": 0,
+						        "CC_PERCENT": 0,
+						        "USER_NM": "운영자",
+						        "YEARLY_PAYMENT": 0,
+						        "PERCENT": 0,
+						        "USER_ID": "admin",
+						        "RANK": 0,
+						        "IS_MY_RANK": "N",
+						        "CC_RANK": 0
+						    },
+						    {
+						        "CONTRACT_CNT": 0,
+						        "CC_PERCENT": 0,
+						        "USER_NM": "이동원",
+						        "YEARLY_PAYMENT": 0,
+						        "PERCENT": 0,
+						        "USER_ID": "nowgnode",
+						        "RANK": 0,
+						        "IS_MY_RANK": "N",
+						        "CC_RANK": 0
+						    }
 						]
 					}
-					_bubbleChart('#bubbleChart2',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
-					<@pageId>.rankBoard('#bubbleChart2', resultData.data);				
+					_bubbleChart('#bubbleChart2',series1 ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]),true);
+					<@pageId>.rankBoard('#bubbleChart2', resdata);				
 				}
 				else{
-					_bubbleChart('#bubbleChart2', [] ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
-					<@pageId>.rankBoard('#bubbleChart2', []);	
+					_bubbleChart('#bubbleChart2', series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
+					<@pageId>.rankBoard('#bubbleChart2', resultData.data);	
 				}
 
 			}

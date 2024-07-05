@@ -924,9 +924,11 @@
 					});	
 	}
 	
-	function _bubbleChart (container , series , unit) {
+	function _bubbleChart (container , series , unit, noData) {
 		
-		const formatter =  function() {
+		noData = noData | false;
+		
+		let formatter =  function() {
 
 					if( container == "#bubbleChart3")
 		            return '<span style="color:#27187F">\u25CF</span> ' + 
@@ -942,11 +944,13 @@
 			                '전체매출대비: ' + this.point.z+'%';
         }
 
-		if ( series.length == 0 ){
+/*		if ( series.length == 0 ){
 			
 			series.push({data:{x:1,y:1,z:0,name:''}});
 			
-		}
+		}*/
+		
+		//if( container == "#bubbleChart2") formatter = ()=>{};
 		
 		$(container).highcharts({
 			chart: {
@@ -989,7 +993,9 @@
 
 		    tooltip: {
         		shared: true,
-		        formatter: formatter
+		        formatter: formatter,
+ 				enabled: !noData // 툴팁 비활성화
+				
 			},
 		    series: series
 		});		
