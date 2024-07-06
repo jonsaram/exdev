@@ -1915,202 +1915,231 @@ var C_PAGING = {
 	}		
 }
 
-// Table Widht 동적 조절 처리
-// 사용법
-// 사용할 Td에
-
-/* 
+// Table의 Grid화
 var C_GRID = {
-	 GAP			: 0
-	,MIN_WIDTH		: 30
-	,baseX			: 0
-	,mouseDownState : false
-	,targetTd		: {
-		 leftDomGrp 	: undefined
-		,rightDomGrp	: undefined
-	 }
-	,cell_left 	: function(obj) {
-		if (event.offsetX < 5 && obj.cellIndex != 0) 	return true;
-		else											return false;
-	 }
-	,cell_right : function(obj) {
-		var width = $(obj).css("width").replaceAll("px", "");
-		if (event.offsetX > Number(width) - 4) return true;
-		else return false;
-	 }
-	,setDomInfo : function (domObj) {
-		var itemColspanCnt		= $(domObj  ).attr("colspan");
-		var itemTargetColId		= $(domObj	).attr("targetCol");
-		var itemColDom			= $("#" + itemTargetColId);
-		var itemColWidth		= $("#" + itemTargetColId).css("width");
-		
-		var itemDomGrp			= {};
-		
-		itemColWidth = itemColWidth.replace("%","").replace("px","");
-		if(isValid(itemColspanCnt)) {
-			var colObjArr 	= [itemColDom];
-			var rateArr		= [itemColWidth];
-			
-			var nowDomObj	= itemColDom;
-			var totalRate	= Number(itemColWidth);
-			for(var ii=1;ii<itemColspanCnt;ii++) {
-				nowDomObj = $(nowDomObj).next()[0];
-				colObjArr.push(nowDomObj);
-				var wd = $(nowDomObj).css("width").replace("%","").replace("px","");
-				rateArr  .push(wd);
-				totalRate += Number(wd);
-			}
-			$.each(rateArr, function(idx) {
-				rateArr[idx] = this / totalRate * 100;
-			});
-			itemDomGrp = {
-				 tdDomObj	: domObj
-				,baseWidth	: addPx($(domObj).css("width"), C_GRID.GAP)
-				,colspanCnt	: colObjArr.length
-			 	,colDomArr	: colObjArr
-			 	,rateArr	: rateArr
-			}
-		} else {
-			itemDomGrp = {
-				 tdDomObj	: domObj
-				,baseWidth	: addPx($(domObj).css("width"), C_GRID.GAP)
-				,colspanCnt	: 1
-			 	,colDomArr	: [itemColDom]
-			 	,rateArr	: [100]
-			}
-		}
-		return itemDomGrp;
-	 }
-	,TCstartColResize : function(leftDom, rightDom) {
-		C_GRID.mouseDownState	= true;
-		
-		C_GRID.targetTd.leftDomGrp	= C_GRID.setDomInfo(leftDom);
-		C_GRID.targetTd.rightDomGrp	= C_GRID.setDomInfo(rightDom);
-	 }
-	,TCmoveColResize : function(e) {
-		if (C_GRID.mouseDownState) {
-			var distX = e.pageX - C_GRID.baseX; //이동한 간격
-			
-			if(isValid(C_GRID.targetTd.leftDomGrp) && isValid(C_GRID.targetTd.rightDomGrp)) {
-				var ld_grp 			= C_GRID.targetTd.leftDomGrp;
-				var leftWidth 		= ld_grp.baseWidth;
-				var ajLeftWidth		= addPx(leftWidth	,distX);
-				
-				var rd_grp 			= C_GRID.targetTd.rightDomGrp;
-				var rightWidth 		= rd_grp.baseWidth;
-				var ajRightWidth	= addPx(rightWidth	,-distX);
-				
-				var leftMinWidth	= C_GRID.MIN_WIDTH * ld_grp.colspanCnt;
-				var rightMinWidth	= C_GRID.MIN_WIDTH * rd_grp.colspanCnt;
-				
-				if(pxToInt(ajLeftWidth)  < leftMinWidth) return; 
-				if(pxToInt(ajRightWidth) < rightMinWidth) return; 
-				
-				for(var ii=0;ii<ld_grp.colspanCnt;ii++) {
-					var tint 	= Number(ajLeftWidth.replace("px", ""));
-					var wd 		= Number(ld_grp.rateArr[ii]) * tint / 100;
-					$(ld_grp.colDomArr[ii]).css("width", wd + "px"	);
-				}
+    isDragging: false,
+    startCell: null,
+    selectedCells: [],
+    pasteStartCell: null,
+    gridId: '',
 
-				for(var ii=0;ii<rd_grp.colspanCnt;ii++) {
-					var tint 	= Number(ajRightWidth.replace("px", ""));
-					var wd 		= Number(rd_grp.rateArr[ii]) * tint / 100;
-					$(rd_grp.colDomArr[ii]).css("width", wd + "px"	);
-				}
-			}
-		}
-	 }
-	,TCstopColResize : function(e) {
-		C_GRID.mouseDownState 	= false;
-		C_GRID.destroy();
-	 }
-	,destroy : function() {
-		C_GRID.baseX = 0;
-		if(isValid(C_GRID.targetTd.leftDomGrp)) {
-			C_GRID.targetTd.leftDomGrp.tdDomObj.style.cursor = "";
-		}
-		if(isValid(C_GRID.targetTd.rightDomGrp)) {
-			C_GRID.targetTd.rightDomGrp.tdDomObj.style.cursor = "";
-		}
-		C_GRID.targetTd = {};			
-	 }
-	,init : function() {
-		$(window).bind("mousemove",function(e) {
-			try {
-				var tgtElement = window.event.srcElement;
-				var targetCol = $(tgtElement).attr("targetCol");
-				if (isValid(targetCol)) {
-					//셀의 가장자리면 마우스 커서 변경
-					if (C_GRID.cell_left(tgtElement)) {
-						tgtElement.style.cursor = "col-resize";
-					} else if(C_GRID.cell_right(tgtElement)) {
-						var rightDom = $(tgtElement).next()[0];
-						if(isValid(rightDom)) 	tgtElement.style.cursor = "col-resize";
-						else					tgtElement.style.cursor = "";
-					} else {
-						if(!C_GRID.mouseDownState) tgtElement.style.cursor = "";
-					}
-					C_GRID.TCmoveColResize(e);
-				} else {
-					tgtElement.style.cursor = "";
-				}
-			} catch (e) {
-				return true;
-			}
-		});
-		$(window).bind("mousedown",function(e) {
-			try {
-				var tgtElement 	= window.event.srcElement;
-				var leftDom;
-				var rightDom;
-				var targetCol = $(tgtElement).attr("targetCol");
-				if (isValid(targetCol)) {
-					if (C_GRID.cell_left(tgtElement)) {
-						leftDom 	= $(tgtElement).prev()[0];
-						rightDom	= tgtElement;
-					} else if (C_GRID.cell_right(tgtElement)) {
-						leftDom		= tgtElement;
-						rightDom	= $(tgtElement).next()[0];
-					} else {
-						return true;//오른쪽도 왼쪽도 아니면 사이즈 조절 안함
-					}
-					C_GRID.baseX = e.pageX;
-					C_GRID.TCstartColResize(leftDom, rightDom);
-				}
-			} catch (e) {
-				dalert(e.message);
-				return true;
-			}
-		});
-		$(window).bind("mouseup",function(e) {
-			try {
-				var tgtElement = window.event.srcElement;
-				var targetCol = $(tgtElement).attr("targetCol");
-				if (isValid(targetCol)) {
-					C_GRID.TCstopColResize(e);
-				} else {
-					C_GRID.mouseDownState 	= false;
-					C_GRID.destroy();
-				}
-			} catch (e) {
-				C_GRID.mouseDownState 	= false;
-				C_GRID.destroy();
-				return true;
-			}
-		});
-		//리사이즈 도중 텍스트 선택 금지
-		$(document).bind("selectstart", function() {
-			try {
-				if(isValid(C_GRID.targetTd.leftDomGrp) || isValid(C_GRID.targetTd.rightDomGrp)) {
-					return false;
-				}
-			} catch (e) {
-				return true;
-			}
-		});
-	 }
-}
-*/
+    setGridIndex(gridId) {
+        this.gridId = gridId;
+        var rowCounter = 1;
+        var colCounter = 1;
+        
+        $(`#${gridId} .grid-cell`).each(function(index) {
+            $(this).attr('data-row', rowCounter);
+            $(this).attr('data-col', colCounter);
+            
+            colCounter++;
+            if ($(this).is(':last-child')) {
+                rowCounter++;
+                colCounter = 1;
+            }
+        });
+    },
+
+    clearSelection() {
+        $(`#${this.gridId} .grid-cell`).removeClass("selected");
+        this.pasteStartCell = null;
+        this.selectedCells = [];
+    },
+
+    selectCellsWithinRectangle(start, end) {
+        const startRow = Math.min(start.data("row"), end.data("row"));
+        const endRow = Math.max(start.data("row"), end.data("row"));
+        const startCol = Math.min(start.data("col"), end.data("col"));
+        const endCol = Math.max(start.data("col"), end.data("col"));
+
+        $(`#${this.gridId} .grid-cell`).each(function() {
+            const $cell = $(this);
+            const row = $cell.data("row");
+            const col = $cell.data("col");
+            const isInRectangle = row >= startRow && row <= endRow && col >= startCol && col <= endCol;
+            $cell.toggleClass("selected", isInRectangle);
+        });
+    },
+
+    onMouseDown(event) {
+        if(!$(event.target).closest(`#${this.gridId}`).length) return;
+        this.clearSelection();
+        this.isDragging = true;
+        this.startCell = $(event.target);
+        this.selectedCells = [];
+        this.selectCellsWithinRectangle(this.startCell, this.startCell);
+    },
+
+    onMouseMove(event) {
+        if(!$(event.target).closest(`#${this.gridId}`).length) return;
+        if (this.isDragging) {
+            const endCell = $(event.target);
+            this.clearSelection();
+            this.selectCellsWithinRectangle(this.startCell, endCell);
+        }
+    },
+
+    onMouseUp(event) {
+        if(!$(event.target).closest(`#${this.gridId}`).length) return;
+        if (this.isDragging) {
+            this.isDragging = false;
+            this.selectedCells = $(`#${this.gridId} .grid-cell.selected`).toArray();
+        }
+    },
+
+    onClick(event) {
+        if(!$(event.target).closest(`#${this.gridId}`).length) return;
+        if (!this.isDragging) {
+            this.clearSelection();
+            $(event.target).addClass("selected");
+            this.selectedCells = [event.target];
+            this.pasteStartCell = $(event.target);
+        }
+    },
+
+    onDocumentMouseDown(event) {
+        if(!$(event.target).closest(`#${this.gridId}`).length) return;
+        if (!$(event.target).closest(".grid-cell").length) {
+            this.clearSelection();
+            this.selectedCells = [];
+        }
+    },
+
+    onKeyDown(event) {
+        if (event.ctrlKey && event.key === 'c') {
+            const selectedText = this.getSelectedTextForExcel();
+            if (selectedText != null) this.copyToClipboard(selectedText);
+        }
+        // Check if the DEL key is pressed
+        if (event.key === 'Delete' && this.selectedCells.length > 0) {
+            this.selectedCells.forEach(cell => {
+                $(cell).text('');
+            });
+        }
+    },
+
+    onPaste(event) {
+        const clipboardData = event.originalEvent.clipboardData.getData('text');
+        this.pasteFromClipboard(clipboardData);
+    },
+
+    getSelectedTextForExcel() {
+        if (this.selectedCells.length < 1) return null;
+
+        // Inputbox를 포함하는 Cell이 있으면 return null 처리
+        if (this.selectedCells.some(cell => $(cell).find('input').length > 0)) return null;
+
+        this.selectedCells.sort((a, b) => {
+            const rowDiff = $(a).data('row') - $(b).data('row');
+            if (rowDiff !== 0) return rowDiff;
+            return $(a).data('col') - $(b).data('col');
+        });
+
+        let rows = {};
+        this.selectedCells.forEach(cell => {
+            const row = $(cell).data('row');
+            const col = $(cell).data('col');
+            if (!rows[row]) rows[row] = [];
+            rows[row][col] = cell.innerText;
+        });
+
+        const rowKeys = Object.keys(rows).sort((a, b) => a - b);
+        return rowKeys.map(rowKey => {
+            const cols = rows[rowKey];
+            const colKeys = Object.keys(cols).sort((a, b) => a - b);
+            return colKeys.map(colKey => cols[colKey]).join('\t');
+        }).join('\n');
+    },
+
+    copyToClipboard(text) {
+        const $temp = $("<textarea>");
+        $("body").append($temp);
+        $temp.val(text).select();
+        document.execCommand("copy");
+        $temp.remove();
+    },
+
+    pasteFromClipboard(clipboardData) {
+        if (!this.pasteStartCell) return;
+        const lines = clipboardData.split("\n");
+        const startRow = this.pasteStartCell.data("row");
+        const startCol = this.pasteStartCell.data("col");
+
+        lines.forEach((line, rowIndex) => {
+            const cells = line.split("\t");
+            cells.forEach((cellText, colIndex) => {
+                const targetRow = startRow + rowIndex;
+                const targetCol = startCol + colIndex;
+                const targetCell = $(`#${this.gridId} .grid-cell[data-row=${targetRow}][data-col=${targetCol}]`);
+                if (targetCell.length) {
+                    targetCell.text(cellText);
+                }
+            });
+        });
+    },
+
+    onDblClick(event) {
+        if(!$(event.target).closest(`#${this.gridId}`).length) return;
+        this.clearSelection(); // 선택된 Cell 해제
+
+        const cellWidth = $(event.target).width();
+        const cellHeight = $(event.target).height();
+        const $input = $(`<input type='text' style='width: 100%; height: 100%; border: none; outline: none;' value='${$(event.target).text()}'>`);
+        $(event.target).html($input);
+        $input.focus();
+
+        $input.on('paste', function(event) {
+            const clipboardData = event.originalEvent.clipboardData.getData('text');
+            const textBefore = $input.val();
+            const cursorPosition = $input[0].selectionStart;
+            const textAfter = textBefore.slice(0, cursorPosition) + clipboardData + textBefore.slice(cursorPosition);
+            $input.val(textAfter);
+
+            return false; // 기본 붙여넣기 동작을 막음
+        });
+
+        $input.on('copy', function(event) {
+            const text = window.getSelection().toString();
+            event.originalEvent.clipboardData.setData('text', text);
+            return false;
+        });
+
+        $input.on('keydown', function(event) {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
+                // Ctrl + C 키 입력 시 기본 동작 방지
+                event.preventDefault();
+                document.execCommand('copy');
+            } else if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+                return; // Ctrl + V 키 입력을 무시하여 버블링을 막음
+            } else if (event.key === 'Enter') {
+                const newText = $(this).val();
+                $(this).parent().text(newText);
+            }
+        });
+
+        $input.blur(function() {
+            const newText = $(this).val();
+            $(this).parent().text(newText);
+        });
+    },
+
+    init(gridId) {
+        this.setGridIndex(gridId);
+
+        $(`#${gridId}`).on('mousedown', '.grid-cell', this.onMouseDown.bind(this));
+        $(`#${gridId}`).on('mousemove', '.grid-cell', this.onMouseMove.bind(this));
+        $(`#${gridId}`).on('mouseup', this.onMouseUp.bind(this));
+        $(`#${gridId}`).on('click', '.grid-cell', this.onClick.bind(this));
+        $(document).on('mousedown', this.onDocumentMouseDown.bind(this));
+        $(document).on('keydown', this.onKeyDown.bind(this));
+        $(document).on('paste', this.onPaste.bind(this));
+        $(`#${gridId}`).on('dblclick', '.grid-cell', this.onDblClick.bind(this));
+    }
+};
+
+
+
+
 
 // Comp Class
 var C_COMP = {

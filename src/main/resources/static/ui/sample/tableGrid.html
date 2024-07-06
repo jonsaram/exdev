@@ -4,6 +4,7 @@
 	var <@pageId> = {
 			
 	}
+	
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function(parm) {
 		var dataList = [
@@ -44,10 +45,12 @@
 			,list			: dataList
 		}
 		C_COM.renderHtml("<@pageId>", rparm);
+		
+		C_GRID.init("tableId");
 
-		mergeTableColumn('tableId');
+//		mergeTableColumn('tableId');
 
-		mergeTableTD('tableId', {startIdx : 3, endIdx : 4, startRowIdx : 1});
+//		mergeTableTD('tableId', {startIdx : 3, endIdx : 4, startRowIdx : 1});
 		
 
 		//mergeTableTD('tableId', {startIdx : 2, endIdx : 2, startRowIdx : 1});
@@ -77,11 +80,11 @@
 		<script type="text/x-jsrender" id="tableId_template">	
 			{{for list}}
 			<tr>	
-				<td>{{:#index + 1}}</td>	
-				<td>{{:ITEM1}}</td>	
-				<td>{{:ITEM2}}</td>	
-				<td>{{:ITEM3}}</td>	
-				<td>{{:ITEM4}}</td>	
+				<td class="grid-cell">{{:#index + 1}}</td>	
+				<td class="grid-cell">{{:ITEM1}}</td>	
+				<td class="grid-cell">{{:ITEM2}}</td>	
+				<td class="grid-cell">{{:ITEM3}}</td>	
+				<td class="grid-cell">{{:ITEM4}}</td>	
 			</tr>
 			{{/for}}
 		</script>

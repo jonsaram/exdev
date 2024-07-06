@@ -50,7 +50,7 @@
 			location.href="/";
 			
 		} else {
-			if(isEmpty(userInfo.SYSTEM_ROLE_ID)) {
+			if(isEmpty(userInfo.SYSTEM_ROLE_ID) && userInfo.LOGIN_TYPE != "BUYER") {
 				C_POP.alert('권한 설정이 필요 합니다. 관리자에게 문의 하세요.');
 			}
 			
@@ -132,13 +132,14 @@
 		}
 		
 		$(function() {
+			debugger;
 			
 			// 시작 Page Id
 			C_MENU.initMenu();
 			
 			$("#loginUserNm").html(userInfo.USER_NM);
 			
-			searchEtcUserInfo();
+			if(G_VAL.session.LOGIN_TYPE != "BUYER") searchEtcUserInfo();
 
 			var parm = {
 				 queryId 		: "system.getMenuAuthTypeList"
@@ -460,7 +461,14 @@
 	    font-size:3em;
 	  }
 	  .disabled-bg {background:#f1f1f1}
-	</style>
+
+      .grid-cell {
+          user-select: none; /* 텍스트 선택 비활성화 */
+      }
+      .selected {
+          background-color: lightgray;
+      }
+    </style>
 
 </head>
 <body class="main">
