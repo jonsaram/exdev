@@ -95,8 +95,7 @@ var <@pageId> = {
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				<@pageId>.showObject(resultData.data['financialanalysis.getBuyerDetail'][0],'');
-				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');
-				<@pageId>.showObject(resultData.data['financialanalysis.getFinAnalStockholderStr'][0],'');
+				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');				
 				<@pageId>.showList("<@pageId>_getBasis02", resultData.data['financialanalysis.getBasis02']);				
 				<@pageId>.showList("<@pageId>_getFinAnalStockholder", resultData.data['financialanalysis.getFinAnalStockholder']);
 				if(resultData.data['financialanalysis.getFinAnalStockholder'].length > 0){
@@ -115,15 +114,108 @@ var <@pageId> = {
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl02", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl03", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl04", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				// 주요경비율분석
+				let K_DATA_LIST = [] ;
+    			let salary_year1 = 0, salary_year2 = 0, salary_year3 = 0;
+    			let sum_year1 = 0, sum_year2 = 0, sum_year3 = 0;
+    			let sale_year1 = 0,	sale_year2 = 0, sale_year3 = 0;
+    			let sale_won_year1 = 0,	sale_won_year2 = 0, sale_won_year3 = 0;
+    			let imcha_year1 = 0,	imcha_year2 = 0, imcha_year3 = 0;
+				resultData.data['financialanalysis.getFinAnalStatusDtl'].forEach(item => {
+					if(item["ITEM_NAME"]=='매출원가'){
+	        			sum_year1 = sum_year1+Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""));
+	        			sum_year2 = sum_year2+Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""));
+	        			sum_year3 = sum_year3+Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""));
+	        			sale_won_year1 = Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""));
+	        			sale_won_year2 = Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""));
+	        			sale_won_year3 = Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""));
+	        			var data = {
+	        					SRT_NUM :0
+	        					,ITEM_NAME:'매출원가'
+			        			,YEAR1:Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""))
+			        			,YEAR2:Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""))
+			        			,YEAR3:Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""))
+			        		}
+	        			K_DATA_LIST.push(data);
+	        		}else if(item["ITEM_NAME"]=='급여(1)' || item["ITEM_NAME"]=='퇴직급여'){
+	        			sum_year1 = sum_year1+Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""));
+	        			sum_year2 = sum_year2+Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""));
+	        			sum_year3 = sum_year3+Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""));
+	        			salary_year1 = salary_year1 + Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""));
+	        			salary_year2 = salary_year2 + Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""));
+	        			salary_year3 = salary_year3 + Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""));
+	        		}else if(item["ITEM_NAME"]=='임차료(6)'){
+	        			sum_year1 = sum_year1+Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""));
+	        			sum_year2 = sum_year2+Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""));
+	        			sum_year3 = sum_year3+Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""));
+	        			imcha_year1 = Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""));
+	        			imcha_year2 = Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""));
+	        			imcha_year3 = Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""));
+	        			var data = {
+	        					SRT_NUM :4
+	        					,ITEM_NAME:'임차료'
+			        			,YEAR1:Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""))
+			        			,YEAR2:Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""))
+			        			,YEAR3:Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""))
+			        		}
+	        			K_DATA_LIST.push(data);
+	        		}else if(item["ITEM_NAME"]=='매출액'){
+	        			sale_rate_year1 = Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""));
+	        			sale_rate_year2 = Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""));
+	        			sale_rate_year3 = Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""));
+	        			var data = {
+	        					SRT_NUM :6
+	        					,ITEM_NAME:'매출액'
+			        			,YEAR1:Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""))
+			        			,YEAR2:Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""))
+			        			,YEAR3:Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""))
+			        		}
+	        			K_DATA_LIST.push(data);
+	        		}
+	        	})
+       			var data2 = {
+					SRT_NUM :2, ITEM_NAME:'인건비'	,YEAR1:salary_year1	,YEAR2:salary_year2	,YEAR3:salary_year3
+	        	}
+       			K_DATA_LIST.push(data2);
+
+       			data2 = {SRT_NUM :7,
+      				ITEM_NAME:'주요경비합계',YEAR1:sum_year1,YEAR2:sum_year2,YEAR3:sum_year3
+	        	}
+       			K_DATA_LIST.push(data2);
+       			data2 = {SRT_NUM :1,
+          				ITEM_NAME:'&nbsp;&nbsp;&nbsp;(매출원가/매출액)',YEAR1:Math.round(sale_won_year1/sale_rate_year1*1000)/10
+          											,YEAR2:Math.round(sale_won_year2/sale_rate_year2*1000)/10
+          											,YEAR3:Math.round(sale_won_year3/sale_rate_year3*1000)/10
+    	        }
+       			K_DATA_LIST.push(data2);
+       			data2 = {SRT_NUM :3,
+          				ITEM_NAME:'&nbsp;&nbsp;&nbsp;(인건비/매출액)',YEAR1:Math.round(salary_year1/sale_rate_year1*1000)/10
+          											,YEAR2:Math.round(salary_year2/sale_rate_year2*1000)/10
+          											,YEAR3:Math.round(salary_year3/sale_rate_year3*1000)/10
+    	        }
+       			K_DATA_LIST.push(data2);
+       			data2 = {SRT_NUM :5,
+          				ITEM_NAME:'&nbsp;&nbsp;&nbsp;(임차료/매출액)',YEAR1:Math.round(imcha_year1/sale_rate_year1*1000)/10
+          											,YEAR2:Math.round(imcha_year2/sale_rate_year2*1000)/10
+          											,YEAR3:Math.round(imcha_year3/sale_rate_year3*1000)/10
+    	        }
+       			K_DATA_LIST.push(data2);
+       			data2 = {SRT_NUM :8,
+          				ITEM_NAME:'주요경비율',YEAR1:Math.round(sum_year1/sale_rate_year1*1000)/10
+          										,YEAR2:Math.round(sum_year2/sale_rate_year2*1000)/10
+          										,YEAR3:Math.round(sum_year3/sale_rate_year3*1000)/10
+    	        }
+       			K_DATA_LIST.push(data2);
+		        K_DATA_LIST.sort((a,b)=>a.SRT_NUM-b.SRT_NUM);
+		        <@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", K_DATA_LIST);
+				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl06", resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.showList("<@pageId>_getFinAnalResult01", resultData.data['financialanalysis.getFinAnalResult']);
 				<@pageId>.showList("<@pageId>_getFinAnalResult02", resultData.data['financialanalysis.getFinAnalResult']);
 				<@pageId>.showList("<@pageId>_getFinAnalLifecycleIssue", resultData.data['financialanalysis.getFinAnalLifecycleIssue']);
-				
-				<@pageId>.setChart('Sales',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.setChart('Personal',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.setChart('Hire',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.setChart('Sales',resultData.data['financialanalysis.getFinAnalYear'][0],K_DATA_LIST);
+				<@pageId>.setChart('Personal',resultData.data['financialanalysis.getFinAnalYear'][0],K_DATA_LIST);
+				<@pageId>.setChart('Hire',resultData.data['financialanalysis.getFinAnalYear'][0],K_DATA_LIST);
 				
 				<@pageId>.setChart('InputLaborForce',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				<@pageId>.setChart('LaborCostPerPerson',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
@@ -141,25 +233,25 @@ var <@pageId> = {
 			const getLaborCostPerPerson = [];
 			const getTotalSaleAmount = [];
 			const getSaleAmountPerPerson = [];
-			//debugger;
 			$.each(chartData, function(index, item){
 				if(gubun=='Sales'){
-					if(item.ITEM_NAME == '(매출원가/매출액)'){
-						getCostOfSalesRate.push(parseFloat(item.YEAR1.replace(',','')));
-						getCostOfSalesRate.push(parseFloat(item.YEAR2.replace(',','')));
-						getCostOfSalesRate.push(parseFloat(item.YEAR3.replace(',','')));
+					//debugger;
+					if(item.ITEM_NAME.indexOf('(매출원가/매출액)') >= 0){
+						getCostOfSalesRate.push(item.YEAR1);
+						getCostOfSalesRate.push(item.YEAR2);
+						getCostOfSalesRate.push(item.YEAR3);
 					}
 				} else if(gubun=='Personal'){
-					if(item.ITEM_NAME == '(인건비/매출액)'){
-						getCostOfPersonalRate.push(parseFloat(item.YEAR1.replace(',','')));
-						getCostOfPersonalRate.push(parseFloat(item.YEAR2.replace(',','')));
-						getCostOfPersonalRate.push(parseFloat(item.YEAR3.replace(',','')));
+					if(item.ITEM_NAME.indexOf('(인건비/매출액)') >= 0){
+						getCostOfPersonalRate.push(item.YEAR1);
+						getCostOfPersonalRate.push(item.YEAR2);
+						getCostOfPersonalRate.push(item.YEAR3);
 					}
 				} else if(gubun=='Hire'){
-					if(item.ITEM_NAME == '(임차료/매출액)'){
-						getCostOfHireRate.push(parseFloat(item.YEAR1.replace(',','')));
-						getCostOfHireRate.push(parseFloat(item.YEAR2.replace(',','')));
-						getCostOfHireRate.push(parseFloat(item.YEAR3.replace(',','')));
+					if(item.ITEM_NAME.indexOf('(임차료/매출액)') >= 0){
+						getCostOfHireRate.push(item.YEAR1);
+						getCostOfHireRate.push(item.YEAR2);
+						getCostOfHireRate.push(item.YEAR3);
 					}
 				} else if(gubun=='InputLaborForce'){
 					if(item.ITEM_NAME == '상시근로자수'){
@@ -429,9 +521,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										</tr>
 										<tr>
 											<th scope="col">대표자명</th>
-											<td id="<@pageId>_OWNER_NM"></td>
+											<td class="<@pageId>_OWNER_NM"></td>
 											<th scope="col">대표이사 생년월일(나이)</th>
-											<td id="<@pageId>_OWNER_BIRTHDAY"></td>
+											<td><span id="<@pageId>_OWNER_BIRTHDAY"></span>(만<span class="<@pageId>_AGE"></span>세)</td>
 										</tr>
 										<tr>
 											<th scope="col">기업형태</th>
@@ -971,9 +1063,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 											<thead>
 												<tr>
 													<th>자산</th>
-													<th class="<@pageId>_YEAR1"></th>
-													<th class="<@pageId>_YEAR2"></th>
-													<th class="<@pageId>_YEAR3"></th>
+													<th class="<@pageId>_DATA_YEAR1"></th>
+													<th class="<@pageId>_DATA_YEAR2"></th>
+													<th class="<@pageId>_DATA_YEAR3"></th>
 												</tr>
 											</thead>
 						                    <tbody id="<@pageId>_getFinAnalStatusDtl01">
@@ -1015,9 +1107,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 											<thead>
 												<tr>
 													<th>부채 및 자본</th>
-													<th class="<@pageId>_YEAR1"></th>
-													<th class="<@pageId>_YEAR2"></th>
-													<th class="<@pageId>_YEAR3"></th>
+													<th class="<@pageId>_DATA_YEAR1"></th>
+													<th class="<@pageId>_DATA_YEAR2"></th>
+													<th class="<@pageId>_DATA_YEAR3"></th>
 												</tr>
 											</thead>
 						                    <tbody id="<@pageId>_getFinAnalStatusDtl02">
@@ -1089,9 +1181,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 											<thead>
 												<tr>
 													<th>손익계정</th>
-													<th class="<@pageId>_YEAR1"></th>
-													<th class="<@pageId>_YEAR2"></th>
-													<th class="<@pageId>_YEAR3"></th>
+													<th class="<@pageId>_DATA_YEAR1"></th>
+													<th class="<@pageId>_DATA_YEAR2"></th>
+													<th class="<@pageId>_DATA_YEAR3"></th>
 												</tr>
 											</thead>
 						                    <tbody id="<@pageId>_getFinAnalStatusDtl03">
@@ -1145,9 +1237,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 											<thead>
 												<tr>
 													<th>손익계정</th>
-													<th class="<@pageId>_YEAR1"></th>
-													<th class="<@pageId>_YEAR2"></th>
-													<th class="<@pageId>_YEAR3"></th>
+													<th class="<@pageId>_DATA_YEAR1"></th>
+													<th class="<@pageId>_DATA_YEAR2"></th>
+													<th class="<@pageId>_DATA_YEAR3"></th>
 												</tr>
 											</thead>
 						                    <tbody id="<@pageId>_getFinAnalStatusDtl04">
@@ -1209,23 +1301,21 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<thead>
 										<tr>
 											<th>계정명</th>
-											<th class="<@pageId>_YEAR1"></th>
-											<th class="<@pageId>_YEAR2"></th>
-											<th class="<@pageId>_YEAR3"></th>
+											<th class="<@pageId>_DATA_YEAR1"></th>
+											<th class="<@pageId>_DATA_YEAR2"></th>
+											<th class="<@pageId>_DATA_YEAR3"></th>
 										</tr>
 									</thead>
 						            <tbody id="<@pageId>_getFinAnalStatusDtl05">
 						            </tbody>
 						            <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl05_template">
 						 	        {{for list}}
-						 	        	{{if GUBUN == '경비율분석' && ITEM_GUBUN == '경비율'}}
-                                       <tr {{if ITEM_NAME == '매출액' || ITEM_NAME == '주요경비 합계' || ITEM_NAME == '주요경비율'}}class="bg_gray"{{/if}}>
-                                      	<td class="tl">{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
-						 	        	<td class="tr">{{:YEAR1}}</td>
-						 	        	<td class="tr">{{:YEAR2}}</td>
-						 	        	<td class="tr">{{:YEAR3}}</td>
+                                       <tr {{if ITEM_NAME == '매출액' || ITEM_NAME == '주요경비합계' || ITEM_NAME == '주요경비율'}}class="bg_gray"{{/if}}>
+                                      	<td class="tl">{{:ITEM_NAME}}</td>
+						 	        	<td class="tr">{{numb:YEAR1}}{{if ITEM_NAME.indexOf(')') >= 0 || ITEM_NAME == '주요경비율'}}%{{/if}}</td>
+						 	        	<td class="tr">{{numb:YEAR2}}{{if ITEM_NAME.indexOf(')') >= 0 || ITEM_NAME == '주요경비율'}}%{{/if}}</td>
+						 	        	<td class="tr">{{numb:YEAR3}}{{if ITEM_NAME.indexOf(')') >= 0 || ITEM_NAME == '주요경비율'}}%{{/if}}</td>
                                        </tr>
-						 	        	{{/if}}
 						 	        {{/for}}
 						            </script>
 						            <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl05_noData_template">
@@ -1293,9 +1383,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<thead>
 										<tr>
 											<th>구분</th>
-											<th class="<@pageId>_YEAR1"></th>
-											<th class="<@pageId>_YEAR2"></th>
-											<th class="<@pageId>_YEAR3"></th>
+											<th class="<@pageId>_DATA_YEAR1"></th>
+											<th class="<@pageId>_DATA_YEAR2"></th>
+											<th class="<@pageId>_DATA_YEAR3"></th>
 										</tr>
 									</thead>
 						            <tbody id="<@pageId>_getFinAnalStatusDtl06">
@@ -1359,7 +1449,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<dt>경영기간</dt>
 								<dd><span class="<@pageId>_MANAGEMENT_PERIOD"></span>년</dd>
 								<dt>대표자 나이</dt>
-								<dd>만47세</dd>
+								<dd>만<span class="<@pageId>_AGE"></span>세</dd>
 							</dl>
 						</div>
 						<div class="company_cont">
@@ -1402,7 +1492,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<span class="point_color">미처분이익잉여금(결손금)은 -6.4억원</span>으로 이익잉여금 한도내에서 배당과 자기주식 취득이 가능합니다.
 							</div>
 							<div class="com_left_cont mt25">
-								이성욱 대표님 <span class="point_color">13년 뒤 예상 퇴지금 규모는 약 5.3억원</span>입니다.
+								<span class="<@pageId>_OWNER_NM"></span> 대표님 <span class="point_color">13년 뒤 예상 퇴지금 규모는 약 5.3억원</span>입니다.
 							</div>
 							<div class="com_left_cont mt25">CEO 유고시 최소 비상운영자금 <span class="point_color">6.11억원</span>이 부족합니다.
 							</div>

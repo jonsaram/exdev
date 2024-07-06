@@ -18,6 +18,7 @@
 				, TRUNC(MONTHS_BETWEEN(GET_KRDT(SYSDATE), TO_DATE(ESTABLISHMENT_DATE,'YYYY.MM.DD'))/12,1) AS MANAGEMENT_PERIOD
 				, OWNER_NM
 				, OWNER_BIRTHDAY
+				, FLOOR((GET_KRDT(SYSDATE) - TO_DATE(OWNER_BIRTHDAY,'YYYY.MM.DD'))/365) AS AGE
 				, COMPANY_TYPE
 				, SETTLEMENT_MONTH
 				, EMPLOYEE_CNT
@@ -134,10 +135,11 @@
 		   FROM TBL_EXP_FIN_ANAL_STATUS_DTL D,
 		        TBL_EXP_FIN_ANAL_STATUS_MST M,
 		        (
-				   SELECT TO_CHAR(ADD_MONTHS(GET_KRDT(SYSDATE), -12*3),'YYYY') AS YEAR1,
-				          TO_CHAR(ADD_MONTHS(GET_KRDT(SYSDATE), -12*2),'YYYY') AS YEAR2,
-				          TO_CHAR(ADD_MONTHS(GET_KRDT(SYSDATE), -12*1),'YYYY') AS YEAR3
-				   FROM dual
+				   SELECT MAX(YEAR)-2 AS YEAR1,
+		                  MAX(YEAR)-1 AS YEAR2,
+		                  MAX(YEAR) AS YEAR3
+				   FROM TBL_EXP_FIN_ANAL_STATUS_MST
+		          WHERE BUYER_ID = #{BUYER_ID}
 		        ) Y
 		  WHERE M.BUYER_ID = D.BUYER_ID
 		    AND M.YEAR = D.YEAR
@@ -154,8 +156,12 @@
 	<select id="getFinAnalYear" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		   SELECT TO_CHAR(ADD_MONTHS(GET_KRDT(SYSDATE), -12*3),'YYYY')||'년' AS YEAR1,
 		          TO_CHAR(ADD_MONTHS(GET_KRDT(SYSDATE), -12*2),'YYYY')||'년' AS YEAR2,
-		          TO_CHAR(ADD_MONTHS(GET_KRDT(SYSDATE), -12*1),'YYYY')||'년' AS YEAR3
-		   FROM DUAL
+		          TO_CHAR(ADD_MONTHS(GET_KRDT(SYSDATE), -12*1),'YYYY')||'년' AS YEAR3,
+                  MAX(YEAR)-2||'년' AS DATA_YEAR1,
+                  MAX(YEAR)-1||'년' AS DATA_YEAR2,
+                  MAX(YEAR)||'년' AS DATA_YEAR3
+		   FROM TBL_EXP_FIN_ANAL_STATUS_MST
+          WHERE BUYER_ID = #{BUYER_ID}
 	</select>
 	<!--
 	재무상태표,손익계산서, 주요경비율, 인건비 분석
@@ -234,5 +240,56 @@
 		    FROM TBL_EXP_FIN_ANAL_STOCKHOLDER
 		   WHERE COMPANY_RELATIONSHIP != '대표이사'
 		     AND BUYER_ID = #{BUYER_ID}
+	</select>
+	<!--
+	재무상태표 체크사항
+	 -->
+	<select id="getFinAnalRefStr" resultType="java.util.HashMap" flushCache="true"  useCache="false">	
+		 SELECT ETC02, ETC03
+		   FROM TBL_EXP_FIN_ANAL_BASIC_CODE
+		  WHERE ETC02 IS NOT NULL
+		  ORDER BY ORD_NO
+	</select>
+	<!--
+	재무상태표 리스트
+	 -->
+	<select id="getFinAnalBalanceSheet" resultType="java.util.HashMap" flushCache="true"  useCache="false">	
+		SELECT   DISTINCT A.CODE 
+		       , REPLACE(LPAD(' ', 1*(LEVEL-1)),' ','<![CDATA[&nbsp;]]>') || CODE_NM || ETC02 AS CODE_NM
+		       , A.ETC01 
+		       , B.AMOUNT AS AMT1 
+		       , C.AMOUNT AS AMT2 
+		       , D.AMOUNT AS AMT3 
+		       , A.ORD_NO
+		  FROM  TBL_EXP_FIN_ANAL_BASIC_CODE A
+		       ,TBL_EXP_FIN_ANAL_STATUS B
+		       ,TBL_EXP_FIN_ANAL_STATUS C
+		       ,TBL_EXP_FIN_ANAL_STATUS D
+		 WHERE A.CODE = B.CODE(+)
+		   AND A.CODE = C.CODE(+) 
+		   AND A.CODE = D.CODE(+)
+		   AND B.YEAR(+) = TO_CHAR(ADD_MONTHS(SYSDATE, -12*3),'YYYY')
+		   AND C.YEAR(+) = TO_CHAR(ADD_MONTHS(SYSDATE, -12*2),'YYYY')
+		   AND D.YEAR(+) = TO_CHAR(ADD_MONTHS(SYSDATE, -12*1),'YYYY')
+		   AND B.BUYER_ID = #{BUYER_ID}
+		   AND C.BUYER_ID = #{BUYER_ID}
+		   AND D.BUYER_ID = #{BUYER_ID}
+		  START WITH PARENT_CODE IS NULL
+		  CONNECT BY PRIOR A.CODE = PARENT_CODE
+		  ORDER BY A.ORD_NO
+	</select>
+	<!--
+	재무상태표 자산, 유동자산, 비유동자산, 부채, 자본 합산 계산용
+	 -->
+	<select id="getFinAnalSumAmount" resultType="java.util.HashMap" flushCache="true"  useCache="false">		
+		SELECT SUM(DECODE(YEAR,TO_CHAR(ADD_MONTHS(SYSDATE, -12*3),'YYYY'),AMOUNT,0)) AS AMT1,
+			   SUM(DECODE(YEAR,TO_CHAR(ADD_MONTHS(SYSDATE, -12*2),'YYYY'),AMOUNT,0)) AS AMT2,
+			   SUM(DECODE(YEAR,TO_CHAR(ADD_MONTHS(SYSDATE, -12*1),'YYYY'),AMOUNT,0)) AS AMT3
+		  FROM TBL_EXP_FIN_ANAL_STATUS
+		 WHERE BUYER_ID = #{BUYER_ID}
+		   AND CODE IN (SELECT DISTINCT REGEXP_SUBSTR(ETC01, '[^+]+', 1, LEVEL) AS CODES
+						  FROM TBL_EXP_FIN_ANAL_BASIC_CODE
+						 WHERE CODE = #{CODE}
+						CONNECT BY LEVEL <![CDATA[<=]]> LENGTH(REGEXP_REPLACE(ETC01, '[^+]+')) + 1)
 	</select>
 </mapper>
