@@ -208,8 +208,105 @@ var <@pageId> = {
        			K_DATA_LIST.push(data2);
 		        K_DATA_LIST.sort((a,b)=>a.SRT_NUM-b.SRT_NUM);
 		        <@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", K_DATA_LIST);
-				//<@pageId>.showList("<@pageId>_getFinAnalStatusDtl05", resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.showList("<@pageId>_getFinAnalStatusDtl06", resultData.data['financialanalysis.getFinAnalStatusDtl']);
+		        
+				// 인건비분석
+				let LABOR_DATA_LIST = [] ;
+    			let wellbeing_year1 = 0, wellbeing_year2 = 0, wellbeing_year3 = 0;
+    			let laborforce_year1 = 0, laborforce_year2 = 0, laborforce_year3 = 0;
+				resultData.data['financialanalysis.getFinAnalStatusDtl'].forEach(item => {
+					if(item["ITEM_NAME"]=='급여(1)'){
+	        			var data = {
+	        					SRT_NUM :0
+	        					,ITEM_NAME:'급여'
+			        			,YEAR1:Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""))
+			        			,YEAR2:Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""))
+			        			,YEAR3:Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""))
+			        		}
+	        			LABOR_DATA_LIST.push(data);
+	        			
+	        		}else if(item["ITEM_NAME"]=='임원급여'){
+	        			var data = {
+	        					SRT_NUM :1
+	        					,ITEM_NAME:'&nbsp;&nbsp;&nbsp;임원급여'
+			        			,YEAR1:Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""))
+			        			,YEAR2:Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""))
+			        			,YEAR3:Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""))
+			        		}
+	        			LABOR_DATA_LIST.push(data);
+	        		}else if(item["ITEM_NAME"]=='직원급여'){
+	        			var data = {
+	        					SRT_NUM :2
+	        					,ITEM_NAME:'&nbsp;&nbsp;&nbsp;직원급여'
+			        			,YEAR1:Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""))
+			        			,YEAR2:Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""))
+			        			,YEAR3:Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""))
+			        		}
+	        			LABOR_DATA_LIST.push(data);
+	        			/* 현재 계정엔 없다 */
+	        			data = {
+	        					SRT_NUM :3
+	        					,ITEM_NAME:'&nbsp;&nbsp;&nbsp;상여금 및 제수당'
+			        			,YEAR1:0
+			        			,YEAR2:0
+			        			,YEAR3:0
+			        		}
+	        			LABOR_DATA_LIST.push(data);	        			
+	        			data = {
+	        					SRT_NUM :4
+	        					,ITEM_NAME:'&nbsp;&nbsp;&nbsp;잡금'
+			        			,YEAR1:0
+			        			,YEAR2:0
+			        			,YEAR3:0
+			        		}
+	        			LABOR_DATA_LIST.push(data);
+	        		}else if(item["ITEM_NAME"]=='퇴직급여'){
+	        			var data = {
+	        					SRT_NUM :5
+	        					,ITEM_NAME:'퇴직급여'
+			        			,YEAR1:Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""))
+			        			,YEAR2:Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""))
+			        			,YEAR3:Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""))
+			        		}
+	        			LABOR_DATA_LIST.push(data);
+	        		}else if(item["ITEM_NAME"]=='복리후생비(2)'){
+	        			wellbeing_year1 = Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""))
+	        			wellbeing_year2 = Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""))
+	        			wellbeing_year3 = Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""))
+	        			var data = {
+	        					SRT_NUM :7
+	        					,ITEM_NAME:'복리후생비'
+			        			,YEAR1:wellbeing_year1
+			        			,YEAR2:wellbeing_year2
+			        			,YEAR3:wellbeing_year3
+			        		}
+	        			LABOR_DATA_LIST.push(data);
+	        		}else if(item["ITEM_NAME"]=='상시근로자수'){
+	        			laborforce_year1 = Number((item.YEAR1 ? item.YEAR1:'').replaceAll(",",""))
+	        			laborforce_year2 = Number((item.YEAR2 ? item.YEAR2:'').replaceAll(",",""))
+	        			laborforce_year3 = Number((item.YEAR3 ? item.YEAR3:'').replaceAll(",",""))
+	        			var data = {
+        					SRT_NUM :99
+        					,ITEM_NAME:'상시근로자수'
+		        			,YEAR1:laborforce_year1
+		        			,YEAR2:laborforce_year2
+		        			,YEAR3:laborforce_year3
+		        		}
+        			LABOR_DATA_LIST.push(data);
+	        		}
+	        	})
+       			data2 = {
+					SRT_NUM :6, ITEM_NAME:'인건비합계'	,YEAR1:salary_year1	,YEAR2:salary_year2	,YEAR3:salary_year3
+	        	}
+				LABOR_DATA_LIST.push(data2);
+
+       			data2 = {SRT_NUM :7,
+          				ITEM_NAME:'복리후생비/인건비',YEAR1:Math.round(wellbeing_year1/salary_year1*1000)/10
+          											,YEAR2:Math.round(wellbeing_year2/salary_year2*1000)/10
+          											,YEAR3:Math.round(wellbeing_year3/salary_year3*1000)/10
+    	        }
+       			LABOR_DATA_LIST.push(data2);
+       			LABOR_DATA_LIST.sort((a,b)=>a.SRT_NUM-b.SRT_NUM);
+       			<@pageId>.showList("<@pageId>_getFinAnalStatusDtl06", LABOR_DATA_LIST);
 				<@pageId>.showList("<@pageId>_getFinAnalResult01", resultData.data['financialanalysis.getFinAnalResult']);
 				<@pageId>.showList("<@pageId>_getFinAnalResult02", resultData.data['financialanalysis.getFinAnalResult']);
 				<@pageId>.showList("<@pageId>_getFinAnalLifecycleIssue", resultData.data['financialanalysis.getFinAnalLifecycleIssue']);
@@ -218,7 +315,7 @@ var <@pageId> = {
 				<@pageId>.setChart('Hire',resultData.data['financialanalysis.getFinAnalYear'][0],K_DATA_LIST);
 				
 				<@pageId>.setChart('InputLaborForce',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
-				<@pageId>.setChart('LaborCostPerPerson',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
+				<@pageId>.setChart('LaborCostPerPerson',resultData.data['financialanalysis.getFinAnalYear'][0],LABOR_DATA_LIST);
 				<@pageId>.setChart('SaleAmountPerPerson',resultData.data['financialanalysis.getFinAnalYear'][0],resultData.data['financialanalysis.getFinAnalStatusDtl']);
 				
 			});
@@ -260,14 +357,14 @@ var <@pageId> = {
 						getInputLaborForce.push(parseFloat(item.YEAR3.replace(',','')));
 					}
 				}else if(gubun=='LaborCostPerPerson'){
-					if(item.ITEM_NAME == '인건비 합계'){
-						getTotalLaborCost.push(parseFloat(item.YEAR1.replace(',','')));
-						getTotalLaborCost.push(parseFloat(item.YEAR2.replace(',','')));
-						getTotalLaborCost.push(parseFloat(item.YEAR3.replace(',','')));
+					if(item.ITEM_NAME == '인건비합계'){
+						getTotalLaborCost.push(item.YEAR1);
+						getTotalLaborCost.push(item.YEAR2);
+						getTotalLaborCost.push(item.YEAR3);
 					}else if(item.ITEM_NAME == '상시근로자수'){
-						getInputLaborForce.push(parseFloat(item.YEAR1.replace(',','')));
-						getInputLaborForce.push(parseFloat(item.YEAR2.replace(',','')));
-						getInputLaborForce.push(parseFloat(item.YEAR3.replace(',','')));
+						getInputLaborForce.push(item.YEAR1);
+						getInputLaborForce.push(item.YEAR2);
+						getInputLaborForce.push(item.YEAR3);
 					}
 				}else if(gubun=='SaleAmountPerPerson'){
 					if(item.ITEM_NAME == '매출액'){
@@ -283,6 +380,8 @@ var <@pageId> = {
 			})
 			if(gubun=='LaborCostPerPerson'){
 				//debugger;
+				console.log('@@@인건비합',getTotalLaborCost);
+				console.log('@@@상시근로자수',getInputLaborForce);
 				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[0]/getInputLaborForce[0]));
 				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[1]/getInputLaborForce[1]));
 				getLaborCostPerPerson.push(Math.round(getTotalLaborCost[2]/getInputLaborForce[2]));
@@ -1392,14 +1491,14 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						            </tbody>
 						            <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl06_template">
 						 	        {{for list}}
-						 	        	{{if GUBUN == '인건비분석' && ITEM_GUBUN == '인건비'}}
-                                       <tr {{if ITEM_NAME == '인건비 합계' || ITEM_NAME == '복리후생비/인건비'}}class="bg_gray"{{/if}}>
-                                      	<td class="tl">{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
-						 	        	<td class="tr">{{:YEAR1}}</td>
-						 	        	<td class="tr">{{:YEAR2}}</td>
-						 	        	<td class="tr">{{:YEAR3}}</td>
+										{{if ITEM_NAME != '상시근로자수'}}
+                                       <tr {{if ITEM_NAME == '인건비합계' || ITEM_NAME == '복리후생비/인건비'}}class="bg_gray"{{/if}}>
+                                      	<td class="tl">{{:ITEM_NAME}}</td>
+						 	        	<td class="tr">{{numb:YEAR1}}{{if ITEM_NAME.indexOf('/') >= 0}}%{{/if}}</td>
+						 	        	<td class="tr">{{numb:YEAR2}}{{if ITEM_NAME.indexOf('/') >= 0}}%{{/if}}</td>
+						 	        	<td class="tr">{{numb:YEAR3}}{{if ITEM_NAME.indexOf('/') >= 0}}%{{/if}}</td>
                                        </tr>
-						 	        	{{/if}}
+										{{/if}}
 						 	        {{/for}}
 						            </script>
 						            <script type="text/x-jsrender" id="<@pageId>_getFinAnalStatusDtl06_noData_template">
