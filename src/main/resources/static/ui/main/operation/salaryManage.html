@@ -106,7 +106,7 @@ var <@pageId> = {
 					
 					etcDetailList.data.forEach( etc => {
 						
-			 			const trTemplate = $("#<@pageId>_paymentDetailList_ETC_template").render({RN : paymentDetailListCnt++ , PAYMENT_NM : etc.PAYMENT_NM , PAYMENT : etc.PAYMENT, TAX :  etc.TAX , REAL_PAY : etc.REAL_PAY });
+			 			const trTemplate = $("#<@pageId>_paymentDetailList_ETC_template").render({	RN : paymentDetailListCnt++ , PAYMENT_NM : etc.PAYMENT_NM , PAYMENT : etc.PAYMENT,  PAYMENT_ETC_ID : etc.PAYMENT_ETC_ID,	TAX :  etc.TAX , REAL_PAY : etc.REAL_PAY });
 						$("#<@pageId>_paymentDetailList").append(trTemplate);
 						
 					})
@@ -167,7 +167,7 @@ var <@pageId> = {
 		    	})
 		    }
 		}
-		,etcPayment : (mode,paymentNm, payment) =>{
+		,etcPayment : (mode,paymentNm, payment,paymentEtcId) =>{
 
 			let param = <@pageId>.paymentDetailList;
 			
@@ -176,13 +176,12 @@ var <@pageId> = {
 				param.mode='U'				;
 				param.PAYMENT_NM 	= paymentNm;
 				param.PAYMENT 		= payment;
+				param.PAYMENT_ETC_ID= paymentEtcId;
 				
-			}
+			}else mode ="I";
+			
 			C_POP.open('popup_operation_etcPaymentManagePopup', {param:param}, function(retData) {
-				
-				if(isValid(retData)){
-					<@pageId>.searchList();
-				}
+				<@pageId>.searchList();
 			});
 		}
 		,paymentSpec : () =>{
@@ -352,7 +351,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<tr>
 										<td id='RN'							>{{:RN}}</td>
 										<td class="tc" colspan="7"			>
-											<span class="clickable-underline" style="cursor: pointer; text-decoration: underline;" onclick="<@pageId>.etcPayment('U','{{:PAYMENT_NM}}',{{:PAYMENT}});">{{:PAYMENT_NM}}</span>
+											<span class="clickable-underline" style="cursor: pointer; text-decoration: underline;" onclick="<@pageId>.etcPayment('U','{{:PAYMENT_NM}}',{{:PAYMENT}},'{{:PAYMENT_ETC_ID}}');">{{:PAYMENT_NM}}</span>
 										</td>
 										<td id='PAYMENT' class="tr"			>{{numb:PAYMENT}}</td>
 										<td class="tr">{{numb:TAX}}</td>

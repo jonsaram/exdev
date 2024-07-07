@@ -140,6 +140,7 @@
 			$("#<@popupId> .tit").text("기타 수수료 수정");
 			<@popupId>.paymentDetailObj.PAYMENT_NM	= parm.param.PAYMENT_NM;
 			<@popupId>.paymentDetailObj.PAYMENT		= parm.param.PAYMENT;
+			<@popupId>.paymentDetailObj.PAYMENT_ETC_ID= parm.param.PAYMENT_ETC_ID;
 			
 			<@popupId>.searchEtcPayment();
 		}
@@ -151,7 +152,7 @@
 		<div class="modal" style="width:600px;height:500px;">
 			<div class="modal_header">
 				<strong class="tit">기타 수수료 관리</strong>
-				<button type="button" class="btn_close"><span class="sp">팝업 닫기</span></button>
+				<button type="button" class="btn_close"  onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 			</div>
 			<div class="modal_body">
 				<div class="cont_top clearFix mt20">

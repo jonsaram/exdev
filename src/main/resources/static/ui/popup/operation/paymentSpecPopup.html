@@ -1,8 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@popupId> = {
- 
-		close : function(returnData) {
+		rcvData : {}
+		,close : function(returnData) {
 			if(isEmpty(returnData)) returnData = {};
 			C_POP.close(returnData);
 		 }
@@ -16,7 +16,7 @@
 		<div class="modal" style="width:600px;height:600px;">
 			<div class="modal_header">
 				<strong class="tit">급여 명세서</strong>
-				<button type="button" class="btn_close"><span class="sp">팝업 닫기</span></button>
+				<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 			</div>
 			<div class="modal_body">
 				<div class="cont_top clearFix mt20">
@@ -109,7 +109,7 @@
 				</div>
 			</div>
 			<div class="modal_footer">
-				<button type="button" class="btn btn_close">닫기</button>
+				<button type="button" class="btn btn_close" onclick="<@popupId>.close()">닫기</button>
 			</div>
 		</div>
 	</div>

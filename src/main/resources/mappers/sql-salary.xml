@@ -136,7 +136,7 @@
              ,#{BUYER_ID}
              ,#{BUYER_NM}
              ,#{PAYMENT_NM}
-             ,#{PAYMENT}
+             ,REPLACE(#{PAYMENT},',','')
         ) 
     </insert>
     
@@ -150,7 +150,7 @@
 		         #{BUYER_ID} 	AS BUYER_ID,
 		         #{BUYER_NM} 	AS BUYER_NM,
 		         #{PAYMENT_NM} 	AS PAYMENT_NM,
-		         #{PAYMENT} 	AS PAYMENT
+		         REPLACE(#{PAYMENT},',','') 	AS PAYMENT
 		  FROM dual
 		) S
 		ON (T.PAYMENT_ETC_ID	= S.PAYMENT_ETC_ID
@@ -187,6 +187,9 @@
 	 	WHERE ADD_DATE_MONTH = #{RESULT_DATE_MONTH}
 	 	AND USER_ID	= #{USER_ID}
 	 	AND BUYER_ID = #{BUYER_ID}
+	 	<if test=" PAYMENT_ETC_ID !=null and !PAYMENT_ETC_ID.equals('')">
+	 	AND PAYMENT_ETC_ID = #{PAYMENT_ETC_ID}
+	 	</if>
 	 	<if test=" PAYMENT_NM!= null and !PAYMENT_NM.equals('')">
 	 	AND PAYMENT_NM = #{PAYMENT_NM}
 	 	</if>
