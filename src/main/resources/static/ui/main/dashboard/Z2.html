@@ -38,6 +38,11 @@ var <@pageId> = {
 			var parm = {
 				queryGroup : [
 					{
+						 queryId 			: "financialanalysis.getBuyerDetail"
+						,requestParm		: pmt
+					}
+					,
+					{
 						 queryId 			: "financialanalysis.getBasis01"
 						,requestParm		: pmt
 					}
@@ -84,6 +89,7 @@ var <@pageId> = {
 				]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
+				<@pageId>.showObject(resultData.data['financialanalysis.getBuyerDetail'][0],'');
 				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');				
 				<@pageId>.showList("<@pageId>_getFinAnalStockholder", resultData.data['financialanalysis.getFinAnalStockholder']);
 				<@pageId>.showList("<@pageId>_getFinAnalStockholder", resultData.data['financialanalysis.getFinAnalStockholder']);				
@@ -454,7 +460,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<div class="company_left">
 							<div class="com_left_checkP"><i class="icon_analysis2"></i>기업가치평가</div>
 							<img class="com_img" src="../img/icon_company02.png">
-							<div class="com_left_name">이오에프씨(주)</div>
+							<div class="com_left_name"><span class="<@pageId>_COMPANY_NM"></span></div>
 							<div class="com_left_cont mt60">
 								<ul>
 									<li>
@@ -943,12 +949,12 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 											{{if ITEM_NAME == '플랜 적용 전 기업가치' || ITEM_NAME == '배당 플랜 적용 후 기업가치' || ITEM_NAME == '배당&퇴직금 플랜 적용 후 기업가치'}}class="bg_gray"{{/if}}>
                                       	<td {{if ITEM_NAME == '(-)연단 배당금' || ITEM_NAME == '(-)대표이사 퇴직금'}}class="tl pl25"{{else}}class="tl"{{/if}}>
 												{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
-						 	        	<td class="tr">{{:YEAR01}}</td>
-                                        <td class="tr">{{:YEAR02}}</td>
-                                        <td class="tr">{{:YEAR03}}</td>
-                                        <td class="tr">{{:YEAR04}}</td>
-                                        <td class="tr">{{:YEAR05}}</td>
-                                        <td class="tr">{{:YEAR06}}</td>
+						 	        	<td class="tr">{{numb:YEAR01}}</td>
+                                        <td class="tr">{{numb:YEAR02}}</td>
+                                        <td class="tr">{{numb:YEAR03}}</td>
+                                        <td class="tr">{{numb:YEAR04}}</td>
+                                        <td class="tr">{{numb:YEAR05}}</td>
+                                        <td class="tr">{{numb:YEAR06}}</td>
                                        </tr>
 						 	        {{/for}}
 						            </script>

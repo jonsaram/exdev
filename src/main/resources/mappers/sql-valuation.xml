@@ -74,6 +74,7 @@
 			   WHERE A.BUYER_ID = #{BUYER_ID}
 			     AND A.ITEM_NAME = B.ITEM_NAME
 			   GROUP BY B.ITEM_NAME, B.ORDER_NO, A.DEPTH
+			   ORDER BY B.ORDER_NO
 	</select>
 	
 	<!--
