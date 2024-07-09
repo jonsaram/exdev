@@ -4,6 +4,7 @@
     <meta charset='utf-8' />
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.14/index.global.min.js'></script>
+    <script src="https://apis.google.com/js/api.js"></script>
     <script>
 
       document.addEventListener('DOMContentLoaded', function() {
@@ -13,6 +14,7 @@
           googleCalendarApiKey: 'AIzaSyAv7fvLZMg0GuRYPn4v_JLiG0o2jUROLx8',
           events: {
               googleCalendarId: '7838b8bc9283596ac5cfb9510977b466792487fa29200862bad1b7ea1e09266f@group.calendar.google.com'
+            	                 
             	  
           },
           eventClick : function(obj) {
@@ -40,9 +42,91 @@
         calendar.render();
       });
 
+      // 클라이언트 ID와 API 키
+      const CLIENT_ID = "962547459367-qpb0heuh1dhuqh074jdntl5qdia0ht0g.apps.googleusercontent.com";//'YOUR_CLIENT_ID.apps.googleusercontent.com';
+      const API_KEY   = 'AIzaSyAv7fvLZMg0GuRYPn4v_JLiG0o2jUROLx8';
+      const SCOPES    = 'https://www.googleapis.com/auth/calendar.readonly';
+
+      function handleClientLoad() {
+          gapi.load('client:auth2', initClient);
+      }
+
+      function initClient() {
+    	  
+    	  console.log("initClient");
+    	  
+          gapi.client.init({
+              apiKey: API_KEY,
+              clientId: CLIENT_ID,
+              discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
+              scope: SCOPES
+          }).then(() => {
+              gapi.auth2.getAuthInstance().signIn().then(() => {
+                  console.log('User signed in');
+              });
+          });
+      }
+
+      function validateCalendarId(calendarId) {
+          return gapi.client.calendar.calendars.get({
+              'calendarId': calendarId
+          }).then(response => {
+              if (response.result && response.result.id) {
+                  console.log("Calendar ID is valid.");
+                  return true;
+              } else {
+                  console.log("Invalid Calendar ID.");
+                  return false;
+              }
+          }).catch(error => {
+              console.error("Error validating Calendar ID: ", error);
+              return false;
+          });
+      }
+
+      // 예제 사용법
+      function checkCalendar() {
+          const calendarId = '7838b8bc9283596ac5cfb9510977b466792487fa29200862bad1b7ea1e09266f@group.calendar.google.com';
+          validateCalendarId(calendarId).then(isValid => {
+              if (isValid) {
+                  console.log("Calendar ID is valid, proceed with event insertion.");
+                  // 여기에 이벤트 삽입 로직을 작성
+                  const event = {
+                      'summary': 'Sample Event',
+                      'location': 'Sample Location',
+                      'description': 'Sample Description',
+                      'start': {
+                          'dateTime': '2023-07-19T09:00:00',
+                          'timeZone': 'Asia/Seoul'
+                      },
+                      'end': {
+                          'dateTime': '2023-07-19T10:00:00',
+                          'timeZone': 'Asia/Seoul'
+                      }
+                  };
+
+                  gapi.client.calendar.events.insert({
+                      'calendarId': calendarId,
+                      'resource': event
+                  }).execute(event => {
+                      if (event.id) {
+                          console.log("=== event.id ===>" + event.id);
+                          // 이벤트 삽입 후 처리 로직 작성
+                      } else {
+                          console.log("Event insertion failed.");
+                      }
+                  });
+              } else {
+                  console.log("Invalid Calendar ID, cannot proceed with event insertion.");
+              }
+          });
+      }
+      
     </script>
   </head>
-  <body>
+   <body onload="handleClientLoad()">
+    
+    <button type="button" id="btnCert"   class="btn select" onclick="checkCalendar()" >구글인증</button>
     <div id='calendar'></div>
   </body>
 </html>

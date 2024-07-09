@@ -4,65 +4,29 @@
 
 <mapper namespace="schedule">
 
-	<cache />
-	<!-- 팀원조회 -->
+    <cache />
+    <!-- 팀원조회 -->
     <select id="getTeamMember" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.getTeamMember */
-		SELECT  USER_ID
-		       ,GET_USER_NM(USER_ID) AS USER_NM
-		FROM   TBL_EXP_TEAM_MEMBER A
-		       JOIN (SELECT SP_CSTM_ID
-		              ,CONTRACT_ID
-		        FROM   TBL_EXP_TEAM_MEMBER
-		        WHERE  1 = 1
-		        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
-		        AND    USER_ID    = #{sessionVo.userId}
-		        AND    ROWNUM <![CDATA[<]]> 2 
-		       ) B
-		         ON  1 = 1
-		         AND A.SP_CSTM_ID = B.SP_CSTM_ID
-		         AND A.CONTRACT_ID = B.CONTRACT_ID
-		WHERE  1 = 1           
-		AND    USER_ID != #{sessionVo.userId}
+        SELECT  USER_ID
+               ,GET_USER_NM(USER_ID) AS USER_NM
+        FROM   TBL_EXP_TEAM_MEMBER A
+               JOIN (SELECT SP_CSTM_ID
+                      ,CONTRACT_ID
+                FROM   TBL_EXP_TEAM_MEMBER
+                WHERE  1 = 1
+                AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    USER_ID    = #{sessionVo.userId}
+                AND    ROWNUM <![CDATA[<]]> 2 
+               ) B
+                 ON  1 = 1
+                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
+                 AND A.CONTRACT_ID = B.CONTRACT_ID
+        WHERE  1 = 1           
+        AND    USER_ID != #{sessionVo.userId}
     </select>
     
-	<!-- 중복 일정체크  이응규 -->
-    <select id="scheduleDuplicationCheck" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /* schedule.scheduleDuplicationCheck */
-        WITH SCHEDULE AS (
-            SELECT SCHEDULE_ID
-                  ,TO_CHAR(SCHEDULE_DATE ,'YYYY-MM-DD') AS SCHEDULE_DATE
-                  ,TO_DATE(TO_CHAR(SCHEDULE_DATE ,'YYYY-MM-DD')||LPAD(START_TIME_HOUR, 2, '0')||':'||START_TIME_MINUTE||':00', 'YYYY-MM-DD HH24:MI:SS') AS START_DATE
-                  ,TO_DATE(TO_CHAR(SCHEDULE_DATE ,'YYYY-MM-DD')||LPAD(END_TIME_HOUR, 2, '0')||':'||END_TIME_MINUTE||':00', 'YYYY-MM-DD HH24:MI:SS') AS END_DATE
-            FROM   TBL_EXP_SCHEDULE
-            WHERE  1 = 1
-            AND    USER_ID    = #{sessionVo.userId}
-            AND    SP_CSTM_ID = #{sessionVo.spCstmId}
-            ORDER BY SCHEDULE_DATE
-        )
-        SELECT SCHEDULE.SCHEDULE_ID
-              ,SCHEDULE.SCHEDULE_DATE
-              ,SCHEDULE.START_DATE
-              ,SCHEDULE.END_DATE
-        FROM  (
-                SELECT TO_DATE(#{startDate}, 'YYYY-MM-DD HH24:MI:SS') AS START_DATE
-                      ,TO_DATE(#{endDate},   'YYYY-MM-DD HH24:MI:SS') AS END_DATE
-                FROM   DUAL
-              ) CHECK_DATA
-             ,SCHEDULE
-        WHERE 1 = 1
-        AND    (
-                   CHECK_DATA.START_DATE  BETWEEN SCHEDULE.START_DATE  AND  SCHEDULE.END_DATE 
-                OR CHECK_DATA.END_DATE    BETWEEN SCHEDULE.START_DATE  AND  SCHEDULE.END_DATE
-               )
-        OR     (
-                   SCHEDULE.START_DATE  BETWEEN CHECK_DATA.START_DATE  AND  CHECK_DATA.END_DATE 
-                OR SCHEDULE.END_DATE    BETWEEN CHECK_DATA.START_DATE  AND  CHECK_DATA.END_DATE
-               )        
-        ORDER BY SCHEDULE.START_DATE
-    </select>
-    
-	<!-- 일정공유 마스터 입력  이응규 -->
+    <!-- 일정공유 마스터 입력  이응규 -->
     <insert id="insertScheduleMsater" parameterType="map" >
         /* schedule.insertScheduleMsater */
         INSERT INTO TBL_EXP_SCHEDULE_MASTER (
@@ -109,7 +73,6 @@
         </if>
     </select>
     
-    
     <update id="updateSchedule" parameterType="java.util.HashMap"  flushCache="true" >
         /*  schedule.updateSchedule */
         UPDATE TBL_EXP_SCHEDULE        
@@ -131,11 +94,65 @@
               ,DESCRIPTION             = #{description, jdbcType=VARCHAR}
               ,CONTRACT_ID             = #{contractId, jdbcType=VARCHAR}
               ,UPDATE_USER             = #{sessionVo.userId}
-              ,UPDATE_DATE             = GET_KRDT(SYSDATE)
+              ,UPDATE_DATE             = SYSDATE
         WHERE 1 = 1
         AND    SCHEDULE_ID = #{scheduleId}
         AND    USER_ID     = #{sessionVo.userId}
         AND    SP_CSTM_ID  = #{sessionVo.spCstmId}
+    </update>
+    
+    <update id="updateGoogleSchedule" parameterType="java.util.HashMap"  flushCache="true"  >
+        /*  schedule.updateGoogleSchedule */
+        UPDATE TBL_EXP_SCHEDULE        
+        SET    UPDATE_USER              = #{userId}
+              ,UPDATE_DATE              = SYSDATE
+              <if test=" title != null and title != '' " >
+                  ,TITLE = #{title, jdbcType=VARCHAR}
+              </if>
+              <if test=" scheduleStartDate != null and scheduleStartDate != '' " >
+                  ,SCHEDULE_START_DATE = (TO_DATE(#{scheduleStartDate}, 'yyyy-mm-dd'))
+              </if>
+              <if test=" startTimeH != null and startTimeH != '' " >
+                  ,START_TIME_HOUR = #{startTimeH, jdbcType=VARCHAR}
+              </if>
+              <if test=" startTimeM != null and startTimeM != '' " >
+                  ,START_TIME_MINUTE = #{startTimeM, jdbcType=VARCHAR}
+              </if>
+              <if test=" scheduleEndDate != null and scheduleEndDate != '' " >
+                  ,SCHEDULE_END_DATE = (TO_DATE(#{scheduleEndDate}, 'yyyy-mm-dd'))
+              </if>
+              <if test=" endTimeH != null and endTimeH != '' " >
+                  ,END_TIME_HOUR = #{endTimeH, jdbcType=VARCHAR}
+              </if>
+              <if test=" endTimeM != null and endTimeM != '' " >
+                  ,END_TIME_MINUTE = #{endTimeM, jdbcType=VARCHAR}
+              </if>
+              <if test=" description != null and description != '' " >
+                  ,DESCRIPTION = #{description, jdbcType=VARCHAR}
+              </if>
+              <if test=" position != null and position != '' " >
+                  ,POSITION = #{position, jdbcType=VARCHAR}
+              </if>
+        WHERE 1 = 1
+        AND    USER_ID     = #{userId}
+        AND    SP_CSTM_ID  = #{spCstmId}
+        <if test=" googleCalendarId != null and googleCalendarId != '' " >
+            AND    GOOGLE_CALENDAR_EVENT_ID = #{googleCalendarId}
+        </if>
+    </update>
+    
+    <update id="updateGoogleSchedule1" parameterType="java.util.HashMap"  flushCache="true"  >
+        /*  schedule.updateGoogleSchedule1 */
+        UPDATE TBL_EXP_SCHEDULE        
+        SET    UPDATE_USER              = #{userId}
+              ,UPDATE_DATE              = SYSDATE
+              <if test=" googleCalendarEventId != null and googleCalendarEventId != '' " >
+                  ,GOOGLE_CALENDAR_EVENT_ID = #{googleCalendarEventId}
+              </if>
+        WHERE 1 = 1
+        AND    USER_ID     = #{userId}
+        AND    SP_CSTM_ID  = #{spCstmId}
+        AND    SCHEDULE_ID = #{scheduleId}
     </update>
     
     <delete id="deleteSchedule" parameterType="java.util.HashMap"  flushCache="true" >
@@ -164,6 +181,37 @@
             AND    SP_CSTM_ID  = #{spCstmId}
         </if>
     </delete>
+    
+    <!-- 일정삭제 로그 입력  이응규 -->
+    <insert id="insertScheduleDel" parameterType="map" >
+        /* schedule.insertScheduleDel */
+        INSERT INTO TBL_EXP_SCHEDULE_DEL ( 
+                SP_CSTM_ID
+               ,SCHEDULE_ID
+               ,SCHEDULE_GRP_ID
+               ,GOOGLE_CALENDAR_EVENT_ID
+               ,CREATE_USER
+               ,CREATE_DATE
+        )
+        SELECT  SP_CSTM_ID
+               ,SCHEDULE_ID
+               ,SCHEDULE_GRP_ID
+               ,GOOGLE_CALENDAR_EVENT_ID
+               ,#{delUserId}   
+               ,SYSDATE
+        FROM    TBL_EXP_SCHEDULE
+        WHERE  1 = 1
+        <if test=" scheduleGrpId != null and scheduleGrpId != '' ">
+            AND    SCHEDULE_GRP_ID =  #{scheduleGrpId}
+        </if>
+        <if test=" scheduleId != null and scheduleId != '' " >
+            AND   SCHEDULE_ID = #{scheduleId} 
+        </if>
+        <if test=" delSpCstmId != null and delSpCstmId != '' " >
+            AND    SP_CSTM_ID  = #{delSpCstmId} 
+        </if>
+    </insert>
+    
     
     <!-- 일정 입력  이응규 -->
     <insert id="insertSchedule" parameterType="map" >
@@ -216,7 +264,72 @@
              ,#{description}                                     
              ,#{sessionVo.userId}                                
              ,#{sessionVo.userId}                                
-             ,GET_KRDT(SYSDATE)  
+             ,SYSDATE  
+        )
+    </insert>
+    
+    <!-- 일정 입력  이응규 -->
+    <insert id="insertGoogleSchedule" parameterType="map" >
+        /* schedule.insertGoogleSchedule */
+        INSERT INTO TBL_EXP_SCHEDULE (
+              SP_CSTM_ID             
+             ,SCHEDULE_ID            
+             ,SCHEDULE_GRP_ID        
+             ,LOOP_TYPE              
+             ,LOOP_TYPE_DTL_CD
+                    
+             ,LOOP_TYPE_DTL_VAL      
+             ,SCHEDULE_LOOP_END_DATE 
+             ,TITLE                  
+             ,WORK_TYPE             
+             ,TIME_TYPE
+                           
+             ,SCHEDULE_START_DATE    
+             ,START_TIME_HOUR        
+             ,START_TIME_MINUTE      
+             ,SCHEDULE_END_DATE      
+             ,END_TIME_HOUR
+                       
+             ,END_TIME_MINUTE        
+             ,CONTRACT_ID            
+             ,POSITION               
+             ,SECRET_YN              
+             ,DESCRIPTION
+                         
+             ,USER_ID    
+             ,GOOGLE_CALENDAR_EVENT_ID            
+             ,CREATE_USER            
+             ,CREATE_DATE         
+        )
+        VALUES(
+              #{spCstmId, jdbcType=VARCHAR}
+             ,#{scheduleId, jdbcType=VARCHAR}
+             ,#{scheduleGrpId, jdbcType=VARCHAR}
+             ,#{loopType, jdbcType=VARCHAR}
+             ,#{loopTypeDtlCd, jdbcType=VARCHAR}
+             
+             ,#{loopTypeDtlVal, jdbcType=VARCHAR}
+             ,(TO_DATE(#{loopLimitDate}, 'yyyy-mm-dd'))
+             ,#{title, jdbcType=VARCHAR}
+             ,#{workType, jdbcType=VARCHAR}
+             ,#{timeType, jdbcType=VARCHAR}
+             
+             ,(TO_DATE(#{scheduleStartDate}, 'yyyy-mm-dd'))
+             ,#{startTimeH, jdbcType=VARCHAR}
+             ,#{startTimeM, jdbcType=VARCHAR}                                      
+             ,(TO_DATE(#{scheduleEndDate}, 'yyyy-mm-dd'))
+             ,#{endTimeH, jdbcType=VARCHAR}
+             
+             ,#{startTimeM, jdbcType=VARCHAR}
+             ,#{contractId, jdbcType=VARCHAR}
+             ,#{position, jdbcType=VARCHAR}
+             ,#{secretYn, jdbcType=VARCHAR}
+             ,#{description, jdbcType=VARCHAR}
+             
+             ,#{userId, jdbcType=VARCHAR}
+             ,#{googleCalendarEventId, jdbcType=VARCHAR}
+             ,#{userId, jdbcType=VARCHAR}                                
+             ,SYSDATE  
         )
     </insert>
     
@@ -541,28 +654,49 @@
         </if>
     </select>
 
-    <select id="getScheduleListInContract" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		SELECT 
-			 SCHEDULE_ID
-			,SCHEDULE_GRP_ID
-			,TITLE
-			,WORK_TYPE
-			,ALL_APPLY_YN
-			,TO_CHAR(SCHEDULE_START_DATE ,'MM-DD HH24:MI') AS SCHEDULE_DATE
-			,TIME_TYPE
-			,START_TIME_HOUR
-			,START_TIME_MINUTE
-			,END_TIME_HOUR
-			,END_TIME_MINUTE
-			,POSITION
-			,SECRET_YN
-			,DESCRIPTION
-			,USER_ID
-			,SP_CSTM_ID
-			,CONTRACT_ID
-		FROM TBL_EXP_SCHEDULE
-		WHERE	
-			CONTRACT_ID = #{CONTRACT_ID}
+    <select id="getSchedule" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        SELECT SCHEDULE_ID
+              ,SCHEDULE_GRP_ID
+              ,TITLE
+              ,LOOP_TYPE              
+              ,LOOP_TYPE_DTL_CD       
+              ,LOOP_TYPE_DTL_VAL      
+              ,SCHEDULE_LOOP_END_DATE
+              ,WORK_TYPE
+              ,ALL_APPLY_YN
+              ,TO_CHAR(SCHEDULE_START_DATE ,'YYYY-MM-DD') AS SCHEDULE_START_DAY
+              ,TO_CHAR(SCHEDULE_END_DATE ,'YYYY-MM-DD')   AS SCHEDULE_END_DAY
+              ,TIME_TYPE
+              ,START_TIME_HOUR
+              ,START_TIME_MINUTE
+              ,END_TIME_HOUR
+              ,END_TIME_MINUTE
+              ,POSITION
+              ,SECRET_YN
+              ,DESCRIPTION
+              ,USER_ID
+              ,SP_CSTM_ID
+              ,CONTRACT_ID
+              ,GOOGLE_CALENDAR_EVENT_ID
+        FROM   TBL_EXP_SCHEDULE
+        WHERE  1 = 1
+        AND    USER_ID     = #{sessionVo.userId}
+        AND    SP_CSTM_ID  = #{sessionVo.spCstmId}
+        <if test=" userId != null and userId != '' " >
+            AND    USER_ID     = #{userId}
+        </if>
+        <if test=" spCstmId != null and spCstmId != '' " >
+            AND    SP_CSTM_ID     = #{spCstmId}
+        </if>
+        <if test=" googleEventId != null and googleEventId != '' " >
+            AND    GOOGLE_CALENDAR_EVENT_ID = #{googleEventId}
+        </if>
+        <if test=" googleEventId != null and googleEventId != '' " >
+            AND    GOOGLE_CALENDAR_EVENT_ID = #{googleEventId}
+        </if>
+        <if test=" startDay != null and startDay != '' " >
+            AND   SCHEDULE_START_DATE BETWEEN TO_DATE( #{startDay}, 'YYYY-MM-DD HH24:MI:SS')   AND  TO_DATE( #{endDay}, 'YYYY-MM-DD HH24:MI:SS')
+        </if>
     </select>
 
     <!-- 반복안함 -->
@@ -576,18 +710,19 @@
             FROM   DUAL 
             CONNECT BY LEVEL <![CDATA[<=]]> TO_DATE(#{plusDate},'YYYY-MM-DD') - TO_DATE(#{minusDate},'YYYY-MM-DD')
         )
-        SELECT  A.SCHEDULE_ID     
-               ,D.DTE     AS SCHEDULE_DATE 
+        SELECT  A.SCHEDULE_ID                               AS SCHEDULE_ID     
+               ,D.DTE                                       AS SCHEDULE_DATE 
                ,TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
                ,TO_CHAR(A.SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE 
-               ,LPAD(A.START_TIME_HOUR , 2, '0')      AS START_TIME_HOUR
-               ,A.START_TIME_MINUTE 
-               ,LPAD(A.END_TIME_HOUR , 2, '0')        AS END_TIME_HOUR  
-               ,A.END_TIME_MINUTE 
-               ,A.TITLE                   
-               ,'N' AS SHARE_YN
-               ,B.ATTR1  AS WORK_COLOR     
-               ,B.ATTR2  AS TEXT_COLOR
+               ,LPAD(A.START_TIME_HOUR , 2, '0')            AS START_TIME_HOUR
+               ,A.START_TIME_MINUTE                         AS START_TIME_MINUTE
+               ,LPAD(A.END_TIME_HOUR , 2, '0')              AS END_TIME_HOUR  
+               ,A.END_TIME_MINUTE                           AS END_TIME_MINUTE   
+               ,A.TITLE                                     AS TITLE     
+               ,A.GOOGLE_CALENDAR_EVENT_ID                  AS GOOGLE_CALENDAR_EVENT_ID       
+               ,'N'                                         AS SHARE_YN
+               ,B.ATTR1                                     AS WORK_COLOR     
+               ,B.ATTR2                                     AS TEXT_COLOR
         FROM   TBL_EXP_SCHEDULE A
                JOIN (
                     SELECT A.GRP_CODE_ID
@@ -627,7 +762,8 @@
               ,A.START_TIME_MINUTE 
               ,LPAD(A.END_TIME_HOUR , 2, '0')        AS END_TIME_HOUR  
               ,A.END_TIME_MINUTE 
-              ,A.TITLE                   
+              ,A.TITLE        
+              ,A.GOOGLE_CALENDAR_EVENT_ID                  AS GOOGLE_CALENDAR_EVENT_ID               
               ,'Y'      AS SHARE_YN
               ,B.ATTR1  AS WORK_COLOR     
               ,B.ATTR2  AS TEXT_COLOR
@@ -769,6 +905,7 @@
                                   ,LOOP_TYPE_DTL_CD      
                                   ,LOOP_TYPE_DTL_VAL     
                                   ,SCHEDULE_LOOP_END_DATE
+                                  ,GOOGLE_CALENDAR_EVENT_ID
                                   ,TITLE                 
                                   ,WORK_TYPE             
                                   ,ALL_APPLY_YN          
@@ -806,19 +943,20 @@
                                   )
                            ORDER BY DTE
                             )
-        SELECT A.SCHEDULE_GRP_ID
-              ,A.SCHEDULE_ID
-              ,B.DTE                AS SCHEDULE_DATE
-              ,B.DTE                AS SCHEDULE_START_DATE
-              ,A.START_TIME_HOUR
-              ,A.START_TIME_MINUTE
-              ,B.DTE                AS SCHEDULE_END_DATE
-              ,A.END_TIME_HOUR
-              ,A.END_TIME_MINUTE
-              ,A.TITLE
-               ,'N'                 AS SHARE_YN
-              ,C.ATTR1              AS WORK_COLOR
-              ,C.ATTR2              AS TEXT_COLOR
+        SELECT A.SCHEDULE_GRP_ID            AS SCHEDULE_GRP_ID
+              ,A.SCHEDULE_ID                AS SCHEDULE_ID
+              ,B.DTE                        AS SCHEDULE_DATE
+              ,B.DTE                        AS SCHEDULE_START_DATE
+              ,A.START_TIME_HOUR            AS START_TIME_HOUR
+              ,A.START_TIME_MINUTE          AS START_TIME_MINUTE
+              ,B.DTE                        AS SCHEDULE_END_DATE
+              ,A.END_TIME_HOUR              AS END_TIME_HOUR
+              ,A.END_TIME_MINUTE            AS END_TIME_MINUTE
+              ,A.GOOGLE_CALENDAR_EVENT_ID   AS GOOGLE_CALENDAR_EVENT_ID
+              ,A.TITLE                      AS TITLE
+               ,'N'                         AS SHARE_YN
+              ,C.ATTR1                      AS WORK_COLOR
+              ,C.ATTR2                      AS TEXT_COLOR
         FROM   TABLE_SCHEDULE A
                JOIN TABLE_DATE B
                  ON  1 = 1
@@ -846,19 +984,20 @@
         AND A.USER_ID     = #{sessionVo.userId}
         AND B.DTE <![CDATA[<=]]>  TO_CHAR(SCHEDULE_LOOP_END_DATE,'YYYY-MM-DD')
         UNION ALL
-        SELECT A.SCHEDULE_GRP_ID
-              ,A.SCHEDULE_ID
-              ,B.DTE                AS SCHEDULE_DATE
-              ,B.DTE                AS SCHEDULE_START_DATE
-              ,A.START_TIME_HOUR
-              ,A.START_TIME_MINUTE
-              ,B.DTE                AS SCHEDULE_END_DATE
-              ,A.END_TIME_HOUR
-              ,A.END_TIME_MINUTE
-              ,A.TITLE
-               ,'Y'                 AS SHARE_YN
-              ,C.ATTR1              AS WORK_COLOR
-              ,C.ATTR2              AS TEXT_COLOR
+        SELECT A.SCHEDULE_GRP_ID            AS SCHEDULE_GRP_ID
+              ,A.SCHEDULE_ID                AS SCHEDULE_ID
+              ,B.DTE                        AS SCHEDULE_DATE
+              ,B.DTE                        AS SCHEDULE_START_DATE
+              ,A.START_TIME_HOUR            AS START_TIME_HOUR
+              ,A.START_TIME_MINUTE          AS START_TIME_MINUTE
+              ,B.DTE                        AS SCHEDULE_END_DATE
+              ,A.END_TIME_HOUR              AS END_TIME_HOUR
+              ,A.END_TIME_MINUTE            AS END_TIME_MINUTE
+              ,A.GOOGLE_CALENDAR_EVENT_ID   AS GOOGLE_CALENDAR_EVENT_ID
+              ,A.TITLE                      AS TITLE    
+               ,'Y'                         AS SHARE_YN
+              ,C.ATTR1                      AS WORK_COLOR
+              ,C.ATTR2                      AS TEXT_COLOR
         FROM   TABLE_SCHEDULE A
                JOIN TABLE_DATE B
                  ON  1 = 1
@@ -1075,6 +1214,7 @@
               ,A.END_TIME_HOUR
               ,A.END_TIME_MINUTE
               ,A.SCHEDULE_LOOP_END_DATE
+              ,A.GOOGLE_CALENDAR_EVENT_ID
               ,A.TITLE
               ,A.SHARE_YN
               ,A.WORK_COLOR
@@ -1097,6 +1237,7 @@
                       , B.END_TIME_HOUR
                       , B.END_TIME_MINUTE
                       , B.SCHEDULE_LOOP_END_DATE
+                      , B.GOOGLE_CALENDAR_EVENT_ID
                       , B.TITLE
                       , A.SHARE_YN           AS SHARE_YN
                       , C.ATTR1              AS WORK_COLOR
@@ -1436,6 +1577,7 @@
                               ,A.LOOP_TYPE_DTL_CD      
                               ,A.LOOP_TYPE_DTL_VAL     
                               ,A.SCHEDULE_LOOP_END_DATE
+                              ,A.GOOGLE_CALENDAR_EVENT_ID
                               ,A.TITLE                 
                               ,A.WORK_TYPE             
                               ,A.ALL_APPLY_YN          
@@ -1485,6 +1627,7 @@
                               ,A.LOOP_TYPE_DTL_CD      
                               ,A.LOOP_TYPE_DTL_VAL     
                               ,A.SCHEDULE_LOOP_END_DATE
+                              ,A.GOOGLE_CALENDAR_EVENT_ID
                               ,A.TITLE                 
                               ,A.WORK_TYPE             
                               ,A.ALL_APPLY_YN          
@@ -1528,6 +1671,7 @@
                         AND    A.LOOP_TYPE_DTL_CD IS NULL
                 )
         SELECT SCHEDULE_ID
+              ,GOOGLE_CALENDAR_EVENT_ID
               ,TITLE
               ,SCHEDULE_DATE 
               ,SCHEDULE_START_DATE
@@ -1543,6 +1687,7 @@
         FROM   (
                 /*================================================================*/
                 SELECT SCHEDULE_ID
+                      ,GOOGLE_CALENDAR_EVENT_ID
                       ,TITLE
                       ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
                       ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
@@ -1576,6 +1721,7 @@
                            AND TABLE_END_DAY.WORK_TYPE = B.CODE_ID  
                 UNION ALL
                 SELECT SCHEDULE_ID
+                      ,GOOGLE_CALENDAR_EVENT_ID
                       ,TITLE
                       ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
                       ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
@@ -1623,6 +1769,7 @@
                               ,A.LOOP_TYPE_DTL_CD      
                               ,A.LOOP_TYPE_DTL_VAL     
                               ,A.SCHEDULE_LOOP_END_DATE
+                              ,A.GOOGLE_CALENDAR_EVENT_ID
                               ,A.TITLE                 
                               ,A.WORK_TYPE             
                               ,A.ALL_APPLY_YN          
@@ -1676,6 +1823,7 @@
                       ,A.END_TIME_HOUR
                       ,A.END_TIME_MINUTE
                       ,A.SCHEDULE_LOOP_END_DATE
+                      ,A.GOOGLE_CALENDAR_EVENT_ID
                       ,A.SHARE_YN
                       ,B.ATTR1              AS WORK_COLOR
                       ,B.ATTR2              AS TEXT_COLOR
@@ -1691,6 +1839,7 @@
                                 ,END_TIME_HOUR
                                 ,END_TIME_MINUTE
                                 ,SCHEDULE_LOOP_END_DATE
+                                ,GOOGLE_CALENDAR_EVENT_ID
                                 ,SHARE_YN
                                 ,WORK_TYPE
                           FROM   TABLE_SELECT_DAY
@@ -2537,7 +2686,8 @@
                         /*월의 마지막일 - 월의 마지막일*/
                         SELECT A.SP_CSTM_ID            
                               ,A.SCHEDULE_ID           
-                              ,A.SCHEDULE_GRP_ID       
+                              ,A.SCHEDULE_GRP_ID  
+                              ,A.GOOGLE_CALENDAR_EVENT_ID     
                               ,A.LOOP_TYPE             
                               ,A.LOOP_TYPE_DTL_CD      
                               ,A.LOOP_TYPE_DTL_VAL     
@@ -2588,7 +2738,8 @@
                         /*월의 마지막일 - 선택일*/
                         SELECT A.SP_CSTM_ID            
                               ,A.SCHEDULE_ID           
-                              ,A.SCHEDULE_GRP_ID       
+                              ,A.SCHEDULE_GRP_ID 
+                              ,A.GOOGLE_CALENDAR_EVENT_ID      
                               ,A.LOOP_TYPE             
                               ,A.LOOP_TYPE_DTL_CD      
                               ,A.LOOP_TYPE_DTL_VAL     
@@ -2639,7 +2790,8 @@
                /*월의 일반일*/
                 SELECT A.SP_CSTM_ID            
                       ,A.SCHEDULE_ID           
-                      ,A.SCHEDULE_GRP_ID       
+                      ,A.SCHEDULE_GRP_ID 
+                      ,A.GOOGLE_CALENDAR_EVENT_ID      
                       ,A.LOOP_TYPE             
                       ,A.LOOP_TYPE_DTL_CD      
                       ,A.LOOP_TYPE_DTL_VAL     
@@ -2721,6 +2873,7 @@
                /* 월의 마지막날-자동 */
                SELECT SCHEDULE_ID
                      ,TITLE
+                     ,GOOGLE_CALENDAR_EVENT_ID
                      ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
                      ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
                      ,START_TIME_HOUR
@@ -2743,6 +2896,7 @@
                /* 월의 마지막날-선택 */
                SELECT SCHEDULE_ID
                      ,TITLE
+                     ,GOOGLE_CALENDAR_EVENT_ID
                      ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
                      ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
                      ,START_TIME_HOUR
@@ -2765,6 +2919,7 @@
                /* 월의 일반날 */
                SELECT SCHEDULE_ID
                      ,TITLE
+                     ,GOOGLE_CALENDAR_EVENT_ID
                      ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
                      ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
                      ,START_TIME_HOUR
@@ -3049,6 +3204,93 @@
             AND   A.TITLE LIKE '%'||#{searchData}||'%'
         </if>
     </select> 
-     
+    
+    <select id="getUserInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getUserInfo */
+        SELECT GOOGLE_CALENDAR_ID
+              ,GOOGLE_CALENDAR_SYN_YN
+        FROM   TBL_EXP_USER
+        WHERE  1 = 1
+        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+        AND    USER_ID    = #{sessionVo.userId}
+    </select> 
+    
+    <update id="saveUserGoogleCalendar" parameterType="map" >
+        /* schedule.saveUserGoogleCalendar */
+        UPDATE TBL_EXP_USER SET
+             GOOGLE_CALENDAR_ID      = #{googleCalendarId}
+            ,GOOGLE_CALENDAR_SYN_YN  = #{googleCalendarSynYn}
+            ,UPDATE_USER             = #{sessionVo.userId}
+            ,UPDATE_DATE             = sysdate
+        WHERE 1=1
+        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+        AND    USER_ID    = #{sessionVo.userId}   
+    </update>
+    
+    <select id="getScheduleDel" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getScheduleDel */
+        SELECT MAX(SCHEDULE_EXIST)     AS SCHEDULE_EXIST
+              ,MAX(SCHEDULE_DEL_EXIST) AS SCHEDULE_DEL_EXIST
+        FROM   (
+                    /* SCHEDULE_DEL 에 존재하는지 확인*/
+                    SELECT NULL                          AS SCHEDULE_EXIST
+                          ,DECODE(COUNT(1), 0, 'N', 'Y') AS SCHEDULE_DEL_EXIST
+                    FROM   TBL_EXP_SCHEDULE_DEL
+                    WHERE  1 = 1
+                    AND    SP_CSTM_ID = #{spCstmId}
+                    AND    GOOGLE_CALENDAR_EVENT_ID = #{googleCalendarEventId}
+                    UNION ALL
+                    /* SCHEDULE 에 존재하는지 확인*/
+                    SELECT DECODE(COUNT(1), 0, 'N', 'Y')  AS SCHEDULE_EXIST
+                          ,NULL                           AS SCHEDULE_DEL_EXIST
+                    FROM   TBL_EXP_SCHEDULE
+                    WHERE  1 = 1
+                    AND    SP_CSTM_ID = #{spCstmId}
+                    AND    GOOGLE_CALENDAR_EVENT_ID = #{googleCalendarEventId}
+               )
+    </select>
+
+    <select id="getScheduleGoogle" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getScheduleGoogle */
+        SELECT SP_CSTM_ID
+              ,SCHEDULE_ID            
+              ,SCHEDULE_GRP_ID        
+              ,LOOP_TYPE              
+              ,LOOP_TYPE_DTL_CD       
+              ,LOOP_TYPE_DTL_VAL      
+              ,TO_CHAR(SCHEDULE_LOOP_END_DATE,'YYYY-MM-DD')  AS SCHEDULE_LOOP_END_DATE 
+              ,TITLE                  
+              ,WORK_TYPE              
+              ,ALL_APPLY_YN        
+              ,TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
+              ,TO_CHAR(SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE  
+              ,TIME_TYPE              
+              ,START_TIME_HOUR        
+              ,START_TIME_MINUTE      
+              ,END_TIME_HOUR          
+              ,END_TIME_MINUTE        
+              ,CONTRACT_ID            
+              ,POSITION               
+              ,SECRET_YN              
+              ,DESCRIPTION            
+              ,USER_ID
+              ,UPDATE_USER            
+              ,UPDATE_DATE            
+              ,CREATE_USER
+              ,CREATE_DATE
+              ,GOOGLE_CALENDAR_EVENT_ID
+              ,DECODE(GOOGLE_CALENDAR_EVENT_ID,NULL,'N','Y') AS GOOGLE_YN
+        FROM   TBL_EXP_SCHEDULE
+        WHERE  1 = 1
+        <if test=" userId != null and userId != '' " >
+            AND    USER_ID     = #{userId}
+        </if>
+        <if test=" spCstmId != null and spCstmId != '' " >
+            AND    SP_CSTM_ID     = #{spCstmId}
+        </if>
+        <if test=" startDay != null and startDay != '' " >
+            AND   SCHEDULE_START_DATE BETWEEN TO_DATE( #{startDay}, 'YYYY-MM-DD HH24:MI:SS')   AND  TO_DATE( #{endDay}, 'YYYY-MM-DD HH24:MI:SS')
+        </if>
+    </select>
     
 </mapper>

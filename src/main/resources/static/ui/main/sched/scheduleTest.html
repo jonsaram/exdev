@@ -1,47 +1,886 @@
 <meta charset="utf-8">
+
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.14/index.global.min.js'></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
 <script type="text/javascript">
     var <@pageId> = {
-    	 getSchedule : function() {
             
-         }  
-        ,setSchedulePeriod : function() {
+        events : []
+       ,googleEvents : []
+       ,IS_DELETE_GOOGLE_EVENT : false
+       ,IS_GOOGLE_CALENDAR_SYN_YN : false
+       ,GOOGLE_CALENDAR_ID : ''
+       ,TOKEN_CLIENT : ''
+       ,DEL_GOOGLE_EVENT : []
+       ,calendar : ''
+       ,toDay : ''
+       ,startDate : ''
+       ,endDate   : ''
+
+       ,addSchedulePopup : function() {    
+
+            let date = new Date();
+            let todayPop = date.getFullYear() +
+                      '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
+                      '-' + ( (date.getDate()) <= 9 ? "0" + (date.getDate()) : (date.getDate()) );
+    
+           let requestParm = {};
+           requestParm["today"]       = todayPop;
+           C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
+               if( obj.refresh == 'Y' ){
+                   let parm = {};
+                   <@pageId>.getAllschedule(parm);
+               } 
+           });
+        }   
+        ,googleScheduleSetPopup : function() {    
+           console.log("부모창에서 호출 googleScheduleSetPopup");
+           let requestParm = {};
+           C_POP.open('popup_sched_googleScheduleSetPopup', requestParm, function(obj) {
+               console.log("popup_sched_googleScheduleSetPopup ==>"+obj.refresh);
+               if( obj.refresh == 'Y' ){
+                   let parm = {};
+                   <@pageId>.getAllschedule(parm);
+                   <@pageId>.startGetScheduleProc();
+               } 
+           });
+        } 
+       ,init : function( value ) {
+
+            // 구글 관련 
+            <@pageId>.gapiLoaded();
+            <@pageId>.gisLoaded();
             
+           
+            var calendarEl = document.getElementById('<@pageId>_calendar');            
+            
+            <@pageId>.calendar = new FullCalendar.Calendar(calendarEl, {
+                height: '100%',
+                expandRows: true,
+                locale: 'ko', // 한국어 설정
+                // slotMinTime: '08:00',
+                // slotMaxTime: '20:00',
+                headerToolbar: {
+                    // left: 'prev,next today',
+                    left: '',
+                    center: 'title',
+                    right: 'timeGridDay,timeGridWeek,dayGridMonth,prev,next'
+                    // right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+
+                views: {
+                    dayGridMonth: { // name of view
+                        titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' }
+                       // other view-specific options here
+                    }
+                },
+                initialView: 'dayGridMonth',
+                //initialDate: '2024-01-08',  //달력 처음 로드될때 표시되는 날짜
+                navLinks: true, // 요일이랑 날짜 클릭시 일단위,주단위로 보여주는 화면으로 넘어감
+                editable: false, // 드래그해서 수정 가능한지, 길게 확장도 가능
+                selectable: true,
+                nowIndicator: true,
+                dayMaxEvents: true, // "more" 표시 전 최대 이벤트 갯수, true는 셀 높이에 의해 결정
+                dateClick: function(info) {
+                    
+                    let requestParm = {};
+                    requestParm["today"]  = info.dateStr;
+                    
+                    C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
+                        if( obj.refresh == 'Y' ){
+                            <@pageId>.startGetScheduleProc();
+                        }
+                    })  
+                  },
+                eventClick : function(obj) {
+
+                   let date = new Date();
+                   let todayPop = date.getFullYear() +
+                              '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
+                              '-' + ( (date.getDate()) <= 9 ? "0" + (date.getDate()) : (date.getDate()) );
+                    
+                   let shareYn    = obj.event.extendedProps.shareYn;
+                   let teamYn     = obj.event.extendedProps.teamYn;
+                   let systemType = obj.event.extendedProps.systemType;
+                   
+                   const idArr = obj.event.id.split("#");
+                   let requestParm = {};
+                   requestParm["scheduleId"]  = idArr[0];
+                   requestParm["today"]       = todayPop;
+                   requestParm["shareYn"]     = shareYn;
+                   requestParm["teamYn"]      = teamYn;
+
+                   console.log("scheduleId  =>"+idArr[0]);
+                   console.log("todayPop  =>"+todayPop);
+                   console.log("shareYn  =>"+shareYn);
+                   console.log("teamYn  =>"+teamYn);
+                   
+                   console.log("systemType  =>"+systemType);
+                   if( shareYn == 'Y' || teamYn == 'Y' ){
+                       C_POP.open('popup_sched_dtlSchedulePopup', requestParm, function(obj) {
+                       })
+                   }else if( shareYn == 'N'|| teamYn == 'N' ){
+                       
+                       C_POP.open('popup_sched_updateSchedulePopup', requestParm, function(obj) {
+                           if( obj.refresh == 'Y' ){
+                               //<@pageId>.startGetScheduleProc();
+                           }
+                       })
+                       
+                   }
+                },
+                
+            });
+            <@pageId>.calendar.render();
+            
+            $("#<@pageId> .fc-button-group button").bind("click", function() {
+                let title = $(this).attr("title");
+                let cd = <@pageId>.calendar.getCurrentData();
+                
+                var start = cd.dateProfile.currentRange.start;
+                var end   = cd.dateProfile.currentRange.end;
+                   
+                <@pageId>.startGetScheduleProc( );
+            });
+            
+         }// init
+
+       /*=============================================================================================*/
+       /* 일정관련 일반    일정관련 일반    일정관련 일반    일정관련 일반    일정관련 일반              */
+       
+       ,getAllschedule : function( requestParm ) {
+           console.log("=== getAllschedule ===");
+           let cd = <@pageId>.calendar.getCurrentData();
+           
+           var start = cd.dateProfile.currentRange.start;
+           const startYear = start.getFullYear();
+           const startMonth = (start.getMonth() + 1).toString().padStart(2, '0');
+           const startDay = start.getDate().toString().padStart(2, '0');
+           const startDateString = startYear + '-' + startMonth + '-' + startDay;
+
+           var end   = cd.dateProfile.currentRange.end;
+           const endYear = end.getFullYear();
+           const endMonth = (end.getMonth() + 1).toString().padStart(2, '0');
+           const endDay = end.getDate().toString().padStart(2, '0');
+           const endDateString = endYear + '-' + endMonth + '-' + endDay;
+           
+           const minusDay = new Date(start);
+           const minusDay14 = new Date(minusDay);
+           
+           minusDay14.setDate(minusDay.getDate()-14);
+           const minus14Year = minusDay14.getFullYear();
+           const minus14Month = (minusDay14.getMonth() + 1).toString().padStart(2, '0');
+           const minus14Day = minusDay14.getDate().toString().padStart(2, '0');
+           const minusDateString = minus14Year + '-' + minus14Month + '-' + minus14Day;
+           
+
+           const plusDay = new Date(end);
+           const plusDay14 = new Date(plusDay);
+           plusDay14.setDate(plusDay.getDate()+14);
+           const plus14Year = plusDay14.getFullYear();
+           const plus14Month = (plusDay14.getMonth() + 1).toString().padStart(2, '0');
+           const plus14Day = plusDay14.getDate().toString().padStart(2, '0');
+           const plusDateString = plus14Year + '-' + plus14Month + '-' + plus14Day;
+           
+           <@pageId>.removeAllschedule();
+           
+           let requestParm1 = {};            
+           requestParm1["startDate"]   = startDateString;
+           requestParm1["endDate"]     = endDateString;
+           requestParm1["minusDate"]   = minusDateString; 
+           requestParm1["plusDate"]    = plusDateString; 
+           requestParm1["month"]       = startMonth;
+           requestParm1["teamYn"]      = "N";
+           
+           
+           <@pageId>.startDate   = startDateString;
+           <@pageId>.endDate     = endDateString;
+                                
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getNotRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getDayRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getWeekRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getMonthRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getYearRepeatSchedule");
+
+           
+       }
+
+       ,removeAllschedule : function() {
+           
+           var eventSources = <@pageId>.calendar.getEventSources();
+           var len = eventSources.length;
+           for (var i = 0; i < len; i++) { 
+               eventSources[i].remove(); 
+           } 
+           
+           <@pageId>.calendar.removeAllEvents();
+           
+       }
+       ,serviceCall : function( requestParm, serviceId ) {
+           
+           var parm = {
+                serviceId              : serviceId
+               ,requestParm            : requestParm
+           }
+           C_COM.requestService(parm, function(resultData) {
+               
+               for (var i=0; i<resultData.data.list.length; i++){
+                   
+                   let length = 24; // 표시할 글자수 기준
+                   let title = resultData.data.list[i].TITLE;
+                   
+                   if (title.length > length) {
+                       title = title.substr(0, length - 2) + '...';
+                   }
+                   
+                   var obj = new Object();
+                   obj.id    = resultData.data.list[i].SCHEDULE_ID +'#'+i+'#'+requestParm["teamYn"] ;
+                   obj.title = title;
+                   obj.start = resultData.data.list[i].SCHEDULE_START_DATE+'T'+resultData.data.list[i].START_TIME_HOUR+':'+resultData.data.list[i].START_TIME_MINUTE+':00';
+                   obj.end   = resultData.data.list[i].SCHEDULE_END_DATE  +'T'+resultData.data.list[i].END_TIME_HOUR  +':'+resultData.data.list[i].END_TIME_MINUTE+':00';
+                   obj.textColor = resultData.data.list[i].TEXT_COLOR;
+                   obj.color = resultData.data.list[i].WORK_COLOR;
+                   
+                   let departmentVal = {};
+                   departmentVal["teamYn"]   = requestParm["teamYn"];
+                   departmentVal["shareYn"]  = resultData.data.list[i].SHARE_YN;
+                   
+                   obj.extendedProps = departmentVal;
+                   
+                   <@pageId>.calendar.addEvent(obj);
+               }
+               //오늘의 일정
+               <@pageId>.getTodaySchedule();
+           });
+
+       }
+
+       ,getTodaySchedule : function() {
+           
+           var eventArray = <@pageId>.calendar.getEvents();
+           var count = 0;
+           eventArray.forEach(function(element) {
+             
+             var event = <@pageId>.calendar.getEventById(element.id) 
+             let start = event.start;
+             let end   = event.end;
+             
+             console.log("getTodaySchedule end ==>"+end);
+             
+             const startYear = start.getFullYear();
+             const startMonth = (start.getMonth() + 1).toString().padStart(2, '0');
+             const startDay = start.getDate().toString().padStart(2, '0');
+             const startDateString = startYear + startMonth + startDay;
+             
+              
+             const endYear = end.getFullYear();
+             const endMonth = (end.getMonth() + 1).toString().padStart(2, '0');
+             const endDay = end.getDate().toString().padStart(2, '0');
+             const endDateString = endYear + endMonth + endDay;
+             
+             let toDayYMD = <@pageId>.toDay.replaceAll('-', '');
+             
+             if ( Number(startDateString) <=  Number(toDayYMD) &&   Number(toDayYMD) <= Number(endDateString)  ) {
+                 count = count + 1;
+             }
+           });
+           
+           $('#todaySchedulecnt span').text(count+' 개');
+           
+       }
+       /* 일정관련 일반    일정관련 일반    일정관련 일반    일정관련 일반    일정관련 일반              */
+       /*=============================================================================================*/
+       
+       
+       /*=============================================================================================*/
+       /* 일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스               */  
+      ,startGetScheduleProc : function() {// 시작
+           console.log("1. startGetScheduleProc ");
+           <@pageId>.getUserGoogleSyn();
+       }
+      ,getUserGoogleSyn : () =>  {
+          console.log("2-1. getUserGoogleSyn ");
+          let requestParm = {};
+           
+          let parm = {
+               queryId        : "schedule.getUserInfo"
+              ,requestParm    : requestParm
+          }
+           
+          C_COM.requestQuery(parm, function(resultData) {
+              for(var i =0; i < resultData.data.length; i++){
+                  if( resultData.data[i] != null){
+                      <@pageId>.GOOGLE_CALENDAR_ID = resultData.data[i].GOOGLE_CALENDAR_ID;
+                      if( resultData.data[i].GOOGLE_CALENDAR_SYN_YN == "Y"){
+                          <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN = true;
+                          <@pageId>.getEventGoogleCalendar();
+                      }else{
+                          let parm = {};
+                          <@pageId>.getAllschedule(parm);
+                      }  
+                  }
+              }
+           });
+          
+       }
+      ,getEventGoogleCalendar : () =>  {
+          
+          var startDate = <@pageId>.getStartEndDate('START');
+          var endDate   = <@pageId>.getStartEndDate('END');
+          var minusDate = startDate.minusDateString; 
+          var plusDate  = endDate.plusDateString;
+          
+          const timeMin = startDate.startDateString+'T00:00:00Z'; // 검색할 기간의 시작 시간 (ISO 8601 형식)
+          const timeMax = endDate.endDateString+'T23:59:59Z'; // 검색할 기간의 종료 시간 (ISO 8601 형식)
+          
+           
+          var calendarId = <@pageId>.GOOGLE_CALENDAR_ID;
+          var apiKey = _API_KEY;
+          var url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}`;
+          
+          console.log("url ==>"+url);
+          
+          fetch(url)
+            .then(response => response.json())
+            .then(data => {
+              console.log('All events:', data.items);
+              //alert(`Total events fetched: ${data.items.length}`);
+              data.items.forEach(event => {
+
+                var id     = event.id || '';
+                var title = event.summary || '';
+                var start = event.start.dateTime || '';
+                var end   = event.end.dateTime || '';
+                
+                var location = event.location || '';
+                var description = event.description || '';
+                var arrAttachments = event.attachments || '' ;
+                
+                var scheduleStartDate = "";
+                var startTimeH = "";    
+                var startTimeM = "";
+                
+                var scheduleEndDate = "";
+                var endTimeH   = "";    
+                var endTimeM   = "";  
+                var allDay = "N";
+                var isAllDay = false;
+                
+                console.log("start ==>"+start);
+                console.log("end ==>"+end);
+                
+                if( start.length == 10 ){
+                    scheduleStartDate = start.substring(0, 10);
+                    startTimeH = "00";    
+                    startTimeM = "00";
+                    allDay = "Y";
+                    isAllDay = true;
+                }else{
+                    scheduleStartDate = start.substring(0, 10);
+                    startTimeH = start.substring(11, 13);    
+                    startTimeM = start.substring(14, 16);
+                }
+                
+                if( end.length == 10 ){
+                    scheduleEndDate = end.substring(0, 10);
+                    endTimeH = "00";    
+                    endTimeM = "00";
+                }else{
+                    scheduleEndDate = end.substring(0, 10);
+                    endTimeH = end.substring(11, 13);    
+                    endTimeM = end.substring(14, 16);
+                }
+                
+                var obj = new Object();
+                obj.id    = id ;
+                obj.title = title;
+                obj.start = start;
+                obj.end   = end;
+                obj.allDay = isAllDay;
+                obj.arrAttachments   = arrAttachments;
+                let departmentVal = {};
+                departmentVal["teamYn"]            = "N";
+                departmentVal["shareYn"]           = "N";
+                departmentVal["systemType"]        = "GOOGLE";
+                departmentVal["location"]          = location ;
+                departmentVal["description"]       = description ;
+                departmentVal["googleId"]          = id ;
+                departmentVal["scheduleStartDate"] = scheduleStartDate ;
+                departmentVal["startTimeH"]        = startTimeH ;
+                departmentVal["startTimeM"]        = startTimeM ;
+                departmentVal["scheduleEndDate"]   = scheduleEndDate ;
+                departmentVal["endTimeH"]          = endTimeH ;
+                departmentVal["endTimeM"]          = endTimeM ;
+                departmentVal["userId"]            = G_VAL.session.USER_ID ;
+                departmentVal["spCstmId"]          = G_VAL.session.spCstmId ;
+                var uniqId = C_COM.makeUniqueId() ;
+                var uniqGrpId = C_COM.makeUniqueId() ;
+                departmentVal["makeScheduleId"]    = uniqId ;
+                departmentVal["makeScheduleGrpId"] = uniqGrpId ;
+                
+               
+                
+                obj.extendedProps = departmentVal;
+                <@pageId>.googleEvents.push(obj)
+                
+              });//data.items.forEach
+              
+              <@pageId>.synchProcess1();
+              
+            })
+            .catch(error => console.error('Error fetching events:', error));
+       }
+      ,synchProcess1 : () =>  {
+          
+           console.log("=== synchProcess1 ===");
+
+           // 구글:O,  EXP:O 일경우 수정
+           let requestParm = {}; 
+           requestParm["googleEvent"]  = JSON.stringify(<@pageId>.googleEvents);
+           var parm = {
+                serviceId              : "ScheduleService.synchProcess1"
+               ,requestParm            : requestParm
+           }
+           C_COM.requestService(parm, function(resultData) {
+               <@pageId>.synchProcess2( requestParm );
+           });
+       }
+      ,synchProcess2 : ( requestParm) =>  {
+          
+          console.log("=== synchProcess2 ===");
+
+          // 구글:O,  EXP:X 일경우 입력
+          // 삭제로그 조회후 삭제로그에 있을 경우 구글 삭제, 해당 구글 아이디를 리턴한다(*).
+          // 삭제로그 조회후 삭제로그에 없을 경우 EXP 입력
+          /**/
+          var parm = {
+               serviceId              : "ScheduleService.synchProcess2"
+              ,requestParm            : requestParm
+          }
+          C_COM.requestService(parm, function(resultData) {
+
+              let googleIdArr = [];
+              <@pageId>.synchProcess3(requestParm);
+              for (var i=0; i<resultData.data.list.length; i++){
+                  <@pageId>.DEL_GOOGLE_EVENT.push(resultData.data.list[i].googleId);
+                  console.log("=== del googleId ===>"+resultData.data.list[i].googleId);
+              }
+              if( resultData.data.list.length !=0 ){
+                  <@pageId>.IS_DELETE_GOOGLE_EVENT = true;
+                  <@pageId>.delGoogleEvent();
+              }else{
+                  console.log("=== synchProcess2 getAllschedule ===");
+                  let parm = {};    
+              }
+          });
+          
+          
+      }
+      ,synchProcess3 : ( requestParm) =>  {
+          
+          console.log("=== synchProcess3 ===");
+          // 구글:X,  EXP:O 일경우
+          // 1.EXP에서 입력후 오류로           구글 X,   EXP에 구글 ID 없음
+          // 2.EXP에서 입력후 구글연동 사용 X, 구글 X,   EXP에 구글 ID 없음
+          // 3.EXP에서 입력후 구글에서 삭제              EXP에 구글 ID 있음
+          // 1,2 의경우는 사용자가 구글연동 사용 Y일경우 구글에 입력, 입력데이타를 리턴한다(*).
+          // 3.일경우 EXP 삭제
+          
+          var startDate = <@pageId>.getStartEndDate('START');
+          var endDate   = <@pageId>.getStartEndDate('END');
+          
+          requestParm["userId"]     = G_VAL.session.USER_ID ;
+          requestParm["spCstmId"]   = G_VAL.session.spCstmId ;
+          requestParm["startDate"]  = startDate.startDateString;
+          requestParm["endDate"]    = endDate.endDateString;
+           
+          var parm = {
+               serviceId              : "ScheduleService.synchProcess3"
+              ,requestParm            : requestParm
+          }
+          C_COM.requestService(parm, function(resultData) {
+              console.log("=== resultData.data.list.length ===>"+resultData.data.list.length);
+              
+              if( resultData.data.list.length !=0 ){
+                  <@pageId>.saveGoogleEvent(resultData);
+              }else{
+                  let parm = {};
+                  <@pageId>.getAllschedule(parm);       
+              }
+          });
+      }
+
+      ,synchProcess4 : ( saveEvents) =>  {
+          
+          console.log("=== synchProcess4 ===");
+          // 구글에 신규 입력후 받은 구글 id를 EXP에 적용한다.
+          // 구글:O,  EXP:O 일경우 수정
+          let requestParm = {}; 
+          requestParm["googleEvent"]  = JSON.stringify(saveEvents);
+          requestParm["userId"]     = G_VAL.session.USER_ID ;
+          requestParm["spCstmId"]   = G_VAL.session.spCstmId ;
+          
+          var parm = {
+               serviceId              : "ScheduleService.synchProcess4"
+              ,requestParm            : requestParm
+          }
+          C_COM.requestService(parm, function(resultData) {
+
+              let parm = {};
+              console.log("=== synchProcess4 getAllschedule ===");
+              <@pageId>.getAllschedule(parm);
+              
+          });
+      }
+       /* 일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스               */
+       /*=============================================================================================*/
+       
+       /*=============================================================================================*/
+       /* google API함수    google API함수    google API함수    google API함수    google API함수       */
+       
+      ,delGoogleEvent : function( ) {
+          console.log("=== delGoogleEvent ===");
+          <@pageId>.TOKEN_CLIENT.callback = async (resp) => {
+            if (resp.error !== undefined) {
+              throw (resp);
+            }
+            <@pageId>.deleteEventAPI();
+          };
+          if (gapi.client.getToken() === null) {
+            // Prompt the user to select an account.
+            <@pageId>.TOKEN_CLIENT.requestAccessToken({prompt: 'consent'});
+          } else {
+            // Skip display of account chooser.
+            <@pageId>.TOKEN_CLIENT.requestAccessToken({prompt: ''});
+          }
+       }
+      
+      ,deleteEventAPI : function(  ) {
+          
+          <@pageId>.IS_DELETE_GOOGLE_EVENT = false;
+          
+          for (let i = 0; i < <@pageId>.DEL_GOOGLE_EVENT.length; i++) {
+              var eventId = <@pageId>.DEL_GOOGLE_EVENT[i];
+              console.log("eventId ==>"+eventId);
+
+              gapi.client.calendar.events.delete({
+                'calendarId': <@pageId>.GOOGLE_CALENDAR_ID,
+                'eventId': eventId
+              }).then(response => {
+                console.log('Event deleted:', response);
+                if (response.status === 204) {
+                  console.log('Event successfully deleted.');
+                } else {
+                  console.error('Failed to delete event:', response);
+                }
+              }).catch(error => {
+                console.error('Error deleting event:', error);
+              });
+          }
+          <@pageId>.DEL_GOOGLE_EVENT.length = 0; // 배열삭제
+       }
+      
+      ,saveGoogleEvent : function(resultData ) {
+          console.log("=== saveGoogleEvent ===");
+          <@pageId>.TOKEN_CLIENT.callback = async (resp) => {
+            if (resp.error !== undefined) {
+              throw (resp);
+            }
+            <@pageId>.saveEventAPI( resultData );
+          };
+          if (gapi.client.getToken() === null) {
+            // Prompt the user to select an account.
+            <@pageId>.TOKEN_CLIENT.requestAccessToken({prompt: 'consent'});
+          } else {
+            // Skip display of account chooser.
+            <@pageId>.TOKEN_CLIENT.requestAccessToken({prompt: ''});
+          }
+       }
+
+      ,saveEventAPI : function( resultData ) {
+          let saveEvents = [];
+          let is_save    = false;
+          // 비동기 요청을 저장할 배열
+          let promises = [];
+          
+          for (var i=0; i<resultData.data.list.length; i++){
+
+              var scheduleId    = resultData.data.list[i].SCHEDULE_ID;
+              var summary       = resultData.data.list[i].TITLE;
+              var location      = resultData.data.list[i].POSITION;
+              var description   = resultData.data.list[i].DESCRIPTION;
+              var startD        = resultData.data.list[i].SCHEDULE_START_DATE;
+              var startH        = resultData.data.list[i].START_TIME_HOUR;
+              var startM        = resultData.data.list[i].START_TIME_MINUTE;
+              var startDateTime = startD+'T'+startH+':'+startM+':00';
+              var endD          = resultData.data.list[i].SCHEDULE_END_DATE;
+              var endH          = resultData.data.list[i].END_TIME_HOUR;
+              var endM          = resultData.data.list[i].END_TIME_MINUTE;
+              var endDateTime   = endD+'T'+endH+':'+endM+':00';
+              
+              console.log("=== summary ===>"+summary);
+              console.log("=== location ===>"+location);
+              console.log("=== description ===>"+description);
+              console.log("=== startDateTime ===>"+startDateTime);
+              console.log("=== endDateTime ===>"+endDateTime);
+
+              const event = {
+                  'summary': summary,
+                  'location': location,
+                  'description': description,
+                  'start': {
+                      'dateTime': startDateTime,
+                      'timeZone': 'Asia/Seoul'
+                  },
+                  'end': {
+                      'dateTime': endDateTime, 
+                      'timeZone': 'Asia/Seoul'
+                  }
+              };
+
+              // 비동기 요청을 Promise로 감싸서 배열에 저장
+              const requestPromise = new Promise((resolve, reject) => {
+                  const request = gapi.client.calendar.events.insert({
+                      'calendarId': <@pageId>.GOOGLE_CALENDAR_ID,
+                      'resource': event
+                  });
+                  request.execute(event => {
+                      if (event.id) {
+                          console.log("=== event.id ===>" + event.id);
+                          let saveEvent = { scheduleId: scheduleId, googleCalendarEventId: event.id };
+                          saveEvents.push(saveEvent);
+                          is_save = true;
+                          resolve(); // 성공 시 Promise 해결
+                      } else {
+                          reject("Event insertion failed"); // 실패 시 Promise 거절
+                      }
+                  });
+              });
+              promises.push(requestPromise); // Promise 배열에 추가
+          }
+
+          // 모든 비동기 요청이 완료된 후 실행
+          Promise.all(promises)
+              .then(() => {
+                  console.log("=== is_save ===>"+is_save);
+                  if (is_save) {
+                      <@pageId>.synchProcess4(saveEvents);
+                  }
+              })
+              .catch(error => {
+                  console.error("Error inserting events: ", error);
+              });
+          
+       }
+        ,gapiLoaded : function() {
+             console.log("gapiLoaded");
+             gapi.load('client', () => {
+                 <@pageId>.initializeGapiClient()
+                     .then(() => {
+                         console.log('GAPI client loaded successfully.');
+                         if( <@pageId>.IS_DELETE_GOOGLE_EVENT ){
+                             <@pageId>.delGoogleEvent();
+                         }
+                     })
+                     .catch(error => {
+                         console.error('Error loading GAPI client:', error);
+                     });
+             });
          }
+
+        ,gisLoaded : function() {
+            console.log("gisLoaded");
+            <@pageId>.TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
+            client_id: _CLIENT_ID,
+            scope: _SCOPES,
+            callback: (response) => {
+                console.log('GAPI OAuth2 token client initialized successfully.');
+                // 추가 작업
+            }
+          });
+        }
+        ,initializeGapiClient: async function() {
+            console.log("initializeGapiClient");
+            try {
+                await gapi.client.init({
+                    apiKey: _API_KEY,
+                    discoveryDocs: _DISCOVERY_DOCS
+                });
+                console.log('GAPI client initialized successfully.');
+                // 추가 작업
+            } catch (error) {
+                console.error('Error initializing GAPI client:', error);
+            }
+        }
+       /* google API함수    google API함수    google API함수    google API함수    google API함수       */
+       /*=============================================================================================*/
+       
+       
+       /*=============================================================================================*/
+       /* UTIL 함수    UTIL 함수    UTIL 함수    UTIL 함수    UTIL 함수    UTIL 함수    UTIL 함수       */
+       
+       ,formatDate : function (date) {
+            let year = date.getFullYear();
+            let month = ('0' + (date.getMonth() + 1)).slice(-2); // 월은 0부터 시작하므로 +1
+            let day = ('0' + date.getDate()).slice(-2);
+            let hours = ('0' + date.getHours()).slice(-2);
+            let minutes = ('0' + date.getMinutes()).slice(-2);
+            let seconds = ('0' + date.getSeconds()).slice(-2);
+
+            return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+       }
+      ,getStartEndDate : function( type ) {
+          
+          let cd = <@pageId>.calendar.getCurrentData();
+          
+          var returnDate={};
+          
+          if( type == 'START' ){
+              
+              var start = cd.dateProfile.currentRange.start;
+              var startYear = start.getFullYear();
+              var startMonth = (start.getMonth() + 1).toString().padStart(2, '0');
+              var startDay = start.getDate().toString().padStart(2, '0');
+              returnDate.startDateString = startYear + '-' + startMonth + '-' + startDay;
+
+              const minusDay = new Date(start);
+              const minusDay14 = new Date(minusDay);
+              
+              minusDay14.setDate(minusDay.getDate()-14);
+              const minus14Year = minusDay14.getFullYear();
+              const minus14Month = (minusDay14.getMonth() + 1).toString().padStart(2, '0');
+              const minus14Day = minusDay14.getDate().toString().padStart(2, '0');
+              returnDate.minusDateString = minus14Year + '-' + minus14Month + '-' + minus14Day;
+              
+          }else if( type == 'END' ){
+
+              var end   = cd.dateProfile.currentRange.end;
+              const endYear = end.getFullYear();
+              const endMonth = (end.getMonth() + 1).toString().padStart(2, '0');
+              const endDay = end.getDate().toString().padStart(2, '0');
+              returnDate.endDateString = endYear + '-' + endMonth + '-' + endDay;
+              
+              const plusDay = new Date(end);
+              const plusDay14 = new Date(plusDay);
+              plusDay14.setDate(plusDay.getDate()+14);
+              const plus14Year = plusDay14.getFullYear();
+              const plus14Month = (plusDay14.getMonth() + 1).toString().padStart(2, '0');
+              const plus14Day = plusDay14.getDate().toString().padStart(2, '0');
+              returnDate.plusDateString = plus14Year + '-' + plus14Month + '-' + plus14Day;
+              
+              
+          }else{}
+          return returnDate;
+      }
+      /* UTIL 함수    UTIL 함수    UTIL 함수    UTIL 함수    UTIL 함수    UTIL 함수    UTIL 함수       */
+      /*=============================================================================================*/
+      
     }
     // Page Load가 완료된후 실행 된다.
     C_PM.onLoadPage("<@pageId>", function() {
-        var multiboxList = { 
-             data : [
-                     ["1111", "고객번호"    ]
-                    ,["2222", "고객번호1"   ]
-                    ,["3333", "고객번호2"   ]
-                    ,["4444", "고객명"     ]
-             ]
-            ,targetId : "selectBoxId" 
-        }
-        C_UICOM.makeSelectBox(multiboxList, "multi");
+        C_COM.hideLeftMenu();
         
-        C_UICOM.addChangeListener("selectBoxId", function(dataObj) {
-            
-        });
+        <@pageId>.init();
         
+        <@pageId>.startGetScheduleProc();
     });
     // History back으로 이동해왔을 경우 이루틴이 실행된다.
     C_HM.onReturn("<@pageId>", function(pageId, data) {
 
     });
 </script>
-<div class="cont_wrap">
-    일정 조회 <br/><br/>
-    
-    
-    <div id="selectBoxId" style="width:200px"></div>
-    <p>&nbsp;</p>
-    <p>&nbsp;</p>
-    <p>&nbsp;</p>
-    <input type=button value="유태원" onclick="<@pageId>.getSchedule()"/>
-    <br/>   
-    <br/>   
-    <input type=button value="위성열" onclick="<@pageId>.setSchedulePeriod()"/>
 
-</div>
+    <div class="container">
+        <div class="cont_wrap lnb_none">
+            <div class="cont_top">
+                <h2><i class="icon_bullet"></i>구글 캘린더</h2>
+            </div>
+            <div class="sec_scroll">
+                <section class="sec_wrap">
+                    <!-- 스케줄 왼쪽 -->
+                    <div class="schedule left">
+                        <div class="cont_top">
+                            <div class="today_schedule">
+                                <i class="icon_calendar_mark"></i>
+                                <div class="tit_schedule">오늘의 일정</div>
+                                <div id="todaySchedulecnt"><span class="num">개</span></div>
+                            </div>
+                        </div>
+                        <!-- 왼쪽 박스 영역 선택된 팀원의 스케줄을 같이 보여 준다-->
+                        <div class="schedule_wrap">
+                            <div id="<@pageId>_datepicker"></div>
+                            <div class="stit_schedule">팀원 업무 스케줄 확인</div>
+                            <div class="check_subTeam_wrap"  id="teamUserTableId">
+                            </div>
+                            <div>
+                                <script type="text/x-jsrender" id="teamUserTableId_template">
+                                    {{for list}}
+                                        {{if #index == 0 }}
+                                            <div>
+                                                <input name="<@pageId>_ckAll" id="<@pageId>_ckAll" type="checkbox" onclick='<@pageId>.teamUserAllClick(this);' value="">
+                                                <label for="product01">전체<i class="icon_check"></i></label>
+                                            </div>
+                                            <div>
+                                                <input name="<@pageId>_chk" id="<@pageId>_chk{{#index}}" type="checkbox" value="{{:USER_ID}}" onclick='<@pageId>.teamUserClick(this);' >
+                                                <label for="product01">{{:USER_NM}}<i class="icon_check"></i></label>
+                                            </div>
+                                            {{else}}
+                                            <div>
+                                                <input name="<@pageId>_chk" id="<@pageId>_chk{{#index}}" type="checkbox" value="{{:USER_ID}}" onclick='<@pageId>.teamUserClick(this);' >
+                                                <label for="product01">{{:USER_NM}}<i class="icon_check"></i></label>
+                                            </div>
+                                        {{/if}}
+ 
+                                    {{/for}}
+                                </script>
+                                <script type="text/x-jsrender" id="teamUserTableId_noData_template">
+                                </script>
+                            </div>
+                                
+                            <div class="stit_schedule">업무 유형
+                            </div>
+                                <ul class="status_wrap">
+                                    <li><i class="status meeting"></i><span>미팅</span></li>
+                                    <li><i class="status tel_consul"></i><span>전화상담</span></li>
+                                    <li><i class="status other_work"></i><span>그 외 업무</span></li>
+                                    <li><i class="status send_email"></i><span>이메일 전송</span></li>
+                                    <li><i class="status schedule"></i><span>회사 내부 일정</span></li>
+                                    <li><i class="status seminar"></i><span>세미나</span></li>
+                                </ul>
+                        </div>
+                    </div>
+                    <!-- 스케줄 오른쪽 -->
+                    <div class="schedule right">
+                        <div class="schedule_topArea">
+                            <div class="search_inputWrap" style="width:300px;">
+                                <input type="search" id="<@pageId>_searchTitle" name="" onkeyup="if(window.event.keyCode==13){(<@pageId>.searchSchedule())}">
+                                <button class="search_btn" id="<@pageId>_searchBtn" onclick="<@pageId>.searchSchedule();"><i class="icon_search"></i></button>
+                                <ul class="search_lst" id="<@pageId>_tableId" style="display:none;">
+                                    <li>날짜 검색</li>
+                                    <li>제목 검색</li>
+                                </ul>
+                                <script type="text/x-jsrender" id="<@pageId>_tableId_template">    
+                                    {{for list}}
+                                        <li>
+                                            <a href='javascript: void(0);' name="searchList2" onclick="<@pageId>.setCalendar('{{:SCHEDULE_START_DATE}}');">{{:SCHEDULE_START_DATE}} : {{:TITLE}}
+                                            </a>
+                                        </li>
+                                    {{/for}}
+                                </script>
+                            </div>
+                            <a href="javascript:void(0);" onclick="<@pageId>.addSchedulePopup();" class="btn select schedule_btn"><i class="icon_add_circle"></i>일정추가하기</a>
+                            <!--
+                            <a id="<@pageId>_googleAddBtn" style="display:none;" href="javascript:void(0);" onclick="<@pageId>.addGoogleSchedulePopup();" class="btn select schedule_btn1"><i></i>구글추가</a>
+                             -->
+                             <a id="<@pageId>_googleAddBtn" href="javascript:void(0);" onclick="<@pageId>.googleScheduleSetPopup();" class="btn select schedule_btn1"><i></i>구글</a>
+                        </div>
+                        <div id='<@pageId>_calendar'></div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+

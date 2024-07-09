@@ -1,13 +1,12 @@
 package exdev.com.service;
 
-import static java.time.temporal.ChronoUnit.DAYS;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,8 +14,11 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import exdev.com.ExdevCommonAPI;
+import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.common.service.ExdevBaseService;
+import exdev.com.common.vo.SessionVO;
 import exdev.com.util.DateUtil;
 
 /**
@@ -27,10 +29,292 @@ import exdev.com.util.DateUtil;
  */
 @Service("ScheduleService")
 public class ScheduleService extends ExdevBaseService{
-	
-	@Autowired
-	private ExdevCommonDao commonDao;
     
+    @Autowired
+    private ExdevCommonDao commonDao;
+    
+
+    /** 
+     * 내용        : 일정관리 (scheduleManage.html)
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 06. 26 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+    public int  synchProcess1(Map map ) throws Exception {
+        
+        int result = 0;
+        
+        String json = (String)map.get("googleEvent");
+        ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, Object>> googleEventList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
+        
+        // 구글:O,  EXP:O 일경우 수정
+        for(Map<String, Object> eventMap : googleEventList){
+           
+            String scheduleId = (String)eventMap.get("id");
+            String title      = (String)eventMap.get("title");
+            LinkedHashMap<String, String> extendedProps = (LinkedHashMap<String, String>) eventMap.get("extendedProps");
+         
+            String systemType = extendedProps.get("systemType");
+            
+            Map<String, String> saveMap = new HashMap<String, String>();
+            if( "GOOGLE".equals(systemType) ) {saveMap.put("scheduleId", null);} else {saveMap.put("scheduleId", scheduleId);}   
+            
+            System.out.println("scheduleStartDate ==>"+extendedProps.get("scheduleStartDate"));
+            System.out.println("startTimeH ==>"+extendedProps.get("startTimeH"));
+            System.out.println("startTimeM ==>"+extendedProps.get("startTimeM"));
+
+            System.out.println("scheduleEndDate ==>"+extendedProps.get("scheduleEndDate"));
+            System.out.println("endTimeH ==>"+extendedProps.get("endTimeH"));
+            System.out.println("endTimeM ==>"+extendedProps.get("endTimeM"));
+            
+            saveMap.put("googleCalendarId", extendedProps.get("googleId"));
+            saveMap.put("title", title);
+            saveMap.put("scheduleStartDate", extendedProps.get("scheduleStartDate"));
+            saveMap.put("startTimeH", extendedProps.get("startTimeH"));
+            saveMap.put("startTimeM", extendedProps.get("startTimeM"));
+            saveMap.put("scheduleEndDate", extendedProps.get("scheduleEndDate"));
+            saveMap.put("endTimeH", extendedProps.get("endTimeH"));
+            saveMap.put("endTimeM", extendedProps.get("endTimeM"));
+            saveMap.put("location", extendedProps.get("location"));
+            saveMap.put("description", extendedProps.get("description"));
+            saveMap.put("userId", extendedProps.get("userId"));
+            saveMap.put("spCstmId", extendedProps.get("spCstmId"));
+
+            result += commonDao.update("schedule.updateGoogleSchedule", saveMap);
+        }
+        
+        return result;
+    }
+
+    /** 
+     * 내용        : 구글데이타 동기화 
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 06. 26 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+    public Map<String,Object>  synchProcess2(Map map ) throws Exception {
+        
+        int result = 0;
+        
+        // 구글:O,  EXP:X 일경우 입력
+        // 삭제로그 조회후 삭제로그에 있을 경우 구글 삭제, 해당 구글 아이디를 리턴한다(*).
+        // 삭제로그 조회후 삭제로그에 없을 경우 EXP 입력
+
+        String json = (String)map.get("googleEvent");
+        ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, Object>> googleEventList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
+        
+        List<Map> listMap = new ArrayList<Map>();
+        // 구글:O,  EXP:O 일경우 수정
+        for(Map<String, Object> eventMap : googleEventList){
+
+            String title      = (String)eventMap.get("title");
+            
+            LinkedHashMap<String, String> extendedProps = (LinkedHashMap<String, String>) eventMap.get("extendedProps");   
+            Map<String, String> saveMap = new HashMap<String, String>();
+            String googleCalendarEventId = extendedProps.get("googleId");
+            
+            System.out.println("googleCalendarEventId ==>"+googleCalendarEventId);   
+            System.out.println("scheduleStartDate ==>"+extendedProps.get("scheduleStartDate"));
+            
+            
+            saveMap.put("spCstmId", extendedProps.get("spCstmId"));
+            saveMap.put("googleCalendarEventId", googleCalendarEventId);
+            
+            //삭제테이블에서 삭제 여부확인
+            Map delSchedul = (Map)commonDao.getObject("schedule.getScheduleDel", saveMap);
+            
+            String scheduleExist     = (String)delSchedul.get("SCHEDULE_EXIST");
+            String scheduleDelExist  = (String)delSchedul.get("SCHEDULE_DEL_EXIST");
+            
+            if( "N".equals(scheduleExist) && "N".equals(scheduleDelExist)) {
+                //입력
+                System.out.println("XXXXXX");
+                saveMap.put("scheduleId", extendedProps.get("makeScheduleId"));
+                saveMap.put("scheduleGrpId", extendedProps.get("makeScheduleGrpId"));
+                saveMap.put("loopType", "NOT_REPEAT");
+                saveMap.put("loopTypeDtlCd", null);
+                saveMap.put("loopTypeDtlVal", null);
+                saveMap.put("loopLimitDate", extendedProps.get("scheduleEndDate"));
+                saveMap.put("title", title);
+                saveMap.put("workType", "OTHER_WORK");
+                saveMap.put("timeType", null);
+                saveMap.put("scheduleStartDate", extendedProps.get("scheduleStartDate"));
+                saveMap.put("startTimeH", extendedProps.get("startTimeH"));
+                saveMap.put("startTimeM", extendedProps.get("startTimeM"));
+                saveMap.put("scheduleEndDate", extendedProps.get("scheduleEndDate"));
+                saveMap.put("endTimeH", extendedProps.get("endTimeH"));
+                saveMap.put("endTimeM", extendedProps.get("endTimeM"));
+                saveMap.put("contractId", null);
+                saveMap.put("position", extendedProps.get("location"));
+                saveMap.put("secretYn", "N");
+                saveMap.put("description", extendedProps.get("description"));
+                saveMap.put("userId", extendedProps.get("userId"));
+                result += commonDao.insert("schedule.insertGoogleSchedule", saveMap);
+                System.out.println("result ==>"+result);
+            }else if( "N".equals(scheduleExist) && "Y".equals(scheduleDelExist)) {
+                //구글 삭제 대상
+                /**/
+                System.out.println("OOOOOO");
+                System.out.println("googleCalendarEventId ==>"+googleCalendarEventId);
+                
+                Map<String, Object> delMap = new HashMap<String, Object>();
+                delMap.put("googleId", googleCalendarEventId);
+                listMap.add(delMap);
+                
+            }else {}
+            
+        }
+         
+        Map<String, Object> returnMap = new HashMap<String, Object>();
+        returnMap.put("list", listMap);
+        return returnMap;
+    }
+    
+
+    /** 
+     * 내용        : 구글데이타 동기화 
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 07. 01 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+    public Map<String,Object>  synchProcess3(Map map ) throws Exception {
+        
+        int result = 0;
+        
+        // 구글:X,  EXP:O 일경우
+        // 1.EXP에서 입력후 오류로           구글 X,   EXP에 구글 ID 없음
+        // 2.EXP에서 입력후 구글연동 사용 X, 구글 X,   EXP에 구글 ID 없음
+        // 3.EXP에서 입력후 구글에서 삭제    구글 X,   EXP에 구글 ID 있음
+        // 1,2 의경우는 사용자가 구글연동 사용 Y일경우 구글에 입력, 입력데이타를 리턴한다(*).
+        // 3.일경우 EXP 삭제
+        
+        String userId = (String)map.get("userId");
+        String spCstmId = (String)map.get("spCstmId");
+        String startDate = (String)map.get("startDate");
+        String endDate = (String)map.get("endDate");
+                
+        System.out.println("userId ==>"+userId);
+        System.out.println("spCstmId ==>"+spCstmId);
+        System.out.println("startDate ==>"+startDate);
+        System.out.println("endDate ==>"+endDate);
+        
+        String json = (String)map.get("googleEvent");
+        ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, Object>> googleEventList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
+        
+        List<Map> listMap = new ArrayList<Map>();
+        List<Map> delChecklistMap = new ArrayList<Map>();
+        
+
+        Map<String, String> searchMap = new HashMap<String, String>();
+        searchMap.put("spCstmId", spCstmId);
+        searchMap.put("userId", userId);
+        searchMap.put("startDay", startDate);
+        searchMap.put("endDay", endDate);
+        
+        List<Map> list = commonDao.getList("schedule.getScheduleGoogle", searchMap);
+        
+        for(Map<String, Object> scheduleMap : list){
+        
+            String scheduleId             = (String)scheduleMap.get("SCHEDULE_ID");
+            String googleCalendarEventId1 = (String)scheduleMap.get("GOOGLE_CALENDAR_EVENT_ID");
+            String googleYn               = (String)scheduleMap.get("GOOGLE_YN");
+            
+            System.out.println("<===================================================>");
+            System.out.println("SCHEDULE_ID ===>"+scheduleId);
+            System.out.println("GOOGLE_CALENDAR_EVENT_ID ===>"+googleCalendarEventId1);
+            System.out.println("googleYn ===>"+googleYn);
+            
+            if( "N".equals(googleYn)) {//EXP:데이타 존재X 구글ID 없음
+                listMap.add(scheduleMap);
+            }else {
+                delChecklistMap.add(scheduleMap);
+            }
+        }
+        
+        System.out.println("<====== googleEventList =======>");
+        for(Map<String, Object> delCheckMap : delChecklistMap){
+            String expGoogleEventId  = (String)delCheckMap.get("GOOGLE_CALENDAR_EVENT_ID");
+            boolean isDelete = true;
+            for(Map<String, Object> eventMap : googleEventList){            
+                LinkedHashMap<String, String> extendedProps = (LinkedHashMap<String, String>) eventMap.get("extendedProps");
+                String googleEventId = extendedProps.get("googleId");
+                System.out.println("<====== expGoogleEventId["+expGoogleEventId+"] googleEventId["+googleEventId+"]  =======>");
+                
+                if( googleEventId.equals(expGoogleEventId)) {
+                    System.out.println("<====== isDelete = false =======>");
+                    isDelete = false;
+                    break;
+                }
+            }
+            if( isDelete ) {
+                System.out.println("====== 삭제대상 =======>"+expGoogleEventId);
+                Map<String, String> scheduleMap = new HashMap<String, String>();
+                
+                System.out.println("scheduleId =======>"+(String)delCheckMap.get("SCHEDULE_ID"));
+                System.out.println("delUserId =======>"+userId);
+                System.out.println("delSpCstmId =======>"+spCstmId);
+                
+                scheduleMap.put("scheduleId",(String)delCheckMap.get("SCHEDULE_ID") );
+                scheduleMap.put("userId", userId);
+                scheduleMap.put("spCstmId", spCstmId);
+                scheduleMap.put("allApplyYn", "N");
+                Map<String,Object> resultInfo = deleteSchedule(scheduleMap);
+            }
+            
+        }
+        
+        
+        Map<String, Object> returnMap = new HashMap<String, Object>();
+        returnMap.put("list", listMap);
+        return returnMap;
+    }
+
+    /** 
+     * 내용        : 구글 Event id를 EXP에 적용
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 07. 03 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+    public Map<String,Object>  synchProcess4(Map map) throws Exception {
+        
+        int result = 0;
+
+        String userId   = (String)map.get("userId");
+        String spCstmId = (String)map.get("spCstmId");
+        String json     = (String)map.get("googleEvent");
+        
+        ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, Object>> saveEventList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
+
+        for(Map<String, Object> scheduleMap : saveEventList){
+            String scheduleId             = (String)scheduleMap.get("scheduleId");
+            String googleCalendarEventId = (String)scheduleMap.get("googleCalendarEventId");
+            scheduleMap.put("userId", userId);
+            scheduleMap.put("spCstmId", spCstmId);
+            
+            System.out.println("userId ===>"+userId);
+            System.out.println("spCstmId ===>"+spCstmId);
+            System.out.println("SCHEDULE_ID ===>"+scheduleId);
+            System.out.println("GOOGLE_CALENDAR_EVENT_ID ===>"+googleCalendarEventId);
+            
+            result += commonDao.update("schedule.updateGoogleSchedule1", scheduleMap);
+        }
+       
+        Map<String, Object> returnMap = new HashMap<String, Object>();
+        returnMap.put("list", null);
+        return returnMap;
+    }
     /** 
      * 내용        : 일정관리 수정(addSchedulePopup.html)
      *               일정관리(TBL_EXP_SCHEDULE)
@@ -76,6 +360,7 @@ public class ScheduleService extends ExdevBaseService{
     public int deleteScheduleShare(Map map) throws Exception {
         
         int result = 0;
+        
         result += commonDao.delete("schedule.deleteScheduleShare", map);
         
         return result;
@@ -94,33 +379,17 @@ public class ScheduleService extends ExdevBaseService{
         
         int result = 0;
         
-        
-        String scheduleGrpId = (String)map.get("scheduleGrpId");
         String scheduleId    = (String)map.get("scheduleId");
-        String allApplyYn    = (String)map.get("allApplyYn");
-        
-        if( "Y".equals(allApplyYn)) {
-            //result += commonDao.delete("schedule.deleteScheduleMsater", map);
-            
-            Map<String, String> scheduleMap = new HashMap<String, String>();
-            scheduleMap.put("scheduleGrpId", (String)map.get("scheduleGrpId"));
-            
-            // TBL_EXP_SCHEDULE_MASTER 에서 scheduleId 리스트를 조회한다.
-            List<Map> list = commonDao.getList("schedule.getScheduleList", scheduleMap);
-            for(Map getMap : list) {
-                
-                Map<String, String> delScheduleMap = new HashMap<String, String>();
-                delScheduleMap.put("scheduleId", (String)getMap.get("SCHEDULE_ID"));
-                result += commonDao.delete("schedule.deleteSchedule", delScheduleMap);
-                result += commonDao.delete("schedule.deleteScheduleShare", delScheduleMap);
-            }
-        }else {
-            
-            Map<String, String> scheduleMap = new HashMap<String, String>();
-            scheduleMap.put("scheduleId", (String)map.get("scheduleId"));
-            result += commonDao.delete("schedule.deleteSchedule", scheduleMap);
-            result += commonDao.delete("schedule.deleteScheduleShare", scheduleMap);
-        }
+        String userId        = (String)map.get("userId");
+        String spCstmId      = (String)map.get("spCstmId");
+
+        Map<String, String> scheduleMap = new HashMap<String, String>();
+        scheduleMap.put("scheduleId", scheduleId);
+        scheduleMap.put("delUserId", userId);
+        scheduleMap.put("delSpCstmId", spCstmId);
+        result += commonDao.insert("schedule.insertScheduleDel", scheduleMap);
+        result += commonDao.delete("schedule.deleteSchedule", scheduleMap);
+        result += commonDao.delete("schedule.deleteScheduleShare", scheduleMap);
         
         
         if( result > 0  ) {
@@ -587,6 +856,6 @@ public class ScheduleService extends ExdevBaseService{
         map.put("list", listMap);
         return map;
     }
-	
+    
 }
 

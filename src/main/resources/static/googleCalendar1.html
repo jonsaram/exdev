@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Calendar API Example with GIS</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+
+        const CLIENT_ID = "962547459367-qpb0heuh1dhuqh074jdntl5qdia0ht0g.apps.googleusercontent.com";
+        const API_KEY = "AIzaSyAv7fvLZMg0GuRYPn4v_JLiG0o2jUROLx8";
+        const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+
+        function gapiLoaded() {
+        	console.log("===== gapiLoaded =====");
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+        	console.log("===== initializeGapiClient =====");
+            await gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"]
+            });
+            gapiInited = true;
+            maybeExecute();
+        }
+
+        function gisLoaded() {
+            console.log("===== gisLoaded =====");
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: '', // will be defined later
+            });
+            gisInited = true;
+            maybeExecute();
+        }
+
+        function maybeExecute() {
+        	console.log("===== maybeExecute =====");
+            if (gapiInited && gisInited) {
+                document.getElementById('authorize_button').style.visibility = 'visible';
+            }
+        }
+
+        function handleAuthClick() {
+        	
+        	console.log("===== handleAuthClick =====");
+        	
+            tokenClient.callback = async (response) => {
+                if (response.error !== undefined) {
+                    throw(response);
+                }
+                console.log('Successfully authenticated');
+                checkCalendar();
+            };
+
+            if (gapi.client.getToken() === null) {
+                // Prompt the user to select a Google Account and ask for consent to share their data
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            } else {
+                // Skip display of the account chooser and consent dialog for an existing Google Account
+                tokenClient.requestAccessToken({prompt: ''});
+            }
+        }
+
+        async function validateCalendarId(calendarId) {
+            try {
+                const response = await gapi.client.calendar.calendars.get({
+                    'calendarId': calendarId
+                });
+                if (response.result && response.result.id) {
+                    console.log("Calendar ID is valid.");
+                    return true;
+                } else {
+                    console.log("Invalid Calendar ID.");
+                    return false;
+                }
+            } catch (error) {
+                console.error("Error validating Calendar ID: ", error);
+                return false;
+            }
+        }
+
+        async function checkCalendar() {
+
+            console.log("===== checkCalendar =====");
+            
+            const calendarId = "7838b8bc9283596ac5cfb9510977b466792487fa29200862bad1b7ea1e09266f@group.calendar.google.com";
+            const isValid = await validateCalendarId(calendarId);
+            if (isValid) {
+                console.log("Calendar ID is valid, proceed with event insertion.");
+                // Add your event insertion logic here
+            } else {
+                console.log("Invalid Calendar ID, cannot proceed with event insertion.");
+            }
+        }
+
+        window.onload = function() {
+            document.getElementById('authorize_button').style.visibility = 'hidden';
+            gapiLoaded();
+            gisLoaded();
+        };
+    </script>
+</head>
+<body>
+    <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<meta charset="utf-8">
+
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.14/index.global.min.js'></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<script type="text/javascript">
+    var <@pageId> = {
+            
+        events : []
+       ,googleEvents : []
+       ,IS_DELETE_GOOGLE_EVENT : false
+       ,IS_GOOGLE_CALENDAR_SYN_YN : false
+       ,GOOGLE_CALENDAR_ID : ''
+       ,TOKEN_CLIENT : ''
+       ,DEL_GOOGLE_EVENT : []
+       ,calendar : ''
+       ,toDay : ''
+       ,startDate : ''
+       ,endDate   : ''
+
+       ,init : function( value ) {
+
+            // 구글 관련 
+            <@pageId>.loadGapi();
+            <@pageId>.loadGis();
+           
+         }// init
+
+       
+       
+       /*=============================================================================================*/
+       /* 일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스               */  
+      ,startGetScheduleProc : function() {// 시작
+           console.log("1. startGetScheduleProc ");
+       }
+       /* 일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스               */
+       /*=============================================================================================*/
+       
+       /*=============================================================================================*/
+       /* google API함수    google API함수    google API함수    google API함수    google API함수       */
+     
+        ,loadGapi: function() {
+              console.log("loadGapi");
+              const script = document.createElement('script');
+              script.src = "https://apis.google.com/js/api.js";
+              script.onload = () => <@pageId>.gapiLoaded();
+              document.body.appendChild(script);
+         }
+        ,loadGis: function() {
+              console.log("loadGis");
+              const script = document.createElement('script');
+              script.src = "https://accounts.google.com/gsi/client";
+              script.onload = () => <@pageId>.gisLoaded();
+              document.body.appendChild(script);
+         }
+        ,gapiLoaded : function() {
+             console.log("gapiLoaded");
+             gapi.load('client', () => {
+                 <@pageId>.initializeGapiClient()
+                     .then(() => {
+                         
+                     })
+                     .catch(error => {
+                         console.error('Error loading GAPI client:', error);
+                     });
+             });
+         }
+
+        ,gisLoaded : function() {
+            console.log("gisLoaded");
+            try {
+                <@pageId>.TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
+                    client_id: _CLIENT_ID,
+                    scope: _SCOPES,
+                    callback: (response) => {
+                        if (response.error !== undefined) {
+                            throw(response);
+                        }
+                        console.log('GAPI OAuth2 token client initialized successfully.');
+                        // Additional logic if needed
+                    }
+                });
+            } catch (error) {
+                console.error("Error initializing GAPI OAuth2 token client: ", error);
+                // Handle the error, possibly by displaying a message to the user
+                alert("Failed to initialize Google Authentication. Please try again later.");
+            }
+        }
+        ,initializeGapiClient: async function() {
+            console.log("initializeGapiClient");
+            try {
+                await gapi.client.init({
+                    apiKey: _API_KEY,
+                    discoveryDocs: _DISCOVERY_DOCS
+                });
+                console.log('GAPI client initialized successfully.');
+                // 추가 작업
+            } catch (error) {
+                console.error('Error initializing GAPI client:', error);
+            }
+        }
+       /* google API함수    google API함수    google API함수    google API함수    google API함수       */
+       /*=============================================================================================*/
+       
+      
+    }
+    // Page Load가 완료된후 실행 된다.
+    C_PM.onLoadPage("<@pageId>", function() {
+        C_COM.hideLeftMenu();
+        <@pageId>.init();
+        
+    });
+    // History back으로 이동해왔을 경우 이루틴이 실행된다.
+    C_HM.onReturn("<@pageId>", function(pageId, data) {
+
+    });
+</script>
+
+    <div class="container">
+        <div class="cont_wrap lnb_none">
+            <div class="cont_top">
+                <h2><i class="icon_bullet"></i>구글 캘린더</h2>
+            </div>
+        </div>
+    </div>
+
