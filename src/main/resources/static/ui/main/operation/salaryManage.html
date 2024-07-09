@@ -4,6 +4,7 @@ var <@pageId> = {
 		searchedRows : []
 		,paymentDetailList: []
 		,searchedUser : {}
+		,clickedRowData : {}
 		,pageInit : () =>{
 			
 			_yearMonthSelectBox("<@pageId>_yearMonths");
@@ -84,6 +85,8 @@ var <@pageId> = {
 			C_COM.requestQuery(parm, function(resultData) {
 
 				<@pageId>.paymentDetailList = resultData.data;
+				
+				<@pageId>.clickedRowData = { selectedRow : selectedRow ,contractDate : contractDate, requestParm : requestParm ,paymentDetailList : <@pageId>.paymentDetailList}
 				
 				const requestParm2 = <@pageId>.paymentDetailList[0];
 				
@@ -186,7 +189,13 @@ var <@pageId> = {
 		}
 		,paymentSpec : () =>{
 
-			let param = [];
+			if( isEmpty(<@pageId>.clickedRowData) || <@pageId>.clickedRowData.length <= 0){
+				alert("급여내역을 조회하신 후 명세표를 확인할 수 있습니다. ");
+				return;
+			}
+
+			let cR = <@pageId>.clickedRowData;
+			let param = {ADD_DATE_MONTH :cR.contractDate , USER_ID : cR.selectedRow.USER_ID};
 			C_POP.open('popup_operation_paymentSpecPopup', {param:param}, function(retData) {
 				
 				if(isValid(retData)){
@@ -279,8 +288,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<div class="cont_top clearFix">
 							<h3 class="fl font16">급여 상세</h3>
 							<div class="fr lh24 clearFix">
-								<a href="javascript:<@pageId>.etcPayment()" class="btn small fl" id="<@popupId>_etcPaymentMng">기타 수수료 입력</a>
-								<a href="javascript:<@pageId>.paymentSpec()" class="btn small fl" id="<@popupId>_paymentSpec">급여명세표 출력</a>
+								<a href="javascript:<@pageId>.etcPayment()" class="btn small fl" id="<@pageId>_etcPaymentMng">기타 수수료 입력</a>
+								<a href="javascript:<@pageId>.paymentSpec()" class="btn small fl" id="<@pageId>_paymentSpec">급여명세표 출력</a>
 								<span class="info"><strong id="<@pageId>_payUserName"></strong> l <strong  id="<@pageId>_payDate"></strong> l</span>
 								<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCntDetail"></span></strong>
 							</div>

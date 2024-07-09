@@ -5,10 +5,46 @@
 		,close : function(returnData) {
 			if(isEmpty(returnData)) returnData = {};
 			C_POP.close(returnData);
-		 }
+		}
+		,searchList : () => {
+
+			const requestParm = {
+					USER_ID		: <@popupId>.rcvData.USER_ID, 
+					ADD_DATE_MONTH : <@popupId>.rcvData.ADD_DATE_MONTH 
+			};
+			
+			var parm = {
+					 queryId 		: "salary.getSalarySlip"
+					,requestParm	: requestParm
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+
+ 				var rparm = {
+						 targetId 		: "<@popupId>_salarySlipList"
+						,list			: resultData.data
+				}
+				C_COM.renderHtml("<@popupId>", rparm);
+
+ 				let totPayment=0 , totTax=0 , totRealPay =0; 
+ 				resultData.data.forEach( item => {
+ 					console.log( item );
+   					totPayment	+=  item.PAYMENT;
+ 					totTax		+=  item.TAX;
+ 					totRealPay	+=  item.REAL_PAY; 
+ 					
+ 				})
+	 			const trTemplate = $("#<@popupId>_salarySlipListTot_template").render({	 TOT_PAYMENT : totPayment,  TOT_TAX : totTax,	TOT_REAL_PAY :  totRealPay });
+				$("#<@popupId>_salarySlipListTot").append(trTemplate);
+
+			});
+		}		
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(parm) {
+debugger;		
+		<@popupId>.rcvData = parm.param;
+		<@popupId>.searchList();
 
 	});
 </script>
@@ -51,60 +87,28 @@
 							<col style="width:25%;" />
 							<col style="width:25%;" />
 						</colgroup>
-						<tbody>
-							<tr>
-								<td class="tl">일회성</td>
-								<td class="tr">2,000,000</td>
-								<td class="tr">66,000</td>
-								<td class="tr">1,980,000</td>
-							</tr>
-							<tr>
-								<td class="tl">월자문</td>
-								<td class="tr">2,000,000</td>
-								<td class="tr">66,000</td>
-								<td class="tr">1,980,000</td>
-							</tr>
-							<tr>
-								<td class="tl">외주</td>
-								<td class="tr">2,000,000</td>
-								<td class="tr">66,000</td>
-								<td class="tr">1,980,000</td>
-							</tr>
-							<tr>
-								<td class="tl">AC사업</td>
-								<td class="tr">2,000,000</td>
-								<td class="tr">66,000</td>
-								<td class="tr">1,980,000</td>
-							</tr>
-							<tr>
-								<td class="tl">투자유치</td>
-								<td class="tr">2,000,000</td>
-								<td class="tr">66,000</td>
-								<td class="tr">1,980,000</td>
-							</tr>
-							<tr>
-								<td class="tl">기타</td>
-								<td class="tr">2,000,000</td>
-								<td class="tr">66,000</td>
-								<td class="tr">1,980,000</td>
-							</tr>
+						<tbody id='<@popupId>_salarySlipList'>
 						</tbody>
-						<tfoot>
+						<script type="text/x-jsrender" id="<@popupId>_salarySlipList_template">						
+							{{for list}}
+								<tr>
+									<td class="tl">{{:CONTRACT_TYPE_NM}}</td>
+									<td class="tr">{{numb:PAYMENT}}</td>
+									<td class="tr">{{numb:TAX}}</td>
+									<td class="tr">{{numb:REAL_PAY}}</td>
+								</tr>
+							{{/for}}
+						</script>
+						 
+						<tfoot id="<@popupId>_salarySlipListTot"></tfoot>
+						<script type="text/x-jsrender" id="<@popupId>_salarySlipListTot_template">						
 							<tr>
 								<td>계</td>
-								<td>9,000,000</td>
-								<td>66,000</td>
-								<td class="tr">1,980,000</td>
+								<td>{{numb:TOT_PAYMENT}}</td>
+								<td>{{numb:TOT_TAX}}</td>
+								<td class="tr">{{numb:TOT_REAL_PAY}}</td>
 							</tr>
-							<tr class="tax">
-								<td>세금</td>
-								<td colspan="3">1,000,000</td>								
-							</tr>
-							<tr class="minus">
-								<td>차감지금액</td>
-								<td colspan="3">8,000,000</td>	
-							</tr>
-						</tfoot>
+						</script>
 					</table>
 				</div>
 			</div>
