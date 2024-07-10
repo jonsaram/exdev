@@ -289,8 +289,10 @@ var <@pageId> = {
 			let afterState	= "";
 			let title 		= "";
 			let appTitle	= "";
-			if( selectedRow["PROCESS_STATE"] == 'CONTRACTING' ){title	= "계약 체결 완료 결재 요청";afterState	= "CONTRACTED";}
-			if( selectedRow["PROCESS_STATE"] == 'CONTRACTED' ){title	= "실행 완료 결재 요청";afterState	= "COMPLETED";}
+			let buyerNm 	= selectedRow.BUYER_NM;
+			let consultingNm = selectedRow.CONSULTING_NM;
+			if( selectedRow["PROCESS_STATE"] == 'CONTRACTING' ){title	= `${buyerNm} ${consultingNm} 계약 체결 완료 결재 요청`;afterState	= "CONTRACTED";}
+			if( selectedRow["PROCESS_STATE"] == 'CONTRACTED' ){title	= `${buyerNm} ${consultingNm} 실행 완료 결재 요청`;afterState	= "COMPLETED";}
 			appTitle	= title.replace(" 결재 요청","");
 			
 			const totalCost = addComma(selectedRow.TOTAL_COST);

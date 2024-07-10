@@ -15,7 +15,7 @@
 				,ITEM4 : "1ROW 4COL"
 			 }
 			,{
-				 ITEM1 : "2ROW 2COL"
+				 ITEM1 : "1ROW 1COL"
 				,ITEM2 : "2ROW 2COL"
 				,ITEM3 : "2ROW 2COL"
 				,ITEM4 : "2ROW 4COL"
@@ -46,15 +46,11 @@
 		}
 		C_COM.renderHtml("<@pageId>", rparm);
 		
+		mergeTableTD('tableId', {startIdx : 3, endIdx : 4, startRowIdx : 1});
+
+		mergeTableTD('tableId', {startIdx : 2, endIdx : 2, startRowIdx : 1});
+
 		C_GRID.init("tableId");
-
-//		mergeTableColumn('tableId');
-
-//		mergeTableTD('tableId', {startIdx : 3, endIdx : 4, startRowIdx : 1});
-		
-
-		//mergeTableTD('tableId', {startIdx : 2, endIdx : 2, startRowIdx : 1});
-
 
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.

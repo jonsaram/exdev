@@ -7,6 +7,56 @@
 	<link rel="stylesheet" type="text/css" href="./css/libs/jquery-ui.css"		/>
 	<link rel="stylesheet" type="text/css" href="./css/layout.css"				/>
 	<link rel="stylesheet" type="text/css" href="./css/common.css"				/>
+	
+	<style>
+      /*# CKEditor Style 높이/Font 설정 */
+        
+	  .ck-editor__editable { height: 250px; }
+	  .ck-content { font-size: 12px; }
+	  
+	  /*# 달력 관련 */
+	  #calendar {
+	  }
+	  /*시간제목*/
+	  .fc-daygrid-dot-event > .fc-event-title{
+	    color:#000 !important;
+	    font-size:1em;
+	  }
+	  /*제목*/
+	  .fc-event-title.fc-sticky{
+	    
+	    font-size:1em;
+	  }
+	  /*일정시간*/
+	  .fc-daygrid-event > .fc-event-time{
+	    color:#000;
+	    font-size:3em;
+	  }
+	  .disabled-bg {background:#f1f1f1}
+
+      .grid-cell {
+          user-select: none; /* 텍스트 선택 비활성화 */
+      }
+      .selected {
+          background-color: lightgray!important;
+      }
+      .layer-popup {
+          position: absolute;
+          width: 200px;
+          background-color: white;
+          border: 1px solid black;
+          padding: 5px;
+      }
+      .menu-item {
+          margin-bottom: 4px;
+      }
+      .menu-item:hover {
+          background-color: lightblue;
+      }
+      
+    </style>
+	
+	
 	<script type="text/javascript" src="./js/libs/jquery-1.12.4.min.js"			></script>
 	<script type="text/javascript" src="./js/libs/jquery-ui.js"					></script>
  	<script type="text/javascript" src="./js/libs/highcharts.js"				></script>
@@ -132,7 +182,6 @@
 		}
 		
 		$(function() {
-			debugger;
 			
 			// 시작 Page Id
 			C_MENU.initMenu();
@@ -156,6 +205,9 @@
 			// 고객 로그인인경우
 			if(G_VAL.session.LOGIN_TYPE == "BUYER") {
 				setBuyerSession(G_VAL.session.USER_ID);
+				$("#_myInfo").hide()
+				$("#_changePw").hide()
+				
 			} else {
 				setBuyerListOfUser();
 			}
@@ -436,39 +488,6 @@
 	</script>
 	
 	
-	<style>
-      /*# CKEditor Style 높이/Font 설정 */
-        
-	  .ck-editor__editable { height: 250px; }
-	  .ck-content { font-size: 12px; }
-	  
-	  /*# 달력 관련 */
-	  #calendar {
-	  }
-	  /*시간제목*/
-	  .fc-daygrid-dot-event > .fc-event-title{
-	    color:#000 !important;
-	    font-size:1em;
-	  }
-	  /*제목*/
-	  .fc-event-title.fc-sticky{
-	    
-	    font-size:1em;
-	  }
-	  /*일정시간*/
-	  .fc-daygrid-event > .fc-event-time{
-	    color:#000;
-	    font-size:3em;
-	  }
-	  .disabled-bg {background:#f1f1f1}
-
-      .grid-cell {
-          user-select: none; /* 텍스트 선택 비활성화 */
-      }
-      .selected {
-          background-color: lightgray;
-      }
-    </style>
 
 </head>
 <body class="main">
@@ -496,8 +515,8 @@
 				<a href="javascript:C_ALARM.showAlarmPopup()" class="alarm">알림<span class="alarm_count" id="alarmCount">3</span></a>
 				<a href="javascript:void(0);" class="user_login"><span class="photo"><img id="userImg" src=""></span><span id="loginUserNm">이희성</span></a>
 				<ul class="user_menu">
-					<li><a href="javascript:privateInfo()"><i class="icon_admin"></i>내 정보 보기</a></li>
-					<li><a href="javascript:changePwd()"><i class="icon_pwEdit"></i>비밀번호 변경</a></li>
+					<li id="_myInfo"><a href="javascript:privateInfo()"><i class="icon_admin"></i>내 정보 보기</a></li>
+					<li id="_changePw"><a href="javascript:changePwd()"><i class="icon_pwEdit"></i>비밀번호 변경</a></li>
 					<li><a href="javascript:logout()"><i class="icon_logout"></i>로그아웃</a></li>
 				</ul>
 			</div>

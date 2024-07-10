@@ -96,6 +96,8 @@
 
 			let CONTRACT_ID 	= <@pageId>.projectList[idx].CONTRACT_ID;
 			let PROCESS_STATE	= <@pageId>.projectList[idx].PROCESS_STATE;
+			let BUYER_NM	 	= <@pageId>.projectList[idx].BUYER_NM;
+			let CONSULTING_NM 	= <@pageId>.projectList[idx].CONSULTING_NM;
 			
 	        let requestParm = {};
 	        
@@ -106,7 +108,7 @@
 		        	 RELATION_ID 	: CONTRACT_ID
 		        	,AFTER_SERVICE	: `ApprovalAfterService.updateProjectProcess`
 		        	,AFTER_PARM		: `{"PROCESS_STATE" : "CONTRACTING"}`				// 결재 완료 후 처리에서 Update상태값 (체결 대기)
-		        	,TITLE			: `프로젝트 담당자 지정 결재 요청`
+		        	,TITLE			: `${BUYER_NM} ${CONSULTING_NM} 프로젝트 담당자 지정 결재 요청`
 		        	,CONTENT		: appContent
 		        };
 		        apprProcessState = "ON_CONTRACTING_APPR";
