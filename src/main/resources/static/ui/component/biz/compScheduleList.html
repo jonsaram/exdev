@@ -59,7 +59,10 @@ var <@compId> = {
 		
 		<@compId>.contractInfo =  data.contractInfo;
 
-		<@compId>.loadScheduleList();
+		if("<@preload>" != "N") {
+			<@compId>.loadScheduleList();	
+		}
+		
 	});
 </script>
 <component>

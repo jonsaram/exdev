@@ -22,25 +22,13 @@
 		
 		<@compId>.contractInfo =  data.contractInfo;
 		
-		<@compId>.loadConsultingContentList();
+		if("<@preload>" != "N") {
+			<@compId>.loadConsultingContentList();	
+		}
 	
 	});
 </script>
 <div>
-<!--
-	<div class="cont_top clearFix">
-		<h4 class="fl lh24">- 컨설팅 프로세스</h4>
-		<div class="fr inlineBlock_wrap" style="<@btnDisplay>">
-			<a href="javascript:<@parentId>.openBigCard('<@contractInfo.realIndex>')" class="btn_zoomInOut in"><span class="txt">Popup</span></a>
-		</div>
-	</div>
-	<div class="approver_list_wrap person mb15" style="height:calc(50% - 36px);">
-		<ul class="approver_list" id="consultingContentList">
-			<li><span class="txt"><span id="consultingContent">
-			</span></span></li>
-		</ul>
-	</div>
--->	
 	<div class="cont_top clearFix">
 		<h4 class="fl lh24">- 컨설팅 프로세스</h4>							
 	</div>

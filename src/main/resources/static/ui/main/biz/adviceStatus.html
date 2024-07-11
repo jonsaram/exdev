@@ -60,6 +60,11 @@
 			
 			let requestParm = <@pageId>.makeFilterMap();
 			
+			requestParm.startDate	= $("#<@pageId> #startDate").val();
+			requestParm.endDate 	= $("#<@pageId> #endDate").val();
+			
+			
+			
 			var parm = {
 				 queryId 		: "contract.getProjectList"
 				,requestParm	: requestParm
@@ -126,21 +131,22 @@
 			C_COM.renderHtml("<@pageId>", parm);
 
 			$.each(list, function(idx) {
+				
 				let key_cslist = `${parm.targetId}_cslist${idx}`;
-				C_COMP.import(key_cslist, "component_biz_compConsultingContent"	, {contractInfo : this															}, function(data) {
+				C_COMP.import(key_cslist, "component_biz_compConsultingContent"	, {contractInfo : this, preload : "N"														}, function(data) {
 					//dalert(data);
 				});
 				let key_sch = `${parm.targetId}_sch${idx}`;
-				C_COMP.import(key_sch, "component_biz_compScheduleList"			, {contractInfo : this															}, function(data) {
+				C_COMP.import(key_sch, "component_biz_compScheduleList"			, {contractInfo : this, preload : "N"														}, function(data) {
 					//dalert(data);
 				});
 				let key_todo = `${parm.targetId}_todo${idx}`;
-				C_COMP.import(key_todo, "component_biz_compTodoList"			, {contractInfo : this															}, function(data) {
+				C_COMP.import(key_todo, "component_biz_compTodoList"			, {contractInfo : this, preload : "N"														}, function(data) {
 					//dalert(data);
 				});
 				let key_wk = `${parm.targetId}_wk${idx}`;
 				let scrollStyle = "max-height:250px";
-				C_COMP.import(key_wk, "component_biz_compConsultingProcess"		, {contractInfo : this, inputDisplay :"display:none", scrollStyle : scrollStyle	}, function(data) {
+				C_COMP.import(key_wk, "component_biz_compConsultingProcess"		, {contractInfo : this, preload : "N", inputDisplay :"display:none", scrollStyle : scrollStyle	}, function(data) {
 					//dalert(data);
 				});
 				
@@ -171,6 +177,7 @@
 		,openBigCard	: function(index) {
 			let projectInfo = <@pageId>.projectList[index];
 			C_POP.open('popup_biz_adviceStatusPopup', projectInfo, function(retData) {
+				<@pageId>[<@pageId>.buyerCompObjMap[projectInfo.CONTRACT_ID].key_cslist	].loadConsultingContentList();				
 				<@pageId>[<@pageId>.buyerCompObjMap[projectInfo.CONTRACT_ID].key_sch	].loadScheduleList();				
 				<@pageId>[<@pageId>.buyerCompObjMap[projectInfo.CONTRACT_ID].key_todo	].loadTodoList();		
 				<@pageId>[<@pageId>.buyerCompObjMap[projectInfo.CONTRACT_ID].key_wk		].loadCmmtList();				
@@ -181,7 +188,10 @@
 			$(`#<@pageId> #${targetId} div[name=cardBody]`		).removeClass('upDown');
 			
 			$.each(<@pageId>.cardGroupList[targetId], function(idx) {
-				<@pageId>[`${targetId}_sch${idx}`].loadInitScheduleList();
+				<@pageId>[`${targetId}_cslist${idx}`].loadConsultingContentList();
+				<@pageId>[`${targetId}_sch${idx}`	].loadInitScheduleList();
+				<@pageId>[`${targetId}_todo${idx}`	].loadTodoList();
+				<@pageId>[`${targetId}_wk${idx}`	].loadCmmtList();
 			});
 			
 		 }
@@ -193,7 +203,10 @@
 			$(`#<@pageId> #${targetId} #updownButton${idx}`	).removeClass('down');
 			$(`#<@pageId> #${targetId} #cardBody${idx}`		).removeClass('upDown');
 			if(isValid(<@pageId>[`${targetId}_sch${idx}`])) {
-				<@pageId>[`${targetId}_sch${idx}`].loadScheduleList();
+				<@pageId>[`${targetId}_cslist${idx}`].loadConsultingContentList();
+				<@pageId>[`${targetId}_sch${idx}`	].loadInitScheduleList();
+				<@pageId>[`${targetId}_todo${idx}`	].loadTodoList();
+				<@pageId>[`${targetId}_wk${idx}`	].loadCmmtList();
 			}
 		 }
 		,foldCard	: function(targetId, idx) {
@@ -202,12 +215,22 @@
 		 }
 		,toggleCard : function(targetId, idx) {
 			let isExpand = $(`#<@pageId> #${targetId} #updownButton${idx}`).hasClass('down');
-			if( isExpand ) <@pageId>[`${targetId}_sch${idx}`].loadInitScheduleList();
+			if( isExpand ) {
+				<@pageId>[`${targetId}_cslist${idx}`].loadConsultingContentList();
+				<@pageId>[`${targetId}_sch${idx}`	].loadInitScheduleList();
+				<@pageId>[`${targetId}_todo${idx}`	].loadTodoList();
+				<@pageId>[`${targetId}_wk${idx}`	].loadCmmtList();
+			}
 		 }
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
+		let today  = getToday(8, '-');
+		let fromday = getAddMonth(today, -3); 
 		
+		$("#<@pageId> #startDate").val(fromday);
+		$("#<@pageId> #endDate").val(today);
+
 		<@pageId>.pageInit();
 
 		<@pageId>.loadCardList();
@@ -228,9 +251,9 @@
 			<label>조회기간</label>
 			<div class="info">
 				<div class="calendar_wrap fl">
-					<input type="text" id="from" name="from" class="datepicker" style="width:114px">
+					<input type="text" id="startDate" name="startDate" class="datepicker" style="width:114px">
 					<label for="to">~</label>
-					<input type="text" id="to" name="to" class="datepicker" style="width:114px">
+					<input type="text" id="endDate" name="endDate" class="datepicker" style="width:114px">
 				</div>
 				<div id="<@pageId>_customerSelectBox" 	class="select_box fl" style="width:250px"></div>
                 <div id="<@pageId>_consultingSelectBox" class="select_box fl" style="width:250px"></div>

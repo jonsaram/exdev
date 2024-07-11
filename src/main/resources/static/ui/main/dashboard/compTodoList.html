@@ -107,8 +107,10 @@
 	C_COMP.onLoadComp("<@compId>", function(data) {
 
 		<@compId>.contractInfo =  data.contractInfo;
-		
-		<@compId>.loadTodoList();
+
+		if("<@preload>" != "N") {
+			<@compId>.loadTodoList();	
+		}
 		
 	});
 </script>

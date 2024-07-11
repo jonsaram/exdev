@@ -119,9 +119,11 @@
 		
 		<@compId>.contractInfo =  data.contractInfo;
 		
-		<@compId>.loadCmmtList();
-		
-		setTimeout(<@compId>.loadCmmtLoop, 1000);
+		if("<@preload>" != "N") {
+			<@compId>.loadCmmtList();
+
+			setTimeout(<@compId>.loadCmmtLoop, 1000);
+		}
 	
 	});
 </script>
