@@ -1558,7 +1558,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							</div>
 
 							<div class="lifeCycle_wrap mt25" id="<@pageId>_getFinAnalLifecycleIssue">
-					            <script type="text/x-jsrender" id="<@pageId>_getFinAnalLifecycleIssue_template">
+							</div>
+					        <script type="text/x-jsrender" id="<@pageId>_getFinAnalLifecycleIssue_template">
 						 		{{for list}}
 								<div class="col4 {{:CHECK_STR}}">
 									<div class="box_lifeCycle">
@@ -1572,8 +1573,12 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									</div>
 								</div>
 						 		{{/for}}
-				            	</script>
-				            </div>
+				            </script>
+ 							<script type="text/x-jsrender" id="<@pageId>_getFinAnalLifecycleIssue_noData_template">
+						 	        <div>	
+						 	        	<span>자료가 없습니다.</span>	
+						 	        </div>
+						     </script>
 						</div>
 					</div>
 
