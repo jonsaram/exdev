@@ -2088,7 +2088,6 @@ var CLASS_GRID = function() {
         	this.addRow();
         }
         if (event.ctrlKey && eventKey === 'd') {
-        	event.preventDefault();
             this.deleteRow();
         }
     };
@@ -2115,7 +2114,12 @@ var CLASS_GRID = function() {
             const row = $(cell).attr("data-row");
             const col = $(cell).attr("data-col");
             if (!rows[row]) rows[row] = [];
-            rows[row][col] = cell.innerText;
+            debugger;
+            let data = cell.innerText;
+
+            if (data.includes('\t') || data.includes('\n')) data = `"${data}"`;
+            
+            rows[row][col] = data;
         });
 
         const rowKeys = Object.keys(rows).sort((a, b) => a - b);
@@ -2127,6 +2131,7 @@ var CLASS_GRID = function() {
     };
 
     this.copyToClipboard = function(text) {
+    	dlog(text);
         const $temp = $("<textarea>");
         $("body").append($temp);
         $temp.val(text).select();
@@ -2134,12 +2139,29 @@ var CLASS_GRID = function() {
         $temp.remove();
     };
 
-    this.pasteFromClipboard = function(clipboardData) {
+	this.parseExcelType = function(input) {
+	    // 정규 표현식: 따옴표로 묶인 문자열과 묶이지 않은 문자열을 분리
+	    const regex = /"([^"]*)"/g;
+	    let modifiedInput = input;
+	
+	    // 따옴표로 묶인 부분을 찾고 \n을 [nl]로 바꾸기
+	    modifiedInput = modifiedInput.replace(regex, (match, p1) => {
+	        // p1: 따옴표 안의 내용
+	        const modifiedContent = p1.replace(/\n/g, '[nl]');
+	        return modifiedContent;
+	    });
+	
+	    return modifiedInput;
+	    
+	}
+	this.pasteFromClipboard = function(clipboardData) {
 
         this.backupCellsState(this.getCellsToChange(clipboardData));
 
         if (!this.pasteStartCell) return;
-
+		
+		clipboardData = this.parseExcelType(clipboardData);
+		
         const lines = clipboardData.split("\n");
 
         const startRow = parseInt($(this.pasteStartCell).attr("data-row"));
@@ -2151,11 +2173,11 @@ var CLASS_GRID = function() {
                 const targetRow = startRow + rowIndex;
                 const targetCol = startCol + colIndex;
                 const targetCell = $(`#${this.gridId} .explan-grid-cell[data-row=${targetRow}][data-col=${targetCol}]`);
+                cellText = cellText.replaceAll("[nl]", "</br>");
                 if (targetCell.length) {
-                    targetCell.text(cellText);
+                    targetCell.html(cellText);
                 } else {
-		            // 여기에서 마지막 줄의 첫 번째 셀을 선택된 상태로 만듭니다
-		            const tableBody = $(`#${this.gridId} tbody`);
+		            const tableBody = $(`#${this.gridId}`);
 		            const lastRow = tableBody.children('tr').last();
 		            const firstCellInLastRow = lastRow.find('.explan-grid-cell[data-col=1]');
 		
@@ -2169,29 +2191,7 @@ var CLASS_GRID = function() {
 		            this.addRow();
 		            
 	                const targetCell = $(`#${this.gridId} .explan-grid-cell[data-row=${targetRow}][data-col=${targetCol}]`);
-                    targetCell.text(cellText);
-/*
-                	// 이곳에 마지막 줄 다음에 한줄을 삽입
-		            const tableBody = $(`#${this.gridId} tbody`);
-		            const lastRow = tableBody.children('tr').last();
-		            if (lastRow.length) {
-		                const newRow = lastRow.clone();
-		                // 새 줄에 데이터 속성 data-row 업데이트
-		                const newRowIndex = parseInt(lastRow.find('td.explan-grid-cell').first().attr('data-row')) + 1;
-
-		                newRow.children('.explan-grid-cell').each(function(index) {
-		                	debugger;
-		                    $(this).attr('data-row', newRowIndex);
-		                    $(this).attr('data-col', index + 1);
-		                    $(this).text(''); // 셀 텍스트 초기화 (필요에 따라 다르게 설정 가능)
-		                });
-		                // 새 줄 삽입
-		                tableBody.append(newRow);
-		                // 새로 생성된 셀에 데이터 넣기
-		                const newCell = $(`#${this.gridId} .grid-cell[data-row=${newRowIndex}][data-col=${targetCol}]`);
-		                newCell.text(cellText);
-		            }
-*/
+                    targetCell.html(cellText);
                 }
             });
         });
@@ -2509,8 +2509,6 @@ var C_GRID = {
      }
 	 
 }
-
-
 
 
 
