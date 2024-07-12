@@ -2,7 +2,11 @@
 <script type="text/javascript">
 
 	var <@pageId> = {
+		getData : function() {
+			var resultList = C_GRID.getGridData("grid1");
 			
+			dlog(resultList);
+		}	
 	}
 	
 	// Page Load가 완료된후 실행 된다.
@@ -46,11 +50,11 @@
 		}
 		C_COM.renderHtml("<@pageId>", rparm);
 		
-		mergeTableTD('tableId', {startIdx : 3, endIdx : 4, startRowIdx : 1});
+		//mergeTableTD('tableId', {startIdx : 3, endIdx : 4, startRowIdx : 1});
 
-		mergeTableTD('tableId', {startIdx : 2, endIdx : 2, startRowIdx : 1});
+		//mergeTableTD('tableId', {startIdx : 2, endIdx : 2, startRowIdx : 1});
 
-		C_GRID.init("tableId");
+		C_GRID.makeGrid("grid1");
 
 	});
 	// History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -61,14 +65,14 @@
 <div class="cont_wrap">
 	Table Grid<br/>
 	
-	<table border=1>
+	<table border=1 id="grid1">
 		<thead>
 			<tr>	
-				<th>Num</th>	
-				<th>ITEM1</th>	
-				<th>ITEM2</th>	
-				<th>ITEM3</th>	
-				<th>ITEM4</th>	
+				<th column="COLUMN1">Num</th>	
+				<th column="COLUMN2">ITEM1</th>	
+				<th column="COLUMN3">ITEM2</th>	
+				<th column="COLUMN4">ITEM3</th>	
+				<th column="COLUMN5">ITEM4</th>	
 			</tr> 
 		</thead>
 		<tbody id="tableId">
@@ -76,11 +80,11 @@
 		<script type="text/x-jsrender" id="tableId_template">	
 			{{for list}}
 			<tr>	
-				<td class="grid-cell">{{:#index + 1}}</td>	
-				<td class="grid-cell">{{:ITEM1}}</td>	
-				<td class="grid-cell">{{:ITEM2}}</td>	
-				<td class="grid-cell">{{:ITEM3}}</td>	
-				<td class="grid-cell">{{:ITEM4}}</td>	
+				<td style="height:30px">{{:#index + 1}}</td>	
+				<td style="height:30px">{{:ITEM1}}</td>	
+				<td style="height:30px">{{:ITEM2}}</td>	
+				<td style="height:30px">{{:ITEM3}}</td>	
+				<td style="height:30px">{{:ITEM4}}</td>	
 			</tr>
 			{{/for}}
 		</script>
@@ -90,4 +94,7 @@
 			</tr>
 		</script>
 	</table>
+	
+	<input type=button value=getData onclick="<@pageId>.getData()"/>
+	
 </div>

@@ -1498,7 +1498,7 @@ var C_UICOM = {
 			selectCnt = idx++;
 		});
 		if(selectCnt < 0) templatetext = "선택";
-		if(selectCnt > 0) templatetext = templatetext + " 외 " + selectCnt;
+		if(selectCnt > 1) templatetext = templatetext + " 외 " + (selectCnt - 1);
 
 		if(allCnt == selectCnt) {
 			$(`#${templateId} #mutli${targetId}_all`).prop("checked", true);
@@ -1915,22 +1915,26 @@ var C_PAGING = {
 	}		
 }
 
-// Table의 Grid화
-var C_GRID = {
-    isDragging: false,
-    startCell: null,
-    selectedCells: [],
-    pasteStartCell: null,
-    gridId: '',
-    undoStack: [],
-    redoStack: [],
 
-    undo() {
+
+
+// Table의 Grid변환
+var CLASS_GRID = function() {
+    this.isDragging = false;
+    this.startCell = null;
+    this.selectedCells = [];
+    this.pasteStartCell = null;
+    this.gridId = '';
+    this.undoStack = [];
+    this.redoStack = [];
+    this.initialContent = "";
+
+    this.undo = function() {
         if (this.undoStack.length === 0) return;
         const lastState = this.undoStack.pop();
         let undoBack = [];
         lastState.forEach(cellState => {
-            const cell = $(`#${this.gridId} .grid-cell[data-row=${cellState.row}][data-col=${cellState.col}]`);
+            const cell = $(`#${this.gridId} .explan-grid-cell[data-row=${cellState.row}][data-col=${cellState.col}]`);
             undoBack.push({
                 row: cellState.row,
                 col: cellState.col,
@@ -1940,14 +1944,14 @@ var C_GRID = {
             cell.text(cellState.text);
         });
         this.redoStack.push(undoBack);
-    },
+    };
 
-    redo() {
+    this.redo = function() {
         if (this.redoStack.length === 0) return;
         const nextState = this.redoStack.pop();
         let redoBack = [];
         nextState.forEach(cellState => {
-            const cell = $(`#${this.gridId} .grid-cell[data-row=${cellState.row}][data-col=${cellState.col}]`);
+            const cell = $(`#${this.gridId} .explan-grid-cell[data-row=${cellState.row}][data-col=${cellState.col}]`);
             redoBack.push({
                 row: cellState.row,
                 col: cellState.col,
@@ -1956,13 +1960,13 @@ var C_GRID = {
             cell.text(cellState.text);
         });
         this.undoStack.push(redoBack);
-    },
-    
-    setGridIndex(gridId) {
+    };
+
+    this.setGridIndex = function(gridId) {
         this.gridId = gridId;
         let rowCounter = 1;
         const rowSpans = [];
-        
+
         $(`#${gridId} tr`).each(function() {
             let colCounter = 1;
 
@@ -1971,11 +1975,11 @@ var C_GRID = {
                 colCounter++;
             }
 
-            $(this).children('.grid-cell').each(function() {
+            $(this).children('.explan-grid-cell').each(function() {
                 while (rowSpans[colCounter] && rowSpans[colCounter] > 0) {
                     colCounter++;
                 }
-                
+
                 $(this).attr('data-row', rowCounter);
                 $(this).attr('data-col', colCounter);
 
@@ -1992,100 +1996,110 @@ var C_GRID = {
             rowCounter++;
         });
 
-        // 그리드 인덱스 재설정 후 이벤트 리스너 재설정
-        setTimeout(() => {
-            $(`#${this.gridId}`).off('click').on('click', '.grid-cell', this.onClick.bind(this));
-        }, 0);
-    },
+        $(`#${this.gridId}`).off('click').on('click', '.explan-grid-cell', this.onClick.bind(this));
+    };
 
-    clearSelection() {
-        $(`#${this.gridId} .grid-cell`).removeClass("selected");
+    this.clearSelection = function() {
+        $(`#${this.gridId} .explan-grid-cell`).removeClass("explan-selected");
         this.pasteStartCell = null;
         this.selectedCells = [];
-    },
+    };
 
-    selectCellsWithinRectangle(start, end) {
+    this.selectCellsWithinRectangle = function(start, end) {
         const startRow = Math.min(parseInt(start.attr("data-row")), parseInt(end.attr("data-row")));
         const endRow = Math.max(parseInt(start.attr("data-row")), parseInt(end.attr("data-row")));
         const startCol = Math.min(parseInt(start.attr("data-col")), parseInt(end.attr("data-col")));
         const endCol = Math.max(parseInt(start.attr("data-col")), parseInt(end.attr("data-col")));
 
-        $(`#${this.gridId} .grid-cell`).each(function() {
+        $(`#${this.gridId} .explan-grid-cell`).each(function() {
             const $cell = $(this);
             const row = parseInt($cell.attr("data-row"));
             const col = parseInt($cell.attr("data-col"));
             const isInRectangle = row >= startRow && row <= endRow && col >= startCol && col <= endCol;
-            $cell.toggleClass("selected", isInRectangle);
+            $cell.toggleClass("explan-selected", isInRectangle);
         });
-    },
+    };
 
-    onMouseDown(event) {
+    this.onMouseDown = function(event) {
         if (!$(event.target).closest(`#${this.gridId}`).length) return;
-        this.clearSelection();
+        C_GRID.clearSelection(this.gridId);
         this.isDragging = true;
         this.startCell = $(event.target);
         this.selectedCells = [];
         this.selectCellsWithinRectangle(this.startCell, this.startCell);
-    },
+    };
 
-    onMouseMove(event) {
+    this.onMouseMove = function(event) {
         if (!$(event.target).closest(`#${this.gridId}`).length) return;
         if (this.isDragging) {
             const endCell = $(event.target);
             this.clearSelection();
             this.selectCellsWithinRectangle(this.startCell, endCell);
         }
-    },
+    };
 
-    onMouseUp(event) {
+    this.onMouseUp = function(event) {
         if (!$(event.target).closest(`#${this.gridId}`).length) return;
         if (this.isDragging) {
             this.isDragging = false;
-            this.selectedCells = $(`#${this.gridId} .grid-cell.selected`).toArray();
+            this.selectedCells = $(`#${this.gridId} .explan-grid-cell.explan-selected`).toArray();
+            C_GRID.setCurrentSelectedGridId(this.gridId);
+            
         }
-    },
+    };
 
-    onClick(event) {
-        if (!$(event.target).closest(`#${this.gridId}`).length && !$(event.target).closest('.layer-popup').length) return;
+    this.onClick = function(event) {
+        if (!$(event.target).closest(`#${this.gridId}`).length && !$(event.target).closest('.explan-layer-popup').length) return;
         if (!this.isDragging) {
             this.clearSelection();
-            $(event.target).addClass("selected");
+            $(event.target).addClass("explan-selected");
             this.selectedCells = [event.target];
             this.pasteStartCell = $(event.target);
         }
-    },
+    };
 
-    onDocumentMouseDown(event) {
-        if ($(event.target).closest('.grid-cell, .layer-popup').length === 0) {
+    this.onDocumentMouseDown = function(event) {
+        if ($(event.target).closest('.explan-grid-cell, .explan-layer-popup').length === 0) {
             this.clearSelection();
         }
-    },
+    };
 
-    onKeyDown(event) {
-        if (event.ctrlKey && event.key === 'c') {
+    this.onKeyDown = function(event) {
+
+        let eventKey = event.key.toLowerCase();
+    	
+    	if(this.gridId != C_GRID.currentSelectedGridId) return;
+        if (event.ctrlKey && eventKey === 'c') {
             const selectedText = this.getSelectedTextForExcel();
             if (selectedText != null) this.copyToClipboard(selectedText);
         }
-        if (event.key === 'Delete' && this.selectedCells.length > 0) {
+        if (eventKey === 'delete' && this.selectedCells.length > 0) {
             this.backupCellsState(this.selectedCells);
             this.selectedCells.forEach(cell => {
                 $(cell).text('');
             });
         }
-        if (event.ctrlKey && event.key === 'z') {
-            this.undo();
+        
+        if (event.ctrlKey && eventKey === 'z') this.undo();
+        if (event.ctrlKey && eventKey === 'y') this.redo();
+        if (event.ctrlKey && eventKey === 'i') this.insertRow();
+        if (event.ctrlKey && eventKey === 'a') {
+        	event.preventDefault();
+        	this.addRow();
         }
-        if (event.ctrlKey && event.key === 'y') {
-            this.redo();
+        if (event.ctrlKey && eventKey === 'd') {
+        	event.preventDefault();
+            this.deleteRow();
         }
-    },
+    };
 
-    onPaste(event) {
+    this.onPaste = function(event) {
+    	if(this.gridId != C_GRID.currentSelectedGridId) return;
         const clipboardData = event.originalEvent.clipboardData.getData('text');
         this.pasteFromClipboard(clipboardData);
-    },
+    };
 
-    getSelectedTextForExcel() {
+    this.getSelectedTextForExcel = function() {
         if (this.selectedCells.length < 1) return null;
 
         if (this.selectedCells.some(cell => $(cell).find('input').length > 0)) return null;
@@ -2110,23 +2124,21 @@ var C_GRID = {
             const colKeys = Object.keys(cols).sort((a, b) => a - b);
             return colKeys.map(colKey => cols[colKey]).join('\t');
         }).join('\n');
-    },
+    };
 
-    copyToClipboard(text) {
+    this.copyToClipboard = function(text) {
         const $temp = $("<textarea>");
         $("body").append($temp);
         $temp.val(text).select();
         document.execCommand("copy");
         $temp.remove();
-    },
+    };
 
-    pasteFromClipboard(clipboardData) {
+    this.pasteFromClipboard = function(clipboardData) {
+
         this.backupCellsState(this.getCellsToChange(clipboardData));
 
         if (!this.pasteStartCell) return;
-
-        // 그리드 인덱스 최신화
-        this.setGridIndex(this.gridId);
 
         const lines = clipboardData.split("\n");
 
@@ -2138,31 +2150,71 @@ var C_GRID = {
             cells.forEach((cellText, colIndex) => {
                 const targetRow = startRow + rowIndex;
                 const targetCol = startCol + colIndex;
-                const targetCell = $(`#${this.gridId} .grid-cell[data-row=${targetRow}][data-col=${targetCol}]`);
+                const targetCell = $(`#${this.gridId} .explan-grid-cell[data-row=${targetRow}][data-col=${targetCol}]`);
                 if (targetCell.length) {
                     targetCell.text(cellText);
+                } else {
+		            // 여기에서 마지막 줄의 첫 번째 셀을 선택된 상태로 만듭니다
+		            const tableBody = $(`#${this.gridId} tbody`);
+		            const lastRow = tableBody.children('tr').last();
+		            const firstCellInLastRow = lastRow.find('.explan-grid-cell[data-col=1]');
+		
+		            // 선택 표시 지우기
+		            this.clearSelection();
+					
+		            // 마지막 줄의 첫 번째 셀을 선택된 상태로 만듭니다
+		            firstCellInLastRow.addClass('selected');
+		            this.selectedCells.push(firstCellInLastRow[0]);
+		            
+		            this.addRow();
+		            
+	                const targetCell = $(`#${this.gridId} .explan-grid-cell[data-row=${targetRow}][data-col=${targetCol}]`);
+                    targetCell.text(cellText);
+/*
+                	// 이곳에 마지막 줄 다음에 한줄을 삽입
+		            const tableBody = $(`#${this.gridId} tbody`);
+		            const lastRow = tableBody.children('tr').last();
+		            if (lastRow.length) {
+		                const newRow = lastRow.clone();
+		                // 새 줄에 데이터 속성 data-row 업데이트
+		                const newRowIndex = parseInt(lastRow.find('td.explan-grid-cell').first().attr('data-row')) + 1;
+
+		                newRow.children('.explan-grid-cell').each(function(index) {
+		                	debugger;
+		                    $(this).attr('data-row', newRowIndex);
+		                    $(this).attr('data-col', index + 1);
+		                    $(this).text(''); // 셀 텍스트 초기화 (필요에 따라 다르게 설정 가능)
+		                });
+		                // 새 줄 삽입
+		                tableBody.append(newRow);
+		                // 새로 생성된 셀에 데이터 넣기
+		                const newCell = $(`#${this.gridId} .grid-cell[data-row=${newRowIndex}][data-col=${targetCol}]`);
+		                newCell.text(cellText);
+		            }
+*/
                 }
             });
         });
-    },
+    };
 
-    backupCellsState(cells) {
+    this.backupCellsState = function(cells) {
         if (cells.length === 0) return;
 
         const lastState = this.undoStack[this.undoStack.length - 1];
         const newState = cells.map(cell => ({
-            row: $(cell).attr("data-row"),
-            col: $(cell).attr("data-col"),
-            text: $(cell).text(),
+        	type	: "cell",
+            row		: $(cell).attr("data-row"),
+            col		: $(cell).attr("data-col"),
+            text	: $(cell).text(),
         }));
 
         if (!lastState || JSON.stringify(lastState) !== JSON.stringify(newState)) {
             this.undoStack.push(newState);
             this.redoStack = []; // 삭제 시 redo 스택 초기화
         }
-    },
+    };
 
-    getCellsToChange(clipboardData) {
+    this.getCellsToChange = function(clipboardData) {
         const lines = clipboardData.split("\n");
         const startRow = parseInt(this.pasteStartCell.attr("data-row"));
         const startCol = parseInt(this.pasteStartCell.attr("data-col"));
@@ -2173,7 +2225,7 @@ var C_GRID = {
             lineCells.forEach((_, colIndex) => {
                 const targetRow = startRow + rowIndex;
                 const targetCol = startCol + colIndex;
-                const targetCell = $(`#${this.gridId} .grid-cell[data-row=${targetRow}][data-col=${targetCol}]`);
+                const targetCell = $(`#${this.gridId} .explan-grid-cell[data-row=${targetRow}][data-col=${targetCol}]`);
                 if (targetCell.length) {
                     cells.push(targetCell[0]);
                 }
@@ -2181,9 +2233,10 @@ var C_GRID = {
         });
 
         return cells;
-    },
+    };
 
-    onDblClick(event) {
+    this.onDblClick = function(event) {
+
         if (!$(event.target).closest(`#${this.gridId}`).length) return;
         this.clearSelection();
 
@@ -2217,12 +2270,14 @@ var C_GRID = {
         });
 
         $input.on('keydown', function(event) {
-            if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
+	        let eventKey = event.key.toLowerCase();
+
+            if ((event.ctrlKey || event.metaKey) && eventKey === 'c') {
                 event.preventDefault();
                 document.execCommand('copy');
-            } else if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+            } else if ((event.ctrlKey || event.metaKey) && eventKey === 'v') {
                 return;
-            } else if (event.key === 'Enter') {
+            } else if (eventKey === 'enter') {
                 const newText = $(this).val();
                 $cell.text(newText);
             }
@@ -2232,93 +2287,192 @@ var C_GRID = {
             const newText = $(this).val();
             $cell.text(newText);
         });
-    },
+    };
 
-    init(gridId) {
-        $(`#${gridId} td, #${gridId} th`).addClass("grid-cell");
+
+
+    this.init = function(gridId) {
+        this.initialContent = $(`#${gridId}`).html();
+
+        $(`#${gridId} th, #${gridId} td`).addClass("explan-grid-cell");
 
         this.setGridIndex(gridId);
 
-        $(`#${gridId}`).on('mousedown', '.grid-cell', this.onMouseDown.bind(this));
-        $(`#${gridId}`).on('mousemove', '.grid-cell', this.onMouseMove.bind(this));
-        $(`#${gridId}`).on('mouseup', this.onMouseUp.bind(this));
-        $(`#${gridId}`).on('click', '.grid-cell', this.onClick.bind(this));
-        $(`#${gridId}`).on('dblclick', '.grid-cell', this.onDblClick.bind(this));
+        $(`#${gridId}`).on('mousedown'	, '.explan-grid-cell', this.onMouseDown.bind(this));
+        $(`#${gridId}`).on('mousemove'	, '.explan-grid-cell', this.onMouseMove.bind(this));
+        $(`#${gridId}`).on('mouseup'	, this.onMouseUp.bind(this));
+        $(`#${gridId}`).on('click'		, '.explan-grid-cell', this.onClick.bind(this));
+        $(`#${gridId}`).unbind('dblclick');
+        $(`#${gridId}`).bind('dblclick'	, '.explan-grid-cell', this.onDblClick.bind(this));
+    };
+    this.destroy = function(gridId) {
+        $(`#${gridId}`).off('mousedown');
+        $(`#${gridId}`).off('mousemove');
+        $(`#${gridId}`).off('mouseup');
+        $(`#${gridId}`).off('click');
+        $(`#${gridId}`).unbind('dblclick');
+    };
+    // 행추가
+    this.addRow = function() {
+    	return this.insertRow("A");
+    }
+    this.insertRow = function(type) {
+    	if(isEmpty(type)) type = "I";
+        const selectedCell = this.selectedCells[0];
+        if (selectedCell) {
+            const row = $(selectedCell).closest('tr');
+            const newRow = row.clone(); // 현재 선택된 행 복사
+            newRow.find('.explan-grid-cell').removeClass('explan-selected').text(''); // 새로운 행의 모든 셀 내용 지우기
+            if(type == "I" ) row.before(newRow); // 새로운 행 삽입
+            if(type == "A" ) row.after(newRow); // 새로운 행 추가
+            this.setGridIndex(this.gridId); // 그리드 인덱스 업데이트
+           
+            this.undoStack = [];
+            this.redoStack = [];
+        }
+    };
+    
+    
+    
+    this.deleteRow = function() {
+	    const selectedCell = this.selectedCells[0];
+	    if (selectedCell) {
+	        const row = $(selectedCell).closest('tr');
+	        row.remove();
+	        this.setGridIndex(this.gridId); // Update the grid indices
+	        
+	        this.undoStack = []
+	        this.redoStack = []
+	
+	    } else {
+	        alert("선택된 셀이 없습니다.");
+	    }
+    };
+    this.reloadGrid = function() {
+    	if(confirm('초기화를 진행하면 이전 상태로 되돌릴 수 없습니다.\n\n초기화를 진행 하시겠습니까?')) {
+	        const gridId = this.gridId;
+	        const initialGridContent = this.initialContent;
+	        if (initialGridContent) {
+	            $(`#${gridId}`).html(initialGridContent);
+	            this.init(gridId); // 그리드 다시 초기화
+	            C_GRID.closeLayerPopup();
+	        } else {
+	            alert("초기 내용이 없습니다.");
+	        }
+    	}
+    }
+    
+    
+};
 
-        $(document).on('mousedown', this.onDocumentMouseDown.bind(this));
-        $(document).on('keydown', this.onKeyDown.bind(this));
-        $(document).on('paste', this.onPaste.bind(this));
-
-        $(document).on('contextmenu', '.grid-cell', function(event) {
+var C_GRID = {
+	 gridMap : {}
+	,currentSelectedGridId : ""
+	,setCurrentSelectedGridId(gridId) {
+		this.currentSelectedGridId = gridId;
+	 }
+	,getSelectedGrid() {
+		if(this.currentSelectedGridId == "") return;
+		return C_GRID.gridMap[this.currentSelectedGridId].gridInstance;
+	 }
+	,makeGrid(gridId) {
+		if(isValid(C_GRID.gridMap[gridId])) {
+			if(isValid(C_GRID.gridMap[gridId].gridInstance)) {
+				C_GRID.gridMap[gridId].gridInstance.destroy();
+				C_GRID.gridMap[gridId].gridInstance = null;
+			}
+		}
+		var gridInstance = new CLASS_GRID();
+		gridInstance.init(gridId);
+		
+		C_GRID.gridMap[gridId] = {
+			 gridInstance: gridInstance 
+		}
+	 }
+	,clearSelection(gridId) {
+		$.each(C_GRID.gridMap, function(key, obj) {
+			if(gridId == key) return true;
+			obj.gridInstance.clearSelection();
+		});
+	 }
+     ,getGridData(gridId) {
+        let headers = [];
+        let rows = [];
+		let invalidCheck = false;        
+        $(`#${gridId} th`).each(function() {
+        	let column = $(this).attr('column');
+        	if(isEmpty(column)) invalidCheck = true;
+            headers.push(column);
+        });
+        if(invalidCheck) {
+        	alert(`${gridId} Table의 Column 설정이 필요합니다.`);
+        	return null;
+        }
+        $(`#${gridId} tr`).each(function() {
+            let rowData = {};
+            $(this).find('td').each(function(index) {
+                rowData[headers[index]] = $(this).text().trim();
+            });
+			if (Object.keys(rowData).length === 0) {
+			    return true;
+			}
+            rows.push(rowData);
+        });
+        return rows
+     }
+	,init() {
+		
+        $(document).on('contextmenu', '.explan-grid-cell', function(event) {
             event.preventDefault(); // 기본 우클릭 메뉴 방지
-
             const x = event.pageX; // 마우스 클릭한 x 좌표
             const y = event.pageY; // 마우스 클릭한 y 좌표
-
-            if (!$(event.target).hasClass('selected')) {
-                C_GRID.clearSelection();
-                $(event.target).addClass('selected');
-                C_GRID.selectedCells = [event.target];
+			
+			let selectedGridInstance = C_GRID.getSelectedGrid();
+			
+			
+            if (!$(event.target).hasClass('explan-selected')) {
+                selectedGridInstance.clearSelection();
+                $(event.target).addClass('explan-selected');
+                selectedGridInstance.selectedCells = [event.target];
             } else {
-                event.target.classList.add('selected');
+                event.target.classList.add('explan-selected');
             }
 
             C_GRID.closeLayerPopup();
 
-            const popup = $(`<div class='layer-popup' type='layer-popup' style='left: ${x}px; top: ${y}px; width: 200px; background-color: white; border: 1px solid black; padding: 5px;'>
-                                <div class='menu-item'>행추가</div>
-                                <div class='menu-item'>행삭제</div>
-                                <div class='menu-item'>초기화</div>
+            const popup = $(`<div id="explanMenuPopup" class='explan-layer-popup' type='explan-layer-popup' style='left: ${x}px; top: ${y}px; width: 200px; background-color: white; border: 1px solid black; padding: 5px;'>
+                                <div class='explan-menu-item' title="Ctrl + i">행삽입</div>
+                                <div class='explan-menu-item' title="Ctrl + a">행추가</div>
+                                <div class='explan-menu-item' title="Ctrl + d">행삭제</div>
+                                <div class='explan-menu-item'>초기화</div>
+                                <div class='explan-menu-item' title="Ctrl + z">실행취소(Undo)</div>
+                                <div class='explan-menu-item' title="Ctrl + y">재실행(Redo)</div>
                             </div>`);
 
             $('body').append(popup);
 
-            $('.menu-item').on('mouseenter', function() {
+            $('#explanMenuPopup .explan-menu-item').on('mouseenter', function() {
                 $(this).css('background-color', 'lightblue');
             });
 
-            $('.menu-item').on('mouseleave', function() {
+            $('#explanMenuPopup .explan-menu-item').on('mouseleave', function() {
                 $(this).css('background-color', 'initial');
             });
 
             // 메뉴 클릭 이벤트 수정
-            $('.menu-item').on('click', function() {
+            $('#explanMenuPopup .explan-menu-item').on('click', function() {
                 const menuText = $(this).text();
-				if (menuText === '행추가') {
-			        const selectedCell = C_GRID.selectedCells[0];
-			        if (selectedCell) {
-			            const row = $(selectedCell).closest('tr');
-			            const newRow = row.clone(); // 현재 선택된 행 복사
-			            newRow.find('.grid-cell').text(''); // 새로운 행의 모든 셀 내용 지우기
-			            row.after(newRow); // 새로운 행 추가
-			            C_GRID.setGridIndex(C_GRID.gridId); // 그리드 인덱스 업데이트
-			           
-			            C_GRID.clearSelection(); // 선택 해제
-			            C.GRID.closeLayerPopup();
-			            
-			            C_GRID.undoStack = [];
-			            C_GRID.redoStack = [];
-			        } else {
-			            alert("선택된 셀이 없습니다.");
-			        }
-				}
-				else if (menuText === '행삭제') {
-				    const selectedCell = C_GRID.selectedCells[0];
-				    if (selectedCell) {
-				        const row = $(selectedCell).closest('tr');
-				        row.remove();
-				        C_GRID.setGridIndex(C_GRID.gridId); // Update the grid indices
-				        C_GRID.closeLayerPopup();
-				        
-				        C_GRID.undoStack = []
-				        C_GRID.redoStack = []
-				
-				    } else {
-				        alert("선택된 셀이 없습니다.");
-				    }
-				} else {
+	            C_GRID.closeLayerPopup();
+				if 		(menuText === '행삽입'			) selectedGridInstance.insertRow();
+				else if (menuText === '행추가'			) selectedGridInstance.addRow();
+				else if (menuText === '행삭제'			) selectedGridInstance.deleteRow();
+				else if (menuText === '초기화'			) selectedGridInstance.reloadGrid();
+				else if (menuText === '실행취소(Undo)'	) selectedGridInstance.undo();
+				else if (menuText === '재실행(Redo)'	) selectedGridInstance.redo();
+				else {
 				    alert(`선택한 메뉴: ${menuText}`);
 				}
+	            selectedGridInstance.clearSelection(); // 선택 해제
             });
 
             popup.on('click', function(event) {
@@ -2331,11 +2485,36 @@ var C_GRID = {
 
             return false;
         });
-     }
+        $(document).unbind('mousedown')
+        $(document).bind('mousedown'	, function(event) {
+			$.each(C_GRID.gridMap, function(key, obj) {
+				obj.gridInstance.onDocumentMouseDown(event);
+			});
+        });
+        $(document).unbind('keydown')
+        $(document).bind('keydown'	, function(event) {
+			$.each(C_GRID.gridMap, function(key, obj) {
+				obj.gridInstance.onKeyDown(event);
+			});
+        });
+        $(document).unbind('paste')
+        $(document).bind('paste'	, function(event) {
+			$.each(C_GRID.gridMap, function(key, obj) {
+				obj.gridInstance.onPaste(event);
+			});
+        });
+	 }
     ,closeLayerPopup() {
-        $('div[type="layer-popup"]').remove();
+        $('div[type="explan-layer-popup"]').remove();
      }
-};
+	 
+}
+
+
+
+
+
+
 
 
 
@@ -2548,7 +2727,7 @@ $(function() {
 	C_COM.init();
 	C_UICOM.init();
 	C_ALARM.init();
-	//C_GRID.init()
+	C_GRID.init()
 	$(window).bind("keydown",function() {
 		
 		hiddenconfirm += String.fromCharCode(event.keyCode);
