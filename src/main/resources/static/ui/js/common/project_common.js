@@ -2205,7 +2205,7 @@ var CLASS_GRID = function(parm) {
                     targetCell.html(cellText);
                 } else {
 		            const tableBody = $(`#${this.gridId}`);
-		            const lastRow = tableBody.children('tr').last();
+		            const lastRow = tableBody.find('tr').last();
 		            const firstCellInLastRow = lastRow.find('.explan-grid-cell[data-col=1]');
 		
 		            // 선택 표시 지우기
