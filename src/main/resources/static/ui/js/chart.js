@@ -922,16 +922,18 @@ function _1stacked1LineChart(container, categories, series, unit, text ) {
 					    tooltip: {
 					        shared: true
 					    },
-					    legend: {
-					        align: 'left',
-					        x: 630,
-					        verticalAlign: 'top',
-					        y: -15,
-					        floating: true,
-					        backgroundColor:
-					            Highcharts.defaultOptions.legend.backgroundColor ||
-					            'rgba(255,255,255,0.25)'
-					    },
+						legend: {
+						    layout: 'vertical',
+						    align: 'right',
+						    verticalAlign: 'middle',
+						    x: 0,
+						    y: 0,
+						    itemStyle: {
+						        fontWeight: 'bold',
+						        fontFamily: 'Noto Sans KR',
+						        fontSize: '12px'
+						    },
+						},
 	 				    series: series  
 					});	
 	}
