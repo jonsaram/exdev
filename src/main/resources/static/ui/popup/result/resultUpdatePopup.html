@@ -471,6 +471,8 @@ var <@popupId> = {
 		}
 		C_COM.requestQuery(parm, function(resultData) {
 			
+			const trCnt = $("#popup_result_resultUpdatePopup_costList TR").length;
+			if( trCnt == 1)$("#popup_result_resultUpdatePopup_costList TR").eq(0).show();
 		});	
 		
 	}
@@ -489,6 +491,7 @@ var <@popupId> = {
     		$(obj).parent().parent().remove();
     		$('#<@popupId>_INCOME').trigger('input');
 			<@popupId>.deleteOne(constId, idx);
+			
 
 		});
     	
@@ -751,7 +754,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								</colgroup>
 								<tbody">
 									<tr>
-										<th scope="row">총계약금액</th>
+										<th scope="row">계약금액</th>
 										<td id="TOTAL_COST"></td>
 										<th scope="row">잔금</th>
 										<td id="REMAINING_SUM"></td>

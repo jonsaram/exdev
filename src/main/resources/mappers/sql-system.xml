@@ -93,6 +93,7 @@
 							) 	THEN 'Y'
 		        				ELSE 'N'
 		    END AS HAS_CHILD
+		    ,( SELECT USER FROM DUAL ) SYS_SCHEME
 		FROM TBL_EXP_MENU T
 		,TBL_EXP_MENU P
 		,(	SELECT * FROM TBL_EXP_ROLEMENU RM WHERE 
@@ -540,6 +541,7 @@
 		</if>
 		AND U.USE_YN = 'Y'
 		AND U.DEL_YN = 'N'
+		ORDER BY USER_NM
 	</select>	
 	
 	<select id="getUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">

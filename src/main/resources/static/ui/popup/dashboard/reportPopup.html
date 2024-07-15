@@ -23,7 +23,7 @@
 			var dateList = { data	: yearMonths,targetId : "<@popupId>_yearMonths"	}
 			C_UICOM.makeSelectBox(dateList, "single");
 			C_UICOM.setSingleBox("<@popupId>_yearMonths", dayjs().year()+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
-		
+			C_UICOM.setSelectBoxOption("<@popupId>_yearMonths", "readOnly", "Y");
 			$("#<@popupId>_reporter").text(G_VAL.session.USER_NM);
 			$("#<@popupId>_buyerNm").text("<@BUYER_NM>");
 			
@@ -40,11 +40,11 @@
 				
 				<@popupId>.BUYER_CONSULTING_LIST = resultData.data;
 				
-				if( "<@mode>" == "I" && (isEmpty(<@popupId>.BUYER_CONSULTING_LIST) || <@popupId>.BUYER_CONSULTING_LIST.length == 0) ){
+/* 				if( "<@mode>" == "I" && (isEmpty(<@popupId>.BUYER_CONSULTING_LIST) || <@popupId>.BUYER_CONSULTING_LIST.length == 0) ){
 					alert('이미 기업자문보고서 작성된 상품 외 다른 계약 상품이 존재하지 않습니다. ');
 					<@popupId>.close();
 					return;
-				}
+				} */
 				
 				<@popupId>.SELECTED_CONSULTING	 =<@popupId>.BUYER_CONSULTING_LIST[0];  
 
@@ -55,50 +55,18 @@
 				<@popupId>.CONSULTING_LST = consultinglist;
 				var dateList = { data	:consultinglist , targetId : "<@popupId>_consultingNms"	}
 				C_UICOM.makeSelectBox(dateList, "single");
+				C_UICOM.setSelectBoxOption("<@popupId>_consultingNms", "readOnly", "Y");
 				C_UICOM.addChangeListener("<@popupId>_consultingNms", function(dataObj) {
 
 					<@popupId>.SELECTED_CONSULTING = <@popupId>.BUYER_CONSULTING_LIST.find( item => item['CONSULTING_ID'] == dataObj);
 					
 				});
 				
-				if( "<@mode>" == "U"){
 					
-					C_UICOM.setSingleBox("<@popupId>_consultingNms", <@popupId>.rcvData.param.CONSULTING_ID);
+				C_UICOM.setSingleBox("<@popupId>_consultingNms", <@popupId>.rcvData.param.CONSULTING_ID);
+				
+				$("#<@popupId>_content").val(<@popupId>.rcvData.param.CONTENT).prop('disabled',true);
 					
-					$("#<@popupId>_content").val(<@popupId>.rcvData.param.CONTENT);
-				}
-			});
-		}
-		,save : () => {
-			
-			if( "<@mode>" == "U"){
-
-				if( <@popupId>.rcvData.param.APPROVAL_STATE != "-" ){
-					alert("결재중이거나 결재완료된 보고서는 수정할 수 없습니다. ");
-					return;
-				}
-			}
-			
-			const consultingId	= C_UICOM.getData("<@popupId>_consultingNms");
-			const parm = {
-					 queryId 		: "custDashboard.registProject"
-					,requestParm	: 
-									{	BUYER_CONSULTING_ID	:	<@popupId>.BUYER_CONSULTING_ID
-										,BUYER_ID			:	<@popupId>.SELECTED_CONSULTING.BUYER_ID
-										,BUYER_NM			:	<@popupId>.SELECTED_CONSULTING.BUYER_NM
-										,CONSULTING_ID		:	<@popupId>.SELECTED_CONSULTING.CONSULTING_ID
-										,CONSULTING_NM		:	<@popupId>.SELECTED_CONSULTING.CONSULTING_NM
-										,REPORT_YEAR_MONTH 	:	C_UICOM.getData("<@popupId>_yearMonths") 
-										,CONTRACT_ID		:	<@popupId>.SELECTED_CONSULTING.CONTRACT_ID
-										,CONTENT			: 	$("#<@popupId>_content").val()
-									}
-			}
-			
-			<@popupId>.returnData.BUYER_CONSULTING_ID = <@popupId>.BUYER_CONSULTING_ID;
-		
-			C_COM.requestQuery(parm, function(resultData) {
-				alert("저장되었습니다.");
-				<@popupId>.close(<@popupId>.returnData);
 			});
 		}
 		,fileAttach : () => {
@@ -106,7 +74,7 @@
 			var parm = {
 					 GRP_FILE_ID 	: <@popupId>.BUYER_CONSULTING_ID
 					,OWNER_CD 		: "BOARD"
-					,mode			: "M"
+					,mode			: "R"
 					,allowExt		: ["jpg", "jpeg", "png", "gif", "bmp"]
 			}
 			C_COMP.import("<@popupId>_importMultiFilemng", "component_compMultiFilemng", parm , function() {
@@ -127,20 +95,17 @@
 		
 		<@popupId>.fileAttach();
 		
-		if("<@mode>" == "I"){
-			
-		}else{
-			$("#<@popupId> .title").text("기업자문보고서");
-		}
-		
-		
+		$("#<@popupId> .title").text("기업자문보고서");
+/* 		
+		$("button.stateBtn.file").remove();
+		$(".pay_close").remove(); */
 
 	});
 </script>
 <div class="modal_wrap" id="modal-ex04">
 	<div class="modal" style="width:600px;height:630px;">
 		<div class="modal_header">
-			<strong class="tit">기업자문보고서 등록</strong>
+			<strong class="tit">기업자문보고서</strong>
 			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body">
@@ -188,8 +153,7 @@
 			</div>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select"onclick="<@popupId>.save()">등록</button>
-			<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
+			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
 		</div>
 	</div>
 </div>

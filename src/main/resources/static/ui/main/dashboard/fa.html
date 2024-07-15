@@ -19,7 +19,7 @@ var <@pageId> = {
 		}
 		,pageInit2 : () => {
 			
-			const transitionData = [
+ 			const transitionData = [
 				 ["customerTrend","고객 체결 추이"]
 				,["susuRyo","수수료 합계 추이"]
 				,["execBosu","실행 수수료 추이"]
@@ -31,34 +31,34 @@ var <@pageId> = {
 			for( var i=1 ; i<= 2 ; i++){
 				
 				const gubun = i;
-				
-				var singleboxList 	= { data	: transitionData	,targetId	: "<@pageId>_selectorChart"+gubun}
+				// 차트 셀렉트				
+				const targetId = "<@pageId>_selectorChart"+gubun;
+				var singleboxList 	= { data	: transitionData	,targetId	: targetId}
 				C_UICOM.makeSelectBox(singleboxList	,	"single");
-				C_UICOM.addChangeListener("<@pageId>_selectorChart"+gubun, function(dataObj) {
-					
-					const chart=C_UICOM.getData("<@pageId>_selectorChart"+gubun);
+				C_UICOM.addChangeListener(targetId, function(dataObj) {
+debugger;					
+					const chart=	C_UICOM.getData(targetId);
 					
 					if(chart == "customerTrend" || chart == "susuRyo")	<@pageId>.searchPaymentSumTrend(gubun , chart);
 					else						<@pageId>.searchBarChart(dataObj,gubun);
 					
 				});
-				
+				// 년도 셀렉트				
 				var yearsArrayList = { data	: yearsArray,targetId : "<@pageId>_years"+gubun}
 				C_UICOM.makeSelectBox(yearsArrayList, "single");
 				C_UICOM.setSingleBox("<@pageId>_years"+gubun, dayjs().year());
-				
-				<@pageId>.searchPaymentSumTrend(gubun, "customerTrend");
-				
 				C_UICOM.addChangeListener("<@pageId>_years"+gubun, function(dataObj) {
 
-					const chart=C_UICOM.getData("<@pageId>_selectorChart"+gubun);
+					const chart=	C_UICOM.getData(targetId);
 					
 					if(chart == "customerTrend" || chart == "susuRyo")	<@pageId>.searchPaymentSumTrend(gubun , chart);
 					else						<@pageId>.searchBarChart(chart,gubun);
 					
 				});	
 				
-			}			
+				// 처음엔 custmerTrend차트 
+				<@pageId>.searchPaymentSumTrend(gubun, "customerTrend");
+			}	
 			
 			//계약체결 추이 ( 전체 )
 			<@pageId>.searchConnectedByTrend();
@@ -94,7 +94,7 @@ var <@pageId> = {
 			});			
 
 		}
-
+		// 전체 수수료 합계 추이
 		,searchConnectedByTrend	: () =>{
 
 			let queryId = "faDashboard.getContractedByAll";
@@ -115,7 +115,7 @@ var <@pageId> = {
   				<@pageId>.firstStacked1LineChart(data) ;
 			});  
 		}
-		// 수수료 합계 추이 차트
+		// 전체 수수료 합계 추이 / 수수료 합계 추이 차트
 		,firstStacked1LineChart : (data,gubun) =>{
 			
 			const month =	Array.from({ length: 12 }, (_, i) => i < 9 ? '0' + (1+i) : '' + (1+i) );
@@ -150,9 +150,10 @@ var <@pageId> = {
 			})
 			
 			const series = [monthly, once, contractCnt];
-			let target = "<@pageId>_transition_chart3"
-			if( gubun )target = "<@pageId>_transition_chart"+gubun;
-			_1stacked1LineChart(target, _monthArray, series, <@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE )) ;
+			let target 	= 	"<@pageId>_transition_chart3" ;
+			let text	=	"[ 전체 수수료 합계 추이 ]";
+			if( gubun ){target = "<@pageId>_transition_chart"+gubun;text=""}
+			_1stacked1LineChart(target, _monthArray, series, <@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE ), text) ;
 
 		}
 		,searchMonthlyPayment	: (callback) =>{
@@ -178,7 +179,7 @@ var <@pageId> = {
 					<@pageId>.UNIT_TYPE = "BIG";
 				}
 				
-				 G_VAL.session.etcUserInfo["UNIT_TYPE"] = <@pageId>.UNIT_TYPE;
+				G_VAL.session.etcUserInfo["UNIT_TYPE"] = <@pageId>.UNIT_TYPE;
 				 
 				$("#<@pageId>_curMonthOSP").text( `당월 수수료(${dayjs().format("YYYY.MM")})` );
 				
@@ -187,7 +188,7 @@ var <@pageId> = {
 				const monthlyTargetPayment = ( targetPayment/12 ).toFixed(2);
 				
 				$("#"+curMonthOSP+" .big_won 	.num"	).text( addComma(data.SUM_PAYMENT) 				);
-				$("#"+curMonthOSP+" .small_won	.num"	).text( addComma(monthlyTargetPayment) +'원' 	);
+				$("#"+curMonthOSP+" .small_won	.num"	).text( '월간목표: ' +addComma(monthlyTargetPayment) +'원' 	);
 				$("#"+curMonthOSP+" .potential  .num"	).text( addComma(data.POTENTIAL_CUSTOMER) 		);
 				$("#"+curMonthOSP+" .customer   .num"	).text( addComma(data.AFFILIATE_CNT) 			);
 				
@@ -199,24 +200,24 @@ var <@pageId> = {
 				<@pageId>.YEARLY_TARGET_PAYMENT = targetPayment;
 				if(callback ) callback();
 				
-				//년간 달성률
-				const yearlyPayment = data.YEARLY_PAYMENT;
+				// 목표 수수료 달성률
+				const yearlyPayment = _.round(data.YEARLY_PAYMENT);
 				if( targetPayment == 0) ACHIEVE_RATE = 0;
 				else ACHIEVE_RATE = ( (yearlyPayment * 100) / (targetPayment) ).toFixed(2);
 
 				$("#<@pageId>_faSection1 .piechart_wrap .percent 	> .num").text( addComma(ACHIEVE_RATE) );
-				$("#<@pageId>_faSection1 .piechart_wrap .won 		> .num").text( addComma(yearlyPayment) );
+				$("#<@pageId>_faSection1 .piechart_wrap .won 		> .num.t").text( '년간 총 수수료' );
+				$("#<@pageId>_faSection1 .piechart_wrap .won 		> .num.p").text( addComma(yearlyPayment) );
 
-				_pieChart('<@pageId>_goalAcieveRate_chart' ,[{
-			        type: 'pie',
-			        name: '달성률',
-			        innerSize: '82%',
-			        data: [
-			            ['목표 수수료 달성률', Number(ACHIEVE_RATE)],
-			            ['', 100-Number(ACHIEVE_RATE)],
-			        ]
-		    	}] )
-
+		    	_pieChart('<@pageId>_goalAcieveRate_chart' ,[{
+		    	    type: 'pie',
+		    	    name: '달성률',
+		    	    innerSize: '82%',
+		    	    data: [
+		    	        ['목표 수수료 달성률', Number(ACHIEVE_RATE)],
+		    	        ['', 100-Number(ACHIEVE_RATE)],
+		    	    ]
+		    		}]);		  
 			});
 			
 		} 
@@ -286,7 +287,7 @@ var <@pageId> = {
 			
 		}	
 		,searchBarChart : (chartName, gubun) => {
-
+debugger;
 			const CN = chartName;
 			var parm = {
 					 queryId 		: "faDashboard.getPaymentByMonth"
@@ -518,7 +519,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<div class="cont_box right">
 							<div class="piechart_wrap">
 								<div class="percent"><span class="num">58.43</span>%</div>
-								<div class="won"><span class="num"></span>원</div>
+								<div class="won"><span class="num t"></span></div>
+								<div class="won"><span class="num p"></span>원</div>
 							</div>
 							<figure>
 								<div class="chart" id="<@pageId>_goalAcieveRate_chart"  style="height:230px"></div>
@@ -528,7 +530,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
  					<section class="sec_wrap">
 						<div class="cont_box">
 							<figure>
-						    	<div class="chart03" id="<@pageId>_transition_chart3"  style="height:220px;"></div>
+						    	<div class="chart03" id="<@pageId>_transition_chart3"  style="height:320px;"></div>
 							</figure>
 						</div>
 					</section>
@@ -542,7 +544,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							</div>
 
 							<figure>
-						    	<div class="chart01" id="<@pageId>_transition_chart1"  style="height:190px;"></div>
+						    	<div class="chart01" id="<@pageId>_transition_chart1"  style="height:320px;"></div>
 							</figure>
 
 						</div>
@@ -557,16 +559,16 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							</div>
 
 							<figure>
-						    	<div class="chart01" id="<@pageId>_transition_chart2"  style="height:190px;"></div>
+						    	<div class="chart01" id="<@pageId>_transition_chart2"  style="height:320px;"></div>
 							</figure>
 						</div>
 					</section>
 				</div>
 
 				<div class="right">
-					<section class="sec_wrap" style="height:421px" id="<@pageId>_toDoList">
+					<section class="sec_wrap" style="height:660px" id="<@pageId>_toDoList">
 					</section>
-					<section class="sec_wrap" style="height:700px;">
+					<section class="sec_wrap" style="height:825px;">
 						<div class="cont_box">
 							<div class="clearFix">
 								<h3 class="fl lh33">예정 업무</h3>

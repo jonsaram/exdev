@@ -104,12 +104,12 @@
 		,openRegistReportPopup : function(index) {
 
 			let param = {};
-			let mode = "I";
+			let mode = "V";
 			let row = {};
 			if( index != undefined ){
 				
 				let row = <@pageId>.searchedRows[index];
-				if( !isEmpty(row) ){param = row;mode="U"};
+				if( !isEmpty(row) ){param = row;mode="V"};
 			}
 
 			const buyerId = $("#subMenuListForBuyer select[id='selectBuyerId']").val()
@@ -140,7 +140,7 @@
 			let appContent   = `<B>* 고객명			:</B> ${selectedRow.BUYER_NM}\n\n`;
 			appContent 		+= `<B>* 상품명 		:</B> ${selectedRow.CONSULTING_NM}\n\n`;
 			appContent 		+= `<B>* 계약일 		:</B> ${selectedRow.CONTRACT_DATE}\n\n`;
-			appContent 		+= `<B>* 총계약금액 	:</B> ${totalCost}원\n\n`;
+			appContent 		+= `<B>* 계약금액 		:</B> ${totalCost}원\n\n`;
 			appContent 		+= `<B>* 보고년월 		:</B> ${selectedRow.REPORT_YEAR}년 ${selectedRow.REPORT_MONTH}월\n\n`;
 			appContent 		+= `\n\n위와 같이<B>[${appTitle}]</B>에 대한 결재를 요청 합니다.\n\n`;
 			
@@ -173,7 +173,7 @@
 				}
 	        });
 			
-		}		
+		}
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -196,8 +196,8 @@
 		<!-- search area -->
 		<div class="search_area mt0">
 			<div class="fl">
-				<a href="javascript:;" class="btn fl" onclick="<@pageId>.openRegistReportPopup()">기업자문보고서 등록</a>
-				<button class="btn select fl" onclick="<@pageId>.searchList();">검색</button>
+				<!-- <a href="javascript:;" class="btn fl" onclick="<@pageId>.openRegistReportPopup()">기업자문보고서 등록</a> -->
+				<!-- <button class="btn select fl" onclick="<@pageId>.searchList();">검색</button> -->
             </div>
             <div class="search_right">
             	<!-- <div id="<@pageId>_pagingChunk" style="margin-left: 5px;width:130px"></div> -->
@@ -215,8 +215,6 @@
 						<col style="width:80px;"/>
 						<col style="width:120px;" span="3"/>
 						<col style="width:120px;"/>
-						<col style="width:11%;"/>
-						<col style="width:4%;"/> 	
 					</colgroup>
 					<thead>
 						<tr>
@@ -225,12 +223,10 @@
 							<th scope="col">상품명</th>
 							<th scope="col">영업담당자</th>
 							<th scope="col">계약일</th>
-							<th scope="col">총계약금액</th>
+							<th scope="col">계약금액</th>
 							<th scope="col">보고년월</th>
 							<th scope="col">진행상태</th>
 							<th scope="col">결재</th>
-							<th scope="col"></th>
-							<th scope="col"></th>
 						</tr>
 					</thead>
 				</table>
@@ -244,14 +240,12 @@
 						<col style="width:80px;"/>
 						<col style="width:120px;" span="3"/>
 						<col style="width:120px;"/>
-						<col style="width:11%;"/>
-						<col style="width:4%;"/> 
 					</colgroup>
 					<tbody  id="<@pageId>_reportList">
 					</tbody>
 					<script type="text/x-jsrender" id="<@pageId>_reportList_template">	
 					{{for list}}
-						<tr name="<@pageId>_tr_{{:#index}}" {{:BUYER_CONSULTING_ID}}>
+						<tr name="<@pageId>_tr_{{:#index}}" {{:BUYER_CONSULTING_ID}} ondblclick="<@pageId>.openRegistReportPopup('{{:#index}}')">
 							<td>{{:#index+1}}</td>
 							<td>{{:BUYER_NM}}</td>
 							<td>{{:CONSULTING_NM }}</td>
@@ -262,13 +256,11 @@
 							<td class="tc">{{:APPROVAL_STATE_NM}}</td>
 							<td>
 								{{if APPROVAL_STATE_NM =="-" ~index=#index}} 
-									<button type="button" title="결재" class="btn tc" onclick="<@pageId>.approval({{:#getIndex()}})">결재</button>
+									
 								{{else}}
 									{{:APPROVAL_STATE_NM }}	
 								{{/if}}
 							</td>
-		 					<td><button onclick="javascript:<@pageId>.openRegistReportPopup('{{:#index}}');"><i class="icon_pen"></i></button></td>
-							<td><button onclick="javascript:<@pageId>.deleteRow('{{:#index}}');"><i class="icon_trash"></i></button></td>
 						</tr>
 					{{/for}}
 					</script>
