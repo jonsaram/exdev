@@ -1052,6 +1052,10 @@
 		const wakeUpTime = Date.now() + ms;
 		while (Date.now() < wakeUpTime) {}
 	}	
+	function getUniqueId() {
+	    const uniqueString = Math.random().toString(36).substring(2, 12) + Math.random().toString(36).substring(2, 12);
+	    return uniqueString.substring(0, 20);
+	}	
 	
 	
 	//Json Debugging

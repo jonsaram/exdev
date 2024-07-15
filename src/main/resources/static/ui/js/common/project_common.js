@@ -2088,6 +2088,7 @@ var CLASS_GRID = function() {
         	this.addRow();
         }
         if (event.ctrlKey && eventKey === 'd') {
+        	event.preventDefault();
             this.deleteRow();
         }
     };
