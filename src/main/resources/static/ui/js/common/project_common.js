@@ -1919,15 +1919,20 @@ var C_PAGING = {
 
 
 // Table의 Grid변환
-var CLASS_GRID = function() {
-    this.isDragging = false;
-    this.startCell = null;
-    this.selectedCells = [];
-    this.pasteStartCell = null;
-    this.gridId = '';
-    this.undoStack = [];
-    this.redoStack = [];
-    this.initialContent = "";
+var CLASS_GRID = function(parm) {
+	
+	if(isEmpty(parm)) parm = {};
+	
+    this.isDragging 		= false;
+    this.startCell 			= null;
+    this.selectedCells 		= [];
+    this.pasteStartCell 	= null;
+    this.gridId 			= '';
+    this.undoStack			= [];
+    this.redoStack 			= [];
+    this.initialContent 	= "";
+    this.parm 				= parm;
+    this.readOnly			= parm.readOnly;
 
     this.undo = function() {
         if (this.undoStack.length === 0) return;
@@ -1962,7 +1967,7 @@ var CLASS_GRID = function() {
         this.undoStack.push(redoBack);
     };
 
-    this.setGridIndex = function(gridId) {
+    this.setGridIndex = function(gridId, type) {
         this.gridId = gridId;
         let rowCounter = 1;
         const rowSpans = [];
@@ -1974,7 +1979,16 @@ var CLASS_GRID = function() {
                 rowSpans[colCounter]--;
                 colCounter++;
             }
-
+            
+            // state값이 초기 'DEFAULT' 설정 (init에서 호출된 경우만)
+            if(type == 'init') {
+            	let uid = getUniqueId();
+            	$(this).attr("__state", "default"	);
+            	$(this).attr("uid"	, uid		);
+            }
+			
+			$(this).attr("data-row", rowCounter);
+			
             $(this).children('.explan-grid-cell').each(function() {
                 while (rowSpans[colCounter] && rowSpans[colCounter] > 0) {
                     colCounter++;
@@ -2094,6 +2108,10 @@ var CLASS_GRID = function() {
     };
 
     this.onPaste = function(event) {
+    	
+    	// 읽기 전용인경우 붙여넣기 방지
+    	if(this.readOnly == "Y") return;
+    	
     	if(this.gridId != C_GRID.currentSelectedGridId) return;
         const clipboardData = event.originalEvent.clipboardData.getData('text');
         this.pasteFromClipboard(clipboardData);
@@ -2157,10 +2175,10 @@ var CLASS_GRID = function() {
 	}
 	this.pasteFromClipboard = function(clipboardData) {
 
-        this.backupCellsState(this.getCellsToChange(clipboardData));
-
         if (!this.pasteStartCell) return;
 		
+        this.backupCellsState(this.getCellsToChange(clipboardData));
+
 		clipboardData = this.parseExcelType(clipboardData);
 		
         const lines = clipboardData.split("\n");
@@ -2169,9 +2187,17 @@ var CLASS_GRID = function() {
         const startCol = parseInt($(this.pasteStartCell).attr("data-col"));
 
         lines.forEach((line, rowIndex) => {
+            // row __state 설정
+            const targetRow = startRow + rowIndex;
+            
+            let nowState = $(`#${this.gridId} tr[data-row=${targetRow}]`).attr("__state");
+            
+            if(nowState == "default") {
+            	$(`#${this.gridId} tr[data-row=${targetRow}]`).attr("__state", "update");
+            }
+            
             const cells = line.split("\t");
             cells.forEach((cellText, colIndex) => {
-                const targetRow = startRow + rowIndex;
                 const targetCol = startCol + colIndex;
                 const targetCell = $(`#${this.gridId} .explan-grid-cell[data-row=${targetRow}][data-col=${targetCol}]`);
                 cellText = cellText.replaceAll("[nl]", "</br>");
@@ -2238,6 +2264,9 @@ var CLASS_GRID = function() {
 
     this.onDblClick = function(event) {
 
+    	// 읽기 전용인경우 붙여넣기 방지
+    	if(this.readOnly == "Y") return;
+
         if (!$(event.target).closest(`#${this.gridId}`).length) return;
         this.clearSelection();
 
@@ -2281,23 +2310,33 @@ var CLASS_GRID = function() {
             } else if (eventKey === 'enter') {
                 const newText = $(this).val();
                 $cell.text(newText);
+                
+                // 상위 tr update 설정
+		        let parentTr = $cell.closest('tr'); // 상위 tr 요소 찾기
+		        let __state = parentTr.attr("__state"); // __state 속성 값 가져오기
+		        if(__state === "default") parentTr.attr("__state", "update");
             }
         });
 
         $input.blur(function() {
             const newText = $(this).val();
             $cell.text(newText);
+
+            // 상위 tr update 설정
+	        let parentTr = $cell.closest('tr'); // 상위 tr 요소 찾기
+	        let __state = parentTr.attr("__state"); // __state 속성 값 가져오기
+	        if(__state === "default") parentTr.attr("__state", "update");
         });
     };
 
 
 
     this.init = function(gridId) {
-        this.initialContent = $(`#${gridId}`).html();
-
         $(`#${gridId} th, #${gridId} td`).addClass("explan-grid-cell");
 
-        this.setGridIndex(gridId);
+        this.setGridIndex(gridId, 'init');
+
+        this.initialContent = $(`#${gridId}`).html();
 
         $(`#${gridId}`).on('mousedown'	, '.explan-grid-cell', this.onMouseDown.bind(this));
         $(`#${gridId}`).on('mousemove'	, '.explan-grid-cell', this.onMouseMove.bind(this));
@@ -2321,15 +2360,23 @@ var CLASS_GRID = function() {
     	if(isEmpty(type)) type = "I";
         const selectedCell = this.selectedCells[0];
         if (selectedCell) {
-            const row = $(selectedCell).closest('tr');
-            const newRow = row.clone(); // 현재 선택된 행 복사
+            const row 		= $(selectedCell).closest('tr');
+            const newRow 	= row.clone(); // 현재 선택된 행 복사
+            
+            $(newRow).attr("__state"	, "insert"); // 신규 Row state값 설정
+        	let uid = getUniqueId();
+            $(newRow).attr("uid", uid); // 신규 Row state값 설정
+            
             newRow.find('.explan-grid-cell').removeClass('explan-selected').text(''); // 새로운 행의 모든 셀 내용 지우기
             if(type == "I" ) row.before(newRow); // 새로운 행 삽입
             if(type == "A" ) row.after(newRow); // 새로운 행 추가
+
             this.setGridIndex(this.gridId); // 그리드 인덱스 업데이트
            
             this.undoStack = [];
             this.redoStack = [];
+        } else {
+            alert("선택된 셀이 없습니다.");
         }
     };
     
@@ -2376,14 +2423,15 @@ var C_GRID = {
 		if(this.currentSelectedGridId == "") return;
 		return C_GRID.gridMap[this.currentSelectedGridId].gridInstance;
 	 }
-	,makeGrid(gridId) {
+	,makeGrid(gridId, parm) {
+		
 		if(isValid(C_GRID.gridMap[gridId])) {
 			if(isValid(C_GRID.gridMap[gridId].gridInstance)) {
 				C_GRID.gridMap[gridId].gridInstance.destroy();
 				C_GRID.gridMap[gridId].gridInstance = null;
 			}
 		}
-		var gridInstance = new CLASS_GRID();
+		var gridInstance = new CLASS_GRID(parm);
 		gridInstance.init(gridId);
 		
 		C_GRID.gridMap[gridId] = {
@@ -2396,7 +2444,72 @@ var C_GRID = {
 			obj.gridInstance.clearSelection();
 		});
 	 }
-     ,getGridData(gridId) {
+    ,getGridData(gridId) {
+    	let baseDataList 	= C_GRID.getBaseGridData(gridId);
+
+    	let curDataList		= C_GRID.getGridMainData(gridId);
+
+        let gridUids 		= curDataList.map(row => row.uid);
+
+        // Filter grid1 to find rows with uids not in grid2
+        let filteredData = baseDataList.filter(row => !gridUids.includes(row.uid));
+
+        $.each(filteredData, function(idx) {
+        	filteredData[idx].__state = "delete";
+        	curDataList.push(filteredData[idx]);
+        });
+        $.each(curDataList, function(idx) {
+        	delete curDataList[idx].uid;
+        	delete curDataList[idx]["data-row"];
+        });
+        
+        return curDataList;
+     }
+    ,getBaseGridData(gridId) {
+    	if(isEmpty(C_GRID.gridMap[gridId])) {
+    		C_POP.alert('선택된 Grid가 없습니다.');
+    		return;
+    	}
+    	let initialContent = C_GRID.gridMap[gridId].gridInstance.initialContent;
+    	let gridElement = $('<div id="wrapper1"><table>' + initialContent + '</table></div>');
+    	
+        let headers = [];
+        let rows = [];
+        let invalidCheck = false;
+        
+        // Get column headers
+        $(gridElement).find('th').each(function() {
+            let column = $(this).attr('column');
+            if (isEmpty(column)) invalidCheck = true;
+            headers.push(column);
+        });
+
+        if (invalidCheck) {
+            alert(`Table의 Column 설정이 필요합니다.`);
+            return null;
+        }
+
+        // Get row data
+        $(gridElement).find('tr[uid]').each(function() {
+            let rowData = {};
+            $(this).find('td').each(function(index) {
+                rowData[headers[index]] = $(this).text().trim();
+            });
+
+            if (Object.keys(rowData).length === 0) {
+                return true;
+            }
+
+            let __state = $(this).attr("__state");
+            rowData["__state"] = __state;
+            rowData["uid"] = $(this).attr("uid");
+
+            rows.push(rowData);
+        });
+        return rows;
+    	
+     }
+    ,getGridMainData(gridId) {
         let headers = [];
         let rows = [];
 		let invalidCheck = false;        
@@ -2417,7 +2530,12 @@ var C_GRID = {
 			if (Object.keys(rowData).length === 0) {
 			    return true;
 			}
-            rows.push(rowData);
+
+            let attrList = C_GRID.getAllAttrFromDom(this, 'big');
+            
+            let allRowData = Object.assign({}, rowData, attrList);
+
+            rows.push(allRowData);
         });
         return rows
      }
@@ -2508,7 +2626,20 @@ var C_GRID = {
     ,closeLayerPopup() {
         $('div[type="explan-layer-popup"]').remove();
      }
-	 
+	
+	,getAllAttrFromDom(domObj, type) {
+	    var attributes = {};
+	    $(domObj).each(function() {
+	        $.each(this.attributes, function() {
+	            if(this.specified) {
+	            	let name = this.name;
+	            	if(type==='big' && !in_array(name, ['__state','uid','data-row']) )  name=name.toUpperCase();
+	                attributes[name] = this.value;
+	            }
+	        });
+	    });
+	    return attributes;
+	 }
 }
 
 
