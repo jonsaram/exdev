@@ -1,107 +1,195 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@popupId> = {
-		 close : function(returnData) {
+		 rcvData 		: {}
+	 	,returnData 	: {}
+	 	,BUYER_CONSULTING_LIST : []
+	 	,SELECTED_CONSULTING : {}
+	 	,CONSULTING_LST	: []
+		,close : function(returnData) {
+
 			if(isEmpty(returnData)) returnData = {};
 			C_POP.close(returnData);
 		 }
+		,pageInit : () =>{
+			
+			const yearMonths = [
+				 [dayjs().subtract(3, 'month').format('YYYY-MM'), dayjs().subtract(3, 'month').format('YYYY년 MM월')]
+				,[dayjs().subtract(2, 'month').format('YYYY-MM'), dayjs().subtract(2, 'month').format('YYYY년 MM월')]
+				,[dayjs().subtract(1, 'month').format('YYYY-MM'), dayjs().subtract(1, 'month').format('YYYY년 MM월')]
+				,[dayjs().format('YYYY-MM'),dayjs().format('YYYY년 MM월')]  
+				,[dayjs().add(1, 'month').format('YYYY-MM'),dayjs().add(1, 'month').format('YYYY년 MM월')]
+			];
+			var dateList = { data	: yearMonths,targetId : "<@popupId>_yearMonths"	}
+			C_UICOM.makeSelectBox(dateList, "single");
+			C_UICOM.setSingleBox("<@popupId>_yearMonths", dayjs().year()+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
+		
+			$("#<@popupId>_reporter").text(G_VAL.session.USER_NM);
+			$("#<@popupId>_buyerNm").text("<@BUYER_NM>");
+			
+			const parm = {
+					 queryId 		: "custDashboard.getConsultingList"
+					,requestParm	: 
+									{
+										BUYER_ID		: "<@BUYER_ID>"
+										,MODE			: "<@mode>"
+									}
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+				
+				<@popupId>.BUYER_CONSULTING_LIST = resultData.data;
+				
+				if( "<@mode>" == "I" && (isEmpty(<@popupId>.BUYER_CONSULTING_LIST) || <@popupId>.BUYER_CONSULTING_LIST.length == 0) ){
+					alert('이미 기업자문보고서 작성된 상품 외 다른 계약 상품이 존재하지 않습니다. ');
+					<@popupId>.close();
+					return;
+				}
+				
+				<@popupId>.SELECTED_CONSULTING	 =<@popupId>.BUYER_CONSULTING_LIST[0];  
+
+				let consultinglist = <@popupId>.BUYER_CONSULTING_LIST.map( item =>{
+					return [item.CONSULTING_ID, item.CONSULTING_NM]
+					
+				})
+				<@popupId>.CONSULTING_LST = consultinglist;
+				var dateList = { data	:consultinglist , targetId : "<@popupId>_consultingNms"	}
+				C_UICOM.makeSelectBox(dateList, "single");
+				C_UICOM.addChangeListener("<@popupId>_consultingNms", function(dataObj) {
+
+					<@popupId>.SELECTED_CONSULTING = <@popupId>.BUYER_CONSULTING_LIST.find( item => item['CONSULTING_ID'] == dataObj);
+					
+				});
+				
+				if( "<@mode>" == "U"){
+					
+					C_UICOM.setSingleBox("<@popupId>_consultingNms", <@popupId>.rcvData.param.CONSULTING_ID);
+					
+					$("#<@popupId>_content").val(<@popupId>.rcvData.param.CONTENT);
+				}
+			});
+		}
+		,save : () => {
+			
+			if( "<@mode>" == "U"){
+
+				if( <@popupId>.rcvData.param.APPROVAL_STATE != "-" ){
+					alert("결재중이거나 결재완료된 보고서는 수정할 수 없습니다. ");
+					return;
+				}
+			}
+			
+			const consultingId	= C_UICOM.getData("<@popupId>_consultingNms");
+			const parm = {
+					 queryId 		: "custDashboard.registProject"
+					,requestParm	: 
+									{	BUYER_CONSULTING_ID	:	<@popupId>.BUYER_CONSULTING_ID
+										,BUYER_ID			:	<@popupId>.SELECTED_CONSULTING.BUYER_ID
+										,BUYER_NM			:	<@popupId>.SELECTED_CONSULTING.BUYER_NM
+										,CONSULTING_ID		:	<@popupId>.SELECTED_CONSULTING.CONSULTING_ID
+										,CONSULTING_NM		:	<@popupId>.SELECTED_CONSULTING.CONSULTING_NM
+										,REPORT_YEAR_MONTH 	:	C_UICOM.getData("<@popupId>_yearMonths") 
+										,CONTRACT_ID		:	<@popupId>.SELECTED_CONSULTING.CONTRACT_ID
+										,CONTENT			: 	$("#<@popupId>_content").val()
+									}
+			}
+			
+			<@popupId>.returnData.BUYER_CONSULTING_ID = <@popupId>.BUYER_CONSULTING_ID;
+		
+			C_COM.requestQuery(parm, function(resultData) {
+				alert("저장되었습니다.");
+				<@popupId>.close(<@popupId>.returnData);
+			});
+		}
+		,fileAttach : () => {
+			
+			var parm = {
+					 GRP_FILE_ID 	: <@popupId>.BUYER_CONSULTING_ID
+					,OWNER_CD 		: "BOARD"
+					,mode			: "M"
+					,allowExt		: ["jpg", "jpeg", "png", "gif", "bmp"]
+			}
+			C_COMP.import("<@popupId>_importMultiFilemng", "component_compMultiFilemng", parm , function() {
+				
+			});
+
+			$("#<@popupId><@popupId>_importMultiFilemng #title").remove();			
+			
+		}
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
+	
+		<@popupId>.rcvData = data;
+		<@popupId>.BUYER_CONSULTING_ID = isEmpty(<@popupId>.rcvData?.param?.BUYER_CONSULTING_ID) ?  C_COM.makeUniqueId()
+										: <@popupId>.rcvData?.param?.BUYER_CONSULTING_ID ;
+		<@popupId>.pageInit();
 		
+		<@popupId>.fileAttach();
+		
+		if("<@mode>" == "I"){
+			
+		}else{
+			$("#<@popupId> .title").text("기업자문보고서");
+		}
+		
+		
+
 	});
 </script>
-<div class="modal_wrap" id="modal-ex">
-	<div class="modal" style="width:600px;height:640px;">
+<div class="modal_wrap" id="modal-ex04">
+	<div class="modal" style="width:600px;height:630px;">
 		<div class="modal_header">
-			<strong class="tit">게시글 작성</strong>
-			<button type="button" class="btn_close"><span class="sp">팝업 닫기</span></button>
+			<strong class="tit">기업자문보고서 등록</strong>
+			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body">
-			<ul class="info_wrap col2 mt15">
-				<li class="w100">
-					<label>제목</label>
-					<div class="info"><input type="text" style="width:100%"></div>
-				</li>
-				<li class="ml0">
-					<label>게시판 선택</label>
-					<div class="info">
-						<!-- 실글 선택 -->
-						<div class="select_box" style="width:100%">
-							<button type="button" class="btn radio"><span>선택</span></button>
-		                    <ul class="select_lst">
-		                        <li>
-		                            <input name="board" id="board01" type="radio" value="">
-		                            <label for="board01">공지사항<i class="icon_check"></i></label>
-		                        </li>
-		                        <li>
-		                            <input name="board" id="board02" type="radio" value="">
-		                            <label for="board02">영업자료<i class="icon_check"></i></label>
-		                        </li>
-		                        <li>
-		                            <input name="board" id="board03" type="radio" value="">
-		                            <label for="board03">서식함<i class="icon_check"></i></label>
-		                        </li>
-		                    </ul>
-		                </div>
-					</div>
-				</li>
-				<li class="ml14">
-					<label>권한 선택</label>
-					<div class="info">
-						<!-- 실글 선택 -->
-						<div class="select_box" style="width:100%">
-							<button type="button" class="btn radio"><span>선택</span></button>
-		                    <ul class="select_lst">
-		                        <li>
-		                            <input name="authority" id="authority01" type="radio" value="">
-		                            <label for="authority01">최고관리자<i class="icon_check"></i></label>
-		                        </li>
-		                        <li>
-		                            <input name="authority" id="authority02" type="radio" value="">
-		                            <label for="authority02">관리자<i class="icon_check"></i></label>
-		                        </li>
-		                        <li>
-		                            <input name="authority" id="authority03" type="radio" value="">
-		                            <label for="authority03">본부장<i class="icon_check"></i></label>
-		                        </li>
-		                        <li>
-		                            <input name="authority" id="authority04" type="radio" value="">
-		                            <label for="authority04">지사장<i class="icon_check"></i></label>
-		                        </li>
-		                        <li>
-		                            <input name="authority" id="authority05" type="radio" value="">
-		                            <label for="authority05">FA<i class="icon_check"></i></label>
-		                        </li>
-		                    </ul>
-		                </div>
-					</div>
-				</li>
-				<li class="w100 ml0">
-					<div class="info w100">
-						<textarea class="w100" rows="13"></textarea>
-					</div>
-				</li>
-				<li class="w100 ml0">
-					<label>첨부파일</label>
-					<div class="info">
-						<button type="button" class="stateBtn file"><span>파일선택</span></button>
-	            		<input name="file" type="file" id="file-input" tabindex="-1" title="파일찾기">
-						<div class="approver_list_wrap person" style="max-height:95px">
-							<ul class="approver_list">
-								<li><span class="txt">첨부파일 입니다.txt / 15.1 Mb</span><button class="pay_close">닫기</button></li>
-								<li><span class="txt">첨부파일 입니다2.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
-								<li><span class="txt">첨부파일 입니다3.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
-								<li><span class="txt">첨부파일 입니다4.txt / 18.1 Mb</span><button class="pay_close">닫기</button></li>
-							</ul>
-						</div>
-					</div>
-				</li>
-			</ul>
+			<div class="tbl_scroll mt15" style="height:calc(100% - 30px);">
+				<div class="tbl01 col tbl_body_scroll h100">
+					<table>
+						<caption></caption>
+						<colgroup>
+							<col style="width:90px;">
+							<col style="*">
+							<col style="width:90px;">
+							<col style="*">
+						</colgroup>
+						<tbody>
+							<tr>
+								<th>회사명</th>
+								<td class="tl" id="<@popupId>_buyerNm">이오에프</td>
+								<th>보고년월</th>
+								<td class="tl visible">
+									<div id="<@popupId>_yearMonths" style="width:160px"></div>
+								</td>								
+							</tr>
+							<tr>
+								<th>상품명</th>
+								<td class="tl visible">
+									<div id="<@popupId>_consultingNms" style="width:160px"></div>
+								</td>
+								<th>보고자</th>
+								<td class="tl" id="<@popupId>_reporter"></td>								
+							</tr>
+							<tr>
+								<th>보고내용</th>
+								<td colspan="3"  class="tl">
+									<textarea class="w100" rows="12" id="<@popupId>_content"></textarea>
+								</td>
+							</tr>
+							<tr>
+								<th>첨부파일</th>
+								<td colspan="3"  class="tl" id="<@popupId>_importMultiFilemng" >
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select">등록</button>
-			<button type="button" class="btn close">취소</button>
+			<button type="button" class="btn select"onclick="<@popupId>.save()">등록</button>
+			<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
 		</div>
 	</div>
 </div>

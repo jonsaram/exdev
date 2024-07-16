@@ -218,6 +218,7 @@
 		,GET_CODE_NM( 'CONTRACT_TYPE', C.CONTRACT_TYPE) CONTRACT_TYPE_NM
 		,C.USER_ID, C.CONTRACT_DATE, C.CONTRACT_TYPE
 		,C.CONSULTING_ID, CS.CONSULTING_NM, CS.CONSULTING_DESC
+		,CS.CONSULTING_TYPE ,GET_CODE_NM('CONSULTING_TYPE',CS.CONSULTING_TYPE) AS CONSULTING_TYPE_NM 
 		,C.PROCESS_STATE, C.LAST_SOLUTION, C.TAX_MNG, C.LABOR_MNG, C.CONSULTING_CLASS
 		,C.USE_YN,C.DEL_YN,C.UPDATE_USER,C.UPDATE_DATE
 		,( SELECT MIN( REMAINING_SUM ) FROM TBL_EXP_RESULT I 
@@ -268,8 +269,8 @@
 		       	<when test=" BUYER_ID != null and !BUYER_ID.equals('') and BUYER != null and !BUYER.equals('')">  
 						AND ( C.BUYER_ID = #{BUYER_ID}
 						   OR B.BUYER_NM = #{BUYER_ID}     
-						   OR C.BUYER_ID LIKE '%#{BUYER}%'
-						   OR B.BUYER_NM LIKE '%#{BUYER}%'
+						   OR C.BUYER_ID LIKE '%'|| #{BUYER} ||'%'
+						   OR B.BUYER_NM LIKE '%'|| #{BUYER} ||'%'
 						   OR C.BUYER_ID 	= NVL(REGEXP_SUBSTR(#{BUYER}, '\(([^)]+)\)', 1, 1, NULL, 1),#{BUYER} )
 						   OR B.BUYER_NM 	= NVL(REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1),#{BUYER} )
 						   )
@@ -286,6 +287,19 @@
 						    OR B.BUYER_NM  = NVL(REGEXP_SUBSTR(#{BUYER}, '[^ ]+', 1, 1),#{BUYER} )
 						  	)
 				</when>
+		       	<when test=" CONSULTING != null and !CONSULTING.equals('') and CONSULTING_ID != null and !CONSULTING_ID.equals('')">  
+						AND (  C.CONSULTING_ID   LIKE '%' || #{CONSULTING_ID} || '%'
+						    OR CS.CONSULTING_NM  LIKE '%'|| #{CONSULTING} || '%'
+						  	)
+				</when>		
+		       	<when test=" CONSULTING_ID != null and !CONSULTING_ID.equals('')">  
+						AND   C.CONSULTING_ID   LIKE '%' || #{CONSULTING_ID} || '%'
+						  	 
+				</when>		
+		       	<when test=" CONSULTING != null and !CONSULTING.equals('')  ">  
+						AND   CS.CONSULTING_NM  LIKE '%'|| #{CONSULTING} || '%'  
+						  	 
+				</when>				
 				</choose>							     
         	</if>
         	<if test=" !PA_ROLE.equals('SYSTEM') and !PA_ROLE.equals('MANAGER')">

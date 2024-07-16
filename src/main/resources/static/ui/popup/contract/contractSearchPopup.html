@@ -29,9 +29,11 @@
 		const buyer 	= $("#<@popupId>_items #BUYER").val();
 		const userId 	= $("#<@popupId>_items #USER_ID").val();
 		const buyerId 	= $("#<@popupId>_items #BUYER_ID").val();
-
+		const consulting= $("#<@popupId>_items #<@popupId>_CONSULTING").val();
+		const consultingId= $("#<@popupId>_items #<@popupId>_CONSULTING_ID").val();
 		const requestParm = {FROM_DATE:fromData, TO_DATE:toDate, USER_ID: userId , BUYER_ID : buyerId
 							, USER: user , BUYER : buyer
+							, CONSULTING : consulting, CONSULTING_ID : consultingId
 							 ,PA_ROLE	: <@opener>.paMap.ROLE_ID};
 
 		let parm = {
@@ -49,6 +51,8 @@
             
 			C_COM.renderHtml("<@popupId>", rparm);
 			<@popupId>.setHandler();
+			
+			
 		});
 	}
 	,memberSearchPopup : function(gubun , text) {
@@ -78,11 +82,20 @@
 		if( userId ){
 			$("#<@popupId>_items #USER").val(userNm+ " ("+userId+")");
 			$("#<@popupId>_items #CPY_USER_NM").text(userNm);
-/* 			const branchId = $("#<@popupId>_items #BRANCH_ID").val();
-			if( branchId )<@popupId>.selectHierarchyList(branchId); */
 		}
 
 	}
+	,consultingSearchPopup : () => {
+		
+		let param = {searchText:""};
+
+		C_POP.open('popup_contract_consultingSearchPopup', {param:param}, function(retData) {
+
+			$("#<@popupId>_CONSULTING").val(  `${retData.CONSULTING_NM} ( ${retData.CONSULTING_TYPE_NM} )` );
+			$("#<@popupId>_CONSULTING_ID").val(retData.CONSULTING_ID);
+		});
+	}
+
 	,setHandler : () => {
 		
  	    $("#<@popupId>_search").off().on("click", () =>{
@@ -99,6 +112,10 @@
 	    	
 	    });
 	    
+	    $("#<@popupId>_CONSULTING").off().on('click', ()=>{
+	    	$("#<@popupId>_CONSULTING_ID").val('');	
+	    })
+	    
 	}
 	
 }
@@ -114,10 +131,14 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
     
     
 </script>
-
+<style>
+.calendar_wrap .ui-datepicker-trigger:nth-child(5){
+	left:166px;
+}
+</style>
 <!-- 계약 선택 팝업 -->
 <div class="modal_wrap" id="<@popupId>">
-	<div class="modal" style="width:750px;height:550px;">
+	<div class="modal" style="width:950px;height:650px;">
 		<div class="modal_header">
 			<strong class="tit">계약 선택</strong>
             <button type="button" class="btn_zoomInOut"><span class="txt">확대</span></button>
@@ -130,9 +151,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					<label>계약일</label>
 					<div class="info">
 						<div class="calendar_wrap">
-							<input type="text" id="FROM_DATE" 	name="FROM_DATE" class="datepicker" style="width:114px">
+							<input type="text" id="FROM_DATE" 	name="FROM_DATE" class="datepicker" style="width:138px">
 							<label for="to">~</label>
-							<input type="text" id="TO_DATE" 	name="TO_DATE" class="datepicker" style="width:114px">
+							<input type="text" id="TO_DATE" 	name="TO_DATE" class="datepicker" style="width:138px">
 						</div>
 					</div>
 				</li>
@@ -148,15 +169,22 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 				<li>
 					<label>고객명</label>
 					<div class="info">
-						<div class="search_inputWrap" style="width:100%">
-							<input type="search" id="BUYER" placeholder="고객명(고객번호)"><a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('BUYER');" class="search_btn"><i class="icon_search"></i></a>
+						<div class="search_inputWrap" style="width:80%">
+							<input type="search" id="BUYER" placeholder="고객명(고객번호)">
+							<a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('BUYER');" class="search_btn"  style='top:3px!important;'><i class="icon_search"></i></a>
 						</div>
 					</div>
 				</li>
 				<li>
-					<label>&nbsp;</label>
+					<label>상품Type</label>
 					<div class="info">
-						<button class="btn select fr" id="<@popupId>_search">검색</button>
+							<div class="search_inputWrap" style="width:100%">
+								<input type="search" id="<@popupId>_CONSULTING" placeholder="상품명(상품TYPE)">
+								<input type="hidden" id="<@popupId>_CONSULTING_ID">
+								<a href="javascript:void(0);" class="search_btn"  onclick="<@popupId>.consultingSearchPopup();" style='top:3px!important;'>
+								<i class="icon_search"></i></a>
+							</div>
+							<button class="btn select fr" id="<@popupId>_search" style='margin-top: 10px;'>검색</button>
 					</div>
 				</li>
 			</ul>
@@ -173,12 +201,14 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<col style="width:15%;"/>
 						<col style="width:15%;"/>
 						<col style="width:15%;"/>
+						<col style="width:15%;"/>
 					</colgroup>
 					<thead>
 						<tr>
 							<th scope="col">고객번호</th>
 							<th scope="col">고객명</th>
 							<th scope="col">담당자</th>
+							<th scope="col">컨설팅 TYPE</th>
 							<th scope="col">컨설팅명</th>
 							<th scope="col">진행상태</th>
 							<th scope="col">계약일</th>
@@ -190,18 +220,19 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 						<script type="text/x-jsrender" id="<@popupId>_contractList_template">						
 						{{for list}}
 							<tr class="select"	name="<@popupId>_tr_{{:#index}}" value='{{:CONTRACT_ID}}'>
-							<td id='BUYER_ID'			class='tl' title="{{:BUYER_ID}}">{{:BUYER_ID}}</td>
-							<td id='BUYER_NM'			class='tl' title="{{:BUYER_NM}}">{{:BUYER_NM}}</td>
-							<td id='USER_NM'			class='tl' title="{{:USER_NM}}">{{:USER_NM}}</td>
+							<td id='BUYER_ID'			class='tc' title="{{:BUYER_ID}}">{{:BUYER_ID}}</td>
+							<td id='BUYER_NM'			class='tc' title="{{:BUYER_NM}}">{{:BUYER_NM}}</td>
+							<td id='USER_NM'			class='tc' title="{{:USER_NM}}">{{:USER_NM}}</td>
+							<td id='CONSULTING_TYPE_NM'	class='tc' title="{{:CONSULTING_TYPE_NM}}">{{:CONSULTING_TYPE_NM}}</td>
 							<td id='CONSULTING_NM'		class='tl' title="{{:CONSULTING_NM}}">{{:CONSULTING_NM}}</td>
-							<td id='PROCESS_STATE_MN'	class='tl' title="{{:PROCESS_STATE_MN}}">{{:PROCESS_STATE_MN}}</td>
+							<td id='PROCESS_STATE_MN'	class='tc' title="{{:PROCESS_STATE_MN}}">{{:PROCESS_STATE_MN}}</td>
 							<td id='CONTRACT_DATE'		class='tc' title="{{:CONTRACT_DATE}}">{{:CONTRACT_DATE}}</td>							
 							</tr>
 						{{/for}}
 						</script>
 						<script type="text/x-jsrender" id="<@popupId>_contractList_noData_template">	
 						<tr>	
-							<td colspan=6>자료가 없습니다.</td>	
+							<td colspan=7>자료가 없습니다.</td>	
 						</tr>
 						</script>					
 				</table>
