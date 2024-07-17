@@ -173,8 +173,16 @@
 			})
 			
 		 }
+        ,preview : function(fileId) {
+        	
+            if(isEmpty(fileId)) return;
+            window.open("previewFile.do?FILE_ID="+fileId, "_blank");
+            
+         }
 		,download : function(fileId) {
+			C_COM.fileDownload(fileId);
 			if(C_POP.confirm('다운로드 받으시겠습니까?')) {
+				console.log("download");
 				C_COM.fileDownload(fileId);
 			}
 		 }
@@ -189,6 +197,10 @@
 			alert('<@compId> 를 Import할때 OWNER_CD가 필요 합니다.');
 			return;
 		}
+		
+		const url = _WEB_ROOT_URL + '/editImageUpload.do';
+		console.log(url);
+		
 		<@compId>.GRP_FILE_ID 	= parm.GRP_FILE_ID	;
 		<@compId>.OWNER_CD 		= parm.OWNER_CD		;
 		<@compId>.mode 			= parm.mode			;
@@ -225,7 +237,12 @@
 		
 		<script type="text/x-jsrender" id="<@compId>_fileList_template">  
 		{{for list}}
-			<li><span class="txt" onclick="<@compId>.download('{{:FILE_ID}}')"><span>{{:ORG_FILE_NM}}</span> / <span>{{toKb:FILE_SIZE}}</span> Kb</span><button class="pay_close" onclick="<@compId>.deleteFile('{{:FILE_ID}}')">닫기</button></li>
+			<li><span class="txt" onclick="<@compId>.download('{{:FILE_ID}}')"><span>{{:ORG_FILE_NM}}</span> / <span>{{toKb:FILE_SIZE}}</span> Kb</span>
+                <button class="pay_close" onclick="<@compId>.deleteFile1('{{:FILE_ID}}')">닫기</button>&nbsp;&nbsp;&nbsp;
+                {{if PRE_VIEW_YN=="Y"}} 
+                <button type="button" onclick="<@compId>.preview('{{:FILE_ID}}','{{:STORED_FILE_NM}}')" id="<@compId>_buttonPreview"><span>미리보기</span></button>
+                {{/if}}
+            </li>
 		{{/for}}
         </script>
 		<script type="text/x-jsrender" id="<@compId>_fileList_noData_template">    

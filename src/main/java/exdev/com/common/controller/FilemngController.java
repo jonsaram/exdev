@@ -1,7 +1,9 @@
 package exdev.com.common.controller;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -26,6 +28,15 @@ import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.common.vo.SessionVO;
 import exdev.com.service.FileService;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.springframework.http.MediaType;
 
 /**
  * @author 위성열
@@ -108,4 +119,39 @@ public class FilemngController {
         fis.close();
         os.close();
 	}
+
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @RequestMapping("previewFile.do")
+    public ResponseEntity<Resource> previewFile(HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
+        try {
+            String FILE_ID  = (String)request.getParameter("FILE_ID");
+            
+            Map     requestParm = new HashMap();
+            requestParm.put("FILE_ID", FILE_ID);
+            Map fileInfo = (Map)commonDao.getObject("Filemng.getFileInfo", requestParm);
+            String filePathStr = (String)fileInfo.get("FILE_PATH");
+            
+            Path filePath = Paths.get(filePathStr);
+            Resource resource = new UrlResource(filePath.toUri());
+            
+            // 파일의 MIME 타입 결정
+            String contentType = Files.probeContentType(filePath);
+            System.out.println("contentType1 ==>"+contentType);
+            
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+            
+            // Content-Disposition 헤더를 inline으로 설정
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+
 }

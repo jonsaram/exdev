@@ -92,34 +92,37 @@
 			AND DEL_YN 		= 'N' 
    	</select>
    	
-
-	<select id="getFileList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	Filemng.getFileList
-			업로드 File 정보 조회
-		*/
-		SELECT
-			 ORG_FILE_NM   
-			,STORED_FILE_NM
-			,FILE_SIZE     
-			,FILE_TYPE     
-			,ORDER_NUM     
-			,OWNER_CD      
-			,FILE_PATH     
-			,SP_CSTM_ID    
-			,UPDATE_USER   
-			,UPDATE_DATE   
-			,CREATE_USER   
-			,CREATE_DATE   
-			,FILE_ID       
-			,GRP_FILE_ID   
-			,DEL_YN        
-		FROM TBL_EXP_FILEMNG
-		WHERE 1=1
-			AND GRP_FILE_ID = #{GRP_FILE_ID}
-			AND OWNER_CD 	= #{OWNER_CD}
-			AND DEL_YN 		= 'N' 
-   	</select>
-
+    <select id="getFileList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+       /* Filemng.getFileList
+          업로드 File 정보 조회
+       */
+        SELECT  ORG_FILE_NM   
+               ,STORED_FILE_NM
+               ,FILE_SIZE     
+               ,FILE_TYPE  
+               ,CASE FILE_TYPE WHEN '.jpg' THEN 'Y'
+                               WHEN '.bmp' THEN 'Y'
+                               WHEN '.gif' THEN 'Y'
+                               WHEN '.png' THEN 'Y'
+                               WHEN '.pdf' THEN 'Y'
+               ELSE 'N'  END AS PRE_VIEW_YN   
+               ,ORDER_NUM     
+               ,OWNER_CD      
+               ,FILE_PATH     
+               ,SP_CSTM_ID    
+               ,UPDATE_USER   
+               ,UPDATE_DATE   
+               ,CREATE_USER   
+               ,CREATE_DATE   
+               ,FILE_ID       
+               ,GRP_FILE_ID   
+               ,DEL_YN        
+        FROM   TBL_EXP_FILEMNG
+        WHERE 1=1
+        AND   GRP_FILE_ID = #{GRP_FILE_ID}
+        AND   OWNER_CD    = #{OWNER_CD}
+        AND   DEL_YN      = 'N' 
+      </select>
 
   	<update id="deleteFile">
   		UPDATE TBL_EXP_FILEMNG SET DEL_YN = 'Y' WHERE FILE_ID = #{FILE_ID}
