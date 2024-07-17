@@ -171,17 +171,27 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 					<div class="info">
 						<div class="search_inputWrap" style="width:80%">
 							<input type="search" id="BUYER" placeholder="고객명(고객번호)">
-							<a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('BUYER');" class="search_btn"  style='top:3px!important;'></a>
+							<a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup('BUYER');" class="search_btn"  style='top:3px!important;'><i class="icon_search"></i></a>
 						</div>
 					</div>
 				</li>
 				<li>
+					<label>상품Type</label>
+					<div class="info">
+							<div class="search_inputWrap" style="width:100%">
+								<input type="search" id="<@popupId>_CONSULTING" placeholder="상품명(상품TYPE)">
+								<input type="hidden" id="<@popupId>_CONSULTING_ID">
+								<a href="javascript:void(0);" class="search_btn"  onclick="<@popupId>.consultingSearchPopup();" style='top:3px!important;'>
+								<i class="icon_search"></i></a>
+							</div>
 							<button class="btn select fr" id="<@popupId>_search" style='margin-top: 10px;'>검색</button>
+					</div>
 				</li>
 			</ul>
+
 			<h4 class="mt25"><i class="icon_bullet"></i>계약 리스트</h4>
 			<!-- 테이블 -->
-			<div class="tbl01 col" style="min-height:200px;max-height:300px;overflow:auto;">
+			<div class="tbl01 col" style="min-height:200px;max-height:200px;overflow:auto;">
 				<table>
 					<caption>표 캡션</caption>
 					<colgroup>
