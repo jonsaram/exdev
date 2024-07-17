@@ -77,10 +77,6 @@ var <@popupId> = {
 		}else {C_POP.alert(errMsg); return false;} 
 		if( isError ){C_POP.alert(errMsg); return false;}
 
-		
-/* 		const rateSum = $("#<@popupId>_RATE_SUM").text().replace("%","");
-		if( rateSum > 100 ){C_POP.alert('[수수료 산출] 총 수수료율(%)을 100% 이하로 수정하여 주십시오. ');return false;} */
-		 
 		return true;
 
 	 }
@@ -375,9 +371,9 @@ var <@popupId> = {
 				const RESULT_INSERTED_CNT	= <@popupId>.recvData.contractItem.RESULT_INSERTED_CNT;
 				
 				if( relationType == "SALES" && CONSULTING_TYPE == "MONTHLY" && RESULT_INSERTED_CNT >= 3 ){
-					//월자문이고 4번째 실적입력 부터는 영업 수수료율은 0%
-					$(tr+" td[id='RATE']").attr("value","0").html("0 %");
-					
+					//월자문이고 4번째 실적입력 부터는 영업 수수료율은 0% ( 직급이 SUGGESTER 인 경우만 )
+					//$(tr+" td[id='RATE']").attr("value","0").html("0 %");
+					$(tr+" td[id='RATE']").attr("value",rate).html(rate+" %");
 				}else{
 					
 					$(tr+" td[id='RATE']").attr("value",rate).html(rate+" %");
@@ -412,7 +408,6 @@ var <@popupId> = {
 		const RATE_SUM 		= Number(rs.endsWith('.00') ? rs.slice(0, -3) : rs);
 		const ps			= Number(paymentSum).toFixed(2)
 		const PAYMENT_SUM	= Number(ps.endsWith('.00') ? ps.slice(0, -3) : ps);
-		$("#<@popupId>_RATE_SUM").text(addComma(RATE_SUM)+"%")
 		$("#<@popupId>_PAYMENT_SUM").text(addComma(PAYMENT_SUM));
 		
 	}
@@ -444,6 +439,13 @@ var <@popupId> = {
 					rateSum += 	Number((executeRate * rateVal ) / 100);
 					payment = 	Number((executePayment * rateVal ) / 100).toFixed(2); 
 					
+					// COWORK 계산시 실행수수료에서 제한다. 
+					const oldExecPayment = $executeItem.siblings("#PAYMENT ").attr("value");
+					const execRePayment = Number(oldExecPayment) - payment;
+					$executeItem.siblings("#PAYMENT ").attr("value",execRePayment);
+					$executeItem.siblings("#PAYMENT ").text(execRePayment.toLocaleString());
+					paymentSum -= oldExecPayment;
+					paymentSum += execRePayment;
 				}else{
 
 					rateSum +=	rateVal;
@@ -639,7 +641,7 @@ var <@popupId> = {
 		
 	}
 	,changeRateVal : (obj) =>{
-
+		// 수수료 산출을 위한 수수료율 입력 시 ( COWORK / SUGGESTER )
         const val = Number($(obj).nval());
         if (isNaN(val)) {
         	
@@ -979,7 +981,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<tfoot>
 									<tr id="<@popupId>_totalRow">
 										<td colspan="4">계</td>
-										<td id='<@popupId>_RATE_SUM'	class="tr"	></td>
+										<td class="tr"	></td>
 										<td id='<@popupId>_PAYMENT_SUM' class="tr"	></td>
 									</tr>
 								</tfoot>
