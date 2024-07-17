@@ -880,6 +880,8 @@ var C_PM = {
 		// html에서 최상위Div에 Page Block이라는 Name을 부여한다.(전체 page 동일값 pageBlockDiv);
 		$("div", docDiv).eq(0).attr("name"	, "pageBlockDiv");
 
+		$("div", docDiv).eq(0).attr("style", "overflow-y:auto");
+
 		// 기존 Page는 숨긴다.
 		$("div[name=pageBlockDiv]").hide();
 		
@@ -1918,7 +1920,6 @@ var C_PAGING = {
 
 
 
-// Table의 Grid변환
 var CLASS_GRID = function(parm) {
 	
 	if(isEmpty(parm)) parm = {};
@@ -2531,7 +2532,7 @@ var C_GRID = {
 			    return true;
 			}
 
-            let attrList = C_GRID.getAllAttrFromDom(this, 'big');
+            let attrList = getAllAttrFromDom(this, 'big');
             
             let allRowData = Object.assign({}, rowData, attrList);
 
@@ -2626,7 +2627,6 @@ var C_GRID = {
     ,closeLayerPopup() {
         $('div[type="explan-layer-popup"]').remove();
      }
-	
 	,getAllAttrFromDom(domObj, type) {
 	    var attributes = {};
 	    $(domObj).each(function() {
@@ -2640,6 +2640,18 @@ var C_GRID = {
 	    });
 	    return attributes;
 	 }
+    ,setReadOnly(gridId, state) {  // state="Y" is Readonly , "N" or undefined is  editable 
+    	if(isVaild(C_GRID.gridMap[gridId]) && isVaild(C_GRID.gridMap[gridId].gridInstance)) {
+	    	C_GRID.gridMap[gridId].gridInstance.readOnly = state;
+    	}
+     }
+    ,getReadOnly(gridId) {
+    	if(isVaild(C_GRID.gridMap[gridId]) && isVaild(C_GRID.gridMap[gridId].gridInstance)) {
+	    	return C_GRID.gridMap[gridId].gridInstance.readOnly;
+    	} else {
+    		return null;
+    	}
+     }
 }
 
 

@@ -174,7 +174,9 @@
 			
 		 }
 		,download : function(fileId) {
-			C_COM.fileDownload(fileId);
+			if(C_POP.confirm('다운로드 받으시겠습니까?')) {
+				C_COM.fileDownload(fileId);
+			}
 		 }
 	}
 	// Component Load가 완료된후 실행 된다.
