@@ -369,17 +369,19 @@ var <@popupId> = {
 				
 				const CONSULTING_TYPE 		= <@popupId>.recvData.contractItem.CONSULTING_TYPE;
 				const RESULT_INSERTED_CNT	= <@popupId>.recvData.contractItem.RESULT_INSERTED_CNT;
-				
-				if( relationType == "SALES" && CONSULTING_TYPE == "MONTHLY" && RESULT_INSERTED_CNT >= 3 ){
+				const SALSE_USER_ROLE 		= <@popupId>.recvData.contractItem.ROLE;
+				if( relationType == "EXECUTE"){
+					$(tr+" td[id='RATE']").find("[name='execRate']")?.attr("value",rate).html(rate+" %");
+					$(tr+" td[id='RATE']").find("[name='execRate']").parent().attr("value",rate);
+				}else if( relationType == "SALES"){
+					$(tr+" td[id='RATE']").find("[name='salesRate']")?.attr("value",rate).html(rate+" %");
+					$(tr+" td[id='RATE']").find("[name='salesRate']").parent().attr("value",rate);
+					if( relationType == "SALES" && CONSULTING_TYPE == "MONTHLY" && RESULT_INSERTED_CNT >= 3 && SALSE_USER_ROLE == "SUGGESTER" ){
 					//월자문이고 4번째 실적입력 부터는 영업 수수료율은 0% ( 직급이 SUGGESTER 인 경우만 )
-					//$(tr+" td[id='RATE']").attr("value","0").html("0 %");
-					$(tr+" td[id='RATE']").attr("value",rate).html(rate+" %");
-				}else{
-					
-					$(tr+" td[id='RATE']").attr("value",rate).html(rate+" %");
-				
+						$(tr+" td[id='RATE']").find("[name='salesRate']")?.attr("value",0).html("0 %");
+						$(tr+" td[id='RATE']").find("[name='salesRate']").parent().attr("value","0");
+					}
 				}
-				
 				
 			}else{
 				// COWORK이나 SUGGESTER인 경우 input에 수수료율을 넣는다.
@@ -641,7 +643,7 @@ var <@popupId> = {
 		
 	}
 	,changeRateVal : (obj) =>{
-		// 수수료 산출을 위한 수수료율 입력 시 ( COWORK / SUGGESTER )
+		// 수수료 산출을 위한 수수료율 입력 시 ( EXECUTE / SALES / COWORK / SUGGESTER )
         const val = Number($(obj).nval());
         if (isNaN(val)) {
         	
@@ -714,7 +716,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.CONTRACT_ID 		= data.contractItem.CONTRACT_ID; 
 	<@popupId>.PROCESS_STATE 	= data.contractItem.PROCESS_STATE;
 	<@popupId>.IsMonthly  		= data.contractItem.CONSULTING_TYPE == "MONTHLY" ? true:false;
-	
+	<@popupId>.recvData.contractItem.RESULT_INSERTED_CNT = data.resultInsertedCnt;
 	if(<@popupId>.IsMonthly){
 		data.contractItem.TOT_COST = data.contractItem.REMAINING_SUM; 
 	}
@@ -959,6 +961,10 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	        							<input name='coworkRate' 	type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
     								{{else RELATION_TYPE == 'SUGGESTER'}} 
         								<input name='suggesterRate' type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
+    								{{else RELATION_TYPE == 'EXECUTE'}} 
+        								<input name='execRate' type='text' style='width:60px;text-align: right;' value='{{:RATE}}'  oninput='javascript:<@popupId>.changeRateVal(this)' />%
+    								{{else RELATION_TYPE == 'SALES'}} 
+        								<input name='salesRate' type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)'  />%
 									{{else}}
         								{{:RATE}} %
 								    {{/if}}

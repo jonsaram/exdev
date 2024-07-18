@@ -4,6 +4,7 @@ var <@pageId> = {
 	paMap : G_VAL.PAGE_AUTH_MAP["<@pageId>"]
 	,contractItem 	: {}	
 	,selectedList : []
+	,RESULT_INSERTED_CNT : 0
 	,pageInit : () =>{
 		
 	}	
@@ -63,7 +64,7 @@ var <@pageId> = {
         	resultData.data.forEach( (row,idx) => {
         		
         		row["LAST_RESULT_ID"] = row["RESULT_ID"] == LAST_RESULT_ID ?  LAST_RESULT_ID :'';
-
+        		<@pageId>.RESULT_INSERTED_CNT = row["RESULT_INSERTED_CNT"];
         	})
        	
         	let rparm = {
@@ -318,10 +319,12 @@ var <@pageId> = {
 		}
 		
 		if( goPopup ){
-			
+			const resultInsertedCnt = <@pageId>.contractItem.RESULT_INSERTED_CNT >  <@pageId>.RESULT_INSERTED_CNT ?
+					<@pageId>.contractItem.RESULT_INSERTED_CNT : <@pageId>.RESULT_INSERTED_CNT; 
 	 		C_POP.open('popup_result_resultUpdatePopup', {	  mode:mode
 	 												, resultItem:param 
-	 												, contractItem :<@pageId>.contractItem }
+	 												, contractItem :<@pageId>.contractItem 
+	 												, resultInsertedCnt : resultInsertedCnt}
 				, function(retData) {
 	
 					if(isValid(retData)){
