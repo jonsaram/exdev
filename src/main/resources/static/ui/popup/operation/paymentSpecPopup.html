@@ -38,18 +38,34 @@
 				$("#<@popupId>_salarySlipListTot").append(trTemplate);
 
 			});
-		}		
+		 }
+		,print : function() {
+			$("#printbackground").show();
+			
+			$("#<@popupId>").css("background-color", "rgba(0,0,0,.1)");
+			
+			$("#<@popupId>_pbtn").hide();
+			$("#<@popupId> button").hide();
+			
+			window.print();
+			setTimeout(function() {
+				$("#printbackground").hide();	
+				$("#<@popupId>").css("background-color", "rgba(0,0,0,.3)");
+				$("#<@popupId>_pbtn").show();
+				$("#<@popupId> button").show();
+			}, 5000);
+			
+		 }
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(parm) {
-debugger;		
 		<@popupId>.rcvData = parm.param;
 		<@popupId>.searchList();
 
 	});
 </script>
-	<div class="modal_wrap" id="modal-ex01">
-		<div class="modal" style="width:600px;height:600px;">
+	<div class="modal_wrap high_index">
+		<div class="modal" style="width:600px;height:800px;">
 			<div class="modal_header">
 				<strong class="tit">급여 명세서</strong>
 				<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
@@ -57,7 +73,7 @@ debugger;
 			<div class="modal_body">
 				<div class="cont_top clearFix mt20">
 					<!-- <h3 class="fl font16 lh33 mtb0">급여 명세서</h3> -->
-					<a href="#modal-ex01" class="btn fl">출력</a>
+					<a href="javascript:<@popupId>.print()" class="btn fl" id="<@popupId>_pbtn">출력</a>
 				</div>
 				<div class="tbl01 col">
 					<table>
