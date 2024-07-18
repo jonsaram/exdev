@@ -10,6 +10,7 @@
 		,subFolderList		: []
 		,selectFolderId		: ""
 		,shareMsgList		: []
+        ,deleteFolderId     : ""
 		,loadLeftFolderList	: function(defaultIdx) {
 
 			let baseFolderId = <@compId>.baseFolderId;
@@ -288,7 +289,9 @@
 				C_POP.alert("메시지를 입력하세요.");
 				return;
 			}
-			
+			// 엔터(\n)를 <br>로 변환
+            var convertedValue = folderMsg.replace(/(?:\r\n|\r|\n)/g, '<br>');
+            
 			let selectFolderInfo = "";
 			$("#<@compId> #leftFolder li[class=active]").each(function() {
 				let idx = $(this).attr("idx");
@@ -309,7 +312,7 @@
 				,requestParm	: { 
 					 FOLDER_MSG_ID 	: C_COM.makeUniqueId()
 					,FOLDER_ID 		: <@compId>.selectFolderId
-					,CONTENT		: folderMsg
+					,CONTENT		: convertedValue
 				}
 				,noLoadingBar		: "Y"
 			}
@@ -381,7 +384,15 @@
 				});  
 			});
 		 }
-		,deleteSubFolder : function(folderId) {
+		,deleteSubFolder : function(folderId1) {
+			
+			var folderId = <@compId>.deleteFolderId;
+			
+			if(isEmpty(folderId)) {
+                C_POP.alert('폴더를 선택해 주세요.')
+                return;
+            }
+            
 			C_POP.confirm('폴더를 삭제하시겠습니까?', function() {
 				var parm = {
 					 queryId 		: "faDashboard.deleteFolder"
@@ -391,6 +402,7 @@
 				}
 				C_COM.requestQuery(parm, function(resultData) {
 					if(resultData.state == "S") {
+						<@compId>.deleteFolderId ="";
 						<@compId>.loadSubFolderList();
 					} else if(resultData.state == "E") {
 						C_POP.alert('폴더 삭제 실패하였습니다.');
@@ -398,6 +410,10 @@
 				});  
 			});
 		 }
+        ,setDeleteFolderId : function(folderId) {
+            <@compId>.deleteFolderId = folderId;
+            
+         }
 		,addFile : function() {
 			let selectFolderInfo = "";
 			$("#<@compId> #leftFolder li[class=active]").each(function() {
@@ -493,14 +509,14 @@
 				<div class="clearFix mb10">
 					<h3 class="fl <@mtb0>">폴더</h3>
 					<a href="javascript:;" class="btn small fl" onclick="<@compId>.addSubFolder()">등록</a>
+                    <a href="javascript:;" class="btn small fl" onclick="<@compId>.deleteSubFolder()">삭제</a>
 				</div>
 				<ul class="listBtn v2" id="subFolder">
 				</ul>
 				<script type="text/x-jsrender" id="subFolder_template">	
 				{{for list}}
 					<li>
-						<a href="javascript:;" class="btn" onDblClick="<@compId>.moveFolder('{{:UP_FOLDER_ID}}', {{:#index}} )">{{:FOLDER_NM}}</a>
-						<button class="close" onclick="<@compId>.deleteSubFolder('{{:FOLDER_ID}}')">닫기</button>
+						<a href="javascript:;" class="btn" onclick="<@compId>.setDeleteFolderId('{{:FOLDER_ID}}')" onDblClick="<@compId>.moveFolder('{{:UP_FOLDER_ID}}', {{:#index}} )">{{:FOLDER_NM}}</a>
 					</li>
 				{{/for}}
 				</script>
@@ -538,7 +554,7 @@
 					<div class="fl w50 h100">
 						<!--// 공유 메시지 -->
 						<h3 class="mt15 mb10">공유 메시지</h3>
-						<ul class="share_msg" id="shareMsg" style="max-height:calc(100% - 92px);height:calc(100% - 92px);">
+						<ul class="share_msg" id="shareMsg" style="max-height:calc(100% - 135px);height:calc(100% - 135px);">
 						</ul>
 						<script type="text/x-jsrender" id="shareMsg_template">	
 						{{for list}}
@@ -554,7 +570,7 @@
 						</script>
 						<div class="comment clearFix mt10">
 							<strong class="fl lh33">메시지</strong>
-							<input class="fl" type="text" style="width:calc(100% - 120px);" value="" id="folderMsg" onEnter="<@compId>.addShareMsg()">
+							<textarea class="fl" name="folderMsg" cols="40" rows="3" style="width:calc(100% - 120px);" id="folderMsg"></textarea>
 							<button class="btn fl" onclick="<@compId>.addShareMsg()">등록</button>
 						</div>
 						<!-- 공유 메시지 //-->
