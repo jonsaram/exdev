@@ -62,11 +62,8 @@ var <@pageId> = {
 
 				 }
 				,makeListFn			: function(list) {
-
-					setTimeout( ()=>{
-						<@pageId>.searchedRows = list;	
-						<@pageId>.setHandler();
-					},500)
+					<@pageId>.searchedRows = list;	
+					<@pageId>.setHandler();
 				 }
 	 		});			
 			
@@ -260,7 +257,9 @@ var <@pageId> = {
 		,approval : (idx) =>{
 
 			const selectedRow	= <@pageId>.searchedRows[idx];
-
+			
+			debugger;
+			
 			if( "<@CALL_TYPE>" == "USER"){
 				
 				const USER_ID = <@pageId>.paMap.USER_ID ; 
@@ -274,7 +273,6 @@ var <@pageId> = {
 				}
 				
 				if( selectedRow["PROCESS_STATE"] == 'CONTRACTED' &&  USER_ID != consultingUser){
-					
 					C_POP.alert("실행 컨설턴트인 경우만 실행완료 결재 상신 할 수 있습니다. ");
 					return;
 				}	

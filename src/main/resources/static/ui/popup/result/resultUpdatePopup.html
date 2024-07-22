@@ -160,7 +160,10 @@ var <@popupId> = {
 				$("#<@popupId> #COST_NM input").prop("disabled", true);
 				$("#<@popupId> #COST_DESC input").prop("disabled", true);
 				$("#<@popupId> #COST_PRICE input").prop("disabled", true);
-				$("#<@popupId> [name='coworkRate']").prop("disabled", true);
+
+				// 20240722 위성열 수정 (View 모드에서 modify 모드로 변경
+				//$("#<@popupId> [name='coworkRate']").prop("disabled", true);
+
 				$("#<@popupId> [name='suggesterRate']").prop("disabled", true);
 				$("#<@popupId> .ui-datepicker-trigger").remove();
 			}
@@ -260,7 +263,7 @@ var <@popupId> = {
 								  }
 		}
 		C_COM.requestQuery(parm, function(resultData) {
-			
+
 			<@popupId>.setHandler();
 			let tempPayment = resultData.data;
 			tempPayment.orderBy("PAYMENT_ID");	
@@ -278,8 +281,31 @@ var <@popupId> = {
 							, "PAY_ID"	: payInfo.PAY_ID
 							, "RATE"	: payInfo.RATE
 					}
-				})
-				<@popupId>.setRatePayment( payInfoList )
+				});
+
+				// 20240722 위성열 수정 (View 모드에서 modify 모드로 변경
+
+				let validCheck = true;
+				$.each(payInfoList, function() {
+					if(isEmpty(this.RATE)) {
+						validCheck = false;
+						return false;
+					}
+				});
+				if(validCheck) {
+					<@popupId>.setRatePayment( payInfoList )
+				} else {
+					const userIdList = tempPayment.map( user =>  {
+						return { "CONTRACT_ID"	: user.CONTRACT_ID
+								,"EXEC_TYPE"	: user.EXEC_TYPE 
+								,"RELATION_TYPE": user.RELATION_TYPE 
+								,"USER_ID" 		: user.USER_ID} 
+					})
+					<@popupId>.getPayId( userIdList , function() {
+						$("#<@popupId>_paymentList input").trigger("input");	
+					});
+					
+				}
 				
  				const $paymentListTR =  $("#<@popupId>_paymentList tr");
 				let rateSum=0; 
@@ -325,7 +351,8 @@ var <@popupId> = {
 		});
 		
 	}
-	,getPayId	: (userIdList) => {
+	// 20240722 위성열 수정 (View 모드에서 modify 모드로 변경
+	,getPayId	: (userIdList, callback) => {
 
 		const payInfoList			= []; 					
 		const userIdListCnt 		= userIdList.length ;
@@ -337,7 +364,6 @@ var <@popupId> = {
 				,requestParm: user
 			}
 			C_COM.requestQuery(parm, function(resultData) {
-
 				payInfoList.push( resultData.data[0]);
 				if( userIdListCnt <= (userIdIndex+1) ){
 					const rateSum = <@popupId>.setRatePayment( payInfoList)
@@ -345,6 +371,9 @@ var <@popupId> = {
 				}
 				
 				userIdIndex++;
+				
+				if(typeof callback == "function") callback();
+				
 			});
 				
 		})
@@ -711,7 +740,6 @@ var <@popupId> = {
 }
 // Popup Load가 완료된후 실행 된다.
 C_POP.onLoadPopup("<@popupId>", function(data) {
-
 	<@popupId>.recvData			= data;
 	<@popupId>.CONTRACT_ID 		= data.contractItem.CONTRACT_ID; 
 	<@popupId>.PROCESS_STATE 	= data.contractItem.PROCESS_STATE;
@@ -726,8 +754,9 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.setHandler();
 	
 	<@popupId>.pageInit(data);
-
-	if( "<@mode>" == "V" ) $("#<@popupId>_apply").hide();
+	
+	// 20240722 위성열 수정 (View 모드에서 modify 모드로 변경
+	//if( "<@mode>" == "V" ) $("#<@popupId>_apply").hide();
 });
 </script>
 <!-- 실적 등록 팝업 -->

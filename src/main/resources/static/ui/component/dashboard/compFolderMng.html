@@ -113,6 +113,7 @@
 				,title			: "NA"
 				,hideComponent	: "Y"		// 화면에 보여주지 않고 기능만 활용함.
 				,templateId		: "<@compId>"
+				,targetDragDrop : "<@compId>_file"
 			}
 
 			C_COMP.import("folderFileMng", "component_compMultiFilemng", parm , function() {
@@ -535,8 +536,9 @@
 							<button type="button" class="stateBtn file fl mt0" onclick="<@compId>.addFile()"><span>등록</span></button>
 						</div>
 						<input name="file" type="file" id="file-input" tabindex="-1" title="파일찾기">
-						<div class="approver_list_wrap person" style="max-height:calc(100% - 49px);height:calc(100% - 49px)">
+						<div class="approver_list_wrap person" style="max-height:calc(100% - 49px);height:calc(100% - 49px)" id="<@compId>_file">
 							<ul class="approver_list" id="fileList">
+								<li class="tc mt10"><span class="txt"><span>첨부파일이 없습니다.</span></li>
 							</ul>
 							<script type="text/x-jsrender" id="fileList_template">
 							{{for list}}
