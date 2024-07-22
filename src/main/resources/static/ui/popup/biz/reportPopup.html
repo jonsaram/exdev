@@ -25,51 +25,46 @@
 			C_UICOM.setSingleBox("<@popupId>_yearMonths", dayjs().year()+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
 		
 			$("#<@popupId>_reporter").text(G_VAL.session.USER_NM);
-			$("#<@popupId>_buyerNm").text("<@BUYER_NM>");
 			
-			const parm = {
-					 queryId 		: "custDashboard.getConsultingList"
-					,requestParm	: 
-									{
-										BUYER_ID		: "<@BUYER_ID>"
-										,MODE			: "<@mode>"
-									}
-			}
-
-			C_COM.requestQuery(parm, function(resultData) {
-				
-				<@popupId>.BUYER_CONSULTING_LIST = resultData.data;
-				
-				if( "<@mode>" == "I" && (isEmpty(<@popupId>.BUYER_CONSULTING_LIST) || <@popupId>.BUYER_CONSULTING_LIST.length == 0) ){
-					alert('이미 기업자문보고서 작성된 상품 외 다른 계약 상품이 존재하지 않습니다. ');
-					<@popupId>.close();
-					return;
-				}
-				
-				<@popupId>.SELECTED_CONSULTING	 =<@popupId>.BUYER_CONSULTING_LIST[0];  
-
-				let consultinglist = <@popupId>.BUYER_CONSULTING_LIST.map( item =>{
-					return [item.CONSULTING_ID, item.CONSULTING_NM]
-					
-				})
-				<@popupId>.CONSULTING_LST = consultinglist;
-				var dateList = { data	:consultinglist , targetId : "<@popupId>_consultingNms"	}
-				C_UICOM.makeSelectBox(dateList, "single");
-				C_UICOM.addChangeListener("<@popupId>_consultingNms", function(dataObj) {
-
-					<@popupId>.SELECTED_CONSULTING = <@popupId>.BUYER_CONSULTING_LIST.find( item => item['CONSULTING_ID'] == dataObj);
-					
-				});
+			//회사명 조회
+			<@popupId>.setBuyerInfo();
+			//상품명 조회
+			<@popupId>.setConsultingList("<@BUYER_ID>", ()=>{
 				
 				if( "<@mode>" == "U"){
-					
+									
 					C_UICOM.setSingleBox("<@popupId>_consultingNms", <@popupId>.rcvData.param.CONSULTING_ID);
+					C_UICOM.setSingleBox("<@popupId>_yearMonths", <@popupId>.rcvData.param.REPORT_YEAR_MONTH);
 					
 					$("#<@popupId>_content").val(<@popupId>.rcvData.param.CONTENT);
 				}
 			});
+			
 		}
 		,save : () => {
+			
+			const consultingId 	=	C_UICOM.getData("<@popupId>_consultingNms");
+			const buyerId		=	$("#<@popupId>_selectBuyerId option:selected").val();
+			const buyernm		=	$("#<@popupId>_selectBuyerId option:selected").text();
+			const reportYm		=	C_UICOM.getData("<@popupId>_yearMonths");
+			const content		=	$("#<@popupId>_content").val();
+			
+			if("<@mode>" != "U" && <@opener>.searchedRows.length ) {
+				
+				const sameData = (<@opener>.searchedRows).filter( row =>{
+				
+					if(	row.CONSULTING_ID 		== consultingId
+					&&	row.BUYER_ID	  		== buyerId
+					&& 	row.REPORT_YEAR_MONTH 	==reportYm
+					)return true;
+					else return false;
+				});
+				
+				if( !isEmpty(sameData) ){
+					alert("작성하고자 하는 보고서는 이미 존재합니다. ");					
+					return
+				}
+			}
 			
 			if( "<@mode>" == "U"){
 
@@ -79,18 +74,17 @@
 				}
 			}
 			
-			const consultingId	= C_UICOM.getData("<@popupId>_consultingNms");
 			const parm = {
 					 queryId 		: "custDashboard.registProject"
 					,requestParm	: 
 									{	BUYER_CONSULTING_ID	:	<@popupId>.BUYER_CONSULTING_ID
-										,BUYER_ID			:	<@popupId>.SELECTED_CONSULTING.BUYER_ID
-										,BUYER_NM			:	<@popupId>.SELECTED_CONSULTING.BUYER_NM
-										,CONSULTING_ID		:	<@popupId>.SELECTED_CONSULTING.CONSULTING_ID
+										,BUYER_ID			:	buyerId
+										,BUYER_NM			:	buyernm
+										,CONSULTING_ID		:	consultingId
 										,CONSULTING_NM		:	<@popupId>.SELECTED_CONSULTING.CONSULTING_NM
-										,REPORT_YEAR_MONTH 	:	C_UICOM.getData("<@popupId>_yearMonths") 
+										,REPORT_YEAR_MONTH 	:	reportYm 
 										,CONTRACT_ID		:	<@popupId>.SELECTED_CONSULTING.CONTRACT_ID
-										,CONTENT			: 	$("#<@popupId>_content").val()
+										,CONTENT			: 	content
 									}
 			}
 			
@@ -116,13 +110,77 @@
 			$("#<@popupId><@popupId>_importMultiFilemng #title").remove();			
 			
 		}
+		// 상품명 조회
+		,setConsultingList : (buyerId , callback) =>{
+
+			const parm = {
+					 queryId 		: "custDashboard.getConsultingList"
+					,requestParm	: 
+									{
+										BUYER_ID		: buyerId
+										,MODE			: "<@mode>"
+									}
+			}
+
+			C_COM.requestQuery(parm, function(resultData) {
+
+				<@popupId>.BUYER_CONSULTING_LIST = resultData.data;
+				
+ 				if( "<@mode>" == "I" && (isEmpty(<@popupId>.BUYER_CONSULTING_LIST) || <@popupId>.BUYER_CONSULTING_LIST.length == 0) ){
+					alert('이미 기업자문보고서 작성된 상품 외 다른 계약 상품이 존재하지 않습니다. ');
+					<@popupId>.close();
+					return;
+				}
+				
+				<@popupId>.SELECTED_CONSULTING	 =<@popupId>.BUYER_CONSULTING_LIST[0];  
+
+				let consultinglist = <@popupId>.BUYER_CONSULTING_LIST.map( item =>{
+					return [item.CONSULTING_ID, item.CONSULTING_NM]
+					
+				})
+				<@popupId>.CONSULTING_LST = consultinglist;
+				var dateList = { data	:consultinglist , targetId : "<@popupId>_consultingNms"	}
+				C_UICOM.makeSelectBox(dateList, "single");
+				C_UICOM.addChangeListener("<@popupId>_consultingNms", function(dataObj) {
+
+					<@popupId>.SELECTED_CONSULTING = <@popupId>.BUYER_CONSULTING_LIST.find( item => item['CONSULTING_ID'] == dataObj);
+					
+				});
+
+				if( callback)callback();
+			});
+		}
+		,setBuyerInfo : ()=> {
+			
+			let selectStr = `<select id="<@popupId>_selectBuyerId" onchange="<@popupId>.changeBuyer(this)" style="width:160px">`;
+			$.each(G_VAL.myBuyerList, function() {
+				selectStr += `<option value="${this.BUYER_ID}">${this.BUYER_NM}</option>`;
+			});
+			selectStr += `</select>`;
+
+			$("#<@popupId>_buyerNm"	).html(selectStr			);
+			const buyerId = <@popupId>.rcvData.param.BUYER_ID;
+			
+			if( isEmpty(buyerId) ) buyerId = $("#<@popupId>_selectBuyerId option").eq(0).val();
+			$("#<@popupId>_selectBuyerId").val(buyerId);
+		}
+		,changeBuyer : (obj)=>{
+			
+			const buyerId = $(obj).val();
+			<@popupId>.setConsultingList( buyerId );
+		}
 	}
 	// Popup Load가 완료된후 실행 된다.
 	C_POP.onLoadPopup("<@popupId>", function(data) {
-	
+
 		<@popupId>.rcvData = data;
-		<@popupId>.BUYER_CONSULTING_ID = isEmpty(<@popupId>.rcvData?.param?.BUYER_CONSULTING_ID) ?  C_COM.makeUniqueId()
-										: <@popupId>.rcvData?.param?.BUYER_CONSULTING_ID ;
+		
+		if( isEmpty(<@popupId>.rcvData?.param?.BUYER_CONSULTING_ID) ){
+			<@popupId>.BUYER_CONSULTING_ID = C_COM.makeUniqueId();
+		}else{
+			<@popupId>.BUYER_CONSULTING_ID = <@popupId>.rcvData?.param?.BUYER_CONSULTING_ID ;
+		}
+
 		<@popupId>.pageInit();
 		
 		<@popupId>.fileAttach();
@@ -133,8 +191,11 @@
 			$("#<@popupId> .title").text("기업자문보고서");
 		}
 		
-		
-
+		// 결재 완료
+		if(<@popupId>.rcvData.param?.APPROVAL_STATE == 'COMPLETE' ){
+			$("#popup_biz_reportPopuppopup_biz_reportPopup_importMultiFilemng button").hide();
+			$("#<@popupId>_reg").hide();
+		}
 	});
 </script>
 <div class="modal_wrap" id="modal-ex04">
@@ -188,7 +249,7 @@
 			</div>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select"onclick="<@popupId>.save()">등록</button>
+			<button type="button" class="btn select"onclick="<@popupId>.save()" id="<@popupId>_reg">등록</button>
 			<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
 		</div>
 	</div>

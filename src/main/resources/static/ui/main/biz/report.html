@@ -4,11 +4,11 @@
 		paMap : G_VAL.PAGE_AUTH_MAP["<@pageId>"]
 	 	,searchedRows : []
 		,pageInit : () =>{
-			//_setSearchListCnt("<@pageId>_pagingChunk" );
+
 		}
 		,searchList : () => {
 
-			const requestParm = { BUYER_ID 			: $("#selectBuyerId option:selected").val()
+			const requestParm = { BUYER_ID 			: ''
 								};
 			
 			var parm = {
@@ -106,14 +106,21 @@
 			let param = {};
 			let mode = "I";
 			let row = {};
+
+			let buyerId = $("#subMenuListForBuyer select[id='selectBuyerId']").val()
+			let buyerNm = $("#subMenuListForBuyer select[id='selectBuyerId'] option[value='"+buyerId+"']").text();
+
 			if( index != undefined ){
 				
 				let row = <@pageId>.searchedRows[index];
-				if( !isEmpty(row) ){param = row;mode="U"};
+				if( !isEmpty(row) ){param = row;mode="U"
+					buyerId = row.BUYER_ID;
+					buyerNm = row.BUYER_NM;
+				};
+				
+				
 			}
 
-			const buyerId = $("#subMenuListForBuyer select[id='selectBuyerId']").val()
-			const buyerNm = $("#subMenuListForBuyer select[id='selectBuyerId'] option[value='"+buyerId+"']").text();
 			if( isEmpty( buyerId)){
 				alert("고객 정보가 없습니다. ");
 				return;
@@ -173,7 +180,7 @@
 				}
 	        });
 			
-		}		
+		}	
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {

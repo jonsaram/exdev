@@ -305,6 +305,7 @@
 												like '%' || UPPER( #{SEARCH_ID} ) || '%' )
 		AND USE_YN = 'Y'
 		AND DEL_YN = 'N'
+		AND A.GRADE IN ( 'S_MASTER', 'MASTER', 'FA', 'RECOMMENDER') /* 시스템에서 관여하는 GRADE만 가능 */
 		<if test=" EXCEPT_MEMERS != null and !EXCEPT_MEMERS.equals('') ">
 		    <foreach item="member" collection="EXCEPT_MEMERS" open="AND USER_ID NOT IN (" close=")" separator=",">
     			#{member}

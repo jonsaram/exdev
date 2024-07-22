@@ -77,13 +77,12 @@
 				GROUP BY CONTRACT_ID, RESULT_ID 
 			) CO
 			,( SELECT CONTRACT_ID, USER_ID, RESULT_ID, PAYMENT, 
-				PAYMENT_ID, EXEC_TYPE, PAY_ID, RATE,
+				PAYMENT_ID, PAY_ID, RATE,
 				RELATION_TYPE AS RELATION_TYPE
 				FROM TBL_EXP_PAYMENT 
 				WHERE CONTRACT_ID =  #{CONTRACT_ID}
 				AND USE_YN = 'Y' AND DEL_YN = 'N'
 			) P
-			<!-- ,TBL_EXP_CONTRACT_MEMBER CM -->
 			,TBL_EXP_USER U
 			,TBL_EXP_BUYER B
 			,TBL_EXP_CONSULTING CS
@@ -100,9 +99,6 @@
 			<if test=" RESULT_ID != null and !RESULT_ID.equals('') ">
 			AND R.RESULT_ID 	= #{RESULT_ID}
 			</if>
-<!-- 			AND C.CONTRACT_ID 	= CM.CONTRACT_ID 
-			AND P.USER_ID 		= CM.USER_ID
-			AND P.P_RELATION_TYPE = CM.RELATION_TYPE -->
 			AND P.USER_ID 		= U.USER_ID 
 			<if test=" USER_ID != null and !USER_ID.equals('') and !USER_ID.equals('--') ">
 			AND U.USER_ID 		= #{USER_ID}
@@ -113,8 +109,6 @@
 			</if>
 			AND R.USE_YN		= 'Y'
 			AND R.DEL_YN		= 'N'
-<!-- 			AND CM.USE_YN		= 'Y'
-			AND CM.DEL_YN		= 'N' -->
 			<if test=" GUBUN != null and GUBUN.equals('MNG') ">
 			ORDER BY RESULT_DATE ,  R.RESULT_ID, <include refid="buisnessHierarchyOrderBy"/>
 			</if>
@@ -436,7 +430,6 @@
 	<sql id="cmUsers"> 
 		SELECT DISTINCT CM.CONTRACT_ID, CM.USER_ID  
 		,U.USER_NM 
-		,DECODE( CM.RELATION_TYPE, 'EXECUTE','EXEC','SUGGESTER','SUGGESTER','SALES' ) AS EXEC_TYPE
 		,GET_CODE_NM('RELATION_TYPE', CM.RELATION_TYPE) RELATION_TYPE_NM
 		,U.ROLE
 		,U.GRADE
@@ -480,7 +473,6 @@
 		, GET_USER_NM( A.USER_ID ) USER_NM
 		, #{RESULT_ID} AS RESULT_ID
 		, A.PAYMENT_ID
-		, A.EXEC_TYPE
 		, CM.RELATION_TYPE
 		, GET_CODE_NM('RELATION_TYPE', CM.RELATION_TYPE ) AS RELATION_TYPE_NM
 		, U.GRADE AS GRADE
@@ -498,12 +490,10 @@
 				,CMU.USER_ID
 				,CMU.USER_NM
 				,CMU.GRADE_NM
-				,CMU.EXEC_TYPE
 				,CMU.RELATION_TYPE_NM
 				,CMU.ROLE
 				,CMU.GRADE
 				,CMU.RELATION_TYPE
-<!-- 				,CMU.BRANCH_ID -->
 				FROM CM_USER CMU
 				WHERE CMU.RELATION_TYPE !='OVERRIDING'
 				
@@ -513,16 +503,12 @@
 				,CMU.USER_ID
 				,CMU.USER_NM
 				,CMU.GRADE_NM
-				,CMU.EXEC_TYPE
 				,GET_CODE_NM('RELATION_TYPE', CMU.RELATION_TYPE) RELATION_TYPE_NM
 				,'OVERRIDING' AS ROLE
 				,CMU.ROLE
 				,CMU.RELATION_TYPE
-<!-- 				,CMU.BRANCH_ID -->
 				FROM CM_USER CMU
 				WHERE CMU.RELATION_TYPE ='OVERRIDING'
-<!-- 				AND BH.BRANCH_ID = CMU.BRANCH_ID 
-				AND BH.USER_ID = CMU.USER_ID -->
 				
 			) A
 			ORDER BY <include refid="buisnessHierarchyOrderBy"/>
@@ -557,7 +543,7 @@
 			<include refid="cmUsers"/>
 		)
        <choose>
-           <when test="EXEC_TYPE != null and EXEC_TYPE.equals('EXEC')">
+           <when test="RELATION_TYPE != null and RELATION_TYPE.equals('EXECUTE')">
            
 			SELECT CMU.USER_ID, CMU.USER_NM, P.EXEC_PAY_ID AS PAY_ID , P.RATE , 'EXECUTE' RELATION_TYPE
 			FROM TBL_EXP_EXEC_PAY  P
@@ -570,7 +556,7 @@
 			AND P.GRADE 			= CMU.GRADE
 
            </when>
-           <when test="EXEC_TYPE != null and EXEC_TYPE.equals('SALES')">
+           <when test="RELATION_TYPE != null and (RELATION_TYPE == 'SALES' or RELATION_TYPE == 'COWORK')">
             
 			SELECT CMU.USER_ID, CMU.USER_NM, P.SALES_PAY_ID AS PAY_ID , 
 			DECODE( CMU.RELATION_TYPE, 'COWORK',CMU.COWORK_RATE,  P.RATE ) RATE , #{RELATION_TYPE} RELATION_TYPE
@@ -585,7 +571,7 @@
 			AND P.SALES_TYPE  		= CMU.SALES_TYPE
 
            </when>
-           <when test="EXEC_TYPE != null and EXEC_TYPE.equals('SUGGESTER')">
+           <when test="RELATION_TYPE != null and RELATION_TYPE.equals('SUGGESTER')">
            
 			SELECT CMU.USER_ID, CMU.USER_NM, '100' AS PAY_ID , 5 AS RATE , 'SUGGESTER' RELATION_TYPE
 			FROM 
@@ -695,7 +681,6 @@
 		         #{RESULT_ID} 				AS RESULT_ID,
 		         TO_NUMBER(#{PAYMENT_ID})	AS PAYMENT_ID,
 		         #{PAYMENT} 				AS PAYMENT,
-		         #{EXEC_TYPE} 				AS EXEC_TYPE,
 		         #{RELATION_TYPE} 			AS RELATION_TYPE,
 		         TO_CHAR(#{PAY_ID})			AS PAY_ID,
 		         #{RATE} 					AS RATE,
@@ -713,7 +698,6 @@
 		WHEN MATCHED THEN
 		  UPDATE SET
 		         T.PAYMENT 			= S.PAYMENT,
-		         T.EXEC_TYPE 		= S.EXEC_TYPE,
 		         T.RELATION_TYPE 	= S.RELATION_TYPE,
 		         T.PAY_ID			= S.PAY_ID,
 		         T.RATE				= S.RATE,
@@ -722,8 +706,8 @@
 		         T.UPDATE_USER		= S.UPDATE_USER,
 		         T.UPDATE_DATE		= GET_KRDT(SYSDATE)
 		WHEN NOT MATCHED THEN 
-    		INSERT (  CONTRACT_ID,   USER_ID,   RESULT_ID,   PAYMENT,   PAYMENT_ID,   EXEC_TYPE,  RELATION_TYPE,  PAY_ID,   RATE,   USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
-   			VALUES (S.CONTRACT_ID, S.USER_ID, S.RESULT_ID, S.PAYMENT, S.PAYMENT_ID, S.EXEC_TYPE,S.RELATION_TYPE,S.PAY_ID, S.RATE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, GET_KRDT(SYSDATE))
+    		INSERT (  CONTRACT_ID,   USER_ID,   RESULT_ID,   PAYMENT,   PAYMENT_ID,	  RELATION_TYPE,  PAY_ID,   RATE,   USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
+   			VALUES (S.CONTRACT_ID, S.USER_ID, S.RESULT_ID, S.PAYMENT, S.PAYMENT_ID,	S.RELATION_TYPE,S.PAY_ID, S.RATE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, GET_KRDT(SYSDATE))
 	</update>
 	
 	<delete id="deletePaymentItem" parameterType="java.util.HashMap"  flushCache="true" >
