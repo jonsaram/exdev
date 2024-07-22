@@ -39,7 +39,10 @@
 			});
 		 }
 		,addCmmt : function() {
-			let cmmt = $("#<@compId> #cmmtContent").val()
+			let cmmtContent = $("#<@compId> #cmmtContent").val()
+			// 엔터(\n)를 <br>로 변환
+            var cmmt = cmmtContent.replace(/(?:\r\n|\r|\n)/g, '<br>');
+			
 			if(isEmpty(cmmt)) {
 				C_POP.alert('메모를 입력해주세요.');
 				return;
@@ -169,8 +172,25 @@
 	</script>
 	<div class="comment clearFix mt10" style="<@inputDisplay>">
 		<strong class="fl lh33">메모</strong>
+		<!--
 		<input class="fl" type="text" id="cmmtContent" style="width:calc(100% - 120px)" onEnter="<@compId>.addCmmt()">
+		 -->
+		<textarea class="fl" name="cmmtContent" id="cmmtContent" cols="40" rows="12" style="width:calc(100% - 110px);"></textarea>
+		
 		<button class="btn fl" onclick="<@compId>.addCmmt()">등록</button>
 	</div>
 	
 </component>
+
+
+
+
+
+
+
+
+
+
+
+
+
