@@ -4,6 +4,7 @@ var <@pageId> = {
 		paMap : G_VAL.PAGE_AUTH_MAP["<@pageId>"]
 		,checkedItems : []
 		,selectedContract : {}
+		,selectedResultList:{}
 		,excelParam : {}
 		,searchListParam : {}
  		,CONTRACT_ID : {}
@@ -61,6 +62,7 @@ var <@pageId> = {
 				}
 				C_COM.renderHtml("<@pageId>", rparm);
 				
+				<@pageId>.selectedResultList = resultData.data;
 	        	mergeTableTD('<@pageId>_resultList', {startIdx : 8, endIdx : 8, startRowIdx : 1});
 	        	mergeTableTD('<@pageId>_resultList', {startIdx : 2, endIdx : 7, startRowIdx : 1});
 	        	
@@ -121,26 +123,37 @@ var <@pageId> = {
 		    })
 			
 		}
-		,openUpdatePopup : (RESULT_ID) => {
-// 아, 클릭해서 팝업을 띄우는 걸 하다 말았음. 			
+		,openDetailPopup : (index) => {
+
+			const resultData = <@pageId>.selectedResultList[index];
+			
+			const queryParam = {
+				CONTRACT_ID: resultData.CONTRACT_ID 
+				, RESULT_ID: resultData.RESULT_ID
+				, RELATION_TYPE: 'SALES'
+				, USER_ID: resultData.USER_ID 
+			}
+			
  			var parm = {
-				queryGroup : [{ queryId : "contract.getContractList",requestParm	: {CONTRACT_ID : retData.CONTRACT_ID , USER_ID : retData.USER_ID }}
-							 ,{queryId 	: "result.getResultList",requestParm	:{CONTRACT_ID: '', RESULT_ID : RESULT_ID, GUBUN : ''}}
+				queryGroup : [{queryId : "contract.getContractList"	,requestParm	:queryParam}
+							 ,{queryId : "result.getResultList"		,requestParm	:queryParam}
 							 ]
 			}
 	        C_COM.requestQuery(parm, function(resultData) {
 	        	
-				const contractItem		=  resultData.data["contract.getContractList"	];  
-				const resultItem		=  resultData.data["result.getResultList"];  
+				const contractItem		=  resultData.data["contract.getContractList"][0];  
+				const resultItem		=  resultData.data["result.getResultList"][0];  
 
-		 		C_POP.open('popup_result_resultUpdatePopup', {	  mode:"V"
-						, resultItem 
+		 		C_POP.open('popup_result_resultUpdatePopup', {
+		 			
+		 				  mode:"V"
+						, resultItem :resultItem
 						, contractItem :contractItem
 						, resultInsertedCnt : 0
-						}
-						, function(retData) {
+					}, function(retData) {
 						 
-							});							
+				});							
+		 		
 	        });
 		}		
 }
@@ -217,7 +230,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			</tbody>
 			<script type="text/x-jsrender" id="<@pageId>_resultList_template">						
 			{{for list}}
-				<tr name="<@pageId>_tr_{{:#index}}" onclick="javascript:<@pageId>.openUpdatePopup('{{:RESULT_ID}}')">
+				<tr name="<@pageId>_tr_{{:#index}}" onclick="javascript:<@pageId>.openDetailPopup('{{:#index}}')">
 					<td {{:RESULT_ID}}>{{:RN}}</td>
 					<td class="tc">{{:RESULT_DATE_YM}}</td>
 					<td class="tl">{{:BUYER_NM}}</td>
