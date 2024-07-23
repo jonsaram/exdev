@@ -45,7 +45,7 @@
 		</if>
 		AND CS.DEL_YN = 'N'
 		AND CS.UPDATE_USER = #{sessionVo.userId	}
-		ORDER BY CS.UPDATE_DATE DESC	
+		ORDER BY CS.BUYER_NM, CS.REPORT_YEAR_MONTH, USER_NM	
 	</select>
 	
 	<select id="getConsultingList" resultType="java.util.HashMap" flushCache="true"  useCache="false">

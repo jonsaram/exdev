@@ -107,13 +107,17 @@
 			let mode = "I";
 			let row = {};
 
-			let buyerId = $("#subMenuListForBuyer select[id='selectBuyerId']").val()
-			let buyerNm = $("#subMenuListForBuyer select[id='selectBuyerId'] option[value='"+buyerId+"']").text();
+			let buyerId = '';
+			let buyerNm = '';
 
 			if( index != undefined ){
 				
 				let row = <@pageId>.searchedRows[index];
-				if( !isEmpty(row) ){param = row;mode="U"
+				if( !isEmpty(row) ){param = row;
+					mode="U";
+					if( row.APPROVAL_STATE != "-" ){
+						mode="V";
+					} 
 					buyerId = row.BUYER_ID;
 					buyerNm = row.BUYER_NM;
 				};
@@ -121,10 +125,6 @@
 				
 			}
 
-			if( isEmpty( buyerId)){
-				alert("고객 정보가 없습니다. ");
-				return;
-			}
 			C_POP.open('popup_biz_reportPopup',{param:param, mode:mode, BUYER_ID: buyerId, BUYER_NM: buyerNm}, function(retData) {
 				
 				if(isValid(retData)){
@@ -220,7 +220,8 @@
 						<col style="width:40px;"/>
 						<col style="width:120px;" span="3"/>
 						<col style="width:80px;"/>
-						<col style="width:120px;" span="3"/>
+						<col style="width:100px;"/>
+						<col style="width:120px;" span="2"/>
 						<col style="width:120px;"/>
 						<col style="width:11%;"/>
 						<col style="width:4%;"/> 	
@@ -249,7 +250,8 @@
 						<col style="width:40px;"/>
 						<col style="width:120px;" span="3"/>
 						<col style="width:80px;"/>
-						<col style="width:120px;" span="3"/>
+						<col style="width:100px;"/>
+						<col style="width:120px;" span="2"/>
 						<col style="width:120px;"/>
 						<col style="width:11%;"/>
 						<col style="width:4%;"/> 
@@ -260,11 +262,11 @@
 					{{for list}}
 						<tr name="<@pageId>_tr_{{:#index}}" {{:BUYER_CONSULTING_ID}}>
 							<td>{{:#index+1}}</td>
-							<td>{{:BUYER_NM}}</td>
-							<td>{{:CONSULTING_NM }}</td>
+							<td class="tc">{{:BUYER_NM}}</td>
+							<td class="tc">{{:CONSULTING_NM }}</td>
 							<td>{{:USER_NM }}</td>
 							<td>{{:UPDATE_DATE}}</td>
-							<td class="tc">{{numb:TOTAL_COST}}</td>
+							<td class="tr">{{numb:TOTAL_COST}}</td>
 							<td>{{:REPORT_YEAR}}년{{:REPORT_MONTH}}월</td>
 							<td class="tc">{{:APPROVAL_STATE_NM}}</td>
 							<td>
