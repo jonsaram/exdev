@@ -1,11 +1,11 @@
 package exdev.com.common.controller;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +16,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,16 +33,9 @@ import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.common.vo.SessionVO;
 import exdev.com.service.FileService;
+import exdev.com.util.FileUtil;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.springframework.http.MediaType;
-
+/** 
 /**
  * @author 위성열
  */
@@ -49,7 +47,8 @@ public class FilemngController {
 	
 	@Autowired
 	private ExdevCommonDao commonDao;
-
+	
+    
 	@SuppressWarnings({ "unused", "rawtypes", "unchecked" })
 	@PostMapping("/multiFileUpload.do")
 	public @ResponseBody Map<String, Object> multiFileUpload(@RequestParam("attach_file") List<MultipartFile> multiFileList,			
@@ -70,7 +69,7 @@ public class FilemngController {
 		returnFileMap = fileService.fileUploadMulti( request, multiFileList, GRP_FILE_ID, FILE_IDS, uploadPath, sessionVo);
 		
 		if( ExdevConstants.REQUEST_SUCCESS.equals(returnFileMap.get("msg").toString())) {
-			
+		    
 		    returnMap.put("msg", "파일 업로드에 성공하였습니다.");
             
             List<String> list = new ArrayList<String>();
@@ -86,7 +85,6 @@ public class FilemngController {
 		
 		return returnMap;
 	}
-
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping("filedownload.do")
@@ -125,19 +123,28 @@ public class FilemngController {
     @RequestMapping("previewFile.do")
     public ResponseEntity<Resource> previewFile(HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
         try {
-            String FILE_ID  = (String)request.getParameter("FILE_ID");
+            String FILE_ID     = (String)request.getParameter("FILE_ID");
+            String CONVERT_YN  = (String)request.getParameter("CONVERT_YN");
+           
             
             Map     requestParm = new HashMap();
             requestParm.put("FILE_ID", FILE_ID);
             Map fileInfo = (Map)commonDao.getObject("Filemng.getFileInfo", requestParm);
-            String filePathStr = (String)fileInfo.get("FILE_PATH");
+            
+            String filePathStr = "";
+            
+            if( "Y".equals(CONVERT_YN)) {
+                filePathStr = FileUtil.convertFileType( (String)fileInfo.get("FILE_PATH"), ".pdf");
+            }else {
+                filePathStr = (String)fileInfo.get("FILE_PATH");
+            }
+            
             
             Path filePath = Paths.get(filePathStr);
             Resource resource = new UrlResource(filePath.toUri());
             
             // 파일의 MIME 타입 결정
             String contentType = Files.probeContentType(filePath);
-            System.out.println("contentType1 ==>"+contentType);
             
             if (contentType == null) {
                 contentType = "application/octet-stream";

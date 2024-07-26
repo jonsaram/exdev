@@ -8,18 +8,15 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
 public class FileUtil {
 
-	private String fileName = "";
-        
     // 프로젝트 내 지정된 경로에 파일을 저장하는 메소드
     // DB에는 업로드된 전체 경로명으로만 지정되기 때문에(업로드한 파일 자체는 경로에 저장됨)
     // fileUpload() 메소드에서 전체 경로를 리턴받아 DB에 경로 그대로 저장   
@@ -33,9 +30,7 @@ public class FileUtil {
         try {
             fileName = uploadFile.getOriginalFilename();
             byte[] bytes = uploadFile.getBytes();
-            //"\/tomcat\/webapps\/ROOT\/File\/notice/"
             File file = new File(path);
-            
             
             if (fileName != null && !fileName.equals("")) {
                 if (file.exists()) {
@@ -49,7 +44,6 @@ public class FileUtil {
                 	
                 }
             }
-            
             
             out = new FileOutputStream(file);
             out.write(bytes);
@@ -67,9 +61,7 @@ public class FileUtil {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-
-        
+        }        
 
         map.put("newFilename", newFilename);
         map.put("path", path);
@@ -164,4 +156,27 @@ public class FileUtil {
 		String ext = fileName.substring( pos + 1 );
 		return ext;
 	}
+
+    /** 
+     * 파일경로에서 파일의 확장자를 변경
+     * @param String filePath : 디렉토리경로
+     * @return String : 파일확장자 변경후 디렉토리경로 
+     * @생 성 자 : 이응규
+     * @생 성 일 자 : 2007. 07. 26.
+     * @수 정 자 : 
+     * @수 정 일 자 :
+     * @수 정
+     * */
+    public static String convertFileType(String filePath, String fileType) {
+        Path path = Paths.get(filePath);
+        String fileName = path.getFileName().toString();
+        String fileExt = "."+getFileExt(fileName);
+        
+        String newFileName = fileName.replace(fileExt, fileType);
+        String parentDir = path.getParent().toString();
+        
+        Path newPath = Paths.get(parentDir, newFileName);
+        
+        return newPath.toString();
+    }
 }

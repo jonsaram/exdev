@@ -14,6 +14,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+//==== ASP.NET 파일전송 ====
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+//==== #### ASP.NET 파일전송 #### ====
+
 @SpringBootApplication
 public class ExdevApplication extends SpringBootServletInitializer {
 	
@@ -57,5 +65,16 @@ public class ExdevApplication extends SpringBootServletInitializer {
 	public SqlSessionTemplate sqlSession(SqlSessionFactory sqlSessionFactory) throws Exception {
 		return new SqlSessionTemplate(sqlSessionFactory);
 	}	
-	
+
+	//==== ASP.NET 파일전송 ====
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    public WebClient.Builder webClientBuilder() {
+        return WebClient.builder();
+    }
+    //==== #### ASP.NET 파일전송 #### ====
 }

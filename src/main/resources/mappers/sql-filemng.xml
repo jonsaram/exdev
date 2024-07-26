@@ -105,7 +105,8 @@
                                WHEN '.gif' THEN 'Y'
                                WHEN '.png' THEN 'Y'
                                WHEN '.pdf' THEN 'Y'
-               ELSE 'N'  END AS PRE_VIEW_YN   
+                ELSE 'N'  END AS PRE_VIEW_YN 
+               ,CONVERT_YN   
                ,ORDER_NUM     
                ,OWNER_CD      
                ,FILE_PATH     
@@ -151,5 +152,21 @@
 			AND OWNER_CD 	= #{nowKey.OWNER_CD		}
    	</update>
    		
+    <update id="updateFileInfo">
+        /*  Filemng.updateFileInfo */
+        UPDATE TBL_EXP_FILEMNG 
+        SET    UPDATE_USER  = #{sessionVo.spCstmId}
+              ,UPDATE_DATE  = GET_KRDT(SYSDATE)
+              <if test=" CONVERT_YN != null and CONVERT_YN != '' " >
+                ,CONVERT_YN   = #{CONVERT_YN}
+              </if>   
+        WHERE 1=1
+        <if test=" GRP_FILE_ID != null and GRP_FILE_ID != '' " >
+            AND GRP_FILE_ID   = #{GRP_FILE_ID}
+        </if>   
+        <if test=" FILE_ID != null and FILE_ID != '' " >
+            AND FILE_ID   = #{FILE_ID}
+        </if>   
+    </update>
     
 </mapper>
