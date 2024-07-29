@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Interactive Grid</title>
+    
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <style>
+        .ui-selecting { background: #EEEEEE; }
+        .ui-selected { background: #D3D3D3; } /* 밝은 회색 배경 */
+        table {
+            border-collapse: collapse;
+        }
+        td, th {
+            padding: 0.5rem;
+            border: 1px solid black;
+            text-align: center;
+            user-select: none; /* 사용자가 선택할 수 없도록 설정 */
+        }
+    </style>
+    <script>
+    	
+        var C_GRID = {
+            gridIdList: {},
+
+            init: function(gridId) {
+                C_GRID.gridIdList[gridId] = "Y";
+                
+                $("#" + gridId + " tbody").selectable({
+                    filter: "td",
+                    distance: 0,
+                    cancel: "thead",
+                    selecting: function(event, ui) {
+                        $(ui.selecting).addClass("ui-selecting");
+                    },
+                    selected: function(event, ui) {
+                        $(ui.selected).removeClass("ui-selecting").addClass("ui-selected");
+                    },
+                    unselected: function(event, ui) {
+                        $(ui.unselected).removeClass("ui-selected");
+                    },
+                    stop: function(event, ui) {
+                        $(".ui-selecting").removeClass("ui-selecting").addClass("ui-selected");
+                    }
+                });
+
+                // Clear selections in other tables when this table is clicked 
+                $("#" + gridId).mousedown(function(e) {
+                    C_GRID.clearOtherSelections(gridId);
+                });
+            },
+
+            copySelectedCellsToClipboard: function() {
+                let selectedCells = $(".ui-selected");
+                let selectedTextArray = [];
+                let currentRow = selectedCells.first().parent().index();
+
+                selectedCells.each(function() {
+                    let cell = $(this);
+                    let cellRow = cell.parent().index();
+                    let cellText = cell.text();
+
+                    if (cellRow !== currentRow) {
+                        selectedTextArray.push('\n');
+                        currentRow = cellRow;
+                    }
+
+                    selectedTextArray.push(cellText);
+                    selectedTextArray.push('\t');
+                });
+
+                let selectedText = selectedTextArray.join('');
+
+                // Trim trailing tab and newline characters
+                selectedText = selectedText.replace(/\t+$/, '').replace(/\n+$/, '');
+
+                navigator.clipboard.writeText(selectedText).then(function() {
+                    console.log('Text copied to clipboard');
+                }).catch(function(err) {
+                    console.error('Unable to copy text', err);
+                });
+            },
+
+            clearAllSelections: function() {
+                $(".ui-selected").removeClass("ui-selected");
+            },
+
+            clearOtherSelections: function(currentGridId) {
+                for (let gridId in C_GRID.gridIdList) {
+                    if (C_GRID.gridIdList.hasOwnProperty(gridId) && gridId !== currentGridId) {
+                        $("#" + gridId + " .ui-selected").removeClass("ui-selected");
+                    }
+                }
+            }
+        };
+
+        $(document).ready(function() {
+            C_GRID.init("grid1");
+            C_GRID.init("grid2");
+
+            $(document).keydown(function(e) {
+                if (e.ctrlKey && e.key === 'c') {
+                    C_GRID.copySelectedCellsToClipboard();
+                    e.preventDefault();  // Prevent the default copy action
+                }
+            });
+
+            // Clear selections when clicking outside of all registered grids
+            $(document).mousedown(function(e) {
+                let $target = $(e.target);
+                let isInsideGrid = false;
+                
+                for (let gridId in C_GRID.gridIdList) {
+                    if ($target.closest('#' + gridId).length) {
+                        isInsideGrid = true;
+                        break;
+                    }
+                }
+
+                if (!isInsideGrid) {
+                    C_GRID.clearAllSelections();
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <table class="table table-bordered" id="grid1">
+        <colgroup>
+            <col style="width:200px">
+            <col style="width:200px">
+            <col style="width:200px">
+            <col style="width:200px">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Header 1</th>
+                <th>Header 2</th>
+                <th>Header 3</th>
+                <th>Header 4</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
+            </tr>
+            <tr>
+                <td>9</td>
+                <td>10</td>
+                <td>11</td>
+                <td>12</td>
+            </tr>
+            <tr>
+                <td>13</td>
+                <td>14</td>
+                <td>15</td>
+                <td>16</td>
+            </tr>
+        </tbody>
+    </table>
+    <br/><br/>
+    <table class="table table-bordered" id="grid2">
+        <colgroup>
+            <col style="width:200px">
+            <col style="width:200px">
+            <col style="width:200px">
+            <col style="width:200px">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Header 1</th>
+                <th>Header 2</th>
+                <th>Header 3</th>
+                <th>Header 4</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
+            </tr>
+            <tr>
+                <td>9</td>
+                <td>10</td>
+                <td>11</td>
+                <td>12</td>
+            </tr>
+            <tr>
+                <td>13</td>
+                <td>14</td>
+                <td>15</td>
+                <td>16</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

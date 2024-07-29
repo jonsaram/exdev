@@ -42,6 +42,7 @@ import org.springframework.web.multipart.MultipartRequest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.util.Value;
 import com.google.gson.Gson;
 
 import exdev.com.common.ExdevConstants;
@@ -79,6 +80,10 @@ public class ExdevCommonController {
     
     @Autowired
     private Environment env;
+    
+    @Value("${file.savepath}")
+    private String fileSavePath;
+    
 
     @SuppressWarnings({ "unused", "rawtypes" })
 	@RequestMapping("requestService.do")
@@ -442,6 +447,12 @@ public class ExdevCommonController {
             MultipartRequest request,  HttpSession session,HttpServletRequest httpServletRequest)  throws Exception {
 
 		String fileDirectoryPath = ExdevConstants.FILE_DIRECTORY_PATH;
+		
+		String fileSavePath = (String)env.getProperty("file.savepath");		
+		
+		System.out.println("fileSavePath : " + fileSavePath );
+		
+		if(fileSavePath != null) fileDirectoryPath = fileSavePath;
     	
         Map returnMap = new HashMap();
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);

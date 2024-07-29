@@ -66,6 +66,10 @@ public class FileService extends ExdevBaseService{
     //==== ASP.NET 파일전송 ====
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private Environment env;
+
     
     /** 
      * 멀티 파일삭제 서비스
@@ -80,6 +84,10 @@ public class FileService extends ExdevBaseService{
 	    
 	    Map<String, String> returnMap 	= new HashMap<String, String>();
 		String fileDirectoryPath 		= ExdevConstants.FILE_DIRECTORY_PATH;
+	    
+		String fileSavePath = (String)env.getProperty("file.savepath");		
+		
+		if(fileSavePath != null) fileDirectoryPath = fileSavePath;
 	    
 	    try {
             for(  String uuid:uuidArry ) {
@@ -130,7 +138,15 @@ public class FileService extends ExdevBaseService{
 		
         Map returnMap = new HashMap();
 		
+//		String fileDirectoryPath 		= request.getSession().getServletContext().getRealPath("resources");
+        
 		String fileDirectoryPath 		= ExdevConstants.FILE_DIRECTORY_PATH;
+		
+		String fileSavePath = (String)env.getProperty("file.savepath");		
+		
+		if(fileSavePath != null) fileDirectoryPath = fileSavePath;
+		
+		System.out.println("fileDirectoryPath : "  + fileDirectoryPath);
 		
         String path 		= fileDirectoryPath + File.separator + uploadPath;
         
