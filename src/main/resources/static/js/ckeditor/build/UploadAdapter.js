@@ -30,8 +30,8 @@ class UploadAdapter {
             if(!response || response.error) {
                 return reject( response && response.error ? response.error.message : genericErrorText );
             }
-
             resolve({
+                
                 default: response.url //업로드된 파일 주소
             }) 
         })

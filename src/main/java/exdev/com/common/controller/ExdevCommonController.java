@@ -349,89 +349,7 @@ public class ExdevCommonController {
         return returnMap;
     }
     
-    /** 
-     * 내용        : 파일 다운로드 샘플
-     * @생 성 자   : 이응규
-     * @생 성 일자 : 2024. 01. 31 : 최초 생성
-     * @수 정 자   : 
-     * @수 정 일자 :
-     * @수 정 자
-     */
-/*
-    @SuppressWarnings({ "unused", "rawtypes" })
-    @RequestMapping("/fileDownload.do")
-    public void fileDownload(
-             HttpServletResponse response,HttpSession session,HttpServletRequest request) throws Exception {
-    
 
-        request.setCharacterEncoding("UTF-8");
-        String uuid = request.getParameter("uuid");
-        String orgFileName = request.getParameter("orgFileName");
-        
-        //이곳에서 작업
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("uuid",uuid);
-        
-        List<Map> list =fileService.getfile(map);
-        
-        String root = request.getSession().getServletContext().getRealPath("/");            
-        String fileURL = root+"resources"+File.separator+list.get(0).get("FILE_PATH")+File.separator+list.get(0).get("STORED_FILE_NAME");
-        
-        System.out.println(fileURL);
-        
-        byte[] fileByte = FileUtils.readFileToByteArray(new File(fileURL));
-        
-        response.setContentType("application/octet-stream");
-        response.setContentLength(fileByte.length);
-        response.setHeader("Content-Disposition", "attachment; fileName=\"" + URLEncoder.encode(orgFileName,"UTF-8")+"\";");
-        response.setHeader("Content-Transfer-Encoding", "binary");
-        response.getOutputStream().write(fileByte);
-          
-        response.getOutputStream().flush();
-        response.getOutputStream().close();
-        
-    }
- */   
-    /** 
-     * 내용        : CKEditor 저장 샘플
-     * @생 성 자   : 이응규
-     * @생 성 일자 : 2024. 01. 22 : 최초 생성
-     * @수 정 자   : 
-     * @수 정 일자 :
-     * @수 정 자
-     */
-/*
-    @SuppressWarnings({ "unused", "rawtypes" })
-    @PostMapping("/editImageUpload1.do")
-    public @ResponseBody Map  editImageUpload1( 
-            MultipartRequest request,  HttpSession session,HttpServletRequest httpServletRequest)  throws Exception {
-        
-        Map<String, Object> returnMap = new HashMap<>();
-        SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
-        
-        
-        String localLocation = httpServletRequest.getSession().getServletContext().getRealPath("resources")+  File.separator  + "editorFiles";
-
-        MultipartFile file = request.getFile("upload");
-        String fileName = file.getOriginalFilename();
-        String ext = fileName.substring(fileName.indexOf("."));
-
-        String uuidFileName = UUID.randomUUID() + ext;
-        String localPath = localLocation + File.separator + uuidFileName;
-        System.out.println("localPath ===>"+localPath); 
-        File localFile = new File(localPath);
-        if(!localFile.exists()) {
-            localFile.mkdirs();
-        }
-        file.transferTo(localFile);
-        
-        returnMap.put("uploaded", true); 
-        returnMap.put("url", localPath); 
-        
-        //returnMap.put("uploaded", false);
-        return returnMap;
-    }
-*/
     /** 
      * 내용        : CKEditor 저장 샘플
      * @생 성 자   : 이응규
@@ -445,20 +363,10 @@ public class ExdevCommonController {
     @PostMapping("/editImageUpload.do")
     public @ResponseBody Map  editImageUpload( 
             MultipartRequest request,  HttpSession session,HttpServletRequest httpServletRequest)  throws Exception {
-        
-        System.out.println("editImageUpload.do 1 ===>");
-		String fileDirectoryPath = ExdevConstants.FILE_DIRECTORY_PATH;
-		
-		String fileSavePath = (String)env.getProperty("file.savepath");		
-		
-		System.out.println("fileSavePath : " + fileSavePath );
-		
-		if(fileSavePath != null) fileDirectoryPath = fileSavePath;
-    	
+
         Map returnMap = new HashMap();
-        SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
         
-        String localLocation = fileDirectoryPath + File.separator + "editorFiles";
+        String localLocation = ExdevConstants.FILE_DIRECTORY_PATH + File.separator + ExdevConstants.FILE_UPLOAD_PATH + File.separator + ExdevConstants.EDITOR_PATH+ File.separator ;
         
         MultipartFile file = request.getFile("upload");
         String fileName = file.getOriginalFilename();
@@ -472,11 +380,12 @@ public class ExdevCommonController {
             localFile.mkdirs();
         }
         file.transferTo(localFile);
+        String fileUrl = ExdevConstants.FILE_UPLOAD_PATH + File.separator + ExdevConstants.EDITOR_PATH+ File.separator + uuidFileName;
         
-
-        String url = "resources" + File.separator + "editorFiles" + File.separator + uuidFileName;; 
+        System.out.println("editImageUpload.do fileUrl ===>"+fileUrl);
+        
         returnMap.put("uploaded", true);
-        returnMap.put("url", url);
+        returnMap.put("url", fileUrl);
         
         return returnMap;
     }
