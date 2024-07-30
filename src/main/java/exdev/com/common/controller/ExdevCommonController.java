@@ -445,7 +445,8 @@ public class ExdevCommonController {
     @PostMapping("/editImageUpload.do")
     public @ResponseBody Map  editImageUpload( 
             MultipartRequest request,  HttpSession session,HttpServletRequest httpServletRequest)  throws Exception {
-
+        
+        System.out.println("editImageUpload.do 1 ===>");
 		String fileDirectoryPath = ExdevConstants.FILE_DIRECTORY_PATH;
 		
 		String fileSavePath = (String)env.getProperty("file.savepath");		

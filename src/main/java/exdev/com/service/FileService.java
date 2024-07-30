@@ -48,6 +48,7 @@ import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
 import exdev.com.common.service.ExdevBaseService;
 import exdev.com.common.vo.SessionVO;
+import exdev.com.util.FileUtil;
 
 /** 
  * 파일저장 서비스
@@ -138,15 +139,11 @@ public class FileService extends ExdevBaseService{
 		
         Map returnMap = new HashMap();
 		
-//		String fileDirectoryPath 		= request.getSession().getServletContext().getRealPath("resources");
-        
 		String fileDirectoryPath 		= ExdevConstants.FILE_DIRECTORY_PATH;
 		
 		String fileSavePath = (String)env.getProperty("file.savepath");		
 		
 		if(fileSavePath != null) fileDirectoryPath = fileSavePath;
-		
-		System.out.println("fileDirectoryPath : "  + fileDirectoryPath);
 		
         String path 		= fileDirectoryPath + File.separator + uploadPath;
         
@@ -238,7 +235,6 @@ public class FileService extends ExdevBaseService{
     public boolean sendFileToExternalServer( Map map ) throws Exception {
         
         String fileType = (String)map.get("FILE_TYPE");
-        
         //변환 대상파일
         if( !(".docx".equals(fileType)||".doc".equals(fileType)||".xlsx".equals(fileType)||".xls".equals(fileType)||".pptx".equals(fileType)||".ppt".equals(fileType))) {
             return false;
@@ -246,7 +242,7 @@ public class FileService extends ExdevBaseService{
         
         String transforServerUrl = ExdevConstants.TRANSFOR_SERVER_URL;
         String transforServerUrlConvert = ExdevConstants.TRANSFOR_SERVER_URL_CONVERT;
-        String url = transforServerUrl +"/" + transforServerUrlConvert;
+        String serverUrl = transforServerUrl +"/" + transforServerUrlConvert;
 
         // PDF 파일 변환 서버가 살아있는지 확인
         boolean isServerAlive = isServerAlive(transforServerUrl);
@@ -255,7 +251,6 @@ public class FileService extends ExdevBaseService{
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        
         // SSL 검증 무시
         TrustManager[] trustAll = new TrustManager[]{
             new X509TrustManager() {
@@ -274,36 +269,10 @@ public class FileService extends ExdevBaseService{
         });
         
         String path = (String)map.get("FILE_PATH");
-        
+        FileUtil.getDirectoryPath(path);
         // PDF 파일 변환 서버로 전송
-        sendFile( url, new File( path));
-
-        FileSystemResource fileResource = new FileSystemResource(path);
-
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("file", fileResource);
-
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-        ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, byte[].class);
-        
-        // PDF로변환된 파일 서버로 부터 전송 받음
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            byte[] fileBytes = response.getBody();
-            String fileName = getFileNameFromHeaders(response.getHeaders());
-            try {
-                
-                //전송받은 파일 저장
-                saveFile(fileBytes, fileName);
-                return true;
-            } catch (IOException e) {
-                return false;
-            }
-        } else {
-            return false;
-        }
-        
-        
+        boolean returnVal = sendFile( serverUrl, new File( path), FileUtil.getDirectoryPath(path));
+        return returnVal;
     }
 
 
@@ -373,31 +342,6 @@ public class FileService extends ExdevBaseService{
     }
 
     /** 
-     * 파일저장 
-     * @생 성 자   : 이응규
-     * @생 성 일자 : 2024. 07. 25 : 최초 생성
-     * @수 정 자   : 
-     * @수 정 일자 :
-     * @수 정 자   :
-     */
-    private void saveFile(byte[] fileBytes, String fileName) throws IOException {
-        
-        String uploadPath   = ExdevConstants.FILE_UPLOAD_PATH + File.separator + "starasset" + File.separator + "BOARD"+ File.separator;
-        
-        String DOWNLOAD_DIR  = ExdevConstants.FILE_DIRECTORY_PATH + uploadPath;
-        
-        File downloadDir = new File(DOWNLOAD_DIR);
-        if (!downloadDir.exists()) {
-            downloadDir.mkdirs();
-        }
-        
-        Path path = Paths.get(DOWNLOAD_DIR + fileName);
-        try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
-            fos.write(fileBytes);
-        }
-    }
-
-    /** 
      * URL로 파일전송
      * @생 성 자   : 이응규
      * @생 성 일자 : 2024. 07. 25 : 최초 생성
@@ -405,7 +349,8 @@ public class FileService extends ExdevBaseService{
      * @수 정 일자 :
      * @수 정 자   :
      */
-    public void sendFile(String url, File file) {
+    public boolean sendFile(String serverUrl, File file, String filePath) {
+        
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
@@ -416,21 +361,42 @@ public class FileService extends ExdevBaseService{
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, byte[].class);
-
+        ResponseEntity<byte[]> response = restTemplate.exchange(serverUrl, HttpMethod.POST, requestEntity, byte[].class);
+        
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
             byte[] fileBytes = response.getBody();
             String fileName = getFileNameFromHeaders(response.getHeaders());
             try {
-                saveFile(fileBytes, fileName);
+                saveFile(fileBytes, fileName,filePath);
+                return true;
             } catch (IOException e) {
-                System.err.println("Failed to save file: " + e.getMessage());
+                return false;
             }
         } else {
-            System.err.println("Failed to receive file: " + response.getStatusCode());
+            return false;
         }
         
-        System.out.println(response.getBody());
     }
+    /** 
+     * 파일저장 
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 07. 25 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자   :
+     */
+    private void saveFile(byte[] fileBytes, String fileName, String filePath) throws IOException {
+        String DOWNLOAD_DIR  = filePath;
+        
+        File downloadDir = new File(DOWNLOAD_DIR);
+        if (!downloadDir.exists()) {
+            downloadDir.mkdirs();
+        }
+        Path path = Paths.get(DOWNLOAD_DIR + File.separator + fileName);
+        try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
+            fos.write(fileBytes);
+        }
+    }
+
 
 }

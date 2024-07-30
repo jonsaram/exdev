@@ -179,4 +179,27 @@ public class FileUtil {
         
         return newPath.toString();
     }
+
+    /** 
+     * DirectoryPath에서 파일명을 제외한 경로 찾기
+     * @param String filePath : 디렉토리경로
+     * @return String : 파일을 제회한 디렉토리경로 
+     * @생 성 자 : 이응규
+     * @생 성 일 자 : 2007. 07. 26.
+     * @수 정 자 : 
+     * @수 정 일 자 :
+     * @수 정
+     *   Original  Path: D:/OCI/workspace/exdev/uploadFiles/starasset/BOARD/190fd8d026522253.docx
+         Directory Path: D:/OCI/workspace/exdev/uploadFiles/starasset\BOARD
+     * */
+    public static String getDirectoryPath(String filePath) {
+        Path path = Paths.get(filePath);
+        Path parentPath = path.getParent();
+        
+        if (parentPath != null) {
+            return parentPath.toString();
+        } else {
+            throw new IllegalArgumentException("The provided path does not contain a parent directory.");
+        }
+    }
 }

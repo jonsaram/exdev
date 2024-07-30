@@ -53,7 +53,7 @@ public class FilemngController {
 	@PostMapping("/multiFileUpload.do")
 	public @ResponseBody Map<String, Object> multiFileUpload(@RequestParam("attach_file") List<MultipartFile> multiFileList,			
             HttpServletRequest request, HttpSession session)  throws Exception {
-		
+	    
         SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
         
         String spCstmId = sessionVo.getSpCstmId();
@@ -85,7 +85,7 @@ public class FilemngController {
 		
 		return returnMap;
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping("filedownload.do")
     public void filedownload(HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
