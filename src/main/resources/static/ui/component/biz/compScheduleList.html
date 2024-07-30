@@ -25,13 +25,12 @@ var <@compId> = {
 				}
 				C_COM.renderHtml("<@compId>", rparm);
 				
-				<@compId>.scheduleList = resultList;
-				
+				<@compId>.scheduleList = fn_copyFullObject(resultList);
 			});
 		 }
         ,addSchedule: function() {
      		let today = getDateFormat(getToday(), 8, "-");
-            let requestParm = {today : today};
+            let requestParm = {today : today, contractId : <@compId>.contractInfo.CONTRACT_ID};
             
             C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                 <@compId>.loadScheduleList();

@@ -3,6 +3,7 @@
 	var <@compId> = {
 		 contractInfo : {}
 		,cmmtList	  : []
+		,cmmtMap	  : []
 		,runLoop	  : false
 		,loadCmmtList : function() {
 			<@compId>.contractInfo.lastReadTime = undefined;
@@ -11,14 +12,28 @@
 				,requestParm	: <@compId>.contractInfo
 			}
 			C_COM.requestQuery(parm, function(resultData) {
+				let list = [];
+
+				$.each(resultData.data, function() {
+					let item = this;
+					if(item.DEL_YN == "N") {
+						if(item.UPDATE_USER == G_VAL.session.USER_ID) {
+							item.mngDisplay = "block"
+						} else {
+							item.mngDisplay = "none"
+						}
+						list.push(item);
+					}
+				});
 				var rparm = {
 					 targetId 		: "cmmtList"
-					,list			: resultData.data
+					,list			: list
 				}
 				C_COM.renderHtml("<@compId>", rparm);
 				$('#<@compId> #cmmtList').scrollTop($('#<@compId> #cmmtList')[0].scrollHeight);
 				
-				<@compId>.cmmtList = resultData.data
+				<@compId>.cmmtList	= list
+				<@compId>.cmmtMap 	= arrayToMap(resultData.data, "WORK_CMMT_ID");
 
 				<@compId>.lastReadTime = getToday();
 			});  
@@ -29,7 +44,7 @@
 				 title1 : "메모 등록"	
 				,title2 : "메모"
 			}
-			C_POP.open('popup_common_inputOnelinePopup', parm, function(retData) {
+			C_POP.open('popup_common_inputMultilinePopup', parm, function(retData) {
 				if(isValid(retData.msg)) {
 					// cmmt 등록
 					<@compId>.registCmmtProcess(retData.msg, function() {
@@ -52,10 +67,12 @@
 			}
 		 }
 		,registCmmtProcess : function(cmmt, callback) {
+			
+			let cmmtId = C_COM.makeUniqueId();
 			let parm = {
 				 queryId 		: "contract.registWorkCmmt"
 				,requestParm	: {
-					 WORK_CMMT_ID	: C_COM.makeUniqueId()
+					 WORK_CMMT_ID	: cmmtId
 					,CONTRACT_ID 	: '<@contractInfo.CONTRACT_ID>'
 					,CMMT			: cmmt
 					,updateDate		: getToday()
@@ -68,7 +85,10 @@
 			
 		 }
 		,deleteCmmt : function(WORK_CMMT_ID) {
-			let cmmtInfo = <@compId>.cmmtList[idx];
+			let cmmtInfo = <@compId>.cmmtMap[WORK_CMMT_ID];
+			
+			cmmtInfo.CMMT = cmmtInfo.CMMT.replaceAll("<br>", "\n").replaceAll("<br/>", "\n")
+			
 			
 			C_POP.confirm(`'${cmmtInfo.CMMT}' 항목을 삭제 하시겠습니까?`, function() {
 				let parm = {
@@ -76,15 +96,43 @@
 					,requestParm	: {WORK_CMMT_ID : WORK_CMMT_ID}
 				}
 				C_COM.requestQuery(parm, function(resultData) {
-					<@compId>.loadCmmtList();
+					$(`#<@compId> #li_${WORK_CMMT_ID}`).hide();
 				});  
 			});
 			
+		 }
+		,modifyCmmt : function(WORK_CMMT_ID) {
+			let cmmtInfo = <@compId>.cmmtMap[WORK_CMMT_ID];
+
+			C_POP.open('popup_common_inputMultilinePopup', { title1 : "메모 수정", title2 : "메모", msg : cmmtInfo.CMMT }, function(retData) {
+				
+				if(isEmpty(retData.msg)) return;
+				
+				var parm = {
+					 queryId 		: "contract.updateWorkCmmt"
+					,requestParm	: { 
+						  WORK_CMMT_ID	: WORK_CMMT_ID
+						 ,CMMT			: retData.msg
+					}
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					if(resultData.state == "S") {
+						$(`#<@compId> #li_${WORK_CMMT_ID} .txt`).html(retData.msg);
+						<@compId>.cmmtMap[WORK_CMMT_ID].CMMT = retData.msg;
+					} else if(resultData.state == "E") {
+						C_POP.alert('메모 수정 실패하였습니다.');
+					}
+				});
+			});
 		 }
 		,loadCmmtLoop : function() {
 			
 			if(!<@compId>.runLoop) {
 				let templateId = C_COM.getCurrentTemplateId();
+				if(in_array(templateId, ["popup_common_inputMultilinePopup","popup_sched_addSchedulePopup","popup_common_inputOnelinePopup"])) {
+					setTimeout(<@compId>.loadCmmtLoop, 1500);
+					return;
+				}
 				if("<@parentId>" == templateId && isEmpty("<@inputDisplay>")) {
 					setTimeout(<@compId>.loadCmmtLoop, 1500);
 				} else {
@@ -100,19 +148,42 @@
 			parm.requestParm.lastReadTime = <@compId>.lastReadTime;
 			C_COM.requestQuery(parm, function(resultData) {
 				if(resultData.data.length > 0 ) {
-					
-					var rparm = {
-						 targetId 		: "cmmtList"
-						,list			: resultData.data
-					}
-					if(<@compId>.cmmtList.length > 0) {
-						rparm.append = "Y"
-					}
-					C_COM.renderHtml("<@compId>", rparm);
-					$('#<@compId> #cmmtList').scrollTop($('#<@compId> #cmmtList')[0].scrollHeight);
-					
+					let list = [];
+					$.each(resultData.data, function() {
+						let item = this;
+						if(item.DEL_YN == "Y") {
+							$(`#<@compId> #li_${item.WORK_CMMT_ID}`).hide();
+						} else {
+							// 수정/신규 확인
+							if(isValid(<@compId>.cmmtMap[item.WORK_CMMT_ID])) {
+								// 수정
+								$(`#<@compId> #li_${item.WORK_CMMT_ID} .txt`).html(item.CMMT);
+							} else {
+								if(item.UPDATE_USER == G_VAL.session.USER_ID) {
+									item.mngDisplay = "block"
+								} else {
+									item.mngDisplay = "none"
+								}
+								// 신규
+								<@compId>.cmmtMap[item.WORK_CMMT_ID] = item
+								list.push(item);
+							}
+						}
+					});
+					if(list.length > 0) {
+						var rparm = {
+							 targetId 		: "cmmtList"
+							,list			: list
+						}
+						if(<@compId>.cmmtList.length > 0) {
+							rparm.append = "Y"
+						}
+						C_COM.renderHtml("<@compId>", rparm);
+						$('#<@compId> #cmmtList').scrollTop($('#<@compId> #cmmtList')[0].scrollHeight);
+						<@compId>.cmmtList = <@compId>.cmmtList.concat(list);
+					} 
+
 					<@compId>.lastReadTime = getToday();
-					<@compId>.cmmtList = <@compId>.cmmtList.concat(resultData.data);
 				}
 			});  
 		 }
@@ -164,7 +235,7 @@
 	</ul>
 	<script type="text/x-jsrender" id="cmmtList_template">
 	{{for list}}
-		<li><span class="time">{{:UPDATE_DATE}}</span> <strong>{{:USER_NM}}</strong> <span class="txt">{{:CMMT}}</span> <div class="fr"><button><i class="icon_pen"></i></button><button onclick="<@compId>.deleteCmmt('{{:WORK_CMMT_ID}}')"><i class="icon_trash"></i></button></div></li>
+		<li id="li_{{:WORK_CMMT_ID}}"><span class="time">{{:UPDATE_DATE}}</span> <strong>{{:USER_NM}}</strong> <span class="txt">{{:CMMT}}</span> <div class="fr" style="display:{{:mngDisplay}}"><button onclick="<@compId>.modifyCmmt('{{:WORK_CMMT_ID}}')"><i class="icon_pen"></i></button><button onclick="<@compId>.deleteCmmt('{{:WORK_CMMT_ID}}')"><i class="icon_trash"></i></button></div></li>
 	{{/for}}
 	</script>
 	<script type="text/x-jsrender" id="cmmtList_noData_template">	

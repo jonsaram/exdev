@@ -855,14 +855,15 @@
 			 WORK_CMMT_ID
 			,A.CONTRACT_ID
 			,CMMT
+			,UPDATE_USER
 			,GET_USER_NM(A.UPDATE_USER) AS USER_NM
 			,TO_CHAR( A.UPDATE_DATE , 'MM-DD HH24:MI' ) AS UPDATE_DATE
 			,A.UPDATE_DATE AS UPDATE_DATE_ORD
+			,A.DEL_YN
 		FROM 
 		 	 TBL_EXP_WORK_CMMT  A
 		WHERE 1=1
 			AND	A.CONTRACT_ID 	= #{CONTRACT_ID}
-			AND A.DEL_YN		= 'N'
 		<if test=" lastReadTime != null and !lastReadTime.equals('') ">
 		    AND A.UPDATE_DATE > TO_DATE( #{lastReadTime} , 'YYYY-MM-DD HH24:MI:SS' )  
        	</if>
@@ -898,9 +899,23 @@
 		UPDATE 
 			TBL_EXP_WORK_CMMT 
 		SET 
-			DEL_YN = 'Y' 
+			 DEL_YN 		= 'Y' 
+			,UPDATE_DATE 	= GET_KRDT(SYSDATE) 
 		WHERE 
 			WORK_CMMT_ID = #{WORK_CMMT_ID}
+	</update>
+	
+	<update id="updateWorkCmmt">
+		/*	contract."updateWorkCmmt"
+			자문 진행 현황 / 진행 현황 메모 수정
+		*/
+		UPDATE 
+			TBL_EXP_WORK_CMMT 
+		SET 
+			 CMMT 			= #{CMMT} 
+			,UPDATE_DATE 	= GET_KRDT(SYSDATE) 
+		WHERE 
+			WORK_CMMT_ID 	= #{WORK_CMMT_ID}
 	</update>
 	
 
