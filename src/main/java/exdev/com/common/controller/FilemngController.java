@@ -3,6 +3,7 @@ package exdev.com.common.controller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -104,11 +105,14 @@ public class FilemngController {
 		
         File f = new File(filePath);
         
+	    // 한글 파일명을 처리하기 위해 인코딩
+	    String encodedFileName = URLEncoder.encode(orgFileName, "UTF-8");
+	    encodedFileName = encodedFileName.replaceAll("\\+", "%20"); // 공백 처리
         
         // file 다운로드 설정
         response.setContentType("application/download");
         response.setContentLength((int)f.length());
-        response.setHeader("Content-disposition", "attachment;filename=\"" + orgFileName + "\"");
+        response.setHeader("Content-disposition", "attachment;filename=\"" + encodedFileName + "\"");
         // response 객체를 통해서 서버로부터 파일 다운로드
         OutputStream os = response.getOutputStream();
         // 파일 입력 객체 생성
