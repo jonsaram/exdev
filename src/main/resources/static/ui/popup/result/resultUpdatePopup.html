@@ -2,6 +2,7 @@
 <script type="text/javascript">
 var <@popupId> = {
 	  recvData : []	
+	 ,parentData : {}
 	 ,IsMonthly : false
 	 ,CONTRACT_ID :''
 	 ,PROCESS_STATE:''
@@ -115,6 +116,8 @@ var <@popupId> = {
 
 	 }
 	,pageInit : (parentData) => {
+		
+		<@popupId>.parentData = parentData;
 
 		<@popupId>.setTitleHeight(parentData);
 
@@ -735,6 +738,40 @@ var <@popupId> = {
 		return { supplyCost : supplyCost , tax : tax };
 		
 	}
+	,changeMember : () => {
+		let projectInfo = <@popupId>.recvData.contractItem;
+		
+		let parm = {
+			 projectInfo	: projectInfo
+			,okBtnNm		: "수정"
+		};
+		
+		C_POP.open('popup_operation_projectTeamMemberPopup', parm, function(retData) {
+			
+			if(isEmpty(retData)) return;
+			let userId 		= retData[0].USER_ID
+			let CONTRACT_ID = projectInfo.CONTRACT_ID
+
+			var parm = {
+				 serviceId  : "ExdevContractService.changeMember"
+				,requestParm : {
+					 teamMemberList : retData
+					,CONTRACT_ID	: CONTRACT_ID
+					,USER_ID		: userId
+				}
+			}
+			C_COM.requestService(parm, function(resultData) {
+				if(resultData.state ==	"S") {
+					parm.serviceId = "ExdevContractService.changeMember2";
+					C_COM.requestService(parm, function(resultData) {
+						if(resultData.state == "S") {
+							<@popupId>.pageInit(<@popupId>.parentData);														
+						}
+					});
+				}
+			});
+		});
+	}
 
 }
 // Popup Load가 완료된후 실행 된다.
@@ -760,7 +797,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 </script>
 <!-- 실적 등록 팝업 -->
 <div class="modal_wrap" id="<@popupId>_items">
-	<div class="modal" style="width:650px;height:650px;">
+	<div class="modal" style="width:800px;height:650px;">
 		<div class="modal_header">
 			<strong class="tit">실적 등록/실적 정보 수정</strong>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
@@ -952,18 +989,26 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							</table>
 						</div>
 					
-						<h4 class="mt15"><i class="icon_bullet"></i>수수료 산출</h4>
-						<!-- 테이블 -->
+						<div class="search_area">
+							<span class="tit01 mt10"><i class="icon_bullet"></i>수수료 산출</span>
+ 							<div class="search_right mt5">
+							<a class="btn small fr " href="javascript:<@popupId>.changeMember()">Member관리</a>
+							</div>
+						</div>
+						
+						
 						<div class="tbl01 col tbl_scroll mb15" style="height:254px">
 							<table>
 								<caption>표 캡션</caption>
 								<colgroup>
-									<col style="width:17%;"/>
-									<col style="width:19%;"/>
-									<col style="width:17%;"/>
-									<col style="width:17%;"/>
-									<col style="width:20%;"/>
-									<col style="width:30%;"/>
+									<col style="width:14%;"/>
+									<col style="width:12%;"/>
+									<col style="width:12%;"/>
+									<col style="width:11%;"/>
+									<col style="width:12%;"/>
+									<col style="width:13%;"/>
+									<col style="width:13%;"/>
+									<col style="width:13%;"/>
 								</colgroup>
 								<thead>
 									<tr>
@@ -972,6 +1017,8 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 										<th scope="col">등급/직위</th>
 										<th scope="col">역할</th>
 										<th scope="col">수수료율(%)</th>
+										<th scope="col">코웍율(%)</th>
+										<th scope="col">지급율(%)</th>
 										<th scope="col" class="tr">수수료(원)</th>
 									</tr>
 								</thead>
@@ -986,16 +1033,22 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<td id='RELATION_TYPE_NM'	value='{{:RELATION_TYPE_NM}}'	class='tc'>{{:RELATION_TYPE_NM}}</td>
 									<td id='RATE'				value='{{:RATE}}' 				class='tr'>
     								{{if RELATION_TYPE == 'COWORK'}}
-	        							<input name='coworkRate' 	type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
+	        							<input name='coworkRate' 	type='text' style='width:50px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
     								{{else RELATION_TYPE == 'SUGGESTER'}} 
-        								<input name='suggesterRate' type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
+        								<input name='suggesterRate' type='text' style='width:50px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
     								{{else RELATION_TYPE == 'EXECUTE'}} 
-        								<input name='execRate' type='text' style='width:60px;text-align: right;' value='{{:RATE}}'  oninput='javascript:<@popupId>.changeRateVal(this)' />%
+        								<input name='execRate' type='text' style='width:50px;text-align: right;' value='{{:RATE}}'  oninput='javascript:<@popupId>.changeRateVal(this)' />%
     								{{else RELATION_TYPE == 'SALES'}} 
-        								<input name='salesRate' type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)'  />%
+        								<input name='salesRate' type='text' style='width:50px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)'  />%
 									{{else}}
         								{{:RATE}} %
 								    {{/if}}
+									</td>
+									<td id='' value='' class='tr'>
+	        							<input name='' type='text' style='width:50px;text-align: right;' value='' fix="0" number/>%
+									</td>
+									<td id='' value='' class='tr'>
+	        							<input name='' type='text' style='width:50px;text-align: right;' value='' fix="0" number/>%
 									</td>
 									<td id='PAYMENT'			value='{{:PAYMENT}}'  class="tr">{{numb:PAYMENT}}</td>
 									<td id='RELATION_TYPE'		value='{{:RELATION_TYPE}}'		style='display:none'>{{:RELATION_TYPE}}</td>
@@ -1014,6 +1067,8 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<tfoot>
 									<tr id="<@popupId>_totalRow">
 										<td colspan="4">계</td>
+										<td class="tr"	></td>
+										<td class="tr"	></td>
 										<td class="tr"	></td>
 										<td id='<@popupId>_PAYMENT_SUM' class="tr"	></td>
 									</tr>

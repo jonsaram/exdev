@@ -16,9 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 import exdev.com.ExdevCommonAPI;
 import exdev.com.common.ExdevConstants;
 import exdev.com.common.dao.ExdevCommonDao;
+import exdev.com.common.vo.SessionVO;
 import exdev.com.service.ApprovalService;
 import exdev.com.service.DashboardService;
 import exdev.com.service.EmailService;
+import exdev.com.service.ExdevContractService;
 import exdev.com.service.ExdevSampleService;
 import exdev.com.service.ScheduleService;
 
@@ -43,7 +45,12 @@ public class ExdevCommonService extends ExdevBaseService
     private DashboardService    dashboardService;
 	
 	@Autowired
+	private ExdevContractService exdevContractService;
+	
+	@Autowired
 	private ExdevCommonDao commonDao;
+	
+	
 	
 	public Map requestService(Map map, HttpSession session) throws Exception {
 		
@@ -52,7 +59,7 @@ public class ExdevCommonService extends ExdevBaseService
 		Map 	requestParm = (Map)map.get("requestParm");
 		
 		// Session이 필요하다면 여기서 넣어준다.
-		requestParm.put("sessionVo", session.getAttribute(ExdevConstants.SESSION_ID));
+		requestParm.put("sessionVo", (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID));
 		
 		String [] token = serviceId.split("\\.");
 		
@@ -83,6 +90,9 @@ public class ExdevCommonService extends ExdevBaseService
         } else if("DashboardService".equals(classId)) {
             targetService = dashboardService;
             targetMethod = DashboardService.class.getMethod(methodId, Map.class);
+        } else if("ExdevContractService".equals(classId)) {
+            targetService = exdevContractService;
+            targetMethod = ExdevContractService.class.getMethod(methodId, Map.class);
         }
 			
 		

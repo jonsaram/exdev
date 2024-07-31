@@ -1006,19 +1006,27 @@
 		/*	contract.insertTeam
 			팀 생성
 		*/
-		INSERT INTO TBL_EXP_TEAM (
-			 CONTRACT_ID
-			,ALLOWED
-			,UPDATE_DATE
-			,UPDATE_USER
-			,SP_CSTM_ID
-		) VALUES (
-			 #{CONTRACT_ID}
-			,'N'
-   			,GET_KRDT(SYSDATE)
-   			,#{sessionVo.userId		}
-			,#{sessionVo.spCstmId	}
-		)
+		MERGE INTO TBL_EXP_TEAM T
+		USING (
+		  SELECT #{CONTRACT_ID}		AS CONTRACT_ID
+		  FROM DUAL
+		) S
+		ON (T.CONTRACT_ID	= S.CONTRACT_ID)
+		WHEN NOT MATCHED THEN 
+			INSERT (
+				 CONTRACT_ID
+				,ALLOWED
+				,UPDATE_DATE
+				,UPDATE_USER
+				,SP_CSTM_ID
+			) VALUES (
+				 #{CONTRACT_ID}
+				,#{ALLOWED}
+	   			,GET_KRDT(SYSDATE)
+	   			,#{sessionVo.userId		}
+				,#{sessionVo.spCstmId	}
+			)
+		
 	</update>
 
 	<update id="insertTeamMember">
@@ -1045,6 +1053,16 @@
 			,#{sessionVo.spCstmId	}
 		)
 	</update>
+	
+	<update id="deleteTeamMember">
+		/*	contract.deleteTeamMember
+			팀 멤버 삭제
+		*/
+		DELETE FROM TBL_EXP_TEAM_MEMBER
+		WHERE CONTRACT_ID = #{CONTRACT_ID}
+	</update>
+	
+	
 
 	<update id="updateTeamState" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	contract.updateTeamState

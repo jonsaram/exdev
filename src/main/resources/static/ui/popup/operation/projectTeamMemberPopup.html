@@ -115,7 +115,7 @@
 			let headerUserId = $("#<@popupId> input[name=headerCheck]:checked").val();
 			
 			if			(idx 		== 0) 	{
-				C_POP.alert('프로젝트 담당자을 추가하세요.'				);
+				C_POP.alert('프로젝트 담당자를 추가하세요.'				);
 			} else if	(execCheck 	== "E") {
 				C_POP.alert('실행 컨설턴트는 1명만 지정 할 수 있습니다.');
 			} else if	(execCheck 	== "N") {
@@ -187,6 +187,9 @@
 		<@popupId>.salesMember = userInfo;
 		<@popupId>.salesMember["TEAM_USER_ROLE"] = "SALES";
 		<@popupId>.salesMember["HEADER_YN"] 		= "N";
+		
+		if(isValid(data.okBtnNm)) $("#<@popupId> #okBtn").html(data.okBtnNm);
+		
 		
 	});
 </script>
@@ -283,7 +286,7 @@
 			</div>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select" onclick="<@popupId>.approval()">결재상신</button>
+			<button type="button" class="btn select" onclick="<@popupId>.approval()" id="okBtn">결재상신</button>
 			<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
 		</div>
 	</div>

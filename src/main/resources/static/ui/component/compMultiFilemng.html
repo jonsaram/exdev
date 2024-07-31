@@ -78,7 +78,7 @@
                 formData.append("attach_file"   , <@compId>.filesArr[i]);
                 formData.append("FILE_IDS"      , C_COM.makeUniqueId());
             }
-            
+            C_COM.showLoadingBar();
             $.ajax({
                 url: '/multiFileUpload.do',
                 method: 'POST',
@@ -86,10 +86,12 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
+                    C_COM.hideLoadingBar();
                     const msg = response.msg;
                     <@compId>.init();
                 },
                 error: function (xhr, desc, err) {
+                    C_COM.hideLoadingBar();
                     alert('에러가 발생 하였습니다.');
                     return;
                 }
@@ -145,8 +147,8 @@
             if (file.name.length > 100) {
                 alert("파일명이 100자 이상인 파일은 제외되었습니다.");
                 return false;
-            } else if (file.size > (50 * 1024 * 1024)) {
-                alert("최대 파일 용량인 50MB를 초과한 파일은 제외되었습니다.");
+            } else if (file.size > (100 * 1024 * 1024)) {
+                alert("최대 파일 용량인 100MB를 초과한 파일은 제외되었습니다.");
                 return false;
             } else if (file.name.lastIndexOf('.') == -1) {
                 alert("확장자가 없는 파일은 제외되었습니다.");
