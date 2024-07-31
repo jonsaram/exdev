@@ -219,53 +219,13 @@
             var obj = new Object();
             C_POP.close(obj);
          }
-        ,getAppMemberToList : function() {
-            let resultList = []
-            $.each(<@popupId>.appMember, function(key, obj) {
-                resultList.push(obj);
-            });
-            return resultList;
-         }
-        ,loadAppMember : function() {
-            let mlst = <@popupId>.getAppMemberToList();
-            
-            // 참석자 표시
-            let rparm = {
-                 targetId : "scheduleMember"
-                ,list     : mlst
-            }
-            C_COM.renderHtml("<@popupId>", rparm);
-         }
         ,setSelectBoxTime : function( startTimeHour, startTimeMinute, endTimeHour, endTimeMinute ) {
                 
             C_UICOM.setSingleBox("<@popupId>_selectBoxStartTime", startTimeHour);
             C_UICOM.setSingleBox("<@popupId>_selectBoxStartMinute", startTimeMinute);
             C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", endTimeHour);
             C_UICOM.setSingleBox("<@popupId>_selectBoxEndMinute", endTimeMinute);
-        }
-        ,memberSearchPopup : function() {
-    
-            C_POP.open('popup_userSearchPopup', {}, function(retData) {
-                if(!(typeof retData == "undefined" || retData == null || retData == "")){
-                	<@popupId>.addMember(retData);
-                }
-            });
-         }
-        ,addMember : function(retData) {
-
-            if(isValid(<@popupId>.appMember[retData.USER_ID])) {
-                C_POP.alert('이미 등록되어 있는 사원입니다.');
-                return;
-            }
-            <@popupId>.appMember[retData.USER_ID] = retData;
-            
-            <@popupId>.loadAppMember();
-         }
-        ,delMember : function(userId) {/* 참석자 삭제 */
-            <@popupId>.appMember = removeMember(<@popupId>.appMember, userId);
-            <@popupId>.loadAppMember();
-         }
-         
+        }         
         ,save : function( ) {
 
             if( <@popupId>.saveCheck(<@popupId>.loopType) ){
@@ -273,21 +233,10 @@
             }
             
             if( <@popupId>.loopTypeCheck(<@popupId>.loopType) ){
-                //kbntt
-                //C_POP.alert("종료일이 제한 범위를 넘었습니다.");
-                //return false;
             }
 
             let startYyMMDDHM = $('#<@popupId>_dateStart').val()+" "+<@popupId>.startTimeH+":"+<@popupId>.startTimeM+":00";
             let endYyMMDDHM   = $('#<@popupId>_dateEnd').val()  +" "+<@popupId>.endTimeH  +":"+<@popupId>.endTimeM+":00";
-            
-            //중복 일정체크 kbntt
-            /*
-            if( <@popupId>.duplicationCheck( startYyMMDDHM, endYyMMDDHM ) ){
-                
-                return false;
-            } 
-            */
             
             let title = $('#<@popupId>_title').val();
             let requestParm = {};    
@@ -330,15 +279,18 @@
             }
             
             // 임의의 테이블 Key 생성
+            /*
             var scheduleIdArry = new Array();
             for(i=0; i< 30; i++){
                 scheduleIdArry.push(C_COM.makeUniqueId());
             }
             requestParm["scheduleIdArry"]  = scheduleIdArry;
+            */
             
             // 참석자 추가
-            let mlst = <@popupId>.getAppMemberToList();
-            requestParm["users"]  = JSON.stringify(mlst);  
+            //프로젝트로 대체 24-07-31
+            //let mlst = <@popupId>.getAppMemberToList();
+            //requestParm["users"]  = JSON.stringify(mlst);  
             
             var parm = {
                  serviceId              : "ScheduleService.saveSchedule"
@@ -688,7 +640,7 @@
 </script>
     <!-- 캘린더 일정추가 팝업 -->
     <div class="modal_wrap" id="modal-ex">
-        <div class="modal" style="width:700px;height:750px;">
+        <div class="modal" style="width:700px;height:600px;">
             <div class="modal_header">
                 <strong class="tit">캘린더 일정추가</strong>
                 <button type="button" class="btn_zoomInOut"><span class="txt">확대</span></button>
@@ -766,31 +718,6 @@
                             </div>
                         </div>
                     </dd>
-                    <dt>참석자</dt>
-                    <dd>
-                        <div class="search_inputWrap w100">
-                            <input type="search" name="" placeholder="참석자 추가">
-                            <button class="search_btn">
-                                  <a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup();"><i class="icon_search"></i></a>
-                            </button>
-                        </div>
-                    </dd>
-                    <dt>참석자<br>리스트</dt>
-                    <dd class="mb0" style="height:120px;overflow-y:auto;">
-                        <div class="approver_list_wrap">
-                            <ul class="approver_list" id="scheduleMember">
-                            </ul>
-                            <script type="text/x-jsrender" id="scheduleMember_template">
-                                {{for list}}    
-                                <li>
-                                    <span class="txt">{{:USER_NM}} / {{:GRADE}} / {{:E_MAIL}}</span>
-                                    <button class="pay_close"   onclick="<@popupId>.delMember('{{:USER_ID}}')">삭제</button>
-                                </li>
-                                {{/for}}
-                            </script>
-                        </div>
-                    </dd>
-                    
                     <dt>공개 여부</dt>
                     <dd>
                         <div class="select_box">

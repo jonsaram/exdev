@@ -42,38 +42,8 @@
 	        	
 	        });
 	        
-	        /* 참석자 조회*/
-	        let parmDtl = {
-	             queryId        : "schedule.getScheduleShareList"
-	            ,requestParm    : requestParm
-	        }
-	        C_COM.requestQuery(parmDtl, function(resultData) {
-	            for(var i =0; i <resultData.data.length; i++){
-	                <@popupId>.addMember(resultData.data[i]);
-	            }
-	        });
 	        
-	     } 
-        ,addMember : function(retData) {
-
-            if(isValid(<@popupId>.appMember[retData.USER_ID])) {
-                C_POP.alert('이미 등록되어 있는 사원입니다.');
-                return;
-            }
-            <@popupId>.appMember[retData.USER_ID] = retData;
-            
-            <@popupId>.loadAppMember();
-         }
-	    ,loadAppMember : function() {
-            let mlst = <@popupId>.getAppMemberToList();
-            
-            // 참석자 표시
-            let rparm = {
-                 targetId : "scheduleMember"
-                ,list     : mlst
-            }
-            C_COM.renderHtml("<@popupId>", rparm);
-         }
+	     }
         ,getAppMemberToList : function() {
             let resultList = []
             $.each(<@popupId>.appMember, function(key, obj) {
@@ -104,7 +74,7 @@
 </script>
     <!-- 캘린더 일정추가 팝업 -->
     <div class="modal_wrap" id="modal-ex">
-        <div class="modal" style="width:700px;height:750px;">
+        <div class="modal" style="width:700px;height:600px;">
             <div class="modal_header">
                 <strong class="tit">캘린더 일정</strong>
                 <button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
@@ -126,20 +96,6 @@
                     <dd><input type="text" style="width:100%" readonly id="<@popupId>_position"></dd>
                     <dt>프로젝트</dt>
                     <dd><input type="text" style="width:100%" readonly id="<@popupId>_contract"></dd>
-                    <dt>참석자</dt>
-                    <dd class="mb0" style="height:120px;overflow-y:auto;">
-                        <div class="approver_list_wrap">
-                            <ul class="approver_list" id="scheduleMember">
-                            </ul>
-                            <script type="text/x-jsrender" id="scheduleMember_template">
-                                {{for list}}    
-                                <li>
-                                    <span class="txt">{{:USER_NM}} / {{:GRADE}} / {{:E_MAIL}}</span>
-                                </li>
-                                {{/for}}
-                            </script>
-                        </div>
-                    </dd>
                     <dt>공개 여부</dt>
                     <dd>
                         <input type="text" style="width:100%" readonly id="<@popupId>_scheduleSecretYn">

@@ -43,14 +43,16 @@ public class ScheduleService extends ExdevBaseService{
     public Map<String,Object>  updateSchedule(Map map ) throws Exception {
         
         int result = 0;
-        
-        String json = (String)map.get("users");
-        ObjectMapper mapper = new ObjectMapper();
-        List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
+        //프로젝트로 대체 24-07-31
+        //String json = (String)map.get("users");
+        //ObjectMapper mapper = new ObjectMapper();
+        //List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
         
         result += commonDao.update("schedule.updateSchedule", map);
-        result += deleteScheduleShare(map);
-        result += saveScheduleShare(map, apprUserList );
+        
+        //프로젝트로 대체 24-07-31
+        //result += deleteScheduleShare(map);
+        //result += saveScheduleShare(map, apprUserList );
         
         
         if( result > 0  ) {
@@ -145,8 +147,7 @@ public class ScheduleService extends ExdevBaseService{
      */
     public Map<String,Object>  saveSchedule(Map map ) throws Exception {
         
-        int result = 0;
-        
+        /*
         ArrayList<String> scheduleIdArry = new ArrayList<>();
         scheduleIdArry = (ArrayList<String>)map.get("scheduleIdArry");
         
@@ -155,17 +156,11 @@ public class ScheduleService extends ExdevBaseService{
         for (int i=0; i<scheduleIdArry.size(); i++) {
             scheduleIds[i] = scheduleIdArry.get(i);
         }
+        */
         
-        //result += commonDao.insert("schedule.insertScheduleMsater", map);
         Map<String,Object> resultMap = saveScheduleAndShare( map );
         
-        if( result > 0  ) {
-            resultInfo = makeResult(ExdevBaseService.REQUEST_SUCCESS, "", null);
-        }else {
-            resultInfo = makeResult(ExdevBaseService.REQUEST_FAIL, "", null);
-        }
-        
-        return resultInfo;
+        return resultMap;
     }
 
 
@@ -182,13 +177,14 @@ public class ScheduleService extends ExdevBaseService{
         
         int result = 0;
         
-        String json              = (String)map.get("users");
-        
-        ObjectMapper mapper = new ObjectMapper();
-        List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
+        //String json              = (String)map.get("users");
+        //ObjectMapper mapper = new ObjectMapper();
+        //List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
         
         result += commonDao.insert("schedule.insertSchedule", map);
-        result += saveScheduleShare(map, apprUserList );
+        
+        //프로젝트로 대체 24-07-31
+        //result += saveScheduleShare(map, apprUserList );
         
         
         if( result > 0  ) {
@@ -200,129 +196,6 @@ public class ScheduleService extends ExdevBaseService{
         return resultInfo;
     }
 
-    /** 
-     * 내용        : 일정관리 입력
-     *               일정관리(TBL_EXP_SCHEDULE)
-     * @생 성 자   : 이응규
-     * @생 성 일자 : 2024. 02. 21 : 최초 생성
-     * @수 정 자   : 
-     * @수 정 일자 :
-     * @수 정 자
-     */
-    public Map<String,Object>  saveScheduleAndShare_bak(Map map ) throws Exception {
-        
-        int result = 0;
-        
-        String date = (String)map.get("date");
-        String loopType = (String)map.get("loopType");
-        String limitDate = (String)map.get("limitDate");
-        String scheduleStartDate = (String)map.get("scheduleStartDate");
-        String scheduleEndDate = (String)map.get("scheduleEndDate");
-        String json = (String)map.get("users");
-        
-        
-        ObjectMapper mapper = new ObjectMapper();
-        List<Map<String, Object>> apprUserList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
-
-        ArrayList<String> scheduleIdArry = new ArrayList<>();
-        scheduleIdArry = (ArrayList<String>)map.get("scheduleIdArry");
-        
-        String[] scheduleIds = new String[scheduleIdArry.size()];
-        
-        for (int i=0; i<scheduleIdArry.size(); i++) {
-            scheduleIds[i] = scheduleIdArry.get(i);
-        }
-        
-        if( ExdevBaseService.SCHEDULE_LOOP_TYPE.NOT_REPEAT.name().equals(loopType) ) {
-            // 당일 입력
-            
-            map.put("scheduleId", scheduleIds[0]);
-            map.put("date", date);
-            
-            result += commonDao.insert("schedule.insertSchedule", map);
-            result += saveScheduleShare(map, apprUserList );
-        }else if( ExdevBaseService.SCHEDULE_LOOP_TYPE.DAY.name().equals(loopType) ){
-
-            int startDateNum = Integer.parseInt(scheduleStartDate.replace("-", ""));
-            int endDateNum = Integer.parseInt(scheduleEndDate.replace("-", ""));
-            
-            for( int i =0; startDateNum < endDateNum; i++ ) {
-                String addWeek  = DateUtil.AddDate(date, 0, 0, i);
-                startDateNum = Integer.parseInt(addWeek.replace("-", ""));
-                map.put("scheduleId", scheduleIds[i]);
-                map.put("date", addWeek);
-                result += commonDao.insert("schedule.insertSchedule", map);
-                result += saveScheduleShare(map, apprUserList );
-                
-            }
-        }else if( ExdevBaseService.SCHEDULE_LOOP_TYPE.WEEK.name().equals(loopType) ){
-            int initNum = 7;
-            int startDateNum = Integer.parseInt(scheduleStartDate.replace("-", ""));
-            int endDateNum = Integer.parseInt(scheduleEndDate.replace("-", ""));
-
-            for( int i =0; startDateNum < endDateNum; i++ ) {
-                String addWeek  = DateUtil.AddDate(date, 0, 0, initNum*i);
-                startDateNum = Integer.parseInt(addWeek.replace("-", ""));
-                map.put("scheduleId", scheduleIds[i]);
-                map.put("date", addWeek);
-                result += commonDao.insert("schedule.insertSchedule", map);
-                result += saveScheduleShare(map, apprUserList );
-                
-            }
-        }else if( ExdevBaseService.SCHEDULE_LOOP_TYPE.MONTH.name().equals(loopType) ){
-            int startDateNum = Integer.parseInt(scheduleStartDate.replace("-", ""));
-            int endDateNum = Integer.parseInt(scheduleEndDate.replace("-", ""));
-
-            for( int i =0; startDateNum < endDateNum; i++ ) {
-                String addWeek  = DateUtil.AddDate(date, 0, i, 0);
-                startDateNum = Integer.parseInt(addWeek.replace("-", ""));
-                map.put("scheduleId", scheduleIds[i]);
-                map.put("date", addWeek);
-                result += commonDao.insert("schedule.insertSchedule", map);
-                result += saveScheduleShare(map, apprUserList );
-                
-            }
-        }else if( ExdevBaseService.SCHEDULE_LOOP_TYPE.QUARTER.name().equals(loopType) ){
-            int initNum = 3;
-            
-            int startDateNum = Integer.parseInt(scheduleStartDate.replace("-", ""));
-            int endDateNum = Integer.parseInt(scheduleEndDate.replace("-", ""));
-
-            for( int i =0; startDateNum < endDateNum; i++ ) {
-                String addWeek  = DateUtil.AddDate(date, 0, initNum*i, 0);
-                startDateNum = Integer.parseInt(addWeek.replace("-", ""));
-                map.put("scheduleId", scheduleIds[i]);
-                map.put("date", addWeek);
-                result += commonDao.insert("schedule.insertSchedule", map);
-                result += saveScheduleShare(map, apprUserList );
-                
-            }
-            
-        }else if( ExdevBaseService.SCHEDULE_LOOP_TYPE.YEAR.name().equals(loopType) ){
-
-            int startDateNum = Integer.parseInt(scheduleStartDate.replace("-", ""));
-            int endDateNum = Integer.parseInt(scheduleEndDate.replace("-", ""));
-
-            for( int i =0; startDateNum < endDateNum; i++ ) {
-                String addWeek  = DateUtil.AddDate(date, i, 0, 0);
-                startDateNum = Integer.parseInt(addWeek.replace("-", ""));
-                map.put("scheduleId", scheduleIds[i]);
-                map.put("date", addWeek);
-                result += commonDao.insert("schedule.insertSchedule", map);
-                result += saveScheduleShare(map, apprUserList );
-            }
-
-            
-        }else {}
-        
-        
-        if( result > 0  ) {
-            resultInfo = makeResult(ExdevBaseService.REQUEST_SUCCESS, "", null);
-        }else {
-            resultInfo = makeResult(ExdevBaseService.REQUEST_FAIL, "", null);
-        }
-        return resultInfo;
-    }
     /** 
      * 내용        : 일정공유 입력
      *               일정공유(TBL_EXP_SCHEDULE_SHARE)

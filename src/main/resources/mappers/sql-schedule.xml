@@ -5,25 +5,25 @@
 <mapper namespace="schedule">
 
 	<cache />
-	<!-- 팀원조회 -->
+    <!-- 팀원조회 -->
     <select id="getTeamMember" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.getTeamMember */
-		SELECT  USER_ID
-		       ,GET_USER_NM(USER_ID) AS USER_NM
-		FROM   TBL_EXP_TEAM_MEMBER A
-		       JOIN (SELECT SP_CSTM_ID
-		              ,CONTRACT_ID
-		        FROM   TBL_EXP_TEAM_MEMBER
-		        WHERE  1 = 1
-		        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
-		        AND    USER_ID    = #{sessionVo.userId}
-		        AND    ROWNUM <![CDATA[<]]> 2 
-		       ) B
-		         ON  1 = 1
-		         AND A.SP_CSTM_ID = B.SP_CSTM_ID
-		         AND A.CONTRACT_ID = B.CONTRACT_ID
-		WHERE  1 = 1           
-		AND    USER_ID != #{sessionVo.userId}
+        SELECT USER_ID
+              ,GET_USER_NM(USER_ID) AS USER_NM
+        FROM   (
+                SELECT DISTINCT USER_ID 
+                FROM   TBL_EXP_TEAM_MEMBER
+                WHERE  1 = 1
+                AND    CONTRACT_ID IN (
+                            SELECT CONTRACT_ID 
+                            FROM   TBL_EXP_TEAM_MEMBER
+                            WHERE  1 = 1
+                            AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                            AND    USER_ID    = #{sessionVo.userId}
+                       )
+               )
+        WHERE  1 = 1           
+        AND    USER_ID != #{sessionVo.userId}
     </select>
     
 	<!-- 중복 일정체크  이응규 -->
@@ -483,7 +483,7 @@
               ,A.END_TIME_MINUTE  
               ,GET_CODE_NM('TIME_MINUTE_30', A.END_TIME_MINUTE) AS END_TIME_MINUTE_NM
               ,GET_CODE_NM('SCHEDULE_LOOP_TYPE', A.LOOP_TYPE) AS LOOP_TYPE_NM
-              ,B.TAX_MNG AS CONTRACT
+              ,B.BUYER_NM ||'/'||B.CONSULTING_NM AS CONTRACT
               ,A.POSITION         
               ,A.SECRET_YN        
               ,GET_CODE_NM('SCHEDULE_SECRET_YN', A.SECRET_YN) AS SECRET_YN_NM
@@ -492,7 +492,19 @@
               ,GET_USER_NM(A.USER_ID) AS USER_NM           
               ,A.SP_CSTM_ID
         FROM   TBL_EXP_SCHEDULE A
-               LEFT OUTER JOIN TBL_EXP_CONTRACT B
+               LEFT OUTER JOIN (
+                       SELECT A.CONTRACT_ID
+                              ,B.BUYER_NM 
+                              ,C.CONSULTING_NM
+                       FROM   TBL_EXP_CONTRACT A
+                              JOIN TBL_EXP_BUYER B
+                                ON  1 = 1
+                                AND A.BUYER_ID = B.BUYER_ID 
+                              JOIN TBL_EXP_CONSULTING C
+                                ON  1 = 1
+                                AND A.CONSULTING_ID = C.CONSULTING_ID
+                       WHERE  1 = 1
+               ) B
                  ON  1 = 1
                  AND A.CONTRACT_ID = B.CONTRACT_ID
         WHERE  1 = 1
@@ -618,54 +630,7 @@
         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
         AND    A.USER_ID    = #{sessionVo.userId}
         AND    A.LOOP_TYPE = 'NOT_REPEAT' /*반복안함*/
-        UNION ALL       
-        SELECT A.SCHEDULE_ID     
-              ,D.DTE     AS SCHEDULE_DATE 
-              ,TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
-              ,TO_CHAR(A.SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE 
-              ,LPAD(A.START_TIME_HOUR , 2, '0')      AS START_TIME_HOUR
-              ,A.START_TIME_MINUTE 
-              ,LPAD(A.END_TIME_HOUR , 2, '0')        AS END_TIME_HOUR  
-              ,A.END_TIME_MINUTE 
-              ,A.TITLE                   
-              ,'Y'      AS SHARE_YN
-              ,B.ATTR1  AS WORK_COLOR     
-              ,B.ATTR2  AS TEXT_COLOR
-        FROM   TBL_EXP_SCHEDULE A
-               JOIN (
-                      SELECT A.GRP_CODE_ID
-                            ,B.CODE_ID
-                            ,B.ATTR1
-                            ,B.ATTR2
-                      FROM   TBL_EXP_GRPCODE A
-                             JOIN TBL_EXP_CODE B
-                                 ON  1 = 1
-                                 AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                 AND B.DEL_YN = 'N'
-                                 AND A.GRP_CODE_ID =  B.GRP_CODE_ID
-                      WHERE  1 = 1
-                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                      AND    A.DEL_YN = 'N'
-                      AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
-                   ) B
-                   ON  1 = 1
-                   AND A.WORK_TYPE = B.CODE_ID
-               LEFT OUTER JOIN TBL_EXP_CONTRACT C
-                   ON  1 = 1
-                   AND C.SP_CSTM_ID = #{sessionVo.spCstmId}
-                   AND A.CONTRACT_ID = C.CONTRACT_ID
-               JOIN TABLE_DATE D
-                   ON  1 = 1
-                   AND TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') = D.DTE
-               JOIN TBL_EXP_SCHEDULE_SHARE E
-                   ON  1 = 1
-                   AND A.SP_CSTM_ID = E.SP_CSTM_ID
-                   AND A.SCHEDULE_ID = E.SCHEDULE_ID
-                   AND E.USER_ID = #{sessionVo.userId}
-                   AND A.USER_ID != E.USER_ID
-        WHERE  1 = 1
-        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-        AND    A.LOOP_TYPE = 'NOT_REPEAT'
+        
     </select>
     
     <!-- 반복안함 - 팀 -->
@@ -687,8 +652,8 @@
                ,A.START_TIME_MINUTE 
                ,LPAD(A.END_TIME_HOUR , 2, '0')              AS END_TIME_HOUR  
                ,A.END_TIME_MINUTE 
-               ,TITLE
-               ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE1
+               ,TITLE AS TITLE_ORG
+               ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE
                ,A.CONTRACT_ID
                ,C.BUYER_ID
                ,C.BUYER_NM   
@@ -845,51 +810,6 @@
         AND A.SP_CSTM_ID  = #{sessionVo.spCstmId}
         AND A.USER_ID     = #{sessionVo.userId}
         AND B.DTE <![CDATA[<=]]>  TO_CHAR(SCHEDULE_LOOP_END_DATE,'YYYY-MM-DD')
-        UNION ALL
-        SELECT A.SCHEDULE_GRP_ID
-              ,A.SCHEDULE_ID
-              ,B.DTE                AS SCHEDULE_DATE
-              ,B.DTE                AS SCHEDULE_START_DATE
-              ,A.START_TIME_HOUR
-              ,A.START_TIME_MINUTE
-              ,B.DTE                AS SCHEDULE_END_DATE
-              ,A.END_TIME_HOUR
-              ,A.END_TIME_MINUTE
-              ,A.TITLE
-               ,'Y'                 AS SHARE_YN
-              ,C.ATTR1              AS WORK_COLOR
-              ,C.ATTR2              AS TEXT_COLOR
-        FROM   TABLE_SCHEDULE A
-               JOIN TABLE_DATE B
-                 ON  1 = 1
-                 AND A.SCHEDULE_START_DATE_STR  <![CDATA[<=]]>  B.DTE
-               JOIN (
-                      SELECT A.GRP_CODE_ID
-                            ,B.CODE_ID
-                            ,B.ATTR1
-                            ,B.ATTR2
-                      FROM   TBL_EXP_GRPCODE A
-                             JOIN TBL_EXP_CODE B
-                                 ON  1 = 1
-                                 AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                 AND B.DEL_YN = 'N'
-                                 AND A.GRP_CODE_ID =  B.GRP_CODE_ID
-                      WHERE  1 = 1
-                      AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                      AND    A.DEL_YN = 'N'
-                      AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
-                   ) C
-                   ON  1 = 1
-                   AND A.WORK_TYPE = C.CODE_ID
-               JOIN TBL_EXP_SCHEDULE_SHARE E
-                   ON  1 = 1
-                   AND A.SP_CSTM_ID  = E.SP_CSTM_ID
-                   AND A.SCHEDULE_ID = E.SCHEDULE_ID
-                   AND E.USER_ID     = #{sessionVo.userId}
-                   AND A.USER_ID     != E.USER_ID
-        WHERE  1 = 1
-        AND A.SP_CSTM_ID = #{sessionVo.spCstmId}
-        AND B.DTE <![CDATA[<=]]>  TO_CHAR(SCHEDULE_LOOP_END_DATE,'YYYY-MM-DD')
     </select>
 
     <!-- 매일반복-팀 -->
@@ -953,8 +873,8 @@
               ,B.DTE                AS SCHEDULE_END_DATE
               ,A.END_TIME_HOUR
               ,A.END_TIME_MINUTE
-              ,A.TITLE
-              ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE1 
+              ,A.TITLE AS TITLE_ORG
+              ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE 
               ,A.CONTRACT_ID
               ,D.BUYER_ID
               ,D.BUYER_NM
@@ -1046,24 +966,6 @@
             AND    SP_CSTM_ID = #{sessionVo.spCstmId}
             AND    USER_ID    = #{sessionVo.userId}
             AND    LOOP_TYPE  = 'WEEK'               
-        ),
-        TABLE_SCHEDULE_SHARE AS (
-            SELECT  A.SCHEDULE_ID
-                   ,TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE   
-                   ,TO_CHAR(A.SCHEDULE_START_DATE, 'd')         AS WEEK_START
-                   ,TO_CHAR(A.SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE   
-                   ,TO_CHAR(A.SCHEDULE_END_DATE, 'd')           AS WEEK_END
-            FROM   TBL_EXP_SCHEDULE A
-                   JOIN TBL_EXP_SCHEDULE_SHARE B
-                       ON  1 = 1
-                       AND B.SP_CSTM_ID  = #{sessionVo.spCstmId}
-                       AND B.USER_ID     = #{sessionVo.userId}
-                       AND A.SP_CSTM_ID  = B.SP_CSTM_ID
-                       AND A.SCHEDULE_ID = B.SCHEDULE_ID
-                       AND A.USER_ID     != B.USER_ID
-            WHERE  1 = 1
-            AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-            AND    A.LOOP_TYPE  = 'WEEK'               
         )
         SELECT A.GROUP_ID
               ,A.SCHEDULE_ID
@@ -1150,56 +1052,7 @@
                                     ) A 
                                     /*####### 사용자 일정    사용자 일정    사용자 일정    #######*/ 
                                ) A
-                        GROUP BY A.GROUP_ID 
-                        UNION ALL
-                        SELECT A.GROUP_ID
-                              ,'Y'             AS SHARE_YN
-                              ,MAX(A.DY_START) AS DY_START
-                              ,MAX(A.D_START)  AS D_START
-                              ,MAX(A.DY_END)   AS DY_END
-                              ,MAX(A.D_END)    AS D_END
-                        FROM   (
-                                    /*======= 공유된 일정    공유된 일정    공유된 일정    =======*/ 
-                                    SELECT A.GROUP_ID||'#'||A.GRP_CNT AS GROUP_ID
-                                          ,A.DY_START
-                                          ,A.D_START
-                                          ,A.DY_END
-                                          ,A.D_END
-                                    FROM   (
-        
-                                            SELECT A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE AS GROUP_ID
-                                                  ,ROW_NUMBER() OVER(PARTITION BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE ORDER BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE) AS GRP_CNT
-                                                  ,BASE_TABEL.DY AS DY_START 
-                                                  ,BASE_TABEL.D  AS D_START
-                                                  ,NULL          AS DY_END 
-                                                  ,NULL          AS D_END
-                                            FROM   BASE_TABEL
-                                                  ,TABLE_SCHEDULE_SHARE A
-                                            WHERE  1 = 1
-                                            AND    BASE_TABEL.D = A.WEEK_START
-                                    ) A  
-                                    UNION ALL 
-                                    SELECT A.GROUP_ID||'#'||A.GRP_CNT AS GROUP_ID
-                                          ,A.DY_START
-                                          ,A.D_START
-                                          ,A.DY_END
-                                          ,A.D_END
-                                    FROM   (
-        
-                                            SELECT A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE AS GROUP_ID
-                                                  ,ROW_NUMBER() OVER(PARTITION BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE ORDER BY A.SCHEDULE_ID||'#'||A.SCHEDULE_START_DATE||'#'||A.SCHEDULE_END_DATE) AS GRP_CNT
-                                                  ,NULL            AS DY_START 
-                                                  ,NULL            AS D_START
-                                                  ,BASE_TABEL.DY   AS DY_END 
-                                                  ,BASE_TABEL.D    AS D_END
-                                            FROM   BASE_TABEL
-                                                  ,TABLE_SCHEDULE_SHARE A
-                                            WHERE  1 = 1
-                                            AND    BASE_TABEL.D = A.WEEK_END
-                                    ) A 
-                                    /*======= 공유된 일정    공유된 일정    공유된 일정    =======*/ 
-                               ) A
-                        GROUP BY A.GROUP_ID 
+                        GROUP BY A.GROUP_ID
                        ) A
                        JOIN TBL_EXP_SCHEDULE B
                            ON  1 = 1
@@ -1270,8 +1123,8 @@
               ,A.SCHEDULE_END_DATE
               ,A.END_TIME_HOUR
               ,A.END_TIME_MINUTE
-              ,A.TITLE
-              ,A.TITLE1
+              ,A.TITLE   AS TITLE_ORG
+              ,A.TITLE1  AS TITLE
               ,A.CONTRACT_ID
               ,A.BUYER_ID
               ,A.BUYER_NM
@@ -1452,28 +1305,11 @@
                               ,A.SECRET_YN             
                               ,A.DESCRIPTION           
                               ,A.USER_ID
-                              ,NVL2(B.SP_CSTM_ID, 'Y', 'N')  AS SHARE_YN
+                              ,'N'  AS SHARE_YN
                         FROM   TBL_EXP_SCHEDULE A
-                               LEFT OUTER JOIN (
-                                       SELECT  B.SP_CSTM_ID
-                                              ,B.USER_ID 
-                                              ,A.SCHEDULE_ID 
-                                        FROM   TBL_EXP_SCHEDULE A
-                                               JOIN TBL_EXP_SCHEDULE_SHARE B
-                                                   ON  1 = 1
-                                                   AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                                   AND A.SCHEDULE_ID = B.SCHEDULE_ID
-                                                   AND B.USER_ID = #{sessionVo.userId}
-                                        WHERE  1 = 1
-                                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                        AND    A.LOOP_TYPE = 'MONTH'
-                               ) B
-                                 ON  1= 1
-                                 AND A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                 AND A.SCHEDULE_ID = B.SCHEDULE_ID
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    ( A.USER_ID = #{sessionVo.userId} OR B.USER_ID = #{sessionVo.userId} )
+                        AND    A.USER_ID = #{sessionVo.userId}
                         AND    A.LOOP_TYPE = 'MONTH'
                         AND    A.LOOP_TYPE_DTL_CD = 'END_OF_MONTH'
                         )
@@ -1502,28 +1338,11 @@
                               ,A.SECRET_YN             
                               ,A.DESCRIPTION           
                               ,A.USER_ID 
-                              ,NVL2(B.SP_CSTM_ID, 'Y', 'N')  AS SHARE_YN
+                              ,'N'  AS SHARE_YN
                         FROM   TBL_EXP_SCHEDULE A
-                               LEFT OUTER JOIN (
-                                       SELECT  B.SP_CSTM_ID
-                                              ,B.USER_ID 
-                                              ,A.SCHEDULE_ID 
-                                        FROM   TBL_EXP_SCHEDULE A
-                                               JOIN TBL_EXP_SCHEDULE_SHARE B
-                                                   ON  1 = 1
-                                                   AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                                   AND A.SCHEDULE_ID = B.SCHEDULE_ID
-                                                   AND B.USER_ID = #{sessionVo.userId}
-                                        WHERE  1 = 1
-                                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                        AND    A.LOOP_TYPE = 'MONTH'
-                               ) B
-                                 ON  1= 1
-                                 AND A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                 AND A.SCHEDULE_ID = B.SCHEDULE_ID 
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    ( A.USER_ID = #{sessionVo.userId} OR B.USER_ID = #{sessionVo.userId} )
+                        AND    A.USER_ID = #{sessionVo.userId}
                         AND    A.LOOP_TYPE = 'MONTH'
                         AND    A.LOOP_TYPE_DTL_CD IS NULL
                 )
@@ -1639,29 +1458,12 @@
                               ,A.SECRET_YN             
                               ,A.DESCRIPTION           
                               ,A.USER_ID 
-                              ,NVL2(B.SP_CSTM_ID, 'Y', 'N')  AS SHARE_YN
+                              ,'N' AS SHARE_YN
                               ,SUBSTR(TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),9,2) AS MONTH_LAST_DAY
                         FROM   TBL_EXP_SCHEDULE A
-                               LEFT OUTER JOIN (
-                                       SELECT  B.SP_CSTM_ID
-                                              ,B.USER_ID 
-                                              ,A.SCHEDULE_ID 
-                                        FROM   TBL_EXP_SCHEDULE A
-                                               JOIN TBL_EXP_SCHEDULE_SHARE B
-                                                   ON  1 = 1
-                                                   AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                                   AND A.SCHEDULE_ID = B.SCHEDULE_ID
-                                                   AND B.USER_ID = #{sessionVo.userId}
-                                        WHERE  1 = 1
-                                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                        AND    A.LOOP_TYPE = 'MONTH'
-                               ) B
-                                 ON  1= 1
-                                 AND A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                 AND A.SCHEDULE_ID = B.SCHEDULE_ID
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    ( A.USER_ID = #{sessionVo.userId} OR B.USER_ID = #{sessionVo.userId} )
+                        AND    A.USER_ID = #{sessionVo.userId}
                         AND    A.LOOP_TYPE = 'MONTH'
                         AND    A.LOOP_TYPE_DTL_CD = 'SELECT_DAY'
         )  
@@ -1772,8 +1574,8 @@
                       AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
         )
         SELECT A.SCHEDULE_ID
-              ,A.TITLE
-              ,A.TITLE1
+              ,A.TITLE  AS TITLE_ORG
+              ,A.TITLE1 AS TITLE
               ,A.CONTRACT_ID
               ,B.BUYER_ID
               ,B.BUYER_NM 
@@ -1953,8 +1755,8 @@
                       AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
         )
         SELECT A.SCHEDULE_ID
-              ,A.TITLE
-              ,A.TITLE1
+              ,A.TITLE  AS TITLE_ORG
+              ,A.TITLE1 AS TITLE
               ,A.CONTRACT_ID
               ,B.BUYER_ID
               ,B.BUYER_NM 
@@ -2558,29 +2360,11 @@
                               ,A.SECRET_YN             
                               ,A.DESCRIPTION           
                               ,A.USER_ID
-                              ,NVL2(B.SP_CSTM_ID, 'Y', 'N')  AS SHARE_YN 
+                              ,'N'  AS SHARE_YN  
                         FROM   TBL_EXP_SCHEDULE A
-                               LEFT OUTER JOIN (
-                                       SELECT  B.SP_CSTM_ID
-                                              ,B.USER_ID 
-                                              ,A.SCHEDULE_ID 
-                                        FROM   TBL_EXP_SCHEDULE A
-                                               JOIN TBL_EXP_SCHEDULE_SHARE B
-                                                   ON  1 = 1
-                                                   AND A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                                   AND A.SCHEDULE_ID = B.SCHEDULE_ID
-                                                   AND B.USER_ID     = #{sessionVo.userId}
-                                                   AND A.USER_ID     != B.USER_ID
-                                        WHERE  1 = 1
-                                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                        AND    A.LOOP_TYPE = 'YEAR'
-                               ) B
-                                 ON  1= 1
-                                 AND A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                 AND A.SCHEDULE_ID = B.SCHEDULE_ID
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    ( A.USER_ID = #{sessionVo.userId} OR B.USER_ID = #{sessionVo.userId} )
+                        AND    A.USER_ID = #{sessionVo.userId}
                         AND    A.LOOP_TYPE = 'YEAR'
                         AND    A.LOOP_TYPE_DTL_CD = 'END_OF_MONTH'
                         )
@@ -2609,29 +2393,11 @@
                               ,A.SECRET_YN             
                               ,A.DESCRIPTION           
                               ,A.USER_ID
-                              ,NVL2(B.SP_CSTM_ID, 'Y', 'N')  AS SHARE_YN 
+                              ,'N'  AS SHARE_YN 
                         FROM   TBL_EXP_SCHEDULE A
-                               LEFT OUTER JOIN (
-                                       SELECT  B.SP_CSTM_ID
-                                              ,B.USER_ID 
-                                              ,A.SCHEDULE_ID 
-                                        FROM   TBL_EXP_SCHEDULE A
-                                               JOIN TBL_EXP_SCHEDULE_SHARE B
-                                                   ON  1 = 1
-                                                   AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                                   AND A.SCHEDULE_ID = B.SCHEDULE_ID
-                                                   AND B.USER_ID = #{sessionVo.userId}
-                                        WHERE  1 = 1
-                                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                        AND    A.LOOP_TYPE  = 'YEAR'
-                                        AND    A.USER_ID    != B.USER_ID
-                               ) B
-                                 ON  1= 1
-                                 AND A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                 AND A.SCHEDULE_ID = B.SCHEDULE_ID
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    ( A.USER_ID = #{sessionVo.userId} OR B.USER_ID = #{sessionVo.userId} )
+                        AND    A.USER_ID = #{sessionVo.userId}
                         AND    A.LOOP_TYPE = 'YEAR'
                         AND    A.LOOP_TYPE_DTL_CD = 'SELECT_DAY'
         )
@@ -2661,26 +2427,8 @@
                       ,A.SECRET_YN             
                       ,A.DESCRIPTION           
                       ,A.USER_ID
-                      ,NVL2(B.SP_CSTM_ID, 'Y', 'N')  AS SHARE_YN 
+                      ,'N'  AS SHARE_YN  
                 FROM   TBL_EXP_SCHEDULE A
-                               LEFT OUTER JOIN (
-                                       SELECT  B.SP_CSTM_ID
-                                              ,B.USER_ID 
-                                              ,A.SCHEDULE_ID 
-                                        FROM   TBL_EXP_SCHEDULE A
-                                               JOIN TBL_EXP_SCHEDULE_SHARE B
-                                                   ON  1 = 1
-                                                   AND A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                                   AND A.SCHEDULE_ID = B.SCHEDULE_ID
-                                                   AND B.USER_ID     = #{sessionVo.userId}
-                                                   AND A.USER_ID     != B.USER_ID
-                                        WHERE  1 = 1
-                                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                        AND    A.LOOP_TYPE = 'YEAR'
-                               ) B
-                                 ON  1= 1
-                                 AND A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                 AND A.SCHEDULE_ID = B.SCHEDULE_ID
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
                 AND    A.LOOP_TYPE = 'YEAR'
@@ -2917,8 +2665,8 @@
                       AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
         )
         SELECT A.SCHEDULE_ID
-              ,A.TITLE
-              ,A.TITLE1
+              ,A.TITLE   AS TITLE_ORG
+              ,A.TITLE1  AS TITLE
               ,A.CONTRACT_ID
               ,B.BUYER_ID
               ,B.BUYER_NM 

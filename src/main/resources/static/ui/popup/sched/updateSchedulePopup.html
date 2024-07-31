@@ -445,8 +445,9 @@
             }
             
             // 참석자 추가
-            let mlst = <@popupId>.getAppMemberToList();
-            requestParm["users"]  = JSON.stringify(mlst);
+            //프로젝트로 대체 24-07-31
+            //let mlst = <@popupId>.getAppMemberToList();
+            //requestParm["users"]  = JSON.stringify(mlst);
                     
             // 데이타 저장
             var parm = {
@@ -578,7 +579,7 @@
 </script>
     <!-- 캘린더 일정추가 팝업 -->
     <div class="modal_wrap" id="modal-ex">
-        <div class="modal" style="width:700px;height:750px;">
+        <div class="modal" style="width:700px;height:600px;">
             <div class="modal_header">
                 <strong class="tit">캘린더 일정 수정</strong>
                 <button type="button" class="btn_zoomInOut"><span class="txt">확대</span></button>
@@ -652,31 +653,6 @@
                             </div>
                         </div>
                     </dd>
-                    <dt>참석자</dt>
-                    <dd>
-                        <div class="search_inputWrap w100">
-                            <input type="search" name="" placeholder="참석자 추가">
-                            <button class="search_btn">
-                                  <a href="javascript:void(0);" onclick="<@popupId>.memberSearchPopup();"><i class="icon_search"></i></a>
-                            </button>
-                        </div>
-                    </dd>
-                    <dt>참석자<br>리스트</dt>
-                    <dd class="mb0" style="height:120px;overflow-y:auto;">
-                        <div class="approver_list_wrap">
-                            <ul class="approver_list" id="scheduleMember">
-                            </ul>
-                            <script type="text/x-jsrender" id="scheduleMember_template">
-                                {{for list}}    
-                                <li>
-                                    <span class="txt">{{:USER_NM}} / {{:GRADE}} / {{:E_MAIL}}</span>
-                                    <button class="pay_close"   onclick="<@popupId>.delMember('{{:USER_ID}}')">삭제</button>
-                                </li>
-                                {{/for}}
-                            </script>
-                        </div>
-                    </dd>
-                    
                     <dt>공개 여부</dt>
                     <dd>
                         <div class="select_box">
