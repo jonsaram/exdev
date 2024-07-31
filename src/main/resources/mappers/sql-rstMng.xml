@@ -122,7 +122,7 @@
 		AND B.DEL_YN 		= 'N'
 		AND U.USE_YN 		= 'Y' 
 		AND U.DEL_YN 		= 'N'
-		AND GET_CODE_NM( 'HOW_GET', B.HOW_GET ) IS NOT NULL
+		<!-- AND GET_CODE_NM( 'HOW_GET', B.HOW_GET ) IS NOT NULL -->
 		<if test=" parm.CONSULTING_ID != null and !parm.CONSULTING_ID.equals('')">
 		AND CS.CONSULTING_ID = #{parm.CONSULTING_ID}
 		</if>		
@@ -854,7 +854,7 @@
 			                AND TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(TO_DATE( #{YEAR},'YYYY'), 'YYYYMM') 
 							</when>
 						</choose>		
-		                AND CM.RELATION_TYPE = 'SALES'
+		               <!--  AND CM.RELATION_TYPE = 'SALES' -->
 		        )
 		        GROUP BY USER_ID
 		
@@ -895,7 +895,7 @@
 			                AND TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(TO_DATE( #{YEAR},'YYYY'), 'YYYYMM') 
 							</when>
 						</choose>		
-		                AND CM.RELATION_TYPE = 'SALES'
+		               <!--  AND CM.RELATION_TYPE = 'SALES' -->
 		        )
 		        GROUP BY USER_ID
 		    )

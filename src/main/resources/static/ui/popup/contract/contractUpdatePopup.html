@@ -470,6 +470,29 @@ var <@popupId> = {
 		    
 		});		
 			 
+ 		$('#<@popupId>_TAX_MNG,#<@popupId>_LABOR_MNG,#<@popupId>_ANOTHER_EXPERT').on('input', function () {
+ 		    var input = this.value;
+ 		    var maxLength = 80;
+ 		    var currentLength = 0;
+ 		    var result = '';
+
+ 		    for (var i = 0; i < input.length; i++) {
+ 		        var charCode = input.charCodeAt(i);
+ 		        if (charCode >= 0xAC00 && charCode <= 0xD7A3) {
+ 		            // 한글 유니코드 범위
+ 		            currentLength += 2;
+ 		        } else {
+ 		            currentLength += 1;
+ 		        }
+ 		        
+ 		        if (currentLength > maxLength){alert('최대 저장가능한 글자수를 초과하였습니다.'); break;}
+ 		        
+ 		        result += input[i];
+ 		    }
+
+ 		    this.value = result;
+ 		});
+ 		
 	} 
 	,getContractMember : (CONTRACT_ID, USER_ID) => {
 		

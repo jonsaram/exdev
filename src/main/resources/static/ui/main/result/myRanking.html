@@ -297,7 +297,7 @@
 			       			data: bubleData
 			   			}
 						]
-					}
+					}// FA 월별 매출 누적합계
 					_bubbleChart('#bubbleChart1',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
 					<@pageId>.rankBoard('#bubbleChart1', resultData.data);
 				}
@@ -324,7 +324,7 @@
 			       			data: bubleData
 			   			}
 						]
-					}
+					}// FA 계약 건수(전체)
 					_bubbleChart('#bubbleChart3',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
 					<@pageId>.rankBoard('#bubbleChart3', resultData.data);
 				}
@@ -340,69 +340,22 @@
 						bubleData.push( {	x: item.CONTRACT_CNT,	y: item.YEARLY_PAYMENT,	z: item.PERCENT,	name: item.USER_NM	} )
 						
 					})
-					let series = [];
-					if( isEmpty(firstData) ){
-					
-						const series1 =[{"data": [	{"x": 0,"y": 0,"z": 0,"name": "운영자"},
-						            				{"x": 0,"y": 0,"z": 0,"name": "이희성"},
-						            				{"x": 0,"y": 0,"z": 0,"name": "이동원"},
-						            				{"x": 0,"y": 0,"z": 0,"name": "이주현"}
-						        				]}
-										]
-
-						const resdata =[
-						    {
-						        "CONTRACT_CNT": 0,
-						        "CC_PERCENT": 0,
-						        "USER_NM": "이희성",
-						        "YEARLY_PAYMENT": 0,
-						        "PERCENT": 0,
-						        "USER_ID": "k2navyrd",
-						        "RANK": 0,
-						        "IS_MY_RANK": "Y",
-						        "CC_RANK": 0
-						    },
-						    {
-						        "CONTRACT_CNT": 0,
-						        "CC_PERCENT": 0,
-						        "USER_NM": "이주현",
-						        "YEARLY_PAYMENT": 0,
-						        "PERCENT": 0,
-						        "USER_ID": "leejoo0926",
-						        "RANK": 0,
-						        "IS_MY_RANK": "N",
-						        "CC_RANK": 0
-						    },
-						    {
-						        "CONTRACT_CNT": 0,
-						        "CC_PERCENT": 0,
-						        "USER_NM": "운영자",
-						        "YEARLY_PAYMENT": 0,
-						        "PERCENT": 0,
-						        "USER_ID": "admin",
-						        "RANK": 0,
-						        "IS_MY_RANK": "N",
-						        "CC_RANK": 0
-						    },
-						    {
-						        "CONTRACT_CNT": 0,
-						        "CC_PERCENT": 0,
-						        "USER_NM": "이동원",
-						        "YEARLY_PAYMENT": 0,
-						        "PERCENT": 0,
-						        "USER_ID": "nowgnode",
-						        "RANK": 0,
-						        "IS_MY_RANK": "N",
-						        "CC_RANK": 0
-						    }
+					 series = [];
+					if( !isEmpty(firstData) ){
+						series =[
+						{
+					        data: [
+									{	x: firstData.YEARLY_PAYMENT,	y: firstData.CONTRACT_CNT,	z: firstData.CC_PERCENT,	name: firstData.USER_NM	}
+					        ]
+			   			}
+						, 
+						{
+			       			data: bubleData
+			   			}
 						]
-					}
-					_bubbleChart('#bubbleChart2',series1 ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]),true);
-					<@pageId>.rankBoard('#bubbleChart2', resdata);				
-				}
-				else{
-					_bubbleChart('#bubbleChart2', series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]));
-					<@pageId>.rankBoard('#bubbleChart2', resultData.data);	
+					}// FA 별 당월 매출
+					_bubbleChart('#bubbleChart2',series ,<@pageId>.getUnitStr('억',G_VAL.session.etcUserInfo["UNIT_TYPE"]),true);
+					<@pageId>.rankBoard('#bubbleChart2', resultData.data);				
 				}
 
 			}

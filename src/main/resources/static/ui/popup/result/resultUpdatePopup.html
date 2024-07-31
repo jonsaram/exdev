@@ -44,6 +44,7 @@ var <@popupId> = {
 							,INCOME 	: $("#<@popupId>_INCOME").nval()
 							,RESULT_DATE: $("#<@popupId>_RESULT_DATE").val()
 							,INCOME_TYPE: C_UICOM.getData("<@popupId>_selectIncomeType")
+							,SETTLEMENT_MONTH : dayjs( C_UICOM.getData("<@popupId>_SETTLEMENT_MONTH"	) ).format("YYYY-MM")
 							}
 			,paymentInfo:	<@popupId>.getJson($("#<@popupId>_paymentList"))
 		} 
@@ -119,6 +120,8 @@ var <@popupId> = {
 		
 		<@popupId>.parentData = parentData;
 
+		_yearMonthSelectBox("<@popupId>_SETTLEMENT_MONTH");
+
 		<@popupId>.setTitleHeight(parentData);
 
 		var singleboxList = { 
@@ -147,6 +150,7 @@ var <@popupId> = {
 			$("#<@popupId>_INCOME").val( addComma( parentData.resultItem["INCOME"])	);
 			$('#<@popupId>_INCOME').trigger('input');
 
+			C_UICOM.setSingleBox("<@popupId>_SETTLEMENT_MONTH", parentData.resultItem.SETTLEMENT_MONTH);
 		}
 		
 		// 수수료 산출 후 view모드일 경우 disable
@@ -837,7 +841,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 							.info_wrap.col2 > li > label{width:80px}
 							.info_wrap.col2 > li .info{width:calc(100% - 80px);}
 						</style>
-						<ul class="info_wrap col2" >
+						<ul class="info_wrap col3 mt0" >
 							<li>
 								<label>입금일</label>
 								<div class="info">
@@ -847,9 +851,17 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								</div>
 							</li>
 							<li>
+								<label>정산월</label>
+								<div class="info">
+									<div>
+										<div id="<@popupId>_SETTLEMENT_MONTH"  style="width:100%"></div>
+									</div>
+								</div>
+							</li>
+							<li>
 								<label>입금 TYPE</label>
 								<div class="info">
-									<div id="<@popupId>_selectIncomeType" style="width:189px"></div>
+									<div id="<@popupId>_selectIncomeType" style="width:100%"></div>
 								</div>
 							</li>
 						</ul>
@@ -1031,24 +1043,35 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 									<td id='USER_NM'			value='{{:USER_NM}}' class="tl"	>{{:USER_NM}}</td>
 									<td id='GRADE'				value='{{:GRADE}}'	 class="tl"	>{{:GRADE}}</td>
 									<td id='RELATION_TYPE_NM'	value='{{:RELATION_TYPE_NM}}'	class='tc'>{{:RELATION_TYPE_NM}}</td>
-									<td id='RATE'				value='{{:RATE}}' 				class='tr'>
+
+									<td id='RATE_SU'			value='{{:RATE}}' 				class='tr'>
+    								{{if RELATION_TYPE == 'SUGGESTER'}} 
+        								<input name='suggesterRate' type='text' style='width:50px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
+    								{{else RELATION_TYPE == 'EXECUTE'}} 
+        								<input name='execRate' 		type='text' style='width:50px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
+    								{{else RELATION_TYPE == 'SALES'}} 
+        								<input name='salesRate' 	type='text' style='width:50px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
+								    {{/if}}
+									</td>
+
+									<td id='RATE_CO' 			value='{{:RATE}}' 						class='tr'>
     								{{if RELATION_TYPE == 'COWORK'}}
 	        							<input name='coworkRate' 	type='text' style='width:50px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
+    								{{else RELATION_TYPE == 'EXECUTE'}} 
+        								<input name='execRate' 		type='text' style='width:50px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
+								    {{/if}}
+									</td>
+
+									<td id='RATE_JI' 			value='{{:RATE}}' 						class='tr'>
+    								{{if RELATION_TYPE == 'COWORK'}}
+	        							<input name='coworkRate' 	type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
     								{{else RELATION_TYPE == 'SUGGESTER'}} 
         								<input name='suggesterRate' type='text' style='width:50px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
     								{{else RELATION_TYPE == 'EXECUTE'}} 
-        								<input name='execRate' type='text' style='width:50px;text-align: right;' value='{{:RATE}}'  oninput='javascript:<@popupId>.changeRateVal(this)' />%
+        								<input name='execRate' 		type='text' style='width:50px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
     								{{else RELATION_TYPE == 'SALES'}} 
-        								<input name='salesRate' type='text' style='width:50px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)'  />%
-									{{else}}
-        								{{:RATE}} %
+        								<input name='salesRate' 	type='text' style='width:60px;text-align: right;' value='{{:RATE}}' oninput='javascript:<@popupId>.changeRateVal(this)' />%
 								    {{/if}}
-									</td>
-									<td id='' value='' class='tr'>
-	        							<input name='' type='text' style='width:50px;text-align: right;' value='' fix="0" number/>%
-									</td>
-									<td id='' value='' class='tr'>
-	        							<input name='' type='text' style='width:50px;text-align: right;' value='' fix="0" number/>%
 									</td>
 									<td id='PAYMENT'			value='{{:PAYMENT}}'  class="tr">{{numb:PAYMENT}}</td>
 									<td id='RELATION_TYPE'		value='{{:RELATION_TYPE}}'		style='display:none'>{{:RELATION_TYPE}}</td>
