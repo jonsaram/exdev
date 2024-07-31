@@ -1,0 +1,62 @@
+<meta charset="utf-8">
+<script type="text/javascript">
+	var <@popupId> = {
+		 parm	: {}
+		,close : function(returnData) {
+			if(isEmpty(returnData)) returnData = {};
+			C_POP.close(returnData);
+		 }
+		,save : function() {
+			let msg = $("#<@popupId>_msg").val();
+			
+			if(<@popupId>.parm.errorCheck == "Y") {
+				if(isEmpty(msg)) {
+					let mstr = "를";
+					if(hasConsonant("<@title2>")) {
+						mstr = "을"
+					};
+					
+					C_POP.alert(`<@title2>${mstr} 입력해주세요.`);
+					$("#<@popupId>_msg").focus();
+					return;
+				}
+			}
+            msg = msg.replace(/(?:\r\n|\r|\n)/g, '<br>');
+			<@popupId>.close({msg : msg});
+		 }
+	}
+	// Popup Load가 완료된후 실행 된다.
+	C_POP.onLoadPopup("<@popupId>", function(parm) {
+		
+		if(isEmpty(parm.errorCheck)) parm.errorCheck = "Y";
+		
+		<@popupId>.parm = parm;
+		
+		if(isValid(parm) && isValid(parm.msg)) {
+            parm.msg = parm.msg.replaceAll("<br>", "\n").replaceAll("<br/>", "\n")
+
+            $("#<@popupId>_msg").val(parm.msg);
+		}
+		
+		$("#<@popupId>_msg").focus();
+	});
+</script>
+<div class="modal_wrap" id="modal-ex01">
+	<div class="modal" style="width:700px;height:370px;">
+		<div class="modal_header">
+			<strong class="tit"><@title1></strong>
+			<button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
+		</div>
+		<div class="modal_body">
+			<dl class="info_wrap pay">
+				<dt class="tc"><@title2></dt>
+				<dd><textarea id="<@popupId>_msg" cols="80" rows="10"></textarea></dd>
+			</dl>
+		</div>
+		<div class="modal_footer">
+			<button type="button" class="btn select" onclick="<@popupId>.save()">저장</button>
+			<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
+		</div>
+	</div>
+</div>
+
