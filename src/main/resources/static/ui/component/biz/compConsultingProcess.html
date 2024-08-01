@@ -16,6 +16,8 @@
 
 				$.each(resultData.data, function() {
 					let item = this;
+					item.CMMT = escapeHtml(item.CMMT);
+					item.CMMT = item.CMMT.replace(/(?:\r\n|\r|\n)/g, '<br>');
 					if(item.DEL_YN == "N") {
 						if(item.UPDATE_USER == G_VAL.session.USER_ID) {
 							item.mngDisplay = "block"
@@ -25,6 +27,7 @@
 						list.push(item);
 					}
 				});
+				
 				var rparm = {
 					 targetId 		: "cmmtList"
 					,list			: list
@@ -55,8 +58,24 @@
 		 }
 		,addCmmt : function() {
 			let cmmtContent = $("#<@compId> #cmmtContent").val()
+			
+			if(isEmpty(cmmtContent)) {
+				C_POP.alert('메모를 입력해주세요.');
+				return;
+			}
+
+			let bts = getByteLength(cmmtContent)
+			
+			if(bts > 3700) {
+				C_POP.alert(`입력한 메모가 4,000Bytes(한글 2,000자, 또는 영문 4,000자)를 초과 하였습니다.( 입력한 메모 : ${addComma(bts + 300)}bytes )\n \n메모를 4,000bytes 이내로 입력 해주세요.\n\n입력한 메모 중 4,000bytes를 넘는 내용은 삭제 되었습니다.`);
+				let substr = getSubStringByByte(cmmtContent, 3700);
+				$("#<@compId> #cmmtContent").val(substr);
+				return;
+			}
+			
 			// 엔터(\n)를 <br>로 변환
-            var cmmt = cmmtContent.replace(/(?:\r\n|\r|\n)/g, '<br>');
+            //var cmmt = cmmtContent.replace(/(?:\r\n|\r|\n)/g, '<br>');
+            var cmmt = cmmtContent;
 			
 			if(isEmpty(cmmt)) {
 				C_POP.alert('메모를 입력해주세요.');
@@ -86,9 +105,6 @@
 		 }
 		,deleteCmmt : function(WORK_CMMT_ID) {
 			let cmmtInfo = <@compId>.cmmtMap[WORK_CMMT_ID];
-			
-			cmmtInfo.CMMT = cmmtInfo.CMMT.replaceAll("<br>", "\n").replaceAll("<br/>", "\n")
-			
 			
 			C_POP.confirm(`'${cmmtInfo.CMMT}' 항목을 삭제 하시겠습니까?`, function() {
 				let parm = {
@@ -149,8 +165,12 @@
 			C_COM.requestQuery(parm, function(resultData) {
 				if(resultData.data.length > 0 ) {
 					let list = [];
+					
+					
 					$.each(resultData.data, function() {
 						let item = this;
+						item.CMMT = escapeHtml(item.CMMT);
+						item.CMMT = item.CMMT.replace(/(?:\r\n|\r|\n)/g, '<br>');
 						if(item.DEL_YN == "Y") {
 							$(`#<@compId> #li_${item.WORK_CMMT_ID}`).hide();
 						} else {
@@ -169,6 +189,7 @@
 								list.push(item);
 							}
 						}
+						
 					});
 					if(list.length > 0) {
 						var rparm = {
@@ -252,16 +273,3 @@
 	</div>
 	
 </component>
-
-
-
-
-
-
-
-
-
-
-
-
-

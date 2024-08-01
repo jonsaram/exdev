@@ -13,8 +13,12 @@ function _yearMonthSelectBox(obj) {
 		});				  
 		
 	});
-		  
+    yearMonths.sort(function(a, b) {
+        return b[0].localeCompare(a[0]);
+    });
+	  
 	var dateList = { data	: yearMonths,targetId : obj}
+	
 	C_UICOM.makeSelectBox(dateList, "single");
 	C_UICOM.setSingleBox(obj, dayjs().year()+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
 	

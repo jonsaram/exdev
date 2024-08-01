@@ -1057,6 +1057,82 @@
 	    return uniqueString.substring(0, 20);
 	}	
 	
+	function getByteLength(str) {
+	    let byteLength = 0;
+	    for (let i = 0; i < str.length; i++) {
+	        let charCode = str.charCodeAt(i);
+	        if (charCode <= 0x7f) {
+	            byteLength += 1; // 영어 문자는 1바이트
+	        } else if (charCode <= 0x7ff) {
+	            byteLength += 2; // 한글 문자는 2바이트
+	        } else if (charCode <= 0xffff) {
+	            byteLength += 3; // 그 외의 경우는 3바이트
+	        }
+	    }
+	    return byteLength;
+	}
+	function getSubStringByByte(str, byteLimit) {
+	    let byteLength = 0;
+	    let subString = "";
+	
+	    for (let i = 0; i < str.length; i++) {
+	        let charCode = str.charCodeAt(i);
+	        let charByteLength = 0;
+	
+	        if (charCode <= 0x7f) {
+	            charByteLength = 1; // 영어 문자는 1바이트
+	        } else if (charCode <= 0x7ff) {
+	            charByteLength = 2; // 한글 문자는 2바이트
+	        } else if (charCode <= 0xffff) {
+	            charByteLength = 3; // 그 외의 경우는 3바이트
+	        }
+	
+	        if (byteLength + charByteLength > byteLimit) {
+	            break;
+	        }
+	
+	        subString += str[i];
+	        byteLength += charByteLength;
+	    }
+	
+	    return subString;
+	}
+	
+	function escapeHtml(str) {
+	    const entityMap = {
+	        '&': '&amp;',
+	        '<': '&lt;',
+	        '>': '&gt;',
+	        '"': '&quot;',
+	        "'": '&#39;',
+	        '/': '&#x2F;',
+	        '`': '&#x60;',
+	        '=': '&#x3D;',
+	    };
+	
+	    return String(str).replace(/[&<>"'`=\/]/g, function(s) {
+	        return entityMap[s];
+	    });
+	}
+	
+	
+	function unescapeHtml(str) {
+	    const entityMap = {
+	        '&amp;': '&',
+	        '&lt;': '<',
+	        '&gt;': '>',
+	        '&quot;': '"',
+	        '&#39;': "'",
+	        '&#x2F;': '/',
+	        '&#x60;': '`',
+	        '&#x3D;': '=',
+	    };
+	
+	    return String(str).replace(/(&amp;|&lt;|&gt;|&quot;|&#39;|&#x2F;|&#x60;|&#x3D;)/g, function(s) {
+	        return entityMap[s];
+	    });
+	}
+	
 	
 	//Json Debugging
 	//Json Debugging
@@ -1075,7 +1151,7 @@
 		$("#debugDiv").remove();
 		$("body").append("<div class=list_wrap id=debugDiv style=margin-left:300px;margin-bottom:50px;z-index:99999;>");
 		for(var i=1;i<50;i++)$("body").append("<br/>");
-		$("body").append("<textarea id=debugTextarea cols=100 rows=20></textarea></div>");
+		$("body").prepend("<textarea id=debugTextarea cols=100 rows=20></textarea></div>");
 		$("#debugTextarea").val(str + "\n\n" + org);
 	}
 	function dlog(obj, type) {
