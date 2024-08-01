@@ -328,6 +328,12 @@ var <@pageId> = {
 				, function(retData) {
 	
 					if(isValid(retData)){
+						
+							// RATE_JI 를 RATE 에 넣음.
+							(retData.paymentInfo).forEach( payment =>{
+								
+								payment.RATE = payment.RATE_JI;
+							})
 							<@pageId>.updateItem( retData ) ; 
 					}
 			});
