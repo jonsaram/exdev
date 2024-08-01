@@ -655,8 +655,6 @@
                ,TITLE AS TITLE_ORG
                ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE
                ,A.CONTRACT_ID
-               ,C.BUYER_ID
-               ,C.BUYER_NM   
                ,A.USER_ID
                ,A.DESCRIPTION
                ,GET_USER_NM(A.USER_ID) AS USER_NM 
@@ -685,16 +683,12 @@
                ) B
                    ON  1 = 1
                    AND A.WORK_TYPE = B.CODE_ID
-               LEFT OUTER JOIN (
-                      SELECT A.CONTRACT_ID
-                            ,A.BUYER_ID
-                            ,B.BUYER_NM
-                      FROM   TBL_EXP_CONTRACT A
-                             LEFT OUTER JOIN  TBL_EXP_BUYER B
-                               ON  1 = 1
-                               AND A.BUYER_ID = B.BUYER_ID
-                               AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                      WHERE 1 = 1
+               JOIN (          
+	                    SELECT DISTINCT CONTRACT_ID 
+	                    FROM   TBL_EXP_TEAM_MEMBER
+	                    WHERE  1 = 1
+                        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    USER_ID    = #{sessionVo.userId}
                ) C
                  ON  1 = 1
                  AND A.CONTRACT_ID = C.CONTRACT_ID
@@ -876,8 +870,6 @@
               ,A.TITLE AS TITLE_ORG
               ,'['||GET_USER_NM(A.USER_ID)||']'||A.TITLE    AS TITLE 
               ,A.CONTRACT_ID
-              ,D.BUYER_ID
-              ,D.BUYER_NM
               ,A.USER_ID
               ,GET_USER_NM(A.USER_ID) AS USER_NM
               ,'N'                  AS SHARE_YN
@@ -909,16 +901,12 @@
                    ) C
                    ON  1 = 1
                    AND A.WORK_TYPE = C.CODE_ID
-               LEFT OUTER JOIN (
-                      SELECT A.CONTRACT_ID
-                            ,A.BUYER_ID
-                            ,B.BUYER_NM
-                      FROM   TBL_EXP_CONTRACT A
-                             LEFT OUTER JOIN  TBL_EXP_BUYER B
-                               ON  1 = 1
-                               AND A.BUYER_ID   = B.BUYER_ID
-                               AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                      WHERE 1 = 1
+               JOIN (
+                        SELECT DISTINCT CONTRACT_ID 
+                        FROM   TBL_EXP_TEAM_MEMBER
+                        WHERE  1 = 1
+                        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    USER_ID    = #{sessionVo.userId}
                ) D
                  ON  1 = 1
                  AND A.CONTRACT_ID = D.CONTRACT_ID      
@@ -1126,8 +1114,6 @@
               ,A.TITLE   AS TITLE_ORG
               ,A.TITLE1  AS TITLE
               ,A.CONTRACT_ID
-              ,A.BUYER_ID
-              ,A.BUYER_NM
               ,A.USER_ID
               ,A.DESCRIPTION
               ,GET_USER_NM(A.USER_ID) AS USER_NM   
@@ -1158,9 +1144,7 @@
                       , B.TITLE
                       , '['||GET_USER_NM(B.USER_ID)||']'||B.TITLE    AS TITLE1 
                       , B.CONTRACT_ID
-                      , B.USER_ID
-                      , D.BUYER_ID
-                      , D.BUYER_NM   
+                      , B.USER_ID 
                       , B.DESCRIPTION
                       , B.POSITION
                       , B.WORK_TYPE
@@ -1245,16 +1229,12 @@
                            ) C
                            ON  1 = 1
                            AND B.WORK_TYPE = C.CODE_ID
-                       LEFT OUTER JOIN (
-                              SELECT A.CONTRACT_ID
-                                   ,A.BUYER_ID
-                                   ,B.BUYER_NM
-                             FROM   TBL_EXP_CONTRACT A
-                                    LEFT OUTER JOIN  TBL_EXP_BUYER B
-                                      ON  1 = 1
-                                      AND A.BUYER_ID   = B.BUYER_ID
-                                      AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                             WHERE 1 = 1
+                       JOIN (         
+	                        SELECT DISTINCT CONTRACT_ID 
+	                        FROM   TBL_EXP_TEAM_MEMBER
+	                        WHERE  1 = 1
+	                        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+	                        AND    USER_ID    = #{sessionVo.userId}
                        ) D
                          ON  1 = 1
                          AND B.CONTRACT_ID = D.CONTRACT_ID
@@ -1576,9 +1556,7 @@
         SELECT A.SCHEDULE_ID
               ,A.TITLE  AS TITLE_ORG
               ,A.TITLE1 AS TITLE
-              ,A.CONTRACT_ID
-              ,B.BUYER_ID
-              ,B.BUYER_NM 
+              ,A.CONTRACT_ID 
               ,A.USER_ID
               ,GET_USER_NM(A.USER_ID) AS USER_NM
               ,A.SCHEDULE_LOOP_END_DATE
@@ -1635,16 +1613,12 @@
                 WHERE  1 = 1 
                 AND    TABLE_SELECT_DAY.LOOP_TYPE_DTL_VAL <![CDATA[<=]]> TABLE_SELECT_DAY.MONTH_LAST_DAY
         ) A      
-        LEFT OUTER JOIN (
-               SELECT A.CONTRACT_ID
-                     ,A.BUYER_ID
-                     ,B.BUYER_NM
-               FROM   TBL_EXP_CONTRACT A
-                      LEFT OUTER JOIN  TBL_EXP_BUYER B
-                        ON  1 = 1
-                        AND A.BUYER_ID = B.BUYER_ID
-                        AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-               WHERE 1 = 1
+        JOIN (          
+                SELECT DISTINCT CONTRACT_ID 
+                FROM   TBL_EXP_TEAM_MEMBER
+                WHERE  1 = 1
+                AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    USER_ID    = #{sessionVo.userId}
         ) B
           ON  1 = 1
           AND A.CONTRACT_ID = B.CONTRACT_ID      
@@ -1757,9 +1731,7 @@
         SELECT A.SCHEDULE_ID
               ,A.TITLE  AS TITLE_ORG
               ,A.TITLE1 AS TITLE
-              ,A.CONTRACT_ID
-              ,B.BUYER_ID
-              ,B.BUYER_NM 
+              ,A.CONTRACT_ID 
               ,A.USER_ID
               ,GET_USER_NM(A.USER_ID) AS USER_NM
               ,A.SCHEDULE_LOOP_END_DATE
@@ -1830,16 +1802,12 @@
                            AND TABLE_BASE.WORK_TYPE = B.CODE_ID
                 /*===============================================================================*/  
         ) A     
-        LEFT OUTER JOIN (
-               SELECT A.CONTRACT_ID
-                     ,A.BUYER_ID
-                     ,B.BUYER_NM
-               FROM   TBL_EXP_CONTRACT A
-                      LEFT OUTER JOIN  TBL_EXP_BUYER B
-                        ON  1 = 1
-                        AND A.BUYER_ID = B.BUYER_ID
-                        AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-               WHERE 1 = 1
+        JOIN (    
+               SELECT DISTINCT CONTRACT_ID 
+               FROM   TBL_EXP_TEAM_MEMBER
+               WHERE  1 = 1
+               AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+               AND    USER_ID    = #{sessionVo.userId}
         ) B
           ON  1 = 1
           AND A.CONTRACT_ID = B.CONTRACT_ID      
@@ -2414,7 +2382,7 @@
                       ,A.WORK_TYPE             
                       ,A.ALL_APPLY_YN          
                       ,A.SCHEDULE_START_DATE   
-                      ,SUBSTR(TO_CHAR(A.SCHEDULE_START_DATE, 'YYYY-MM-DD'), 9, 2) AS SCHEDULE_START_DAY
+                      ,LPAD(SUBSTR(TO_CHAR(A.SCHEDULE_START_DATE, 'DD'), 1, 2), 2, '0') AS SCHEDULE_START_DAY
                       ,A.SCHEDULE_END_DATE 
                       ,A.SCHEDULE_END_DATE - A.SCHEDULE_START_DATE AS DATE_DIFFER
                       ,A.TIME_TYPE             
@@ -2431,6 +2399,7 @@
                 FROM   TBL_EXP_SCHEDULE A
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND    A.USER_ID = #{sessionVo.userId}
                 AND    A.LOOP_TYPE = 'YEAR'
                 AND    A.LOOP_TYPE_DTL_CD IS NULL
                 )
@@ -2492,10 +2461,10 @@
                SELECT SCHEDULE_ID
                      ,TITLE
                      ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
+                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},1,8) || LPAD(LOOP_TYPE_DTL_VAL, 2, '0'), 'YYYY-MM-DD'), 'YYYY-MM-DD') AS SCHEDULE_START_DATE
                      ,START_TIME_HOUR
                      ,START_TIME_MINUTE
-                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},1,8) || LPAD(LOOP_TYPE_DTL_VAL, 2, '0'), 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
                      ,END_TIME_HOUR
                      ,END_TIME_MINUTE
                      ,SCHEDULE_LOOP_END_DATE
@@ -2507,17 +2476,17 @@
                           ON  1 = 1
                           AND TABLE_SELECT_DAY.WORK_TYPE = B.CODE_ID  
                WHERE  1 = 1
-               AND    SUBSTR(TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),9,2) = LOOP_TYPE_DTL_VAL
+               AND    SUBSTR(TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),9,2) = LPAD(LOOP_TYPE_DTL_VAL, 2, '0')
                AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
                UNION ALL
                /* 월의 일반날 */
                SELECT SCHEDULE_ID
                      ,TITLE
                      ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
+                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8) || LPAD(SCHEDULE_START_DAY, 2, '0'), 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
                      ,START_TIME_HOUR
                      ,START_TIME_MINUTE
-                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                     ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8) || LPAD(SCHEDULE_START_DAY, 2, '0'), 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
                      ,END_TIME_HOUR
                      ,END_TIME_MINUTE
                      ,SCHEDULE_LOOP_END_DATE
@@ -2624,7 +2593,7 @@
                               ,A.WORK_TYPE             
                               ,A.ALL_APPLY_YN          
                               ,A.SCHEDULE_START_DATE   
-                              ,SUBSTR(TO_CHAR(A.SCHEDULE_START_DATE, 'YYYY-MM-DD'), 9, 2) AS SCHEDULE_START_DAY
+                              ,LPAD(SUBSTR(TO_CHAR(A.SCHEDULE_START_DATE, 'DD'), 1, 2), 2, '0') AS SCHEDULE_START_DAY
                               ,A.SCHEDULE_END_DATE 
                               ,A.SCHEDULE_END_DATE - A.SCHEDULE_START_DATE AS DATE_DIFFER
                               ,A.TIME_TYPE             
@@ -2667,9 +2636,7 @@
         SELECT A.SCHEDULE_ID
               ,A.TITLE   AS TITLE_ORG
               ,A.TITLE1  AS TITLE
-              ,A.CONTRACT_ID
-              ,B.BUYER_ID
-              ,B.BUYER_NM 
+              ,A.CONTRACT_ID 
               ,A.USER_ID
               ,GET_USER_NM(A.USER_ID) AS USER_NM
               ,A.POSITION
@@ -2725,10 +2692,10 @@
                   ,DESCRIPTION
                   ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
                   ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
+                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)|| LPAD(LOOP_TYPE_DTL_VAL, 2, '0'), 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS SCHEDULE_START_DATE
                   ,START_TIME_HOUR
                   ,START_TIME_MINUTE
-                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||LOOP_TYPE_DTL_VAL, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)|| LPAD(LOOP_TYPE_DTL_VAL, 2, '0'), 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
                   ,END_TIME_HOUR
                   ,END_TIME_MINUTE
                   ,SHARE_YN
@@ -2739,7 +2706,7 @@
                        ON  1 = 1
                        AND TABLE_SELECT_DAY.WORK_TYPE = B.CODE_ID  
             WHERE  1 = 1
-            AND    SUBSTR(TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),9,2) = LOOP_TYPE_DTL_VAL
+            AND    SUBSTR(TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD'),9,2) = LPAD(LOOP_TYPE_DTL_VAL, 2, '0')
             AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)  
             UNION ALL
             /* 월의 일반날 */
@@ -2753,10 +2720,10 @@
                   ,DESCRIPTION
                   ,GET_CODE_NM('SCHEDULE_WORK_TYPE', WORK_TYPE) AS WORK_TYPE_NM
                   ,TO_CHAR(LAST_DAY(TO_DATE(#{startDate}, 'YYYY-MM-DD')), 'YYYY-MM-DD')    AS SCHEDULE_DATE 
-                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
+                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)|| LPAD(SCHEDULE_START_DAY, 2, '0'), 'YYYY-MM-DD'), 'YYYY-MM-DD')     AS SCHEDULE_START_DATE
                   ,START_TIME_HOUR
                   ,START_TIME_MINUTE
-                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)||SCHEDULE_START_DAY, 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
+                  ,TO_CHAR(TO_DATE(SUBSTR(#{startDate},0,8)|| LPAD(SCHEDULE_START_DAY, 2, '0'), 'YYYY-MM-DD') + DATE_DIFFER, 'YYYY-MM-DD') AS SCHEDULE_END_DATE
                   ,END_TIME_HOUR
                   ,END_TIME_MINUTE
                   ,SHARE_YN
@@ -2769,16 +2736,12 @@
             WHERE  1 = 1
             AND    SUBSTR( TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD'),6,2) = SUBSTR(#{startDate},6,2)
         ) A
-        LEFT OUTER JOIN (
-            SELECT A.CONTRACT_ID
-                  ,A.BUYER_ID
-                  ,B.BUYER_NM
-            FROM   TBL_EXP_CONTRACT A
-                   LEFT OUTER JOIN  TBL_EXP_BUYER B
-                     ON  1 = 1
-                     AND A.BUYER_ID   = B.BUYER_ID
-                     AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-            WHERE 1 = 1
+        JOIN (   
+              SELECT DISTINCT CONTRACT_ID 
+              FROM   TBL_EXP_TEAM_MEMBER
+              WHERE  1 = 1
+              AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+              AND    USER_ID    = #{sessionVo.userId}
         ) B
             ON  1 = 1
             AND A.CONTRACT_ID = B.CONTRACT_ID
