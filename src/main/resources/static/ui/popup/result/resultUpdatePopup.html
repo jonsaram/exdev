@@ -178,6 +178,17 @@ var <@popupId> = {
 				$("#<@popupId> [name='suggesterRate']").prop("disabled", true);
 				$("#<@popupId> .ui-datepicker-trigger").remove();
 			}
+
+			// refresh 재계산			
+			<@popupId>.PAYINFO_LIST.forEach( (row,idx) => {
+				
+				if( row.RELATION_TYPE == 'COWORK'){
+					const key = <@popupId>.paymentList_DATA[idx].USER_ID+<@popupId>.paymentList_DATA[idx].RELATION_TYPE;
+					const $executeRate= $("#<@popupId>_paymentList tr[value='"+key+"']").find("[name='coworkRate']");
+					<@popupId>.changeCoworkRateVal($executeRate[0],idx)
+				}
+			})
+
 		}) ;
 		
 		if( <@popupId>.PROCESS_STATE.indexOf("COMPLETE") > -1 ){
@@ -476,6 +487,7 @@ var <@popupId> = {
 		})
 
 		<@popupId>.PAYINFO_LIST = payInfoList;
+		<@popupId>.PAYINFO_LIST['key'] = <@popupId>.PAYINFO_LIST["USER_ID"]+<@popupId>.PAYINFO_LIST["RELATION_TYPE"]
 		return rateSum;
 		
 	}
@@ -714,6 +726,25 @@ var <@popupId> = {
 		
 		<@popupId>.setPayment(key, execRateJi);
 		
+		//코웍율도 수정
+		<@popupId>.PAYINFO_LIST.forEach( (payInfo,idx) => {
+			
+			if( payInfo.RELATION_TYPE == "COWORK"){
+				
+				const key = payInfo.USER_ID+payInfo.RELATION_TYPE;
+				const obj = $("#<@popupId>_paymentList tr[value='"+key+"']").find("[name='coworkRate']");
+				<@popupId>.changeCoworkRateVal(obj, idx,'execute');
+			}
+		})
+		
+		<@popupId>.PAYINFO_LIST.forEach( payInfo =>{
+			
+			if( payInfo.RELATION_TYPE == 'EXECUTE'){
+				payInfo.RATE_JI = execRate;
+			}
+		})
+
+		
 	}
 	,changeSalesRateVal : ( obj, idx) =>{
 		
@@ -722,9 +753,16 @@ var <@popupId> = {
 		$("#<@popupId>_paymentList tr[value='"+key+"']").find("[name='salesRateJi']").val(salesRate).text(salesRate+" %");
 		
 		<@popupId>.setPayment(key, salesRate);
+		
+		<@popupId>.PAYINFO_LIST.forEach( payInfo =>{
+			
+			if( payInfo.RELATION_TYPE == 'SALES'){
+				payInfo.RATE_JI = salesRate;
+			}
+		})
 
 	}
-	,changeCoworkRateVal : ( obj, idx) =>{
+	,changeCoworkRateVal : ( obj, idx, from) =>{
 		
 		const key 			= <@popupId>.paymentList_DATA[idx].USER_ID+<@popupId>.paymentList_DATA[idx].RELATION_TYPE;
 		const $paymentListTR= $("#<@popupId>_paymentList tr[value='"+key+"']");
@@ -736,8 +774,14 @@ var <@popupId> = {
 
 		$paymentListTR.find("[name='coworkRateJi']").val(coworkRateJi).text(coworkRateJi+" %");
 		
-		const payment		= Number($("#<@popupId>_real_sellingPrice").text().replace(/,/g, '')) * coworkRateJi / 100;
-		$("#<@popupId>_paymentList tr[value='"+key+"'] #PAYMENT").text(addComma(payment) );
+		<@popupId>.setPayment(key,coworkRateJi);
+		
+		<@popupId>.PAYINFO_LIST.forEach( payInfo =>{
+			
+			if( payInfo.USER_ID+payInfo.RELATION_TYPE == <@popupId>.paymentList_DATA[idx].USER_ID+'COWORK'){
+				payInfo.RATE_JI = coworkRate;
+			}
+		})
 		
 		// 코웍을 조회하여 % 를 더한다. 
 		let coworksRates = 0;
@@ -747,9 +791,11 @@ var <@popupId> = {
 		// 코웍율에 있는 실행 수수료율 설정.
 		$("#<@popupId>_paymentList tr:eq(0)").find("[name='execRateDiv']").val(100-coworksRates);
 		
-		const firstRowKey = <@popupId>.paymentList_DATA[0].USER_ID+<@popupId>.paymentList_DATA[0].RELATION_TYPE;
-		const $executeRate= $("#<@popupId>_paymentList tr[value='"+firstRowKey+"']").find("[name='execRate']");
-		<@popupId>.changeExecuteRateVal($executeRate[0] , 0 );
+		if( !from ){
+			const firstRowKey = <@popupId>.paymentList_DATA[0].USER_ID+<@popupId>.paymentList_DATA[0].RELATION_TYPE;
+			const $executeRate= $("#<@popupId>_paymentList tr[value='"+firstRowKey+"']").find("[name='execRate']");
+			<@popupId>.changeExecuteRateVal($executeRate[0] , 0 );
+		}
 		
 	}
 	,changeSuggesterRateVal : ( obj , idx ) =>{
