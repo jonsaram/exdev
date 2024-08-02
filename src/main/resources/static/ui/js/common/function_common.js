@@ -797,7 +797,7 @@
 	function addComma(src)
 	{
 
-		if(!isNumber(src)) return src;
+		if(!isNumber(src)) return "";
 		
 		src = "" + src;
 		

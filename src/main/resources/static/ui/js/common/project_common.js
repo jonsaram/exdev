@@ -2788,6 +2788,13 @@ $.views.converters({
 		if(typeof value == "string" || typeof value == "number" ) 	return addComma(value);
 		else														return nvl(value, "");
 	 }
+	,numb2 	: function(value) {
+		if(typeof value == "string" || typeof value == "number" ) {
+			let result = Math.round(value * 100) / 100; 
+			return addComma(result);
+		} 	
+		else return nvl(value, "");
+	 }
 	,fix	: function(value) {
 		if(typeof value == "number") {
 			return value.toFixed(2)
