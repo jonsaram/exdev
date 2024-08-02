@@ -180,11 +180,12 @@ var <@popupId> = {
 			}
 
 			// refresh 재계산			
-			<@popupId>.PAYINFO_LIST.forEach( (row,idx) => {
+			<@popupId>.PAYINFO_LIST.forEach( (payInfo,idx) => {
 				
-				if( row.RELATION_TYPE == 'COWORK'){
-					const key = <@popupId>.paymentList_DATA[idx].USER_ID+<@popupId>.paymentList_DATA[idx].RELATION_TYPE;
-					const $executeRate= $("#<@popupId>_paymentList tr[value='"+key+"']").find("[name='coworkRate']");
+				if( payInfo.RELATION_TYPE == 'COWORK'){
+					debugger;
+					//const key = <@popupId>.paymentList_DATA[idx].USER_ID+<@popupId>.paymentList_DATA[idx].RELATION_TYPE;
+					const $executeRate= $("#<@popupId>_paymentList tr[value='"+payInfo.KEY+"']").find("[name='coworkRate']");
 					<@popupId>.changeCoworkRateVal($executeRate[0],idx)
 				}
 			})
@@ -333,11 +334,11 @@ var <@popupId> = {
 				const $executeRate= $("#<@popupId>_paymentList tr[value='"+firstRowKey+"']").find("[name='execRate']");
 				<@popupId>.changeExecuteRateVal($executeRate[0] , 0 );
 				
-				<@popupId>.PAYINFO_LIST.forEach( (row,idx) => {
+				<@popupId>.PAYINFO_LIST.forEach( (payInfo,idx) => {
 					
-					if( row.RELATION_TYPE == 'COWORK'){
-						const key = <@popupId>.paymentList_DATA[idx].USER_ID+<@popupId>.paymentList_DATA[idx].RELATION_TYPE;
-						const $executeRate= $("#<@popupId>_paymentList tr[value='"+key+"']").find("[name='coworkRate']");
+					if( payInfo.RELATION_TYPE == 'COWORK'){
+						//const key = <@popupId>.paymentList_DATA[idx].USER_ID+<@popupId>.paymentList_DATA[idx].RELATION_TYPE;
+						const $executeRate= $("#<@popupId>_paymentList tr[value='"+payInfo.KEY+"']").find("[name='coworkRate']");
 						<@popupId>.changeCoworkRateVal($executeRate[0],idx)
 					}
 				})
@@ -487,7 +488,8 @@ var <@popupId> = {
 		})
 
 		<@popupId>.PAYINFO_LIST = payInfoList;
-		<@popupId>.PAYINFO_LIST['key'] = <@popupId>.PAYINFO_LIST["USER_ID"]+<@popupId>.PAYINFO_LIST["RELATION_TYPE"]
+		<@popupId>.PAYINFO_LIST.forEach( payInfo => payInfo.KEY = payInfo.USER_ID + payInfo.RELATION_TYPE )
+
 		return rateSum;
 		
 	}
@@ -511,9 +513,7 @@ var <@popupId> = {
 		
 		<@popupId>.PAYINFO_LIST.forEach( payInfo => {
 			
-			const userRelation = payInfo.USER_ID+""+payInfo.RELATION_TYPE ;
-			
-			$("#<@popupId>_paymentList tr[value="+userRelation+"] td[id='PAYMENT']").html(addComma(incomeMinusCostPrice * payInfo.RATE_JI / 100));
+			$("#<@popupId>_paymentList tr[value="+payInfo.KEY+"] td[id='PAYMENT']").html(addComma(incomeMinusCostPrice * payInfo.RATE_JI / 100));
 			
 			payInfo.PAYMENT 	= incomeMinusCostPrice * payInfo.RATE_JI / 100;
 			payInfo.CONTRACT_ID = <@popupId>.CONTRACT_ID ; 
@@ -731,8 +731,7 @@ var <@popupId> = {
 			
 			if( payInfo.RELATION_TYPE == "COWORK"){
 				
-				const key = payInfo.USER_ID+payInfo.RELATION_TYPE;
-				const obj = $("#<@popupId>_paymentList tr[value='"+key+"']").find("[name='coworkRate']");
+				const obj = $("#<@popupId>_paymentList tr[value='"+payInfo.KEY+"']").find("[name='coworkRate']");
 				<@popupId>.changeCoworkRateVal(obj, idx,'execute');
 			}
 		})
@@ -778,7 +777,7 @@ var <@popupId> = {
 		
 		<@popupId>.PAYINFO_LIST.forEach( payInfo =>{
 			
-			if( payInfo.USER_ID+payInfo.RELATION_TYPE == <@popupId>.paymentList_DATA[idx].USER_ID+'COWORK'){
+			if( payInfo.KEY == <@popupId>.paymentList_DATA[idx].USER_ID+'COWORK' ){
 				payInfo.RATE_JI = coworkRate;
 			}
 		})
