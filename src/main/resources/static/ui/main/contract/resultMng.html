@@ -29,6 +29,10 @@ var <@pageId> = {
         	let resultIdCnt = 0;
 			let LAST_RESULT_ID = '';
 			let EXEC_RATE = 0;
+			let CALC_EXEC_RATE = [];
+			let calcRESULT_ID = '';
+			let calcResultId = '';
+			let ResultIdRows = {}
         	resultData.data.forEach( (row,idx) => {
 
         		RESULT_ID = row["RESULT_ID"];
@@ -59,14 +63,68 @@ var <@pageId> = {
 				TOTAL_ROW["PAYMENT"] 	+= isNaN(Number(row["PAYMENT"])) ? 0 : Number(row["PAYMENT"]);
 				
 				LAST_RESULT_ID = !isEmpty(row["LAST_RESULT_ID"]) ? row["LAST_RESULT_ID"] :'';
-        	})
-        	
+				
+        	    // 실행수수료율 계산을 위해 
+        	    calcRESULT_ID = row["RESULT_ID"];
+
+        	    if (calcRESULT_ID !== calcResultId) {
+
+        	        if (!isEmpty(ResultIdRows)) {
+        	            CALC_EXEC_RATE.push(ResultIdRows);
+        	        }
+
+        	        ResultIdRows = {
+        	            "RESULT_ID": calcRESULT_ID,
+        	            "rows": [{USER_ID: row.USER_ID, RELATION_TYPE:row.RELATION_TYPE, RATE : row.RATE}]
+        	        };
+
+        	        calcResultId = calcRESULT_ID;
+        	    } else {
+        	        ResultIdRows["rows"].push({USER_ID: row.USER_ID, RELATION_TYPE:row.RELATION_TYPE, RATE : row.RATE});
+        	    }
+        	});
+       
+			//마지막 ResultIdRows 객체를 CALC_EXEC_RATE에 추가
+			if (!isEmpty(ResultIdRows)) {
+			    CALC_EXEC_RATE.push(ResultIdRows);
+			}
+			
+			//실행 수수료율 계산.
+			CALC_EXEC_RATE.forEach( execRate =>{
+				
+				let coworkRates =0;
+				let executeRate =0;
+				let susuRyoRate =0;
+				execRate["rows"].forEach( row =>{
+					if( row.RELATION_TYPE == 'EXECUTE')susuRyoRate = Number(row.RATE);
+				})
+				
+				execRate["rows"].forEach( row =>{
+					if( row.RELATION_TYPE == 'COWORK') coworkRates += ( (Number(row.RATE) / susuRyoRate) * 100 );
+				})
+				const newExecteRate = 100-coworkRates;
+				execRate["rows"].forEach( row =>{
+					if( row.RELATION_TYPE == 'EXECUTE') row.RATE = ( susuRyoRate * newExecteRate / 100 );
+				})
+
+				
+			})
+		
+			// 실행수수료율 SET.
         	resultData.data.forEach( (row,idx) => {
         		
         		row["LAST_RESULT_ID"] = row["RESULT_ID"] == LAST_RESULT_ID ?  LAST_RESULT_ID :'';
         		<@pageId>.RESULT_INSERTED_CNT = row["RESULT_INSERTED_CNT"];
-        	})
-       	
+        		
+        		if( row.RELATION_TYPE == "EXECUTE" ){
+        			const sameResultIdRows 	= CALC_EXEC_RATE.filter( arr => arr.RESULT_ID == row.RESULT_ID);
+        			const sameExecuteRow 	= sameResultIdRows[0]["rows"].find( row => row.RELATION_TYPE == "EXECUTE");
+        			row.RATE = sameExecuteRow.RATE;
+        		}
+        		
+        	});
+        	
+       		
         	let rparm = {
            			targetId   : "<@pageId>_resultList"
 					,list       : resultData.data
