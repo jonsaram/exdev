@@ -165,6 +165,36 @@
         </if>
     </delete>
     
+    <!-- 일정삭제 로그 입력  이응규 -->
+    <insert id="insertScheduleDel" parameterType="map" >
+        /* schedule.insertScheduleDel */
+        INSERT INTO TBL_EXP_SCHEDULE_DEL ( 
+                SP_CSTM_ID
+               ,SCHEDULE_ID
+               ,SCHEDULE_GRP_ID
+               ,GOOGLE_CALENDAR_EVENT_ID
+               ,CREATE_USER
+               ,CREATE_DATE
+        )
+        SELECT  SP_CSTM_ID
+               ,SCHEDULE_ID
+               ,SCHEDULE_GRP_ID
+               ,GOOGLE_CALENDAR_EVENT_ID
+               ,#{delUserId}   
+               ,SYSDATE
+        FROM    TBL_EXP_SCHEDULE
+        WHERE  1 = 1
+        <if test=" scheduleGrpId != null and scheduleGrpId != '' ">
+            AND    SCHEDULE_GRP_ID =  #{scheduleGrpId}
+        </if>
+        <if test=" scheduleId != null and scheduleId != '' " >
+            AND   SCHEDULE_ID = #{scheduleId} 
+        </if>
+        <if test=" delSpCstmId != null and delSpCstmId != '' " >
+            AND    SP_CSTM_ID  = #{delSpCstmId} 
+        </if>
+    </insert>
+    
     <!-- 일정 입력  이응규 -->
     <insert id="insertSchedule" parameterType="map" >
         /* schedule.insertSchedule */
@@ -260,6 +290,7 @@
               ,A.SECRET_YN              
               ,A.DESCRIPTION            
               ,A.USER_ID
+              ,A.GOOGLE_CALENDAR_EVENT_ID
               ,CASE WHEN A.BUYER_NM IS NOT NULL THEN A.BUYER_NM ||'/'||A.CONSULTING_NM
                     ELSE NULL
                     END AS  CONTRACT_NM
@@ -290,6 +321,7 @@
                        ,A.SECRET_YN              
                        ,A.DESCRIPTION            
                        ,A.USER_ID
+                       ,A.GOOGLE_CALENDAR_EVENT_ID
                        ,(SELECT BUYER_NM FROM TBL_EXP_BUYER WHERE BUYER_ID = B.BUYER_ID) AS BUYER_NM
                        ,(SELECT CONSULTING_NM FROM TBL_EXP_CONSULTING WHERE CONSULTING_ID = B.CONSULTING_ID) AS CONSULTING_NM
                        ,A.UPDATE_USER            
@@ -2761,5 +2793,212 @@
         </if>
     </select> 
      
+    <update id="updateGoogleSchedule" parameterType="java.util.HashMap"  flushCache="true"  >
+        /*  schedule.updateGoogleSchedule */
+        UPDATE TBL_EXP_SCHEDULE        
+        SET    UPDATE_USER              = #{userId}
+              ,UPDATE_DATE              = SYSDATE
+              <if test=" title != null and title != '' " >
+                  ,TITLE = #{title, jdbcType=VARCHAR}
+              </if>
+              <if test=" scheduleStartDate != null and scheduleStartDate != '' " >
+                  ,SCHEDULE_START_DATE = (TO_DATE(#{scheduleStartDate}, 'yyyy-mm-dd'))
+              </if>
+              <if test=" startTimeH != null and startTimeH != '' " >
+                  ,START_TIME_HOUR = #{startTimeH, jdbcType=VARCHAR}
+              </if>
+              <if test=" startTimeM != null and startTimeM != '' " >
+                  ,START_TIME_MINUTE = #{startTimeM, jdbcType=VARCHAR}
+              </if>
+              <if test=" scheduleEndDate != null and scheduleEndDate != '' " >
+                  ,SCHEDULE_END_DATE = (TO_DATE(#{scheduleEndDate}, 'yyyy-mm-dd'))
+              </if>
+              <if test=" endTimeH != null and endTimeH != '' " >
+                  ,END_TIME_HOUR = #{endTimeH, jdbcType=VARCHAR}
+              </if>
+              <if test=" endTimeM != null and endTimeM != '' " >
+                  ,END_TIME_MINUTE = #{endTimeM, jdbcType=VARCHAR}
+              </if>
+              <if test=" description != null and description != '' " >
+                  ,DESCRIPTION = #{description, jdbcType=VARCHAR}
+              </if>
+              <if test=" position != null and position != '' " >
+                  ,POSITION = #{position, jdbcType=VARCHAR}
+              </if>
+        WHERE 1 = 1
+        AND    USER_ID     = #{userId}
+        AND    SP_CSTM_ID  = #{spCstmId}
+        <if test=" googleCalendarId != null and googleCalendarId != '' " >
+            AND    GOOGLE_CALENDAR_EVENT_ID = #{googleCalendarId}
+        </if>
+        ;
+        COMMIT;
+    </update>
     
+    <update id="updateGoogleSchedule1" parameterType="java.util.HashMap"  flushCache="true"  >
+        /*  schedule.updateGoogleSchedule1 */
+        UPDATE TBL_EXP_SCHEDULE        
+        SET    UPDATE_USER              = #{userId}
+              ,UPDATE_DATE              = SYSDATE
+              <if test=" googleCalendarEventId != null and googleCalendarEventId != '' " >
+                  ,GOOGLE_CALENDAR_EVENT_ID = #{googleCalendarEventId}
+              </if>
+        WHERE 1 = 1
+        AND    USER_ID     = #{userId}
+        AND    SP_CSTM_ID  = #{spCstmId}
+        AND    SCHEDULE_ID = #{scheduleId}
+    </update>
+    
+    <select id="getUserInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getUserInfo */
+        SELECT GOOGLE_CALENDAR_ID
+              ,GOOGLE_CALENDAR_SYN_YN
+        FROM   TBL_EXP_USER
+        WHERE  1 = 1
+        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+        AND    USER_ID    = #{sessionVo.userId}
+    </select> 
+    
+    <update id="saveUserGoogleCalendar" parameterType="map" >
+        /* schedule.saveUserGoogleCalendar */
+        UPDATE TBL_EXP_USER SET
+             GOOGLE_CALENDAR_ID      = #{googleCalendarId}
+            ,GOOGLE_CALENDAR_SYN_YN  = #{googleCalendarSynYn}
+            ,UPDATE_USER             = #{sessionVo.userId}
+            ,UPDATE_DATE             = sysdate
+        WHERE 1=1
+        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+        AND    USER_ID    = #{sessionVo.userId}   
+    </update>
+    
+    <select id="getScheduleDel" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getScheduleDel */
+        SELECT MAX(SCHEDULE_EXIST)     AS SCHEDULE_EXIST
+              ,MAX(SCHEDULE_DEL_EXIST) AS SCHEDULE_DEL_EXIST
+        FROM   (
+                    /* SCHEDULE_DEL 에 존재하는지 확인*/
+                    SELECT NULL                          AS SCHEDULE_EXIST
+                          ,DECODE(COUNT(1), 0, 'N', 'Y') AS SCHEDULE_DEL_EXIST
+                    FROM   TBL_EXP_SCHEDULE_DEL
+                    WHERE  1 = 1
+                    AND    SP_CSTM_ID = #{spCstmId}
+                    AND    GOOGLE_CALENDAR_EVENT_ID = #{googleCalendarEventId}
+                    UNION ALL
+                    /* SCHEDULE 에 존재하는지 확인*/
+                    SELECT DECODE(COUNT(1), 0, 'N', 'Y')  AS SCHEDULE_EXIST
+                          ,NULL                           AS SCHEDULE_DEL_EXIST
+                    FROM   TBL_EXP_SCHEDULE
+                    WHERE  1 = 1
+                    AND    SP_CSTM_ID = #{spCstmId}
+                    AND    GOOGLE_CALENDAR_EVENT_ID = #{googleCalendarEventId}
+               )
+    </select>
+    
+    <!-- 일정 입력  이응규 -->
+    <insert id="insertGoogleSchedule" parameterType="map" >
+        /* schedule.insertGoogleSchedule */
+        INSERT INTO TBL_EXP_SCHEDULE (
+              SP_CSTM_ID             
+             ,SCHEDULE_ID            
+             ,SCHEDULE_GRP_ID        
+             ,LOOP_TYPE              
+             ,LOOP_TYPE_DTL_CD
+                    
+             ,LOOP_TYPE_DTL_VAL      
+             ,SCHEDULE_LOOP_END_DATE 
+             ,TITLE                  
+             ,WORK_TYPE             
+             ,TIME_TYPE
+                           
+             ,SCHEDULE_START_DATE    
+             ,START_TIME_HOUR        
+             ,START_TIME_MINUTE      
+             ,SCHEDULE_END_DATE      
+             ,END_TIME_HOUR
+                       
+             ,END_TIME_MINUTE        
+             ,CONTRACT_ID            
+             ,POSITION               
+             ,SECRET_YN              
+             ,DESCRIPTION
+                         
+             ,USER_ID    
+             ,GOOGLE_CALENDAR_EVENT_ID            
+             ,CREATE_USER            
+             ,CREATE_DATE         
+        )
+        VALUES(
+              #{spCstmId, jdbcType=VARCHAR}
+             ,#{scheduleId, jdbcType=VARCHAR}
+             ,#{scheduleGrpId, jdbcType=VARCHAR}
+             ,#{loopType, jdbcType=VARCHAR}
+             ,#{loopTypeDtlCd, jdbcType=VARCHAR}
+             
+             ,#{loopTypeDtlVal, jdbcType=VARCHAR}
+             ,(TO_DATE(#{loopLimitDate}, 'yyyy-mm-dd'))
+             ,#{title, jdbcType=VARCHAR}
+             ,#{workType, jdbcType=VARCHAR}
+             ,#{timeType, jdbcType=VARCHAR}
+             
+             ,(TO_DATE(#{scheduleStartDate}, 'yyyy-mm-dd'))
+             ,#{startTimeH, jdbcType=VARCHAR}
+             ,#{startTimeM, jdbcType=VARCHAR}                                      
+             ,(TO_DATE(#{scheduleEndDate}, 'yyyy-mm-dd'))
+             ,#{endTimeH, jdbcType=VARCHAR}
+             
+             ,#{startTimeM, jdbcType=VARCHAR}
+             ,#{contractId, jdbcType=VARCHAR}
+             ,#{position, jdbcType=VARCHAR}
+             ,#{secretYn, jdbcType=VARCHAR}
+             ,#{description, jdbcType=VARCHAR}
+             
+             ,#{userId, jdbcType=VARCHAR}
+             ,#{googleCalendarEventId, jdbcType=VARCHAR}
+             ,#{userId, jdbcType=VARCHAR}                                
+             ,SYSDATE  
+        )
+    </insert>
+    
+    <select id="getScheduleGoogle" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* schedule.getScheduleGoogle */
+        SELECT SP_CSTM_ID
+              ,SCHEDULE_ID            
+              ,SCHEDULE_GRP_ID        
+              ,LOOP_TYPE              
+              ,LOOP_TYPE_DTL_CD       
+              ,LOOP_TYPE_DTL_VAL      
+              ,TO_CHAR(SCHEDULE_LOOP_END_DATE,'YYYY-MM-DD')  AS SCHEDULE_LOOP_END_DATE 
+              ,TITLE                  
+              ,WORK_TYPE              
+              ,ALL_APPLY_YN        
+              ,TO_CHAR(SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
+              ,TO_CHAR(SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE  
+              ,TIME_TYPE              
+              ,START_TIME_HOUR        
+              ,START_TIME_MINUTE      
+              ,END_TIME_HOUR          
+              ,END_TIME_MINUTE        
+              ,CONTRACT_ID            
+              ,POSITION               
+              ,SECRET_YN              
+              ,DESCRIPTION            
+              ,USER_ID
+              ,UPDATE_USER            
+              ,UPDATE_DATE            
+              ,CREATE_USER
+              ,CREATE_DATE
+              ,GOOGLE_CALENDAR_EVENT_ID
+              ,DECODE(GOOGLE_CALENDAR_EVENT_ID,NULL,'N','Y') AS GOOGLE_YN
+        FROM   TBL_EXP_SCHEDULE
+        WHERE  1 = 1
+        <if test=" userId != null and userId != '' " >
+            AND    USER_ID     = #{userId}
+        </if>
+        <if test=" spCstmId != null and spCstmId != '' " >
+            AND    SP_CSTM_ID     = #{spCstmId}
+        </if>
+        <if test=" startDay != null and startDay != '' " >
+            AND   SCHEDULE_START_DATE BETWEEN TO_DATE( #{startDay}, 'YYYY-MM-DD HH24:MI:SS')   AND  TO_DATE( #{endDay}, 'YYYY-MM-DD HH24:MI:SS')
+        </if>
+    </select>
 </mapper>

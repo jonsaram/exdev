@@ -14,11 +14,20 @@
         ,isLoopTypeQuarter : false
         ,isLoopTypeYear : false
         ,limitDate : ''
+        ,IS_GOOGLE_CALENDAR_SYN_YN : false
+        ,GOOGLE_CALENDAR_ID : ''
+        ,SCHEDULE_ID : ''
+        ,googleCalendarEventId : ''	
         ,close : function() {
             var obj = new Object();
             C_POP.close(obj);
          }
 	    ,init : function() {
+
+            // 구글 관련 
+            <@popupId>.gapiLoaded();
+            <@popupId>.gisLoaded();
+            
             //============== 업무유형 ==============
             var workTypeList = C_COM.getCodeList("SCHEDULE_WORK_TYPE");
             var workTypeBoxList = { 
@@ -119,8 +128,30 @@
 	            	<@popupId>.setSelectBoxTime( <@popupId>.orgStartTimeHour, <@popupId>.orgStartTimeMinute, <@popupId>.orgEndTimeHour, <@popupId>.orgEndTimeMinute );
 	            }
 	        });   
+
+            //구글 연계 정보 조회
+            <@popupId>.getUserGoogleSyn();
 	     }
 
+        ,getUserGoogleSyn : () =>  {
+            let requestParm = {};
+            let parm = {
+                 queryId        : "schedule.getUserInfo"
+                ,requestParm    : requestParm
+            }
+            C_COM.requestQuery(parm, function(resultData) {
+                for(var i =0; i < resultData.data.length; i++){
+                    if( resultData.data[i] != null){
+                        <@popupId>.GOOGLE_CALENDAR_ID = resultData.data[i].GOOGLE_CALENDAR_ID;
+                        if( resultData.data[i].GOOGLE_CALENDAR_SYN_YN == "Y"){
+                            <@popupId>.IS_GOOGLE_CALENDAR_SYN_YN = true;
+                        }else{
+                        }  
+                    }
+                }
+             });
+         }
+        
         /* 참석자 관련    참석자 관련    ================================================*/
         ,getAppMemberToList : function() {
             let resultList = []
@@ -293,6 +324,7 @@
             $('#<@popupId>_contractId').val(data.CONTRACT_ID);
             $('#<@popupId>_contractNm').val(data.CONTRACT_NM);
             $('#<@popupId>_loopLimitDate').val(data.SCHEDULE_LOOP_END_DATE);
+            <@popupId>.googleCalendarEventId   = data.GOOGLE_CALENDAR_EVENT_ID;
             
             // 셀렉트 박스 세팅
             C_UICOM.setSingleBox("<@popupId>_selectBoxLoopType", data.LOOP_TYPE);
@@ -373,6 +405,8 @@
             let requestParm = {};            
             requestParm["scheduleGrpId"]      = <@popupId>.scheduleGrpId;
             requestParm["scheduleId"]         = <@popupId>.scheduleId;
+            requestParm["userId"]             = G_VAL.session.USER_ID ;
+            requestParm["spCstmId"]           = G_VAL.session.spCstmId ;
             
             // 데이타 삭제
             var parm = {
@@ -443,28 +477,27 @@
                 requestParm["loopTypeDtlCd"]      = '';
                 requestParm["loopTypeDtlVal"]     = '';    
             }
-            
-            // 참석자 추가
-            //프로젝트로 대체 24-07-31
-            //let mlst = <@popupId>.getAppMemberToList();
-            //requestParm["users"]  = JSON.stringify(mlst);
-                    
+                
             // 데이타 저장
             var parm = {
                  serviceId              : "ScheduleService.updateSchedule"
                 ,requestParm            : requestParm
             }
             C_COM.requestService(parm, function(resultData) {
-                
-                if("S" == resultData.data.state){
 
-                    var obj = new Object();
-                    obj.refresh = 'Y';
-                     
-                    C_POP.close(obj);
+                if("S" == resultData.state){
+                    
+                    if( <@popupId>.IS_GOOGLE_CALENDAR_SYN_YN ){
+                        <@popupId>.saveGoogleEvent( requestParm );// 구글저장
+                    }else{
+                        var obj = new Object();
+                        obj.refresh = 'Y';
+                        C_POP.close(obj);   
+                    }
                 }else{
-                    C_POP.alert("일정이 추가에 실패하였습니다.");
+                    C_POP.alert("일정이 수정에 실패하였습니다.");
                 }
+                
                 
             });
         }
@@ -564,6 +597,110 @@
             
             C_UICOM.setSingleBox("<@popupId>_selectBoxEndTime", endHour);
         }
+
+        /*=============================================================================================*/
+        /* google API함수    google API함수    google API함수    google API함수    google API함수       */
+        
+        ,gapiLoaded : function() {
+             gapi.load('client', () => {
+                 <@popupId>.initializeGapiClient()
+                     .then(() => {
+                     })
+                     .catch(error => {
+                         console.error('Error loading GAPI client:', error);
+                     });
+             });
+         }
+
+        ,gisLoaded : function() {
+            <@popupId>.TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
+            client_id: _CLIENT_ID,
+            scope: _SCOPES,
+            callback: (response) => {
+                console.log('GAPI OAuth2 token client initialized successfully.');
+                // 추가 작업
+            }
+          });
+        }
+        ,initializeGapiClient: async function() {
+            try {
+                await gapi.client.init({
+                    apiKey: _API_KEY,
+                    discoveryDocs: _DISCOVERY_DOCS
+                });
+            } catch (error) {
+                console.error('Error initializing GAPI client:', error);
+            }
+        }
+        ,saveGoogleEvent : function( requestParm ) {
+            <@popupId>.TOKEN_CLIENT.callback = async (resp) => {
+              if (resp.error !== undefined) {
+                throw (resp);
+              }
+              <@popupId>.updateEventAPI( requestParm );
+            };
+            if (gapi.client.getToken() === null) {
+              // Prompt the user to select an account.
+              <@popupId>.TOKEN_CLIENT.requestAccessToken({prompt: 'consent'});
+            } else {
+              // Skip display of account chooser.
+              <@popupId>.TOKEN_CLIENT.requestAccessToken({prompt: ''});
+            }
+         }
+
+        ,updateEventAPI : function( requestParm ) {
+            let saveEvents = [];
+            let is_save    = false;
+            // 비동기 요청을 저장할 배열
+            let promises = [];
+
+            var summary       = requestParm["title"];
+            var location      = requestParm["position"];
+            var description   = requestParm["description"];            
+            var startD        = requestParm["scheduleStartDate"];
+            var startH        = requestParm["startTimeH"];
+            var startM        = requestParm["startTimeM"];
+            var startDateTime = startD+'T'+startH+':'+startM+':00';            
+            var endD          = requestParm["scheduleEndDate"];
+            var endH          = requestParm["endTimeH"];
+            var endM          = requestParm["endTimeM"];
+            var endDateTime   = endD+'T'+endH+':'+endM+':00';
+            
+            const event = {
+                'summary': summary,
+                'location': location,
+                'description': description,
+                'start': {
+                    'dateTime': startDateTime,
+                    'timeZone': 'Asia/Seoul'
+                },
+                'end': {
+                    'dateTime': endDateTime, 
+                    'timeZone': 'Asia/Seoul'
+                }
+            };
+            
+            gapi.client.calendar.events.update({
+              'calendarId': <@popupId>.GOOGLE_CALENDAR_ID,
+              'eventId': <@popupId>.googleCalendarEventId,
+              'resource': event
+            }).then(function(response) {
+
+              var obj = new Object();
+              obj.refresh = 'Y';
+              C_POP.close(obj);
+              console.log('Event updated: ' + response.result.htmlLink);
+            }).catch(function(error) {
+              C_POP.alert("일정이 수정에 실패하였습니다.");
+              console.error('Error updating event: ' + error);
+            });
+            
+
+            
+         }//updateEventAPI
+        /* google API함수    google API함수    google API함수    google API함수    google API함수       */
+        /*=============================================================================================*/
+        
     }//var <@popupId>
     
     // Popup Load가 완료된후 실행 된다.
