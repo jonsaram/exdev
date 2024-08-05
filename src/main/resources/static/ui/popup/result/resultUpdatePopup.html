@@ -50,7 +50,7 @@ var <@popupId> = {
 							,INCOME_TYPE: C_UICOM.getData("<@popupId>_selectIncomeType")
 							,SETTLEMENT_MONTH : dayjs( C_UICOM.getData("<@popupId>_SETTLEMENT_MONTH"	) ).format("YYYY-MM")
 							}
-			,paymentInfo:	<@popupId>.PAYINFO_LIST //<@popupId>.getJson($("#<@popupId>_paymentList"))
+			,paymentInfo:	<@popupId>.PAYINFO_LIST
 		} 
 
 		if( <@popupId>.validate(returnData) ){
@@ -159,7 +159,6 @@ var <@popupId> = {
 			C_UICOM.setSingleBox("<@popupId>_SETTLEMENT_MONTH", parentData.resultItem.SETTLEMENT_MONTH);
 		}
 		
-		// 수수료 산출 후 view모드일 경우 disable
 		<@popupId>.selectResultPayment(parentData, () =>{
 			
 			// refresh 재계산			
@@ -169,49 +168,15 @@ var <@popupId> = {
 					<@popupId>.changeCoworkRateVal($executeRate[0],idx)
 				}
 			})
-			
-			if("<@mode>" == "V"){
-				
-				//$("#<@popupId>_RESULT_DATE").prop("disabled", true);
-				//$("#<@popupId>_selectIncomeType").attr("disabled", true).prop("disabled", true);
-				//$("#<@popupId>_selectIncomeType button").prop("disabled", true);
-				//$("#<@popupId> .icon_trash").remove();
-				//$("#<@popupId>_addCost").remove();
-				//$("#<@popupId>_INCOME").prop("disabled", true);
-				//$("#<@popupId> #COST_NM input").prop("disabled", true);
-				//$("#<@popupId> #COST_DESC input").prop("disabled", true);
-				//$("#<@popupId> #COST_PRICE input").prop("disabled", true);
-
-				// 20240722 위성열 수정 (View 모드에서 modify 모드로 변경
-				//$("#<@popupId> [name='coworkRate']").prop("disabled", true);
-
-				//$("#<@popupId> [name='suggesterRate']").prop("disabled", true);
-				//$("#<@popupId> .ui-datepicker-trigger").remove();
-			}
-
 
 		}) ;
-
-// 20240805 위성열 / 실행 완료 후에도 실적 입력 변경 가능하도록 추가 입력 버튼 나오게함				
-/*
-		if( <@popupId>.PROCESS_STATE.indexOf("COMPLETE") > -1 ){
-			
-			$("#<@popupId>_apply").hide();
-			setTimeout( ()=>{
-				
-				$("#<@popupId>_costList button .icon_trash").hide();
-				$("#<@popupId>_addCost").hide();
-			},300)
-
-		}
-*/		
 
 	}
 	,callOrgSellingPrice : () => {
 		
 		const supplytax				= <@popupId>.supply_tax_cal($('#<@popupId>_INCOME').nval());
         const incomeMinusCostPrice	= Number($('#<@popupId>_supplyCost').nval()) - <@popupId>.sumSupplyCostPrice();
-		$('#<@popupId>_real_supplyCost'	).html( addComma(supplytax.supplyCost			));
+		$('#<@popupId>_real_supplyCost'	 ).html(addComma(supplytax.supplyCost			));
 		$('#<@popupId>_real_sumSupplCost').html(addComma(<@popupId>.sumSupplyCostPrice()));
 		$('#<@popupId>_real_sellingPrice').html(addComma(incomeMinusCostPrice			));
 		
@@ -521,7 +486,6 @@ var <@popupId> = {
 		$("#<@popupId>_PAYMENT_SUM").text(addComma(PAYMENT_SUM));
 		
 	}
-
 	,calcPayment : (incomeMinusCostPrice) =>{
 		
 		let rateSum = 0;
