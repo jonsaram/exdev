@@ -11,6 +11,7 @@ var <@pageId> = {
 		,barChartObj1 : null
 		,barChartObj2 : null
 		,UNIT_TYPE : 'SMALL' /* SMALL / BIG */
+		,ONE_HUNDRED_MILLION : 100000000
 		,pageInit  : () =>{
 
 			//당월/ 실행/ 영업 수수료 , 연간목표 수수료 , 달성률
@@ -172,7 +173,7 @@ var <@pageId> = {
 				const data = resultData.data[0];
 				
 				// (실행수수료 + 영업수수료) 1억이하 이고 당월수수료 300만원이하인경우 백만단위로 변경 
-				if(data.YEARLY_PAYMENT <= 100000000 && data.SUM_PAYMENT <= 3000000 ){
+				if(data.YEARLY_PAYMENT <= <@pageId>.ONE_HUNDRED_MILLION && data.SUM_PAYMENT <= 3000000 ){
 					<@pageId>.UNIT_TYPE = "SMALL";
 					
 				}else{
@@ -258,7 +259,7 @@ var <@pageId> = {
 					
 					const monthlyPaymentArr = [];
 					const paymentTrend = [];
-					let maxVal = <@pageId>.YEARLY_TARGET_PAYMENT / 100000000 * 1.2;
+					let maxVal = <@pageId>.YEARLY_TARGET_PAYMENT / <@pageId>.ONE_HUNDRED_MILLION * 1.2;
 					
 					let cumulativePayment = 0;
 					<@pageId>.searchedPayment.forEach( monthPay => {
@@ -276,7 +277,7 @@ var <@pageId> = {
 					const series =	[	{name:	'월별 수수료',type:	'column', 	yAxis: 	0, 	data: 	monthlyPaymentArr,	tooltip: {valueSuffix: ' '+unit}}
 									, 	{name:	'수수료 추이',type:	'spline',	yAxis:	1,	data:	paymentTrend,		tooltip: {valueSuffix: ' '+unit}}
 									]
-					const yearlyTargetPayment = <@pageId>.YEARLY_TARGET_PAYMENT/100000000 ;
+					const yearlyTargetPayment = <@pageId>.YEARLY_TARGET_PAYMENT/<@pageId>.ONE_HUNDRED_MILLION ;
 
 					<@pageId>.PAYMENT_SUM_TR_CHART[gubun] = _1Bar1Line1HorizentalLineChart("<@pageId>_transition_chart"+gubun,maxVal, yearlyTargetPayment, series, unit ) ;
 					
