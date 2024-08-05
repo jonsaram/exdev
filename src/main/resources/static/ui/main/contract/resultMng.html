@@ -144,8 +144,10 @@ var <@pageId> = {
 	    			let isAfter = false,isCompleted = false;
 	    			if( dayjs(<@pageId>.contractItem.EXPIRE_DATE ).isAfter(dayjs())) isAfter = true;
 	    			if( <@pageId>.contractItem["PROCESS_STATE"].indexOf("COMPLETED") > -1) isCompleted = true;
-					if( <@pageId>.contractItem.CONSULTING_TYPE == "MONTHLY"	&& isCompleted		)$("#<@pageId>_regResult").hide();
-					if( <@pageId>.contractItem.CONSULTING_TYPE == "ONCE"	&& isAfter			)$("#<@pageId>_regResult").hide();
+	    			
+	    		// 20240805 위성열 // 실적 등록 버튼 제어 보류	
+				//	if( <@pageId>.contractItem.CONSULTING_TYPE == "MONTHLY"	&& isCompleted		)$("#<@pageId>_regResult").hide();
+				//	if( <@pageId>.contractItem.CONSULTING_TYPE == "ONCE"	&& isAfter			)$("#<@pageId>_regResult").hide();
 				//}
 				
 				let totalORGSP 		= Number(TOTAL_ROW["ORG_SELLING_PRICE"]).toFixed(2);	totalORGSP 		= totalORGSP.replace(/\.00$/, "");
@@ -168,25 +170,32 @@ var <@pageId> = {
 		});
 	}
 	,updateItem : (param) => {
-				 
+
 		const requestParm = param ? param : {} ;
 
 		const paymentInfo 	= requestParm.paymentInfo 	|| [];
 		const constInfo		= requestParm.costInfo		|| [];
 		const resultInfo	= requestParm.resultInfo;
 		
+		let exeCnt = 0
 		paymentInfo.forEach( item => {
-				
+			exeCnt++;
+			
+			item.CONTRACT_ID = resultInfo.CONTRACT_ID;
+			
 			var parm = {
 						queryId 	: "result.updatePaymentItem"
 					   ,requestParm	: item
 			}
+			
 			C_COM.requestQuery(parm, function(resultData) {
 				
                 if (resultData.state === 'S') {
-
-
-                }
+                	exeCnt--;
+                	if(exeCnt == 0) alert('저장되었습니다.');
+    			} else {
+                	alert('저장이 실패 되었습니다.');
+    			}
 			});				
 	    
 		})
@@ -262,13 +271,14 @@ var <@pageId> = {
 				return;
 	    		
 	    	}
-	    	
+/*
+			//20240805 위성열 //	실행 완료 되어도 실정 등록 할수 있도록 주석 처리	    	
 			if( <@pageId>.contractItem["PROCESS_STATE"].indexOf("COMPLETED") > -1 )
 			{
 				C_POP.alert('실행 완료된 계약은 실적 등록 할 수 없습니다.');
 				return;
 			}
-
+*/
 	    	
 	    	// remainingCost to reload
 			const requestParm = {CONTRACT_ID : contractId , USER_ID : <@pageId>.contractItem.USER_ID };
@@ -535,11 +545,16 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								</td>
 
 								<td >
+<!-- 실행 완료일때 저장 버튼 안나오는 기능 보류
 									{{if LAST_RESULT_ID != "" }}
 									<button id="<@pageId>_delete" key='{{:CONTRACT_ID}}||{{:RESULT_ID}}'>
 									<i class="icon_trash"></i>
 									</button>
 									{{/if}}
+-->
+									<button id="<@pageId>_delete" key='{{:CONTRACT_ID}}||{{:RESULT_ID}}'>
+									<i class="icon_trash"></i>
+									</button>
 								</td>
 
 						{{/for}}

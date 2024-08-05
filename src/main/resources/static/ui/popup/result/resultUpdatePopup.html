@@ -54,7 +54,9 @@ var <@popupId> = {
 		} 
 
 		if( <@popupId>.validate(returnData) ){
-			<@popupId>.close( returnData ) ; 
+			C_POP.confirm('저장 하시겠습니까?', function() {
+				<@popupId>.close( returnData ) ;	
+			})
 		} 
 		 
 	 }
@@ -189,7 +191,9 @@ var <@popupId> = {
 
 
 		}) ;
-		
+
+// 20240805 위성열 / 실행 완료 후에도 실적 입력 변경 가능하도록 추가 입력 버튼 나오게함				
+/*
 		if( <@popupId>.PROCESS_STATE.indexOf("COMPLETE") > -1 ){
 			
 			$("#<@popupId>_apply").hide();
@@ -200,6 +204,7 @@ var <@popupId> = {
 			},300)
 
 		}
+*/		
 
 	}
 	,callOrgSellingPrice : () => {
