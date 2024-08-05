@@ -56,13 +56,15 @@ var <@pageId> = {
 					else						<@pageId>.searchBarChart(chart,gubun);
 					
 				});	
-				
-				// 처음엔 custmerTrend차트 
-				<@pageId>.searchPaymentSumTrend(gubun, "customerTrend");
 			}	
 			
 			//계약체결 추이 ( 전체 )
 			<@pageId>.searchConnectedByTrend();
+			
+			//마이대시보드 ->1 차트 수수료 합게추이 초기 선택
+			//마이대시보드 ->2 차트 영업 수수료 추이 초기 선택
+			C_UICOM.setSingleBox("<@pageId>_selectorChart1", "susuRyo");
+			C_UICOM.setSingleBox("<@pageId>_selectorChart2", "salesBosu");
 			
 			<@pageId>.getScheduleList();	
 
