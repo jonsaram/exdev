@@ -36,7 +36,7 @@ var <@pageId> = {
 				var singleboxList 	= { data	: transitionData	,targetId	: targetId}
 				C_UICOM.makeSelectBox(singleboxList	,	"single");
 				C_UICOM.addChangeListener(targetId, function(dataObj) {
-debugger;					
+					
 					const chart=	C_UICOM.getData(targetId);
 					
 					if(chart == "customerTrend" || chart == "susuRyo")	<@pageId>.searchPaymentSumTrend(gubun , chart);
@@ -150,7 +150,7 @@ debugger;
 			})
 			
 			const series = [monthly, once, contractCnt];
-			let target 	= 	"<@pageId>_transition_chart3" ;
+			let target 	= 	"<@pageId>_transition_allPayment" ;
 			let text	=	"[ 전체 수수료 합계 추이 ]";
 			if( gubun ){target = "<@pageId>_transition_chart"+gubun;text=""}
 			_1stacked1LineChart(target, _monthArray, series, <@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE ), text) ;
@@ -258,7 +258,7 @@ debugger;
 					
 					const monthlyPaymentArr = [];
 					const paymentTrend = [];
-					let maxVal = <@pageId>.YEARLY_TARGET_PAYMENT / 1000000 * 1.2;
+					let maxVal = <@pageId>.YEARLY_TARGET_PAYMENT / 100000000 * 1.2;
 					
 					let cumulativePayment = 0;
 					<@pageId>.searchedPayment.forEach( monthPay => {
@@ -276,7 +276,8 @@ debugger;
 					const series =	[	{name:	'월별 수수료',type:	'column', 	yAxis: 	0, 	data: 	monthlyPaymentArr,	tooltip: {valueSuffix: ' '+unit}}
 									, 	{name:	'수수료 추이',type:	'spline',	yAxis:	1,	data:	paymentTrend,		tooltip: {valueSuffix: ' '+unit}}
 									]
-					const yearlyTargetPayment = <@pageId>.YEARLY_TARGET_PAYMENT / 1000000 ; 
+					const yearlyTargetPayment = <@pageId>.YEARLY_TARGET_PAYMENT/100000000 ;
+
 					<@pageId>.PAYMENT_SUM_TR_CHART[gubun] = _1Bar1Line1HorizentalLineChart("<@pageId>_transition_chart"+gubun,maxVal, yearlyTargetPayment, series, unit ) ;
 					
   				}
@@ -287,7 +288,7 @@ debugger;
 			
 		}	
 		,searchBarChart : (chartName, gubun) => {
-debugger;
+
 			const CN = chartName;
 			var parm = {
 					 queryId 		: "faDashboard.getPaymentByMonth"
@@ -326,9 +327,15 @@ debugger;
 				        crosshair: true,
 				    },
 				    yAxis: {
-				        min: 0,
+				      //  min: 0,
 				        title: {
-				            text: yAxisText
+				            text: yAxisText,
+				            style:{
+				            	color:"#27187F",
+		                        fontFamily: 'Noto Sans KR',
+		                        fontSize: '12px',
+		                        fontWeight: 'bold'
+				            }
 				        },
 				        labels: {
 				            format: '{value} '+unit,
@@ -343,11 +350,20 @@ debugger;
 				        valueSuffix: ' '+unit
 					},
 				    legend: {
-				        enabled: false
-				    },				    
+					    layout: 'vertical',
+					    align: 'right',
+					    verticalAlign: 'middle',
+					    x: 0,
+					    y: 0,
+					    itemStyle: {
+					        fontWeight: 'bold',
+					        fontFamily: 'Noto Sans KR',
+					        fontSize: '12px'
+					    },
+					},		    
 				    series: [
 				        {
-				            name: '',
+				            name:yAxisText.replace('추이',''),
 				            data: data
 				        } 
 				    ]
@@ -530,7 +546,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
  					<section class="sec_wrap">
 						<div class="cont_box">
 							<figure>
-						    	<div class="chart03" id="<@pageId>_transition_chart3"  style="height:320px;"></div>
+						    	<div class="chart03" id="<@pageId>_transition_allPayment"  style="height:320px;"></div>
 							</figure>
 						</div>
 					</section>

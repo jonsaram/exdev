@@ -760,104 +760,108 @@
         });
     }
 	
-function _1stacked1LineChart(container, categories, series, unit, text ) {
-	
-	
-    Highcharts.chart(container, {
-        chart: {
-            type: 'column'
-        },
-        credits: {
-            enabled: false
-        },
-        title: {
-            text: text,
-            align: 'left',
-            style: {
-                color: '#333',
-                fontFamily: 'Noto Sans KR',
-                fontSize: '16px',
-                fontWeight: 'bold'
-            }
-        },
-		legend: {
-		    layout: 'vertical',
-		    align: 'right',
-		    verticalAlign: 'middle',
-		    x: 0,
-		    y: 0,
-		    itemStyle: {
-		        fontWeight: 'bold',
-		        fontFamily: 'Noto Sans KR',
-		        fontSize: '12px'
-		    },
-		},
-        xAxis: {
-            categories: categories
-        },
-		yAxis: [{
-		    allowDecimals: false,
-		    min: 0,
-		    title: {
-		        text: '계약금액',
-		        style: {
-		            color: "#27187F",
-		            fontFamily: 'Noto Sans KR',
-		            fontSize: '12px',
-		            fontWeight: 'bold'
-		        }
-		    },
-		    labels: {
-		        formatter: function () {
-		            return Highcharts.numberFormat(this.value, 0, '.', ',') + ' ' + unit;
-		        },
-		        style: {
-		            color: Highcharts.getOptions().colors[0]
-		        }
-		    }
-		}, {
-		    title: {
-		        text: '계약건수',
-		        style: {
-		            color: Highcharts.getOptions().colors[1]
-		        }
-		    },
-		    labels: {
-		        formatter: function () {
-		            return Highcharts.numberFormat(this.value, 0, '.', ',') + ' 건';
-		        },
-		        style: {
-		            color: Highcharts.getOptions().colors[2]
-		        }
-		    },
-		    opposite: true
-		}],
-        tooltip: {
-		    shared: true,
-		    formatter: function () {
-		        const idx = Number(this.x.replace("월", "")) - 1;
-		        const monthly = this.points[0].series.userOptions;
-		        const once = this.points[1].series.userOptions;
-		        const contractedCnt = this.points[2].series.userOptions;
-		        let tooltip = '<b>' + this.x + '</b><br/>';
-		        tooltip += '<span style="color:' + this.points[0].color + '">\u25CF</span> ';
-		        tooltip += monthly.name + ': ' + Highcharts.numberFormat(monthly.data[idx], 0, '.', ',') + unit + '<br>';
-		        tooltip += '<span style="color:' + this.points[1].color + '">\u25CF</span> ';
-		        tooltip += once.name + ': ' + Highcharts.numberFormat(once.data[idx], 0, '.', ',') + unit + '<br>';
-		        tooltip += '<span style="color:' + this.points[2].color + '">\u25CF</span> ';
-		        tooltip += contractedCnt.name + ': ' + Highcharts.numberFormat(contractedCnt.data2[idx], 0, '.', ',') + '건 / ' + Highcharts.numberFormat(contractedCnt.data[idx], 0, '.', ',') + '건';
+	function _1stacked1LineChart(container, categories, series, unit, text ) {
 		
-		        return tooltip;
-		    }
-		},
-        plotOptions: {
-            column: {
-                stacking: 'normal'
-            }
-        },
-        series: series
-    });
-}
+		
+	    Highcharts.chart(container, {
+	        chart: {
+	            type: 'column'
+	        },
+	        credits: {
+	            enabled: false
+	        },
+	        title: {
+	            text: text,
+	            align: 'left',
+	            style: {
+	                color: '#333',
+	                fontFamily: 'Noto Sans KR',
+	                fontSize: '16px',
+	                fontWeight: 'bold'
+	            }
+	        },
+			legend: {
+			    layout: 'vertical',
+			    align: 'right',
+			    verticalAlign: 'middle',
+			    x: 0,
+			    y: 0,
+			    itemStyle: {
+			        fontWeight: 'bold',
+			        fontFamily: 'Noto Sans KR',
+			        fontSize: '12px'
+			    },
+			},
+	        xAxis: {
+	            categories: categories
+	        },
+			yAxis: [{
+			    allowDecimals: false,
+			    min: 0,
+			    title: {
+			        text: '계약금액',
+			        style: {
+			            color: "#27187F",
+			            fontFamily: 'Noto Sans KR',
+			            fontSize: '12px',
+			            fontWeight: 'bold'
+			        }
+			    },
+			    labels: {
+			        formatter: function () {
+			            return Highcharts.numberFormat(this.value, 0, '.', ',') + ' ' + unit;
+			        },
+			        style: {
+			            color: Highcharts.getOptions().colors[0]
+			        }
+			    }
+			}, {
+			    title: {
+			        text: '계약건수',
+			        style: {
+			            color: Highcharts.getOptions().colors[1]
+			        }
+			    },
+			    labels: {
+			        formatter: function () {
+			            return Highcharts.numberFormat(this.value, 0, '.', ',') + ' 건';
+			        },
+			        style: {
+			            color: Highcharts.getOptions().colors[2]
+			        }
+			    },
+			    opposite: true
+			}],
+	        tooltip: {
+			    shared: true,
+			    formatter: function () {
+			        const idx = Number(this.x.replace("월", "")) - 1;
+			        const monthly = this.points[0].series.userOptions;
+			        const once = this.points[1].series.userOptions;
+			        const contractedCnt = this.points[2].series.userOptions;
+			        let tooltip = '<b>' + this.x + '</b><br/>';
+			        tooltip += '<span style="color:' + this.points[0].color + '">\u25CF</span> ';
+			        tooltip += monthly.name + ': ' + Highcharts.numberFormat(monthly.data[idx], 0, '.', ',') + unit + '<br>';
+			        tooltip += '<span style="color:' + this.points[1].color + '">\u25CF</span> ';
+			        tooltip += once.name + ': ' + Highcharts.numberFormat(once.data[idx], 0, '.', ',') + unit + '<br>';
+			        tooltip += '<span style="color:' + this.points[2].color + '">\u25CF</span> ';
+			        tooltip += contractedCnt.name + ': ' + Highcharts.numberFormat(contractedCnt.data2[idx], 0, '.', ',') + '건 / ' + Highcharts.numberFormat(contractedCnt.data[idx], 0, '.', ',') + '건';
+			
+			        return tooltip;
+			    }
+			},
+		    plotOptions: {
+		        column: {
+		            borderWidth: 3, // Set the width of the border around each column
+		            pointWidth: 40 // Set the width of the column
+		        },
+		        series: {
+		            lineWidth: 3 // Set the width of the line for all series
+		        }
+		    },
+	        series: series
+	    });
+	}
 	
 	//  FA 수수료 합계 추이 차트 
 	function _1Bar1Line1HorizentalLineChart(container,maxVal, yearlyTargetPayment, series, unit ) {
@@ -910,9 +914,9 @@ function _1stacked1LineChart(container, categories, series, unit, text ) {
 						        plotLines: [{
 									value: yearlyTargetPayment ,
 						            color: "#75ba75",
-						            width: 2,
+						            width: 5,
 						            label: {
-						                text: '목표 '+yearlyTargetPayment +" 백만",
+						                text: '목표 '+yearlyTargetPayment +" "+unit,
 						                align: 'right'
 						            },
 						            id: 'plot-line-id'
