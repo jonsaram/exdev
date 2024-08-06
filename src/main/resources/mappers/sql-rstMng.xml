@@ -768,7 +768,12 @@
 					<when test=" GUBUN != null and GUBUN.equals('FA') ">
 				AND C.USER_ID	= #{sessionVo.userId}
 					</when>
-				</choose>				
+				</choose>
+					
+				<if test=" YEAR != null and !YEAR.equals('')">
+				AND TO_CHAR(C.CONTRACT_DATE,'YYYY') in (  #{YEAR} , TO_CHAR( TO_NUMBER(#{YEAR}) - 1 ) ) 
+	            </if>
+					
 				GROUP BY TO_CHAR(CONTRACT_DATE,'YYYYMM')
 				ORDER BY CONTRACT_DATE
 		) DATA 
@@ -889,7 +894,7 @@
 		                AND P.DEL_YN = 'N'
 						<choose>
 							<when test=" YEAR_MONTH != null and YEAR_MONTH == 'YEAR' ">
-			                AND TO_CHAR(R.RESULT_DATE, 'YYYY') = TO_CHAR(GET_KRDT(SYSDATE), 'YYYY')
+			                AND TO_CHAR(R.RESULT_DATE, 'YYYY') = #{YEAR}
 							</when>
 							<when test=" YEAR_MONTH != null and YEAR_MONTH == 'MONTH' ">
 			                AND TO_CHAR(R.RESULT_DATE, 'YYYYMM') = TO_CHAR(TO_DATE( #{YEAR},'YYYY'), 'YYYYMM') 
