@@ -477,45 +477,6 @@ C_PM.onLoadPage("<@pageId>", function() {
 			});
 		},1000);
 
-		 // 대상 오브젝트
-	    var $target = $('#main_dashboard_fa_faSection1');
-	    // 덮어 씌울 오버레이
-	    var $overlay = $('.overlay');
-
-	    // 대상 오브젝트의 위치와 크기를 가져오기
-	    var offset = $target.offset();
-	    var width = $target.outerWidth();
-	    var height = $target.outerHeight();
-
-	    // 오버레이의 위치와 크기를 대상 오브젝트에 맞추기
-	    $overlay.css({
-	      top: offset.top,
-	      left: offset.left,
-	      width: width,
-	      height: height,
-	      zIndex: 1000,/* 기본 z-index 값 설정 */
-/* 	   	 backgroundColor: 'rgba(0, 0, 0, 0.1)', */  /* Default 반투명 검정 배경 */
-	   	 backgroundColor: 'rgba(0, 0, 0, 0)',  /* Default 반투명 검정 배경 */
-	   	 /*  backgroundColor: 'red', */ /* Default 반투명 검정 배경 */
-	   	  position:'absolute'
-	    });
-
-	    // 오버레이 표시
-	    $overlay.show();
-		
-	    // 특정 위치에 텍스트 추가하기
-	    function addTextToOverlay(text, top, left) {
-	      var $text = $('<div class="testText"></div>').text(text).css({
-	        top: top,
-	        left: left
-	      });
-	      $overlay.append($text);
-	    }
-
-	    // 예시: 여러 위치에 텍스트 추가
-	    addTextToOverlay('Hello', 20, 1000); // 20px 아래, 30px 오른쪽
-	    addTextToOverlay('World', 60, 1000); // 60px 아래, 100px 오른쪽
-	    addTextToOverlay('!', 100, 1500); // 100px 아래, 150px 오른쪽	    
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
 C_HM.onReturn("<@pageId>", function(pageId, data) {
