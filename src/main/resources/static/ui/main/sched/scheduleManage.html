@@ -49,7 +49,9 @@
             // 구글 관련 
             <@pageId>.loadGapi();
             <@pageId>.loadGis();
-           
+            
+            console.log("== init 1 ==");
+            
             var calendarEl = document.getElementById('<@pageId>_calendar');            
             
             <@pageId>.calendar = new FullCalendar.Calendar(calendarEl, {
@@ -154,7 +156,7 @@
            
        }
        ,getAllschedule : function( requestParm ) {
-           
+    	   console.log("== getAllschedule 1 ==");
            let cd = <@pageId>.calendar.getCurrentData();
            
            var start = cd.dateProfile.currentRange.start;
@@ -202,10 +204,10 @@
            <@pageId>.endDate     = endDateString;
                                 
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getNotRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getDayRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getWeekRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getMonthRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getYearRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getDayRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getWeekRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getMonthRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getYearRepeatSchedule");
 
            
        }
@@ -256,11 +258,11 @@
            <@pageId>.startDate   = startDateString;
            <@pageId>.endDate     = endDateString;
            
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamNotRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamDayRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamWeekRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamMonthRepeatSchedule");
-           //<@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamYearRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamNotRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamDayRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamWeekRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamMonthRepeatSchedule");
+           <@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamYearRepeatSchedule");
            
        }
        ,serviceCall : function( requestParm, serviceId ) {
@@ -937,7 +939,7 @@
         C_COM.hideLeftMenu();
         
         <@pageId>.init();        
-        //<@pageId>.startGetScheduleProc();
+        <@pageId>.startGetScheduleProc();
         <@pageId>.getTeamUser();
         
         let date = new Date();
