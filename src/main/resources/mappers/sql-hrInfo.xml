@@ -127,17 +127,6 @@
         	 )
         	 </when>
       	</choose>
-<!--       	
-       	<if test=" parm.BASE_BRANCH != null and !parm.BASE_BRANCH.equals('') ">
-	    AND BR.BASE_BRANCH_ID = #{parm.BASE_BRANCH}  
-       	</if>
-       	<if test=" parm.SP_BRANCH != null and !parm.SP_BRANCH.equals('') ">
-	    AND BR.SP_BRANCH_ID = #{parm.SP_BRANCH}  
-       	</if>
-       	<if test=" parm.BRANCH != null and !parm.BRANCH.equals('') ">
-	    AND BR.BRANCH_ID = #{parm.BRANCH}  
-       	</if>
-				 -->
 	</sql>
 	<select id="getHrInfoList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	hrInfo.getHrInfoList
@@ -344,47 +333,7 @@
 			AND OWNER_CD 	= 'USER_FACE'
 			AND DEL_YN 		= 'N' 
    	</update>
-<!--    	
-	<select id="getBaseBranchList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	hrInfo.getBaseBranchList
-			본부 리스트 조회 
-		*/
-		SELECT U.BASE_BRANCH_ID AS CODE_ID
-			,  U.BASE_BRANCH_NM AS CODE_NM
-		FROM TBL_EXP_BASE_BRANCH U
-	WHERE 1=1
-	</select>
-	
-	<select id="getSpBranchList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	hrInfo.getSpBranchList
-			지사 리스트 조회 
-		*/
-		SELECT '-' AS CODE_ID, '-' AS CODE_NM 
-		FROM DUAL UNION ALL
-		SELECT U.SP_BRANCH_ID AS CODE_ID
-			,  U.SP_BRANCH_NM AS CODE_NM
-		FROM TBL_EXP_SP_BRANCH U
-		WHERE 1=1
-		<if test=" BASE_BRANCH_ID != null and !BASE_BRANCH_ID.equals('') ">
-		AND BASE_BRANCH_ID = #{BASE_BRANCH_ID}
-		</if>
-	</select>
-	
-	<select id="getBranchList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-		/*	hrInfo.getBranchList
-			지점 리스트 조회 
-		*/
-		SELECT '-' AS CODE_ID, '-' AS CODE_NM 
-		FROM DUAL UNION ALL
-		SELECT U.BRANCH_ID AS CODE_ID
-			,  U.BRANCH_NM AS CODE_NM
-		FROM TBL_EXP_BRANCH U
-		WHERE 1=1
-		<if test=" SP_BRANCH_ID != null and !SP_BRANCH_ID.equals('') ">
-		AND SP_BRANCH_ID = #{SP_BRANCH_ID}
-		</if>
-	</select>
-	 -->
+
 	<update id="updateSuretyInsurance" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	hrInfo.updateSuretyInsurance
 			보증보험  저장
