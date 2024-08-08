@@ -54,6 +54,9 @@ public class ExdevCommonService extends ExdevBaseService
 	
 	public Map requestService(Map map, HttpSession session) throws Exception {
 		
+		// 20240808 위성열  /  DB 병렬 처리 허용  
+		commonDao.update("common.allowParallel", map);
+		
 		String 	serviceId 	= (String)map.get("serviceId");
 		
 		Map 	requestParm = (Map)map.get("requestParm");
@@ -105,6 +108,9 @@ public class ExdevCommonService extends ExdevBaseService
 	@SuppressWarnings("unchecked")
 	public Map requestQuery(Map map, HttpSession session) throws Exception {
 		
+		// 20240808 위성열  /  DB 병렬 처리 허용  
+		commonDao.update("common.allowParallel", map);
+		
 		List<Map> resultList = new ArrayList<Map>();
 		
 		String 		queryId 		= (String)map.get("queryId");
@@ -149,6 +155,9 @@ public class ExdevCommonService extends ExdevBaseService
 	@SuppressWarnings("unchecked")
 	public Map requestQueryGroup(Map map, HttpSession session) throws Exception {
 
+		// 20240808 위성열  /  DB 병렬 처리 허용  
+		commonDao.update("common.allowParallel", map);
+		
 		List<Map> resultList = new ArrayList<Map>();
 		
 		List<Map> 	queryGroup 	= (List<Map>)map.get("queryGroup");
