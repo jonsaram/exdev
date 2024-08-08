@@ -54,6 +54,9 @@ public class ExdevSessionController {
 		sessionVO.setLoginType	("USER"		);
 		
 		session.setAttribute(ExdevConstants.SESSION_ID, sessionVO);
+
+		// 20240808 위성열  /  DB 병렬 처리 허용  
+		commonDao.update("common.allowParallel", map);
 		
 		return userInfo;
 	}

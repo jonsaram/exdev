@@ -9,6 +9,11 @@
 	<!--
 	공통 코드  
 	 -->	
+	 
+	<update id="allowParallel" parameterType="map">
+		ALTER SESSION DISABLE PARALLEL DML
+	</update>
+	 
 	<select id="getCommonCodeList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	common.getCommonCodeList
 			공통코드 리스트 조회 
