@@ -27,6 +27,10 @@
 				
 			})
 			
+			if( !isEmpty(param.ADDR) ){
+				$("#<@pageId>_ADDR").html(param.ADDR1+"<BR>"+ param.ADDR2);
+			}
+			
 	  		<@pageId>.getUserImg();
 		}
 		,updateItem : (param) => {
@@ -252,6 +256,10 @@
 
 	});
 </script>
+<style>
+.info_center{text-align:center;}
+.info_right{text-align:right;}
+</style>
 <div class="cont_wrap">
 	<div class="cont_top">
 		<h2><a href="javascript:<@pageId>.backTo();" class="before"><i class="icon_long_arrow_left"></i>직원 인사 기록 카드</a></h2>
@@ -273,39 +281,39 @@
 						<ul class="info_wrap personnel">
 							<li>
 								<label>입사일</label>
-								<div class="info parmVal" id="<@pageId>_REG_DATE" >
+								<div class="info parmVal info_right" id="<@pageId>_REG_DATE" >
 								</div>
 							</li>
 							<li>
 								<label>휴대전화</label>
-								<div class="info parmVal" id="<@pageId>_PHONE_NUM" >
+								<div class="info parmVal info_right" id="<@pageId>_PHONE_NUM" >
 								</div>
 							</li>
 							<li>
 								<label>이메일</label>
-								<div class="info parmVal" id="<@pageId>_E_MAIL" >
+								<div class="info parmVal info_right" id="<@pageId>_E_MAIL" >
 								</div>
 							</li>
 							<li class="hauto">
 								<label>주소</label>
-								<div class="info lh20 parmVal" id="<@pageId>_ADDR">
+								<div class="info lh20 parmVal info_right" id="<@pageId>_ADDR">
 								</div>
 							</li>
 							<li>
 								<label>신용입보</label>
-								<div class="info parmVal" id="<@pageId>_SURETY_INSURANCE_NM"></div>
+								<div class="info parmVal info_right" id="<@pageId>_SURETY_INSURANCE_NM"></div>
 							</li>
 							<li>
 								<label>가입금액</label>
-								<div class="info parmVal" id="<@pageId>_AMOUNT"></div>
+								<div class="info parmVal info_right" id="<@pageId>_AMOUNT"></div>
 							</li>
 							<li>
 								<label>가입일</label>
-								<div class="info parmVal" id="<@pageId>_INSURANCE_REG_DATE"></div>
+								<div class="info parmVal info_right" id="<@pageId>_INSURANCE_REG_DATE"></div>
 							</li>
 							<li>
 								<label>만기일</label>
-								<div class="info parmVal" id="<@pageId>_INSURANCE_EXP_DATE"></div>
+								<div class="info parmVal info_right" id="<@pageId>_INSURANCE_EXP_DATE"></div>
 							</li>
 						</ul>
 					</div>
@@ -356,11 +364,11 @@
 								<script type="text/x-jsrender" id="<@pageId>_educationList_template">	
 								{{for list}}
 									<tr name="<@pageId>_tr_{{:#index}}" onclick='<@pageId>.modiEducationData({{:#index}})'>
- 										<td class='tl' 	id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
- 										<td class='tl' 	id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
- 										<td class='tl'	id='SCHOOL_NAME'	value='{{:SCHOOL_NAME}}'	>{{:SCHOOL_NAME}}</td>
- 										<td class='tl' 	id='MAJOR'			value='{{:MAJOR}}' 			>{{:MAJOR}}</td>
- 										<td class='tc' 	id='GRADUATE_YN'	value='{{:GRADUATE_YN}}' 	>{{:GRADUATE_YN}}</td>
+ 										<td class='tl' 	id='GUBUN'			title="{{:GUBUN}}" 			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
+ 										<td class='tl' 	id='PERIOD_DATE'	title="{{:PERIOD_DATE}}" 	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
+ 										<td class='tl'	id='SCHOOL_NAME'	title="{{:SCHOOL_NAME}}" 	value='{{:SCHOOL_NAME}}'	>{{:SCHOOL_NAME}}</td>
+ 										<td class='tl' 	id='MAJOR'			title="{{:MAJOR}}" 			value='{{:MAJOR}}' 			>{{:MAJOR}}</td>
+ 										<td class='tc' 	id='GRADUATE_YN'	title="{{:GRADUATE_YN}}" 	value='{{:GRADUATE_YN}}' 	>{{:GRADUATE_YN}}</td>
 									</tr>
 								{{/for}}
 								</script>
@@ -417,11 +425,11 @@
 								<script type="text/x-jsrender" id="<@pageId>_careerList_template">	
 								{{for list}}
 									<tr name="<@pageId>_tr_{{:#index}}"  onclick='<@pageId>.modiCareerData({{:#index}})'>
- 										<td id='GUBUN'			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
- 										<td id='PERIOD_DATE'	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
- 										<td id='DEPARTMENT'		value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
- 										<td id='POSITION'		value='{{:POSITION}}'		>{{:POSITION}}</td>
- 										<td id='BIZ_INFORM'		value='{{:BIZ_INFORM}}' 	>{{:BIZ_INFORM}}</td>
+ 										<td id='GUBUN'			title="{{:GUBUN}}" 			value='{{:GUBUN}}' 			>{{:GUBUN}}</td>
+ 										<td id='PERIOD_DATE'	title="{{:PERIOD_DATE}}" 	value='{{:PERIOD_DATE}}'	>{{:PERIOD_DATE}}</td>
+ 										<td id='DEPARTMENT'		title="{{:DEPARTMENT}}" 	value='{{:DEPARTMENT}}'		>{{:DEPARTMENT}}</td>
+ 										<td id='POSITION'		title="{{:POSITION}}" 		value='{{:POSITION}}'		>{{:POSITION}}</td>
+ 										<td id='BIZ_INFORM'		title="{{:BIZ_INFORM}}" 	value='{{:BIZ_INFORM}}' 	>{{:BIZ_INFORM}}</td>
 									</tr>
 								{{/for}}
 								</script>

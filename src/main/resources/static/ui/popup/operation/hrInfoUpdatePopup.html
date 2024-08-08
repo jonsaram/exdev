@@ -378,6 +378,19 @@
 			$("#<@popupId>_DIVISION").val(divisionStr);
 			<@popupId>.recvData.param.DIVISION_ID = data.DIVISION_ID;
 
+			let param={ queryId 		: "common.getCommonCodeList"};
+			if( data.DIVISION_ID.startsWith("SALES") ){
+				param.requestParm =  {'GRP_CODE_ID':'GRADE', 'attr1':'SALES'}
+			}else{
+				param.requestParm =  {'GRP_CODE_ID':'GRADE', 'attr1':'NOT_SALES'}
+			}
+			const grades =  C_COM.requestQuery(param) ;
+			//직급(구 등급)
+			C_UICOM.makeSelectBox({ 
+			 defaultItem 	: ["", "선택"]
+			,data : grades.data.map( grade=>[grade.CODE_ID,grade.CODE_NM,] )
+ 			,targetId : "<@popupId>_selectGrade" }, "single");
+			
 			return divisionStr;
 		}
 		,getDivisionInfo : (DIVISION_ID) => {

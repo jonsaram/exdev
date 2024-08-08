@@ -36,6 +36,15 @@
 		    	A.GRP_CODE_ID = B.GRP_CODE_ID
 		    AND	A.USE_YN = 'Y'
 		    AND B.USE_YN = 'Y'
+		    <if test='GRP_CODE_ID !=null and  !GRP_CODE_ID.equals("")'>
+		    	AND A.GRP_CODE_ID = #{GRP_CODE_ID}
+		    </if>
+		    <if test='attr1 !=null and  !attr1.equals("")'>
+		    	AND ATTR1 = #{attr1}
+		    </if>
+		    <if test='attr2 !=null and  !attr2.equals("")'>
+		    	AND ATTR2 = #{attr2}
+		    </if>
 		ORDER BY A.SORT_ORDER, B.SORT_ORDER    
    	</select>
    	
