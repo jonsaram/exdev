@@ -9,7 +9,6 @@
        ,IS_GOOGLE_CALENDAR_SYN_YN : false
        ,GOOGLE_CALENDAR_ID : ''
        ,TOKEN_CLIENT : ''
-       ,DEL_GOOGLE_EVENT : []
        ,parmObj : {}
        ,calendar : ''
        ,toDay : ''
@@ -17,7 +16,9 @@
        ,endDate   : ''
        ,GAP_IINITED : false
        ,GIS_INITED : false
-           
+       ,IS_GAP_START : false
+       ,IS_GIS_START : false
+       ,IS_SCHEDULE_PROC_START : false     
        ,addSchedulePopup : function() {    
 
             let date = new Date();
@@ -29,8 +30,7 @@
            requestParm["today"]       = todayPop;
            C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                if( obj.refresh == 'Y' ){
-                   let parm = {};
-                   <@pageId>.getAllschedule(parm);
+                   <@pageId>.startGetScheduleProc(true);
                } 
            });
         }   
@@ -38,20 +38,13 @@
            let requestParm = {};
            C_POP.open('popup_sched_googleScheduleSetPopup', requestParm, function(obj) {
                if( obj.refresh == 'Y' ){
-                   let parm = {};
-                   <@pageId>.getAllschedule(parm);
                    <@pageId>.startGetScheduleProc(true);
                } 
            });
         }  
        ,init : function( value ) {
 
-            // 구글 관련 
-            <@pageId>.loadGapi();
-            <@pageId>.loadGis();
-            
-            console.log("== init 1 ==");
-            
+            <@pageId>.getUserInfo();
             var calendarEl = document.getElementById('<@pageId>_calendar');            
             
             <@pageId>.calendar = new FullCalendar.Calendar(calendarEl, {
@@ -134,7 +127,6 @@
                 
                 var start = cd.dateProfile.currentRange.start;
                 var end   = cd.dateProfile.currentRange.end;
-
                 <@pageId>.startGetScheduleProc(true);
             });
          }// init
@@ -156,7 +148,6 @@
            
        }
        ,getAllschedule : function( requestParm ) {
-    	   console.log("== getAllschedule 1 ==");
            let cd = <@pageId>.calendar.getCurrentData();
            
            var start = cd.dateProfile.currentRange.start;
@@ -442,21 +433,53 @@
 
       /*=============================================================================================*/
       /* 일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스               */  
-     ,startGetScheduleProc : function( check ) {// 시작
+     ,startGetScheduleProc : function( is_pop_call ) {// 시작
+          console.log("일정 프로세스  1 =>"+<@pageId>.IS_SCHEDULE_PROC_START);
           
-          if( check ){
+          if( <@pageId>.IS_SCHEDULE_PROC_START ){              
+              console.log("일정 프로세스 실행못함");
+              return;
+          }
+          console.log("일정 프로세스  IS_GOOGLE_CALENDAR_SYN_YN =>"+<@pageId>.IS_GOOGLE_CALENDAR_SYN_YN);
+          if( <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN ){
+              console.log("일정 프로세스  1 =>"+<@pageId>.IS_SCHEDULE_PROC_START);
+              console.log("일정 프로세스  GIS_INITED =>"+<@pageId>.GIS_INITED);
+              console.log("일정 프로세스  GAP_IINITED =>"+<@pageId>.GAP_IINITED);
+              console.log("일정 프로세스  IS_GAP_START =>"+<@pageId>.IS_GAP_START);
+              console.log("일정 프로세스  IS_GIS_START =>"+<@pageId>.IS_GIS_START);
+              
               if (<@pageId>.GIS_INITED && <@pageId>.GAP_IINITED) {
-                  <@pageId>.getUserGoogleSyn();
+                  if( is_pop_call ){
+                      <@pageId>.getEventGoogleCalendar();
+                      let parm = {};
+                      <@pageId>.getAllschedule(parm);  
+                  }else{
+                      if ( <@pageId>.IS_GAP_START && <@pageId>.IS_GIS_START ) {
+                          console.log("일정 프로세스 실행 시작");
+                          console.log("구글 인증 완료 구글 일정 조회 시작");
+                          <@pageId>.IS_SCHEDULE_PROC_START = true;// 
+                          <@pageId>.getEventGoogleCalendar();
+                          let parm = {};
+                          <@pageId>.getAllschedule(parm);  
+                          <@pageId>.IS_GAP_START = false;
+                          <@pageId>.IS_GIS_START = false;
+                          <@pageId>.IS_SCHEDULE_PROC_START = false;
+                          console.log("구글 인증 완료 구글 일정 조회 종료");
+                          console.log("일정 프로세스 실행 종료");
+                      }
+                  }
               }
           }else{
+              <@pageId>.IS_SCHEDULE_PROC_START = true;// 
+              console.log("일정 프로세스 실행 시작");
               let parm = {};
               <@pageId>.getAllschedule(parm);
+              <@pageId>.IS_SCHEDULE_PROC_START = false;
+              console.log("일정 프로세스 실행 종료");
           }
-          
       }
-     ,getUserGoogleSyn : () =>  {
+     ,getUserInfo : () =>  {
          let requestParm = {};
-          
          let parm = {
               queryId        : "schedule.getUserInfo"
              ,requestParm    : requestParm
@@ -468,10 +491,12 @@
                      <@pageId>.GOOGLE_CALENDAR_ID = resultData.data[i].GOOGLE_CALENDAR_ID;
                      if( resultData.data[i].GOOGLE_CALENDAR_SYN_YN == "Y"){
                          <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN = true;
-                         <@pageId>.getEventGoogleCalendar();
+                         // 구글 관련 
+                         <@pageId>.loadGapi();
+                         <@pageId>.loadGis();
                      }else{
-                         let parm = {};
-                         <@pageId>.getAllschedule(parm);
+                         <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN = false;
+                         <@pageId>.startGetScheduleProc( false );
                      }  
                  }
              }
@@ -493,8 +518,6 @@
          
          var url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}`;
 
-         console.log("timeMax ==>"+timeMax);
-         
          fetch(url)
            .then(response => response.json())
            .then(data => {
@@ -524,42 +547,26 @@
                var allDay = "N";
                var isAllDay = false;
                
-               
-               
-               console.log("구글 title =>"+title);
-               console.log("구글 startDateTime =>"+startDateTime);
-               console.log("구글 endDateTime =>"+endDateTime);
-               console.log("구글 startDate =>"+startDate);
-               console.log("구글 endDate =>"+endDate);
-               
                if( startDate){
                    scheduleStartDate = startDate.substring(0, 10);
                    startTimeH = "00";    
                    startTimeM = "00";
                    allDay = "Y";
                    isAllDay = true;
-                   console.log("start.length 1111");
                }else{
                    scheduleStartDate = startDateTime.substring(0, 10);
                    startTimeH = startDateTime.substring(11, 13);    
-                   startTimeM = startDateTime.substring(14, 16);
-
-                   console.log("start.length 2222");
-               }
+                   startTimeM = startDateTime.substring(14, 16);               }
                
                if( endDate ){
                    scheduleEndDate = endDate.substring(0, 10);
                    endTimeH = "00";    
                    endTimeM = "00";
-                   console.log("end.length 1111");
                }else{
                    scheduleEndDate = endDateTime.substring(0, 10);
                    endTimeH = endDateTime.substring(11, 13);    
                    endTimeM = endDateTime.substring(14, 16);
-                   console.log("end.length 2222");
                }
-               
-               console.log("getEventGoogleCalendar 1 =>");
                
                var obj = new Object();
                obj.id    = id ;
@@ -594,88 +601,103 @@
                <@pageId>.googleEvents.push(obj)
                
              });//data.items.forEach
-             console.log("getEventGoogleCalendar 2 =>");
              <@pageId>.synchProcess1();
              
            })
-           .catch(error => console.error('Error fetching events:', error));
+            .catch(error => {
+                console.error('Error fetching events:', error);
+                let parm = {};
+                <@pageId>.getAllschedule(parm);
+            });
       }
      ,synchProcess1 : () =>  {
-    	  console.log("synchProcess1 1 =>");
-          // 구글:O,  EXP:O 일경우 수정
-          let requestParm = {}; 
-          requestParm["googleEvent"]  = JSON.stringify(<@pageId>.googleEvents);
-          var parm = {
-               serviceId              : "ScheduleService.synchProcess1"
-              ,requestParm            : requestParm
+          try {
+              // 구글:O,  EXP:O 일경우 수정
+              let requestParm = {}; 
+              requestParm["googleEvent"]  = JSON.stringify(<@pageId>.googleEvents);
+              var parm = {
+                   serviceId              : "ScheduleService.synchProcess1"
+                  ,requestParm            : requestParm
+              }
+              C_COM.requestService(parm, function(resultData) {
+                  <@pageId>.synchProcess2( requestParm );
+              });
+
+          } catch (error) {
+              console.error("Error in synchProcess1:", error);
+              let parm = {};
+              <@pageId>.getAllschedule(parm);
           }
-          C_COM.requestService(parm, function(resultData) {
-              <@pageId>.synchProcess2( requestParm );
-          });
       }
      ,synchProcess2 : ( requestParm) =>  {
-    	 console.log("synchProcess2 1 =>");
-         // 구글:O,  EXP:X 일경우 입력
-         // 삭제로그 조회후 삭제로그에 있을 경우 구글 삭제, 해당 구글 아이디를 리턴한다(*).
-         // 삭제로그 조회후 삭제로그에 없을 경우 EXP 입력
-         var parm = {
-              serviceId              : "ScheduleService.synchProcess2"
-             ,requestParm            : requestParm
-         }
-         C_COM.requestService(parm, function(resultData) {
+         try {
+             // 구글:O,  EXP:X 일경우 입력
+             // 삭제로그 조회후 삭제로그에 있을 경우 구글 삭제, 해당 구글 아이디를 리턴한다(*).
+             // 삭제로그 조회후 삭제로그에 없을 경우 EXP 입력
+             var parm = {
+                  serviceId              : "ScheduleService.synchProcess2"
+                 ,requestParm            : requestParm
+             }
+             C_COM.requestService(parm, function(resultData) {
+    
+                 let googleIdArr = [];
+                 for (var i=0; i<resultData.data.list.length; i++){
+                     googleIdArr.push(resultData.data.list[i].googleId);
+                 }
+                 if( googleIdArr.length !=0 ){
+                     <@pageId>.delGoogleEvent(googleIdArr);
+                 }
+                 <@pageId>.synchProcess3(requestParm);
+             });
 
-             let googleIdArr = [];
-             <@pageId>.synchProcess3(requestParm);
-             for (var i=0; i<resultData.data.list.length; i++){
-                 <@pageId>.DEL_GOOGLE_EVENT.push(resultData.data.list[i].googleId);
-             }
-             if( resultData.data.list.length !=0 ){
-                 <@pageId>.IS_DELETE_GOOGLE_EVENT = true;
-                 <@pageId>.delGoogleEvent();
-             }else{
-                 let parm = {};    
-             }
-         });
-         
+         } catch (error) {
+             console.error("Error in synchProcess2:", error);
+             let parm = {};
+             <@pageId>.getAllschedule(parm);
+         }
          
      }
      ,synchProcess3 : ( requestParm) =>  {
-    	 console.log("synchProcess3 1 =>");
-         // 구글:X,  EXP:O 일경우
-         // 1.EXP에서 입력후 오류로           구글 X,   EXP에 구글 ID 없음
-         // 2.EXP에서 입력후 구글연동 사용 X, 구글 X,   EXP에 구글 ID 없음
-         // 3.EXP에서 입력후 구글에서 삭제              EXP에 구글 ID 있음
-         // 1,2 의경우는 사용자가 구글연동 사용 Y일경우 구글에 입력, 입력데이타를 리턴한다(*).
-         // 3.일경우 EXP 삭제
-         
-         var startDate = <@pageId>.getStartEndDate('START');
-         var endDate   = <@pageId>.getStartEndDate('END');
-         
-         requestParm["userId"]     = G_VAL.session.USER_ID ;
-         requestParm["spCstmId"]   = G_VAL.session.spCstmId ;
-         requestParm["startDate"]  = startDate.startDateString;
-         requestParm["endDate"]    = endDate.endDateString;
-         
-         console.log("synchProcess3 2 =>");
-         
-         var parm = {
-              serviceId              : "ScheduleService.synchProcess3"
-             ,requestParm            : requestParm
-         }
-         C_COM.requestService(parm, function(resultData) {
-             if( resultData.data.list.length !=0 ){
-                 <@pageId>.saveGoogleEvent(resultData);
-             }else{
-                 let parm = {};
-                 <@pageId>.getAllschedule(parm);       
+         try {
+             // 구글:X,  EXP:O 일경우
+             // 1.EXP에서 입력후 오류로           구글 X,   EXP에 구글 ID 없음
+             // 2.EXP에서 입력후 구글연동 사용 X, 구글 X,   EXP에 구글 ID 없음
+             // 3.EXP에서 입력후 구글에서 삭제              EXP에 구글 ID 있음
+             // 1,2 의경우는 사용자가 구글연동 사용 Y일경우 구글에 입력, 입력데이타를 리턴한다(*).
+             // 3.일경우 EXP 삭제
+             
+             var startDate = <@pageId>.getStartEndDate('START');
+             var endDate   = <@pageId>.getStartEndDate('END');
+             
+             requestParm["userId"]     = G_VAL.session.USER_ID ;
+             requestParm["spCstmId"]   = G_VAL.session.spCstmId ;
+             requestParm["startDate"]  = startDate.startDateString;
+             requestParm["endDate"]    = endDate.endDateString;
+             
+             console.log("synchProcess3 2 =>");
+             
+             var parm = {
+                  serviceId              : "ScheduleService.synchProcess3"
+                 ,requestParm            : requestParm
              }
-         });
+             C_COM.requestService(parm, function(resultData) {
+                 if( resultData.data.list.length !=0 ){
+                     <@pageId>.saveGoogleEvent(resultData);
+                 }else{
+                     let parm = {};
+                     <@pageId>.getAllschedule(parm);       
+                 }
+             });
+
+         } catch (error) {
+             console.error("Error in synchProcess3:", error);
+             let parm = {};
+             <@pageId>.getAllschedule(parm);
+         }
      }
 
      ,synchProcess4 : ( saveEvents) =>  {
-    	 
-    	 console.log("synchProcess4 1 =>");
-    	 
+         
          // 구글에 신규 입력후 받은 구글 id를 EXP에 적용한다.
          // 구글:O,  EXP:O 일경우 수정
          let requestParm = {}; 
@@ -700,12 +722,12 @@
       /*=============================================================================================*/
       /* google API함수    google API함수    google API함수    google API함수    google API함수       */
       
-     ,delGoogleEvent : function( ) {
+     ,delGoogleEvent : function( googleIdArr ) {
          <@pageId>.TOKEN_CLIENT.callback = async (resp) => {
            if (resp.error !== undefined) {
              throw (resp);
            }
-           <@pageId>.deleteEventAPI();
+           <@pageId>.deleteEventAPI( googleIdArr );
          };
          if (gapi.client.getToken() === null) {
            // Prompt the user to select an account.
@@ -716,12 +738,11 @@
          }
       }
      
-     ,deleteEventAPI : function(  ) {
-    	 console.log("deleteEventAPI 1 =>");
+     ,deleteEventAPI : function( googleIdArr ) {
          <@pageId>.IS_DELETE_GOOGLE_EVENT = false;
          
-         for (let i = 0; i < <@pageId>.DEL_GOOGLE_EVENT.length; i++) {
-             var eventId = <@pageId>.DEL_GOOGLE_EVENT[i];
+         for (let i = 0; i < googleIdArr.length; i++) {
+             var eventId = googleIdArr[i];
 
              gapi.client.calendar.events.delete({
                'calendarId': <@pageId>.GOOGLE_CALENDAR_ID,
@@ -736,10 +757,10 @@
                console.error('Error deleting event:', error);
              });
          }
-         <@pageId>.DEL_GOOGLE_EVENT.length = 0; // 배열삭제
       }
      
      ,saveGoogleEvent : function(resultData ) {
+         console.log("saveGoogleEvent 1 =>");
          <@pageId>.TOKEN_CLIENT.callback = async (resp) => {
            if (resp.error !== undefined) {
              throw (resp);
@@ -792,9 +813,9 @@
 
              // 비동기 요청을 Promise로 감싸서 배열에 저장
              const requestPromise = new Promise((resolve, reject) => {
-            	 
-            	 console.log("requestPromise 1 GOOGLE_CALENDAR_ID=>"+<@pageId>.GOOGLE_CALENDAR_ID);
-            	 
+                 
+                 console.log("requestPromise 1 GOOGLE_CALENDAR_ID=>"+<@pageId>.GOOGLE_CALENDAR_ID);
+                 
                  const request = gapi.client.calendar.events.insert({
                      'calendarId': <@pageId>.GOOGLE_CALENDAR_ID,
                      'resource': event
@@ -812,60 +833,54 @@
              });
              promises.push(requestPromise); // Promise 배열에 추가
          }
-
-         // 모든 비동기 요청이 완료된 후 실행
-         Promise.all(promises)
-             .then(() => {
-                 if (is_save) {
-                     <@pageId>.synchProcess4(saveEvents);
-                 }
-             })
-             .catch(error => {
-                 console.error("Error inserting events: ", error);
-             });
-         
       }
 
        ,loadGapi: function() {
+           //Google API (GAPI) 스크립트를 동적으로 로드합니다.
            const script = document.createElement('script');
            script.src = _GAPI_SCRIPT;
-           script.onload = () => <@pageId>.gapiLoaded();
+           script.onload = () => <@pageId>.gapiLoaded();//콜백 함수 호출
            document.body.appendChild(script);
        }
        ,loadGis: function() {
+           //Google Identity Services (GIS) 스크립트를 동적으로 로드
            const script = document.createElement('script');
            script.src = _GIS_SCRIPT;
-           script.onload = () => <@pageId>.gisLoaded();
+           script.onload = () => <@pageId>.gisLoaded();// 콜백 함수 호출
            document.body.appendChild(script);
        }
        ,gapiLoaded : function() {
             gapi.load('client', () => {
-                <@pageId>.initializeGapiClient()
+                <@pageId>.initializeGapiClient()//클라이언트를 초기화
                     .then(() => {
-                        if( <@pageId>.IS_DELETE_GOOGLE_EVENT ){
-                            <@pageId>.delGoogleEvent();
-                        }
+                        <@pageId>.GAP_IINITED = true;
+                        <@pageId>.IS_GAP_START = true;
+                        <@pageId>.startGetScheduleProc(false);
                     })
                     .catch(error => {
+                        <@pageId>.startGetScheduleProc(false);
                         console.error('Error loading GAPI client:', error);
                     });
             });
         }
        ,gisLoaded : function() {
+           //GIS 스크립트가 로드된 후 호출
            try {
-               <@pageId>.TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
+               <@pageId>.TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({ //OAuth2 토큰 클라이언트를 초기화
                    client_id: _CLIENT_ID,
                    scope: _SCOPES,
                    callback: (response) => {
                        if (response.error !== undefined) {
                            throw(response);
                        }
-                   }   
+                   }
                });
                <@pageId>.GIS_INITED = true;
-               <@pageId>.startGetScheduleProc(true);
+               <@pageId>.IS_GIS_START = true;
+               <@pageId>.startGetScheduleProc(false);
            } catch (error) {
                <@pageId>.startGetScheduleProc(false);
+               console.error('Error loading GIS client:', error);
            }
        }
        ,initializeGapiClient: async function() {
@@ -874,9 +889,6 @@
                    apiKey: _API_KEY,
                    discoveryDocs: _DISCOVERY_DOCS
                });
-               <@pageId>.GAP_IINITED = true;
-               <@pageId>.startGetScheduleProc(true);
-               // 추가 작업
            } catch (error) {
                <@pageId>.startGetScheduleProc(false);
            }
@@ -939,9 +951,7 @@
         C_COM.hideLeftMenu();
         
         <@pageId>.init();        
-        <@pageId>.startGetScheduleProc();
         <@pageId>.getTeamUser();
-        
         let date = new Date();
         <@pageId>.toDay = date.getFullYear() +
                           '-' + ( (date.getMonth()+1) <= 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
@@ -1020,11 +1030,11 @@
                                 <li><i class="status schedule"></i><span>회사 내부 일정</span></li>
                                 <li><i class="status seminar"></i><span>세미나</span></li>
                             </ul>
-	                        <div class="stit_schedule">
-	                        	<button type="button" onclick="<@pageId>.googleScheduleSetPopup();" class="btn select fr" style='margin-left:8px;'>구글일정 동기화</button>
-	                        </div>
+                            <div class="stit_schedule">
+                                <button type="button" onclick="<@pageId>.googleScheduleSetPopup();" class="btn select fr" style='margin-left:8px;'>구글일정 동기화</button>
+                            </div>
                         </div>
-                        	
+                            
                     </div>
                     <!-- 스케줄 오른쪽 -->
                     <div class="schedule right">

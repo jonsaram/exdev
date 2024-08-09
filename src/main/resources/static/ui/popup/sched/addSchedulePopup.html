@@ -28,8 +28,9 @@
         ,init : function(data) {
 
             // 구글 관련 
-            <@popupId>.gapiLoaded();
-            <@popupId>.gisLoaded();
+            //<@popupId>.gapiLoaded();
+            //<@popupId>.gisLoaded();
+            <@popupId>.getUserInfo();
             
             <@popupId>.SCHEDULE_ID = C_COM.makeUniqueId();// PK 생성 
 
@@ -223,9 +224,46 @@
             <@popupId>.contractId =  data["contractId"];
             
             //구글 연계 정보 조회
-            <@popupId>.getUserGoogleSyn();
+            //<@popupId>.getUserGoogleSyn();
         }
+        ,getUserInfo : () =>  {
+            let requestParm = {};
+             
+            let parm = {
+                 queryId        : "schedule.getUserInfo"
+                ,requestParm    : requestParm
+            }
+             
+            C_COM.requestQuery(parm, function(resultData) {
+                for(var i =0; i < resultData.data.length; i++){
+                    if( resultData.data[i] != null){
+                        <@popupId>.GOOGLE_CALENDAR_ID = resultData.data[i].GOOGLE_CALENDAR_ID;
+                        if( resultData.data[i].GOOGLE_CALENDAR_SYN_YN == "Y"){
+                            <@popupId>.IS_GOOGLE_CALENDAR_SYN_YN = true;
+                            // 구글 관련 
+                            <@popupId>.gapiLoaded();
+                            <@popupId>.gisLoaded();
+                        }else{
+                            <@popupId>.IS_GOOGLE_CALENDAR_SYN_YN = false;
+                        }  
+                    }
+                }
+             });
+            
+         }
         ,getUserGoogleSyn : () =>  {
+
+            if( <@popupId>.IS_GOOGLE_CALENDAR_SYN_YN){
+                console.log("===== getUserGoogleSyn IS_GOOGLE_CALENDAR_SYN_Y =====");
+                <@popupId>.gapiLoaded();
+                <@popupId>.gisLoaded();
+                
+            }else{
+                console.log("===== getUserGoogleSyn IS_GOOGLE_CALENDAR_SYN_N =====");
+                
+            }
+         }
+        ,getUserGoogleSyn_bak : () =>  {
             let requestParm = {};
              
             let parm = {
@@ -668,25 +706,29 @@
         /* google API함수    google API함수    google API함수    google API함수    google API함수       */
         
         ,gapiLoaded : function() {
-             gapi.load('client', () => {
-                 <@popupId>.initializeGapiClient()
-                     .then(() => {
-                     })
-                     .catch(error => {
-                         console.error('Error loading GAPI client:', error);
-                     });
-             });
+        	gapi.load('client', async () => {
+                try {
+                    await <@popupId>.initializeGapiClient();
+                    console.log('GAPI client initialized successfully.');
+                } catch (error) {
+                    console.error('Error loading GAPI client:', error);
+                }
+            });
          }
 
         ,gisLoaded : function() {
-            <@popupId>.TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
-            client_id: _CLIENT_ID,
-            scope: _SCOPES,
-            callback: (response) => {
-                console.log('GAPI OAuth2 token client initialized successfully.');
-                // 추가 작업
-            }
-          });
+          try {
+        	      <@popupId>.TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
+                  client_id: _CLIENT_ID,
+                  scope: _SCOPES,
+                  callback: (response) => {
+                      console.log('GAPI OAuth2 token client initialized successfully.');
+                      // 추가 작업
+                  }
+              });
+          } catch (error) {
+              console.error('Error initializing OAuth2 token client:', error);
+          }
         }
         ,initializeGapiClient: async function() {
             try {

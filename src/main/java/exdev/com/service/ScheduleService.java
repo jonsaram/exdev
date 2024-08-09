@@ -113,6 +113,7 @@ public class ScheduleService extends ExdevBaseService{
             String scheduleDelExist  = (String)delSchedul.get("SCHEDULE_DEL_EXIST");
             
             if( "N".equals(scheduleExist) && "N".equals(scheduleDelExist)) {
+                //구글 일정이 일정테이블에 없고 삭제 테이블에도 없을경우 구글 일정을 입력한다.
                 //입력
                 saveMap.put("scheduleId", extendedProps.get("makeScheduleId"));
                 saveMap.put("scheduleGrpId", extendedProps.get("makeScheduleGrpId"));
@@ -136,6 +137,7 @@ public class ScheduleService extends ExdevBaseService{
                 saveMap.put("userId", extendedProps.get("userId"));
                 result += commonDao.insert("schedule.insertGoogleSchedule", saveMap);
             }else if( "N".equals(scheduleExist) && "Y".equals(scheduleDelExist)) {
+                //구글 일정이 일정테이블에 없고 삭제 테이블에 있을경우 해당 구글일정은 구글에서 삭제 대상.
                 //구글 삭제 대상
                 Map<String, Object> delMap = new HashMap<String, Object>();
                 delMap.put("googleId", googleCalendarEventId);
@@ -197,13 +199,15 @@ public class ScheduleService extends ExdevBaseService{
             String googleCalendarEventId1 = (String)scheduleMap.get("GOOGLE_CALENDAR_EVENT_ID");
             String googleYn               = (String)scheduleMap.get("GOOGLE_YN");
             
-            if( "N".equals(googleYn)) {//EXP:데이타 존재X 구글ID 없음
-                listMap.add(scheduleMap);
+            if( "N".equals(googleYn)) {//EXP에는 있는데 구글ID가 없을경우 구글일정에 추가
+                listMap.add(scheduleMap);// 구글일정에 추가대상 
             }else {
                 delChecklistMap.add(scheduleMap);
             }
         }
         
+        // EXP에서 입력후 구글에서 삭제된경우 EXP일정을 삭제함 
+        // 구글 X,   EXP에 구글 ID 있음
         for(Map<String, Object> delCheckMap : delChecklistMap){
             String expGoogleEventId  = (String)delCheckMap.get("GOOGLE_CALENDAR_EVENT_ID");
             boolean isDelete = true;
@@ -211,7 +215,7 @@ public class ScheduleService extends ExdevBaseService{
                 LinkedHashMap<String, String> extendedProps = (LinkedHashMap<String, String>) eventMap.get("extendedProps");
                 String googleEventId = extendedProps.get("googleId");
                 
-                if( googleEventId.equals(expGoogleEventId)) {
+                if( googleEventId.equals(expGoogleEventId)) {// EXP 일정의 구글ID와 구글일정의 ID가 같다면 
                     isDelete = false;
                     break;
                 }
