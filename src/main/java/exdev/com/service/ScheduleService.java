@@ -40,8 +40,6 @@ public class ScheduleService extends ExdevBaseService{
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> googleEventList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
         
-        System.out.println("=== synchProcess1 ===");
-        
         // 구글:O,  EXP:O 일경우 수정
         for(Map<String, Object> eventMap : googleEventList){
            
@@ -66,7 +64,6 @@ public class ScheduleService extends ExdevBaseService{
             saveMap.put("description", extendedProps.get("description"));
             saveMap.put("userId", extendedProps.get("userId"));
             saveMap.put("spCstmId", extendedProps.get("spCstmId"));
-            System.out.println("=== scheduleId ===>"+scheduleId);
             result += commonDao.update("schedule.updateGoogleSchedule", saveMap);
         }
         
@@ -253,7 +250,6 @@ public class ScheduleService extends ExdevBaseService{
         String userId   = (String)map.get("userId");
         String spCstmId = (String)map.get("spCstmId");
         String json     = (String)map.get("googleEvent");
-        System.out.println("===== synchProcess4 =====");
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> saveEventList = mapper.readValue(json, new TypeReference<ArrayList<Map<String, Object>>>(){});
 

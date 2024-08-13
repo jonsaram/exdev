@@ -18,7 +18,8 @@
        ,GIS_INITED : false
        ,IS_GAP_START : false
        ,IS_GIS_START : false
-       ,IS_SCHEDULE_PROC_START : false     
+       ,IS_SCHEDULE_PROC_START : false
+       ,DELETE_GOOGLE_EVENT_ARR :  []
        ,addSchedulePopup : function() {    
 
             let date = new Date();
@@ -434,19 +435,11 @@
       /*=============================================================================================*/
       /* 일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스               */  
      ,startGetScheduleProc : function( is_pop_call ) {// 시작
-          console.log("일정 프로세스  1 =>"+<@pageId>.IS_SCHEDULE_PROC_START);
           
-          if( <@pageId>.IS_SCHEDULE_PROC_START ){              
-              console.log("일정 프로세스 실행못함");
+          if( <@pageId>.IS_SCHEDULE_PROC_START ){  
               return;
           }
-          console.log("일정 프로세스  IS_GOOGLE_CALENDAR_SYN_YN =>"+<@pageId>.IS_GOOGLE_CALENDAR_SYN_YN);
           if( <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN ){
-              console.log("일정 프로세스  1 =>"+<@pageId>.IS_SCHEDULE_PROC_START);
-              console.log("일정 프로세스  GIS_INITED =>"+<@pageId>.GIS_INITED);
-              console.log("일정 프로세스  GAP_IINITED =>"+<@pageId>.GAP_IINITED);
-              console.log("일정 프로세스  IS_GAP_START =>"+<@pageId>.IS_GAP_START);
-              console.log("일정 프로세스  IS_GIS_START =>"+<@pageId>.IS_GIS_START);
               
               if (<@pageId>.GIS_INITED && <@pageId>.GAP_IINITED) {
                   if( is_pop_call ){
@@ -455,8 +448,6 @@
                       <@pageId>.getAllschedule(parm);  
                   }else{
                       if ( <@pageId>.IS_GAP_START && <@pageId>.IS_GIS_START ) {
-                          console.log("일정 프로세스 실행 시작");
-                          console.log("구글 인증 완료 구글 일정 조회 시작");
                           <@pageId>.IS_SCHEDULE_PROC_START = true;// 
                           <@pageId>.getEventGoogleCalendar();
                           let parm = {};
@@ -464,18 +455,14 @@
                           <@pageId>.IS_GAP_START = false;
                           <@pageId>.IS_GIS_START = false;
                           <@pageId>.IS_SCHEDULE_PROC_START = false;
-                          console.log("구글 인증 완료 구글 일정 조회 종료");
-                          console.log("일정 프로세스 실행 종료");
                       }
                   }
               }
           }else{
-              <@pageId>.IS_SCHEDULE_PROC_START = true;// 
-              console.log("일정 프로세스 실행 시작");
+              <@pageId>.IS_SCHEDULE_PROC_START = true;//
               let parm = {};
               <@pageId>.getAllschedule(parm);
               <@pageId>.IS_SCHEDULE_PROC_START = false;
-              console.log("일정 프로세스 실행 종료");
           }
       }
      ,getUserInfo : () =>  {
@@ -606,6 +593,7 @@
            })
             .catch(error => {
                 console.error('Error fetching events:', error);
+                dalert("구글 캘린더 조회에 문제가 발생하였습니다.");
                 let parm = {};
                 <@pageId>.getAllschedule(parm);
             });
@@ -622,8 +610,9 @@
               C_COM.requestService(parm, function(resultData) {
                   <@pageId>.synchProcess2( requestParm );
               });
-
+              <@pageId>.googleEvents.length = 0;
           } catch (error) {
+        	  <@pageId>.googleEvents.length = 0;
               console.error("Error in synchProcess1:", error);
               let parm = {};
               <@pageId>.getAllschedule(parm);
@@ -639,17 +628,16 @@
                  ,requestParm            : requestParm
              }
              C_COM.requestService(parm, function(resultData) {
-    
-                 let googleIdArr = [];
+            	 
                  for (var i=0; i<resultData.data.list.length; i++){
-                     googleIdArr.push(resultData.data.list[i].googleId);
+                	 <@pageId>.DELETE_GOOGLE_EVENT_ARR.push(resultData.data.list[i].googleId);
                  }
-                 if( googleIdArr.length !=0 ){
-                     <@pageId>.delGoogleEvent(googleIdArr);
+                 if( <@pageId>.DELETE_GOOGLE_EVENT_ARR.length !=0 ){
+                     <@pageId>.delGoogleEvent();
                  }
                  <@pageId>.synchProcess3(requestParm);
              });
-
+             
          } catch (error) {
              console.error("Error in synchProcess2:", error);
              let parm = {};
@@ -673,8 +661,6 @@
              requestParm["spCstmId"]   = G_VAL.session.spCstmId ;
              requestParm["startDate"]  = startDate.startDateString;
              requestParm["endDate"]    = endDate.endDateString;
-             
-             console.log("synchProcess3 2 =>");
              
              var parm = {
                   serviceId              : "ScheduleService.synchProcess3"
@@ -722,12 +708,13 @@
       /*=============================================================================================*/
       /* google API함수    google API함수    google API함수    google API함수    google API함수       */
       
-     ,delGoogleEvent : function( googleIdArr ) {
+     ,delGoogleEvent : function(  ) {
+    	 
          <@pageId>.TOKEN_CLIENT.callback = async (resp) => {
            if (resp.error !== undefined) {
              throw (resp);
            }
-           <@pageId>.deleteEventAPI( googleIdArr );
+           <@pageId>.deleteEventAPI( );
          };
          if (gapi.client.getToken() === null) {
            // Prompt the user to select an account.
@@ -738,12 +725,13 @@
          }
       }
      
-     ,deleteEventAPI : function( googleIdArr ) {
+     ,deleteEventAPI : function(  ) {
+    	 
          <@pageId>.IS_DELETE_GOOGLE_EVENT = false;
          
-         for (let i = 0; i < googleIdArr.length; i++) {
-             var eventId = googleIdArr[i];
-
+         for (let i = 0; i < <@pageId>.DELETE_GOOGLE_EVENT_ARR.length; i++) {
+             var eventId = <@pageId>.DELETE_GOOGLE_EVENT_ARR[i];
+             
              gapi.client.calendar.events.delete({
                'calendarId': <@pageId>.GOOGLE_CALENDAR_ID,
                'eventId': eventId
@@ -754,13 +742,14 @@
                  console.error('Failed to delete event:', response);
                }
              }).catch(error => {
+               dalert("구글 캘린더 동기화(삭제)에 문제가 발생하였습니다.");
                console.error('Error deleting event:', error);
              });
          }
+         <@pageId>.DELETE_GOOGLE_EVENT_ARR.length = 0;
       }
      
      ,saveGoogleEvent : function(resultData ) {
-         console.log("saveGoogleEvent 1 =>");
          <@pageId>.TOKEN_CLIENT.callback = async (resp) => {
            if (resp.error !== undefined) {
              throw (resp);
@@ -796,7 +785,6 @@
              var endH          = resultData.data.list[i].END_TIME_HOUR;
              var endM          = resultData.data.list[i].END_TIME_MINUTE;
              var endDateTime   = endD+'T'+endH+':'+endM+':00';
-             console.log("saveEventAPI scheduleId =>"+scheduleId);
              const event = {
                  'summary': summary,
                  'location': location,
@@ -814,8 +802,6 @@
              // 비동기 요청을 Promise로 감싸서 배열에 저장
              const requestPromise = new Promise((resolve, reject) => {
                  
-                 console.log("requestPromise 1 GOOGLE_CALENDAR_ID=>"+<@pageId>.GOOGLE_CALENDAR_ID);
-                 
                  const request = gapi.client.calendar.events.insert({
                      'calendarId': <@pageId>.GOOGLE_CALENDAR_ID,
                      'resource': event
@@ -827,6 +813,7 @@
                          is_save = true;
                          resolve(); // 성공 시 Promise 해결
                      } else {
+                         dalert("구글 캘린더 동기화(추가)에 문제가 발생하였습니다.");
                          reject("Event insertion failed"); // 실패 시 Promise 거절
                      }
                  });

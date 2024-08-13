@@ -730,6 +730,7 @@
         WHERE  1 = 1
         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
         AND    A.LOOP_TYPE = 'NOT_REPEAT' /*반복안함*/
+        AND    A.SECRET_YN = 'Y' /*공개여부*/
         AND    D.DTE <![CDATA[<=]]> TO_CHAR(A.SCHEDULE_LOOP_END_DATE ,'YYYY-MM-DD')
         AND    A.USER_ID    IN
         <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
@@ -869,6 +870,7 @@
                             FROM   TBL_EXP_SCHEDULE
                             WHERE  1 = 1
                             AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+                            AND    SECRET_YN = 'Y' /*공개여부*/
                             AND    USER_ID IN 
                             <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
                                     #{userId}
@@ -1129,6 +1131,7 @@
             FROM   TBL_EXP_SCHEDULE
             WHERE  1 = 1
             AND    SP_CSTM_ID = #{sessionVo.spCstmId}
+            AND    A.SECRET_YN = 'Y' /*공개여부*/
             AND    USER_ID IN 
                    <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
                        #{userId}
@@ -1562,6 +1565,7 @@
                         FROM   TBL_EXP_SCHEDULE A
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    A.SECRET_YN = 'Y' /*공개여부*/
                         AND    A.USER_ID  IN
                         <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
                                 #{userId}
@@ -1701,6 +1705,7 @@
                         FROM   TBL_EXP_SCHEDULE A
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    A.SECRET_YN = 'Y' /*공개여부*/
                         AND    A.USER_ID  IN
                         <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
                                 #{userId}
@@ -2569,6 +2574,7 @@
                         FROM   TBL_EXP_SCHEDULE A
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
+                        AND    A.SECRET_YN = 'Y' /*공개여부*/
                         AND    A.USER_ID     IN
                         <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
                                 #{userId}
