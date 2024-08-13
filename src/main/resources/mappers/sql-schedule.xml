@@ -1131,7 +1131,7 @@
             FROM   TBL_EXP_SCHEDULE
             WHERE  1 = 1
             AND    SP_CSTM_ID = #{sessionVo.spCstmId}
-            AND    A.SECRET_YN = 'Y' /*공개여부*/
+            AND    SECRET_YN = 'Y' /*공개여부*/
             AND    USER_ID IN 
                    <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
                        #{userId}
