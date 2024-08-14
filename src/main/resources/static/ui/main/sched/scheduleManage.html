@@ -246,6 +246,7 @@
            requestParm1["month"]       = startMonth;
            requestParm1["teamYn"]      = "Y";
            requestParm1["userIdList"]  = requestParm["userIdList"];
+           requestParm["userListYn"]   = "Y";
            
            <@pageId>.startDate   = startDateString;
            <@pageId>.endDate     = endDateString;
@@ -938,6 +939,7 @@
         C_COM.hideLeftMenu();
         
         <@pageId>.init();        
+        <@pageId>.startGetScheduleProc(false);
         <@pageId>.getTeamUser();
         let date = new Date();
         <@pageId>.toDay = date.getFullYear() +

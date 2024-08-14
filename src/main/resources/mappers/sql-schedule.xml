@@ -62,54 +62,6 @@
         ORDER BY SCHEDULE.START_DATE
     </select>
     
-	<!-- 일정공유 마스터 입력  이응규 -->
-    <insert id="insertScheduleMsater" parameterType="map" >
-        /* schedule.insertScheduleMsater */
-        INSERT INTO TBL_EXP_SCHEDULE_MASTER (
-              SCHEDULE_GRP_ID     
-             ,LOOP_TYPE           
-             ,SCHEDULE_START_DATE 
-             ,SCHEDULE_END_DATE
-        )
-        VALUES(
-              #{scheduleGrpId}
-             ,#{loopType}
-             ,#{scheduleStartDate}
-             ,#{scheduleEndDate}
-        ) 
-    </insert>
-    
-    <!-- 일정공유 마스터 수정  이응규 -->
-    <update id="updateScheduleMaster" parameterType="java.util.HashMap"  flushCache="true" >
-        /*  schedule.updateScheduleMaster */
-        UPDATE TBL_EXP_SCHEDULE_MASTER
-        SET    LOOP_TYPE           = #{loopType}
-              ,SCHEDULE_START_DATE = #{scheduleStartDate} 
-              ,SCHEDULE_END_DATE   = #{scheduleEndDate}
-        WHERE 1 = 1
-        AND    SCHEDULE_GRP_ID = #{scheduleGrpId}
-    </update>
-    
-    <delete id="deleteScheduleMsater" parameterType="java.util.HashMap"  flushCache="true" >
-        /*  schedule.deleteScheduleMsater */
-        DELETE FROM TBL_EXP_SCHEDULE_MASTER 
-        WHERE SCHEDULE_GRP_ID = #{scheduleGrpId} 
-    </delete>
-    
-    <select id="getScheduleMasterList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /* schedule.getScheduleMasterList */
-        SELECT SCHEDULE_GRP_ID     
-              ,LOOP_TYPE           
-              ,SCHEDULE_START_DATE 
-              ,SCHEDULE_END_DATE
-        FROM   TBL_EXP_SCHEDULE_MASTER A
-        WHERE   1 = 1
-        <if test=" scheduleGrpId != null and scheduleGrpId != '' " >
-            AND    SCHEDULE_GRP_ID =  #{scheduleGrpId}
-        </if>
-    </select>
-    
-    
     <update id="updateSchedule" parameterType="java.util.HashMap"  flushCache="true" >
         /*  schedule.updateSchedule */
         UPDATE TBL_EXP_SCHEDULE        
@@ -344,156 +296,6 @@
         WHERE 1 = 1
     </select>
     
-    <select id="getScheduleList_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /* schedule.getScheduleList_BAK" */
-        WITH SCHEDULE AS (
-                SELECT A.SCHEDULE_ID       
-                      ,A.TITLE             
-                      ,A.WORK_TYPE             
-                      ,A.ALL_APPLY_YN      
-                      ,B.ATTR1  AS WORK_COLOR     
-                      ,B.ATTR2  AS TEXT_COLOR      
-                      ,A.SCHEDULE_DATE   
-                      ,TO_CHAR(A.SCHEDULE_DATE,'YYYY-MM-DD') AS SCHEDULE_DATE1 
-                      ,A.TIME_TYPE         
-                      ,LPAD(A.START_TIME_HOUR , 2, '0')   AS START_TIME_HOUR
-                      ,A.START_TIME_MINUTE 
-                      ,LPAD(A.END_TIME_HOUR , 2, '0')       AS END_TIME_HOUR      
-                      ,A.END_TIME_MINUTE   
-                      ,A.POSITION          
-                      ,A.SECRET_YN         
-                      ,A.DESCRIPTION       
-                      ,A.USER_ID 
-                      ,A.SP_CSTM_ID
-                      ,A.CONTRACT_ID
-                      ,(SELECT BUYER_NM FROM TBL_EXP_BUYER WHERE BUYER_ID = D.BUYER_ID) AS BUYER_NM
-                      ,(SELECT CONSULTING_NM FROM TBL_EXP_CONSULTING WHERE CONSULTING_ID = D.CONSULTING_ID) AS CONSULTING_NM
-                      ,C.LOOP_TYPE
-                      ,C.SCHEDULE_GRP_ID
-                      ,TO_CHAR(C.SCHEDULE_START_DATE,'YYYY-MM-DD') AS SCHEDULE_START_DATE 
-                      ,TO_CHAR(C.SCHEDULE_END_DATE,'YYYY-MM-DD')   AS SCHEDULE_END_DATE
-                FROM   TBL_EXP_SCHEDULE A
-                       JOIN (
-                            SELECT A.GRP_CODE_ID
-                                  ,B.CODE_ID
-                                  ,B.ATTR1
-                                  ,B.ATTR2
-                            FROM   TBL_EXP_GRPCODE A
-                                   JOIN TBL_EXP_CODE B
-                                       ON  1 = 1
-                                       AND B.DEL_YN = 'N'
-                                       AND A.GRP_CODE_ID =  B.GRP_CODE_ID
-                            WHERE  1 = 1
-                            AND    A.DEL_YN = 'N'
-                            AND    A.GRP_CODE_ID = 'SCHEDULE_WORK_TYPE'
-                       ) B
-                           ON  1 = 1
-                           AND A.WORK_TYPE = B.CODE_ID
-                       JOIN TBL_EXP_SCHEDULE_MASTER C
-                           ON  1 = 1
-                           AND A.SCHEDULE_GRP_ID = C.SCHEDULE_GRP_ID
-                       LEFT OUTER JOIN TBL_EXP_CONTRACT D
-                           ON  1 = 1
-                           AND A.CONTRACT_ID = D.CONTRACT_ID
-                WHERE 1 = 1
-
-        )
-        SELECT SCHEDULE_ID  
-              ,SP_CSTM_ID
-              ,USER_ID     
-              ,TITLE             
-              ,SHARE_YN  
-              ,WORK_TYPE             
-              ,ALL_APPLY_YN      
-              ,WORK_COLOR     
-              ,TEXT_COLOR      
-              ,SCHEDULE_DATE   
-              ,SCHEDULE_DATE1 
-              ,TIME_TYPE         
-              ,START_TIME_HOUR   
-              ,START_TIME_MINUTE 
-              ,END_TIME_HOUR     
-              ,END_TIME_MINUTE   
-              ,POSITION          
-              ,SECRET_YN         
-              ,DESCRIPTION
-              ,LOOP_TYPE
-              ,SCHEDULE_GRP_ID
-              ,SCHEDULE_START_DATE 
-              ,SCHEDULE_END_DATE
-              ,CONTRACT_ID
-              ,CONTRACT_NM
-        FROM   (
-                SELECT SCHEDULE.SCHEDULE_ID  
-                      ,SCHEDULE.SP_CSTM_ID
-                      ,SCHEDULE.USER_ID     
-                      ,SCHEDULE.TITLE             
-                      ,'N'     AS SHARE_YN  
-                      ,SCHEDULE.WORK_TYPE             
-                      ,SCHEDULE.ALL_APPLY_YN      
-                      ,SCHEDULE.WORK_COLOR     
-                      ,SCHEDULE.TEXT_COLOR      
-                      ,SCHEDULE.SCHEDULE_DATE   
-                      ,SCHEDULE.SCHEDULE_DATE1 
-                      ,SCHEDULE.TIME_TYPE         
-                      ,SCHEDULE.START_TIME_HOUR   
-                      ,SCHEDULE.START_TIME_MINUTE 
-                      ,SCHEDULE.END_TIME_HOUR     
-                      ,SCHEDULE.END_TIME_MINUTE   
-                      ,SCHEDULE.POSITION          
-                      ,SCHEDULE.SECRET_YN         
-                      ,SCHEDULE.DESCRIPTION
-                      ,SCHEDULE.LOOP_TYPE
-                      ,SCHEDULE.SCHEDULE_GRP_ID
-                      ,SCHEDULE.SCHEDULE_START_DATE 
-                      ,SCHEDULE.SCHEDULE_END_DATE
-                      ,SCHEDULE.CONTRACT_ID
-                      ,SCHEDULE.BUYER_NM ||'/'||SCHEDULE.CONSULTING_NM AS CONTRACT_NM
-                FROM   SCHEDULE
-                WHERE  1 = 1
-                AND   SCHEDULE.USER_ID    = 'jonsaram'
-                AND   SCHEDULE.SP_CSTM_ID = 'starasset'
-                UNION 
-                SELECT SCHEDULE.SCHEDULE_ID
-                      ,SCHEDULE.SP_CSTM_ID
-                      ,SCHEDULE.USER_ID
-                      ,'['||GET_USER_NM(SCHEDULE.USER_ID)||']'||SCHEDULE.TITLE    AS TITLE 
-                      ,'Y'     AS SHARE_YN
-                      ,SCHEDULE.WORK_TYPE             
-                      ,SCHEDULE.ALL_APPLY_YN      
-                      ,SCHEDULE.WORK_COLOR     
-                      ,SCHEDULE.TEXT_COLOR      
-                      ,SCHEDULE.SCHEDULE_DATE   
-                      ,SCHEDULE.SCHEDULE_DATE1 
-                      ,SCHEDULE.TIME_TYPE         
-                      ,SCHEDULE.START_TIME_HOUR   
-                      ,SCHEDULE.START_TIME_MINUTE 
-                      ,SCHEDULE.END_TIME_HOUR     
-                      ,SCHEDULE.END_TIME_MINUTE   
-                      ,SCHEDULE.POSITION          
-                      ,SCHEDULE.SECRET_YN         
-                      ,SCHEDULE.DESCRIPTION   
-                      ,SCHEDULE.LOOP_TYPE
-                      ,SCHEDULE.SCHEDULE_GRP_ID
-                      ,SCHEDULE.SCHEDULE_START_DATE 
-                      ,SCHEDULE.SCHEDULE_END_DATE
-                      ,SCHEDULE.CONTRACT_ID
-                      ,SCHEDULE.BUYER_NM ||'/'||SCHEDULE.CONSULTING_NM AS CONTRACT_NM
-                FROM   TBL_EXP_SCHEDULE_SHARE A
-                       JOIN SCHEDULE
-                         ON   1 = 1
-                         AND  SCHEDULE.SECRET_YN = 'Y'
-                         AND  A.SCHEDULE_ID = SCHEDULE.SCHEDULE_ID
-                         AND  SCHEDULE.SP_CSTM_ID  = 'starasset'
-                         AND  SCHEDULE.USER_ID     != 'jonsaram'
-                WHERE  1 = 1
-                AND    A.SP_CSTM_ID  = 'starasset'
-                AND    A.USER_ID     = 'jonsaram'
-        ) A
-        ORDER BY SCHEDULE_START_DATE
-                ,START_TIME_HOUR 
-                ,START_TIME_MINUTE
-    </select>
     <select id="getScheduleDtl" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* schedule.getScheduleDtl */
         SELECT A.SCHEDULE_ID     
@@ -651,10 +453,6 @@
                ) B
                    ON  1 = 1
                    AND A.WORK_TYPE = B.CODE_ID
-               LEFT OUTER JOIN TBL_EXP_CONTRACT C
-                   ON  1 = 1
-                   AND C.SP_CSTM_ID = #{sessionVo.spCstmId}
-                   AND A.CONTRACT_ID = C.CONTRACT_ID
                JOIN TABLE_DATE D
                    ON  1 = 1
                    AND TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') = D.DTE
@@ -662,6 +460,9 @@
         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
         AND    A.USER_ID    = #{sessionVo.userId}
         AND    A.LOOP_TYPE = 'NOT_REPEAT' /*반복안함*/
+        <if test=" contractId != null and contractId != '' " >
+            AND   A.CONTRACT_ID = #{contractId}
+        </if>
         
     </select>
     
@@ -732,10 +533,13 @@
         AND    A.LOOP_TYPE = 'NOT_REPEAT' /*반복안함*/
         AND    A.SECRET_YN = 'Y' /*공개여부*/
         AND    D.DTE <![CDATA[<=]]> TO_CHAR(A.SCHEDULE_LOOP_END_DATE ,'YYYY-MM-DD')
-        AND    A.USER_ID    IN
-        <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                #{userId}
-        </foreach>
+        AND    A.USER_ID    != #{sessionVo.userId}
+        <if test='userListYn == "Y"' >
+            AND    A.USER_ID    IN 
+	        <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+	                #{userId}
+	        </foreach>
+        </if>
         <if test='periodYn == "Y"' >
             AND   (
                     ( #{startDate} <![CDATA[<=]]> TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') AND  TO_CHAR(A.SCHEDULE_START_DATE,'YYYY-MM-DD') <![CDATA[<=]]> #{endDate} ) OR  
@@ -745,6 +549,12 @@
         </if>
         <if test=" contractId != null and contractId != '' " >
             AND   A.CONTRACT_ID = #{contractId}
+            AND   A.USER_ID IN  (
+                                   SELECT USER_ID 
+                                   FROM   TBL_EXP_TEAM_MEMBER 
+                                   WHERE  CONTRACT_ID = #{contractId}
+                                   AND    USER_ID !   = #{sessionVo.userId}
+                                )
         </if>
         <if test=" searchData != null and searchData != '' " >
             AND   A.TITLE LIKE '%'||#{searchData}||'%'
@@ -782,6 +592,9 @@
                             WHERE  1 = 1
                             AND    SP_CSTM_ID = #{sessionVo.spCstmId}
                             AND    LOOP_TYPE = 'DAY'
+					        <if test=" contractId != null and contractId != '' " >
+					            AND   CONTRACT_ID = #{contractId}
+					        </if>
                             ORDER BY CREATE_DATE DESC
                         )
             ,TABLE_DATE AS (
@@ -871,10 +684,12 @@
                             WHERE  1 = 1
                             AND    SP_CSTM_ID = #{sessionVo.spCstmId}
                             AND    SECRET_YN = 'Y' /*공개여부*/
-                            AND    USER_ID IN 
-                            <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                                    #{userId}
-                            </foreach>
+                            <if test='userListYn == "Y"' >
+	                            AND    USER_ID IN 
+	                            <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+	                                    #{userId}
+	                            </foreach>
+                            </if>
                             AND    LOOP_TYPE = 'DAY'
                             ORDER BY CREATE_DATE DESC
                         )
@@ -955,6 +770,12 @@
         </if>
         <if test=" contractId != null and contractId != '' " >
             AND   A.CONTRACT_ID = #{contractId}
+            AND   A.USER_ID IN  (
+                                   SELECT USER_ID 
+                                   FROM   TBL_EXP_TEAM_MEMBER 
+                                   WHERE  CONTRACT_ID = #{contractId}
+                                   AND    USER_ID !   = #{sessionVo.userId}
+                                )
         </if>
         <if test=" searchData != null and searchData != '' " >
             AND   A.TITLE LIKE '%'||#{searchData}||'%'
@@ -987,7 +808,10 @@
             WHERE  1 = 1
             AND    SP_CSTM_ID = #{sessionVo.spCstmId}
             AND    USER_ID    = #{sessionVo.userId}
-            AND    LOOP_TYPE  = 'WEEK'               
+            AND    LOOP_TYPE  = 'WEEK'     
+            <if test=" contractId != null and contractId != '' " >
+                AND   CONTRACT_ID = #{contractId}
+            </if>          
         )
         SELECT A.GROUP_ID
               ,A.SCHEDULE_ID
@@ -1132,10 +956,12 @@
             WHERE  1 = 1
             AND    SP_CSTM_ID = #{sessionVo.spCstmId}
             AND    SECRET_YN = 'Y' /*공개여부*/
-            AND    USER_ID IN 
-                   <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                       #{userId}
-                   </foreach>
+            <if test='userListYn == "Y"' >
+	            AND    USER_ID IN 
+	                   <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+	                       #{userId}
+	                   </foreach>
+	        </if>
             AND    LOOP_TYPE  = 'WEEK'               
         )
         SELECT A.SCHEDULE_ID
@@ -1241,10 +1067,12 @@
                            ON  1 = 1
                            AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
                            AND B.LOOP_TYPE  = 'WEEK'
-                           AND B.USER_ID IN 
-                           <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                               #{userId}
-                           </foreach>
+                           <if test='userListYn == "Y"' >
+                               AND B.USER_ID IN 
+	                           <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+	                               #{userId}
+	                           </foreach>
+                           </if>
                            AND SUBSTR(A.GROUP_ID, 1, INSTR(A.GROUP_ID, '#') - 1) = B.SCHEDULE_ID    
                        JOIN (
                               SELECT A.GRP_CODE_ID
@@ -1287,6 +1115,12 @@
         </if>
         <if test=" contractId != null and contractId != '' " >
             AND   A.CONTRACT_ID = #{contractId}
+            AND   A.USER_ID IN  (
+                                   SELECT USER_ID 
+                                   FROM   TBL_EXP_TEAM_MEMBER 
+                                   WHERE  CONTRACT_ID = #{contractId}
+                                   AND    USER_ID !   = #{sessionVo.userId}
+                                )
         </if>
         <if test=" searchData != null and searchData != '' " >
             AND   A.TITLE LIKE '%'||#{searchData}||'%'
@@ -1327,6 +1161,9 @@
                         AND    A.USER_ID = #{sessionVo.userId}
                         AND    A.LOOP_TYPE = 'MONTH'
                         AND    A.LOOP_TYPE_DTL_CD = 'END_OF_MONTH'
+                        <if test=" contractId != null and contractId != '' " >
+                            AND   CONTRACT_ID = #{contractId}
+                        </if>
                         )
         ,TABLE_BASE AS ( 
                         SELECT A.SP_CSTM_ID            
@@ -1360,6 +1197,9 @@
                         AND    A.USER_ID = #{sessionVo.userId}
                         AND    A.LOOP_TYPE = 'MONTH'
                         AND    A.LOOP_TYPE_DTL_CD IS NULL
+                        <if test=" contractId != null and contractId != '' " >
+                            AND   CONTRACT_ID = #{contractId}
+                        </if>
                 )
         SELECT SCHEDULE_ID
               ,TITLE
@@ -1481,6 +1321,9 @@
                         AND    A.USER_ID = #{sessionVo.userId}
                         AND    A.LOOP_TYPE = 'MONTH'
                         AND    A.LOOP_TYPE_DTL_CD = 'SELECT_DAY'
+                        <if test=" contractId != null and contractId != '' " >
+                            AND   CONTRACT_ID = #{contractId}
+                        </if>
         )  
         
                 SELECT A.SCHEDULE_ID
@@ -1566,10 +1409,12 @@
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
                         AND    A.SECRET_YN = 'Y' /*공개여부*/
-                        AND    A.USER_ID  IN
-                        <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                                #{userId}
-                        </foreach>
+				        <if test='userListYn == "Y"' >
+	                        AND    A.USER_ID  IN
+	                        <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+	                                #{userId}
+	                        </foreach>
+				        </if>
                         AND    A.LOOP_TYPE = 'MONTH'
                         AND    A.LOOP_TYPE_DTL_CD = 'SELECT_DAY'
         )
@@ -1669,6 +1514,12 @@
         </if>
         <if test=" contractId != null and contractId != '' " >
             AND   A.CONTRACT_ID = #{contractId}
+            AND   A.USER_ID IN  (
+                                   SELECT USER_ID 
+                                   FROM   TBL_EXP_TEAM_MEMBER 
+                                   WHERE  CONTRACT_ID = #{contractId}
+                                   AND    USER_ID !   = #{sessionVo.userId}
+                                )
         </if>
         <if test=" searchData != null and searchData != '' " >
             AND   A.TITLE LIKE '%'||#{searchData}||'%'
@@ -1706,10 +1557,12 @@
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
                         AND    A.SECRET_YN = 'Y' /*공개여부*/
-                        AND    A.USER_ID  IN
-                        <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                                #{userId}
-                        </foreach>
+				        <if test='userListYn == "Y"' >
+	                        AND    A.USER_ID  IN
+	                        <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+	                                #{userId}
+	                        </foreach>
+				        </if>
                         AND    A.LOOP_TYPE = 'MONTH'
                         AND    A.LOOP_TYPE_DTL_CD = 'END_OF_MONTH'
                         )
@@ -1742,10 +1595,12 @@
                         FROM   TBL_EXP_SCHEDULE A
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    A.USER_ID IN
-                        <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                                #{userId}
-                        </foreach>
+                        <if test='userListYn == "Y"' >
+                            AND    A.USER_ID  IN
+                            <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+                                    #{userId}
+                            </foreach>
+                        </if>
                         AND    A.LOOP_TYPE = 'MONTH'
                         AND    A.LOOP_TYPE_DTL_CD IS NULL
                 )
@@ -1859,6 +1714,12 @@
         </if>
         <if test=" contractId != null and contractId != '' " >
             AND   A.CONTRACT_ID = #{contractId}
+            AND   A.USER_ID IN  (
+                                   SELECT USER_ID 
+                                   FROM   TBL_EXP_TEAM_MEMBER 
+                                   WHERE  CONTRACT_ID = #{contractId}
+                                   AND    USER_ID !   = #{sessionVo.userId}
+                                )
         </if>
         <if test=" searchData != null and searchData != '' " >
             AND   A.TITLE LIKE '%'||#{searchData}||'%'
@@ -1920,6 +1781,9 @@
                         AND    ( A.USER_ID = #{sessionVo.userId} OR B.USER_ID = #{sessionVo.userId} )
                         AND    A.LOOP_TYPE = 'QUARTER'
                         AND    A.LOOP_TYPE_DTL_CD = 'END_OF_MONTH'
+                        <if test=" contractId != null and contractId != '' " >
+                            AND   A.CONTRACT_ID = #{contractId}
+                        </if>
                         )
         ,TABLE_SELECT_DAY AS ( 
                         SELECT A.SP_CSTM_ID            
@@ -1974,6 +1838,9 @@
                         AND    ( A.USER_ID = #{sessionVo.userId} OR B.USER_ID = #{sessionVo.userId} )
                         AND    A.LOOP_TYPE = 'QUARTER'
                         AND    A.LOOP_TYPE_DTL_CD = 'SELECT_DAY'
+                        <if test=" contractId != null and contractId != '' " >
+                            AND   A.CONTRACT_ID = #{contractId}
+                        </if>
         )
         ,TABLE_BASE AS ( 
                          SELECT A.SP_CSTM_ID            
@@ -2029,6 +1896,9 @@
                          AND    ( A.USER_ID = #{sessionVo.userId} OR B.USER_ID = #{sessionVo.userId} )
                          AND    A.LOOP_TYPE = 'QUARTER'
                          AND    A.LOOP_TYPE_DTL_CD IS NULL
+                        <if test=" contractId != null and contractId != '' " >
+                            AND   A.CONTRACT_ID = #{contractId}
+                        </if>
         )
         ,TABLE_CODE AS ( 
                       SELECT A.GRP_CODE_ID
@@ -2178,10 +2048,12 @@
                         FROM   TBL_EXP_SCHEDULE A
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    A.USER_ID      IN
-                         <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                                 #{userId}
-                         </foreach>
+				        <if test='userListYn == "Y"' >
+				            AND    A.USER_ID    IN 
+				            <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+				                    #{userId}
+				            </foreach>
+				        </if>
                         AND    A.LOOP_TYPE = 'QUARTER'
                         AND    A.LOOP_TYPE_DTL_CD = 'END_OF_MONTH'
                         )
@@ -2217,10 +2089,12 @@
                         FROM   TBL_EXP_SCHEDULE A
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    A.USER_ID      IN
-                         <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                                 #{userId}
-                         </foreach>
+				        <if test='userListYn == "Y"' >
+				            AND    A.USER_ID    IN 
+				            <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+				                    #{userId}
+				            </foreach>
+				        </if>
                         AND    A.LOOP_TYPE = 'QUARTER'
                         AND    A.LOOP_TYPE_DTL_CD = 'SELECT_DAY'
         )
@@ -2257,10 +2131,12 @@
                          FROM   TBL_EXP_SCHEDULE A
                          WHERE  1 = 1
                          AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                         AND    A.USER_ID     IN
-                         <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                                 #{userId}
-                         </foreach>
+				        <if test='userListYn == "Y"' >
+				            AND    A.USER_ID    IN 
+				            <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+				                    #{userId}
+				            </foreach>
+				        </if>
                          AND    A.LOOP_TYPE = 'QUARTER'
                          AND    A.LOOP_TYPE_DTL_CD IS NULL
         )
@@ -2372,6 +2248,9 @@
                         AND    A.USER_ID = #{sessionVo.userId}
                         AND    A.LOOP_TYPE = 'YEAR'
                         AND    A.LOOP_TYPE_DTL_CD = 'END_OF_MONTH'
+                        <if test=" contractId != null and contractId != '' " >
+                            AND   A.CONTRACT_ID = #{contractId}
+                        </if>
                         )
              ,TABLE_SELECT_DAY AS ( 
                         /*월의 마지막일 - 선택일*/
@@ -2405,6 +2284,9 @@
                         AND    A.USER_ID = #{sessionVo.userId}
                         AND    A.LOOP_TYPE = 'YEAR'
                         AND    A.LOOP_TYPE_DTL_CD = 'SELECT_DAY'
+                        <if test=" contractId != null and contractId != '' " >
+                            AND   A.CONTRACT_ID = #{contractId}
+                        </if>
         )
         ,TABLE_BASE AS ( 
                /*월의 일반일*/
@@ -2439,6 +2321,9 @@
                 AND    A.USER_ID = #{sessionVo.userId}
                 AND    A.LOOP_TYPE = 'YEAR'
                 AND    A.LOOP_TYPE_DTL_CD IS NULL
+                <if test=" contractId != null and contractId != '' " >
+                    AND   A.CONTRACT_ID = #{contractId}
+                </if>
                 )
         ,TABLE_CODE AS ( 
                       SELECT A.GRP_CODE_ID
@@ -2575,10 +2460,12 @@
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
                         AND    A.SECRET_YN = 'Y' /*공개여부*/
-                        AND    A.USER_ID     IN
-                        <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                                #{userId}
-                        </foreach>
+				        <if test='userListYn == "Y"' >
+				            AND    A.USER_ID    IN 
+				            <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+				                    #{userId}
+				            </foreach>
+				        </if>
                         AND    A.LOOP_TYPE = 'YEAR'
                         AND    A.LOOP_TYPE_DTL_CD = 'END_OF_MONTH'
                         )
@@ -2611,10 +2498,12 @@
                         FROM   TBL_EXP_SCHEDULE A
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    A.USER_ID      IN
-                        <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                                #{userId}
-                        </foreach>
+				        <if test='userListYn == "Y"' >
+				            AND    A.USER_ID    IN 
+				            <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+				                    #{userId}
+				            </foreach>
+				        </if>
                         AND    A.LOOP_TYPE = 'YEAR'
                         AND    A.LOOP_TYPE_DTL_CD = 'SELECT_DAY'
         )
@@ -2648,10 +2537,12 @@
                         FROM   TBL_EXP_SCHEDULE A
                         WHERE  1 = 1
                         AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    A.USER_ID      IN
-                                <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
-                                        #{userId}
-                                </foreach>
+				        <if test='userListYn == "Y"' >
+				            AND    A.USER_ID    IN 
+				            <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+				                    #{userId}
+				            </foreach>
+				        </if>
                         AND    A.LOOP_TYPE = 'YEAR'
                         AND    A.LOOP_TYPE_DTL_CD IS NULL
                 )
@@ -2793,6 +2684,12 @@
         </if>
         <if test=" contractId != null and contractId != '' " >
             AND   A.CONTRACT_ID = #{contractId}
+            AND   A.USER_ID IN  (
+                                   SELECT USER_ID 
+                                   FROM   TBL_EXP_TEAM_MEMBER 
+                                   WHERE  CONTRACT_ID = #{contractId}
+                                   AND    USER_ID !   = #{sessionVo.userId}
+                                )
         </if>
         <if test=" searchData != null and searchData != '' " >
             AND   A.TITLE LIKE '%'||#{searchData}||'%'
