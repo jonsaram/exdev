@@ -1132,7 +1132,13 @@
 	        return entityMap[s];
 	    });
 	}
-	
+	// 문자열에서 링크 만들어주기	
+	function convertUrlsToLinks(txt) {
+		const urlPattern = /(https?:\/\/[^\s]+)/g;
+		return txt.replace(urlPattern, function(url) {
+	    	return `<a href="${url}" target="_blank">${url}</a>`;
+		});
+	}
 	
 	//Json Debugging
 	//Json Debugging

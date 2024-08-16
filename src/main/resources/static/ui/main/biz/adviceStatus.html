@@ -53,6 +53,7 @@
 
 			filterMap.consultingList 	= C_UICOM.getData("<@pageId>_consultingSelectBox");
 			filterMap.buyerList 		= C_UICOM.getData("<@pageId>_customerSelectBox");
+			filterMap.searchWord		= $("#<@pageId> #searchWord").val();
 			return filterMap;
 			
 		 }
@@ -69,6 +70,7 @@
 				 queryId 		: "contract.getProjectList"
 				,requestParm	: requestParm
 			}
+
 			C_COM.requestQuery(parm, function(resultData) {
 				<@pageId>.projectList = resultData.data;
 				
@@ -120,7 +122,6 @@
 				if(isEmpty(newlist)) return true;
 				list = $.merge(list, newlist);
 			});
-			
 			var parm = {
 				 targetId 		: targetId
 				,templateId		: "basecard"
@@ -257,8 +258,8 @@
 				</div>
 				<div id="<@pageId>_customerSelectBox" 	class="select_box fl" style="width:250px"></div>
                 <div id="<@pageId>_consultingSelectBox" class="select_box fl" style="width:250px"></div>
-                <span class="tit01 fl lh33 tr" style="min-width:40px;">내용</span>
-                <input type="text" name="" class="fl">
+                <span class="tit01 fl lh33 tr" style="min-width:40px;">기업명/상품명</span>
+                <input type="text" id="searchWord" class="fl" onEnter="<@pageId>.loadCardList()">
                 <button class="btn select fl" onclick="<@pageId>.loadCardList()">검색</button>
 			</div>
 		</li>

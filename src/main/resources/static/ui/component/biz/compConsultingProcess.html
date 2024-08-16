@@ -76,7 +76,7 @@
 			// 엔터(\n)를 <br>로 변환
             //var cmmt = cmmtContent.replace(/(?:\r\n|\r|\n)/g, '<br>');
             var cmmt = cmmtContent;
-			
+            
 			if(isEmpty(cmmt)) {
 				C_POP.alert('메모를 입력해주세요.');
 				return;
@@ -169,8 +169,10 @@
 					
 					$.each(resultData.data, function() {
 						let item = this;
-						item.CMMT = escapeHtml(item.CMMT);
+						//item.CMMT = escapeHtmlSp(item.CMMT);
 						item.CMMT = item.CMMT.replace(/(?:\r\n|\r|\n)/g, '<br>');
+						item.CMMT = convertUrlsToLinks(item.CMMT);
+						
 						if(item.DEL_YN == "Y") {
 							$(`#<@compId> #li_${item.WORK_CMMT_ID}`).hide();
 						} else {
