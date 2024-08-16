@@ -104,10 +104,7 @@
                    requestParm["teamYn"]      = teamYn;
                    
                    if( shareYn == 'Y' || teamYn == 'Y' ){
-                       
-                       C_POP.open('popup_sched_dtlSchedulePopup', requestParm, function(obj) {
-                           
-                       })
+                       C_POP.open('popup_sched_dtlSchedulePopup', requestParm, function(obj) {})
                    }else if( shareYn == 'N'|| teamYn == 'N' ){
                        
                        C_POP.open('popup_sched_updateSchedulePopup', requestParm, function(obj) {
@@ -193,8 +190,7 @@
            
            
            <@pageId>.startDate   = startDateString;
-           <@pageId>.endDate     = endDateString;
-                                
+           <@pageId>.endDate     = endDateString;               
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getNotRepeatSchedule");
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getDayRepeatSchedule");
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getWeekRepeatSchedule");
@@ -596,6 +592,7 @@
                 console.error('Error fetching events:', error);
                 dalert("구글 캘린더 조회에 문제가 발생하였습니다.");
                 let parm = {};
+                console.log('getAllschedule 호출 getEventGoogleCalendar');
                 <@pageId>.getAllschedule(parm);
             });
       }
@@ -616,6 +613,7 @@
         	  <@pageId>.googleEvents.length = 0;
               console.error("Error in synchProcess1:", error);
               let parm = {};
+              console.log('getAllschedule 호출 synchProcess1');
               <@pageId>.getAllschedule(parm);
           }
       }
@@ -642,6 +640,7 @@
          } catch (error) {
              console.error("Error in synchProcess2:", error);
              let parm = {};
+             console.log('getAllschedule 호출 synchProcess2');
              <@pageId>.getAllschedule(parm);
          }
          
@@ -672,6 +671,7 @@
                      <@pageId>.saveGoogleEvent(resultData);
                  }else{
                      let parm = {};
+                     console.log('getAllschedule 호출 synchProcess3');
                      <@pageId>.getAllschedule(parm);       
                  }
              });
@@ -679,6 +679,7 @@
          } catch (error) {
              console.error("Error in synchProcess3:", error);
              let parm = {};
+             console.log('getAllschedule 호출 synchProcess3');
              <@pageId>.getAllschedule(parm);
          }
      }
@@ -699,6 +700,7 @@
          C_COM.requestService(parm, function(resultData) {
 
              let parm = {};
+             console.log('getAllschedule 호출 synchProcess4');
              <@pageId>.getAllschedule(parm);
              
          });
@@ -843,9 +845,11 @@
                     .then(() => {
                         <@pageId>.GAP_IINITED = true;
                         <@pageId>.IS_GAP_START = true;
+                        console.log("startGetScheduleProc 호출 gapiLoaded");
                         <@pageId>.startGetScheduleProc(false);
                     })
                     .catch(error => {
+                        console.log("startGetScheduleProc 호출 gapiLoaded");
                         <@pageId>.startGetScheduleProc(false);
                         console.error('Error loading GAPI client:', error);
                     });
@@ -865,8 +869,10 @@
                });
                <@pageId>.GIS_INITED = true;
                <@pageId>.IS_GIS_START = true;
+               console.log("startGetScheduleProc 호출 gisLoaded");
                <@pageId>.startGetScheduleProc(false);
            } catch (error) {
+               console.log("startGetScheduleProc 호출 gisLoaded");
                <@pageId>.startGetScheduleProc(false);
                console.error('Error loading GIS client:', error);
            }
@@ -878,6 +884,7 @@
                    discoveryDocs: _DISCOVERY_DOCS
                });
            } catch (error) {
+               console.log("startGetScheduleProc 호출 initializeGapiClient");
                <@pageId>.startGetScheduleProc(false);
            }
        }
@@ -938,8 +945,7 @@
     C_PM.onLoadPage("<@pageId>", function() {
         C_COM.hideLeftMenu();
         
-        <@pageId>.init();        
-        <@pageId>.startGetScheduleProc(false);
+        <@pageId>.init(); 
         <@pageId>.getTeamUser();
         let date = new Date();
         <@pageId>.toDay = date.getFullYear() +
