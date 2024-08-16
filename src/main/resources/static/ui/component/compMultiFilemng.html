@@ -44,8 +44,7 @@
                 <@compId>.viewFileList(resultData.data);
                 // 읽기모드인경우
                 if(<@compId>.mode == "R") {
-                    $("#<@compId> button"       ).hide();
-                    $("#<@compId> .pay_close"   ).hide();
+                    $("#<@compId> button[name='modify']").hide();
                 }
                 
                 C_COMP.callback("<@compId>", <@compId>.fileList);
@@ -277,7 +276,7 @@
 </script>
 <component>
     <h4 id="title">첨부파일</h4>
-    <button type="button" class="stateBtn file" onclick="<@compId>.selectFile()" id="<@compId>_button"><span>파일선택</span></button>
+    <button type="button" name="modify" class="stateBtn file" onclick="<@compId>.selectFile()" id="<@compId>_button"><span>파일선택</span></button>
     <form method="POST" id="<@compId>_form" onsubmit="return false;" enctype="multipart/form-data">
         <input id="<@compId>_select" type="file" onchange="<@compId>.addFile(this);" tabindex="-1" multiple style="display:none"/>
     </form>
@@ -291,7 +290,7 @@
                 {{if PRE_VIEW_YN == "Y" || CONVERT_YN == "Y" }} 
                 <button type="button" onclick="<@compId>.preview('{{:FILE_ID}}','{{:CONVERT_YN}}')" id="<@compId>_buttonPreview"><span>미리보기</span></button>
                 {{/if}}
-                <button class="pay_close" onclick="<@compId>.deleteFile('{{:FILE_ID}}')">닫기</button>
+                <button name="modify" class="pay_close" onclick="<@compId>.deleteFile('{{:FILE_ID}}')">Delete</button>
             </li>
         {{/for}}
         </script>
