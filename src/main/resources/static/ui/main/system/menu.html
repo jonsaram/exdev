@@ -9,7 +9,7 @@ var <@pageId> = {
 				const singleDepthList = { 
 
 				 		 data : C_COM.getCodeList("DEPTH_SELECT")
-					 	,targetId : "<@pageId>_selectMenuDept" 
+					 	,targetId : "<@pageId>_selectMenuDepth" 
 				}
 				C_UICOM.makeSelectBox(singleDepthList, "single");	
 				
@@ -23,7 +23,7 @@ var <@pageId> = {
 			}
 			,searchList : () => {
 				
-				var selectMenuDept = C_UICOM.getData("<@pageId>_selectMenuDept");
+				var selectMenuDept = C_UICOM.getData("<@pageId>_selectMenuDepth");
 
 				if( selectMenuDept ==="ALL")selectMenuDept ="";
 				
@@ -31,7 +31,7 @@ var <@pageId> = {
 				
 				if( selectDeleted ==="ALL")selectDeleted ="";
 				
-				const requestParm = { MENU_DEPTH : selectMenuDept , DEL_YN :selectDeleted };
+				const requestParm = { MENU_DEPTH : selectMenuDept , DEL_YN :selectDeleted , PARENT_MENU_ID :$("#<@pageId>_prmPARENT_MENU_ID").val() };
 
 				var parm = {
 						 queryId 		: "system.getMenuList"
@@ -52,7 +52,7 @@ var <@pageId> = {
 					
 					C_COM.renderHtml("<@pageId>", rparm);
 			
-					<@pageId>.showInsertBtn(false);				
+					//<@pageId>.showInsertBtn(false);				
 					<@pageId>.setHandler();
 					
 					//setMenu();
@@ -106,19 +106,13 @@ var <@pageId> = {
 					}				
 				});				
 			}
-			,openPopup : ($tds) => {
-			
-				let param = [];	
-				$.each( $tds , function(){
+			,openPopup : (index=-1) => {
 	
-					const key = $(this).attr("id");
-					const val = $(this).attr("value");
-					param.push( { "key": key, "val": val } );
-					
-				})
+				const row = <@pageId>.curSearchList [index];
 
 				C_POP.open('popup_system_menuUpdatePopup',					
-							{	  param:param
+							{	  mode: index > -1 ? "UPDATE":"INSERT"
+								, param:row
 								, parentMenu 	:	{
 													  PARNET_MENU_ID	:	$("#<@pageId>_prmPARENT_MENU_ID").val()
 													 ,PARNET_MENU_NM	:	$("#<@pageId>_prmPARENT_MENU_NM").val()
@@ -193,7 +187,7 @@ var <@pageId> = {
 						
 					})
 
-					<@pageId>.openPopup($tds);
+					<@pageId>.openPopup(index);
 					
 			    })
 			    
@@ -259,6 +253,7 @@ C_PM.onLoadPage("<@pageId>", function() {
 	
 	<@pageId>.pageInit();
 	<@pageId>.searchList();
+	<@pageId>.showInsertBtn(true);
 
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
@@ -283,18 +278,21 @@ td {
 		<div class="search_area mt0">
 			<!-- 멀티 선택 -->
 			<div class="fl">
-				<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
-				<button type="button" class="btn select fl" id="<@pageId>_search">조회</button>
-				<div  class="select_box fl" id="<@pageId>_selectDelYn" style="width:140px;margin-left:10px;"></div>
 				<div class="search_inputWrap" style='margin-left:10px;'>
-				PARENT_MENU_ID : <input type="search" id="<@pageId>_prmPARENT_MENU_ID" style='width:200px;'>
-				PARENT_MENU_NM : <input type="search" id="<@pageId>_prmPARENT_MENU_NM" style='width:200px;'>
+					PARENT_MENU_ID : <input type="search" id="<@pageId>_prmPARENT_MENU_ID" style='width:140px;margin-left:10px;'>
+					PARENT_MENU_NM : <input type="search" id="<@pageId>_prmPARENT_MENU_NM" style='width:140px;margin-left:10px;'>
 				</div>
-				 <div  class="select_box fl" id="<@pageId>_selectMenuDept" style="width:130px;margin-left:10px;"></div>
+				<div style="float: left; margin-right: 5px;vertical-align: middle;margin-top:10px;">삭제 여부 :</div>
+    			<div class="select_box" id="<@pageId>_selectDelYn"  style="width:135px;margin-left:10px;"></div>
+    			<div style="float: left; margin-left: 15px;vertical-align: middle;margin-top:10px;">DEPTH :</div>
+				<div class="select_box fl" id="<@pageId>_selectMenuDepth" style="width:90px;margin-left:10px;"></div>
+				<button type="button" class="btn select fr" id="<@pageId>_search" style='margin-left:20px;'>조회</button>
+				 
 			</div>
 
 			<div class="search_right">
 				<button type="button" class="btn select fl" id="<@pageId>_insert"><i class="icon_user_plus"></i>추가</button>
+				<button type="button" class="btn fl" id="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 				<button type="button" class="btn fl"  id="<@pageId>_excelDownload"><i class="icon_download"></i> Excel 다운로드</button>
             </div>
 		</div>
@@ -358,24 +356,24 @@ td {
 				{{for list}}
 				<tr name="<@pageId>_tr_{{:#index}}" 						 value='{{:SP_CSTM_ID}}||{{:MENU_ID}}' >
 					<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:SP_CSTM_ID}}||{{:MENU_ID}}'></td>
- 					<td id='MENU_ID'			value='{{:MENU_ID}}'		class='tl'>{{:MENU_ID}}</td>
- 					<td id='MENU_NM'			value='{{:MENU_NM}}'		class='tl'>{{:MENU_NM}}</td>
- 					<td id='MENU_DESC'			value='{{:MENU_DESC}}'		class='tl'>{{:MENU_DESC}}</td>
- 					<td id='MENU_DEPTH'			value='{{:MENU_DEPTH}}'		class='tl'>{{:MENU_DEPTH}}</td>
- 					<td id='PAGE_ID'			value='{{:PAGE_ID}}'		class='tl'>{{:PAGE_ID}}</td>
- 					<td id='SORT_ORDER'			value='{{:SORT_ORDER}}' 	class='tc'>{{:SORT_ORDER}}</td>
- 					<td id='PARENT_MENU_NM'		value='{{:PARENT_MENU_NM}}' class='tl'>{{:PARENT_MENU_NM}}</td>
- 					<td id='PARENT_MENU_DESC'	value='{{:PARENT_MENU_DESC}}' class='tl'>{{:PARENT_MENU_DESC}}</td>
- 					<td id='USE_YN'				value='{{:USE_YN}}' 		class='tl'>{{:USE_YN}}</td>
- 					<td id='DEL_YN'				value='{{:DEL_YN}}' 		style="display:none">{{:DEL_YN}}</td>
- 					<td id='HAS_CHILD'			value='{{:HAS_CHILD}}' 		style="display:none">{{:HAS_CHILD}}</td>
- 					<td id='PARENT_MENU_ID'		value='{{:PARENT_MENU_ID}}'	style="display:none">{{:PARENT_MENU_ID}}</td>
- 					<td id='UPDATE_USER'		value='{{:UPDATE_USER}}' 	style='display:none'>{{:UPDATE_USER}}</td>
- 					<td id='UPDATE_DATE'		value='{{:UPDATE_DATE}}' 	style='display:none'>{{:UPDATE_DATE}}</td>
- 					<td id='PARAMETER'			value='{{:PARAMETER}}' 		style='display:none'>{{:PARAMETER}}</td>
- 					<td id='ATTR1'				value='{{:ATTR1}}' 			style='display:none'>{{:ATTR1}}</td>
- 					<td id='ATTR2'				value='{{:ATTR2}}' 			style='display:none'>{{:ATTR2}}</td>
- 					<td id='NEXT_SORT_ORDER'	value='{{:NEXT_SORT_ORDER}}' class='tl'>
+ 					<td id='MENU_ID'			title='{{:MENU_ID}}'		value='{{:MENU_ID}}'		class='tl'>{{:MENU_ID}}</td>
+ 					<td id='MENU_NM'			title='{{:MENU_NM}}'		value='{{:MENU_NM}}'		class='tl'>{{:MENU_NM}}</td>
+ 					<td id='MENU_DESC'			title='{{:MENU_DESC}}'		value='{{:MENU_DESC}}'		class='tl'>{{:MENU_DESC}}</td>
+ 					<td id='MENU_DEPTH'			title='{{:MENU_DEPTH}}'		value='{{:MENU_DEPTH}}'		class='tl'>{{:MENU_DEPTH}}</td>
+ 					<td id='PAGE_ID'			title='{{:PAGE_ID}}'		value='{{:PAGE_ID}}'		class='tl'>{{:PAGE_ID}}</td>
+ 					<td id='SORT_ORDER'			title='{{:SORT_ORDER}}' 	value='{{:SORT_ORDER}}' 	class='tc'>{{:SORT_ORDER}}</td>
+ 					<td id='PARENT_MENU_NM'		title='{{:PARENT_MENU_NM}}' value='{{:PARENT_MENU_NM}}' class='tl'>{{:PARENT_MENU_NM}}</td>
+ 					<td id='PARENT_MENU_DESC'	title='{{:PARENT_MENU_DESC}}'value='{{:PARENT_MENU_DESC}}' class='tl'>{{:PARENT_MENU_DESC}}</td>
+ 					<td id='USE_YN'				title='{{:USE_YN}}' 		value='{{:USE_YN}}' 		class='tl'>{{:USE_YN}}</td>
+ 					<td id='DEL_YN'				title='{{:DEL_YN}}' 		value='{{:DEL_YN}}' 		style="display:none">{{:DEL_YN}}</td>
+ 					<td id='HAS_CHILD'			title='{{:HAS_CHILD}}' 		value='{{:HAS_CHILD}}' 		style="display:none">{{:HAS_CHILD}}</td>
+ 					<td id='PARENT_MENU_ID'		title='{{:PARENT_MENU_ID}}'	value='{{:PARENT_MENU_ID}}'	style="display:none">{{:PARENT_MENU_ID}}</td>
+ 					<td id='UPDATE_USER'		title='{{:UPDATE_USER}}' 	value='{{:UPDATE_USER}}' 	style='display:none'>{{:UPDATE_USER}}</td>
+ 					<td id='UPDATE_DATE'		title='{{:UPDATE_DATE}}' 	value='{{:UPDATE_DATE}}' 	style='display:none'>{{:UPDATE_DATE}}</td>
+ 					<td id='PARAMETER'			title='{{:PARAMETER}}' 		value='{{:PARAMETER}}' 		style='display:none'>{{:PARAMETER}}</td>
+ 					<td id='ATTR1'				title='{{:ATTR1}}' 			value='{{:ATTR1}}' 			style='display:none'>{{:ATTR1}}</td>
+ 					<td id='ATTR2'				title='{{:ATTR2}}' 			value='{{:ATTR2}}' 			style='display:none'>{{:ATTR2}}</td>
+ 					<td id='NEXT_SORT_ORDER'	title='{{:NEXT_SORT_ORDER}}'value='{{:NEXT_SORT_ORDER}}' class='tl'>
 						<button id="<@pageId>_modify_{{:#index}}" index="{{:#index}}"><i class="icon_pen"></i></button></td>
 					<td><button id="<@pageId>_delete_{{:#index}}" index="{{:#index}}"><i class="icon_trash"></i></button></td>
 				</tr>

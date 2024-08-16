@@ -678,41 +678,75 @@
 		/*	result.updatePaymentItem
 			실적 수당 저장
 		*/
+		DECLARE
+        	v_result_id TBL_EXP_PAYMENT.RESULT_ID%TYPE;
+		BEGIN 
 
-		MERGE INTO TBL_EXP_PAYMENT T
-		USING (
-		
-		  SELECT #{CONTRACT_ID}				AS CONTRACT_ID,
-		         #{USER_ID} 				AS USER_ID,
-		         #{RESULT_ID} 				AS RESULT_ID,
-		         TO_NUMBER(#{PAYMENT_ID})	AS PAYMENT_ID,
-		         #{PAYMENT} 				AS PAYMENT,
-		         #{RELATION_TYPE} 			AS RELATION_TYPE,
-		         TO_CHAR(#{PAY_ID})			AS PAY_ID,
-		         #{RATE} 					AS RATE,
-		         'Y'	 					AS USE_YN,
-		         'N' 						AS DEL_YN,
-		         #{sessionVo.userId}		AS UPDATE_USER
-		  FROM dual
-		  
-		) S
-		ON (T.CONTRACT_ID	= S.CONTRACT_ID 
-		AND T.USER_ID		= S.USER_ID 
-		AND T.RESULT_ID		= S.RESULT_ID 
-		AND T.RELATION_TYPE = S.RELATION_TYPE 
-		)
-		WHEN MATCHED THEN
-		  UPDATE SET
-		         T.PAYMENT 			= S.PAYMENT,	
-		         T.PAY_ID			= S.PAY_ID,
-		         T.RATE				= S.RATE,
-		         T.USE_YN			= S.USE_YN,
-		         T.DEL_YN			= S.DEL_YN,
-		         T.UPDATE_USER		= S.UPDATE_USER,
-		         T.UPDATE_DATE		= GET_KRDT(SYSDATE)
-		WHEN NOT MATCHED THEN 
-    		INSERT (  CONTRACT_ID,   USER_ID,   RESULT_ID,   PAYMENT,   PAYMENT_ID,	  RELATION_TYPE,  PAY_ID,   RATE,   USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
-   			VALUES (S.CONTRACT_ID, S.USER_ID, S.RESULT_ID, S.PAYMENT, S.PAYMENT_ID,	S.RELATION_TYPE,S.PAY_ID, S.RATE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, GET_KRDT(SYSDATE))
+			MERGE INTO TBL_EXP_PAYMENT T
+			USING (
+			
+			  SELECT #{CONTRACT_ID}				AS CONTRACT_ID,
+			         #{USER_ID} 				AS USER_ID,
+			         #{RESULT_ID} 				AS RESULT_ID,
+			         TO_NUMBER(#{PAYMENT_ID})	AS PAYMENT_ID,
+			         #{PAYMENT} 				AS PAYMENT,
+			         #{RELATION_TYPE} 			AS RELATION_TYPE,
+			         TO_CHAR(#{PAY_ID})			AS PAY_ID,
+			         #{RATE} 					AS RATE,
+			         'Y'	 					AS USE_YN,
+			         'N' 						AS DEL_YN,
+			         #{sessionVo.userId}		AS UPDATE_USER
+			  FROM dual
+			  
+			) S
+			ON (T.CONTRACT_ID	= S.CONTRACT_ID 
+			AND T.USER_ID		= S.USER_ID 
+			AND T.RESULT_ID		= S.RESULT_ID 
+			AND T.RELATION_TYPE = S.RELATION_TYPE 
+			)
+			WHEN MATCHED THEN
+			  UPDATE SET
+			         T.PAYMENT 			= S.PAYMENT,	
+			         T.PAY_ID			= S.PAY_ID,
+			         T.RATE				= S.RATE,
+			         T.USE_YN			= S.USE_YN,
+			         T.DEL_YN			= S.DEL_YN,
+			         T.UPDATE_USER		= S.UPDATE_USER,
+			         T.UPDATE_DATE		= GET_KRDT(SYSDATE)
+			WHEN NOT MATCHED THEN 
+	    		INSERT (  CONTRACT_ID,   USER_ID,   RESULT_ID,   PAYMENT,   PAYMENT_ID,	  RELATION_TYPE,  PAY_ID,   RATE,   USE_YN,   DEL_YN,   UPDATE_USER, UPDATE_DATE)
+	   			VALUES (S.CONTRACT_ID, S.USER_ID, S.RESULT_ID, S.PAYMENT, S.PAYMENT_ID,	S.RELATION_TYPE,S.PAY_ID, S.RATE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, GET_KRDT(SYSDATE))
+	   		;
+   		
+
+			/* 보고 년월일이 08월이면, 실적테이블에서 08월 입력분에 대해서, 수수료테이블에 Y로 친다. 
+				custDashboard.updateBuyerConsultingAppState 의 쿼리와 다름.
+			*/ 
+			SELECT DISTINCT RESULT_ID
+	        INTO v_result_id
+			FROM(
+				SELECT 
+				p.* 
+				FROM TBL_EXP_BUYER_CONSULTING CS, TBL_EXP_PAYMENT P , TBL_EXP_RESULT R , TBL_EXP_CONTRACT C
+				WHERE 1=1
+				AND CS.APPROVAL_STATE = 'COMPLETE' AND CS.DEL_YN = 'N'
+				AND C.CONTRACT_ID	= #{CONTRACT_ID}
+				AND R.RESULT_ID		= #{RESULT_ID}
+				AND CS.CONTRACT_ID 	= P.CONTRACT_ID
+				AND CS.CONTRACT_ID 	= C.CONTRACT_ID AND C.CONTRACT_TYPE = 'MONTHLY'
+				AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
+				AND P.CONTRACT_ID = R.CONTRACT_ID
+				AND P.RESULT_ID = R.RESULT_ID 
+				AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+				AND TO_CHAR(R.RESULT_DATE,'YYYY-MM') = CS.REPORT_YEAR_MONTH
+			);	
+			
+			UPDATE TBL_EXP_PAYMENT
+			SET IS_PAYABLE  = 'Y'
+			WHERE RESULT_ID = v_result_id
+			;			
+					
+		END ;	
 	</update>
 	
 	<delete id="deletePaymentItem" parameterType="java.util.HashMap"  flushCache="true" >

@@ -7,7 +7,7 @@
 
 		}
 		,searchList : () => {
-
+			// 기업자문보고서는 월자문만 해당됨.
 			const requestParm = { BUYER_ID 			: ''
 								};
 			
@@ -144,7 +144,8 @@
 			appTitle	= title.replace(" 결재 요청","");
 			
 			const totalCost = addComma(selectedRow.TOTAL_COST);
-			let appContent   = `<B>* 고객명			:</B> ${selectedRow.BUYER_NM}\n\n`;
+			let appContent   = `[기업 자문 보고서 결재요청입니다.]\n\n`;
+			appContent 		+= `<B>* 고객명			:</B> ${selectedRow.BUYER_NM}\n\n`;
 			appContent 		+= `<B>* 상품명 		:</B> ${selectedRow.CONSULTING_NM}\n\n`;
 			appContent 		+= `<B>* 계약일 		:</B> ${selectedRow.CONTRACT_DATE}\n\n`;
 			appContent 		+= `<B>* 계약금액 		:</B> ${totalCost}원\n\n`;

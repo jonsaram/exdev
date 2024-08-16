@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@popupId> = {
-		 recvData : []	
+		  recvData : {}
+		 ,param : ''
 		 ,mode : ''
 		 ,nextSortOrder : ''
 		 ,parentMenu : ''
@@ -44,21 +45,16 @@ var <@popupId> = {
 		}		
 		,pageInit : () => {
 			
-			<@popupId>.mode = <@popupId>.recvData.length > 0 ? "UPDATE":"INSERT";
+			const param = <@popupId>.param || {};
 			
-			const param = <@popupId>.recvData;
+			const paramEntries = Object.entries(param);
+	 		if( paramEntries.length > 0 ){
 
-	 		if( param.length > 0 ){
+	 			paramEntries.forEach( item =>$("#<@popupId>_items #"+item[0]).val(item[1]));
 	 			
-	 			param.forEach( item =>{
-					
-					$("#<@popupId>_items #"+item.key).val(item.val);
-					
-				});
-	 			
-	  			const useYnVal = param.find(item => item.key === "USE_YN")?.val;
+	  			const useYnVal = paramEntries.find(item => item[0] === "USE_YN")?.[1];
 				<@popupId>.fnRadioCheckValue("USE_YN",useYnVal);
-	  			const delYnVal = param.find(item => item.key === "DEL_YN")?.val;
+	  			const delYnVal = paramEntries.find(item => item[0] === "DEL_YN")?.[1];
 				<@popupId>.fnRadioCheckValue("DEL_YN",delYnVal);
 				
 				$(".<@popupId>_parent_is").show();
@@ -79,27 +75,46 @@ var <@popupId> = {
 				
 			}
 
-	 		
  	 		$("#<@popupId>_items #PARENT_MENU_ID").val(<@popupId>.parentMenu.PARNET_MENU_ID);
 	 		$("#<@popupId>_items #PARENT_MENU_NM").val(<@popupId>.parentMenu.PARNET_MENU_NM);
 	 		
-			<@popupId>.mode == "INSERT" ? $(".updateMode").hide() : $(".updateMode").show();
-			let mode = <@popupId>.mode == "INSERT" ? "등록" : "수정";
-			let title = "MENU ";
-	  	 	$(".tit").html(title+mode);
-
-			var modalHeight = (<@popupId>.mode == "INSERT") ? "780px" : "870px";
+			let mode	= "";
+			let title	= "";
+			let modalHeight = "";
+			
+			if( "<@mode>" == "INSERT" ){
+				$(".updateMode").hide();
+				mode = "MENU 등록";
+				modalHeight = "780px";
+				
+				if( <@popupId>.MENU_DEPTH == 0 ){
+					$("#<@popupId>_items #PAGE_ID").prop("disabled",true);
+				}
+				
+			}else{
+				$(".updateMode").show();
+				mode = "MENU 수정";
+				modalHeight = "870px";
+			}
+			
+			$(".tit").html(title+mode);
 			$(".modal").css({"height": modalHeight});
 			
 		}
 		,setHandler : () => {
 			
 			$("#<@popupId>_items #MENU_ID").focusout( function() {
-				
+
 				const $parentMenuId 	= $("#<@popupId>_items #PARENT_MENU_ID");
+				let prefixMenu			= ''; 
 				let parentMenuId = $parentMenuId.val().split("_");
-				
-				const prefixMenu	= parentMenuId[0]+"_"+parentMenuId[1] ;		
+				if( isEmpty( parentMenuId[0] )){
+					parentMenuId[0] = 'MN';
+					prefixMenu	= parentMenuId[0] ;		
+				}else{
+					
+					prefixMenu	= parentMenuId[0]+"_"+parentMenuId[1] ;		
+				}
 			    
 				var inputValue = $(this).val();
 			     
@@ -108,31 +123,33 @@ var <@popupId> = {
 			     }
 			     $(this).val(inputValue);
 			});
-			
-		    $("#<@popupId>_roleSearch").click(function(){
-
-		    	let sendData = <@popupId>.recvData.filter( item => item.key == "ROLE_ID" || item.key == "ROLE_NM" ) ;
-
-				C_POP.open('popup_system_roleSearchPopup' , sendData
-				, function(retData) {
-					
-					console.log("=> "+ retData.selectedItem +" " + retData.selectedItemNm );
-					$("#<@popupId>_items #ROLE_ID").val(retData.selectedItem )
-					$("#<@popupId>_items #ROLE_NM").val(retData.selectedItemNm )
-					
-				});
-		    	
-			});
 		}
 		
 }
 // Popup Load가 완료된후 실행 된다.
 C_POP.onLoadPopup("<@popupId>", function(data) {
-
-	<@popupId>.recvData = data.param;
+	
+	<@popupId>.recvData = data;
+	
+	if( isEmpty(data.param) ){
+		
+		data.parentMenu.MENU_DEPT = 0;
+		data.parentMenu.NEXT_ROOT_SORT_ORDER = 0;
+		data.parentMenu.NEXT_SORT_ORDER = 0;
+		data.parentMenu.PARNET_MENU_ID = null;
+		data.parentMenu.PARNET_MENU_NM = null;
+		
+		<@popupId>.MENU_DEPTH	= Number(0);
+		
+	}else{
+		
+		<@popupId>.MENU_DEPTH	= Number(data.parentMenu.MENU_DEPTH)+1 ;
+		
+	}
+	
+	<@popupId>.param = data.param;
 
 	<@popupId>.parentMenu 	= data.parentMenu;
-	<@popupId>.MENU_DEPTH	= Number(data.parentMenu.MENU_DEPTH)+1 ;
 	<@popupId>.nextSortOrder= data.parentMenu.NEXT_SORT_ORDER;
 	
 	<@popupId>.pageInit();

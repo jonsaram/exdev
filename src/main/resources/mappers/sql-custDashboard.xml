@@ -40,6 +40,7 @@
 		,TBL_EXP_CONTRACT C
 		WHERE 1=1
 		AND CS.CONTRACT_ID = C.CONTRACT_ID
+		AND C.CONTRACT_TYPE = 'MONTHLY'
 		<if test=" BUYER_ID != null and !BUYER_ID.equals('')">
 		AND CS.BUYER_ID = #{BUYER_ID} 
 		</if>
@@ -50,7 +51,7 @@
 	
 	<select id="getConsultingList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	custDashboard.getConsultingList
-			고객 계약 상품 리스트 조회  
+			고객 계약 상품 리스트 조회  ( 월자문 )
 		*/
 		SELECT DISTINCT C.CONTRACT_ID , CT.CONSULTING_ID , CT.CONSULTING_NM 
 		,B.BUYER_ID, B.BUYER_NM
@@ -59,6 +60,7 @@
 		,TBL_EXP_BUYER B
 		WHERE 1=1 
 		AND C.CONSULTING_ID = CT.CONSULTING_ID 
+		AND C.CONTRACT_TYPE ='MONTHLY'
 		AND C.BUYER_ID = #{BUYER_ID}
 		AND C.BUYER_ID = B.BUYER_ID 
 		AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
@@ -134,11 +136,40 @@
 	
 	<update id="updateBuyerConsultingAppState">
 		/*	custDashboard.updateBuyerConsultingAppState
-			기업자문보고서 계약 상태 변경
+			기업자문보고서 계약 상태 변경 결재 후처리 임.
 		*/
-		UPDATE TBL_EXP_BUYER_CONSULTING
-		SET APPROVAL_STATE = #{APPROVAL_STATE}
-		WHERE	BUYER_CONSULTING_ID = #{BUYER_CONSULTING_ID	}	
+		DECLARE
+        	v_result_id TBL_EXP_PAYMENT.RESULT_ID%TYPE;
+		BEGIN 
+	
+			UPDATE TBL_EXP_BUYER_CONSULTING
+			SET APPROVAL_STATE = #{APPROVAL_STATE}
+			WHERE	BUYER_CONSULTING_ID = #{BUYER_CONSULTING_ID	} 
+			;
+			
+			/* 보고 년월일이 08월이면, 실적테이블에서 08월 입력분에 대해서, 수수료테이블에 Y로 친다. */ 
+			SELECT DISTINCT RESULT_ID
+	        INTO v_result_id
+			FROM(
+				SELECT 
+				p.* 
+				FROM TBL_EXP_BUYER_CONSULTING CS, TBL_EXP_PAYMENT P , TBL_EXP_RESULT R , TBL_EXP_CONTRACT C
+				WHERE BUYER_CONSULTING_ID =#{BUYER_CONSULTING_ID	}
+				AND CS.CONTRACT_ID = P.CONTRACT_ID
+				AND CS.CONTRACT_ID = C.CONTRACT_ID AND C.CONTRACT_TYPE = 'MONTHLY'
+				AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
+				AND P.CONTRACT_ID = R.CONTRACT_ID
+				AND P.RESULT_ID = R.RESULT_ID 
+				AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+				AND TO_CHAR(R.RESULT_DATE,'YYYY-MM') = CS.REPORT_YEAR_MONTH
+			);
+			
+			UPDATE TBL_EXP_PAYMENT
+			SET IS_PAYABLE  = 'Y'
+			WHERE RESULT_ID = v_result_id
+			;
+		
+		END ;	
 		
 	</update>
 	

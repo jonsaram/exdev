@@ -72,11 +72,11 @@
 			,T.MENU_NM
 			,T.MENU_DESC
 			,T.PARENT_MENU_ID
-			,P.MENU_NM AS PARENT_MENU_NM
-			,P.MENU_DESC AS PARENT_MENU_DESC
+			,NVL(P.MENU_NM , '---' ) AS PARENT_MENU_NM
+			,NVL(P.MENU_DESC,'---' ) AS PARENT_MENU_DESC
 			,T.MENU_DEPTH
 			,T.PARAMETER
-			,T.PAGE_ID
+			,NVL(T.PAGE_ID , '---' ) AS PAGE_ID
 			,T.USE_YN
 			,T.DEL_YN
 			,T.UPDATE_USER
@@ -104,8 +104,8 @@
 		WHERE 1 = 1 
 		AND T.SP_CSTM_ID = P.SP_CSTM_ID(+)
 		AND T.PARENT_MENU_ID = P.MENU_ID(+)
-		AND T.MENU_ID = RM.MENU_ID
-		AND RM.AUTH_TYPE IN ('A', 'R')
+		AND T.MENU_ID = RM.MENU_ID(+)
+		AND ( RM.AUTH_TYPE IN ('A', 'R') OR RM.AUTH_TYPE IS NULL )
 		<if test=" MENU_NM != null and !MENU_NM.equals('') ">
 		AND T.MENU_NM like '%' || #{MENU_NM} || '%'
 		</if>
@@ -130,8 +130,6 @@
 		<if test=" SORT_ORDER != null and !SORT_ORDER.equals('') ">
 		AND T.SORT_ORDER = #{SORT_ORDER}
 		</if>
-<!--  		AND T.DEL_YN = 'N'
-		AND T.USE_YN = 'Y' -->
 		ORDER BY SORT_ORDER
 	</select>
 		
@@ -474,7 +472,7 @@
 		    	IF v_count = 0 THEN
 		    	
 					INSERT INTO TBL_EXP_ROLEMENU
-					SELECT SP_CSTM_ID, ROLE_ID, MENU_ID, AUTH_TYPE
+					SELECT SP_CSTM_ID, ROLE_ID, MENU_ID, AUTH_TYPE, #{sessionVo.userId} UPDATE_USER, SYSDATE UPDATE_DATE
 					FROM(
 						SELECT DISTINCT R.SP_CSTM_ID, R.ROLE_ID, M.MENU_ID, 'R' AS AUTH_TYPE, M.SORT_ORDER
 						FROM TBL_EXP_ROLE R,

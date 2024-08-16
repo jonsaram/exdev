@@ -123,8 +123,9 @@ var <@pageId> = {
 			
 			const month =	Array.from({ length: 12 }, (_, i) => i < 9 ? '0' + (1+i) : '' + (1+i) );
 			
-			let monthly	= {name:'월자문',data:[],stack:'consultingType' }
-			let once 	= {name:'일회성',data:[],stack:'consultingType' }
+			let monthly	= {name:'월자문',data:[],stack:'consultingType',color: '#FF5733'}
+			let once 	= {name:'일회성',data:[],stack:'consultingType',color: '#33FF57'}
+			let cowork 	= {name:'COWORK',data:[],stack:'consultingType',color: '#3357FF'}
 			let contractCnt = {type:'line', name:'계약건수',color: "#75ba75", data:[],data2:[], yAxis:1, marker:{symbol: 'circle'} }
 			
 			const thisYear = dayjs().format("YYYY");
@@ -138,23 +139,25 @@ var <@pageId> = {
 						
 						monthly.data.push	(match[0].MONTHLY_TOTAL_COST);
 						once.data.push		(match[0].ONCE_TOTAL_COST);
+						cowork.data.push	(match[0].COWORK_TOTAL_COST);
 						
-						accContractCnt += Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT);
+						accContractCnt += Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT) + Number(match[0].COWORK_CNT);
 						contractCnt.data.push(accContractCnt	);
-						contractCnt.data2.push(Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT))
+						contractCnt.data2.push(Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT) + Number(match[0].COWORK_CNT))
 					
 					}else{
 						monthly.data.push(0);
 						once.data.push(0);
+						cowork.data.push(0);
 						contractCnt.data.push(accContractCnt);
 						contractCnt.data2.push(0);
 					}
 				
 			})
 			
-			const series = [monthly, once, contractCnt];
-			let target 	= 	"<@pageId>_transition_allPayment" ;
-			let text	=	"[ 전체 수수료 합계 추이 ]";
+			const series	=	[monthly, once, cowork, contractCnt];
+			let target		=	"<@pageId>_transition_allPayment" ;
+			let text		=	"[ 전체 수수료 합계 추이 ]";
 			if( gubun ){target = "<@pageId>_transition_chart"+gubun;text=""}
 			_1stacked1LineChart(target, _monthArray, series, <@pageId>.getUnitStr('억',<@pageId>.UNIT_TYPE ), text) ;
 
@@ -250,13 +253,14 @@ var <@pageId> = {
 				
 				<@pageId>.searchedPayment	= resultData.data ;
 				
+				//고객 체결 추이
   				if( chart == "customerTrend"){
 
   				 	const data	= 	<@pageId>.searchedPayment;
   				 	<@pageId>.firstStacked1LineChart(data,gubun) ;
   				 	
   				}else{
-
+  				// 수수료 합계 추이 
 					<@pageId>.YEARLY_TARGET_PAYMENT = resultData.data[0].TARGET_PAYMENT;
 					
 					const monthlyPaymentArr = [];
@@ -541,14 +545,14 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<div class="won"><span class="num t"></span></div>
 								<div class="won"><span class="num p"></span>원</div>
 							</div>
-							<figure>
+							<figure> <!-- 목표 수수료 달성률 파이차트 -->
 								<div class="chart" id="<@pageId>_goalAcieveRate_chart"  style="height:230px"></div>
 							</figure>
 						</div>
 					</section>
  					<section class="sec_wrap">
 						<div class="cont_box">
-							<figure>
+							<figure><!-- 전체 수수료 합계 추이 -->
 						    	<div class="chart03" id="<@pageId>_transition_allPayment"  style="height:320px;"></div>
 							</figure>
 						</div>
@@ -561,8 +565,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<div id="<@pageId>_years1" style="width:100px"></div>
 								</div>
 							</div>
-
-							<figure>
+								
+							<figure>	 <!-- 수수료 합계 추이( O ) , 고객 체결 추이 , 실행 수수료 추이 , 영업수수료 추이 -->
 						    	<div class="chart01" id="<@pageId>_transition_chart1"  style="height:320px;"></div>
 							</figure>
 
@@ -577,7 +581,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								</div>
 							</div>
 
-							<figure>
+							<figure>	 <!-- 수수료 합계 추이 , 고객 체결 추이 , 실행 수수료 추이 , 영업수수료 추이( O ) -->
 						    	<div class="chart01" id="<@pageId>_transition_chart2"  style="height:320px;"></div>
 							</figure>
 						</div>

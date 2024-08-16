@@ -796,8 +796,9 @@
 	            categories: categories
 	        },
 			yAxis: [{
-			    allowDecimals: false,
+			    allowDecimals: false,//Y축의 값이 정수로만 표시되도록
 			    min: 0,
+				//tickInterval: 0.5, // 눈금 간격 설정
 			    title: {
 			        text: '계약금액',
 			        style: {
@@ -809,7 +810,7 @@
 			    },
 			    labels: {
 			        formatter: function () {
-			            return Highcharts.numberFormat(this.value, 0, '.', ',') + ' ' + unit;
+			            return Highcharts.numberFormat(this.value, 0, '.', ',') + ' ' + unit; // 소수점 0자리로 표시
 			        },
 			        style: {
 			            color: Highcharts.getOptions().colors[0]
@@ -832,23 +833,30 @@
 			    },
 			    opposite: true
 			}],
-	        tooltip: {
-			    shared: true,
-			    formatter: function () {
-			        const idx = Number(this.x.replace("월", "")) - 1;
-			        const monthly = this.points[0].series.userOptions;
-			        const once = this.points[1].series.userOptions;
-			        const contractedCnt = this.points[2].series.userOptions;
-			        let tooltip = '<b>' + this.x + '</b><br/>';
-			        tooltip += '<span style="color:' + this.points[0].color + '">\u25CF</span> ';
-			        tooltip += monthly.name + ': ' + Highcharts.numberFormat(monthly.data[idx], 0, '.', ',') + unit + '<br>';
-			        tooltip += '<span style="color:' + this.points[1].color + '">\u25CF</span> ';
-			        tooltip += once.name + ': ' + Highcharts.numberFormat(once.data[idx], 0, '.', ',') + unit + '<br>';
-			        tooltip += '<span style="color:' + this.points[2].color + '">\u25CF</span> ';
-			        tooltip += contractedCnt.name + ': ' + Highcharts.numberFormat(contractedCnt.data2[idx], 0, '.', ',') + '건 / ' + Highcharts.numberFormat(contractedCnt.data[idx], 0, '.', ',') + '건';
-			
-			        return tooltip;
-			    }
+			tooltip: {
+				    shared: true,
+				    formatter: function () {
+
+				        const idx = Number(this.x.replace("월", "")) - 1;
+				        const monthly = this.points[0].series.userOptions;
+				        const once = this.points[1].series.userOptions;
+				        const cowork = this.points[2].series.userOptions;
+				        const contractedCnt = this.points[3].series.userOptions;
+				        let tooltip = '<b>' + this.x + '</b><br/>';
+				        tooltip += '<span style="color:' + this.points[0].color + '">\u25CF</span> ';
+				        tooltip += monthly.name + ': ' + Highcharts.numberFormat(monthly.data[idx], 2, '.', ',') + unit + '<br>'; // 소수점 2자리로 표시
+
+				        tooltip += '<span style="color:' + this.points[1].color + '">\u25CF</span> ';
+				        tooltip += once.name + ': ' + Highcharts.numberFormat(once.data[idx], 2, '.', ',') + unit + '<br>'; // 소수점 2자리로 표시
+
+				        tooltip += '<span style="color:' + this.points[2].color + '">\u25CF</span> ';
+				        tooltip += cowork.name + ': ' + Highcharts.numberFormat(cowork.data[idx], 2, '.', ',') + unit + '<br>'; // 소수점 2자리로 표시
+
+				        tooltip += '<span style="color:' + this.points[3].color + '">\u25CF</span> ';
+				        tooltip += contractedCnt.name + ': ' + Highcharts.numberFormat(contractedCnt.data2[idx], 0, '.', ',') + '건 (누적: ' + Highcharts.numberFormat(contractedCnt.data[idx], 0, '.', ',') + '건 )';
+				
+				        return tooltip;
+				    }
 			},
 		    plotOptions: {
 		        column: {
@@ -856,7 +864,7 @@
 		            pointWidth: 40 // Set the width of the column
 		        },
 		        series: {
-		            lineWidth: 3 // Set the width of the line for all series
+		            lineWidth: 4 // Set the width of the line for all series
 		        }
 		    },
 	        series: series

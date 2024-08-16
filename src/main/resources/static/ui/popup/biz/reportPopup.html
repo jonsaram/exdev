@@ -12,14 +12,18 @@
 			C_POP.close(returnData);
 		 }
 		,pageInit : () =>{
+			// 등록시에 이번달, 저번달 까지 등록 가능, 15일이 지난 후엔 지난월 항목 사라짐 ( 등록 불가 )
+			const toDate = dayjs().date();
 			
 			const yearMonths = [
-				 [dayjs().subtract(3, 'month').format('YYYY-MM'), dayjs().subtract(3, 'month').format('YYYY년 MM월')]
-				,[dayjs().subtract(2, 'month').format('YYYY-MM'), dayjs().subtract(2, 'month').format('YYYY년 MM월')]
-				,[dayjs().subtract(1, 'month').format('YYYY-MM'), dayjs().subtract(1, 'month').format('YYYY년 MM월')]
+				 [dayjs().subtract(1, 'month').format('YYYY-MM'), dayjs().subtract(1, 'month').format('YYYY년 MM월')]
 				,[dayjs().format('YYYY-MM'),dayjs().format('YYYY년 MM월')]  
-				,[dayjs().add(1, 'month').format('YYYY-MM'),dayjs().add(1, 'month').format('YYYY년 MM월')]
 			];
+			// 날짜가 15일보다 큰 경우 지난달 항목 삭제
+			if ("<@mode>" == "I" && toDate > 15) {
+			    yearMonths.shift(); // 첫 번째 항목(지난달 항목) 삭제
+			}
+			
 			var dateList = { data	: yearMonths,targetId : "<@popupId>_yearMonths"	}
 			C_UICOM.makeSelectBox(dateList, "single");
 			C_UICOM.setSingleBox("<@popupId>_yearMonths", dayjs().year()+"-"+("0"+(dayjs().month() + 1) ).slice(-2));
