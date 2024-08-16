@@ -160,8 +160,31 @@
             	C_POP.alert("구글인증에 문제가 발생하였습니다.\n 캘린더 ID를 확인하세요");
             }
         }
+
+       ,validateCalendarId: async function( calendarId ) {     
+
+    	// 현재 시간을 기준으로 오늘의 시작과 끝 시간을 계산
+           const now = new Date();
+           const timeMin = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString(); // 오늘의 자정
+           const timeMax = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString(); // 내일 자정
+           var apiKey = _API_KEY;
+           try {
+	           var url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}`;
+	           const response = await fetch(url);
+	           // 응답 상태 확인
+	           if (!response.ok) {
+	               // 404 오류 또는 다른 오류 발생 시 false 반환
+	               console.error(`Error: ${response.status} ${response.statusText}`);
+	               return false;
+	           }
+	           return true;
+	       } catch (error) {
+	           console.error("Error validating Calendar ID: ", error);
+	           return false;
+	       }
+        }
        
-      ,validateCalendarId: async function( calendarId ) {	   
+      ,validateCalendarId1: async function( calendarId ) {	   
            try {
                const response = await gapi.client.calendar.calendars.get({
                    'calendarId': calendarId
