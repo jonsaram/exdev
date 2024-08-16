@@ -111,10 +111,16 @@
         /*=============================================================================================*/
         /* google API함수    google API함수    google API함수    google API함수    google API함수       */
         
-       ,gapiLoaded : function( ) {  
-            gapi.load('client', <@popupId>.initializeGapiClient);
+       ,gapiLoaded : function() {
+            gapi.load('client', () => {
+                <@popupId>.initializeGapiClient()//클라이언트를 초기화
+                    .then(() => {
+                    })
+                    .catch(error => {
+                        console.error('Error loading GAPI client:', error);
+                    });
+            });
         }
-
        ,initializeGapiClient: async function() {
             await gapi.client.init({
                 apiKey: _API_KEY,
@@ -124,13 +130,23 @@
             $('#<@popupId>_btnCert').prop('disabled', false).addClass('disabled');
         }
 
-       ,gisLoaded : function( ) {  
-    	   <@popupId>.TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
-                client_id: _CLIENT_ID,
-                scope: _SCOPES_READ,
-                callback: '', // will be defined later
-            });
-    	   <@popupId>.GAPI_INITED = true;
+       ,gisLoaded : function( ) {
+    	   //GIS 스크립트가 로드된 후 호출
+           try {
+                   <@popupId>.TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({ //OAuth2 토큰 클라이언트를 초기화
+                   client_id: _CLIENT_ID,
+                   scope: _SCOPES,
+                   callback: (response) => {
+                       if (response.error !== undefined) {
+                           throw(response);
+                       }
+                   }
+               });
+               <@popupId>.GIS_INITED = true;
+           } catch (error) {
+               console.error('Error loading GIS client:', error);
+           }
+           
         }
 
 
