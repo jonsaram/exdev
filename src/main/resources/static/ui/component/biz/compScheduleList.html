@@ -37,14 +37,19 @@ var <@compId> = {
          }
         ,modifySchedule : function(index) {
         	let scheduleObj = <@compId>.scheduleList[index];
-        	 
+
         	let today = getToday(8, '-');
         	 
             let parm = {
             	 scheduleId : scheduleObj.SCHEDULE_ID
             	,today		: today
+            	,teamYn		: scheduleObj.teamYn
             }
-            C_POP.open('popup_sched_updateSchedulePopup', parm, function(obj) {
+            let callPopupId = ""
+            if(scheduleObj.teamYn == "Y") 	callPopupId = 'popup_sched_dtlSchedulePopup';
+            else							callPopupId = 'popup_sched_updateSchedulePopup';
+
+            C_POP.open(callPopupId, parm, function(obj) {
                 if( obj.refresh == 'Y' ){
                     <@compId>.loadScheduleList();
                 }
