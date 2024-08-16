@@ -77,8 +77,8 @@ var C_CALENDAR = {
                 $.each(resultData.data.list, function() {
                     let item = this;
                     item.START_DATETIME = `${item.SCHEDULE_START_DATE} ${item.START_TIME_MINUTE}:${item.START_TIME_MINUTE}`;
-                    if( TeamYn == "Y"){ item.TeamYn = "Y" }
-                    else{  item.TeamYn = "N"  }
+                    if( TeamYn == "Y"){ item.teamYn = "Y" }
+                    else{  item.teamYn = "N"  }
                     C_CALENDAR.resultList.push(item);
                 });
         
