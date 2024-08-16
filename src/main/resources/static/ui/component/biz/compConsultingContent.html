@@ -16,6 +16,23 @@
 				}
 			});  
 		 }
+		,openFolderMng : function() {
+			let contractInfo = <@compId>.contractInfo;
+			dalert(contractInfo)
+			
+			//C_MENU.moveMenu("MN_DSH_FOLDER", {projectInfo : projectInfo});
+			
+			let parm = {
+				 size 			: "MAX"
+				,BASE_FOLDER_ID	: contractInfo.BASE_FOLDER_ID 
+				,TOP_FOLDER_ID	: contractInfo.BASE_FOLDER_ID 
+				,BUYER_ID		: contractInfo.BUYER_ID
+			}
+			C_POP.open('popup_biz_folderMngPopup', parm, function(retData) {
+				
+			});
+		 }
+		
 	}
 	// Component Load가 완료된후 실행 된다.
 	C_COMP.onLoadComp("<@compId>", function(data) {
@@ -30,7 +47,11 @@
 </script>
 <div>
 	<div class="cont_top clearFix">
-		<h4 class="fl lh24">- 컨설팅 프로세스</h4>							
+		<h4 class="fl lh24">- 컨설팅 프로세스</h4>
+		<div class="fr inlineBlock_wrap">
+			<button class="btn small" onclick="<@compId>.openFolderMng()">기업폴더보기</button>
+		</div>
+				
 	</div>
 	<div class="approver_list_wrap person mb15">
 		<ul class="approver_list" id="consultingContentList" style="max-height:125px;">
