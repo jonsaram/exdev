@@ -432,10 +432,11 @@
       /*=============================================================================================*/
       /* 일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스               */  
      ,startGetScheduleProc : function( is_pop_call ) {// 시작
-          
+    	  
           if( <@pageId>.IS_SCHEDULE_PROC_START ){  
               return;
           }
+          
           if( <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN ){
               
               if (<@pageId>.GIS_INITED && <@pageId>.GAP_IINITED) {
@@ -479,9 +480,12 @@
                          <@pageId>.loadGapi();
                          <@pageId>.loadGis();
                      }else{
-                         <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN = false;
+                    	 <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN = false;
                          <@pageId>.startGetScheduleProc( false );
                      }  
+                 }else{
+                	 <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN = false;
+                     <@pageId>.startGetScheduleProc( false );
                  }
              }
           });
@@ -592,7 +596,6 @@
                 console.error('Error fetching events:', error);
                 dalert("구글 캘린더 조회에 문제가 발생하였습니다.");
                 let parm = {};
-                console.log('getAllschedule 호출 getEventGoogleCalendar');
                 <@pageId>.getAllschedule(parm);
             });
       }
@@ -613,7 +616,6 @@
         	  <@pageId>.googleEvents.length = 0;
               console.error("Error in synchProcess1:", error);
               let parm = {};
-              console.log('getAllschedule 호출 synchProcess1');
               <@pageId>.getAllschedule(parm);
           }
       }
@@ -640,7 +642,6 @@
          } catch (error) {
              console.error("Error in synchProcess2:", error);
              let parm = {};
-             console.log('getAllschedule 호출 synchProcess2');
              <@pageId>.getAllschedule(parm);
          }
          
@@ -671,7 +672,6 @@
                      <@pageId>.saveGoogleEvent(resultData);
                  }else{
                      let parm = {};
-                     console.log('getAllschedule 호출 synchProcess3');
                      <@pageId>.getAllschedule(parm);       
                  }
              });
@@ -679,7 +679,6 @@
          } catch (error) {
              console.error("Error in synchProcess3:", error);
              let parm = {};
-             console.log('getAllschedule 호출 synchProcess3');
              <@pageId>.getAllschedule(parm);
          }
      }
@@ -700,7 +699,6 @@
          C_COM.requestService(parm, function(resultData) {
 
              let parm = {};
-             console.log('getAllschedule 호출 synchProcess4');
              <@pageId>.getAllschedule(parm);
              
          });
@@ -869,10 +867,8 @@
                });
                <@pageId>.GIS_INITED = true;
                <@pageId>.IS_GIS_START = true;
-               console.log("startGetScheduleProc 호출 gisLoaded");
                <@pageId>.startGetScheduleProc(false);
            } catch (error) {
-               console.log("startGetScheduleProc 호출 gisLoaded");
                <@pageId>.startGetScheduleProc(false);
                console.error('Error loading GIS client:', error);
            }
@@ -884,7 +880,6 @@
                    discoveryDocs: _DISCOVERY_DOCS
                });
            } catch (error) {
-               console.log("startGetScheduleProc 호출 initializeGapiClient");
                <@pageId>.startGetScheduleProc(false);
            }
        }

@@ -34,24 +34,24 @@ var C_CALENDAR = {
         if (C_CALENDAR.CONTRACT_ID) {
             // 두 서비스 호출을 병렬로 처리하고 결과가 모두 완료될 때까지 기다림
             await Promise.all([
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getTeamNotRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getTeamWeekRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getTeamMonthRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getTeamYearRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getNotRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getDayRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getWeekRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getMonthRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getYearRepeatSchedule")
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getTeamNotRepeatSchedule","Y"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getTeamWeekRepeatSchedule","Y"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getTeamMonthRepeatSchedule","Y"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getTeamYearRepeatSchedule","Y"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getNotRepeatSchedule","N"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getDayRepeatSchedule","N"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getWeekRepeatSchedule","N"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getMonthRepeatSchedule","N"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getYearRepeatSchedule","N")
             ]);
         }else{
             // 두 서비스 호출을 병렬로 처리하고 결과가 모두 완료될 때까지 기다림
             await Promise.all([
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getNotRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getDayRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getWeekRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getMonthRepeatSchedule"),
-                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getYearRepeatSchedule")
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getNotRepeatSchedule","N"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getDayRepeatSchedule","N"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getWeekRepeatSchedule","N"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getMonthRepeatSchedule","N"),
+                C_CALENDAR.serviceCall(requestParm, "ScheduleService.getYearRepeatSchedule","N")
             ]);
         }
         
@@ -66,7 +66,7 @@ var C_CALENDAR = {
         C_CALENDAR.isNotRepeat = false;
     },
     
-    serviceCall: function(requestParm, serviceId) {
+    serviceCall: function(requestParm, serviceId, TeamYn) {
         return new Promise((resolve) => {
             var parm = {
                 serviceId: serviceId,
@@ -77,6 +77,8 @@ var C_CALENDAR = {
                 $.each(resultData.data.list, function() {
                     let item = this;
                     item.START_DATETIME = `${item.SCHEDULE_START_DATE} ${item.START_TIME_MINUTE}:${item.START_TIME_MINUTE}`;
+                    if( TeamYn == "Y"){ item.TeamYn = "Y" }
+                    else{  item.TeamYn = "N"  }
                     C_CALENDAR.resultList.push(item);
                 });
         
