@@ -15,13 +15,27 @@
 			// 등록시에 이번달, 저번달 까지 등록 가능, 15일이 지난 후엔 지난월 항목 사라짐 ( 등록 불가 )
 			const toDate = dayjs().date();
 			
-			const yearMonths = [
+			let yearMonths = [
 				 [dayjs().subtract(1, 'month').format('YYYY-MM'), dayjs().subtract(1, 'month').format('YYYY년 MM월')]
 				,[dayjs().format('YYYY-MM'),dayjs().format('YYYY년 MM월')]  
 			];
 			// 날짜가 15일보다 큰 경우 지난달 항목 삭제
 			if ("<@mode>" == "I" && toDate > 15) {
 			    yearMonths.shift(); // 첫 번째 항목(지난달 항목) 삭제
+			}
+			
+			if( "<@mode>" != "I") {
+			
+				yearMonths = [];
+				const baseMonth = dayjs(<@popupId>.rcvData.param.REPORT_YEAR_MONTH);
+				const currentMonth = dayjs();
+				let tempMonth = baseMonth.subtract(3, 'months');
+				
+				while (tempMonth.isBefore(currentMonth) || tempMonth.isSame(currentMonth, 'month')) {
+				  // 기준 월과 그 월의 3달 전부터 이번달까지 리스트에 추가
+				  yearMonths.push([tempMonth.format('YYYY-MM'), tempMonth.format('YYYY년 MM월')]);
+				  tempMonth = tempMonth.add(1, 'month');
+				}
 			}
 			
 			var dateList = { data	: yearMonths,targetId : "<@popupId>_yearMonths"	}
