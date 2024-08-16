@@ -432,7 +432,7 @@
       /*=============================================================================================*/
       /* 일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스               */  
      ,startGetScheduleProc : function( is_pop_call ) {// 시작
-    	  
+          
           if( <@pageId>.IS_SCHEDULE_PROC_START ){  
               return;
           }
@@ -480,11 +480,11 @@
                          <@pageId>.loadGapi();
                          <@pageId>.loadGis();
                      }else{
-                    	 <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN = false;
+                         <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN = false;
                          <@pageId>.startGetScheduleProc( false );
                      }  
                  }else{
-                	 <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN = false;
+                     <@pageId>.IS_GOOGLE_CALENDAR_SYN_YN = false;
                      <@pageId>.startGetScheduleProc( false );
                  }
              }
@@ -613,7 +613,7 @@
               });
               <@pageId>.googleEvents.length = 0;
           } catch (error) {
-        	  <@pageId>.googleEvents.length = 0;
+              <@pageId>.googleEvents.length = 0;
               console.error("Error in synchProcess1:", error);
               let parm = {};
               <@pageId>.getAllschedule(parm);
@@ -629,9 +629,9 @@
                  ,requestParm            : requestParm
              }
              C_COM.requestService(parm, function(resultData) {
-            	 
+                 
                  for (var i=0; i<resultData.data.list.length; i++){
-                	 <@pageId>.DELETE_GOOGLE_EVENT_ARR.push(resultData.data.list[i].googleId);
+                     <@pageId>.DELETE_GOOGLE_EVENT_ARR.push(resultData.data.list[i].googleId);
                  }
                  if( <@pageId>.DELETE_GOOGLE_EVENT_ARR.length !=0 ){
                      <@pageId>.delGoogleEvent();
@@ -710,7 +710,7 @@
       /* google API함수    google API함수    google API함수    google API함수    google API함수       */
       
      ,delGoogleEvent : function(  ) {
-    	 
+         
          <@pageId>.TOKEN_CLIENT.callback = async (resp) => {
            if (resp.error !== undefined) {
              throw (resp);
@@ -727,7 +727,7 @@
       }
      
      ,deleteEventAPI : function(  ) {
-    	 
+         
          <@pageId>.IS_DELETE_GOOGLE_EVENT = false;
          
          for (let i = 0; i < <@pageId>.DELETE_GOOGLE_EVENT_ARR.length; i++) {
