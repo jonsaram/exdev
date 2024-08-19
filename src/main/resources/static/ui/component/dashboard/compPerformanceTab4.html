@@ -340,7 +340,7 @@
                 for (var i=0; i<resultData.data.length; i++){
                     total += resultData.data[i].SALES;
                 }
-                $('#<@compId>_totalAmount2').text(total);
+                $('#<@compId>_totalAmount2').text(addComma(total));
                 
             }//searchList
             ,setChart2 : (resultData) =>{
@@ -433,7 +433,7 @@
                 for (var i=0; i<resultData.data.length; i++){
                     total += resultData.data[i].SALES;
                 }
-                $('#<@compId>_totalAmount3').text(total);
+                $('#<@compId>_totalAmount3').text(addComma(total));
                 
             }
             ,setChart3 : (resultData) => {
@@ -608,7 +608,7 @@
                 for (var i=0; i<resultData.data.length; i++){
                     total += resultData.data[i].COST_PRICE;
                 }
-                $('#<@compId>_totalAmount5').text(total);
+                $('#<@compId>_totalAmount5').text(addComma(total));
                 
             }
             ,setChart5 : (resultData) => {
@@ -700,7 +700,7 @@
                 for (var i=0; i<resultData.data.length; i++){
                     total += resultData.data[i].MARGIN;
                 }
-                $('#<@compId>_totalAmount6').text(total);
+                $('#<@compId>_totalAmount6').text(addComma(total));
                 
             }
             ,setChart6 : (resultData) => {
@@ -912,7 +912,7 @@
                                     <tr>     
                                         <td class="tl">{{:rownum}}</td>    
                                         <td class="tl">{{:GROUP_1_NM}}</td> 
-                                        <td class="tr">{{:SALES}}</td>  
+                                        <td class="tr">{{numb:SALES}}</td>  
                                     </tr>
                                     {{/for}}
                                 </script>
@@ -971,7 +971,7 @@
                                     <tr>     
                                         <td class="tl">{{:rownum}}</td>    
                                         <td class="tl">{{:MENU_NM}}</td> 
-                                        <td class="tr">{{:SALES}}</td>  
+                                        <td class="tr">{{numb:SALES}}</td>  
                                     </tr>
                                     {{/for}}
                                 </script>
@@ -1050,7 +1050,7 @@
                                         <td class="tl">{{:rownum}}</td>    
                                         <td class="tl">{{:MENU_NM}}</td>   
                                         <td class="tl">{{:COST_RATIO}}%</td> 
-                                        <td class="tr">{{:COST_PRICE}}</td>  
+                                        <td class="tr">{{numb:COST_PRICE}}</td>  
                                     </tr>
                                     {{/for}}
                                 </script>
@@ -1112,7 +1112,7 @@
                                     <tr>     
                                         <td class="tl">{{:rownum}}</td>    
                                         <td class="tl">{{:MENU_NM}}</td> 
-                                        <td class="tr">{{:MARGIN}}</td>  
+                                        <td class="tr">{{numb:MARGIN}}</td>  
                                     </tr>
                                     {{/for}}
                                 </script>

@@ -181,13 +181,13 @@
                    
                    
                    // 테이블 수 증감률
-                   var totalTB    = $('#<@compId>_totalTB').text();
-                   var totalPreTB = $('#<@compId>_totalPreTB').text();
+                   var totalTB    = $('#<@compId>_totalTB').text().replace(/,/g, '');
+                   var totalPreTB = $('#<@compId>_totalPreTB').text().replace(/,/g, '');
                    
                    if(!(typeof totalPreTB == "undefined" || totalPreTB == null || totalPreTB == "0")){
                 	   var tableRate =  ((Number(totalTB) - Number(totalPreTB)) / Number(totalPreTB)) * 100;
                 	   var tableRateRound =  Math.ceil(tableRate * 100) / 100
-
+                       
                        //css Class 삭제  
                        $('#<@compId>_table_percent').removeClass(<@compId>.TB_percent);//숫자변경
                        $('#<@compId>_table_num').removeClass(<@compId>.TB_num);//숫자변경
@@ -224,8 +224,8 @@
                    }
                    
                    // 순매출액 증감률
-                   var totalSale    = $('#<@compId>_totalSale').text();
-                   var totalPreSale = $('#<@compId>_totalPreSale').text();
+                   var totalSale    = $('#<@compId>_totalSale').text().replace(/,/g, '');
+                   var totalPreSale = $('#<@compId>_totalPreSale').text().replace(/,/g, '');
                    
                    if(!(typeof totalPreSale == "undefined" || totalPreSale == null || totalPreSale == "0")){
                        
@@ -277,8 +277,8 @@
             	   totalTB += resultData.data[i].RECEIPT_CNT;
             	   totalSale += resultData.data[i].NET_SALES;
                }
-               $('#<@compId>_totalTB').text(totalTB);
-               $('#<@compId>_totalSale').text(totalSale);
+               $('#<@compId>_totalTB').text(addComma(totalTB));
+               $('#<@compId>_totalSale').text(addComma(totalSale));
            }
 
            ,setTotal2 : (resultData) =>{
@@ -289,8 +289,8 @@
                    totalTB += resultData.data[i].PRE_RECEIPT_CNT;
                    totalSale += resultData.data[i].PRE_NET_SALES;
                }
-               $('#<@compId>_totalPreTB').text(totalTB);
-               $('#<@compId>_totalPreSale').text(totalSale);
+               $('#<@compId>_totalPreTB').text(addComma(totalTB));
+               $('#<@compId>_totalPreSale').text(addComma(totalSale));
            }
            
            /* 챠트 */
@@ -493,7 +493,7 @@
                                      <tr>    
                                          <td class="tl">{{:PRE_STR_DATE}}</td>    
                                          <td class="tl">{{:PRE_RECEIPT_CNT}}</td> 
-                                         <td class="tr">{{:PRE_NET_SALES}}</td>  
+                                         <td class="tr">{{numb:PRE_NET_SALES}}</td>
                                      </tr>
                                      {{/for}}
                                  </script>
@@ -540,7 +540,7 @@
                                      <tr>    
                                          <td class="tl">{{:STR_DATE}}</td>    
                                          <td class="tl">{{:RECEIPT_CNT}}</td> 
-                                         <td class="tr">{{:NET_SALES}}</td>  
+                                         <td class="tr">{{numb:NET_SALES}}</td>
                                      </tr>
                                      {{/for}}
                                  </script>

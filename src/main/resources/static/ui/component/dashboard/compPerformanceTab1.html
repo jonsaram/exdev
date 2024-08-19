@@ -107,7 +107,7 @@ var <@compId> = {
             for (var i=0; i<resultData.data.length; i++){
             	total += resultData.data[i].AMOUNT;
             }
-            $('#<@compId>_totalAmount11').text(total);
+            $('#<@compId>_totalAmount11').text(addComma(total));
             
         }//searchList
         ,setChart11 : (resultData) =>{
@@ -245,7 +245,7 @@ var <@compId> = {
             for (var i=0; i<resultData.data.length; i++){
                 total += resultData.data[i].AMOUNT;
             }
-            $('#<@compId>_totalAmount12').text(total);
+            $('#<@compId>_totalAmount12').text(addComma(total));
             
         }//searchList
         ,setChart12 : (resultData) =>{
@@ -385,7 +385,7 @@ var <@compId> = {
             for (var i=0; i<resultData.data.length; i++){
                 total += resultData.data[i].AMOUNT;
             }
-            $('#<@compId>_totalAmount13').text(total);
+            $('#<@compId>_totalAmount13').text(addComma(total));
             
         }//searchList
         ,setChart13 : (resultData) =>{
@@ -479,7 +479,7 @@ var <@compId> = {
                     yAxis: 0,                
                     data: dataArr,
                     tooltip: {
-                        valueSuffix: '백만'
+                        valueSuffix: '억'
                     }
 
                 }]
@@ -530,6 +530,12 @@ var <@compId> = {
                accrue2 =  accrue2 + resultData.data[i].SUBJECT_003;
                accrue3 =  accrue3 + resultData.data[i].SUBJECT_010;
                accrue4 =  accrue4 + resultData.data[i].SUBJECT_005;
+               
+               console.log("accrue1 =>"+accrue1);
+               console.log("accrue2 =>"+accrue2);
+               console.log("accrue3 =>"+accrue3);
+               console.log("accrue4 =>"+accrue4);
+               
                categories1Arr[i] = accrue1;
                categories2Arr[i] = accrue2;
                categories3Arr[i] = accrue3;
@@ -1091,8 +1097,8 @@ C_HM.onReturn("<@compId>", function(pageId, data) {
                         {{for list}}
                         <tr>    
                             <td>{{:rownum}}</td>    
-                            <td>{{:STORE_NM3}}</td> 
-                            <td>{{:AMOUNT1}}</td>  
+                            <td>{{:STORE_NM3}}</td>
+                            <td>{{numb:AMOUNT}}</td>  
                         </tr>
                         {{/for}}
                     </script>
@@ -1144,7 +1150,7 @@ C_HM.onReturn("<@compId>", function(pageId, data) {
                         <tr>    
                             <td>{{:rownum}}</td>    
                             <td>{{:STORE_NM3}}</td> 
-                            <td>{{:AMOUNT1}}</td>  
+                            <td>{{numb:AMOUNT}}</td>  
                         </tr>
                         {{/for}}
                     </script>
@@ -1200,7 +1206,7 @@ C_HM.onReturn("<@compId>", function(pageId, data) {
                         <tr>    
                             <td>{{:rownum}}</td>    
                             <td>{{:REGION_NM}}</td> 
-                            <td>{{:AMOUNT1}}</td>  
+                            <td>{{numb:AMOUNT}}</td>  
                         </tr>
                         {{/for}}
                     </script>
