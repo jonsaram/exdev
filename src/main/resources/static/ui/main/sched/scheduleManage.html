@@ -246,12 +246,13 @@
            
            <@pageId>.startDate   = startDateString;
            <@pageId>.endDate     = endDateString;
-           
+
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamNotRepeatSchedule");
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamDayRepeatSchedule");
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamWeekRepeatSchedule");
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamMonthRepeatSchedule");
            <@pageId>.serviceCall(requestParm1, "ScheduleService.getTeamYearRepeatSchedule");
+           
            
        }
        ,serviceCall : function( requestParm, serviceId ) {
@@ -500,7 +501,7 @@
          
          const timeMin = startDate.startDateString+'T00:00:00Z'; // 검색할 기간의 시작 시간 (ISO 8601 형식)
          const timeMax = endDate.endDateString+'T23:59:59Z'; // 검색할 기간의 종료 시간 (ISO 8601 형식)
-          
+         
          var calendarId = <@pageId>.GOOGLE_CALENDAR_ID;
          var apiKey = _API_KEY;
          

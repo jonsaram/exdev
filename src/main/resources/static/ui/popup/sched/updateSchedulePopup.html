@@ -147,7 +147,11 @@
                         <@popupId>.GOOGLE_CALENDAR_ID = resultData.data[i].GOOGLE_CALENDAR_ID;
                         if( resultData.data[i].GOOGLE_CALENDAR_SYN_YN == "Y"){
                             <@popupId>.IS_GOOGLE_CALENDAR_SYN_YN = true;
+                            // 구글 관련 
+                            <@popupId>.gapiLoaded();
+                            <@popupId>.gisLoaded();
                         }else{
+                        	<@popupId>.IS_GOOGLE_CALENDAR_SYN_YN = false;
                         }  
                     }
                 }
