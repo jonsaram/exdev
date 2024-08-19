@@ -207,6 +207,41 @@
 					</choose>						
 				</if>	
 				GROUP BY TO_CHAR( RESULT_DATE,'YYYY-MM') ,CS.CONSULTING_TYPE  
+				
+				UNION ALL 
+			
+				SELECT TO_CHAR( C.CONTRACT_DATE ,'YYYY-MM') AS MONTH ,CT.CONSULTING_TYPE,  NULL, COUNT(DISTINCT C.CONTRACT_ID) AS CNT 
+				FROM TBL_EXP_CONTRACT C
+				,TBL_EXP_CONSULTING CT
+				,TBL_EXP_USER U
+				,TBL_EXP_CONTRACT_MEMBER TM
+				WHERE 1=1
+				AND C.USE_YN = 'Y' 		AND C.DEL_YN = 'N'
+				AND U.USE_YN = 'Y'      AND U.DEL_YN = 'N'
+				AND C.CONSULTING_ID = CT.CONSULTING_ID		
+				AND C.USER_ID = U.USER_ID
+				AND C.PROCESS_STATE != 'PRE_CONTRACT' 
+				AND C.PROCESS_STATE != 'ON_CONTRACTING_APPR' 
+				AND C.CONTRACT_ID = TM.CONTRACT_ID
+				AND TO_CHAR(C.CONTRACT_DATE, 'YYYY') = #{CUR_YEAR_DATE} 	
+				<if test = " personalSearch != null">
+			        <choose>
+			       	<when test='gubun != null '> 
+			        	<if test=" gubun.equals('execBosu') ">
+					    AND TM.USER_ID	= #{sessionVo.userId	}  
+					    AND TM.RELATION_TYPE = 'EXECUTE'
+			        	</if>
+			        	<if test=" gubun.equals('salesBosu') ">
+					    AND TM.USER_ID	= #{sessionVo.userId	}  
+					    AND TM.RELATION_TYPE != 'EXECUTE'
+			        	</if>
+					</when>	
+			       	<when test='gubun == null '> 
+					    AND TM.USER_ID	= #{sessionVo.userId	}  
+					</when>						
+					</choose>						
+				</if>				
+				GROUP BY TO_CHAR( C.CONTRACT_DATE ,'YYYY-MM') ,CT.CONSULTING_TYPE
 			)
 		)
 		GROUP BY MONTH
