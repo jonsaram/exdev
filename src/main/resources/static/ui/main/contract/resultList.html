@@ -63,7 +63,7 @@ var <@pageId> = {
 				C_COM.renderHtml("<@pageId>", rparm);
 				
 				<@pageId>.selectedResultList = resultData.data;
-	        	mergeTableTD('<@pageId>_resultList', {startIdx : 8, endIdx : 8, startRowIdx : 1});
+	        	//mergeTableTD('<@pageId>_resultList', {startIdx : 8, endIdx : 8, startRowIdx : 1});
 	        	mergeTableTD('<@pageId>_resultList', {startIdx : 2, endIdx : 7, startRowIdx : 1});
 	        	
 	        	
@@ -155,7 +155,24 @@ var <@pageId> = {
 				});							
 		 		
 	        });
-		}		
+		}
+		,saveIsPayable : (index) => {
+			
+	    	C_POP.confirm('Y로 세팅 하시겠습니까?', function() {
+
+				const isPayable = 'Y';
+				var parm = {
+						 queryId 		: "result.updateIsPayable"
+						,requestParm	: {IS_PAYABLE:'Y', RESULT_ID : <@pageId>.selectedResultList[index].RESULT_ID }
+				}
+
+				C_COM.requestQuery(parm, function(resultData) {
+
+					$("tr[name='<@pageId>_tr_"+index+"'] td[name='isPayable']").text(isPayable);
+				});
+
+			});
+		}
 }
 
 // Page Load가 완료된후 실행 된다.
@@ -208,8 +225,9 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<col style="width:40px;"/>
 				<col style="width:120px;" span="3"/>
 				<col style="width:100px;"/>
-				<col style="width:120px;" span="5"/>
+				<col style="width:120px;" span="4"/>
 				<col style="width:120px;"/>
+				<col style="width:70px;"/>
 			</colgroup>
 			<thead>
 				<tr>
@@ -219,35 +237,35 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<th scope="col">상품명</th>
 					<th scope="col">담당자</th>
 					<th scope="col">계약금액</th>
-					<th scope="col">잔금</th>
 					<th scope="col">입금일</th>
 					<th scope="col">입금액</th>
 					<th scope="col">비용</th>
 					<th scope="col">순매출</th>
+					<th scope="col">자문보고서</th>
 				</tr>
 			</thead>
 			<tbody id="<@pageId>_resultList">
 			</tbody>
 			<script type="text/x-jsrender" id="<@pageId>_resultList_template">						
 			{{for list}}
-				<tr name="<@pageId>_tr_{{:#index}}" onclick="javascript:<@pageId>.openDetailPopup('{{:#index}}')">
-					<td {{:RESULT_ID}}>{{:RN}}</td>
+				<tr name="<@pageId>_tr_{{:#index}}" >
+					<td {{:RESULT_ID}} onclick="javascript:<@pageId>.openDetailPopup('{{:#index}}')">{{:RN}}</td>
 					<td class="tc">{{:RESULT_DATE_YM}}</td>
 					<td class="tl">{{:BUYER_NM}}</td>
 					<td class="tl">{{:CONSULTING_NM}}</td>
 					<td class="tl">{{:USER_NM}}</td>
 					<td class="tr">{{numb:TOTAL_COST}}</td>
-					<td class="tr">{{numb:REMAINING_SUM}}</td>
 					<td class="tc">{{:RESULT_DATE}}</td>
 					<td class="tr">{{numb:INCOME}}</td>
 					<td class="tr">{{numb:SUM_COST_PRICE}}</td>
 					<td class="tr">{{numb:ORG_SELLING_PRICE}}</td>
+					<td class="tc" name='isPayable' ondblclick="javascript:<@pageId>.saveIsPayable('{{:#index}}')">{{:IS_PAYABLE}}</td>
 				</tr>
 			{{/for}}
 			</script>
 			<script type="text/x-jsrender" id="<@pageId>_resultList_noData_template">	
 				<tr>	
-					<td colspan=11>자료가 없습니다.</td>	
+					<td colspan=10>자료가 없습니다.</td>	
 				</tr>
 			</script>
 				<tfoot>
@@ -255,10 +273,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						<td></td>
 						<td colspan="4" >총계</td>
 						<td class="tr" id="<@pageId>_sumTotalCost"></td>
-						<td colspan="2"></td>
+						<td></td>
 						<td class="tr" id="<@pageId>_sumIncome"></td>
 						<td class="tr" id="<@pageId>_sumCost"></td>
 						<td class="tr" id="<@pageId>_sumOrgSellingPrice"></td>
+						<td class="tr" ></td>
 					</tr>
 				</tfoot>			
 		</table>

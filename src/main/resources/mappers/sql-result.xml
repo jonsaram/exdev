@@ -100,7 +100,7 @@
 			<if test=" RESULT_ID != null and !RESULT_ID.equals('') ">
 			AND R.RESULT_ID 	= #{RESULT_ID}
 			</if>
-			AND P.USER_ID 		= U.USER_ID 
+			AND U.USER_ID 	= P.USER_ID(+) 
 			<if test=" USER_ID != null and !USER_ID.equals('') and !USER_ID.equals('--') ">
 			AND U.USER_ID 		= #{USER_ID}
 			</if>
@@ -158,6 +158,7 @@
 			,SUM_COST_PRICE
 			,ROUND((INCOME * 10/11 - SUM_COST_PRICE * 10/11)) AS ORG_SELLING_PRICE
 			,UPDATE_DATE
+			,IS_PAYABLE
 			FROM(
 			
 				SELECT R.CONTRACT_ID, R.RESULT_ID
@@ -176,6 +177,7 @@
 				 ),0) SUM_COST_PRICE
 				 ,R.UPDATE_DATE
 				 ,CS.CONSULTING_TYPE 
+				 ,R.IS_PAYABLE
 				FROM TBL_EXP_CONTRACT C
 				,TBL_EXP_RESULT R
 				,TBL_EXP_USER U 
@@ -199,6 +201,15 @@
 		)  RN 
 		ORDER BY RN
 	</select>
+	
+	<update id="updateIsPayable" parameterType="java.util.HashMap"  flushCache="true" >
+		/*	result.updateIsPayable
+			자문보고서 실적 완료 처리
+		*/
+		UPDATE TBL_EXP_RESULT
+		SET IS_PAYABLE =  #{IS_PAYABLE}
+		WHERE RESULT_ID = #{RESULT_ID}
+	</update>
 		 
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	result.getContractList
@@ -726,22 +737,19 @@
 	        INTO v_result_id
 			FROM(
 				SELECT 
-				p.* 
-				FROM TBL_EXP_BUYER_CONSULTING CS, TBL_EXP_PAYMENT P , TBL_EXP_RESULT R , TBL_EXP_CONTRACT C
+				R.* 
+				FROM TBL_EXP_BUYER_CONSULTING CS, TBL_EXP_RESULT R , TBL_EXP_CONTRACT C
 				WHERE 1=1
 				AND CS.APPROVAL_STATE = 'COMPLETE' AND CS.DEL_YN = 'N'
 				AND C.CONTRACT_ID	= #{CONTRACT_ID}
 				AND R.RESULT_ID		= #{RESULT_ID}
-				AND CS.CONTRACT_ID 	= P.CONTRACT_ID
+				AND CS.CONTRACT_ID 	= R.CONTRACT_ID 
 				AND CS.CONTRACT_ID 	= C.CONTRACT_ID AND C.CONTRACT_TYPE = 'MONTHLY'
-				AND P.USE_YN = 'Y' AND P.DEL_YN = 'N'
-				AND P.CONTRACT_ID = R.CONTRACT_ID
-				AND P.RESULT_ID = R.RESULT_ID 
 				AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
 				AND TO_CHAR(R.RESULT_DATE,'YYYY-MM') = CS.REPORT_YEAR_MONTH
 			);	
 			
-			UPDATE TBL_EXP_PAYMENT
+			UPDATE TBL_EXP_RESULT
 			SET IS_PAYABLE  = 'Y'
 			WHERE RESULT_ID = v_result_id
 			;			
