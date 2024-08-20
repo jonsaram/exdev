@@ -58,11 +58,87 @@ var <@popupId> = {
 
 		if( <@popupId>.validate(returnData) ){
 			C_POP.confirm('저장 하시겠습니까?', function() {
-				<@popupId>.close( returnData ) ;	
+				
+				// RATE_JI 를 RATE 에 넣음.
+				(returnData.paymentInfo).forEach( payment =>{
+					
+					payment.RATE = payment.RATE_JI;
+				})
+				<@popupId>.updateItem( returnData ) 
+				<@popupId>.close() ;	
 			})
 		} 
 		 
 	 }
+	 ,updateItem : (param) =>{
+		 
+		 		const requestParm = param ? param : {} ;
+
+		 		const paymentInfo 	= requestParm.paymentInfo 	|| [];
+		 		const constInfo		= requestParm.costInfo		|| [];
+		 		const resultInfo	= requestParm.resultInfo;
+		 		
+		 		let exeCnt = 0
+		 		paymentInfo.forEach( item => {
+		 			exeCnt++;
+		 			
+		 			item.CONTRACT_ID = resultInfo.CONTRACT_ID;
+		 			item.RESULT_ID   = resultInfo.RESULT_ID;
+		 			var parm = {
+		 						queryId 	: "result.updatePaymentItem"
+		 					   ,requestParm	: item
+		 			}
+		 			
+		 			C_COM.requestQuery(parm, function(resultData) {
+		 				
+		                 if (resultData.state === 'S') {
+		                 	exeCnt--;
+		                 	if(exeCnt == 0) alert('저장되었습니다.');
+		     			} else {
+		                 	alert('저장이 실패 되었습니다.');
+		     			}
+		 			});				
+		 	    
+		 		})
+		 		
+		 		const constInfoLength = constInfo.length;
+		 		if( constInfoLength >  0){
+		 		
+		     		constInfo.forEach( (item, index ) => {
+		 				
+		 				var parm = {
+		 							queryId 	: "result.updateCostItem"
+		 						   ,requestParm	: item
+		 				}
+		 				C_COM.requestQuery(parm, function(resultData) {
+		 					
+		 	                if (resultData.state === 'S') {
+		 	                		                	
+		 	                	if( constInfoLength <= (index+1) )
+		 	                		<@popupId>.updateResultItem(resultInfo);	
+		 	                }
+		 				});				
+		 			})		
+		 		}else{
+		 			
+		 			<@popupId>.updateResultItem(resultInfo);	
+		 		}		 
+		 
+		 
+	 }
+		,updateResultItem : (resultInfo) =>{
+			var parm = {
+					queryId 	: "result.updateResultItem"
+				   ,requestParm	: resultInfo
+				}
+		
+				C_COM.requestQuery(parm, function(resultData) {
+		            if (resultData.state === 'S') {
+
+		            	//<@popupId>.searchList();
+		            }
+			});
+		}
 	 ,validate : (returnData) => {
 
 		const resultInfo = returnData["resultInfo"];
