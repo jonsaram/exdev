@@ -12,7 +12,7 @@
 
         
         ,init : function(data) {
-        	 $('#<@popupId>_btnCert').prop('disabled', true).addClass('disabled');
+        	 
         	 <@popupId>.getUserInfo();
         	 //<@popupId>.gapiLoaded();
         	 //<@popupId>.gisLoaded();
@@ -37,9 +37,6 @@
                 		$('#<@popupId>_googleCalendarId').val(<@popupId>.GOOGLE_ORG_CALENDAR_ID);
                         if( resultData.data[i].GOOGLE_CALENDAR_SYN_YN == "Y"){
                             $('#<@popupId>_synch_Y').prop('checked', true);
-                            // 구글 관련 
-                            <@popupId>.gapiLoaded();
-                            <@popupId>.gisLoaded();
                         }else{
                             $('#<@popupId>_synch_N').prop('checked', true);
                         }
@@ -91,9 +88,13 @@
             });
         }
         ,googleCert : function( ) {  
-
+            
+            <@popupId>.gapiLoaded();
+            <@popupId>.gisLoaded();
+            
         	<@popupId>.TOKEN_CLIENT.callback = async (response) => {
                  if (response.error !== undefined) {
+                	 console.log("googleCert response.error ");
                      throw(response);
                  }
                  <@popupId>.checkCalendar();
@@ -151,6 +152,7 @@
 
        ,checkCalendar: async function() {
     	    var calendarId = $('#<@popupId>_googleCalendarId').val();
+    	    console.log("calendarId ==>"+calendarId);
             const isValid = await <@popupId>.validateCalendarId(calendarId);
             if (isValid) {
                 C_POP.alert("구글인증에 성공하였습니다.");
@@ -167,6 +169,8 @@
            const timeMin = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString(); // 오늘의 자정
            const timeMax = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString(); // 내일 자정
            var apiKey = _API_KEY;
+           console.log("validateCalendarId 1 apiKey ==>"+apiKey);
+           console.log("validateCalendarId 1 calendarId ==>"+calendarId);
            try {
 	           var url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}`;
 	           const response = await fetch(url);
@@ -214,7 +218,7 @@
     <div class="modal_wrap" id="modal-ex">
         <div class="modal" style="width:700px;height:400px;">
             <div class="modal_header">
-                <strong class="tit">구글 캘린더 정보입력</strong>
+                <strong class="tit">구글 캘린더 정보입력1</strong>
                 <button type="button" class="btn_zoomInOut"><span class="txt">확대</span></button>
                 <button type="button" class="btn_close" onclick="<@popupId>.close()"><span class="sp">팝업 닫기</span></button>
                 
