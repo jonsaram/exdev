@@ -1,8 +1,4 @@
 <meta charset="utf-8">
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.14/index.global.min.js'></script>
-<script src="https://apis.google.com/js/api.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/platform.js" async defer></script>
 
 
 <script type="text/javascript">
@@ -18,8 +14,8 @@
         ,init : function(data) {
         	 $('#<@popupId>_btnCert').prop('disabled', true).addClass('disabled');
         	 <@popupId>.getUserInfo();
-        	 <@popupId>.gapiLoaded();
-        	 <@popupId>.gisLoaded();
+        	 //<@popupId>.gapiLoaded();
+        	 //<@popupId>.gisLoaded();
         	 
         }
 	    ,close : function() {
@@ -41,6 +37,9 @@
                 		$('#<@popupId>_googleCalendarId').val(<@popupId>.GOOGLE_ORG_CALENDAR_ID);
                         if( resultData.data[i].GOOGLE_CALENDAR_SYN_YN == "Y"){
                             $('#<@popupId>_synch_Y').prop('checked', true);
+                            // 구글 관련 
+                            <@popupId>.gapiLoaded();
+                            <@popupId>.gisLoaded();
                         }else{
                             $('#<@popupId>_synch_N').prop('checked', true);
                         }
