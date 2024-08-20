@@ -97,6 +97,14 @@
 			AND B.SP_CSTM_ID	= C.SP_CSTM_ID
 			AND B.CONSULTING_ID	= D.CONSULTING_ID
 			AND A.SP_CSTM_ID 	= #{sessionVo.spCstmId}			
+			<if test=" searchWord != null and searchWord != '' " >
+			AND (
+				 		C.BUYER_NM 			LIKE '%${searchWord}%' 
+					OR  D.CONSULTING_NM		LIKE '%${searchWord}%'
+					OR  #{searchWord} IN (SELECT GET_USER_NM(USER_ID) FROM TBL_EXP_TEAM_MEMBER TM WHERE TM.CONTRACT_ID = B.CONTRACT_ID )
+				)
+			</if>
+			
 		ORDER BY A.UPDATE_DATE DESC			
 	</select>
 

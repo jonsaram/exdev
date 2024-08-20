@@ -109,7 +109,7 @@
 		        	,AFTER_SERVICE	: `ApprovalAfterService.updateProjectProcess`
 		        	,AFTER_PARM		: `{"PROCESS_STATE" : "CONTRACTING"}`				// 결재 완료 후 처리에서 Update상태값 (체결 대기)
 		        	,TITLE			: `${BUYER_NM} ${CONSULTING_NM} 프로젝트 담당자 지정 결재 요청`
-		        	,CONTENT		: appContent
+		        	,CONTENTS		: appContent
 		        };
 		        apprProcessState = "ON_CONTRACTING_APPR";
 	        }
@@ -161,9 +161,9 @@
 			let parm = {
 					projectInfo	: <@pageId>.projectList[idx]		
 			};
+			debugger;
 			
 			C_POP.open('popup_operation_projectTeamMemberPopup', parm, function(retData) {
-				
 				if(isEmpty(retData)) return;
 				
 				let projectInfo = <@pageId>.projectList[idx];
@@ -224,6 +224,13 @@
 				});	
 			
 		}
+		,openBigCard	: function(index) {
+			let projectInfo = <@pageId>.projectList[index];
+			C_POP.open('popup_biz_adviceStatusPopup', projectInfo, function(retData) {
+
+			});
+		 }
+		
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -303,7 +310,7 @@
 					</tbody>
 					<script type="text/x-jsrender" id="<@pageId>_projectList_template">						
 						{{for list}}
-						<tr name="<@pageId>_tr_{{:#index}}">
+						<tr name="<@pageId>_tr_{{:#index}}" onDblClick="<@pageId>.openBigCard({{:#index}})">
 							<td id="ROWNUM"				>{{:#index + 1}}</td>
 							<td id="BUYER_NM"			>{{:BUYER_NM}}</td>
 							<td id="USER_NM"			>{{:USER_NM}}</td>

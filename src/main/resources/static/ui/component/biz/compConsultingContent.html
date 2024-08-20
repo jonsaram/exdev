@@ -18,7 +18,6 @@
 		 }
 		,openFolderMng : function() {
 			let contractInfo = <@compId>.contractInfo;
-			dalert(contractInfo)
 			
 			//C_MENU.moveMenu("MN_DSH_FOLDER", {projectInfo : projectInfo});
 			
@@ -37,6 +36,10 @@
 	// Component Load가 완료된후 실행 된다.
 	C_COMP.onLoadComp("<@compId>", function(data) {
 		
+		if(data.hideFolderButton == "Y") {
+			$("#<@compId> #folderButton").hide();
+		}
+		
 		<@compId>.contractInfo =  data.contractInfo;
 		
 		if("<@preload>" != "N") {
@@ -49,7 +52,7 @@
 	<div class="cont_top clearFix">
 		<h4 class="fl lh24">- 컨설팅 프로세스</h4>
 		<div class="fr inlineBlock_wrap">
-			<button class="btn small" onclick="<@compId>.openFolderMng()">기업폴더보기</button>
+			<button id="folderButton" class="btn small" onclick="<@compId>.openFolderMng()">기업폴더보기</button>
 		</div>
 				
 	</div>

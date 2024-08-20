@@ -168,5 +168,46 @@
             AND FILE_ID   = #{FILE_ID}
         </if>   
     </update>
-    
+
+    <update id="copyFile">
+        /*  Filemng.copyFile */
+		INSERT INTO TBL_EXP_FILEMNG (
+		     ORG_FILE_NM
+		    ,STORED_FILE_NM
+		    ,FILE_SIZE
+		    ,FILE_TYPE
+		    ,ORDER_NUM
+		    ,OWNER_CD
+		    ,FILE_PATH
+		    ,SP_CSTM_ID
+		    ,UPDATE_USER
+		    ,UPDATE_DATE
+		    ,CREATE_USER
+		    ,CREATE_DATE
+		    ,FILE_ID
+		    ,GRP_FILE_ID
+		    ,DEL_YN
+		    ,CONVERT_YN
+		)
+		SELECT
+		     ORG_FILE_NM
+		    ,STORED_FILE_NM
+		    ,FILE_SIZE
+		    ,FILE_TYPE
+		    ,ORDER_NUM
+		    ,#{toData.OWNER_CD} AS OWNER_CD
+		    ,FILE_PATH
+		    ,SP_CSTM_ID
+            ,#{sessionVo.userId}
+            ,GET_KRDT(SYSDATE)
+            ,#{sessionVo.userId}
+            ,GET_KRDT(SYSDATE)
+		    ,COMMON_SEQ.NEXTVAL
+		    ,#{toData.GRP_FILE_ID} AS GRP_FILE_ID
+		    ,DEL_YN
+		    ,CONVERT_YN
+		FROM TBL_EXP_FILEMNG WHERE GRP_FILE_ID = #{fromData.GRP_FILE_ID} AND OWNER_CD = #{fromData.OWNER_CD}
+    </update>
+
+
 </mapper>

@@ -379,11 +379,14 @@
 			<@popupId>.recvData.param.DIVISION_ID = data.DIVISION_ID;
 
 			let param={ queryId 		: "common.getCommonCodeList"};
+/*			
 			if( data.DIVISION_ID.startsWith("SALES") ){
 				param.requestParm =  {'GRP_CODE_ID':'GRADE', 'attr1':'SALES'}
 			}else{
 				param.requestParm =  {'GRP_CODE_ID':'GRADE', 'attr1':'NOT_SALES'}
 			}
+*/
+			param.requestParm =  {'GRP_CODE_ID':'GRADE'}
 			const grades =  C_COM.requestQuery(param) ;
 			//직급(구 등급)
 			C_UICOM.makeSelectBox({ 

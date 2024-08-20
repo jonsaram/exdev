@@ -3,10 +3,15 @@
 	var <@pageId> = {
 		 teamList		: []
 		,teamMemberList	: []
+		,currentProjectInfo : undefined
+		,currentIndex		: 0
 		,loadData : function() {
+			
+			let searchWord = $("#<@pageId> #searchWord").val()
+			
 			var parm = {
 				 queryId 		: "operation.getTeamList"
-				,requestParm	: {}
+				,requestParm	: {searchWord : searchWord}
 			}
 
 			C_COM.requestQuery(parm, function(resultData) {
@@ -26,7 +31,16 @@
 		,selectTeam : function(idx) {
 			let teamItem = <@pageId>.teamList[idx];
 			
-			var parm = {
+			let parm = {
+				 queryId 		: "contract.getContractInfo"
+				,requestParm	: teamItem
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				<@pageId>.currentProjectInfo = resultData.data[0];
+				<@pageId>.currentIndex		 = idx;
+			});
+			
+			parm = {
 				 queryId 		: "operation.getTeamMemberList"
 				,requestParm	: teamItem
 			}
@@ -49,6 +63,47 @@
 			});
 				
 		 }
+		,changeMember : () => {
+			let projectInfo = <@pageId>.currentProjectInfo;
+			
+			if(isEmpty(projectInfo)) {
+				C_POP.alert('팀을 선택해 주세요.');
+				return;
+			}
+			
+			let parm = {
+				 projectInfo	: projectInfo
+				,okBtnNm		: "수정"
+			};
+			
+			C_POP.open('popup_operation_projectTeamMemberPopup', parm, function(retData) {
+				
+				if(isEmpty(retData)) return;
+				let userId 		= retData[0].USER_ID
+				let CONTRACT_ID = projectInfo.CONTRACT_ID
+
+				var parm = {
+					 serviceId  : "ExdevContractService.changeMember"
+					,requestParm : {
+						 teamMemberList : retData
+						,CONTRACT_ID	: CONTRACT_ID
+						,USER_ID		: userId
+					}
+				}
+				C_COM.requestService(parm, function(resultData) {
+					if(resultData.state ==	"S") {
+						parm.serviceId = "ExdevContractService.changeMember2";
+						C_COM.requestService(parm, function(resultData) {
+							if(resultData.state == "S") {
+								<@pageId>.loadData();		
+								<@pageId>.selectTeam(<@pageId>.currentIndex);
+							}
+						});
+					}
+				});
+			});
+		}
+		
 	}
 	// Page Load가 완료된후 실행 된다.
 	C_PM.onLoadPage("<@pageId>", function() {
@@ -67,11 +122,11 @@
 		<!-- search area -->
 		<div class="search_area mt0">
 			<div class="fl">
-                <span class="tit01 fl lh33">사원선택</span>
+                <span class="tit01 fl lh33">검색어</span>
                 <div class="search_inputWrap fl">
-					<input type="search" name=""><button class="search_btn"><i class="icon_search"></i></button>
+					<input type="search" id="searchWord" onEnter="<@pageId>.loadData()">
 				</div>
-				<button class="btn select fl">검색</button>
+				<button class="btn select fl" onclick="<@pageId>.loadData()">검색</button>
             </div>
 		</div>
 		<div class="clearFix mt15" style="height: calc(100% - 53px);">
@@ -125,8 +180,9 @@
 			<div class="fl h100 ml15" style="width:calc(50% - 15px);">
 				<div class="cont_top clearFix">
 					<h3 class="fl font16 lh33"><span id="teamNm"></span> Member List</h3>
-					<div class="fr">
-						<strong class="total">Total: <span class="pointColr" id="totalMemberCnt">3</span></strong>
+					<div class="search_right mt5">
+						<a class="btn small " href="javascript:<@pageId>.changeMember()">Member변경</a>
+						<strong class="total fr mt5">Total: <span class="pointColr" id="totalMemberCnt">3</span></strong>
 					</div>
 				</div>
 				<!-- 테이블 -->

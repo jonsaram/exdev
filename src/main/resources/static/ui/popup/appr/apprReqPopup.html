@@ -247,45 +247,119 @@
         	if(isEmpty(retData)) retData = {};
             C_POP.close(retData);
          }
+        ,normalAppr : function(data) {
+    		if(isValid(data.APPROVAL_ID))	<@popupId>.APPROVAL_ID = data.APPROVAL_ID;
+    		else				    		<@popupId>.APPROVAL_ID = C_COM.makeUniqueId();// 결재 신규ID 생성
+        	
+    		<@popupId>.RELATION_ID = data.RELATION_ID;
+    		
+        	// 결재 Textarea Component Include
+        	
+        	C_COMP.import("textEditorComp", "component_compTextEditor", {content:data.CONTENTS}, function(data) {
+                <@popupId>.editorData = data.editorData;
+            });
+            
+    		// 첨부파일 컴포넌트 추가
+        	var parm = {
+    			 GRP_FILE_ID 	: <@popupId>.APPROVAL_ID
+    			,OWNER_CD 		: "APPROVAL"
+    			,mode			: "M"
+    			,title			: "NA"
+    		}
+    		C_COMP.import("appFileMng", "component_compMultiFilemng", parm , function() {
+    			
+    		});
+    		
+    		// 기안자 추가
+        	let reqMember = fn_copyObject(G_VAL.session);
+    		
+    		reqMember.APPROVAL_TYPE = "RQST";
+    		reqMember.ORDER_NUM		= 0;
+    		
+        	<@popupId>.appMember[reqMember.USER_ID] = reqMember;
+
+            let rparm = {
+                 targetId   : "signMember"
+                ,templateId : "reqMember"
+                ,regMember  : reqMember
+            }
+            C_COM.renderHtml("<@popupId>", rparm);
+        	
+         }
+        ,reAppr : function(data) {
+        	
+        	let PRE_APPROVAL_ID = data.APPROVAL_ID;
+        	
+    		<@popupId>.APPROVAL_ID = C_COM.makeUniqueId();// 결재 신규ID 생성
+        	
+    		<@popupId>.RELATION_ID = data.RELATION_ID;
+    		
+    		
+    		
+        	// 결재 Textarea Component Include
+        	
+        	C_COMP.import("textEditorComp", "component_compTextEditor", {content:data.CONTENTS}, function(data) {
+                <@popupId>.editorData = data.editorData;
+            });
+        	
+        	// File Copy
+        	var parm = {
+    			 GRP_FILE_ID 	: <@popupId>.APPROVAL_ID
+    			,OWNER_CD 		: "APPROVAL"
+    			,mode			: "M"
+    			,title			: "NA"
+    		}
+        	let fromData 	= fn_copyObject(parm);
+        	let toData 		= fn_copyObject(parm);
+        	
+        	fromData.GRP_FILE_ID = PRE_APPROVAL_ID
+        	let copyParm = { fromData : fromData, toData : toData }
+        	
+			var parm = {
+   				 queryId 		: "Filemng.copyFile"
+   				,requestParm	: copyParm
+   			}
+
+   			C_COM.requestQuery(parm, function(resultData) {
+   				if( resultData.state == "S"){
+   		        	// 첨부파일 컴포넌트 추가
+   		        	var parm = {
+   		    			 GRP_FILE_ID 	: <@popupId>.APPROVAL_ID
+   		    			,OWNER_CD 		: "APPROVAL"
+   		    			,mode			: "M"
+   		    			,title			: "NA"
+   		    		}
+   		    		C_COMP.import("appFileMng", "component_compMultiFilemng", parm , function() {
+   		    			
+   		    		});
+   				}
+   			});				
+
+    		// 기안자 추가
+        	let reqMember = fn_copyObject(G_VAL.session);
+    		
+    		reqMember.APPROVAL_TYPE = "RQST";
+    		reqMember.ORDER_NUM		= 0;
+    		
+        	<@popupId>.appMember[reqMember.USER_ID] = reqMember;
+
+            let rparm = {
+                 targetId   : "signMember"
+                ,templateId : "reqMember"
+                ,regMember  : reqMember
+            }
+            C_COM.renderHtml("<@popupId>", rparm);
+    		
+         }
     }
     // Popup Load가 완료된후 실행 된다.
     C_POP.onLoadPopup("<@popupId>", function(data) {
-		if(isValid(data.APPROVAL_ID))	<@popupId>.APPROVAL_ID = data.APPROVAL_ID;
-		else				    		<@popupId>.APPROVAL_ID = C_COM.makeUniqueId();// 결재 신규ID 생성
-    	
-		<@popupId>.RELATION_ID = data.RELATION_ID;
-		
-    	// 결재 Textarea Component Include
-    	
-    	C_COMP.import("textEditorComp", "component_compTextEditor", {content:data.CONTENT}, function(data) {
-            <@popupId>.editorData = data.editorData;
-        });
-        
-		// 첨부파일 컴포넌트 추가
-    	var parm = {
-			 GRP_FILE_ID 	: <@popupId>.APPROVAL_ID
-			,OWNER_CD 		: "APPROVAL"
-			,mode			: "M"
-			,title			: "NA"
-		}
-		C_COMP.import("appFileMng", "component_compMultiFilemng", parm , function() {
-			
-		});
-		
-		// 기안자 추가
-    	let reqMember = fn_copyObject(G_VAL.session);
-		
-		reqMember.APPROVAL_TYPE = "RQST";
-		reqMember.ORDER_NUM		= 0;
-		
-    	<@popupId>.appMember[reqMember.USER_ID] = reqMember;
-
-        let rparm = {
-             targetId   : "signMember"
-            ,templateId : "reqMember"
-            ,regMember  : reqMember
-        }
-        C_COM.renderHtml("<@popupId>", rparm);
+    	if(data.reApprYn == "Y") {
+    		// 재상신인경우 Setting을 다르게 한다.
+    		<@popupId>.reAppr(data);
+    	} else {
+        	<@popupId>.normalAppr(data);
+    	}
     });
     
     

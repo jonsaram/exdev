@@ -795,7 +795,37 @@
         ORDER BY UPDATE_DATE DESC           
                 
     </select>   
-
+    
+    <select id="getContractInfo" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		SELECT
+		    CONTRACT_ID,
+		    USER_ID,
+		    BUYER_ID,
+		    CONTACT_DATE,
+		    CONTRACT_DATE,
+		    CONTRACT_TYPE,
+		    EXPIRE_DATE,
+		    TOTAL_COST,
+		    CONSULTING_ID,
+		    PROCESS_STATE,
+		    PRE_PROCESS_STATE,
+		    LAST_SOLUTION,
+		    TAX_MNG,
+		    LABOR_MNG,
+		    CONSULTING_CLASS,
+		    USE_YN,
+		    DEL_YN,
+		    UPDATE_USER,
+		    UPDATE_DATE,
+		    SP_CSTM_ID,
+		    BASE_FOLDER_ID,
+		    CREATE_USER,
+		    CREATE_DATE,
+		    ANOTHER_EXPERT
+		FROM
+		    TBL_EXP_CONTRACT
+		WHERE CONTRACT_ID = #{CONTRACT_ID}  
+	</select>
 
 
 	<update id="updateProject">

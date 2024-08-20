@@ -1,9 +1,11 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 	var <@popupId> = {
-         requestParm : {}
+         requestParm 	: {}
+		,apprData	 	: {}
+		,apprMemberData : {}
 	    ,searchApprovalDtl : function(requestParm){
-	        
+
 	        let parm = {
 	             queryId        : "approval.getApproval"
 	            ,requestParm    : requestParm
@@ -14,7 +16,10 @@
 	            $('#<@popupId> #APPROVAL_DATE'	).html(resultData.data[0].APPROVAL_DATE);
 	            $('#<@popupId> #APPROVAL_TITLE'	).html(resultData.data[0].TITLE);
 	            $('#<@popupId> #CONTENTS'		).html(resultData.data[0].CONTENTS + "<br/>");
+
+	            <@popupId>.apprData = resultData.data[0];
 	            
+	            if(<@popupId>.apprData.STATE == "REJECT") $("#<@popupId>_reappr").show();
 	        });
 
 	        /* 결재자 조회*/
@@ -25,6 +30,7 @@
 	        
 	        C_COM.requestQuery(parmDtl, function(resultData) {
 	        	
+	        	<@popupId>. apprMemberData = resultData.data;
 	        	
 	        	let statefstNullCheck = "N";
 	        	$.each(resultData.data, function(idx) {
@@ -50,6 +56,16 @@
                     ,list       : resultData.data
                 }
 	            C_COM.renderHtml("<@popupId>", rparmDtl);
+	        });
+	     }
+	    ,reAppr : function() {
+	    	
+	    	let parm 			= <@popupId>.apprData;
+	    	parm.apprMemberData = <@popupId>.apprMemberData;
+	    	parm.reApprYn		= "Y"
+
+	        C_POP.open('popup_appr_apprReqPopup', parm, function() {
+	            //<@popupId>.close();
 	        });
 	     }
 		,close : function(returnData) {
@@ -171,6 +187,7 @@
 			</div>
 		</div>
 		<div class="modal_footer">
+			<button type="button" class="btn select" onclick="<@popupId>.reAppr()" style="display:none" id="<@popupId>_reappr">재상신</button>
 			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
 		</div>
 	</div>
