@@ -21,6 +21,9 @@ var <@popupId> = {
 		 //수수료 값입력 
 		const paymentList = <@popupId>.getJson($("#<@popupId>_paymentList"));
 
+		<@popupId>.PAYINFO_LIST.forEach( (row,idx) =>{
+			row["PAYMENT_ID"] = (idx+1);
+		})
 		const $inputs = $("#<@popupId>_items");
 		const returnData = 
 		{	
