@@ -729,30 +729,37 @@
 	   			VALUES (S.CONTRACT_ID, S.USER_ID, S.RESULT_ID, S.PAYMENT, S.PAYMENT_ID,	S.RELATION_TYPE,S.PAY_ID, S.RATE, S.USE_YN, S.DEL_YN, S.UPDATE_USER, GET_KRDT(SYSDATE))
 	   		;
    		
+		   	BEGIN
 
-			/* 보고 년월일이 08월이면, 실적테이블에서 08월 입력분에 대해서, 수수료테이블에 Y로 친다. 
-				custDashboard.updateBuyerConsultingAppState 의 쿼리와 다름.
-			*/ 
-			SELECT DISTINCT RESULT_ID
-	        INTO v_result_id
-			FROM(
-				SELECT 
-				R.* 
-				FROM TBL_EXP_BUYER_CONSULTING CS, TBL_EXP_RESULT R , TBL_EXP_CONTRACT C
-				WHERE 1=1
-				AND CS.APPROVAL_STATE = 'COMPLETE' AND CS.DEL_YN = 'N'
-				AND C.CONTRACT_ID	= #{CONTRACT_ID}
-				AND R.RESULT_ID		= #{RESULT_ID}
-				AND CS.CONTRACT_ID 	= R.CONTRACT_ID 
-				AND CS.CONTRACT_ID 	= C.CONTRACT_ID AND C.CONTRACT_TYPE = 'MONTHLY'
-				AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
-				AND TO_CHAR(R.RESULT_DATE,'YYYY-MM') = CS.REPORT_YEAR_MONTH
-			);	
+				/* 보고 년월일이 08월이면, 실적테이블에서 08월 입력분에 대해서, 수수료테이블에 Y로 친다. 
+					custDashboard.updateBuyerConsultingAppState 의 쿼리와 다름.
+				*/ 
+				SELECT DISTINCT RESULT_ID
+		        INTO v_result_id
+				FROM(
+					SELECT 
+					R.* 
+					FROM TBL_EXP_BUYER_CONSULTING CS, TBL_EXP_RESULT R , TBL_EXP_CONTRACT C
+					WHERE 1=1
+					AND CS.APPROVAL_STATE = 'COMPLETE' AND CS.DEL_YN = 'N'
+					AND C.CONTRACT_ID	= #{CONTRACT_ID}
+					AND R.RESULT_ID		= #{RESULT_ID}
+					AND CS.CONTRACT_ID 	= R.CONTRACT_ID 
+					AND CS.CONTRACT_ID 	= C.CONTRACT_ID AND C.CONTRACT_TYPE = 'MONTHLY'
+					AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+					AND TO_CHAR(R.RESULT_DATE,'YYYY-MM') = CS.REPORT_YEAR_MONTH
+				);	
 			
-			UPDATE TBL_EXP_RESULT
-			SET IS_PAYABLE  = 'Y'
-			WHERE RESULT_ID = v_result_id
-			;			
+			    EXCEPTION
+		        WHEN NO_DATA_FOUND THEN
+	            v_result_id := NULL;
+			END;
+		
+			IF v_result_id IS NOT NULL THEN
+			        UPDATE TBL_EXP_RESULT
+			        SET IS_PAYABLE = 'Y'
+			        WHERE RESULT_ID = v_result_id;
+			END IF;			
 					
 		END ;	
 	</update>
