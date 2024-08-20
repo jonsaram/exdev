@@ -199,7 +199,7 @@ public class ScheduleService extends ExdevBaseService{
             if( "N".equals(googleYn)) {//EXP에는 있는데 구글ID가 없을경우 구글일정에 추가
                 listMap.add(scheduleMap);// 구글일정에 추가대상 
             }else {
-                delChecklistMap.add(scheduleMap);
+                delChecklistMap.add(scheduleMap);// EXP에는 있는데 구글ID가 있을경우
             }
         }
         
@@ -207,11 +207,12 @@ public class ScheduleService extends ExdevBaseService{
         // 구글 X,   EXP에 구글 ID 있음
         for(Map<String, Object> delCheckMap : delChecklistMap){
             String expGoogleEventId  = (String)delCheckMap.get("GOOGLE_CALENDAR_EVENT_ID");
+            
             boolean isDelete = true;
             for(Map<String, Object> eventMap : googleEventList){            
                 LinkedHashMap<String, String> extendedProps = (LinkedHashMap<String, String>) eventMap.get("extendedProps");
                 String googleEventId = extendedProps.get("googleId");
-                
+
                 if( googleEventId.equals(expGoogleEventId)) {// EXP 일정의 구글ID와 구글일정의 ID가 같다면 
                     isDelete = false;
                     break;
@@ -224,6 +225,7 @@ public class ScheduleService extends ExdevBaseService{
                 scheduleMap.put("userId", userId);
                 scheduleMap.put("spCstmId", spCstmId);
                 scheduleMap.put("allApplyYn", "N");
+                
                 Map<String,Object> resultInfo = deleteSchedule(scheduleMap);
             }
             

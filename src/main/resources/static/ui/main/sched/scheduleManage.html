@@ -31,7 +31,8 @@
            requestParm["today"]       = todayPop;
            C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                if( obj.refresh == 'Y' ){
-                   <@pageId>.startGetScheduleProc(true);
+            	   <@pageId>.getUserInfo();
+                   //<@pageId>.startGetScheduleProc(true);
                } 
            });
         }   
@@ -39,7 +40,8 @@
            let requestParm = {};
            C_POP.open('popup_sched_googleScheduleSetPopup', requestParm, function(obj) {
                if( obj.refresh == 'Y' ){
-                   <@pageId>.startGetScheduleProc(true);
+            	   <@pageId>.getUserInfo();
+                   //<@pageId>.startGetScheduleProc(true);
                } 
            });
         }  
@@ -82,7 +84,8 @@
                     
                     C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                         if( obj.refresh == 'Y' ){
-                            <@pageId>.startGetScheduleProc(true);
+                        	<@pageId>.getUserInfo();
+                            //<@pageId>.startGetScheduleProc(true);
                         }
                     })  
                   },
@@ -109,7 +112,8 @@
                        
                        C_POP.open('popup_sched_updateSchedulePopup', requestParm, function(obj) {
                            if( obj.refresh == 'Y' ){
-                               <@pageId>.startGetScheduleProc(true);
+                        	   <@pageId>.getUserInfo();
+                               //<@pageId>.startGetScheduleProc(true);
                            }
                        })   
                    }
@@ -774,7 +778,7 @@
          let promises = [];
          
          for (var i=0; i<resultData.data.list.length; i++){
-
+             
              var scheduleId    = resultData.data.list[i].SCHEDULE_ID;
              var summary       = resultData.data.list[i].TITLE;
              var location      = resultData.data.list[i].POSITION;
@@ -787,6 +791,8 @@
              var endH          = resultData.data.list[i].END_TIME_HOUR;
              var endM          = resultData.data.list[i].END_TIME_MINUTE;
              var endDateTime   = endD+'T'+endH+':'+endM+':00';
+             console.log("scheduleId =>"+scheduleId);
+             console.log("summary =>"+summary);
              const event = {
                  'summary': summary,
                  'location': location,
@@ -810,6 +816,7 @@
                  });
                  request.execute(event => {
                      if (event.id) {
+                         console.log("googleCalendarEventId ==>"+event.id);
                          let saveEvent = { scheduleId: scheduleId, googleCalendarEventId: event.id };
                          saveEvents.push(saveEvent);
                          is_save = true;
@@ -822,6 +829,17 @@
              });
              promises.push(requestPromise); // Promise 배열에 추가
          }
+         
+         // 모든 요청이 완료된 후 saveEventEXP 호출
+         /**/
+         Promise.all(promises).then(() => {
+             if (is_save) {
+                 <@pageId>.synchProcess4(saveEvents);
+             }
+         }).catch(error => {
+             console.error("Error during Google Calendar sync:", error);
+         });
+         
       }
 
        ,loadGapi: function() {
