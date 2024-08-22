@@ -13,18 +13,17 @@
 			let rows = [];
 			$.each($("#<@popupId>_paymentList tr"), function(index, element) {
 
-				const PAYMENT_ETC_ID	= isEmpty($(this).attr("id")) ?  C_COM.makeUniqueId() :  $(this).attr("id");
-				const $PAYMENT_NM 		= $(element).children().find("input[type='search']");
+				const $ETC_PAYMENT		= $(element).children().find("input[type='search']");
 				const $PAYMENT			= $(element).children().find("input[name='PAYMENT']");
 				
 				const row 				= {ADD_DATE_MONTH: <@popupId>.paymentDetailObj.RESULT_DATE_MONTH}
 				row.USER_ID				= <@popupId>.paymentDetailObj.USER_ID;
 				row.BUYER_ID			= <@popupId>.paymentDetailObj.BUYER_ID;
 				row.BUYER_NM			= <@popupId>.paymentDetailObj.BUYER_NM;
-				row.PAYMENT_NM			= isEmpty($PAYMENT_NM.data("codeNm")) ? $PAYMENT_NM.val() : $PAYMENT_NM.data("codeNm");
+				row.PAYMENT_ETC_ID		= isEmpty($ETC_PAYMENT.attr("data-paymentEtcId")) ? C_COM.makeUniqueId()	: $ETC_PAYMENT.attr("data-paymentEtcId");
+				row.PAYMENT_NM			= isEmpty($ETC_PAYMENT.data("codeNm")) ? $ETC_PAYMENT.val()	: $ETC_PAYMENT.data("codeNm");
 				row.PAYMENT				= $PAYMENT.val();
-				row.PAYMENT_ETC_ID 		= PAYMENT_ETC_ID;
-			    	
+							    	
 			    rows.push(row );
 
 			});			
@@ -56,9 +55,10 @@
 		}
 		,addPayment : (etcPay) => {
 			
-			let etcPayment = etcPay || {PAYMENT_ID:'', PAYMENT_NM:'', PAYMENT:0};
+			const curRow = <@popupId>.curRow++;
+			let etcPayment = etcPay || { PAYMENT_ETC_ID: '' , PAYMENT_ID:'', PAYMENT_NM:'', PAYMENT:0};
 			
-			etcPayment.curRow	= <@popupId>.curRow++;
+			etcPayment.curRow	= curRow;
 			etcPayment.mode		= <@popupId>.rcvData.param.mode ;
 			
 			var rparm = etcPayment;
@@ -77,7 +77,7 @@
 			
 			C_POP.confirm(`해당 항목을 삭제 하시겠습니까?`, function() {
 				
-				$("#<@popupId>_paymentList [id='"+curRow+"']").remove();
+				$("#<@popupId>_paymentList tr[id='rowKey_"+curRow+"']").remove();
 				
 			});
 		}
@@ -99,16 +99,19 @@
 			
 		}
 		,delete : () => {
-			
-			const paymentEtcId = $("#<@popupId>_paymentList tr").attr("id");
-			var parm = {
-					 queryId 		: "salary.deleteEtcPayment"
-					,requestParm	: { PAYMENT_ETC_ID : paymentEtcId }
-			}
-			C_COM.requestQuery(parm, function(resultData) {
+			C_POP.confirm(`해당 항목을 삭제 하시겠습니까?`, function() {
 				
-				alert('삭제되었습니다.' );
-				<@popupId>.close({MSG:'삭제되었습니다.'  });
+				const paymentEtcId = $("#<@popupId>_paymentList tr").children().find("input[type='search']").attr("data-paymentEtcId");
+				var parm = {
+						 queryId 		: "salary.deleteEtcPayment"
+						,requestParm	: { PAYMENT_ETC_ID : paymentEtcId }
+				}
+				C_COM.requestQuery(parm, function(resultData) {
+					
+					alert('삭제되었습니다.' );
+					<@popupId>.close({MSG:'삭제되었습니다.'  });
+					
+				});
 				
 			});
 			
@@ -187,11 +190,11 @@
 						<tbody id="<@popupId>_paymentList">
 						</tbody>
 						<script type="text/x-jsrender" id="<@popupId>_paymentList_template">	
-							<tr id="{{:PAYMENT_ETC_ID}}" >
+							<tr id="rowKey_{{:curRow}}" >
 								<td>
 									<div class="search_inputWrap">
-										<input type="search" name=""  data-codeId="{{:PAYMENT_ID}}", data-codeNm="{{:PAYMENT_NM}}" value="{{:PAYMENT_NM}}">
-											<a href="javascript:<@popupId>.payments('{{:curRow}}')" class="search_btn"><i class="icon_search"></i></a>
+										<input type="search" data-codeId="{{:PAYMENT_ID}}", data-codeNm="{{:PAYMENT_NM}}" value="{{:PAYMENT_NM}}" data-paymentEtcId="{{:PAYMENT_ETC_ID}}">
+										<a href="javascript:<@popupId>.payments('{{:curRow}}')" class="search_btn"><i class="icon_search"></i></a>
 									</div>
 								</td>
 								<td>
