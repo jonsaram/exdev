@@ -36,4 +36,17 @@
 			AND A.USER_ID 		= #{sessionVo.userId}    
 	</select>
 	
+
+	<select id="getConsultingListByType" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	advice.getConsultingListByType
+			컨설팅 상품 조회 By 컨설팅 타입
+		*/
+		SELECT DISTINCT CONSULTING_ID, CONSULTING_NM 
+		FROM TBL_EXP_CONSULTING
+		WHERE 1=1
+	    <foreach item="item" collection="list" open="AND CONSULTING_TYPE IN (" close=")" separator=",">
+   			#{item}
+   		</foreach>	
+	</select>
+	
 </mapper>

@@ -6,34 +6,21 @@
 		,cardListMap	: {}
 		,buyerCompObjMap: {}
 		,pageInit		: function() {
-			// 첫번째 SelectBox 세팅	    
-			let parm = {
-				 queryId 		: "advice.getMyCustomerList"
-				,requestParm	: {}
+			// 첫번째 SelectBox 세팅	  
+			var multiboxList = { 
+					data 			: C_COM.getCodeList("CONSULTING_TYPE")
+				 	,targetId 		: "<@pageId>_consultingTypeSelectBox" 
 			}
-			C_COM.requestQuery(parm, function(resultData) {
-				let codeList = C_COM.makeArrayTwoColumn(resultData.data, "BUYER_ID", "BUYER_NM");
-				var singleboxList = { 
-					 data 			: codeList
-				 	,targetId 		: "<@pageId>_customerSelectBox" 
-				}
-				C_UICOM.makeSelectBox(singleboxList, "multi");
-			});
+			C_UICOM.makeSelectBox(multiboxList, "multi");
+			C_UICOM.addChangeListener("<@pageId>_consultingTypeSelectBox", function(dataObj) {
+				// 두번째 SelectBox 세팅
+				<@pageId>.secondSelectBoxSet(dataObj);
+				
+			});			
 			
-			// 두번째 SelectBox 세팅	    
-			let parm2 = {
-				 queryId 		: "advice.getConsultingList"
-				,requestParm	: {}
-			}
-			C_COM.requestQuery(parm2, function(resultData) {
-				let codeList = C_COM.makeArrayTwoColumn(resultData.data, "CONSULTING_ID", "CONSULTING_NM");
-				var singleboxList = { 
-					 data 			: codeList
-				 	,targetId 		: "<@pageId>_consultingSelectBox" 
-				}
-				C_UICOM.makeSelectBox(singleboxList, "multi");
-			});
-			
+			// 두번째 SelectBox 세팅
+			<@pageId>.secondSelectBoxSet([]);
+
 			// 결재 현황 리스트
 			let parm3 = {
 				 queryId 		: "contract.getAdviceApprovalProcessList"
@@ -47,12 +34,30 @@
 				}
 				C_COM.renderHtml("<@pageId>", parm);
 			});
+			
 		 }
+		,secondSelectBoxSet : function(firstSel) {
+			// 두번째 SelectBox 세팅	    
+			let parm2 = {
+				 queryId 		: "advice.getConsultingListByType"
+				,requestParm	: {list:firstSel}
+			}
+			C_COM.requestQuery(parm2, function(resultData) {
+				
+				let codeList = C_COM.makeArrayTwoColumn(resultData.data, "CONSULTING_ID", "CONSULTING_NM");
+				var singleboxList = { 
+					 data 			: codeList
+				 	,targetId 		: "<@pageId>_consultingSelectBox" 
+				}
+				C_UICOM.makeSelectBox(singleboxList, "multi");
+				
+			});		
+		}
 		,makeFilterMap : function() {
 			let filterMap = {}
 
 			filterMap.consultingList 	= C_UICOM.getData("<@pageId>_consultingSelectBox");
-			filterMap.buyerList 		= C_UICOM.getData("<@pageId>_customerSelectBox");
+			filterMap.consultingTypeList= C_UICOM.getData("<@pageId>_consultingTypeSelectBox");
 			filterMap.searchWord		= $("#<@pageId> #searchWord").val();
 			return filterMap;
 			
@@ -256,8 +261,8 @@
 					<label for="to">~</label>
 					<input type="text" id="endDate" name="endDate" class="datepicker" style="width:114px">
 				</div>
-				<div id="<@pageId>_customerSelectBox" 	class="select_box fl" style="width:250px"></div>
-                <div id="<@pageId>_consultingSelectBox" class="select_box fl" style="width:250px"></div>
+				<div id="<@pageId>_consultingTypeSelectBox" class="select_box fl" style="width:230px"></div>
+                <div id="<@pageId>_consultingSelectBox" 	class="select_box fl" style="width:270px"></div>
                 <span class="tit01 fl lh33 tr" style="min-width:40px;">기업명/상품명</span>
                 <input type="text" id="searchWord" class="fl" onEnter="<@pageId>.loadCardList()">
                 <button class="btn select fl" onclick="<@pageId>.loadCardList()">검색</button>

@@ -726,6 +726,12 @@
 				OR	D.CONSULTING_NM			LIKE '%${searchWord}%'
 			)
 			</if>
+			<if test=" consultingTypeList != null and consultingTypeList.size() > 0">
+				AND D.CONSULTING_TYPE	IN 
+				<foreach item="consultingType" collection="consultingTypeList" open="(" close=")" separator=",">
+					#{consultingType}		
+				</foreach>	
+			</if>
 			<if test=" buyerList != null and buyerList.size() > 0">
 				AND A.BUYER_ID	IN 
 				<foreach item="buyerId" collection="buyerList" open="(" close=")" separator=",">
