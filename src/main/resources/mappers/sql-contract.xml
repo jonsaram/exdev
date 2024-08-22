@@ -709,6 +709,7 @@
 					A.CONTRACT_ID 	IN ( SELECT CONTRACT_ID FROM TBL_EXP_TEAM_MEMBER WHERE USER_ID = #{sessionVo.userId})
 				OR	A.USER_ID 		= #{sessionVo.userId}
 				OR	A.CREATE_USER	= #{sessionVo.userId}
+				OR  #{sessionVo.systemRoleId} IN ('MANAGER', 'SYSTEM')
 			)
 			AND A.BUYER_ID				= C.BUYER_ID
 			AND A.CONSULTING_ID			= D.CONSULTING_ID

@@ -98,7 +98,7 @@ public class ExdevSessionController {
 		SessionVO sessionVO = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
 		
 		HashMap userInfo = new HashMap();
-
+			
 		userInfo.put("SP_CSTM_ID"		,  sessionVO.getSpCstmId	());
 		userInfo.put("USER_NM"			,  sessionVO.getUserNm		());
 		userInfo.put("USER_ID"			,  sessionVO.getUserId		());
@@ -107,6 +107,8 @@ public class ExdevSessionController {
 		userInfo.put("LOGIN_TYPE"		,  sessionVO.getLoginType	());
 		userInfo.put("SYSTEM_ROLE_ID"	,  sessionVO.getSystemRoleId());
 		userInfo.put("SYSTEM_ROLE_NM"	,  sessionVO.getSystemRoleNm());
+		
+		commonDao.update("common.saveLoginLog", userInfo);
 		
 		return userInfo;
 	}

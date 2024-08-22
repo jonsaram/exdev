@@ -244,7 +244,12 @@ var <@popupId> = {
 				setTimeout( ()=>{
 					$("#<@popupId>_addCowork").hide();
 					$("#<@popupId> button .icon_trash").hide()
-					$("#<@popupId>_TOTAL_COST").prop("disabled",true);
+					
+					// 계약 금액 관리자는 변경할수 있도록 수정 by 위성열
+					if(!in_array(G_VAL.session.roleId, ['MANAGER', 'SYSTEM'])) {
+						$("#<@popupId>_TOTAL_COST").prop("disabled",true);	
+					} 
+					
 				},300)
 				
 			}else{

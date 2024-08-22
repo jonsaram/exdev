@@ -95,7 +95,9 @@
 					 let val = $(this).val();
 					 
 					 if(key){
-											 
+					 	//달력이 - 인경우 등록시 에러 처리 2024-08-22 위성열
+						if(key == "INSURANCE_REG_DATE" && val == "-") val = ""
+						if(key == "INSURANCE_EXP_DATE" && val == "-") val = ""
 					 	returnData[key] = val;
 					 }
 				 })
@@ -128,9 +130,10 @@
 			 })
 		 }
 		 ,validation : (func) =>{
-
-			 if( isEmpty($("#<@popupId>_USER_ID").val()) ) {C_POP.alert("사원 ID를 입력하여 주십시오."); return false;}
-			 if( <@popupId>.BACKUP_USER_ID != $("#<@popupId>_USER_ID").val() ){
+			 
+			 // 사용자의 공백 입력 가능성이 있어 공백 제거기능 추가 by 위성열
+			 if( isEmpty($("#<@popupId>_USER_ID").val().trim()) ) {C_POP.alert("사원 ID를 입력하여 주십시오."); return false;}
+			 if( <@popupId>.BACKUP_USER_ID != $("#<@popupId>_USER_ID").val().trim() ){
 				 
 				 const dbUser = <@popupId>.redundCheck('validation');
 				 if( dbUser ){C_POP.alert("이미 존재하는 사원 ID입니다.\n다시입력하여 주십시오."); return false;}
@@ -307,7 +310,7 @@
 			
 			var parm = {
 					 queryId 		: "system.getUser"
-					,requestParm	: {USER_ID : $("#<@popupId>_USER_ID").val() }
+					,requestParm	: {USER_ID : $("#<@popupId>_USER_ID").val().trim() }
 				}
  			const dbUser =  C_COM.requestQuery(parm) ;
 

@@ -294,4 +294,20 @@
 			AND NEW_CHECK		= 'Y'
 			AND DEL_YN 			= 'N'
    	</update>
+   	
+	<update id="saveLoginLog">
+		/*	common.saveLoginLog
+			로그인 로그 기록함
+		*/
+		INSERT INTO TBL_EXP_LOGIN_LOG(
+		     USER_ID
+		    ,LOGIN_DATE			
+		    ,IP		
+		) VALUES (
+			 #{USER_ID}  
+   			,GET_KRDT(SYSDATE)
+			,'${IP}'
+		)
+   	</update>
+   	
 </mapper>

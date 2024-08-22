@@ -39,6 +39,12 @@
 							 FOLDER_ID 		: baseFolderId
 						}
 					 }
+					,{
+						 queryId 		: "system.getBuyerInfo"
+						,requestParm	: {
+							 BUYER_ID		: "<@BUYER_ID>"
+						}
+					 }
 				]
 			}
 
@@ -51,7 +57,8 @@
 				// 경로 설정
 				let folderPathList 	= resultData.data["faDashboard.getFolderPath"];
 
-				let buyerInfo		= getBuyerInfo("<@BUYER_ID>");
+				let buyerInfo 		= resultData.data["system.getBuyerInfo"][0];
+				
 				var rparm = {
 					 targetId 		: "folderPath"
 					,list			: folderPathList

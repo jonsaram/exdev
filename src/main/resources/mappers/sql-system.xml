@@ -132,6 +132,82 @@
 		</if>
 		ORDER BY SORT_ORDER
 	</select>
+
+
+
+	<select id="getMenuList2" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	system.getMenuList
+			메뉴 리스트 조회 
+		*/
+		SELECT T.SP_CSTM_ID
+			,T.MENU_ID 
+			,T.MENU_NM
+			,T.MENU_DESC
+			,T.PARENT_MENU_ID
+			,NVL(P.MENU_NM , '---' ) AS PARENT_MENU_NM
+			,NVL(P.MENU_DESC,'---' ) AS PARENT_MENU_DESC
+			,T.MENU_DEPTH
+			,T.PARAMETER
+			,NVL(T.PAGE_ID , '---' ) AS PAGE_ID
+			,T.USE_YN
+			,T.DEL_YN
+			,T.UPDATE_USER
+			,TO_CHAR( T.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) UPDATE_DATE 
+			,T.SORT_ORDER
+			,(  MAX(T.SORT_ORDER) over( PARTITION BY NVL(T.PARENT_MENU_ID,T.MENU_ID ) ) )+10 AS NEXT_SORT_ORDER
+			,(  MAX(DECODE( T.MENU_DEPTH, '0',T.SORT_ORDER,'0')) over( ) )+100 AS NEXT_ROOT_SORT_ORDER			
+			,CASE  
+				WHEN EXISTS (
+					            SELECT 1 
+					            FROM TBL_EXP_MENU CHILD 
+					            WHERE CHILD.PARENT_MENU_ID = T.MENU_ID
+					            
+							) 	THEN 'Y'
+		        				ELSE 'N'
+		    END AS HAS_CHILD
+		    ,( SELECT USER FROM DUAL ) SYS_SCHEME
+		FROM TBL_EXP_MENU T
+		,TBL_EXP_MENU P
+		,(	SELECT * FROM TBL_EXP_ROLEMENU RM WHERE 
+			RM.ROLE_ID IN (
+			SELECT ROLE_ID FROM TBL_EXP_AUTH WHERE USER_ID = #{sessionVo.userId}
+			)
+		 ) RM		
+		WHERE 1 = 1 
+		AND T.SP_CSTM_ID = P.SP_CSTM_ID(+)
+		AND T.PARENT_MENU_ID = P.MENU_ID(+)
+		AND T.MENU_ID = RM.MENU_ID
+		AND ( RM.AUTH_TYPE IN ('A', 'R') )
+		<if test=" MENU_NM != null and !MENU_NM.equals('') ">
+		AND T.MENU_NM like '%' || #{MENU_NM} || '%'
+		</if>
+		<if test=" PARENT_MENU_ID != null and !PARENT_MENU_ID.equals('') ">
+		AND T.PARENT_MENU_ID like  '%' || #{PARENT_MENU_ID} || '%'
+		</if>
+		<if test=" MENU_DEPTH != null and !MENU_DEPTH.equals('') ">
+		AND T.MENU_DEPTH = #{MENU_DEPTH}
+		</if>
+		<if test=" MENU_DESC != null and !MENU_DESC.equals('') ">
+		AND T.MENU_DESC like '%' || #{MENU_DESC} || '%'
+		</if>
+		<if test=" PAGE_ID != null and !PAGE_ID.equals('') ">
+		AND T.PAGE_ID like '%' || #{PAGE_ID} || '%'
+		</if>
+		<if test="USE_YN != null and !USE_YN.equals('') ">
+		AND T.USE_YN = #{USE_YN}
+		</if>
+		<if test=" DEL_YN != null and !DEL_YN.equals('') ">
+		AND T.DEL_YN = #{DEL_YN}
+		</if>
+		<if test=" SORT_ORDER != null and !SORT_ORDER.equals('') ">
+		AND T.SORT_ORDER = #{SORT_ORDER}
+		</if>
+		ORDER BY SORT_ORDER
+	</select>
+
+
+
+
 		
 	<update id="updateMenu" parameterType="java.util.HashMap"  flushCache="true" >
 		/*	system.updateMenu
