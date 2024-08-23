@@ -390,4 +390,25 @@ public class ExdevCommonController {
         return returnMap;
     }
 
+    /** 
+     * 내용        : 구글캘린더 승인된 리디렉션 URI
+     * @생 성 자   : 이응규
+     * @생 성 일자 : 2024. 08. 20 : 최초 생성
+     * @수 정 자   : 
+     * @수 정 일자 :
+     * @수 정 자
+     */
+
+    @SuppressWarnings({ "unused", "rawtypes" })
+    @PostMapping("/googleTest.do")
+    public @ResponseBody Map  googleTest( 
+            MultipartRequest request,  HttpSession session,HttpServletRequest httpServletRequest)  throws Exception {
+
+        Map returnMap = new HashMap();
+        
+        returnMap.put("uploaded", true);
+        
+        return returnMap;
+    }
+
 }
