@@ -68,6 +68,23 @@
 		ORDER BY CONSULTING_NM
 	</select>
 	
+	<select id="canRegistProject" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	custDashboard.canRegistProject
+			기업자문보고서 등록 가능한 실적 여부  ( 월자문 )
+		*/
+		SELECT 
+		COUNT(*) CNT 
+		FROM TBL_EXP_RESULT R , TBL_EXP_CONTRACT C , TBL_EXP_CONSULTING CST
+		WHERE 1=1
+		AND R.CONTRACT_ID = C.CONTRACT_ID AND C.CONTRACT_TYPE = 'MONTHLY'
+		AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
+		AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+		AND TO_CHAR(R.RESULT_DATE,'YYYY-MM') = #{REPORT_YEAR_MONTH}
+		AND CST.CONSULTING_ID = C.CONSULTING_ID 
+		AND CST.CONSULTING_ID = #{CONSULTING_ID}
+		AND C.BUYER_ID = #{BUYER_ID}
+	</select>
+	
 	<update id="registProject">
 		/*	custDashboard.registProject
 			기업자문보고서 등록/수정  

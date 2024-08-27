@@ -88,7 +88,25 @@
 				<@popupId>.setConsultingList( buyerId );
 			});
 			
-		}		
+		}	
+		,saveValidate : (buyerId,consultingId,reportYm) =>{
+
+			const parm = {
+					 queryId 		: "custDashboard.canRegistProject"
+					,requestParm	: 
+									{
+										 BUYER_ID			:	buyerId
+										,CONSULTING_ID		:	consultingId
+										,REPORT_YEAR_MONTH 	:	reportYm 
+										,CONTRACT_ID		:	<@popupId>.SELECTED_CONSULTING.CONTRACT_ID
+									}
+			}
+
+			const result =  C_COM.requestQuery(parm)
+			if( result.data[0].CNT > 0 )return true;
+			else return false;
+			
+		}
 		,save : () => {
 
 			const consultingId 	=	C_UICOM.getData("<@popupId>_consultingNms");
@@ -101,6 +119,12 @@
 			C_POP.confirm('기업자문보고서를 저장하시겠습니까?', function() {
 				
 				if("<@mode>" == "I" && <@opener>.searchedRows.length ) {
+  					
+	 				if( !<@popupId>.saveValidate(buyerId,consultingId,reportYm)){
+						alert("등록 가능한 실적이 존재하지 않습니다.\n ::기본적으로 지난달 ~ 저번달 까지 등록 가능. \n단. 15일이 지난 경우 실적일기준으로 금월 실적만 가능");
+						return;
+						
+					}
 					
 					const sameData = (<@opener>.searchedRows).filter( row =>{
 					
@@ -111,7 +135,7 @@
 						else return false;
 					});
 					
-					if( !isEmpty(sameData) ){alert("작성하고자 하는 보고서는 이미 존재합니다. ");return}
+					if( !isEmpty(sameData) ){alert("작성하고자 하는 보고서가 이미 존재합니다. ");return}
 					if( isEmpty(content) ){alert("보고내용을 작성하여 주십시오. ");return}
 				}
 				

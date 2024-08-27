@@ -159,7 +159,7 @@
 		        	,RELATION_ID 	: BUYER_CONSULTING_ID
 		        	,AFTER_SERVICE	: `ApprovalAfterService.updateBuyerConsultingProcess`
 		        	,AFTER_PARM		: `{"APPROVAL_STATE" : "COMPLETE" }`
-		        	,TITLE			: title
+		        	,TITLE			: `${selectedRow.BUYER_NM} ${selectedRow.CONSULTING_NM} [기업 자문 보고서] 결재 요청`
 		        	,CONTENTS		: appContent
 			}
 	        C_POP.open('popup_appr_apprReqPopup', requestParm, function(retData) {
