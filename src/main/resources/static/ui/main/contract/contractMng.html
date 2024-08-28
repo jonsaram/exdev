@@ -9,12 +9,12 @@ var <@pageId> = {
 		,pageInit : () =>{
 
 			const processState = C_COM.getCodeList("PROCESS_STATE");
-			const exPreContract = processState.map( item => { return item[0] !='PRE_CONTRACT' && item[0] !='ON_CONTRACTING_APPR' ? item :'' });
+			const exPreContract = processState.map( item => { return item[0] !='PRE_CONTRACT' && item[0] !='ON_CONTRACTING_APPR' ? item :'' }).filter(d=> !isEmpty(d));
+			
 			C_UICOM.makeSelectBox({ 
-					 defaultItem 	: ["", "전체"]
-					,data 			: exPreContract
+					data 			: exPreContract
 				 	,targetId 		: "<@pageId>_selectProcessStatus" 
-			}, "single");
+			}, "multi");
 
 			
 			_setSearchListCnt("<@pageId>_pagingChunk" );
@@ -30,13 +30,15 @@ var <@pageId> = {
  			const SEARCH_TEXT = ["USER_ID","USER_NM","EMAIL","PHONE"];
  			
 			const requestParm = { 
-					 PROCESS_STATE : C_UICOM.getData("<@pageId>_selectProcessStatus") 
-					 ,IS_MULTI_SEARCH : 'Y'				
-					 ,BUYER_NM 	: searchVal
-					 ,BUYER_ID	: searchVal
-					 ,USER_NM	: searchVal
-					 ,PA_ROLE	: isEmpty("<@CALL_TYPE>") ? <@pageId>.paMap.ROLE_ID : null
-					 ,CALL_TYPE	: "<@CALL_TYPE>"
+				IS_MULTI_SEARCH : 'Y'				
+				,BUYER_NM 	: searchVal
+				,BUYER_ID	: searchVal
+				,USER_NM	: searchVal
+				
+				/* CALL_TYPE 이 USER 이면 biz 메뉴의 page */
+				,PA_ROLE	: isEmpty("<@CALL_TYPE>") ? <@pageId>.paMap.ROLE_ID : null
+				,CALL_TYPE	: "<@CALL_TYPE>"
+				,PROCESS_STATES : C_UICOM.getData("<@pageId>_selectProcessStatus") 
 			};
 			
 			var parm = {
@@ -358,24 +360,26 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			<!-- search area -->
 			<div class="search_area mt0">
 				<!-- 멀티 선택 -->
-				<div class="fl">
+				<div class="fl" style="display: flex; align-items: center;">
+					<div style="margin-right: 8px; font-weight: 800; color: #27187F;">고객번호, 고객명, 담당자 조회 :</div>
 				
 					<div class="search_inputWrap fl" style='width:150px;'>
-						<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)"><button class="search_btn"><i class="icon_search"></i></button>
+						<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)">
+						<button class="search_btn"><i class="icon_search"></i></button>
 					</div>
-				
-					<div id="<@pageId>_selectProcessStatus" class="select_box" style="width:200px"></div>
-					
-					<button type="button" class="btn select fr" id="<@pageId>_searchBtn"  style='margin-left:8px;'>조회</button>
-					<button type="button" class="btn fr" 		id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
+				    
+				    <div style="margin-right: 8px; font-weight: 800; color: #27187F; margin-left:7px;">결재 상태 조회 :</div>
+					<div id="<@pageId>_selectProcessStatus" class="select_box" style="width:200px; margin-left: 2px;"></div>
+				    
+					<button type="button" class="btn select fr" id="<@pageId>_searchBtn" style='margin-left:8px;'>조회</button>
+					<button type="button" class="btn fr" id="<@pageId>_deleteBtn"><i class="icon_trash"></i>삭제</button>
 				</div>
-	
+				
 				<div class="search_right">
-					<!-- <button type="button" class="btn select fl" id="<@pageId>_insertBtn"><i class="icon_user_plus"></i>계약 등록</button> -->
-					<button type="button" class="btn fl" 		id="<@pageId>_excelDownloadBtn"><i class="icon_download"></i> 계약 리스트 다운로드</button>
-					<strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt"></span></strong>
- 					<div id="<@pageId>_pagingChunk" style="margin-left: 5px;width:130px"></div>
-	            </div>
+				    <button type="button" class="btn fl" id="<@pageId>_excelDownloadBtn"><i class="icon_download"></i> 계약 리스트 다운로드</button>
+				    <strong class="total">Total: <span class="pointColr" id="<@pageId>_totalCnt"></span></strong>
+				    <div id="<@pageId>_pagingChunk" style="margin-left: 5px;width:130px"></div>
+				</div>
 			</div>
 			<!-- 테이블 -->
 			<div class="tbl01 col tbl_scroll" style="max-height:506px;">

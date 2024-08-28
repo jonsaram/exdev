@@ -82,102 +82,44 @@
 		AND C.PROCESS_STATE != 'ON_CONTRACTING_APPR' 
 		AND C.CONTRACT_ID = TM.CONTRACT_ID(+)
 		AND TM.RELATION_TYPE(+) = 'EXECUTE'
-        <choose>
-       	<when test='PA_ROLE != null'> 
-        	<if test=" PA_ROLE.equals('SYSTEM') or PA_ROLE.equals('MANAGER')">
-		    AND 1=1  
-        	</if>
-        	<if test=" !PA_ROLE.equals('SYSTEM') and !PA_ROLE.equals('MANAGER')">
-			AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_TEAM_MEMBER WHERE USER_ID = #{sessionVo.userId})
-			
-        	</if>
-		</when>
-       	<when test= "CALL_TYPE != null and CALL_TYPE.equals('USER')"> 
-			AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_TEAM_MEMBER WHERE USER_ID = #{sessionVo.userId})
-		</when>
+		<choose>
+			<!-- 실적화면호출시 -->
+			<when test='PA_ROLE != null'> 
+				<if test=" PA_ROLE.equals('SYSTEM') or PA_ROLE.equals('MANAGER')">
+				AND 1=1 /* 시스템 혹은 관리자 권한 */
+				</if>
+				<if test=" !PA_ROLE.equals('SYSTEM') and !PA_ROLE.equals('MANAGER')">
+				AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_CONTRACT_MEMBER WHERE USER_ID = #{sessionVo.userId})
+				</if>
+			</when>
+			<!-- CALL_TYPE USER 는 biz 계약관리 -->
+			<when test= "CALL_TYPE != null and CALL_TYPE.equals('USER')"> 
+				AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_CONTRACT_MEMBER WHERE USER_ID = #{sessionVo.userId})
+			</when>
+			<!-- 계약화면호출시 -->		
+			<when test='parm.PA_ROLE != null'> 
+				<if test=" parm.PA_ROLE.equals('SYSTEM') or parm.PA_ROLE.equals('MANAGER')">
+				AND 1=1 /* 시스템 혹은 관리자 권한 */ 
+				</if>
+				<if test=" !parm.PA_ROLE.equals('SYSTEM') and !parm.PA_ROLE.equals('MANAGER')">
+				AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_CONTRACT_MEMBER WHERE USER_ID = #{sessionVo.userId})
+				</if>
+			</when>
+			<!-- CALL_TYPE USER 는 biz 계약관리 -->
+			<when test= "parm.CALL_TYPE != null and parm.CALL_TYPE.equals('USER')"> 
+				AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_CONTRACT_MEMBER WHERE USER_ID = #{sessionVo.userId})
+			</when>		
 		</choose>		
-
 	</sql>
-		
 	<select id="getContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getContractList
-			계약 리스트 조회 
+			계약 리스트 조회 ( 실적화면에서 호출 )
 		*/
 		<include refid="getContractList_body"/>
-		<if test=" CONTRACT_ID != null and !CONTRACT_ID.equals('') ">
-		AND C.CONTRACT_ID = #{CONTRACT_ID}
-		</if>
-		<if test=" PROCESS_STATE != null and !PROCESS_STATE.equals('') ">
-			AND C.PROCESS_STATE = #{PROCESS_STATE}
-		</if>
-       	<if test='IS_MULTI_SEARCH == "Y" '>  
-	        AND (
-        	<if test=" BUYER_ID != null and !BUYER_ID.equals('') ">
-		        C.BUYER_ID like '%' || #{BUYER_ID} || '%'
-        	</if>
-        	<if test=" BUYER_ID != null and !BUYER_ID.equals('') ">
-        		<if test=" BUYER_NM != null and !BUYER_NM.equals('') ">
-        		OR
-        		</if>
-		        B.BUYER_NM like '%' || #{BUYER_NM} || '%'
-        	</if>
-        	<if test=" USER_NM != null and !USER_NM.equals('') ">
-				<if test=" (BUYER_ID != null and !BUYER_ID.equals('') ) or ( BUYER_NM != null and !BUYER_NM.equals(''))">
-        		OR
-        		</if>
-		        U.USER_NM like '%' || #{USER_NM} || '%'
-        	</if>
-			<if test=" BUYER_ID == '' and BUYER_NM == '' and USER_NM == '' ">
-				1=1
-			</if>        	
-        	 )
-		</if>			
 		ORDER BY C.UPDATE_DATE DESC , BUYER_ID, USER_ID, CONSULTING_ID
 	</select>	
-	<sql id='getContractList_param'>
-        <choose>
-       	<when test='parm.PA_ROLE != null'> 
-        	<if test=" parm.PA_ROLE.equals('SYSTEM') or parm.PA_ROLE.equals('MANAGER')">
-		    AND 1=1  
-        	</if>
-        	<if test=" !parm.PA_ROLE.equals('SYSTEM') and !parm.PA_ROLE.equals('MANAGER')">
-			AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_CONTRACT_MEMBER WHERE USER_ID = #{sessionVo.userId})
-        	</if>
-		</when>
-       	<when test= "parm.CALL_TYPE != null and parm.CALL_TYPE.equals('USER')"> 
-			AND C.CONTRACT_ID IN ( SELECT CONTRACT_ID FROM TBL_EXP_CONTRACT_MEMBER WHERE USER_ID = #{sessionVo.userId})
-		</when>		
-		</choose>		
 	
-		<if test=" parm.CONTRACT_ID != null and !parm.CONTRACT_ID.equals('') ">
-		AND C.CONTRACT_ID = #{parm.CONTRACT_ID}
-		</if>
-		<if test=" parm.PROCESS_STATE != null and !parm.PROCESS_STATE.equals('') ">
-			AND C.PROCESS_STATE = #{parm.PROCESS_STATE}
-		</if>
-       	<if test='parm.IS_MULTI_SEARCH == "Y" '>  
-	        AND (
-        	<if test=" parm.BUYER_ID != null and !parm.BUYER_ID.equals('') ">
-		        C.BUYER_ID like '%' || #{parm.BUYER_ID} || '%'
-        	</if>
-        	<if test=" parm.BUYER_ID != null and !parm.BUYER_ID.equals('') ">
-        		<if test=" parm.BUYER_NM != null and !parm.BUYER_NM.equals('') ">
-        		OR
-        		</if>
-		        B.BUYER_NM like '%' || #{parm.BUYER_NM} || '%'
-        	</if>
-        	<if test=" parm.USER_NM != null and !parm.USER_NM.equals('') ">
-				<if test=" (parm.BUYER_ID != null and !parm.BUYER_ID.equals('') ) or ( parm.BUYER_NM != null and !parm.BUYER_NM.equals(''))">
-        		OR
-        		</if>
-		        U.USER_NM like '%' || #{parm.USER_NM} || '%'
-        	</if>
-			<if test=" parm.BUYER_ID == '' and parm.BUYER_NM == '' and parm.USER_NM == '' ">
-				1=1
-			</if>        	
-        	 )
-		</if>		
-	</sql>	
+	<!--  계약화면에서 호출 C_PAGING 함수 호출일때 권한에 따른 실행 -->
 	<select id="getContractList_totalCnt" resultType="Integer">
 		/* contract.getContractList_totalCnt  */
 		<include refid="common.totalWrapStart"/>
@@ -193,6 +135,49 @@
 		ORDER BY C.UPDATE_DATE DESC, BUYER_ID, USER_ID, CONSULTING_ID DESC
 		<include refid="common.pagingWrapEnd"/>
 	</select>
+	
+	<!-- 계약관리 조회조건 C_PAGING 함수 호출 -->
+	<sql id='getContractList_param'>
+		<if test=" parm.CONTRACT_ID != null and !parm.CONTRACT_ID.equals('') ">
+		AND C.CONTRACT_ID = #{parm.CONTRACT_ID}
+		</if>
+		<if test="parm.PROCESS_STATES != null and !parm.PROCESS_STATES.equals('')">
+			<foreach item="PROCESS_STATE" collection="parm.PROCESS_STATES" open="AND C.PROCESS_STATE IN (" close=")" separator=",">
+				#{PROCESS_STATE}
+			</foreach>
+		</if>			
+		<if test="parm.PROCESS_STATE != null and !parm.PROCESS_STATE.equals('')">
+		AND C.PROCESS_STATE = #{parm.PROCESS_STATE}
+		</if>
+		<if test='parm.IS_MULTI_SEARCH == "Y"'>  
+		    AND (
+		        <if test="parm.BUYER_ID != null and !parm.BUYER_ID.equals('')">
+		            C.BUYER_ID like '%' || #{parm.BUYER_ID} || '%'
+		        </if>
+		
+		        <if test="parm.BUYER_NM != null and !parm.BUYER_NM.equals('')">
+		            <if test="parm.BUYER_ID != null and !parm.BUYER_ID.equals('')">
+		            OR
+		            </if>
+		            B.BUYER_NM like '%' || #{parm.BUYER_NM} || '%'
+		        </if>
+		
+		        <if test="parm.USER_NM != null and !parm.USER_NM.equals('')">
+		            <if test="(parm.BUYER_ID != null and !parm.BUYER_ID.equals('')) or (parm.BUYER_NM != null and !parm.BUYER_NM.equals(''))">
+		            OR
+		            </if>
+		            U.USER_NM like '%' || #{parm.USER_NM} || '%'
+		        </if>
+		        
+		        <!-- BUYER_ID , BUYER_NM , USER_NM 어떤것도 제공되지 않을 때 -->
+		       <if test="	(parm.BUYER_ID == null or parm.BUYER_ID == '') and 
+          					(parm.BUYER_NM == null or parm.BUYER_NM == '') and 
+          					(parm.USER_NM == null or parm.USER_NM == '')"		>
+		            1=1
+		        </if>
+		    )
+		</if>		
+	</sql>
 	
 	<select id="getBuyerList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getBuyerList

@@ -281,8 +281,8 @@ var <@pageId> = {
 */
 	    	
 	    	// remainingCost to reload
-			const requestParm = {CONTRACT_ID : contractId , USER_ID : <@pageId>.contractItem.USER_ID };
 			
+			const requestParm = {CONTRACT_ID : contractId  , PA_ROLE : <@pageId>.paMap.ROLE_ID  };
 			var parm = {
 					 queryId 		: "contract.getContractList"
 					,requestParm	: requestParm
@@ -314,7 +314,7 @@ var <@pageId> = {
 		C_POP.open('popup_contract_contractSearchPopup', {}, function(retData) {
 
 			if(isValid(retData)){
-				const requestParm = {CONTRACT_ID : retData.CONTRACT_ID , USER_ID : retData.USER_ID };
+				const requestParm = {CONTRACT_ID : retData.CONTRACT_ID   , PA_ROLE : <@pageId>.paMap.ROLE_ID  };
 				
 				var parm = {
 						 queryId 		: "contract.getContractList"

@@ -445,6 +445,7 @@ var <@pageId> = {
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
 	
+	$(".cont_wrap").css('overflow-y','hidden')
 	<@pageId>.pageInit();
 	<@pageId>.searchList();
 
@@ -458,7 +459,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 	<div class="cont_top">
 		<h2><i class="icon_bullet"></i>코드 그룹 관리</h2>
 	</div>
-	<section class="sec_wrap list" id="<@pageId>_grpcode_section" style="height:50%;">
+	<section class="sec_wrap list" id="<@pageId>_grpcode_section" style="height:35%;">
 		<!-- search area -->
 		<div class="search_area mt0">
 			<!-- 멀티 선택 -->
@@ -475,8 +476,6 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<button type="button" class="btn fr" name="<@pageId>_delete"><i class="icon_trash"></i>삭제</button>
 				
 				</div>
-
-				 <!-- <div  class="select_box fl" id="<@pageId>_selectMenuDept" style="width:130px;margin-left:10px;"></div> -->
 
 			</div>
 
@@ -571,10 +570,10 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 		</div>
 	</section>
 <!--  -->			
-	<div class="cont_top" style='margin-top:-3%;'>
+	<div class="cont_top" style='margin-top:-1%;'>
 		<h2><i class="icon_bullet"></i>코드 관리</h2>
 	</div>
-	<section class="sec_wrap list" id="<@pageId>_code_section" style="height:calc(50% - 0px);">
+	<section class="sec_wrap list" id="<@pageId>_code_section" style="height:calc(65% - 0px);">
 		<!-- search area -->
 		<div class="search_area mt0">
 			<!-- 멀티 선택 -->

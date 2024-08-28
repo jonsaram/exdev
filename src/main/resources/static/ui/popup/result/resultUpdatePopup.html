@@ -703,6 +703,10 @@ var <@popupId> = {
 				
 				if(isEmpty($("#<@popupId>_INCOME").val())){
 					alert("입금액 입력 후 순매출/수수료정보를 입력할 수 있습니다. ");
+					setTimeout( ()=>{
+						$("a[name='<@popupId>_tab1']").parent("li").addClass('active');
+					    $("a[name='<@popupId>_tab2']").parent("li").removeClass('active');
+					},10);
 					return;
 				};
 			}
