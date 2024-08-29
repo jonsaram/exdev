@@ -39,8 +39,19 @@
    			
    			});				
 		 }
-		,moveMenu : function() {
-			C_MENU.moveMenu("MN_APR_STA");
+		,alarmExec : functio(directExec) {
+			let commandArr = directExec.split("/");
+			let command = commandArr[0];
+			let parm	= commandArr[1];
+			
+			if	( comomand == 'MOVE' ) {
+				<@popupId>.moveMenu(parm);
+			} else if ( comomand == 'CMMT') {
+				
+			}
+		 }
+		,moveMenu : function(menuId) {
+			C_MENU.moveMenu(menuId);
 			<@popupId>.close();
 		 }
 		,close : function(returnData) {
@@ -99,7 +110,7 @@
 						<tr>
 							<td><input type="checkbox"></td>
 							<td style="font-weight:{{:boldStr}}">{{:UPDATE_DATE}}</td>
-							<td style="font-weight:{{:boldStr}}" class="tl" onclick="<@popupId>.moveMenu()">{{:CONTENT}}</td>
+							<td style="font-weight:{{:boldStr}}" class="tl" onclick="<@popupId>.alarmExec('{{:DIRECT_EXEC}}')">{{:CONTENT}}</td>
 							<td style="font-weight:{{:boldStr}}">{{:newStr}}</td>
 						</tr>
 					{{/for}}

@@ -99,13 +99,27 @@ public class ApprovalAfterService extends ExdevBaseService{
 		
 		map.put("CONTRACT_ID", map.get("RELATION_ID"));
 		
-        int result = commonDao.update("contract.updateProject", map);
+		String state = (String)map.get("STATE");
 		
-        int result2 = commonDao.update("contract.updateTeamState", map);
-		
-        int result3 = commonDao.update("contract.updateContractMemberFromTeam", map);
-		
-		return map;
+		if("COMPLETE".equals(state)) {
+	        int result = commonDao.update("contract.updateProject", map);
+			
+	        int result2 = commonDao.update("contract.updateTeamState", map);
+			
+	        int result3 = commonDao.update("contract.updateContractMemberFromTeam", map);
+	        
+		} else if("REJECT".equals(state)) {
+			
+			map.put("PROCESS_STATE", "PRE_CONTRACT");
+			
+	        int result = commonDao.update("contract.updateProject", map);
+	        
+	        int result2 = commonDao.update("contract.deleteTeam", map);
+	        
+	        int result3 = commonDao.update("contract.deleteTeamMember", map);
+	        
+		}
+        return map;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })

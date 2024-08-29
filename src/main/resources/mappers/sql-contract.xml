@@ -905,7 +905,7 @@
 			 #{WORK_CMMT_ID	}
 			,#{CONTRACT_ID	}
 			,#{CMMT			}
-   			,TO_DATE(#{updateDate}, 'YYYY-MM-DD HH24:MI:SS')
+   			,GET_KRDT(SYSDATE)
    			,#{sessionVo.userId		}
 			,#{sessionVo.spCstmId	}
 		)
@@ -1073,6 +1073,14 @@
 		)
 	</update>
 	
+	<update id="deleteTeam">
+		/*	contract.deleteTeam
+			팀 멤버 삭제
+		*/
+		DELETE FROM TBL_EXP_TEAM
+		WHERE CONTRACT_ID = #{CONTRACT_ID}
+	</update>
+	
 	<update id="deleteTeamMember">
 		/*	contract.deleteTeamMember
 			팀 멤버 삭제
@@ -1122,5 +1130,53 @@
 	</select>	
 	
 
+	<update id="updateLastReadTime">
+		/*	contract.updateLastReadTime
+			팀 메시지 마지막 읽은 시간 Setting
+		*/
+		MERGE INTO TBL_EXP_LAST_READ_TIME T
+		USING (
+		  SELECT 
+		  		 #{CONTRACT_ID}				AS CONTRACT_ID
+		  		,#{sessionVo.userId		}	AS UPDATE_USER
+		  FROM DUAL
+		) S
+		ON (
+				T.CONTRACT_ID	= S.CONTRACT_ID
+			AND T.UPDATE_USER	= S.UPDATE_USER
+		)	
+		WHEN MATCHED THEN
+			UPDATE SET
+				 T.UPDATE_DATE 				= GET_KRDT(SYSDATE)
+		WHEN NOT MATCHED THEN 
+			INSERT (
+				 CONTRACT_ID
+				,UPDATE_DATE
+				,UPDATE_USER
+				,SP_CSTM_ID
+			) VALUES (
+				 #{CONTRACT_ID}
+	   			,GET_KRDT(SYSDATE)
+	   			,#{sessionVo.userId		}
+				,#{sessionVo.spCstmId	}
+			)
+	</update>
+
+	
+	<select id="getCmmtUpdateContractList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	contract.getCmmtUpdateContractList
+			자문진행현황 Comment 업데이트 리스트
+		*/
+		SELECT 
+		    B.CONTRACT_ID 
+		FROM 
+		     TBL_EXP_LAST_READ_TIME A
+		    ,TBL_EXP_WORK_CMMT      B    
+		WHERE
+		        A.CONTRACT_ID = B.CONTRACT_ID
+		    AND A.UPDATE_DATE <![CDATA[<]]> B.UPDATE_DATE
+		    AND A.UPDATE_USER = 'admin'
+		GROUP BY B.CONTRACT_ID    
+	</select>	
 			
 </mapper>

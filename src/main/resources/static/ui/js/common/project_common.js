@@ -772,21 +772,6 @@ var C_COM = {
 
 		});
 	 }
-	,addAlarm : function(parm, callback) {
-		var rparm = {
-			 queryId 		: "common.addAlarm"
-			,requestParm	: {
-				 ALARM_ID		: C_COM.makeUniqueId()
-				,TARGET_USER_ID : parm.userId
-				,CONTENT		: parm.content
-				,DIRECT_EXEC	: parm.directExec
-			}
-		}
-
-		C_COM.requestQuery(rparm, function(resultData) {
-			if(typeof callback == "function") callback();
-		});
-	 }
 }
 /**
  * 작성자 : 위성열 
@@ -1998,30 +1983,53 @@ var C_COMP = {
 
 
 var C_ALARM = {
-	 init			: function() {
-     	let rparm = {
-		  queryId 		: "common.getAlarmListCount"
-		 ,requestParm	: {}
-     	}
-		C_COM.requestQuery(rparm, function(resultData) {
-			let cnt = resultData.data[0].CNT;
-			if(cnt == 0) {
-				$("#alarmCount").hide();
-			} else {
-				$("#alarmCount").show();
-				$("#alarmCount").html(cnt)
-			}
+	  realTimeAlarmList : []
+	 ,init			: function() {
+		C_ALARM.realTimeAlarmSet(function(realTimeAlarmList) {
+			C_ALARM.realTimeAlarmList = realTimeAlarmList;
+	     	let rparm = {
+			  queryId 		: "common.getAlarmListCount"
+			 ,requestParm	: {}
+	     	}
+			C_COM.requestQuery(rparm, function(resultData) {
+				let cnt = resultData.data[0].CNT + realTimeAlarmList.length;
+				if(cnt == 0) {
+					$("#alarmCount").hide();
+				} else {
+					$("#alarmCount").show();
+					$("#alarmCount").html(cnt)
+				}
+			});
+		});
+	 }
+	,realTimeAlarmSet : function(callback) {
+		// 알람 발생 등록
+		//// 자문진행 현황 메모 변화 등록
+		C_COM.requestQuery({queryId	: "contract.getCmmtUpdateContractList", requestParm :{} }, function(resultData) {
+			callback(resultData.data);
 		});
 	 }  
 	,showAlarmPopup : function()  {
 		C_POP.open('popup_common_alarmPopup', {}, function(retData) {
-						
 			C_ALARM.init();
-			
-			
-			
 		});
 	 }
+	,addAlarm : function(parm, callback) {
+		var rparm = {
+			 queryId 		: "common.addAlarm"
+			,requestParm	: {
+				 ALARM_ID		: C_COM.makeUniqueId()
+				,TARGET_USER_ID : parm.userId
+				,CONTENT		: parm.content
+				,DIRECT_EXEC	: parm.directExec
+			}
+		}
+
+		C_COM.requestQuery(rparm, function(resultData) {
+			if(typeof callback == "function") callback();
+		});
+	 }
+
 }
 
 

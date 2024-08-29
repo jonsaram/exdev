@@ -37,8 +37,13 @@
 				
 				<@compId>.cmmtList	= list
 				<@compId>.cmmtMap 	= arrayToMap(resultData.data, "WORK_CMMT_ID");
-
-				<@compId>.lastReadTime = getToday();
+				
+				C_COM.requestQuery({queryId : "common.getToday", requestParm : {} }, function(retData) {
+					<@compId>.lastReadTime = retData.data[0].TODAY;
+				});
+				
+				C_COM.requestQuery({queryId : "contract.updateLastReadTime", requestParm : <@compId>.contractInfo }, function(retData) {});
+				
 			});  
 			 
 		 }
@@ -94,7 +99,6 @@
 					 WORK_CMMT_ID	: cmmtId
 					,CONTRACT_ID 	: '<@contractInfo.CONTRACT_ID>'
 					,CMMT			: cmmt
-					,updateDate		: getToday()
 				 }
 				,noLoadingBar	: "Y"
 			}
@@ -166,7 +170,6 @@
 				if(resultData.data.length > 0 ) {
 					let list = [];
 					
-					
 					$.each(resultData.data, function() {
 						let item = this;
 						//item.CMMT = escapeHtmlSp(item.CMMT);
@@ -206,7 +209,11 @@
 						<@compId>.cmmtList = <@compId>.cmmtList.concat(list);
 					} 
 
-					<@compId>.lastReadTime = getToday();
+					C_COM.requestQuery({queryId : "common.getToday", requestParm : {} }, function(retData) {
+						<@compId>.lastReadTime = retData.data[0].TODAY;
+					});
+					
+					C_COM.requestQuery({queryId : "contract.updateLastReadTime", requestParm : <@compId>.contractInfo }, function(retData) {});
 				}
 			});  
 		 }

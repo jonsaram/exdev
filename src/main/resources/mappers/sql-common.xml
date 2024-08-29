@@ -310,4 +310,8 @@
 		)
    	</update>
    	
+   	
+	<select id="getToday" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+	   	SELECT TO_CHAR(GET_KRDT(SYSDATE), 'YYYY-MM-DD HH24:MI:SS') AS TODAY FROM DUAL
+   	</select>
 </mapper>

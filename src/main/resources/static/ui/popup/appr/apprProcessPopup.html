@@ -33,8 +33,15 @@
 		        
 				C_COM.requestQuery(lastParm, function(resultData) {
 					if( resultData.state == "S"){
-						C_POP.alert('결재가 반려 되었습니다.');
-						<@popupId>.close('reload');
+						// 결재 후처리 
+			            var parm = {
+			                 serviceId              : "ApprovalService.approvalAfterProcess"
+			                ,requestParm            : {APPROVAL_ID : '<@APPROVAL_ID>'}
+			            }
+			            C_COM.requestService(parm, function(resultData) {
+							C_POP.alert('결재가 반려 되었습니다.');
+							<@popupId>.close('reload');
+			            });
 					}else{
 						alert(resultData.msg)
 					}
@@ -124,7 +131,7 @@
 						,directExec	: 'MOVE/MN_APR_STA'
 					}
 					
-					C_COM.addAlarm(parm, function(retData) {
+					C_ALARM.addAlarm(parm, function(retData) {
 
 					});
 				}
@@ -146,7 +153,7 @@
     						,content	: `${this.TITLE} 결재 완료 통보`
     						,directExec	: 'MOVE/MN_APR_NOT'
     					}
-    					C_COM.addAlarm(parm, function(retData) {
+    					C_ALARM.addAlarm(parm, function(retData) {
 
     					});
 	            	});
