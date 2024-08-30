@@ -28,6 +28,7 @@
         ,filesArr       : []
         ,fileList       : []
         ,init : function(GRP_FILE_ID, OWNER_CD) {
+        	
             if(isValid(GRP_FILE_ID) && isValid(OWNER_CD)) {
                 <@compId>.GRP_FILE_ID   = GRP_FILE_ID   ;
                 <@compId>.OWNER_CD      = OWNER_CD      ;
@@ -135,7 +136,6 @@
             // 초기화
         }
         ,execUpload : function() {
-            console.log("execUpload 1 ==>");
             C_POP.confirm("선택한 파일을 업로드 하시겠습니까?", function() {
                 <@compId>.uploadMultiFile();
                 $("#<@compId> input[type=file]").val("");
@@ -166,6 +166,7 @@
             $("#<@compId>_select").trigger("click");
          }
         ,deleteFile : function(fileId) {
+        	
             if(isEmpty(fileId)) return;
             
             C_POP.confirm('파일을 삭제 하시겠습니까?', function() {
@@ -186,7 +187,6 @@
          }
         ,download : function(fileId) {
             C_POP.confirm('다운로드 받으시겠습니까?', function() {
-                console.log("download");
                 C_COM.fileDownload(fileId);
                 
             });
@@ -235,7 +235,6 @@
         }
         
         const url = _WEB_ROOT_URL + '/editImageUpload.do';
-        console.log(url);
         
         <@compId>.GRP_FILE_ID   = parm.GRP_FILE_ID  ;
         <@compId>.OWNER_CD      = parm.OWNER_CD     ;

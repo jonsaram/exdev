@@ -353,7 +353,8 @@ public class FileService extends ExdevBaseService{
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
+        headers.set("Customer", "explan");
+        
         FileSystemResource fileResource = new FileSystemResource(file);
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();

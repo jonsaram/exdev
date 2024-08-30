@@ -547,11 +547,16 @@
 							<ul class="approver_list" id="fileList">
 								<li class="tc mt10"><span class="txt"><span>첨부파일이 없습니다.</span></li>
 							</ul>
-							<script type="text/x-jsrender" id="fileList_template">
-							{{for list}}
-								<li><span class="txt" onclick="<@compId>.folderFileMng.download('{{:FILE_ID}}')"><span>{{:ORG_FILE_NM}}</span> / <span>{{toKb:FILE_SIZE}}</span> Kb</span><button class="pay_close" onclick="<@compId>.folderFileMng.deleteFile('{{:FILE_ID}}')">닫기</button></li>
-							{{/for}}
-							</script>
+							
+                            <script type="text/x-jsrender" id="fileList_template">
+                             {{for list}}
+                                 <li><span class="txt"><span onclick="<@compId>.folderFileMng.download('{{:FILE_ID}}')">{{:ORG_FILE_NM}}</span> / <span>{{toKb:FILE_SIZE}}</span> Kb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                 {{if PRE_VIEW_YN == "Y" || CONVERT_YN == "Y" }} 
+                                     <button type="button" onclick="<@compId>.folderFileMng.preview('{{:FILE_ID}}','{{:CONVERT_YN}}')" id="<@compId>_buttonPreview"><span>미리보기</span></button>
+                                 {{/if}}
+                                 <button class="pay_close" onclick="<@compId>.folderFileMng.deleteFile('{{:FILE_ID}}')">닫기</button></li>
+                             {{/for}}
+                            </script>
 							<script type="text/x-jsrender" id="fileList_noData_template">	
 								<li class="tc"><span class="txt"><span>첨부파일이 없습니다.</span></li>
 							</script>
