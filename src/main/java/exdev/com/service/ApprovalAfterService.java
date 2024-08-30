@@ -160,8 +160,22 @@ public class ApprovalAfterService extends ExdevBaseService{
 		
 		map.put("BUYER_CONSULTING_ID", map.get("RELATION_ID"));
 		
-        int result = commonDao.update("custDashboard.updateBuyerConsultingAppState", map);
+		String state = (String)map.get("STATE");
 		
+        
+		if("COMPLETE".equals(state)) {
+			
+			int result = commonDao.update("custDashboard.updateBuyerConsultingAppState", map);
+	        
+		} else if("REJECT".equals(state)) {
+			
+				
+			map.put("APPROVAL_STATE", "");
+			
+			int result = commonDao.update("custDashboard.updateBuyerConsultingRejectAppState", map);
+	        
+		}		
+
 		return map;
 	}
 	

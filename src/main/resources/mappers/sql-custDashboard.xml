@@ -22,6 +22,7 @@
 		, CS.REPORT_YEAR_MONTH
 		, TO_CHAR( TO_DATE( CS.REPORT_YEAR_MONTH , 'YYYY-MM'), 'YYYY')	AS REPORT_YEAR 
 		, TO_CHAR( TO_DATE( CS.REPORT_YEAR_MONTH , 'YYYY-MM'), 'MM') 	AS REPORT_MONTH 
+		, NVL((SELECT DECODE(STATE,'REJECT',GET_CODE_NM('APPROVAL_USER_PROC', 'REJECT'),null) FROM TBL_EXP_APPROVAL WHERE RELATION_ID = CS.BUYER_CONSULTING_ID ORDER BY APPROVAL_DATE DESC FETCH FIRST 1 ROWS ONLY),'-') AS IS_REJECT
 		, NVL( CS.APPROVAL_STATE , '-' ) AS APPROVAL_STATE
 		, NVL( GET_CODE_NM('APPROVAL_USER_PROC', CS.APPROVAL_STATE),'-') APPROVAL_STATE_NM
 		, CS.DEL_YN
@@ -149,6 +150,35 @@
 		UPDATE TBL_EXP_BUYER_CONSULTING
 		SET DEL_YN = 'Y'
 		WHERE	BUYER_CONSULTING_ID = #{BUYER_CONSULTING_ID	}
+	</update>	
+	
+	<update id="updateBuyerConsultingRejectAppState">
+		/*	custDashboard.updateBuyerConsultingRejectAppState
+			기업자문보고서 결재 반려
+		*/
+		DECLARE
+		    v_uuid VARCHAR2(16);
+		BEGIN
+	    /* UUID 생성 및 변수에 할당 */
+	    SELECT SUBSTR(REPLACE(RAWTOHEX(SYS_GUID()), '-', ''), 1, 16) 
+	    INTO v_uuid
+	    FROM DUAL; 
+		
+		UPDATE TBL_EXP_APPROVAL
+		SET APPROVAL_ID =v_uuid
+		WHERE APPROVAL_ID = #{BUYER_CONSULTING_ID	}
+		;
+		
+		UPDATE TBL_EXP_APPROVAL_USER
+		SET APPROVAL_ID =v_uuid
+		WHERE APPROVAL_ID = #{BUYER_CONSULTING_ID	}
+		;
+		 
+		UPDATE TBL_EXP_BUYER_CONSULTING
+		SET APPROVAL_STATE = #{APPROVAL_STATE}
+		WHERE	BUYER_CONSULTING_ID = #{BUYER_CONSULTING_ID	}
+		;
+		END ;		
 	</update>
 	
 	<update id="updateBuyerConsultingAppState">
@@ -165,23 +195,43 @@
 			;
 			
 			/* 보고 년월일이 08월이면, 실적테이블에서 08월 입력분에 대해서, 실적테이블에 Y로 친다. */ 
-			SELECT DISTINCT RESULT_ID
-	        INTO v_result_id
-			FROM(
-				SELECT 
-				R.* 
-				FROM TBL_EXP_BUYER_CONSULTING CS, TBL_EXP_RESULT R , TBL_EXP_CONTRACT C
-				WHERE BUYER_CONSULTING_ID =#{BUYER_CONSULTING_ID	}
-				AND CS.CONTRACT_ID = R.CONTRACT_ID
-				AND CS.CONTRACT_ID = C.CONTRACT_ID AND C.CONTRACT_TYPE = 'MONTHLY'
-				AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
-				AND TO_CHAR(R.RESULT_DATE,'YYYY-MM') = CS.REPORT_YEAR_MONTH
-			);
+		    BEGIN
+		        SELECT DISTINCT RESULT_ID
+		        INTO v_result_id
+		        FROM (
+		            SELECT 
+		            R.* 
+		            FROM TBL_EXP_BUYER_CONSULTING CS, TBL_EXP_RESULT R , TBL_EXP_CONTRACT C
+		            WHERE BUYER_CONSULTING_ID ='191a3649b4211a05'
+		            AND CS.CONTRACT_ID = R.CONTRACT_ID
+		            AND CS.CONTRACT_ID = C.CONTRACT_ID AND C.CONTRACT_TYPE = 'MONTHLY'
+		            AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
+		            AND TO_CHAR(R.RESULT_DATE, 'YYYY-MM') = CS.REPORT_YEAR_MONTH
+		        );
+		    EXCEPTION
+		        WHEN NO_DATA_FOUND THEN
+		            /* 예외 처리를 통해 오류 발생 시 메시지를 남김 */
+		            DBMS_OUTPUT.PUT_LINE('RESULT ID 가 없습니다. ');
+		        WHEN TOO_MANY_ROWS THEN
+		            DBMS_OUTPUT.PUT_LINE('RESULT_ID 가 여러개 발견되었습니다.');
+		        WHEN OTHERS THEN
+		            DBMS_OUTPUT.PUT_LINE('Unexpected error: ' || SQLERRM);
+		    END;
+
 			
-			UPDATE TBL_EXP_RESULT
-			SET IS_PAYABLE  = 'Y'
-			WHERE RESULT_ID = v_result_id
-			;
+		    /* 결과 ID가 존재할 경우에만 업데이트 */
+		    IF v_result_id IS NOT NULL THEN
+		        BEGIN
+		            UPDATE TBL_EXP_RESULT
+		            SET IS_PAYABLE = 'Y'
+		            WHERE RESULT_ID = v_result_id;
+		        EXCEPTION
+		            WHEN OTHERS THEN
+		                DBMS_OUTPUT.PUT_LINE('Unexpected error while updating TBL_EXP_RESULT: ' || SQLERRM);
+		        END;
+		    ELSE
+		        DBMS_OUTPUT.PUT_LINE(' v_result_id 가 NULL입니다.');
+		    END IF;
 		
 		END ;	
 		

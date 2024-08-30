@@ -270,9 +270,17 @@
 							<td>{{:UPDATE_DATE}}</td>
 							<td class="tr">{{numb:TOTAL_COST}}</td>
 							<td>{{:REPORT_YEAR}}년{{:REPORT_MONTH}}월</td>
-							<td class="tc">{{:APPROVAL_STATE_NM}}</td>
+							<td class="tc">
+								{{if IS_REJECT != "반려"}}
+									{{:APPROVAL_STATE_NM }}	
+								{{else}}
+									결재 반려
+								{{/if}}
+							</td>
 							<td>
-								{{if APPROVAL_STATE_NM =="-" ~index=#index}} 
+								{{if APPROVAL_STATE_NM =="-" }} 
+									<button type="button" title="결재" class="btn tc" onclick="<@pageId>.approval({{:#getIndex()}})">결재</button>
+								{{else APPROVAL_STATE_NM =="반려"}}
 									<button type="button" title="결재" class="btn tc" onclick="<@pageId>.approval({{:#getIndex()}})">결재</button>
 								{{else}}
 									{{:APPROVAL_STATE_NM }}	
