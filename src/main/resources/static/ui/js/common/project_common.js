@@ -219,7 +219,7 @@ var C_COM = {
 				 targetUrl 	: targetUrl
 				,data		: parm
 			}
-
+			
 			if(isValid(callback)) {
 				if(parm.noLoadingBar != "Y") C_COM.showLoadingBar();
 				ajaxRequest(sendParm, function(resultData) {
@@ -1988,8 +1988,9 @@ var C_ALARM = {
 		C_ALARM.realTimeAlarmSet(function(realTimeAlarmList) {
 			C_ALARM.realTimeAlarmList = realTimeAlarmList;
 	     	let rparm = {
-			  queryId 		: "common.getAlarmListCount"
-			 ,requestParm	: {}
+				 queryId 		: "common.getAlarmListCount"
+				,requestParm	: {}
+				,noLoadingBar	: "Y"
 	     	}
 			C_COM.requestQuery(rparm, function(resultData) {
 				let cnt = resultData.data[0].CNT + realTimeAlarmList.length;
@@ -2001,17 +2002,18 @@ var C_ALARM = {
 				}
 			});
 		});
+		setTimeout(C_ALARM.init, 15000);
 	 }
 	,realTimeAlarmSet : function(callback) {
 		// 알람 발생 등록
 		//// 자문진행 현황 메모 변화 등록
-		C_COM.requestQuery({queryId	: "contract.getCmmtUpdateContractList", requestParm :{} }, function(resultData) {
+		C_COM.requestQuery({queryId	: "contract.getCmmtUpdateContractList", requestParm :{}, noLoadingBar : "Y" }, function(resultData) {
 			callback(resultData.data);
 		});
 	 }  
 	,showAlarmPopup : function()  {
 		C_POP.open('popup_common_alarmPopup', {}, function(retData) {
-			C_ALARM.init();
+			//C_ALARM.init();
 		});
 	 }
 	,addAlarm : function(parm, callback) {

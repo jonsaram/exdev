@@ -813,9 +813,11 @@
 		    BASE_FOLDER_ID,
 		    CREATE_USER,
 		    CREATE_DATE,
-		    ANOTHER_EXPERT
+		    ANOTHER_EXPERT,
+            (SELECT BUYER_NM FROM TBL_EXP_BUYER WHERE BUYER_ID = A.BUYER_ID) AS BUYER_NM,
+            (SELECT CONSULTING_NM FROM TBL_EXP_CONSULTING WHERE CONSULTING_ID = A.CONSULTING_ID) AS CONSULTING_NM
 		FROM
-		    TBL_EXP_CONTRACT
+		    TBL_EXP_CONTRACT A
 		WHERE CONTRACT_ID = #{CONTRACT_ID}  
 	</select>
 
@@ -1167,16 +1169,37 @@
 		/*	contract.getCmmtUpdateContractList
 			자문진행현황 Comment 업데이트 리스트
 		*/
+		WITH CTR AS (
+				SELECT 
+				     B.CONTRACT_ID 
+		            ,MAX(B.UPDATE_DATE) UPDATE_DATE
+				FROM 
+				     TBL_EXP_LAST_READ_TIME A
+				    ,TBL_EXP_WORK_CMMT      B    
+				WHERE
+				        A.CONTRACT_ID = B.CONTRACT_ID
+				    AND A.UPDATE_DATE <![CDATA[<]]> B.UPDATE_DATE
+				    AND A.UPDATE_USER = #{sessionVo.userId}
+				GROUP BY B.CONTRACT_ID    
+		)
 		SELECT 
-		    B.CONTRACT_ID 
+		     A.CONTRACT_ID
+		    ,C.BUYER_ID
+		    ,C.BUYER_NM
+		    ,D.CONSULTING_ID
+		    ,D.CONSULTING_NM
+		    ,TO_CHAR( A.UPDATE_DATE , 'YYYY-MM-DD HH24:MI:SS' ) AS UPDATE_DATE
 		FROM 
-		     TBL_EXP_LAST_READ_TIME A
-		    ,TBL_EXP_WORK_CMMT      B    
+		     CTR                A
+		    ,TBL_EXP_CONTRACT   B
+		    ,TBL_EXP_BUYER      C
+		    ,TBL_EXP_CONSULTING D
 		WHERE
-		        A.CONTRACT_ID = B.CONTRACT_ID
-		    AND A.UPDATE_DATE <![CDATA[<]]> B.UPDATE_DATE
-		    AND A.UPDATE_USER = 'admin'
-		GROUP BY B.CONTRACT_ID    
+		        A.CONTRACT_ID   = B.CONTRACT_ID
+		    AND B.BUYER_ID      = C.BUYER_ID
+		    AND B.CONSULTING_ID = D.CONSULTING_ID
+    
+		
 	</select>	
 			
 </mapper>

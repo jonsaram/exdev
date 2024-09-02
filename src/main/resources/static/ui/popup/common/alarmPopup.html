@@ -9,8 +9,12 @@
    			C_COM.requestQuery(rparm, function(resultData) {
    				if( resultData.state == "S"){
    					
-   					let list = resultData.data;
-   					
+   					let list = <@popupId>.getRealTimeAlarmList();
+					
+   					$.each(resultData.data, function() {
+   						list.push(this);
+   					});
+
    					$.each(list, function(idx) {
    						if(this.NEW_CHECK == "Y") {
    							list[idx].boldStr = "bold";
@@ -20,7 +24,7 @@
    					
    			        let rparm = {
    			              targetId   : "alarmList"
-   			             ,list		: resultData.data
+   			             ,list		: list
    			        }
    			        C_COM.renderHtml("<@popupId>", rparm);
    					
@@ -39,20 +43,52 @@
    			
    			});				
 		 }
-		,alarmExec : functio(directExec) {
+		,getRealTimeAlarmList : function() {
+			
+			let realTimeAlarmList = C_ALARM.realTimeAlarmList;
+			
+			if( realTimeAlarmList.length == 0) return [];
+			
+			let resultList = []
+			
+			$.each(realTimeAlarmList, function() {
+				let item = {
+					 DIRECT_EXEC	: `CMMT/${this.CONTRACT_ID}`
+					,CONTENT		: `'${this.BUYER_NM} / ${this.CONSULTING_NM}'에 새메모가 등록 되었습니다.`
+					,UPDATE_DATE	: this.UPDATE_DATE
+					,NEW_CHECK		: "Y"
+				}
+				resultList.push(item);
+			});
+			
+			return resultList;
+		 }
+		,alarmExec : function(directExec) {
 			let commandArr = directExec.split("/");
 			let command = commandArr[0];
 			let parm	= commandArr[1];
 			
-			if	( comomand == 'MOVE' ) {
+			if	( command == 'MOVE' ) {
 				<@popupId>.moveMenu(parm);
-			} else if ( comomand == 'CMMT') {
-				
+			} else if ( command == 'CMMT') {
+				<@popupId>.openCmmt(parm);
 			}
 		 }
 		,moveMenu : function(menuId) {
 			C_MENU.moveMenu(menuId);
 			<@popupId>.close();
+		 }
+		,openCmmt : function(contractId) {
+			let parm = {
+			     queryId        : "contract.getContractInfo"
+			    ,requestParm    : {CONTRACT_ID : contractId}
+			}
+			C_COM.requestQuery(parm, function(resultData) {
+				let projectInfo = resultData.data[0];
+				C_POP.open('popup_biz_adviceStatusPopup', projectInfo, function(retData) {
+					<@popupId>.loadAlarmList();
+				});
+			});
 		 }
 		,close : function(returnData) {
 			if(isEmpty(returnData)) returnData = {};
