@@ -116,6 +116,10 @@
 			계약 리스트 조회 ( 실적화면에서 호출 )
 		*/
 		<include refid="getContractList_body"/>
+		<if test=" CONTRACT_ID != null and !CONTRACT_ID.equals('') ">
+		AND C.CONTRACT_ID = #{CONTRACT_ID}
+		</if>
+		
 		ORDER BY C.UPDATE_DATE DESC , BUYER_ID, USER_ID, CONSULTING_ID
 	</select>	
 	

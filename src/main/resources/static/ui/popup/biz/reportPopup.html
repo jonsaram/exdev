@@ -120,12 +120,14 @@
 				
 				if("<@mode>" == "I" && <@opener>.searchedRows.length ) {
   					
-	 				if( !<@popupId>.saveValidate(buyerId,consultingId,reportYm)){
+/* 	 				자문보고서 등록시 실적 상관없음. 
+ 
+ 					/if( !<@popupId>.saveValidate(buyerId,consultingId,reportYm)){
 						alert("등록 가능한 실적이 존재하지 않습니다.\n ::기본적으로 지난달 ~ 이번달 까지 등록 가능. \n단. 15일이 지난 경우 실적일기준으로 금월 실적만 가능");
 						return;
 						
 					}
-					
+ */					
 					const sameData = (<@opener>.searchedRows).filter( row =>{
 					
 						if(	row.CONSULTING_ID 		== consultingId
