@@ -206,51 +206,61 @@
 		/*	contract.getBuyerListOfUser
 			User의 고객 리스트 조회 
 		*/
-		SELECT DISTINCT BUYER_ID, BUYER_NM, ADDR
+		SELECT
+		     BUYER_ID
+		    ,BUYER_NM
+		    ,ADDR
+		    ,CASE 
+		        WHEN (SELECT MAX(CONTRACT_ID) FROM TBL_EXP_CONTRACT X WHERE TBL.BUYER_ID = X.BUYER_ID) IS NULL THEN 'N'
+		        ELSE 'Y'
+		     END AS CONTRACT_YN
 		FROM (
-			SELECT 
-				 A.BUYER_ID
-				,A.BUYER_NM
-				,A.ADDR
-			FROM 
-				 TBL_EXP_BUYER    		A
-				,TBL_EXP_CONTRACT 		B
-				,TBL_EXP_TEAM_MEMBER	C
-			WHERE 1=1
-				AND	A.BUYER_ID 		= B.BUYER_ID
-				AND B.CONTRACT_ID 	= C.CONTRACT_ID
-				AND C.USER_ID		= #{USER_ID}
-				AND A.USE_YN = 'Y'
-				AND A.DEL_YN = 'N'
-				AND B.USE_YN = 'Y'
-				AND B.DEL_YN = 'N'
-			UNION
-			SELECT 
-				 A.BUYER_ID
-				,A.BUYER_NM
-				,A.ADDR
-			FROM 
-				 TBL_EXP_BUYER    		A
-				,TBL_EXP_CONTRACT 		B
-			WHERE 1=1
-				AND	A.BUYER_ID 		= B.BUYER_ID
-				AND B.USER_ID		= #{USER_ID}
-				AND A.USE_YN = 'Y'
-				AND A.DEL_YN = 'N'
-				AND B.USE_YN = 'Y'
-				AND B.DEL_YN = 'N'
-			UNION
-			SELECT 
-				 A.BUYER_ID
-				,A.BUYER_NM
-				,A.ADDR
-			FROM 
-				 TBL_EXP_BUYER    		A
-			WHERE 1=1
-				AND A.CREATE_USER = #{USER_ID}
-				AND A.USE_YN = 'Y'
-				AND A.DEL_YN = 'N'
-		)
+			SELECT DISTINCT BUYER_ID, BUYER_NM, ADDR
+			FROM (
+				SELECT 
+					 A.BUYER_ID
+					,A.BUYER_NM
+					,A.ADDR
+				FROM 
+					 TBL_EXP_BUYER    		A
+					,TBL_EXP_CONTRACT 		B
+					,TBL_EXP_TEAM_MEMBER	C
+				WHERE 1=1
+					AND	A.BUYER_ID 		= B.BUYER_ID
+					AND B.CONTRACT_ID 	= C.CONTRACT_ID
+					AND C.USER_ID		= #{USER_ID}
+					AND A.USE_YN = 'Y'
+					AND A.DEL_YN = 'N'
+					AND B.USE_YN = 'Y'
+					AND B.DEL_YN = 'N'
+				UNION
+				SELECT 
+					 A.BUYER_ID
+					,A.BUYER_NM
+					,A.ADDR
+				FROM 
+					 TBL_EXP_BUYER    		A
+					,TBL_EXP_CONTRACT 		B
+				WHERE 1=1
+					AND	A.BUYER_ID 		= B.BUYER_ID
+					AND B.USER_ID		= #{USER_ID}
+					AND A.USE_YN = 'Y'
+					AND A.DEL_YN = 'N'
+					AND B.USE_YN = 'Y'
+					AND B.DEL_YN = 'N'
+				UNION
+				SELECT 
+					 A.BUYER_ID
+					,A.BUYER_NM
+					,A.ADDR
+				FROM 
+					 TBL_EXP_BUYER    		A
+				WHERE 1=1
+					AND A.CREATE_USER = #{USER_ID}
+					AND A.USE_YN = 'Y'
+					AND A.DEL_YN = 'N'
+			)
+		) TBL		
 	</select>		
 
 	<select id="getUserList" resultType="java.util.HashMap" flushCache="true"  useCache="false">

@@ -207,6 +207,7 @@
 				AND A.APPROVAL_ID 	= B.APPROVAL_ID
 				AND APPROVAL_TYPE IN ('APPR', 'AGREE')
 				AND B.USER_ID		= #{sessionVo.userId 	}
+				AND A.STATE			= 'ONGOING'
 				AND B.COMPLETE_DATE IS NULL
 		)
 		

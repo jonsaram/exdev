@@ -97,6 +97,7 @@
 			AND B.SP_CSTM_ID	= C.SP_CSTM_ID
 			AND B.CONSULTING_ID	= D.CONSULTING_ID
 			AND A.SP_CSTM_ID 	= #{sessionVo.spCstmId}			
+            AND B.DEL_YN 		= 'N'
 			<if test=" searchWord != null and searchWord != '' " >
 			AND (
 				 		C.BUYER_NM 			LIKE '%${searchWord}%' 

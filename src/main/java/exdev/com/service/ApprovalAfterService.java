@@ -108,7 +108,7 @@ public class ApprovalAfterService extends ExdevBaseService{
 			
 	        int result3 = commonDao.update("contract.updateContractMemberFromTeam", map);
 	        
-		} else if("REJECT".equals(state)) {
+		} else if("REJECT".equals(state) || "CANCEL".equals(state)) {
 			
 			map.put("PROCESS_STATE", "PRE_CONTRACT");
 			
@@ -134,7 +134,7 @@ public class ApprovalAfterService extends ExdevBaseService{
 			
 			int result = commonDao.update("contract.updateContractProcessState", map);
 	        
-		} else if("REJECT".equals(state)) {
+		} else if("REJECT".equals(state) || "CANCEL".equals(state)) {
 			
 			if( processState.equals("CONTRACTED")) {
 				
@@ -167,7 +167,7 @@ public class ApprovalAfterService extends ExdevBaseService{
 			
 			int result = commonDao.update("custDashboard.updateBuyerConsultingAppState", map);
 	        
-		} else if("REJECT".equals(state)) {
+		} else if("REJECT".equals(state) || "CANCEL".equals(state)) {
 			
 				
 			map.put("APPROVAL_STATE", "");

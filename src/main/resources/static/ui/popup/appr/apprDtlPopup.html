@@ -18,8 +18,8 @@
 	            $('#<@popupId> #CONTENTS'		).html(resultData.data[0].CONTENTS + "<br/>");
 
 	            <@popupId>.apprData = resultData.data[0];
-	            
-	            //if(<@popupId>.apprData.STATE == "REJECT") $("#<@popupId>_reappr").show();
+
+	            if(<@popupId>.apprData.STATE == "ONGOING" && <@popupId>.apprData.USER_ID == G_VAL.session.USER_ID) $("#<@popupId>_cancelappr").show();
 	        });
 
 	        /* 결재자 조회*/
@@ -58,6 +58,7 @@
 	            C_COM.renderHtml("<@popupId>", rparmDtl);
 	        });
 	     }
+/*
 	    ,reAppr : function() {
 	    	
 	    	let parm 			= <@popupId>.apprData;
@@ -68,6 +69,51 @@
 	            //<@popupId>.close();
 	        });
 	     }
+*/	     
+		,cancelAppr : function() {
+			
+			let apprInfo 			= <@popupId>.apprData;
+			C_POP.confirm('결재상신을 취소 하시겠습니까?', function() {
+		        let parm = {
+	                queryId        : "approval.saveResultAppr"
+	               ,requestParm    : {
+	            	   	 APPROVAL_ID 		: apprInfo.APPROVAL_ID
+	            	   	,APPROVAL_COMMENT 	: ""
+	            	   	,STATE				: 'CANCEL'
+	            	}
+	        	}
+	        	let parmSnd = {
+                    queryId        : "approval.saveResultMainAppr"
+                   ,requestParm    : {
+                   	   	 APPROVAL_ID	: apprInfo.APPROVAL_ID
+                   	   	,STATE			: 'CANCEL' 
+                   	}
+	        	}
+	        	lastParm = {
+	        		queryGroup : [
+	        			 parm
+	        			,parmSnd
+	        		]
+	        	}
+		        
+				C_COM.requestQuery(lastParm, function(resultData) {
+					if( resultData.state == "S"){
+						// 결재 후처리 
+			            var parm = {
+			                 serviceId              : "ApprovalService.approvalAfterProcess"
+			                ,requestParm            : {APPROVAL_ID : apprInfo.APPROVAL_ID}
+			            }
+			            C_COM.requestService(parm, function(resultData) {
+							C_POP.alert('결재상신이 취소 되었습니다.');
+							<@popupId>.close('reload');
+			            });
+					}else{
+						alert(resultData.msg)
+					}
+				});				
+				
+			});
+		 }
 		,close : function(returnData) {
 			if(isEmpty(returnData)) returnData = {};
 			C_POP.close(returnData);
@@ -187,7 +233,7 @@
 			</div>
 		</div>
 		<div class="modal_footer">
-			<button type="button" class="btn select" onclick="<@popupId>.reAppr()" style="display:none" id="<@popupId>_reappr">재상신</button>
+			<button type="button" class="btn select" onclick="<@popupId>.cancelAppr()" style="display:none" id="<@popupId>_cancelappr">상신취소</button>
 			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
 		</div>
 	</div>

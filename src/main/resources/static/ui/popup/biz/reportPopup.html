@@ -70,7 +70,15 @@
 		}
 		,setBuyerInfo : ()=> {
 			
-			const buyerList = G_VAL.myBuyerList.map( obj => { return [obj.BUYER_ID,obj.BUYER_NM]})
+			let myBuyerList = fn_copyObject(G_VAL.myBuyerList);
+
+			let myList = []
+			$.each(myBuyerList, function() {
+				if(this.CONTRACT_YN == "Y") myList.push(this);
+			});
+
+			const buyerList = myList.map( obj => { return [obj.BUYER_ID,obj.BUYER_NM]});
+			
 			var singleboxList = { 
 				 data 			: buyerList
 			 	,targetId 		: "<@popupId>_selectBuyerId"
@@ -83,7 +91,6 @@
 			C_UICOM.setSingleBox("<@popupId>_selectBuyerId", buyerId);
 			
 			C_UICOM.addChangeListener("<@popupId>_selectBuyerId", function(dataObj) {
-
 				const buyerId = dataObj;
 				<@popupId>.setConsultingList( buyerId );
 			});
