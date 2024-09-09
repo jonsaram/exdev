@@ -45,7 +45,8 @@
 			$("#<@popupId>_reporter").text(G_VAL.session.USER_NM);
 			
 			//회사명 조회
-			<@popupId>.setBuyerInfo();
+			if( <@popupId>.setBuyerInfo() == false )return false;
+
 			//상품명 조회
 			<@popupId>.setConsultingList("<@BUYER_ID>", ()=>{
 				
@@ -78,6 +79,11 @@
 			});
 
 			const buyerList = myList.map( obj => { return [obj.BUYER_ID,obj.BUYER_NM]});
+			
+			if( isEmpty(buyerList) ){
+				alert( "계약 업체가 존재하지 않습니다." );
+				return false;
+			}
 			
 			var singleboxList = { 
 				 data 			: buyerList
@@ -247,18 +253,24 @@
 			<@popupId>.BUYER_CONSULTING_ID = <@popupId>.rcvData?.param?.BUYER_CONSULTING_ID ;
 		}
 
-		<@popupId>.pageInit();
-		
-		<@popupId>.fileAttach();
-		
-		if("<@mode>" != "I"){
-			
-			$("#<@popupId> .title").text("기업자문보고서");
+		const rtn = <@popupId>.pageInit();
+
+		if( rtn == false){
+			<@popupId>.close();	
 		}
-		
-		if("<@mode>" == "V" ){
-			$("#popup_biz_reportPopuppopup_biz_reportPopup_importMultiFilemng button").hide();
-			$("#<@popupId>_reg").hide();
+		else{
+
+			<@popupId>.fileAttach();
+			
+			if("<@mode>" != "I"){
+				
+				$("#<@popupId> .title").text("기업자문보고서");
+			}
+			
+			if("<@mode>" == "V" ){
+				$("#popup_biz_reportPopuppopup_biz_reportPopup_importMultiFilemng button").hide();
+				$("#<@popupId>_reg").hide();
+			}
 		}
 	});
 </script>
