@@ -20,7 +20,19 @@
   		let toDate				= dayjs().format("YYYY-MM-DD");
  		$("#<@popupId>_items #FROM_DATE").val(fromDate);
  		$("#<@popupId>_items #TO_DATE").val(toDate);
+ 		
+ 		<@popupId>.consultingTypeCombo();
+ 		
  	}
+	,consultingTypeCombo : () => {
+
+		var singleboxList = { 
+			 defaultItem 	: ["", "선택"]
+			,data 			: C_COM.getCodeList("CONSULTING_TYPE")
+		 	,targetId 		: "<@popupId>_consultingTypeCombo" 
+		}
+		C_UICOM.makeSelectBox(singleboxList, "single");
+	}
 	,searchList : function(){
 
 		const fromData 	= $("#<@popupId>_items #FROM_DATE").val();
@@ -31,9 +43,11 @@
 		const buyerId 	= $("#<@popupId>_items #BUYER_ID").val();
 		const consulting= $("#<@popupId>_items #<@popupId>_CONSULTING").val();
 		const consultingId= $("#<@popupId>_items #<@popupId>_CONSULTING_ID").val();
+		const consultingType= C_UICOM.getData("<@popupId>_consultingTypeCombo");
 		const requestParm = {FROM_DATE:fromData, TO_DATE:toDate, USER_ID: userId , BUYER_ID : buyerId
 							, USER: user , BUYER : buyer
 							, CONSULTING : consulting, CONSULTING_ID : consultingId
+							, CONSULTING_TYPE : consultingType
 							 ,PA_ROLE	: <@opener>.paMap.ROLE_ID};
 
 		let parm = {
@@ -43,6 +57,8 @@
         C_COM.requestQuery(parm, function(resultData) {
         
         	<@popupId>.selectedList = resultData.data;
+        	
+        	$("#<@popupId>_totalCnt").text(<@popupId>.selectedList.length)
         	
         	let rparm = {
            			targetId   : "<@popupId>_contractList"
@@ -183,12 +199,26 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 								<a href="javascript:void(0);" class="search_btn"  onclick="<@popupId>.consultingSearchPopup();" style='top:3px!important;'>
 								<i class="icon_search"></i></a>
 							</div>
-							<button class="btn select fr" id="<@popupId>_search" style='margin-top: 10px;'>검색</button>
+					</div>
+				</li>
+				<li>
+					<label>컨설팅</label>
+								<div class="info">
+									<div id="<@popupId>_consultingTypeCombo" style="width:80%"></div>
+								</div>
+				</li>
+				<li>
+					<label></label>
+					<div class="">
+							<button class="btn select fr" id="<@popupId>_search" style='margin-top: 10px;margin-left:20px;'>검색</button>
 					</div>
 				</li>
 			</ul>
 
-			<h4 class="mt25"><i class="icon_bullet"></i>계약 리스트</h4>
+			<!-- <div class="fl lh12 "> -->
+				<h4 class="mt25"><i class="icon_bullet"></i>계약 리스트 <strong class="total fr" style='margin-right:20px;'>Total: <span class="pointColr" id="<@popupId>_totalCnt">0</span></strong></h4>
+			<!-- </div> -->
+			
 			<!-- 테이블 -->
 			<div class="tbl01 col" style="min-height:200px;max-height:250px;overflow:auto;">
 				<table>

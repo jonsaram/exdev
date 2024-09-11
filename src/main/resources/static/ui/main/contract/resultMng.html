@@ -4,15 +4,16 @@ var <@pageId> = {
 	paMap : G_VAL.PAGE_AUTH_MAP["<@pageId>"]
 	,contractItem 	: {}	
 	,selectedList : []
-	,RESULT_INSERTED_CNT : 0
+	,RESULT_INSERTED_CNT : 0 /* RESULT 테이블에 입력된 CONTRACT 갯수 */
 	,pageInit : () =>{
 		
 	}	
 	,searchList : function(){
 
-		const requestParm = {CONTRACT_ID: <@pageId>.contractItem.CONTRACT_ID 
-				, RESULT_ID : <@pageId>.contractItem.RESULT_ID
-				, GUBUN : 'MNG'};
+		const requestParm = {	CONTRACT_ID	: <@pageId>.contractItem.CONTRACT_ID 
+								, RESULT_ID : <@pageId>.contractItem.RESULT_ID
+								, GUBUN : 'MNG'
+							};
 		
 		let parm = {
 			queryId        	: "result.getResultList"
@@ -387,12 +388,18 @@ var <@pageId> = {
 		}
 		
 		if( goPopup ){
-			const resultInsertedCnt = <@pageId>.contractItem.RESULT_INSERTED_CNT >  <@pageId>.RESULT_INSERTED_CNT ?
-					<@pageId>.contractItem.RESULT_INSERTED_CNT : <@pageId>.RESULT_INSERTED_CNT; 
-	 		C_POP.open('popup_result_resultUpdatePopup', {	  mode:mode
-	 												, resultItem:param 
-	 												, contractItem :<@pageId>.contractItem 
-	 												, resultInsertedCnt : resultInsertedCnt}
+
+			let resultInsertedCnt ; //실적 입력 횟수 ( 계약 / 실적 조회시 조회된것중 큰것 저장.)
+			if( <@pageId>.contractItem.RESULT_INSERTED_CNT >  <@pageId>.RESULT_INSERTED_CNT ){
+				resultInsertedCnt = <@pageId>.contractItem.RESULT_INSERTED_CNT;
+			}else{
+				resultInsertedCnt = <@pageId>.RESULT_INSERTED_CNT;	
+			}
+			 
+	 		C_POP.open('popup_result_resultUpdatePopup', {	  mode		:	mode
+	 												, resultItem		:	param 
+	 												, contractItem 		:	<@pageId>.contractItem 
+	 												, resultInsertedCnt : 	resultInsertedCnt}
 				, function(retData) {
 					setTimeout( ()=>{<@pageId>.searchList();},1000)
 					
@@ -404,9 +411,8 @@ var <@pageId> = {
 // Page Load가 완료된후 실행 된다.
 C_PM.onLoadPage("<@pageId>", function() {
 
-	<@pageId>.pageInit();
-	
 	<@pageId>.setHandler();
+	
 });
 // History back으로 이동해왔을 경우 이루틴이 실행된다.
 C_HM.onReturn("<@pageId>", function(pageId, data) {

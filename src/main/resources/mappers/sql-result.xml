@@ -311,6 +311,10 @@
 		       	<when test=" CONSULTING != null and !CONSULTING.equals('')  ">  
 						AND   CS.CONSULTING_NM  LIKE '%'|| #{CONSULTING} || '%'  
 						  	 
+				</when>		
+		       	<when test=" CONSULTING_TYPE != null and !CONSULTING_TYPE.equals('')  ">  
+						AND   CS.CONSULTING_TYPE = #{CONSULTING_TYPE}  
+						  	 
 				</when>				
 				</choose>							     
         	</if>
