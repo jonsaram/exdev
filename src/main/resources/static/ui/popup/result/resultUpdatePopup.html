@@ -201,41 +201,49 @@ var <@popupId> = {
 		return jsonArray.filter(obj => Object.keys(obj).length !== 0);
 
 	 }
-	,pageInit : (parentData) => {
-		
-		<@popupId>.parentData = parentData;
-
+	,setSettlementMonth : ()=>{
 		_yearMonthSelectBox("<@popupId>_SETTLEMENT_MONTH");
-
-		<@popupId>.setTitleHeight(parentData);
-
+	}
+	,incomeTypeCombo : () => {
+		
 		var singleboxList = { 
 			 defaultItem 	: ["", "선택"]
 			,data 			: C_COM.getCodeList("INCOME_TYPE")
 		 	,targetId 		: "<@popupId>_selectIncomeType" 
 		}
 		C_UICOM.makeSelectBox(singleboxList, "single");
+	}
+	,pageInit : (parentData) => {
+
+		<@popupId>.setTitleHeight(parentData);
+		<@popupId>.setSettlementMonth();//정산월 콤보
+		<@popupId>.incomeTypeCombo();//입금 타입 콤보
 		
-		$("#<@popupId>_contractInfo #TOTAL_COST"	).html( addComma(parentData.contractItem.TOTAL_COST)	);
-		let remainingSum = addComma(parentData.contractItem.REMAINING_SUM);
-		if( <@popupId>.IsMonthly )remainingSum = "-";
-		$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( remainingSum	);			
-		$("#<@popupId>_RESULT_DATE"					).val ( dayjs().format("YYYY-MM-DD")					);
+		const contractTotalCost = addComma(parentData.contractItem.TOTAL_COST);		// 계약 금액
+		let remainingSum 		= addComma(parentData.contractItem.REMAINING_SUM);	// 잔금 
+		
+		if( <@popupId>.IsMonthly )remainingSum = "-";// 월자문 잔금 없음.
+		
+		$("#<@popupId>_contractInfo #TOTAL_COST"	).html( contractTotalCost 	);
+		$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( remainingSum		);  // 잔금			
+		$("#<@popupId>_RESULT_DATE"					).val ( dayjs().format("YYYY-MM-DD"));
 				
-		if( "<@mode>" != "I"){
+		if( "<@mode>" != "I"){// V 나 U 모드 인 경우
 			
-			let remainingSum	=	addComma( parentData.resultItem["LAST_REMAINING_SUM"]);
-			if( <@popupId>.IsMonthly )remainingSum	= "-" ;
-			$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( remainingSum );
-			$("#<@popupId>_RESULT_DATE"					).val (parentData.resultItem["RESULT_DATE"	] );
+			const parentLastRemainingSum 	= parentData.resultItem["LAST_REMAINING_SUM"];
+			const resultDate				= parentData.resultItem["RESULT_DATE"		];
+			const incomeTypeValue			= parentData.resultItem["INCOME_TYPE"		];
+			const income					= parentData.resultItem["INCOME"			];
+			//let remainingSum				= <@popupId>.IsMonthly ?  "-" : addComma(parentLastRemainingSum );
+			//$("#<@popupId>_contractInfo #REMAINING_SUM"	).html( remainingSum );		// 잔금
 			
-			<@popupId>.setCostList();
-			C_UICOM.setSingleBox("<@popupId>_selectIncomeType", parentData.resultItem["INCOME_TYPE"]);
+			$("#<@popupId>_RESULT_DATE"					).val ( resultDate);
+			$("#<@popupId>_INCOME").val( addComma( income )	);
+			//$('#<@popupId>_INCOME').trigger('input');// 처음부터 이벤트를 타게 함. 
 
-			$("#<@popupId>_INCOME").val( addComma( parentData.resultItem["INCOME"])	);
-			$('#<@popupId>_INCOME').trigger('input');
-
-			C_UICOM.setSingleBox("<@popupId>_SETTLEMENT_MONTH", parentData.resultItem.SETTLEMENT_MONTH);
+			<@popupId>.setCostList();	// 비용설정
+			C_UICOM.setSingleBox("<@popupId>_selectIncomeType", incomeTypeValue);// 입금 타입 설정.
+			C_UICOM.setSingleBox("<@popupId>_SETTLEMENT_MONTH", parentData.resultItem.SETTLEMENT_MONTH);// 정산월 설정.
 		}
 		
 		<@popupId>.selectResultPayment(parentData, () =>{
@@ -385,7 +393,7 @@ var <@popupId> = {
 					}
 				})
 				
-				/* 첨 모든 값은 센팅되나, SALES RELATION TYPE만 남는다, 여길 지워도 문제 없지만, SALES 수수료 값이 화면에 안나옴. */
+				/* 첨 모든 값은 세팅되나, SALES RELATION TYPE만 남는다, 여길 지워도 문제 없지만, SALES 수수료 값이 화면에 안나옴. */
  				const incomeMinusCostPrice = <@popupId>.callOrgSellingPrice();
 				<@popupId>.calcPayment(incomeMinusCostPrice);
 				
@@ -678,15 +686,15 @@ var <@popupId> = {
 			$('#<@popupId>_supplyCost'		).val( addComma(supplytax.supplyCost)).attr("style","width:100%;text-align:right");
 			$('#<@popupId>_tax'				).val( addComma(supplytax.tax)		 ).attr("style","width:100%;text-align:right");
 			
-			if(<@popupId>.montyly == false ){
-				
+			if( <@popupId>.IsMonthly == false ){
+			// 월자문이 아닌경우 	
 	 	        const remainingSum = $("#REMAINING_SUM").text().replace(/,/g, '');
 		        if( Number(remainingSum) - Number(supplytax.supplyCost)  < 0  ){
 		        	
 		        	C_POP.alert("입금액이 잔금보다 큽니다."); 
 		        	$(this).val("0");
-		        	$('#<@popupId>_supplyCost , #<@popupId>_tax'	).val( "0"	).html("");
-		        	$('#<@popupId>_real_supplyCost , #<@popupId>_real_sumCost ,  #<@popupId>_real_supptax'	).html("");
+		        	$('#<@popupId>_supplyCost 		, #<@popupId>_tax'	).val( "0"	).html("");
+		        	$('#<@popupId>_real_supplyCost 	, #<@popupId>_real_sumCost ,  #<@popupId>_real_supptax'	).html("");
 		        	return;
 		        }
 			}
@@ -695,20 +703,26 @@ var <@popupId> = {
 			<@popupId>.calcPayment(incomeMinusCostPrice);
 			$(this).val( addComma(val));
 	        
-			if( "<@mode>" == "I" || !isEmpty( popup_result_resultUpdatePopup.paymentList_DATA )){
+			//if( "<@mode>" == "I" || !isEmpty( <@popupId>.paymentList_DATA ) ){
 				
-				if( !isEmpty( popup_result_resultUpdatePopup.paymentList_DATA )){
-		 			const $executeRate= $("#<@popupId>_paymentList tr:eq(0)").find("[name='execRate']");
-					<@popupId>.changeExecuteRateVal($executeRate[0] , 0 );
+				if( !isEmpty( <@popupId>.paymentList_DATA ) ){
 					
+					// 수수료 산출 항목에서 첫째줄 수수료율 조회.
+		 			const $executeRate= $("#<@popupId>_paymentList tr:eq(0)").find("[name='execRate']");
+		 			if(  $executeRate?.length > 0 	){
+		 				<@popupId>.changeExecuteRateVal($executeRate[0] , 0 );	
+		 			}
+		 			// 수수료 산출 항목에서 영업률 조회.( 마지막 글자가 SALES )
 					const $salesRate= $("#<@popupId>_paymentList tr[value$='SALES']").find("[name='salesRate']");
-					const $parentTr = $salesRate.closest("tr");
-					const trIndex = $parentTr.index();
-					<@popupId>.changeSalesRateVal($salesRate[0] , trIndex );
+					if(  $salesRate?.length > 0		){
+						const $parentTr = $salesRate.closest("tr");
+						const trIndex = $parentTr.index();
+						<@popupId>.changeSalesRateVal($salesRate[0] , trIndex );
+					}
 				}
-			}
+			//}
 
-	    });
+	    });//$('#<@popupId>_INCOME')
 		
 		$("a[name^='<@popupId>_tab']").off().on('click', (obj) => {
 
@@ -809,6 +823,9 @@ var <@popupId> = {
 		||	"<@mode>" == "V") title = "실적 정보";
 		
   	 	$("#<@popupId> .tit").html(consultingTypeNm+" "+ title );
+  	 	
+  	 	$("#<@popupId> .contractId").text(<@popupId>.CONTRACT_ID );
+  	 	$("#<@popupId> .resultId").text(<@popupId>.RESULT_ID );
 		
 	}
 	/* 수수료 설정, 영업 세팅은 없음.( calcPayment에서 ) */
@@ -995,13 +1012,17 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	<@popupId>.PROCESS_STATE 	= data.contractItem.PROCESS_STATE;
 	<@popupId>.IsMonthly  		= data.contractItem.CONSULTING_TYPE == "MONTHLY" ? true:false;
 	<@popupId>.recvData.contractItem.RESULT_INSERTED_CNT = data.resultInsertedCnt;
+	/* 잔금 로직은 일회성에서만 존재함. : 월자문에서는 잔금 개념 없음. */
 	if(<@popupId>.IsMonthly){
+		//월자문일때 잔금을 TOT_COST로 .
 		data.contractItem.TOT_COST = data.contractItem.REMAINING_SUM; 
 	}
 
 	<@popupId>.RESULT_ID 		= isEmpty(data.resultItem?.RESULT_ID) ? C_COM.makeUniqueId() : data.resultItem["RESULT_ID"];
 	
 	<@popupId>.setHandler();
+	
+	<@popupId>.parentData 		= data;
 	
 	<@popupId>.pageInit(data);
 	
@@ -1019,6 +1040,8 @@ width:50px;text-align: right;
 	<div class="modal" style="width:800px;height:650px;">
 		<div class="modal_header">
 			<strong class="tit">실적 등록/실적 정보 수정</strong>
+			<div class='contractId' style='display:none;'></div>
+			<div class='resultId' style='display:none;'></div>
 			<button type="button" class="btn_close"><span class="sp" onclick="<@popupId>.close()">팝업 닫기</span></button>
 		</div>
 		<div class="modal_body">
