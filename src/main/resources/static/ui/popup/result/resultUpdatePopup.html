@@ -510,27 +510,34 @@ var <@popupId> = {
 			const $rateJiTD	= $("#<@popupId>_paymentList #RATE_JI");
 			//const userRelationType	= $("#<@popupId>_paymentList tr:eq("+index+")").attr("value");
 			let rate = 0;
-			if( payInfo.RELATION_TYPE == "EXECUTE"){
+/* 			if( payInfo.RELATION_TYPE == "EXECUTE"){
 				payInfo["EXEC_DIV"] = executeCoworkRate;
 				payInfo["RATE_JI"] = (executeCoworkRate * payInfo["RATE"])/100;
 				rate = payInfo["RATE_JI"];
 				
 				$rateJiTD.find("[name='execRateJi']")?.attr("value",rate).html(rate+" %");
 
-			}
-			if( payInfo.RELATION_TYPE == "COWORK"){
+			} */
+/* 			if( payInfo.RELATION_TYPE == "COWORK"){
 				payInfo["RATE_JI"] = (executeCoworkRate * payInfo["RATE"])/100;
 				rate = payInfo["RATE_JI"];
 				
 				$rateJiTD.find("[name='coworkRateJi'][user='"+payInfo["USER_ID"]+"']")?.attr("value",rate).html(rate+" %");
 			}
-			if( payInfo.RELATION_TYPE == "SALES" || payInfo.RELATION_TYPE == "SUGGESTER"){
+			if( payInfo.RELATION_TYPE == "SALES"){
 				payInfo["RATE_JI"] = payInfo["RATE"];
 				rate = payInfo["RATE_JI"];
 				
 				$rateJiTD.find("[name='salesRateJi']")?.attr("value",rate).html(rate+" %");
 				
-			}
+			} */
+/* 			if( payInfo.RELATION_TYPE == "SUGGESTER"){
+				payInfo["RATE_JI"] = payInfo["RATE"];
+				rate = payInfo["RATE_JI"];
+				
+				$rateJiTD?.attr("value",rate).html(rate+" %");
+				
+			} */
 			
 		})
 
@@ -561,8 +568,9 @@ var <@popupId> = {
 				paymentSum 	+=  Number($(obj).children("#PAYMENT").attr("value"));
 			}
 			if( relationType == "SUGGESTER"){
-				susuryoSum 	+=  Number($(obj).children("#RATE").eq(0).attr("value"));
-				jiRateSum 	+=  Number($(obj).find("[name='suggesterRateJi']").val());
+				
+				susuryoSum 	+=  Number($(obj).find("[name='suggesterRateJi']").attr("value"));
+				jiRateSum 	+=  Number($(obj).find("[name='suggesterRateJi']").attr("value"));
 				paymentSum 	+=  Number($(obj).children("#PAYMENT").attr("value"));
 			}
 			
@@ -718,6 +726,13 @@ var <@popupId> = {
 						const $parentTr = $salesRate.closest("tr");
 						const trIndex = $parentTr.index();
 						<@popupId>.changeSalesRateVal($salesRate[0] , trIndex );
+					}
+		 			// 수수료 산출 항목에서 추천인 조회.( 마지막 글자가 SUGGESTER )
+					const $suggestRate= $("#<@popupId>_paymentList tr[value$='SUGGESTER']").find("[name='suggesterRate']");
+					if(  $suggestRate?.length > 0		){
+						const $parentTr = $suggestRate.closest("tr");
+						const trIndex = $parentTr.index();
+						<@popupId>.changeSuggesterRateVal($suggestRate[0] , trIndex );
 					}
 				}
 			//}
@@ -924,6 +939,21 @@ var <@popupId> = {
 		
 	}
 	,changeSuggesterRateVal : ( obj , idx ) =>{
+		
+		const key 			= <@popupId>.paymentList_DATA[idx].USER_ID+<@popupId>.paymentList_DATA[idx].RELATION_TYPE;
+		const suggestRate		= $(obj).val();
+		
+		$("#<@popupId>_paymentList tr[value='"+key+"']").find("[name='suggesterRateJi']").attr("value",suggestRate).text(suggestRate+" %");
+				
+		<@popupId>.setPayment(key, suggestRate);
+		
+		//이 RATE_JS는 저장할때, RATE으로 바뀜.
+		<@popupId>.PAYINFO_LIST.forEach( payInfo =>{
+
+			if( payInfo.RELATION_TYPE == 'SUGGESTER'){
+				payInfo.RATE_JI = suggestRate;
+			}
+		})
 		
 	}
 	,sumSupplyCostPrice : () => {
@@ -1297,7 +1327,7 @@ width:50px;text-align: right;
 
     								{{if   RELATION_TYPE == 'EXECUTE'}}		<td id='RATE_JI'	name='execRateJi'		value='{{:RATE}}'	class='tr'>{{:RATE}}%</td>
     								{{else RELATION_TYPE == 'COWORK'}}		<td id='RATE_JI'	name='coworkRateJi'		value='{{:RATE}}'	class='tr'>{{:RATE}}%</td>
-    								{{else RELATION_TYPE == 'SALES'}}		<td id='RATE_JI'	name='salesRateJi'		value='{{:RATE}}'	class='tr'>{{:RATE}} %</td>
+    								{{else RELATION_TYPE == 'SALES'}}		<td id='RATE_JI'	name='salesRateJi'		value='{{:RATE}}'	class='tr'>{{:RATE}}%</td>
     								{{else RELATION_TYPE == 'SUGGESTER'}}	<td id='RATE_JI'	name='suggesterRateJi'	value='{{:RATE}}' 	class='tr'>{{:RATE}}%</td>
 								    {{/if}}
 
