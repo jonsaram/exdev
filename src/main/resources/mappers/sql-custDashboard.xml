@@ -42,11 +42,12 @@
 		WHERE 1=1
 		AND CS.CONTRACT_ID = C.CONTRACT_ID
 		AND C.CONTRACT_TYPE = 'MONTHLY'
-		<if test=" BUYER_ID != null and !BUYER_ID.equals('')">
-		AND CS.BUYER_ID = #{BUYER_ID} 
-		</if>
 		AND CS.DEL_YN = 'N'
-		AND CS.UPDATE_USER = #{sessionVo.userId	}
+		AND (
+					CS.UPDATE_USER = #{sessionVo.userId	}
+				OR  #{sessionVo.userId	} IN (SELECT USER_ID FROM TBL_EXP_CONTRACT_MEMBER WHERE CONTRACT_ID = CS.CONTRACT_ID)
+				OR  CS.BUYER_ID = #{sessionVo.userId	}
+			)
 		ORDER BY CS.BUYER_NM, CS.REPORT_YEAR_MONTH, USER_NM	
 	</select>
 	

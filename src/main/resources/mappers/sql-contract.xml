@@ -1142,6 +1142,8 @@
 			AND	USER_ID 		= #{sessionVo.userId	}
 			AND	A.SP_CSTM_ID 	= #{sessionVo.spCstmId	}
 			AND	PROCESS_STATE IN ('ON_CONTRACTING_APPR','ON_CONTRACTED_APPR','ON_COMPLETED_APPR')
+			AND A.DEL_YN = 'N'
+			AND A.USE_YN = 'Y'
 		ORDER BY B.SORT_ORDER
 	</select>	
 	

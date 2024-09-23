@@ -3,9 +3,19 @@
     var <@pageId> = {
     	approvalList : []
        ,searchApproval : function() {
+	   		let startDate 	= $("#<@pageId> #startDate"	).val();
+			let endDate 	= $("#<@pageId> #endDate"	).val();
+			let searchWord 	= $("#<@pageId> #searchWord").val();
+    	   
+    	   
+    	   
             let parm = {
                  queryId        : "approval.getDecisionApproval"
-                ,requestParm    : {}
+                ,requestParm    : {
+                	 startDate 	: startDate
+                	,endDate 	: endDate
+                	,searchWord : searchWord
+                }
             }
             C_COM.requestQuery(parm, function(resultData) {
                 <@pageId>.approvalList = resultData.data;
@@ -72,15 +82,15 @@
 				<div class="search_area">
 					<span class="tit01 fl lh33">조회기간</span>
 					<div class="calendar_wrap fl">
-						<input type="text" class="datepicker" style="width:132px"> ~
+						<input type="text" id="startDate" class="datepicker" style="width:132px"> ~
 					</div>
 					<div class="calendar_wrap fl">
-						<input type="text" class="datepicker" style="width:132px">
+						<input type="text" id="endDate" class="datepicker" style="width:132px">
 					</div>
 					<div class="search_inputWrap fl">
-						<input type="search" name="">
+						<input type="search" id="searchWord" onEnter="<@pageId>.searchApproval()">
 					</div>
-					<button class="btn select fl">검색</button>
+					<button class="btn select fl" onclick="<@pageId>.searchApproval()">검색</button>
 					<div class="search_right">
 						<button type="button" class="btn fl"><i class="icon_download"></i> Excel 다운로드</button>
                         <div id="searchListCnt" style="width:132px"></div>

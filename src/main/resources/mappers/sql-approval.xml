@@ -255,20 +255,36 @@
 				AND B.USER_ID		= #{sessionVo.userId 	}
 				AND B.COMPLETE_DATE IS NOT NULL
 		)
-		SELECT 
-			 A.APPROVAL_ID			AS APPROVAL_ID
-			,A.TITLE				AS TITLE
-			,A.USER_ID				AS RSQ_USER_ID
-			,GET_USER_NM(A.USER_ID) AS RSQ_USER_NM
-			,A.STATE				AS STATE
-			,TO_CHAR( A.APPROVAL_DATE 	, 'YYYY-MM-DD HH24:MI:SS') AS APPROVAL_DATE
-			,TO_CHAR( A.COMPLETE_DATE 	, 'YYYY-MM-DD HH24:MI:SS') AS COMPLETE_DATE
-		FROM
-			 TBL_EXP_APPROVAL 	A
-			,MYCMP 				B
+		SELECT * FROM (
+			SELECT 
+				 A.APPROVAL_ID			AS APPROVAL_ID
+				,A.TITLE				AS TITLE
+				,A.USER_ID				AS RSQ_USER_ID
+				,GET_USER_NM(A.USER_ID) AS RSQ_USER_NM
+				,A.STATE				AS STATE
+				,TO_CHAR( A.APPROVAL_DATE 	, 'YYYY-MM-DD HH24:MI:SS') AS APPROVAL_DATE
+				,TO_CHAR( A.COMPLETE_DATE 	, 'YYYY-MM-DD HH24:MI:SS') AS COMPLETE_DATE
+			FROM
+				 TBL_EXP_APPROVAL 	A
+				,MYCMP 				B
+			WHERE 1=1
+				AND A.APPROVAL_ID = B.APPROVAL_ID	
+			<if test=" startDate != null and startDate != '' " >
+				AND APPROVAL_DATE <![CDATA[ >= ]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+			</if>		
+			<if test=" endDate != null and endDate != '' " >
+				AND APPROVAL_DATE <![CDATA[ <= ]]> TO_DATE(#{endDate}, 'YYYY-MM-DD')
+			</if>		
+		) TBL
 		WHERE 1=1
-			AND A.APPROVAL_ID = B.APPROVAL_ID	
-		ORDER BY A.APPROVAL_DATE DESC
+			<if test=" searchWord != null and searchWord != '' " >
+				AND (
+						TITLE LIKE '%${searchWord}%'
+					OR	RSQ_USER_NM LIKE '%${searchWord}%'
+				)
+			</if>		
+		ORDER BY APPROVAL_DATE DESC
+
 		
     </select>
 

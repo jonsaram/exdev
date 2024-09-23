@@ -234,6 +234,8 @@ var <@popupId> = {
 		
 	}
 	,setByProcessState : () => {
+		
+		if(G_VAL.session.roleId == "SYSTEM") return; 
 
 		if( "<@processState>".indexOf("CONTRACTED") > -1 ){
 
@@ -632,6 +634,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	
 	
 	<@popupId>.resulting		= <@popupId>.updatingData?.RESULTING;
+	
 	<@popupId>.consultingId		= <@popupId>.updatingData?.CONSULTING_ID;
 	<@popupId>.consultantUser	= {ID:<@popupId>.updatingData?.CONSULTANT_USER_ID, 
 								   NM:<@popupId>.updatingData?.CONSULTANT_USER_NM};
