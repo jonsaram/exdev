@@ -21,8 +21,9 @@
 					return;
 				}
 			}
+            let srcmsg = msg;
             msg = msg.replace(/(?:\r\n|\r|\n)/g, '<br>');
-			<@popupId>.close({msg : msg});
+			<@popupId>.close({msg : msg, srcmsg : srcmsg});
 		 }
 	}
 	// Popup Load가 완료된후 실행 된다.

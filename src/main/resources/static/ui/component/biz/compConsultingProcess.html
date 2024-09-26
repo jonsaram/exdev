@@ -78,15 +78,11 @@
 				return;
 			}
 			
-			// 엔터(\n)를 <br>로 변환
-            //var cmmt = cmmtContent.replace(/(?:\r\n|\r|\n)/g, '<br>');
-            var cmmt = cmmtContent;
-            
-			if(isEmpty(cmmt)) {
+			if(isEmpty(cmmtContent)) {
 				C_POP.alert('메모를 입력해주세요.');
 				return;
 			} else {
-				<@compId>.registCmmtProcess(cmmt);
+				<@compId>.registCmmtProcess(cmmtContent);
 				$("#<@compId> #cmmtContent").val("")
 			}
 		 }
@@ -132,7 +128,7 @@
 					 queryId 		: "contract.updateWorkCmmt"
 					,requestParm	: { 
 						  WORK_CMMT_ID	: WORK_CMMT_ID
-						 ,CMMT			: retData.msg
+						 ,CMMT			: retData.srcmsg
 					}
 				}
 				C_COM.requestQuery(parm, function(resultData) {
@@ -172,7 +168,7 @@
 					
 					$.each(resultData.data, function() {
 						let item = this;
-						//item.CMMT = escapeHtmlSp(item.CMMT);
+						item.CMMT = escapeHtml(item.CMMT);
 						item.CMMT = item.CMMT.replace(/(?:\r\n|\r|\n)/g, '<br>');
 						item.CMMT = convertUrlsToLinks(item.CMMT);
 						

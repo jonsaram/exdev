@@ -195,7 +195,7 @@ var <@pageId> = {
 			}
 
 			let cR = <@pageId>.clickedRowData;
-			let param = {ADD_DATE_MONTH :cR.contractDate , USER_ID : cR.selectedRow.USER_ID};
+			let param = {ADD_DATE_MONTH :cR.contractDate , USER_ID : cR.selectedRow.USER_ID, USER_NM : cR.selectedRow.USER_NM};
 			C_POP.open('popup_operation_paymentSpecPopup', {param:param}, function(retData) {
 				
 				if(isValid(retData)){

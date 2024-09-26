@@ -335,7 +335,14 @@ var <@pageId> = {
 				}
 	        });
 			
-		}
+		 }
+		,openBigCard	: function(index) {
+			let projectInfo = <@pageId>.searchedRows[index];
+			C_POP.open('popup_biz_adviceStatusPopup', projectInfo, function(retData) {
+
+			});
+		 }
+		
 }
 
 // Page Load가 완료된후 실행 된다.
@@ -447,7 +454,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</tbody>
 						<script type="text/x-jsrender" id="<@pageId>_contractList_template">						
 						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}">
+							<tr name="<@pageId>_tr_{{:#index}}" onDblClick="<@pageId>.openBigCard({{:#index}})">
 								<td {{:CONTRACT_ID}}><input type='checkbox' id="<@pageId>_ck_{{:#index}}" value='{{:CONTRACT_ID}}'></td>
 			 					<td id='ROWIDX'				class='tc' >{{:ROWIDX}}</td>
 			 					<td id='BUYER_ID' title='{{:BUYER_ID}}'	class='tl' >{{:BUYER_ID}}</td>

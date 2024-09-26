@@ -257,7 +257,6 @@ var <@popupId> = {
 			})
 
 		}) ;
-
 	}
 	/* 입금액으로 부터 공급가 & 부가세 조회. */
 	,callOrgSellingPrice : () => {
@@ -687,7 +686,7 @@ var <@popupId> = {
 		
 		// 입금액이 입력되면 , 1) 공급가,부가세 자동계산, 2) 잔금 - 공급가를 계산. 공급가가 더 큰경우 
 	    $('#<@popupId>_INCOME').off().on('input  focusout',function(event){
-
+			debugger;
 	        const val 			= $(this).nval();
 			const supplytax		= <@popupId>.supply_tax_cal(val);
 			
@@ -698,12 +697,13 @@ var <@popupId> = {
 			// 월자문이 아닌경우 	
 	 	        const remainingSum = $("#REMAINING_SUM").text().replace(/,/g, '');
 		        if( Number(remainingSum) - Number(supplytax.supplyCost)  < 0  ){
-		        	
+		        	/*
 		        	C_POP.alert("입금액이 잔금보다 큽니다."); 
 		        	$(this).val("0");
 		        	$('#<@popupId>_supplyCost 		, #<@popupId>_tax'	).val( "0"	).html("");
 		        	$('#<@popupId>_real_supplyCost 	, #<@popupId>_real_sumCost ,  #<@popupId>_real_supptax'	).html("");
-		        	return;
+		        	*/
+		        	//return;
 		        }
 			}
 
@@ -757,7 +757,6 @@ var <@popupId> = {
 	    	$('#<@popupId>_'+tab).hide();$("#" + targetName).show();
 		    $("a[name^='<@popupId>_tab']").parent("li").removeClass('active');
 		    $(obj.target).parent("li").addClass('active');
-		    
 		});			
 	}
 	/* 면세 버튼 클릭 */
