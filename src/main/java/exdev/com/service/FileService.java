@@ -207,9 +207,12 @@ public class FileService extends ExdevBaseService{
 			if( result == multiFileList.size()) {
 				returnMap.put("msg", ExdevConstants.REQUEST_SUCCESS);	
 			}else {
+			    /* 2024-10-15 이응규 멀티첨부파일 올렸을경우 하나라도 에러 발생했을경우 파일이 삭제되는 오류 */
+			    /*
 				for(int i = 0; i < multiFileList.size(); i++) {
 					new File((String)fileList.get(i).get("FILE_PATH")).delete();
 				}
+				*/
 				returnMap.put("msg", ExdevConstants.REQUEST_FAIL);
 			}	
 			
