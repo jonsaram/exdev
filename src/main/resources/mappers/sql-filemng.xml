@@ -209,5 +209,33 @@
 		FROM TBL_EXP_FILEMNG WHERE GRP_FILE_ID = #{fromData.GRP_FILE_ID} AND OWNER_CD = #{fromData.OWNER_CD}
     </update>
 
-
+	<select id="getFileMng" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	Filemng.getFileMng
+			불필요 파일 삭제를 위한 파일테이블 조회.
+		*/
+		SELECT
+			 ORG_FILE_NM   
+			,STORED_FILE_NM
+			,FILE_SIZE     
+			,FILE_TYPE     
+			,ORDER_NUM     
+			,OWNER_CD      
+			,FILE_PATH     
+			,SP_CSTM_ID    
+			,UPDATE_USER   
+			,UPDATE_DATE   
+			,CREATE_USER   
+			,CREATE_DATE   
+			,FILE_ID       
+			,GRP_FILE_ID   
+			,DEL_YN  
+			,CONVERT_YN      
+		FROM TBL_EXP_FILEMNG
+		WHERE 1=1
+		AND OWNER_CD IN ( 'IMPORT_IMAGE', 'EXCEL_TEMPLATE' , 'BOARD' , 'APPROVAL' )
+		<if test=" SP_CSTM_ID != null and SP_CSTM_ID != '' " >
+		AND SP_CSTM_ID = #{sessionVo.spCstmId}
+		</if>
+   	</select>
+   	
 </mapper>

@@ -9,6 +9,8 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import exdev.com.service.DashboardService;
 import exdev.com.service.EmailService;
 import exdev.com.service.ExdevContractService;
 import exdev.com.service.ExdevSampleService;
+import exdev.com.service.FileSyncService;
 import exdev.com.service.ScheduleService;
 
 @Service("ExdevCommonService")
@@ -46,6 +49,9 @@ public class ExdevCommonService extends ExdevBaseService
 	
 	@Autowired
 	private ExdevContractService exdevContractService;
+	
+	@Autowired
+	private FileSyncService fileSyncService;
 	
 	@Autowired
 	private ExdevCommonDao commonDao;
@@ -256,8 +262,17 @@ public class ExdevCommonService extends ExdevBaseService
 		return map;
 	}
 
-	//	@Scheduled(cron = "* * * * * ?") // 매월 15일 오전 10시 15분에 실행
-//	public void batchClearRealTimeTable() {
-//		System.out.println("aaa");
-//	}	
+    @Value("${file.savepath}")
+    private String directoryPath;
+    
+	//@Scheduled(cron = "0 0 0 * * ?") // 매일 0시 0분에 실행
+    @Scheduled(fixedRate = 60000)  // 60000 밀리초 = 1분// 1분마다 실행
+	public void batchClearGarbageUploadFiles() {
+        
+        try {
+			fileSyncService.syncFilesWithDB(directoryPath);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}	
 }
