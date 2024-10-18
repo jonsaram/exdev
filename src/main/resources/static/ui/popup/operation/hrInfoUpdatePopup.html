@@ -115,6 +115,11 @@
 					 }
 				 })			 
 
+				 if( !isEmpty(returnData['TERMINATION_DATE']	)){
+					 returnData['IS_TERMINATION']	= 'Y'; 
+				 }else{
+					 returnData['IS_TERMINATION']	= 'N';
+				 }
 				 returnData['RELOAD_IMG']		= <@popupId>.RELOAD_IMG;
 				 returnData['STATE']			= 'INUSE';
 				 returnData['ROLE_ID']			= C_UICOM.getData("<@popupId>_selectSysRole");
@@ -633,15 +638,23 @@
 						</div>
 					</li>
 					<li class="ml0">
-						<label>DESC</label>
+						<label>퇴사일</label>
 						<div class="info">
-							<input type="text" id="<@popupId>_USER_DESC" style="width:100%">
-						</div>
+							<div class="calendar_wrap w100">
+								<input type="text" class="datepicker" id="<@popupId>_TERMINATION_DATE" style="width:100%">
+							</div>
+						</div>						
 					</li>
 					<li style='margin-left:9px;'>
 						<label>급여계좌</label>
 						<div class="info">
 							<input type="text" id="<@popupId>_PAY_ACCOUNT" style="width:100%">
+						</div>
+					</li>
+					<li class="w100 ml0">
+						<label>DESC</label>
+						<div class="info">
+							<input type="text" id="<@popupId>_USER_DESC" style="width:100%">
 						</div>
 					</li>
 				</ul>

@@ -252,6 +252,12 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 	<@pageId>.searchList();
 });
 </script>
+<style>
+.strikethrough {
+    text-decoration: line-through;
+    color: red;
+}
+</style>
 <div class="cont_wrap">
 
 		<div class="cont_top">
@@ -341,7 +347,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 						</tbody>
 						<script type="text/x-jsrender" id="<@pageId>_hiInfoList_template">						
 						{{for list}}
-							<tr name="<@pageId>_tr_{{:#index}}" {{if INSURANCE_EXP_DATE_OVER === "OVER"}} class="expiration_date" {{/if}} value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
+							<tr name="<@pageId>_tr_{{:#index}}" 
+								{{if INSURANCE_EXP_DATE_OVER === "OVER" && IS_TERMINATION != "Y"}} 	class="expiration_date" 	{{/if}} 
+								{{if IS_TERMINATION == "Y" && INSURANCE_EXP_DATE_OVER != "OVER"}}	class="strikethrough"		{{/if}} 
+								{{if IS_TERMINATION == "Y" && INSURANCE_EXP_DATE_OVER == "OVER"}}	class="expiration_date strikethrough"{{/if}} 
+								value='{{:SP_CSTM_ID}}||{{:USER_ID}}'>
 								<td><input type='checkbox' id="<@pageId>_ck_{{:#index}}">										</td>
 			 					<td id='ROWIDX'										class='tc'>{{:ROWIDX}}						</td>
 			 					<td id='USER_ID' 		title='{{:USER_ID}}' 		class='tl'>{{:USER_ID}}						</td>
@@ -359,6 +369,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td id='INSURANCE_EXP_DATE'	title='{{:INSURANCE_EXP_DATE}}'	class='tc'>{{:INSURANCE_EXP_DATE}}	</td>
 								<td id='REG_DATE'		title='{{:REG_DATE}}'		class='tc'>{{:REG_DATE}}					</td>
 								<td id='UPGRADE_DATE'	title='{{:UPGRADE_DATE}}'	class='tc'>{{:UPGRADE_DATE}}				</td>
+								<td id='TERMINATION_DATE' style='display:none'				  >{{:TERMINATION_DATE}}			</td>
 							</tr>
 						{{/for}}
 						</script>

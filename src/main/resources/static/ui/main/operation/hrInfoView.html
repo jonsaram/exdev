@@ -32,6 +32,13 @@
 			}
 			
 	  		<@pageId>.getUserImg();
+	  		
+	  		if( param.IS_TERMINATION == "Y"){
+	  			$("#reg_term_date label").text("입사/퇴사일");
+	  			$("#reg_term_date div").text( $("#<@pageId>_REG_DATE").text()+"/"+param.TERMINATION_DATE)
+	  		}else{
+	  			$("#reg_term_date label").text("입사일")
+	  		}
 		}
 		,updateItem : (param) => {
 
@@ -282,7 +289,7 @@
 						<div class="employee_num tc parmVal" 	id="<@pageId>_USER_ID"></div>
 						<div class="name tc parmVal" 			id="<@pageId>_USER_NM"></div>
 						<ul class="info_wrap personnel">
-							<li>
+							<li id='reg_term_date'>
 								<label>입사일</label>
 								<div class="info parmVal info_right" id="<@pageId>_REG_DATE" >
 								</div>
