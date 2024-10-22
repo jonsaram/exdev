@@ -148,7 +148,7 @@
 		/* hrInfo.getHrInfoList_paging  */
 		<include refid="common.pagingWrapStart"/>
 		<include refid="getHrInfoList_body"/>
-        ORDER BY CASE WHEN U.UPDATE_DATE > GET_KRDT(SYSDATE) - 1 THEN 0 ELSE 1 END , USER_ID
+        ORDER BY IS_TERMINATION, CASE WHEN U.UPDATE_DATE > GET_KRDT(SYSDATE) - 1 THEN 0 ELSE 1 END , USER_ID
 		<include refid="common.pagingWrapEnd"/>
 	</select>
 		 	
@@ -205,7 +205,7 @@
 		        #{sessionVo.userId}	AS UPDATE_USER,
 		        GET_KRDT(SYSDATE) 		AS UPDATE_DATE,
 		        #{PAY_ACCOUNT} AS PAY_ACCOUNT,
-		        #{TERMINATION_DATE} AS TERMINATION_DATE
+		        TO_DATE( #{TERMINATION_DATE}, 'YYYY-MM-DD' ) AS TERMINATION_DATE
 		  FROM dual
 		) S
 		ON (T.SP_CSTM_ID	= S.SP_CSTM_ID

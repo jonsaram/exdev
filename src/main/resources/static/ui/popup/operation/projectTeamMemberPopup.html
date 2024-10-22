@@ -130,6 +130,7 @@
 
 				let teamMemberList = [<@popupId>.salesMember];
 				$.each(<@popupId>.etcMemberMap, function(key, obj) {
+					if(isEmpty(obj.COWORK_RATE)) obj.COWORK_RATE = '0';
 					teamMemberList.push(obj);
 				});
 				
@@ -173,7 +174,7 @@
 		let userInfo = resultData.data[0]; 
 		
 		userInfo["CONSULTING_TYPE"] =	<@popupId>.projectInfo["CONSULTING_TYPE"];
-		if( userInfo["CONSULTING_TYPE"] == "COWORK"){
+		if( userInfo["CONSULTING_TYPE"] == "COWORK" && !in_array(G_VAL.session.roleId, ["MANAGER", "SYSTEM"])){
 			$("#<@popupId>_add").hide();
 		}
 				

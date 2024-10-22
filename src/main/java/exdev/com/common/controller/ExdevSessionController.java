@@ -31,7 +31,10 @@ public class ExdevSessionController {
 		
 		Map userInfo = (Map)commonDao.getObject("system.getUserInfo", map);
 		
-		if(!ExdevCommonAPI.isValid(userInfo)) {
+		String state = (String)userInfo.get("STATE");
+
+		// 퇴사자 로그인 안되게 막음.
+		if(!ExdevCommonAPI.isValid(userInfo) || !"INUSE".equals(state)) {
 			map.put("state", "E");
 			return map;
 		}

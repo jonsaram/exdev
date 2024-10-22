@@ -202,6 +202,14 @@
 		AND DEL_YN = 'N'
 	</select>		
 
+	<select id="getBuyerListAll" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		SELECT 
+			 A.BUYER_ID
+			,A.BUYER_NM
+			,A.ADDR
+		FROM 
+			 TBL_EXP_BUYER A
+	</select>
 	<select id="getBuyerListOfUser" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getBuyerListOfUser
 			User의 고객 리스트 조회 
@@ -964,12 +972,13 @@
 			,CONTRACT_ID
 			,TODO
 			,EXEC_CHECK
+			,UPDATE_USER
+			,GET_USER_NM(UPDATE_USER) AS UPDATE_USER_NM
 			,TO_CHAR( UPDATE_DATE , 'MM-DD HH24:MI' ) AS UPDATE_DATE
 		FROM 
 		 	TBL_EXP_TODO  A
 		WHERE  1=1
 			AND	CONTRACT_ID = #{CONTRACT_ID}
-			AND	UPDATE_USER = #{sessionVo.userId}
 			AND	SP_CSTM_ID	= #{sessionVo.spCstmId}
 			AND DEL_YN		= 'N'
 		ORDER BY UPDATE_DATE DESC		

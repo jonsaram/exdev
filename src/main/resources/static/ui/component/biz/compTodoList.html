@@ -13,6 +13,10 @@
 				$.each(resultData.data, function(idx) {
 					if(this.EXEC_CHECK == "Y") 	resultData.data[idx].execCheckStr = "checked";
 					else						resultData.data[idx].execCheckStr = "";
+					
+					if(this.UPDATE_USER != G_VAL.session.USER_ID) {
+						resultData.data[idx].USER_NM = `[${this.UPDATE_USER_NM}]`;
+					}
 				});
 
 				var rparm = {
@@ -107,7 +111,7 @@
 			{{for list}}
 			<li>
 				<input type="checkbox" name="customer" class="check_undo" id="ck_<@compId>_{{:TODO_ID}}" onclick="<@compId>.checkProcess({{:#index}})" {{:execCheckStr}}>
-				<label for="ck_<@compId>_{{:TODO_ID}}"><span class="txt"><span>{{:UPDATE_DATE}} </span><span>: {{:TODO}}</span></span></label>
+				<label for="ck_<@compId>_{{:TODO_ID}}"><span class="txt"><span>{{:UPDATE_DATE}} </span><span> : {{:USER_NM}} {{:TODO}}</span></span></label>
 				<button class="pay_close" onclick="<@compId>.deleteTodo({{:#index}})">닫기</button>
 			</li>
 			{{/for}}

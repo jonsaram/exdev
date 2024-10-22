@@ -266,13 +266,13 @@ public class ExdevCommonService extends ExdevBaseService
     private String directoryPath;
     
 	//@Scheduled(cron = "0 0 0 * * ?") // 매일 0시 0분에 실행
-    @Scheduled(fixedRate = 60000)  // 60000 밀리초 = 1분// 1분마다 실행
-	public void batchClearGarbageUploadFiles() {
-        
-        try {
-			fileSyncService.syncFilesWithDB(directoryPath);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}	
+//    @Scheduled(fixedRate = 60000)  // 60000 밀리초 = 1분// 1분마다 실행
+//	public void batchClearGarbageUploadFiles() {
+//        
+//        try {
+//			fileSyncService.syncFilesWithDB(directoryPath);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}	
 }

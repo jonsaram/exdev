@@ -173,6 +173,9 @@
 					USER_ID : G_VAL.session.USER_ID
 				}
 			}	
+			
+			if(G_VAL.session.USER_ID == 'admin') parm.queryId = "contract.getBuyerListAll"
+			
 			C_COM.requestQuery(parm, function(resultData) {
 				if(isValid(resultData.data)) {
 					G_VAL.myBuyerList 		= resultData.data;
