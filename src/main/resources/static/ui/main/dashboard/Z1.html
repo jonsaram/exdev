@@ -19,12 +19,16 @@ var <@pageId> = {
 		}
 		,createChart 		: (container, categories, series)=>_lineRateChart(container, categories, series)
 		,showObject : (obj, loc) => {
-			var keys = Object.keys(obj);
-		    for (var i=0; i<keys.length; i++) {
-		    	var key = keys[i];
-		    	$("#<@pageId>_" + key).html(obj[key]);
-		    	$(".<@pageId>_" + key).html(obj[key]);
-		    }
+			try{
+				var keys = Object.keys(obj);
+			    for (var i=0; i<keys.length; i++) {
+			    	var key = keys[i];
+			    	$("#<@pageId>_" + key).html(obj[key]);
+			    	$(".<@pageId>_" + key).html(obj[key]);
+			    }
+			} catch(e) {
+				
+			}
 		}
 		,showList : (targetId, dataList) => { 
 			const rpm = {
@@ -95,7 +99,7 @@ var <@pageId> = {
 			}
 			C_COM.requestQuery(parm, function(resultData) {
 				<@pageId>.showObject(resultData.data['financialanalysis.getBuyerDetail'][0],'');
-				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');				
+				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');
 				<@pageId>.showList("<@pageId>_getBasis02", resultData.data['financialanalysis.getBasis02']);				
 				<@pageId>.showList("<@pageId>_getFinAnalStockholder", resultData.data['financialanalysis.getFinAnalStockholder']);
 				if(resultData.data['financialanalysis.getFinAnalStockholder'].length > 0){
