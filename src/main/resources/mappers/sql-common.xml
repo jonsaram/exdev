@@ -347,4 +347,27 @@
 	<select id="getToday" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 	   	SELECT TO_CHAR(GET_KRDT(SYSDATE), 'YYYY-MM-DD HH24:MI:SS') AS TODAY FROM DUAL
    	</select>
+   	
+	<select id="pdfUploadToTable" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	common.pdfUploadToTable
+			PDF Word 추출 Table Upload
+		*/
+		INSERT INTO TBL_EXP_PDF_WORD (
+			 SEQ
+			,PDF_PAGE_NUM
+			,BUYER_NAME
+			,PDF_WORD
+   			,UPDATE_DATE
+   			,UPDATE_USER
+    		,SP_CSTM_ID
+		) VALUES (
+			 (SELECT NVL(MAX(SEQ)+1,1) FROM TBL_EXP_PDF_WORD)
+			,TO_NUMBER(#{PDF_PAGE_NUM})
+			,#{BUYER_NAME}
+			,#{PDF_WORD}
+   			,GET_KRDT(SYSDATE)
+   			,#{sessionVo.userId		}
+			,#{sessionVo.spCstmId	}
+		)
+   	</select>
 </mapper>
