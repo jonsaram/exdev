@@ -53,9 +53,51 @@ var C_COM = {
 			
 			G_VAL.COMMON_CODE_MAP = commonCodeMap;
         });      
+
+
+		// Brand 코드 읽어 오기
+        parm = {
+             queryId        : "common.getBrandCodeList"
+            ,requestParm    : {}
+        }
+        C_COM.requestQuery(parm, function(resultData) {
+			var brandCodeMap = {}
+
+			$.each(resultData.data, function() {
+				let key = `${this.BRAND_ID}_${this.GRP_CODE_ID}`;
+				if(isEmpty(brandCodeMap[key])) {
+					brandCodeMap[key] = {
+						 codeList 	: []
+						,codeMap	: {}			
+					}
+				}
+				brandCodeMap[key].codeList.push([this.CODE_ID, this.CODE_NM]);
+				brandCodeMap[key].codeMap[this.CODE_ID] = this;
+			});
+			
+			G_VAL.BRAND_CODE_MAP = brandCodeMap;
+			
+        });      
+
+      
+	 }
+	,makeCodeList : function(resultDataList, valueColumnName, textColumnName) {
+		let returnList = [];
+        $.each(resultDataList, function() {
+			returnList.push([this[valueColumnName], this[textColumnName]]);
+		});
+		return returnList;
 	 }
 	,getCodeList : function(grpCodeId) {
 		var codeInfo = G_VAL.COMMON_CODE_MAP[grpCodeId];
+		if(isEmpty(codeInfo)) {
+			return [];
+		}
+		return codeInfo.codeList;
+	 }
+	,getBrandCodeList : function(brandId, grpCodeId) {
+		let key = `${brandId}_${grpCodeId}`;
+		var codeInfo = G_VAL.BRAND_CODE_MAP[key];
 		if(isEmpty(codeInfo)) {
 			return [];
 		}
@@ -72,8 +114,33 @@ var C_COM = {
 			return codeInfo.codeMap;
 		}
 	 }  
+	,getBrandCodeAttr : function(brandId, grpCodeId, codeId) {
+		let key = `${brandId}_${grpCodeId}`;
+		var codeInfo = G_VAL.COMMON_CODE_MAP[key];
+		if(isEmpty(codeInfo)) {
+			return {};
+		}
+		if(isValid(codeId)) {
+			return codeInfo.codeMap[codeId];	
+		} else {
+			return codeInfo.codeMap;
+		}
+	 }  
 	,getCodeMap : function(grpCodeId) {
 		let codeMap = C_COM.getCodeAttr(grpCodeId);
+		if(isEmpty(codeMap)) {
+			return {}
+		} else {
+			let retMap = {};
+			$.each(codeMap, function(key, obj) {
+				retMap[key] = obj.CODE_NM
+			});
+			return retMap;
+		}
+	 }  
+	,getBrandCodeMap : function(brandId, grpCodeId) {
+		let key = `${brandId}_${grpCodeId}`;
+		let codeMap = C_COM.getCodeAttr(key);
 		if(isEmpty(codeMap)) {
 			return {}
 		} else {
