@@ -82,6 +82,36 @@
 				}
 			});
 		 }
+		,pdfUpload		: function() {
+
+			$("#<@pageId> #errorLog").hide();
+			$("#<@pageId> #errorMsg").html("");
+			$("#<@pageId> #sheetNum").html("");
+			$("#<@pageId> #stopIdx").html("");
+			
+			C_COM.selectPdfUploadToTable(function(retData) {
+				if(retData.state == "S") {
+					C_POP.alert('PDF Upload에 성공하였습니다.');
+				} else if(retData.state == "E") {
+					$("#<@pageId> #errorLog").show();
+					
+					$("#<@pageId> #errorMsg").html(retData.msg);
+
+					$("#<@pageId> #sheetNum").html(retData.sheetNum);
+					
+					$("#<@pageId> #stopIdx").html(retData.stopIdx);
+					
+					if(isValid(retData.dupleNum)) {
+						$("#<@pageId> #errorMsg").append(":" + retData.dupleNum);
+						
+					}
+					$('#<@pageId> #scrollwrap').scrollTop($('#<@pageId> #scrollwrap')[0].scrollHeight);
+					C_POP.alert('오류가 발생하였습니다.\n\n하단에 오류 메시지를 확인하세요.');
+				} else {
+					dwrite(retData);
+				}
+			});
+		 }
 		,tabClick : function(tabNum) {
             let rparm = {
                  targetId   : "tableId"
@@ -198,6 +228,7 @@
 							<div class="fl">
 								<button type="button" class="btn select fl" id="<@pageId>_search" onclick="<@pageId>.regist()">등록</button>
 								<button type="button" class="btn fl" onclick="<@pageId>.excelUpload()"><i class="icon_upload"></i> Excel 업로드 실행</button>
+								<button type="button" class="btn fl" onclick="<@pageId>.pdfUpload()"><i class="icon_upload"></i> PDF 업로드 실행</button>
 							</div>
 
 							<div class="search_right">
