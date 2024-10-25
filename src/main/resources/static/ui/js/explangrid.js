@@ -1,4 +1,4 @@
-var CLASS_GRID = function(parm) {
+var CLASS_GRID = function(parm, gridId) {
 	
 	if(isEmpty(parm)) parm = {};
 	
@@ -6,13 +6,33 @@ var CLASS_GRID = function(parm) {
     this.startCell 			= null;
     this.selectedCells 		= [];
     this.pasteStartCell 	= null;
-    this.gridId 			= '';
+    this.gridId 			= gridId;
     this.undoStack			= [];
     this.redoStack 			= [];
     this.initialContent 	= "";
     this.parm 				= parm;
     this.readOnly			= parm.readOnly;
+    this.columnInfo			= {
+    	columnType	: {}
+    }
 
+    this.initialContent = $(`#${gridId}`).html();
+    
+    this.columnConfig		= parm.columnConfig;
+    
+    const thisCls					= this;
+	
+    // Select Box Code List에대해 Map을 생성한다.
+    if(isValid(thisCls.columnConfig) && isValid(thisCls.columnConfig.selectBoxCodeList) ) {
+    	thisCls.columnConfig.selectBoxCodeMap = {}
+    	$.each(thisCls.columnConfig.selectBoxCodeList, function(key, list) {
+    		$.each(list, function() {
+        		if(isEmpty(thisCls.columnConfig.selectBoxCodeMap[key])) thisCls.columnConfig.selectBoxCodeMap[key] = {};
+        		thisCls.columnConfig.selectBoxCodeMap[key][this[0]] = this[1];
+    		});
+    	});
+    } 
+    
     this.undo = function() {
         if (this.undoStack.length === 0) return;
         const lastState = this.undoStack.pop();
@@ -22,10 +42,9 @@ var CLASS_GRID = function(parm) {
             undoBack.push({
                 row: cellState.row,
                 col: cellState.col,
-                text: cell.text(),
+                text: cell.attr("value"),
             });
-
-            cell.text(cellState.text);
+            thisCls.setCell(cell, cellState.text);
         });
         this.redoStack.push(undoBack);
     };
@@ -39,7 +58,7 @@ var CLASS_GRID = function(parm) {
             redoBack.push({
                 row: cellState.row,
                 col: cellState.col,
-                text: cell.text(),
+                text: cell.attr("value"),
             });
             cell.text(cellState.text);
         });
@@ -212,8 +231,8 @@ var CLASS_GRID = function(parm) {
             const row = $(cell).attr("data-row");
             const col = $(cell).attr("data-col");
             if (!rows[row]) rows[row] = [];
-            debugger;
-            let data = cell.innerText;
+
+            let data = $(cell).attr("value");
 
             if (data.includes('\t') || data.includes('\n')) data = `"${data}"`;
             
@@ -229,7 +248,6 @@ var CLASS_GRID = function(parm) {
     };
 
     this.copyToClipboard = function(text) {
-    	dlog(text);
         const $temp = $("<textarea>");
         $("body").append($temp);
         $temp.val(text).select();
@@ -281,7 +299,7 @@ var CLASS_GRID = function(parm) {
                 const targetCell = $(`#${this.gridId} .explan-grid-cell[data-row=${targetRow}][data-col=${targetCol}]`);
                 cellText = cellText.replaceAll("[nl]", "</br>");
                 if (targetCell.length) {
-                    targetCell.html(cellText);
+	                this.setCell(targetCell, cellText);
                 } else {
 		            const tableBody = $(`#${this.gridId}`);
 		            const lastRow = tableBody.find('tr').last();
@@ -297,12 +315,32 @@ var CLASS_GRID = function(parm) {
 		            this.addRow();
 		            
 	                const targetCell = $(`#${this.gridId} .explan-grid-cell[data-row=${targetRow}][data-col=${targetCol}]`);
-                    targetCell.html(cellText);
+	                this.setCell(targetCell, cellText);
                 }
             });
         });
     };
-
+    // Cell에 Type에 따라 값을 입력 한다.
+    this.setCell = function(targetCell, cellText) {
+        let tdIndex = targetCell.index();
+        let columnInfo = this.columnInfo.columnArr[tdIndex];
+		if			(columnInfo.columnType == "text") {
+	        targetCell.attr("value", cellText);
+	        targetCell.html(cellText);
+		} else if	(columnInfo.columnType == "selectbox") {
+			let key 		= columnInfo.column; 
+			let viewText	= thisCls.columnConfig.selectBoxCodeMap[key][cellText];
+			if(isEmpty(viewText)) viewText = "";
+	        targetCell.attr("value", cellText);
+	        targetCell.html(viewText);
+		}
+    };
+    // Cell Type을 반환한다.
+    this.getCellType = function(targetCell) {
+        let tdIndex = targetCell.index();
+        let columnInfo = this.columnInfo.columnArr[tdIndex];
+        return columnInfo.columnType;
+    }
     this.backupCellsState = function(cells) {
         if (cells.length === 0) return;
 
@@ -311,7 +349,7 @@ var CLASS_GRID = function(parm) {
         	type	: "cell",
             row		: $(cell).attr("data-row"),
             col		: $(cell).attr("data-col"),
-            text	: $(cell).text(),
+            text	: $(cell).attr("value"),
         }));
 
         if (!lastState || JSON.stringify(lastState) !== JSON.stringify(newState)) {
@@ -353,21 +391,61 @@ var CLASS_GRID = function(parm) {
         const cellHeight = $(event.target).height();
 
         this.backupCellsState([event.target]);
+        
+        let tdIndex = $(event.target).index();
+        let columninfo = this.columnInfo.columnArr[tdIndex];
+		if			(columninfo.columnType == "text") {
+			this.setTextboxToCell(event, columninfo)
+		} else if	(columninfo.columnType == "selectbox") {
+			this.setSelectboxToCell(event, columninfo)
+		}
 
-        const $input = $(`<input type='text' style='width: 100%; height: ${cellHeight}px; border: none; outline: none;' value='${$(event.target).text()}'>`);
+    };
+    this.setSelectboxToCell = function(event, columninfo) {
+    	alert
+    	let selectList = this.columnConfig.selectBoxCodeList[columninfo.column];
+		let selectBoxStr = '';
+		selectBoxStr += `<select class="form-control form-control-sm col10"><option value=" "> </option>`;
+		$.each(selectList, function() {
+			let cd 	= this[0];
+			let txt	= this[1];
+			selectBoxStr += `<option value='${cd}'>${txt}</option>`;
+		});
+		selectBoxStr += `</select>`;
+		let rval = $(event.target).attr("value");
+		if(isEmpty(rval)) rval = $(event.target).text();
+		const $selectBox = $(selectBoxStr);
+		$selectBox.find("option").each(function() {
+			if($(this).val() == rval) $(this).attr("selected", true);
+		});
+        $(event.target).html($selectBox);
+        
+        $selectBox.on('blur', function() {
+        	thisCls.setCell($(event.target), this.value);
+        });
+        
+        $selectBox.focus();
+    }
+    
+	this.setTextboxToCell = function(event) {
+
+		let itxt = $(event.target).attr("value");
+
+        const $input = $(`<input type='text' class='form-control form-control-sm col10'/>`);
+		$input.val(itxt);
         $(event.target).html($input);
         $input.focus();
         var inputLength = $input.val().length;
         $input[0].setSelectionRange(inputLength, inputLength);
-
         const $cell = $(event.target);
 
         $input.on('paste', function(event) {
             const clipboardData = event.originalEvent.clipboardData.getData('text');
-            const textBefore = $input.val();
+            const textBefore = $input.attr("value");
             const cursorPosition = $input[0].selectionStart;
             const textAfter = textBefore.slice(0, cursorPosition) + clipboardData + textBefore.slice(cursorPosition);
-            $input.val(textAfter);
+            
+            thisCls.setCell($input, textAfter);
 
             return false;
         });
@@ -388,7 +466,8 @@ var CLASS_GRID = function(parm) {
                 return;
             } else if (eventKey === 'enter') {
                 const newText = $(this).val();
-                $cell.text(newText);
+
+                thisCls.setCell($cell, newText);
                 
                 // 상위 tr update 설정
 		        let parentTr = $cell.closest('tr'); // 상위 tr 요소 찾기
@@ -399,23 +478,46 @@ var CLASS_GRID = function(parm) {
 
         $input.blur(function() {
             const newText = $(this).val();
-            $cell.text(newText);
+
+            thisCls.setCell($cell, newText);
 
             // 상위 tr update 설정
 	        let parentTr = $cell.closest('tr'); // 상위 tr 요소 찾기
 	        let __state = parentTr.attr("__state"); // __state 속성 값 가져오기
 	        if(__state === "default") parentTr.attr("__state", "update");
         });
-    };
+	} 
 
 
-
-    this.init = function(gridId) {
+    this.init = function() {
+        
+    	const gridId = this.gridId; 
+    	
+        // 컬럼 Type 설정
+    	let columnInfo = {
+    		columnArr : {}
+    	}
+    	$(`#${gridId} th`).each(function(idx) {
+			let column 		= $(this).attr("column"		);
+			let columnType 	= $(this).attr("columnType"	);
+			if(isEmpty(columnType)) columnType = "text";
+			columnInfo[column] = {
+				 column		: column
+				,columnType  : columnType
+			};
+			columnInfo.columnArr[idx] = columnInfo[column];
+    	});
+    	this.columnInfo = columnInfo;
+    	
         $(`#${gridId} th, #${gridId} td`).addClass("explan-grid-cell");
 
         this.setGridIndex(gridId, 'init');
-
-        this.initialContent = $(`#${gridId}`).html();
+        
+        $(`#${gridId} td`).each(function() {
+        	const cellType = thisCls.getCellType($(this));
+        	let value = $(this).text();
+            thisCls.setCell($(this), value);
+        });
 
         $(`#${gridId}`).on('mousedown'	, '.explan-grid-cell', this.onMouseDown.bind(this));
         $(`#${gridId}`).on('mousemove'	, '.explan-grid-cell', this.onMouseMove.bind(this));
@@ -510,8 +612,8 @@ var C_GRID = {
 				C_GRID.gridMap[gridId].gridInstance = null;
 			}
 		}
-		var gridInstance = new CLASS_GRID(parm);
-		gridInstance.init(gridId);
+		var gridInstance = new CLASS_GRID(parm, gridId);
+		gridInstance.init();
 		
 		C_GRID.gridMap[gridId] = {
 			 gridInstance: gridInstance 
@@ -572,7 +674,7 @@ var C_GRID = {
         $(gridElement).find('tr[uid]').each(function() {
             let rowData = {};
             $(this).find('td').each(function(index) {
-                rowData[headers[index]] = $(this).text().trim();
+                rowData[headers[index]] = $(this).attr("value").trim();
             });
 
             if (Object.keys(rowData).length === 0) {
@@ -604,13 +706,13 @@ var C_GRID = {
         $(`#${gridId} tr`).each(function() {
             let rowData = {};
             $(this).find('td').each(function(index) {
-                rowData[headers[index]] = $(this).text().trim();
+                rowData[headers[index]] = $(this).attr("value").trim();
             });
 			if (Object.keys(rowData).length === 0) {
 			    return true;
 			}
 
-            let attrList = getAllAttrFromDom(this, 'big');
+            let attrList = C_GRID.getAllAttrFromDom(this, 'big');
             
             let allRowData = Object.assign({}, rowData, attrList);
 

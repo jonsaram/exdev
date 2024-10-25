@@ -47,6 +47,39 @@
 		    </if>
 		ORDER BY A.SORT_ORDER, B.SORT_ORDER    
    	</select>
+
+	<select id="getBrandCodeList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	common.getBrandCodeList
+			Brand코드 리스트 조회 
+		*/
+		SELECT
+		     A.BRAND_ID
+		    ,A.GRP_CODE_ID
+		    ,A.GRP_CODE_NM
+		    ,A.USE_YN
+		    ,A.DEL_YN
+		    ,A.SORT_ORDER
+		    ,A.UPDATE_USER
+		    ,A.UPDATE_DATE
+		    ,B.CODE_ID
+		    ,B.CODE_NM
+		    ,B.CODE_DESC
+		FROM
+		     TBL_EXP_BRAND_GRPCODE    A
+		    ,TBL_EXP_BRAND_CODE       B
+		WHERE 
+		    	A.BRAND_ID 		= B.BRAND_ID
+		    AND	A.GRP_CODE_ID 	= B.GRP_CODE_ID
+		    AND	A.USE_YN = 'Y'
+		    AND B.USE_YN = 'Y'
+		    <if test='BRAND_ID !=null and  !BRAND_ID.equals("")'>
+		    	AND A.BRAND_ID = #{BRAND_ID}
+		    </if>
+		    <if test='GRP_CODE_ID !=null and  !GRP_CODE_ID.equals("")'>
+		    	AND A.GRP_CODE_ID = #{GRP_CODE_ID}
+		    </if>
+		ORDER BY A.SORT_ORDER, B.SORT_ORDER    
+   	</select>
    	
 	<select id="getExcelUploadColumnList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	common.getExcelUploadColumnList

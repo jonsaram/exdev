@@ -772,6 +772,48 @@ var C_COM = {
 
 		});
 	 }
+	,pdfUploadCallbackFn : undefined
+	// Excel Upload To Table
+	,selectPdfUploadToTable : function(pdfUploadCallbackFn) {
+		
+		C_COM.pdfUploadCallbackFn = pdfUploadCallbackFn;
+		
+		$("#_common_pdfFileInput").remove();
+		
+		$("body").append(`<input id="_common_pdfFileInput" type="file" onchange="C_COM.pdfFileUpload();" style="display:none"/>`);
+		
+		$("#_common_pdfFileInput").trigger("click");
+	 }
+	,pdfFileUpload : function() {
+		const fileInput = $('#_common_pdfFileInput')[0];
+	    const file = fileInput.files[0];
+
+	    const formData = new FormData();
+	    formData.append('file', file);
+		
+		C_COM.showLoadingBar();
+	    $.ajax({
+	        url: '/commonPdfUpload.do',
+	        type: 'POST',
+	        data: formData,
+	        contentType: false,
+	        processData: false,
+	        success: function(response) {
+				C_COM.hideLoadingBar();
+				if(typeof C_COM.pdfUploadCallbackFn == "function" ) C_COM.pdfUploadCallbackFn(response);
+				else {
+					C_POP.alert('PDF Upload에 성공 하였습니다.');	
+				}
+			}
+	        ,error: function(error) {
+				C_COM.hideLoadingBar();
+				if(typeof C_COM.pdfUploadCallbackFn == "function" ) C_COM.pdfUploadCallbackFn(error);
+				else {
+					C_POP.alert('PDF Upload에 실패 하였습니다.');	
+				}
+	        }
+	    });
+	 }
 }
 /**
  * 작성자 : 위성열 
