@@ -2232,7 +2232,7 @@ var C_WIN = {
 		}
 	 }
 } 
-
+////
 $(window).resize(function() {
 	//hasYScrollBar();
 	//hasXScrollBar();
