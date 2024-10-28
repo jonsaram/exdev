@@ -209,6 +209,9 @@
 			,A.ADDR
 		FROM 
 			 TBL_EXP_BUYER A
+		WHERE
+			A.DEL_YN = 'N'
+		ORDER BY A.BUYER_ID	
 	</select>
 	<select id="getBuyerListOfUser" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	contract.getBuyerListOfUser
