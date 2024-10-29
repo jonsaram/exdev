@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@compId> = {
-        pageInit : () => {
+		BRAND_ID : ''
+       ,pageInit : () => {
         	var now = new Date();   // 현재 날짜 및 시간
             var thisYear = now.getFullYear();   // 연도
             
@@ -47,11 +48,15 @@ var <@compId> = {
             C_UICOM.addChangeListener("<@compId>_endMonths", function(dataObj) {
                 <@compId>.checkDay();
             });
-            
 
-            // 권역
-            var regionList = C_COM.getCodeList("STORE_REGION");
             
+        }
+        ,brandIdSet : (brandId) => {
+
+        	<@compId>.BRAND_ID = brandId;
+            // 권역
+            //var regionList = C_COM.getCodeList("STORE_REGION");
+            var regionList = C_COM.getBrandCodeList( brandId , "STORE_REGION");
             var selectBoxRegionList = { 
                  defaultItem    : ["ALL", "전체"] 
                 ,data : regionList
@@ -61,7 +66,7 @@ var <@compId> = {
             
 
             // 슈퍼바이저
-            var supervisorList = C_COM.getCodeList("SUPERVISOR");
+            var supervisorList = C_COM.getBrandCodeList( brandId ,"SUPERVISOR");
             
             var selectBoxSupervisorList = {
 
@@ -939,8 +944,9 @@ var <@compId> = {
         ,setHandler : () => {
 
             $("#<@compId>_searchBtn").click( () =>{
-            	                  
+            	               
             	var brandId     = <@parentId>.getParentBrandId();
+            	console.log("setHandler brandId ==>"+brandId);
             	var startYears  = C_UICOM.getData("<@compId>_startYears");
             	var startMonths = C_UICOM.getData("<@compId>_startMonths");
             	var endYears    = C_UICOM.getData("<@compId>_endYears");

@@ -27,29 +27,7 @@
 	                ,targetId : "<@compId>_selectBoxMonth" 
 	            }
 	            C_UICOM.makeSelectBox(selectBoxMonthList, "single");
-	            
-	            // 지점
-	            let requestParm1 = {};
-	            requestParm1["spCstmId"] = G_VAL.session.spCstmId ;
-
-	            var parm1 = {
-	                    queryId  : "dashboardCorPerformance.getStore"
-	                   ,requestParm   : requestParm1
-	            }
-	            
-	            C_COM.requestQuery(parm1, function(resultData) {
-	                
-	                const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
-	                
-	                var selectBoxStoreList = {
-	                        defaultItem    : ["ALL", "전체"]
-	                       ,data : DATA
-	                       ,targetId : "<@compId>_selectBoxStoreList" 
-	                }
-	                
-	                C_UICOM.makeSelectBox(selectBoxStoreList, "single");
-	            });
-	                        
+	                  
 	            
 	            // 과목
 	            var subjectList = C_COM.getCodeList("FINANCIAL_SUBJECT");
@@ -77,6 +55,37 @@
 	            
 			}
 
+            ,brandIdSet : (brandId) => {
+
+                console.log("== selectBoxSet brandId ==>"+brandId);
+                <@compId>.BRAND_ID = brandId;
+                
+
+                // 지점
+                let requestParm1 = {};
+                requestParm1["spCstmId"] = G_VAL.session.spCstmId ;
+                requestParm1["brandId"]  = <@compId>.BRAND_ID ;
+
+                var parm1 = {
+                        queryId  : "dashboardCorPerformance.getStore"
+                       ,requestParm   : requestParm1
+                }
+                
+                C_COM.requestQuery(parm1, function(resultData) {
+                    
+                    const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
+                    
+                    var selectBoxStoreList = {
+                            defaultItem    : ["ALL", "전체"]
+                           ,data : DATA
+                           ,targetId : "<@compId>_selectBoxStoreList" 
+                    }
+                    
+                    C_UICOM.makeSelectBox(selectBoxStoreList, "single");
+                });
+                      
+                
+            }
 	        ,searchList : () => {
 	            
 	        	console.log("searchList 1");
@@ -158,11 +167,11 @@
                             <div class="select_box fl" style="width:132px">
                                 <div id="<@compId>_selectBoxMonth" style="width:132px"></div>
                             </div>
-                            <div class="select_box fl" style="width:132px">
-                                 <div id="<@compId>_selectBoxStoreList" style="width:132px"></div>
+                            <div class="select_box fl" style="width:200px">
+                                 <div id="<@compId>_selectBoxStoreList" style="width:200px"></div>
                             </div>
-                            <div class="select_box fl" style="width:132px">
-                                <div id="<@compId>_selectBoxSubjectList" style="width:132px"></div>
+                            <div class="select_box fl" style="width:200px">
+                                <div id="<@compId>_selectBoxSubjectList" style="width:200px"></div>
                             </div>
                             <div class="select_box fl" style="width:132px">
                                 <button type="button" class="btn select fl" id="<@compId>_searchBtn">조회</button>

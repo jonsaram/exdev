@@ -26,30 +26,42 @@
                    ,requestParm   : requestParm
             }
             
-            C_COM.requestQuery(parm, function(resultData) {
+            let resultData =  C_COM.requestQuery(parm);
                 
-                const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
-                
-                var selectBoxBrandList = {
-                        data : DATA
-                       ,targetId : "<@pageId>_brand" 
-                }
-                
-                if( selectBoxBrandList.data.length == 0){
-                	C_POP.alert("브랜드 정보가 없습니다.");
-                }else{
-                	C_UICOM.makeSelectBox(selectBoxBrandList, "single");	
-                }
-                
-            });
+            const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
+            
+            var selectBoxBrandList = {
+                    data : DATA
+                   ,targetId : "<@pageId>_brand" 
+            }
+            
+            if( selectBoxBrandList.data.length == 0){
+            	C_POP.alert("브랜드 정보가 없습니다.");
+            }else{
+            	C_UICOM.makeSelectBox(selectBoxBrandList, "single");	
+            }
             
             C_UICOM.addChangeListener("<@pageId>_brand", function(dataObj) {
+            	var brandId      = C_UICOM.getData("<@pageId>_brand");
+                <@pageId>.<@pageId>_tab1.brandIdSet(brandId);
+                <@pageId>.<@pageId>_tab2.brandIdSet(brandId);
+                <@pageId>.<@pageId>_tab3.brandIdSet(brandId);
+                <@pageId>.<@pageId>_tab4.brandIdSet(brandId);
+                <@pageId>.<@pageId>_tab5.brandIdSet(brandId);
+                <@pageId>.<@pageId>_tab6.brandIdSet(brandId);
             });
 
             // 콜백 함수 호출
             if (callback) {
                 callback();
             }
+            var brandId      = C_UICOM.getData("<@pageId>_brand");
+            <@pageId>.<@pageId>_tab1.brandIdSet(brandId);
+            <@pageId>.<@pageId>_tab2.brandIdSet(brandId);
+            <@pageId>.<@pageId>_tab3.brandIdSet(brandId);
+            <@pageId>.<@pageId>_tab4.brandIdSet(brandId);
+            <@pageId>.<@pageId>_tab5.brandIdSet(brandId);
+            <@pageId>.<@pageId>_tab6.brandIdSet(brandId);
         }
         
         ,getParentBrandId : () => {

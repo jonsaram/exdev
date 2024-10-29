@@ -5,6 +5,7 @@
             ,selectGroup1 : 'ALL'
             ,selectGroup2 : 'ALL'
             ,selectMonth  : 'ALL'
+            ,BRAND_ID : ''
             ,pageInit : () => {
 
                 var now = new Date();   // 현재 날짜 및 시간
@@ -32,24 +33,10 @@
                 }
                 C_UICOM.makeSelectBox(selectBoxMonthList, "single");
                 
+                
+                
+                /*
                 <@compId>.getSelectMenu();
-                
-                // 권역
-                var regionList = C_COM.getCodeList("STORE_REGION");
-                
-                var selectBoxRegionList = { 
-                     defaultItem    : ["ALL", "전체"] 
-                    ,data : regionList
-                    ,targetId : "<@compId>_selectBoxRegion" 
-                }
-                C_UICOM.makeSelectBox(selectBoxRegionList, "single");
-                <@compId>.region = "ALL";
-                
-                C_UICOM.addChangeListener("<@compId>_selectBoxRegion", function(dataObj) {
-                    <@compId>.region = dataObj;
-                    <@compId>.getSelectStore();
-                });
-                
                 // 대분류
                 var menuGroup1List = C_COM.getCodeList("STORE_MENU_GROUP1");
                 
@@ -83,11 +70,33 @@
                 // 메뉴명
                 <@compId>.getSelectMenu();
                 
+                 */
+            }
+
+            ,brandIdSet : (brandId) => {
+
+                <@compId>.BRAND_ID = brandId;
+                /**/
+                // 권역
+                var regionList = C_COM.getBrandCodeList( brandId , "STORE_REGION");                
+                var selectBoxRegionList = { 
+                     defaultItem    : ["ALL", "전체"] 
+                    ,data : regionList
+                    ,targetId : "<@compId>_selectBoxRegion" 
+                }
+                C_UICOM.makeSelectBox(selectBoxRegionList, "single");
+                <@compId>.region = "ALL";
+                
+                C_UICOM.addChangeListener("<@compId>_selectBoxRegion", function(dataObj) {
+                    <@compId>.region = dataObj;
+                    <@compId>.getSelectStore();
+                });
+
                 // 매장
                 <@compId>.getSelectStore();
                 
                 // 슈퍼바이저
-                var supervisorList = C_COM.getCodeList("SUPERVISOR");
+                var supervisorList = C_COM.getBrandCodeList( brandId , "SUPERVISOR");
                 
                 var selectBoxSupervisorList = {
 
@@ -102,13 +111,46 @@
                     <@compId>.supervisor = dataObj;
                 });
                 
-            }
+                // 대분류
+                var menuGroup1List =  C_COM.getBrandCodeList( brandId , "STORE_MENU_GROUP1");
+               
+                var selectBoxMenuGroup1List = { 
+                     defaultItem    : ["ALL", "대분류"] 
+                    ,data : menuGroup1List
+                    ,targetId : "<@compId>_selectGroup1" 
+                }
+                C_UICOM.makeSelectBox(selectBoxMenuGroup1List, "single");
+                
+                C_UICOM.addChangeListener("<@compId>_selectGroup1", function(dataObj) {
+                    <@compId>.selectGroup1 = dataObj;
+                    <@compId>.getSelectMenu();
+                });
+                
 
+                // 분류명
+                var menuGroup2List = C_COM.getBrandCodeList( brandId , "STORE_MENU_GROUP2");
+                
+                var selectBoxMenuGroup2List = { 
+                     defaultItem    : ["ALL", "분류명"] 
+                    ,data : menuGroup2List
+                    ,targetId : "<@compId>_selectGroup2" 
+                }
+                C_UICOM.makeSelectBox(selectBoxMenuGroup2List, "single");
+                
+                C_UICOM.addChangeListener("<@compId>_selectGroup2", function(dataObj) {
+                    <@compId>.selectGroup2 = dataObj;
+                    <@compId>.getSelectMenu();
+                });
+                
+                
+                
+            }
             ,getSelectMenu : () => {
                 
                 let requestParm = {};
-                requestParm["group1"] = <@compId>.selectGroup1 ;
-                requestParm["group2"] = <@compId>.selectGroup2 ;
+                requestParm["group1"]   = <@compId>.selectGroup1 ;
+                requestParm["group2"]   = <@compId>.selectGroup2 ;
+                requestParm["brandId"]  = <@compId>.BRAND_ID ;
                 
                 var parm1 = {
                         queryId  : "dashboardCorPerformance.getMenuList"
@@ -137,7 +179,8 @@
                 
                 let requestParm = {};
                 requestParm["spCstmId"] = G_VAL.session.spCstmId ;
-                requestParm["region"] = <@compId>.region ;
+                requestParm["region"]   = <@compId>.region ;
+                requestParm["brandId"]  = <@compId>.BRAND_ID ;
                 
                 var parm1 = {
                         queryId  : "dashboardCorPerformance.getStore"
@@ -762,7 +805,7 @@
 
                 $("#<@compId>_searchBtn").click( () =>{
                 	
-                	var brandId = <@parentId>.getParentBrandId();
+                	var brandId = <@compId>.BRAND_ID;
 
                     if(brandId == undefined){
                         C_POP.alert("브랜드가 없습니다.");
@@ -795,7 +838,7 @@
                     <@compId>.searchList1(requestParm);//매출 비교
                     <@compId>.searchList2(requestParm);//분류명별 매출액
                     <@compId>.searchList3(requestParm);//상세메뉴 매출액
-                    <@compId>.searchList4(requestParm);//마진비교
+                    <@compId>.searchList4(requestParm);//마진비교 
                     <@compId>.searchList5(requestParm);//상세메뉴 코스트
                     <@compId>.searchList6(requestParm);//상세메뉴 마진금액
                 })            
@@ -824,8 +867,8 @@
             </div>
             
             <!-- 대분류 선택 -->
-            <div class="select_box fl" style="width:130px">
-                <div id="<@compId>_selectGroup1" style="width:130px"></div>
+            <div class="select_box fl" style="width:150px">
+                <div id="<@compId>_selectGroup1" style="width:150px"></div>
             </div>
             <!-- 분류명 선택 -->
             <div class="select_box fl" style="width:150px">

@@ -5,6 +5,7 @@
             ,region : ''
             ,supervisor : ''
             ,store : ''
+            ,BRAND_ID : ''
             ,pageInit : () => {
 
                 var now = new Date();   // 현재 날짜 및 시간
@@ -27,12 +28,6 @@
                 C_UICOM.makeSelectBox(startYearsArrayList, "single");
                 C_UICOM.setSingleBox("<@compId>_selectStartBoxYear", dayjs().year());
                 
-                /*
-                var endYearsArrayList = { data : yearsArray,targetId : "<@compId>_selectEndBoxYear"}
-                C_UICOM.makeSelectBox(endYearsArrayList, "single");
-                C_UICOM.setSingleBox("<@compId>_selectEndBoxYear", dayjs().year());
-                */
-                
                 // 월
                 var monthList = C_COM.getCodeList("STORE_MONTH");
                 
@@ -47,18 +42,16 @@
                     ,targetId : "<@compId>_selectStartBoxMonth" 
                 }
                 C_UICOM.makeSelectBox(selectStartBoxMonthList, "single");
+               
                 
-                /*
-                var selectEndBoxMontht = { 
-                     data : monthList
-                    ,targetId : "<@compId>_selectEndBoxMonth" 
-                }
-                C_UICOM.makeSelectBox(selectEndBoxMontht, "single");
-                */ 
+            }
 
-                // 권역
-                var regionList = C_COM.getCodeList("STORE_REGION");
+            ,brandIdSet : (brandId) => {
+
+                <@compId>.BRAND_ID = brandId;
                 
+                // 권역
+                var regionList = C_COM.getBrandCodeList( brandId , "STORE_REGION");                
                 var selectBoxRegionList = { 
                      defaultItem    : ["ALL", "전체"] 
                     ,data : regionList
@@ -76,7 +69,7 @@
                 <@compId>.getSelectStore();
                 
                 // 슈퍼바이저
-                var supervisorList = C_COM.getCodeList("SUPERVISOR");
+                var supervisorList = C_COM.getBrandCodeList( brandId , "SUPERVISOR");
                 
                 var selectBoxSupervisorList = {
 
@@ -92,12 +85,12 @@
                 });
                 
             }
-
             ,getSelectStore : () => {
                 
                 let requestParm = {};
                 requestParm["spCstmId"] = G_VAL.session.spCstmId ;
-                requestParm["region"] = <@compId>.region ;
+                requestParm["brandId"]  = <@compId>.BRAND_ID ;
+                requestParm["region"]   = <@compId>.region ;
                 
                 var parm1 = {
                         queryId  : "dashboardCorPerformance.getStore"
@@ -677,7 +670,7 @@
             /* 전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    전월대비 테이블회전률    */
             
             /* 순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    */
-            ,searchChart31 : ( startYear, startMonth, endYear, endMonth ) => {
+            ,searchChart31 : ( startYear, startMonth, endYear, endMonth, brandId ) => {
 
                 let requestParm = {};            
                 requestParm["startYear"]   = startYear;
@@ -686,6 +679,7 @@
                 requestParm["endMonth"]    = endMonth ;
                 requestParm["startDate"]   = startYear+"-"+startMonth+"-01";
                 requestParm["endDate"]     = endYear+"-"+endMonth+"-01";
+                requestParm["brandId"]     = brandId ;
                 
                 let parm = {
                      queryId        : "dashboardCorPerformance.SalesAndGoalSalesChartList"
@@ -760,7 +754,7 @@
             /* 순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    순매출액,목표금액    */
             
             /* 순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    순매출액,전월금액    */
-            ,searchChart32 : (year, month) => {
+            ,searchChart32 : (year, month, brandId) => {
 
                
 
@@ -780,6 +774,7 @@
                 requestParm["month"]      = month; 
                 requestParm["prevYear"]   = prevYear;
                 requestParm["prevMonth"]  = prevMonth;
+                requestParm["brandId"]    = brandId;
                 
                 var parm = {
                         queryId  : "dashboardCorPerformance.SalesAndPreMonthSales"
@@ -874,10 +869,10 @@
                     <@compId>.searchGoals1( year, month, region, store, supervisor, brandId );
                     <@compId>.searchChart11( year, month, region, store, supervisor, brandId  );
                     <@compId>.searchChart12( year, month, region, store, supervisor, brandId  );
-                    
                     <@compId>.searchPreMonth( year, month, region, store, supervisor, brandId  );
                     <@compId>.searchChart21( year, month, region, store, supervisor, brandId  );
                     <@compId>.searchChart22( year, month, region, store, supervisor, brandId  );
+                  
                     
                     
                 })
