@@ -98,6 +98,11 @@ var <@pageId> = {
 				]
 			}
 			C_COM.requestQuery(parm, function(resultData) {
+
+				const returnData = Object.entries(resultData.data) ;
+				const maskedData = <@pageId>.setCoverMask( returnData );
+				resultData.data  = Object.fromEntries(maskedData);
+
 				<@pageId>.showObject(resultData.data['financialanalysis.getBuyerDetail'][0],'');
 				<@pageId>.showObject(resultData.data['financialanalysis.getBasis01'][0],'');
 				<@pageId>.showList("<@pageId>_getBasis02", resultData.data['financialanalysis.getBasis02']);				
@@ -571,6 +576,55 @@ var <@pageId> = {
 				}
 			});
 		 }
+		
+		,setCoverMask : (data) =>{
+
+			const names = ["STOCKHOLDER_NM" , "OWNER_NM"]; // 마스킹할 이름 ARRAY
+			const jumins = [];
+			const saupNos = [];
+			data.forEach( dd => {
+				
+				let rData = dd[1];
+				rData.forEach( da =>{
+
+					names.forEach( name =>{if( da && !isEmpty(da[name]) )da[name] = <@pageId>.getMask('name',da[name]);})
+					jumins.forEach( jumin =>{if( da && !isEmpty(da[jumin]) )da[jumin] = <@pageId>.getMask('jumins',da[jumins]);})
+					saupNos.forEach( saupNo =>{if( da && !isEmpty(da[saupNo]) )da[saupNo] = <@pageId>.getMask('saupNo',da[saupNo]);})
+					
+				})
+				
+			})
+			
+			return data;
+		}
+
+		,getMask :(gubun,str)=> {
+
+			switch (gubun) {
+				case "name":	// 이름 : 첫 번째 글자만 남기고 나머지 글자를 '*'로 마스킹
+					if (str && str.length > 0) {
+		                return str[0] + '*'.repeat(str.length - 1);
+		            }
+		            break;
+
+				case "jumin":	// 주민번호 : 앞 6자리까지 표시하고 이후는 '*'로 마스킹
+					if (str && str.length >= 7) {
+						return str.slice(0, 6) + '-*******';
+		            }
+		            break;
+
+		        case "saupNo":	// 사업자번호 : 앞 3자리와 뒤 2자리만 표시하고 중간은 '*'로 마스킹
+					if (str && str.length >= 10) {
+						return str.slice(0, 3) + '-**-****';
+					}
+					break;
+		        default:
+		            // 해당되지 않는 경우 원본 반환
+		            return str;
+		    }
+
+		    return str;
+		}
 }
 
 // Page Load가 완료된후 실행 된다.
