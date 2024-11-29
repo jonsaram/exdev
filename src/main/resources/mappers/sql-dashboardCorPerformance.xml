@@ -231,7 +231,8 @@
         ORDER BY A.SP_CSTM_ID
                 ,A.STORE_ID
     </select>
-            <select id="SalesAndGoalSalesChartList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+    
+        <select id="SalesAndGoalSalesChartList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.SalesAndGoalSalesChartList */
         SELECT A.SP_CSTM_ID
               ,A.STORE_ID
@@ -3142,4 +3143,146 @@
             AND    BUYER_ID = #{buyerId} 
         </if> 
     </select> 
+    
+    <select id="getPredictSales" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getPredictSales */
+        WITH TBL_EXP_STORE_FINANCIAL_PREDICT AS
+        (     
+            SELECT  A.SP_CSTM_ID
+                   ,B.BRAND_ID
+                   ,A.STORE_ID 
+                   ,B.STORE_ID 
+                   ,A.STORE_NM
+                   ,B.YEAR
+                   ,B.MONTH
+                   ,B.SUBJECT
+                   ,B.BASE_DATE
+                   ,B.AMOUNT
+                   ,B.PREDICT_METHOD
+            FROM    TBL_EXP_STORE_INFO A
+                    JOIN C##VINS.TBL_EXP_STORE_FINANCIAL_PREDICT B
+                      ON  1 = 1
+                     AND    A.SP_CSTM_ID = B.SP_CSTM_ID
+                     AND    A.BRAND_ID = B.BRAND_ID
+                     AND    A.STORE_ID = B.STORE_CD
+                     AND    B.SUBJECT  = 'SUBJECT_001'
+                     AND    B.YEAR     = '2024'
+                     AND    B.MONTH    = '07'
+            WHERE  1 = 1
+            AND    A.SP_CSTM_ID = 'starasset'
+            AND    A.BRAND_ID   = 'obong'
+            AND    A.STORE_ID   = 'a00252'
+          
+        )
+        SELECT   BASE_DATE
+                ,FLOOR(SUM(CASE WHEN PREDICT_METHOD = 'MIXED_PREDICT' THEN AMOUNT ELSE 0 END)) AS MIXED_PREDICT
+                ,FLOOR(SUM(CASE WHEN PREDICT_METHOD = 'TREND' THEN AMOUNT ELSE 0 END)) AS TREND
+        FROM   TBL_EXP_STORE_FINANCIAL_PREDICT
+        GROUP BY BASE_DATE
+        ORDER BY BASE_DATE
+    </select>  
+    
+    
+    <select id="getBusinessProfit" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getBusinessProfit */
+        WITH TBL_EXP_STORE_FINANCIAL_PREDICT AS
+        (     
+            SELECT  A.SP_CSTM_ID
+                   ,B.BRAND_ID
+                   ,A.STORE_ID 
+                   ,B.STORE_ID 
+                   ,A.STORE_NM
+                   ,B.YEAR
+                   ,B.MONTH
+                   ,B.SUBJECT
+                   ,B.BASE_DATE
+                   ,B.AMOUNT
+                   ,B.PREDICT_METHOD
+            FROM    TBL_EXP_STORE_INFO A
+                    JOIN C##VINS.TBL_EXP_STORE_FINANCIAL_PREDICT B
+                      ON  1 = 1
+                     AND    A.SP_CSTM_ID = B.SP_CSTM_ID
+                     AND    A.BRAND_ID = B.BRAND_ID
+                     AND    A.STORE_ID = B.STORE_CD
+                     AND    B.SUBJECT  IN ('SUBJECT_005','SUBJECT_104')
+                     AND    B.YEAR     = '2024'
+                     AND    B.MONTH    = '07'
+            WHERE  1 = 1
+            AND    A.SP_CSTM_ID = 'starasset'
+            AND    A.BRAND_ID   = 'obong'
+            AND    A.STORE_ID   = 'a00252'
+          
+        )
+        SELECT   BASE_DATE
+                ,FLOOR(SUM(CASE WHEN SUBJECT = 'SUBJECT_005' THEN AMOUNT ELSE 0 END)) AS BUSINESS_PROFIT 
+                ,FLOOR(SUM(CASE WHEN SUBJECT = 'SUBJECT_104' THEN AMOUNT ELSE 0 END)) AS BUSINESS_PROFIT_RATIO
+        FROM   TBL_EXP_STORE_FINANCIAL_PREDICT
+        GROUP BY BASE_DATE
+        ORDER BY BASE_DATE
+        
+    </select>    
+    
+
+    <select id="getInventoryManage" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getInventoryManage  */
+        SELECT ROW_NUMBER() OVER( ORDER BY COL1 )  AS NUM
+              ,COL1
+              ,COL2
+              ,COL3
+              ,COL4
+              ,COL5
+              ,COL6
+              ,COL7
+              ,COL8
+        FROM   (
+                 SELECT '11' AS COL1, '12' AS COL2, '13' AS COL3, '14' AS COL4, '15' AS COL5, '16' AS COL6, '17' AS COL7, '18' AS COL8 FROM DUAL UNION ALL
+                 SELECT '21' AS COL1, '22' AS COL2, '23' AS COL3, '24' AS COL4, '25' AS COL5, '26' AS COL6, '27' AS COL7, '28' AS COL8 FROM DUAL UNION ALL
+                 SELECT '31' AS COL1, '32' AS COL2, '33' AS COL3, '34' AS COL4, '35' AS COL5, '36' AS COL6, '37' AS COL7, '38' AS COL8 FROM DUAL UNION ALL
+                 SELECT '41' AS COL1, '42' AS COL2, '43' AS COL3, '44' AS COL4, '45' AS COL5, '46' AS COL6, '47' AS COL7, '48' AS COL8 FROM DUAL UNION ALL
+                 SELECT '51' AS COL1, '52' AS COL2, '53' AS COL3, '54' AS COL4, '55' AS COL5, '56' AS COL6, '57' AS COL7, '58' AS COL8 FROM DUAL UNION ALL
+                 SELECT '61' AS COL1, '62' AS COL2, '63' AS COL3, '64' AS COL4, '65' AS COL5, '66' AS COL6, '67' AS COL7, '68' AS COL8 FROM DUAL
+               )
+        ORDER BY COL1
+    </select>   
+    
+    <select id="getInventoryManage1" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        <include refid="getInventoryManage_body"/>
+    </select>   
+    
+    <select id="getInventoryManage_totalCnt" resultType="Integer">
+        /* dashboardCorPerformance.getInventoryManage_totalCnt  */
+        
+        <include refid="common.totalWrapStart"/>
+        <include refid="getInventoryManage_body"/>
+        <include refid="common.totalWrapEnd"/>
+    </select>
+    
+    <select id="getInventoryManage_paging" resultType="java.util.HashMap">
+        /* dashboardCorPerformance.getInventoryManage_paging  */
+        <include refid="common.pagingWrapStart"/>
+        <include refid="getInventoryManage_body"/>
+        <include refid="common.pagingWrapEnd"/>
+    </select>
+        
+    <sql id="getInventoryManage_body">
+        SELECT ROW_NUMBER() OVER( ORDER BY COL1 )  AS NUM
+              ,COL1
+              ,COL2
+              ,COL3
+              ,COL4
+              ,COL5
+              ,COL6
+              ,COL7
+              ,COL8
+        FROM   (
+                 SELECT '11' AS COL1, '12' AS COL2, '13' AS COL3, '14' AS COL4, '15' AS COL5, '16' AS COL6, '17' AS COL7, '18' AS COL8 FROM DUAL UNION ALL
+                 SELECT '21' AS COL1, '22' AS COL2, '23' AS COL3, '24' AS COL4, '25' AS COL5, '26' AS COL6, '27' AS COL7, '28' AS COL8 FROM DUAL UNION ALL
+                 SELECT '31' AS COL1, '32' AS COL2, '33' AS COL3, '34' AS COL4, '35' AS COL5, '36' AS COL6, '37' AS COL7, '38' AS COL8 FROM DUAL UNION ALL
+                 SELECT '41' AS COL1, '42' AS COL2, '43' AS COL3, '44' AS COL4, '45' AS COL5, '46' AS COL6, '47' AS COL7, '48' AS COL8 FROM DUAL UNION ALL
+                 SELECT '51' AS COL1, '52' AS COL2, '53' AS COL3, '54' AS COL4, '55' AS COL5, '56' AS COL6, '57' AS COL7, '58' AS COL8 FROM DUAL UNION ALL
+                 SELECT '61' AS COL1, '62' AS COL2, '63' AS COL3, '64' AS COL4, '65' AS COL5, '66' AS COL6, '67' AS COL7, '68' AS COL8 FROM DUAL
+               )
+        ORDER BY COL1
+    </sql>  
+    
 </mapper>

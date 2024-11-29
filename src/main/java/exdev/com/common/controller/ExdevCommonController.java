@@ -53,7 +53,6 @@ import exdev.com.service.ApprovalService;
 import exdev.com.service.ExcelService;
 import exdev.com.service.ExdevSampleService;
 import exdev.com.service.FileService;
-import exdev.com.service.PdfService;
 
 /**
  * This MovieController class is a Controller class to provide movie crud and
@@ -84,9 +83,6 @@ public class ExdevCommonController {
     
     @Value("${file.savepath}")
     private String fileSavePath;
-    
-	@Autowired
-	private PdfService pdfService;
     
 
     @SuppressWarnings({ "unused", "rawtypes" })
@@ -414,25 +410,5 @@ public class ExdevCommonController {
         
         return returnMap;
     }
-    
-	@SuppressWarnings({ "unused", "rawtypes" })
-	@RequestMapping("/commonPdfUpload.do")
-	public @ResponseBody Map commonPdfUpload(@RequestParam("file") MultipartFile file,HttpSession session) throws Exception {
-		
-		Map resultMap = new HashMap();
-		resultMap.put("msg",null);
-				
-	  try {
-		  	resultMap = pdfService.commonPdfUpload(file, session);
-            return resultMap;
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            resultMap.put("msg","");
-            resultMap.put("state","");
-
-            return resultMap;
-        }
-	}
 
 }
