@@ -146,7 +146,7 @@
                     var rparm = {
                          targetId       : "<@compId>_tableId" 
                         ,list           : resultData.data
-                        ,listRange      : 5         // 리스트 범위
+                        ,listRange      : 10         // 리스트 범위
                         ,pageRange      : 5         // Page 범위
                         ,pagingDomId    : "<@compId>_pageDiv" // Page가 표시되는 Dom Id
                         ,totalCntDomId  : "<@compId>_total"
@@ -211,7 +211,7 @@
                             <caption>표 캡션</caption>
                             <colgroup>
                                 <col style="width:50px;"/>
-                                <col style="width:50px;"/>
+                                <col style="width:200px;"/>
                                 <col style="width:15%;"/>
                                 <col style="width:*"/>
                                 <col style="width:15%;"/>
@@ -222,7 +222,7 @@
                             <thead>
                                 <tr>
                                     <th scope="col">Num</th>
-                                    <th scope="col">월</th>
+                                    <th scope="col">날짜</th>
                                     <th scope="col">지점명</th>
                                     <th scope="col">재고물품</th>
                                     <th scope="col">재고량</th>
@@ -236,14 +236,14 @@
                             <script type="text/x-jsrender" id="<@compId>_tableId_template">    
                                 {{for list}}
                                     <tr id="trId_{{:#index}}" name="<@compId>_tr_{{:#index}}" '>
-                                        <td>{{:NUM}}</td>
-                                        <td>{{:COL1}}</td>
-                                        <td>{{:COL2}}</td>
-                                        <td>{{:COL3}}</td>
-                                        <td>{{:COL4}}</td>
-                                        <td>{{:COL5}}</td>
-                                        <td>{{:COL6}}</td>
-                                        <td>{{:COL7}}</td>
+                                        <td>{{:#index + 1}}</td>
+                                        <td>{{:STOCK_DATE}}</td>
+                                        <td>{{:STORE_NM}}</td>
+                                        <td>{{:PRODUCT_NM}}</td>
+                                        <td>{{:QUANTITY}}</td>
+                                        <td>{{:INVENTORY_RATE}}</td>
+                                        <td>{{:FULL_QUANTITY}}</td>
+                                        <td>재고상태</td>
                                     </tr>
                                 {{/for}}
                             </script>

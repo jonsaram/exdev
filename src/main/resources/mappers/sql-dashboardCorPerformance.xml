@@ -3225,24 +3225,41 @@
 
     <select id="getInventoryManage" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getInventoryManage  */
-        SELECT ROW_NUMBER() OVER( ORDER BY COL1 )  AS NUM
-              ,COL1
-              ,COL2
-              ,COL3
-              ,COL4
-              ,COL5
-              ,COL6
-              ,COL7
-              ,COL8
-        FROM   (
-                 SELECT '11' AS COL1, '12' AS COL2, '13' AS COL3, '14' AS COL4, '15' AS COL5, '16' AS COL6, '17' AS COL7, '18' AS COL8 FROM DUAL UNION ALL
-                 SELECT '21' AS COL1, '22' AS COL2, '23' AS COL3, '24' AS COL4, '25' AS COL5, '26' AS COL6, '27' AS COL7, '28' AS COL8 FROM DUAL UNION ALL
-                 SELECT '31' AS COL1, '32' AS COL2, '33' AS COL3, '34' AS COL4, '35' AS COL5, '36' AS COL6, '37' AS COL7, '38' AS COL8 FROM DUAL UNION ALL
-                 SELECT '41' AS COL1, '42' AS COL2, '43' AS COL3, '44' AS COL4, '45' AS COL5, '46' AS COL6, '47' AS COL7, '48' AS COL8 FROM DUAL UNION ALL
-                 SELECT '51' AS COL1, '52' AS COL2, '53' AS COL3, '54' AS COL4, '55' AS COL5, '56' AS COL6, '57' AS COL7, '58' AS COL8 FROM DUAL UNION ALL
-                 SELECT '61' AS COL1, '62' AS COL2, '63' AS COL3, '64' AS COL4, '65' AS COL5, '66' AS COL6, '67' AS COL7, '68' AS COL8 FROM DUAL
-               )
-        ORDER BY COL1
+		SELECT  ROWNUM
+               ,A.STOCK_OF_DAY_ID
+		       ,A.BRAND_ID
+		       ,A.STORE_ID
+		       ,B.STORE_NM
+		       ,A.STOCK_MST_ID
+		       ,C.PRODUCT_CD
+		       ,C.PRODUCT_NM
+		       ,A.YEAR||'-'||A.MONTH||'-'||A.DAY AS STOCK_DATE
+		       ,A.QUANTITY
+		       ,D.FULL_QUANTITY  /* 기준수량 */
+		       ,CASE WHEN D.FULL_QUANTITY = 0 THEN 0 
+		             ELSE (A.QUANTITY / D.FULL_QUANTITY) * 100 
+		        END AS INVENTORY_RATE
+		       ,A.CREATE_USER
+		       ,A.CREATE_DATE
+		FROM   C##VINS.TBL_EXP_STOCK_OF_DAY A /* 일별 재고량 */
+		       JOIN C##VINS.TBL_EXP_STORE_MST B /* 지점 마스터 */
+		         ON  1 = 1
+		         AND A.STORE_ID = B.STORE_ID
+		       JOIN C##VINS.TBL_EXP_STOCK_MST C /* 재고마스터 */
+		         ON  1 = 1
+		         AND A.STOCK_MST_ID = C.STOCK_MST_ID
+		         AND C.PRODUCT_CD = 'obong_PD0028'
+		       JOIN C##VINS.TBL_EXP_STOCK_STORE_CFG D /* 지점재고관리설정 */
+		         ON  1 = 1
+		         AND A.BRAND_ID     = D.BRAND_ID
+		         AND A.STORE_ID     = D.STORE_ID
+		         AND A.STOCK_MST_ID = D.STOCK_MST_ID
+		WHERE  1 = 1
+		AND    A.BRAND_ID = 'obong'
+		AND    A.STORE_ID = '9469d91ec6ac4c31'
+		ORDER BY A.YEAR
+		        ,A.MONTH
+		        ,A.DAY
     </select>   
     
     <select id="getInventoryManage1" resultType="java.util.HashMap" flushCache="true"  useCache="false">
