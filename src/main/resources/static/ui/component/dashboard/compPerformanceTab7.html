@@ -53,7 +53,7 @@
                 // 권역
                 var regionList = C_COM.getBrandCodeList( brandId , "STORE_REGION");                
                 var selectBoxRegionList = { 
-                     defaultItem    : ["ALL", "전체"] 
+                     defaultItem    : ["ALL", "선택"] 
                     ,data : regionList
                     ,targetId : "<@compId>_selectBoxRegion" 
                 }
@@ -67,23 +67,7 @@
                 
                 // 매장
                 <@compId>.getSelectStore();
-                
-                // 슈퍼바이저
-                var supervisorList = C_COM.getBrandCodeList( brandId , "SUPERVISOR");
-                
-                var selectBoxSupervisorList = {
-
-                     defaultItem    : ["ALL", "전체"]
-                    ,data : supervisorList
-                    ,targetId : "<@compId>_selectBoxSupervisor" 
-                }
-                C_UICOM.makeSelectBox(selectBoxSupervisorList, "single");
-                <@compId>.supervisor = "ALL";
-                
-                C_UICOM.addChangeListener("<@compId>_selectBoxSupervisor", function(dataObj) {
-                    <@compId>.supervisor = dataObj;
-                });
-                
+                                
                 
             }
             ,getSelectStore : () => {
@@ -103,7 +87,7 @@
                     const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
                     
                     var selectBoxStoreList = {
-                            defaultItem    : ["ALL", "전체"]
+                            defaultItem    : ["ALL", "선택"]
                            ,data : DATA
                            ,targetId : "<@compId>_selectBoxStore" 
                     }
@@ -119,9 +103,7 @@
 
             /*============= 매출 예측 그래프    매출 예측 그래프    매출 예측 그래프    매출 예측 그래프    매출 예측 그래프    =============*/
             ,searchList1 : (requestParm) => {
-            	
-                var month = requestParm["month"];
-                 
+
                 var serviceUrl = 'dashboardCorPerformance.getPredictSales';
 
                 var parm = {
@@ -133,7 +115,7 @@
                     <@compId>.setChart1(resultData);
                 });
                  
-            	
+                
             }
 
             ,setChartData : function( resultData, menuKey) {
@@ -154,10 +136,12 @@
 
                 let accrue1      = 0;
                 let accrue2      = 0;
+                let title        = "";
 
                 for (var i=0; i< resultData.data.length; i++){
                    accrue1 =  resultData.data[i].MIXED_PREDICT;
                    accrue2 =  resultData.data[i].TREND;
+                   title   =  resultData.data[i].STORE_NM;
 
                    console.log("MIXED_PREDICT ==>"+accrue1);
                    console.log("TREND ==>"+accrue2);
@@ -167,11 +151,11 @@
                    categoryArr[i]    = resultData.data[i].BASE_DATE;
                 }
                  $('#<@compId>_chart1').highcharts({
-                	 chart: {
+                     chart: {
                          type: 'column'
                      },
                      title: {
-                         text: '오봉집기장장안점',
+                         text: title,
                          align: 'left'
                      },
                      colors: ['#27187F', '#F29423'],
@@ -247,90 +231,89 @@
 
                 let accrue1      = 0;
                 let accrue2      = 0;
+                let title        = "";
 
                 for (var i=0; i< resultData.data.length; i++){
                    accrue1 =  resultData.data[i].BUSINESS_PROFIT;
                    accrue2 =  resultData.data[i].BUSINESS_PROFIT_RATIO;
+                   title   =  resultData.data[i].STORE_NM;
                    
                    categories1Arr[i] = accrue1;
                    categories2Arr[i] = accrue2;
-                   
-                   console.log("BUSINESS_PROFIT ==>"+accrue1);
-                   console.log("BUSINESS_PROFIT_RATIO ==>"+accrue2);
                    
                    categoryArr[i]    = resultData.data[i].BASE_DATE;
                 }
 
                  $('#<@compId>_chart2').highcharts({
-                	 chart: {
-                	        zooming: {
-                	            type: 'xy'
-                	        }
-                	    },
-                	    title: {
-                	        text: '오봉집기장장안점',
-                	        align: 'left'
-                	    },
+                     chart: {
+                            zooming: {
+                                type: 'xy'
+                            }
+                        },
+                        title: {
+                            text: title,
+                            align: 'left'
+                        },
                         colors: ['#27187F', '#F29423'],
-                	    xAxis: [{
-                	        categories: categoryArr,
-                	        crosshair: true
-                	    }],
-                	    yAxis: [{ // Primary yAxis
-                	        labels: {
-                	            format: '{value}%',
-                	            style: {
-                	                color: '#F29423' 
-                	            }
-                	        },
-                	        title: {
-                	            text: '영업이익률',
-                	            style: {
-                	                color: '#F29423'
-                	            }
-                	        }
-                	    }, { // Secondary yAxis
-                	        title: {
-                	            text: '영업이익',
-                	            style: {
-                	                color: '#27187F'
-                	            }
-                	        },
-                	        labels: {
-                	            format: '{value}',
-                	            style: {
-                	                color: '#27187F'
-                	            }
-                	        },
-                	        opposite: true
-                	    }],
-                	    tooltip: {
-                	        shared: true
-                	    },
-                	    legend: {
-                	        align: 'left',
-                	        verticalAlign: 'top',
-                	        backgroundColor:
-                	            Highcharts.defaultOptions.legend.backgroundColor || // theme
-                	            'rgba(255,255,255,0.25)'
-                	    },
-                	    series: [{
-                	        name: '영업이익',
-                	        type: 'column',
-                	        yAxis: 1,
-                	        data: categories1Arr,
-                	        tooltip: {
-                	            valueSuffix: ''
-                	        }
+                        xAxis: [{
+                            categories: categoryArr,
+                            crosshair: true
+                        }],
+                        yAxis: [{ // Primary yAxis
+                            labels: {
+                                format: '{value}%',
+                                style: {
+                                    color: '#F29423' 
+                                }
+                            },
+                            title: {
+                                text: '영업이익률',
+                                style: {
+                                    color: '#F29423'
+                                }
+                            }
+                        }, { // Secondary yAxis
+                            title: {
+                                text: '영업이익',
+                                style: {
+                                    color: '#27187F'
+                                }
+                            },
+                            labels: {
+                                format: '{value}',
+                                style: {
+                                    color: '#27187F'
+                                }
+                            },
+                            opposite: true
+                        }],
+                        tooltip: {
+                            shared: true
+                        },
+                        legend: {
+                            align: 'left',
+                            verticalAlign: 'top',
+                            backgroundColor:
+                                Highcharts.defaultOptions.legend.backgroundColor || // theme
+                                'rgba(255,255,255,0.25)'
+                        },
+                        series: [{
+                            name: '영업이익',
+                            type: 'column',
+                            yAxis: 1,
+                            data: categories1Arr,
+                            tooltip: {
+                                valueSuffix: ''
+                            }
 
-                	    }, {
-                	        name: '영업이익률',
-                	        type: 'spline',
-                	        data: categories2Arr,
-                	        tooltip: {
-                	            valueSuffix: '%'
-                	        }
-                	    }]
+                        }, {
+                            name: '영업이익률',
+                            type: 'spline',
+                            data: categories2Arr,
+                            tooltip: {
+                                valueSuffix: '%'
+                            }
+                        }]
 
                  });
              }
@@ -339,8 +322,8 @@
             ,setHandler : () => {
 
                 $("#<@compId>_searchBtn").click( () =>{
-                	
-                	var brandId = <@compId>.BRAND_ID;
+                    
+                    var brandId = <@compId>.BRAND_ID;
 
                     if(brandId == undefined){
                         C_POP.alert("브랜드가 없습니다.");
@@ -351,7 +334,6 @@
                     var month       = C_UICOM.getData("<@compId>_selectBoxMonth");;
                     var region      = C_UICOM.getData("<@compId>_selectBoxRegion");
                     var store       = C_UICOM.getData("<@compId>_selectBoxStore");
-                    var supervisor  = C_UICOM.getData("<@compId>_selectBoxSupervisor");
                     
                     let requestParm = {};
                     requestParm["brandId"]       = brandId;
@@ -359,10 +341,17 @@
                     requestParm["month"]         = month;
                     requestParm["region"]        = region;
                     requestParm["store"]         = store;
-                    requestParm["supervisor"]    = supervisor;
                     
                     <@compId>.selectMonth = month;
                     
+                    console.log("store["+store+"] ");
+                    console.log("compId ==>"+<@compId>);
+                    
+                    if( "ALL" == store ){
+                        C_POP.alert("지점을 선택해 주세요.");
+                        return;
+                    }
+
                     <@compId>.searchList1(requestParm);
                     <@compId>.searchList2(requestParm);
                 })            
@@ -381,32 +370,27 @@
         <!--// 매장별 매출 분석 -->
         <!-- search area -->
     <div class="search_area plpr5">
-	    <!-- search area -->
-	    <div class="search_area plpr5">
-	        <div class="fl">
-	            <div class="select_box fl" style="width:132px">
-	                <div id="<@compId>_selectBoxYear" style="width:132px"></div>
-	            </div>
-	            <div class="select_box fl" style="width:132px">
-	                <div id="<@compId>_selectBoxMonth" style="width:132px"></div>
-	            </div>
-	            <span class="tit01 fl lh33">권역</span>
-	            <!-- 권역 선택 -->
-	            <div class="select_box fl" style="width:100px">
-	                <div id="<@compId>_selectBoxRegion" style="width:100px"></div>
-	            </div>
-	            <!-- 매장명 선택 -->
-	            <div class="select_box fl" style="width:170px">
-	                <div id="<@compId>_selectBoxStore" style="width:170px"></div>
-	            </div>   
-	            <span class="tit01 fl lh33">슈퍼바이저</span>
-	            <!-- 슈퍼바이저 선택 -->
-	            <div class="select_box fl" style="width:132px">
-	                 <div id="<@compId>_selectBoxSupervisor" style="width:132px"></div>
-	            </div>
-	            <button type="button" class="btn select fl" id="<@compId>_searchBtn">조회</button>
-	        </div>
-	    </div>
+        <!-- search area -->
+        <div class="search_area plpr5">
+            <div class="fl">
+                <div class="select_box fl" style="width:132px">
+                    <div id="<@compId>_selectBoxYear" style="width:132px"></div>
+                </div>
+                <div class="select_box fl" style="width:132px">
+                    <div id="<@compId>_selectBoxMonth" style="width:132px"></div>
+                </div>
+                <span class="tit01 fl lh33">권역</span>
+                <!-- 권역 선택 -->
+                <div class="select_box fl" style="width:100px">
+                    <div id="<@compId>_selectBoxRegion" style="width:100px"></div>
+                </div>
+                <!-- 매장명 선택 -->
+                <div class="select_box fl" style="width:170px">
+                    <div id="<@compId>_selectBoxStore" style="width:170px"></div>
+                </div>   
+                <button type="button" class="btn select fl" id="<@compId>_searchBtn">조회</button>
+            </div>
+        </div>
     </div>
 
         <section class="sec_wrap">

@@ -3144,14 +3144,13 @@
         </if> 
     </select> 
     
+    <!-- 매출 예측 -->
     <select id="getPredictSales" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getPredictSales */
         WITH TBL_EXP_STORE_FINANCIAL_PREDICT AS
         (     
-            SELECT  A.SP_CSTM_ID
-                   ,B.BRAND_ID
+            SELECT  B.BRAND_ID
                    ,A.STORE_ID 
-                   ,B.STORE_ID 
                    ,A.STORE_NM
                    ,B.YEAR
                    ,B.MONTH
@@ -3159,38 +3158,36 @@
                    ,B.BASE_DATE
                    ,B.AMOUNT
                    ,B.PREDICT_METHOD
-            FROM    TBL_EXP_STORE_INFO A
+            FROM    C##VINS.TBL_EXP_STORE_MST A
                     JOIN C##VINS.TBL_EXP_STORE_FINANCIAL_PREDICT B
                       ON  1 = 1
-                     AND    A.SP_CSTM_ID = B.SP_CSTM_ID
-                     AND    A.BRAND_ID = B.BRAND_ID
-                     AND    A.STORE_ID = B.STORE_CD
-                     AND    B.SUBJECT  = 'SUBJECT_001'
-                     AND    B.YEAR     = '2024'
-                     AND    B.MONTH    = '07'
+                      AND A.BRAND_ID = B.BRAND_ID
+                      AND A.STORE_CODE = B.STORE_CD
+                      AND B.SUBJECT  = 'SUBJECT_001'
+                      AND B.YEAR     = #{year}
+                      AND B.MONTH    = #{month}
             WHERE  1 = 1
-            AND    A.SP_CSTM_ID = 'starasset'
-            AND    A.BRAND_ID   = 'obong'
-            AND    A.STORE_ID   = 'a00252'
+            AND    A.BRAND_ID   = #{brandId} 
+            AND    A.STORE_CODE = #{store}
           
         )
         SELECT   BASE_DATE
+                ,STORE_NM 
                 ,FLOOR(SUM(CASE WHEN PREDICT_METHOD = 'MIXED_PREDICT' THEN AMOUNT ELSE 0 END)) AS MIXED_PREDICT
                 ,FLOOR(SUM(CASE WHEN PREDICT_METHOD = 'TREND' THEN AMOUNT ELSE 0 END)) AS TREND
         FROM   TBL_EXP_STORE_FINANCIAL_PREDICT
         GROUP BY BASE_DATE
+                ,STORE_NM 
         ORDER BY BASE_DATE
-    </select>  
+    </select>
     
-    
+    <!-- 영업이익 예측 -->
     <select id="getBusinessProfit" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getBusinessProfit */
         WITH TBL_EXP_STORE_FINANCIAL_PREDICT AS
         (     
-            SELECT  A.SP_CSTM_ID
-                   ,B.BRAND_ID
+            SELECT  B.BRAND_ID
                    ,A.STORE_ID 
-                   ,B.STORE_ID 
                    ,A.STORE_NM
                    ,B.YEAR
                    ,B.MONTH
@@ -3198,31 +3195,31 @@
                    ,B.BASE_DATE
                    ,B.AMOUNT
                    ,B.PREDICT_METHOD
-            FROM    TBL_EXP_STORE_INFO A
+            FROM    C##VINS.TBL_EXP_STORE_MST A
                     JOIN C##VINS.TBL_EXP_STORE_FINANCIAL_PREDICT B
                       ON  1 = 1
-                     AND    A.SP_CSTM_ID = B.SP_CSTM_ID
                      AND    A.BRAND_ID = B.BRAND_ID
-                     AND    A.STORE_ID = B.STORE_CD
+                     AND    A.STORE_CODE = B.STORE_CD
                      AND    B.SUBJECT  IN ('SUBJECT_005','SUBJECT_104')
-                     AND    B.YEAR     = '2024'
-                     AND    B.MONTH    = '07'
+                     AND    B.YEAR     = #{year}
+                     AND    B.MONTH    = #{month}
             WHERE  1 = 1
-            AND    A.SP_CSTM_ID = 'starasset'
-            AND    A.BRAND_ID   = 'obong'
-            AND    A.STORE_ID   = 'a00252'
+            AND    A.BRAND_ID   = #{brandId} 
+            AND    A.STORE_CODE = #{store}
           
         )
         SELECT   BASE_DATE
+                ,STORE_NM 
                 ,FLOOR(SUM(CASE WHEN SUBJECT = 'SUBJECT_005' THEN AMOUNT ELSE 0 END)) AS BUSINESS_PROFIT 
                 ,FLOOR(SUM(CASE WHEN SUBJECT = 'SUBJECT_104' THEN AMOUNT ELSE 0 END)) AS BUSINESS_PROFIT_RATIO
         FROM   TBL_EXP_STORE_FINANCIAL_PREDICT
         GROUP BY BASE_DATE
+                ,STORE_NM 
         ORDER BY BASE_DATE
         
     </select>    
     
-
+    <!-- 지점별 재고 -->
     <select id="getInventoryManage" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getInventoryManage  */
 		SELECT  ROWNUM

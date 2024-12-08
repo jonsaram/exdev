@@ -49,7 +49,7 @@
                  // 권역
                  var regionList = C_COM.getBrandCodeList( brandId , "STORE_REGION");                
                  var selectBoxRegionList = { 
-                      defaultItem    : ["ALL", "전체"] 
+                      defaultItem    : ["ALL", "선택"] 
                      ,data : regionList
                      ,targetId : "<@compId>_selectBoxRegion" 
                  }
@@ -69,7 +69,7 @@
                  
                  var selectBoxSupervisorList = {
 
-                      defaultItem    : ["ALL", "전체"]
+                      defaultItem    : ["ALL", "선택"]
                      ,data : supervisorList
                      ,targetId : "<@compId>_selectBoxSupervisor" 
                  }
@@ -99,7 +99,7 @@
                      const DATA = resultData.data.map( item => [ item.CODE_ID, item.CODE_NM ]);
                      
                      var selectBoxStoreList = {
-                             defaultItem    : ["ALL", "전체"]
+                             defaultItem    : ["ALL", "선택"]
                             ,data : DATA
                             ,targetId : "<@compId>_selectBoxStore" 
                      }
@@ -118,11 +118,17 @@
                 var years   = C_UICOM.getData("<@compId>_selectBoxYear");
                 var month   = C_UICOM.getData("<@compId>_selectBoxMonth");
                 var region  = C_UICOM.getData("<@compId>_selectBoxRegion");
-                var storeId = C_UICOM.getData("<@compId>_selectBoxStoreList");
+                var storeId = C_UICOM.getData("<@compId>_selectBoxStore");
                 var brandId = <@parentId>.getParentBrandId();
 
                 if(brandId == undefined){
                     C_POP.alert("브랜드가 없습니다.");
+                    return;
+                }
+                
+                console.log("storeId ==>"+storeId);
+                if( "ALL" == storeId ){
+                    C_POP.alert("지점을 선택해 주세요.");
                     return;
                 }
                 
