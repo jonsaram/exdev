@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <script type="text/javascript">
     var <@compId> = {
-             searchedRows : [] // 페이지
+              searchedRows : [] // 페이지
+             ,selectProduct : ''
              ,pageInit : () => {
 
                  var now = new Date();   // 현재 날짜 및 시간
@@ -13,33 +14,93 @@
                  
                  const yearsArray = Array.from({ length: 6 }, (_, index) => {
                        const year = startYear + index;
+                       console.log("year ==>"+year);
                        return [year.toString(), year + "년"];
+                 }).reverse();
+
+                 const monthsArray = Array.from({ length: 12 }, (_, index) => {
+                       const months = ("0"+(1 + index) ).slice(-2);
+                       return [months.toString(), months + "월"];
+                 });
+
+
+                 var startYearsArrayList = { data : yearsArray,targetId : "<@compId>_startYears"}
+                 C_UICOM.makeSelectBox(startYearsArrayList, "single");
+                 C_UICOM.setSingleBox("<@compId>_startYears", dayjs().year());
+                 C_UICOM.addChangeListener("<@compId>_startYears", function(dataObj) {
+                	 <@compId>.checkDay();
                  });
                  
-                 var yearsArrayList = { data : yearsArray,targetId : "<@compId>_selectBoxYear"}
-                 C_UICOM.makeSelectBox(yearsArrayList, "single");
-                 C_UICOM.setSingleBox("<@compId>_selectBoxYear", dayjs().year());
+                 var startMonthsArrayList = { data : monthsArray,targetId : "<@compId>_startMonths"}
+                 C_UICOM.makeSelectBox(startMonthsArrayList, "single");
+                 C_UICOM.setSingleBox("<@compId>_startMonths", ("0"+(dayjs().month() + 1) ).slice(-2));
+                 C_UICOM.addChangeListener("<@compId>_startMonths", function(dataObj) {
+                	 <@compId>.checkDay();
+                 });
                  
-                 var startYearsArrayList = { data : yearsArray,targetId : "<@compId>_selectStartBoxYear"}
-                 C_UICOM.makeSelectBox(startYearsArrayList, "single");
-                 C_UICOM.setSingleBox("<@compId>_selectStartBoxYear", dayjs().year());
+                 var endYearsArrayList = { data : yearsArray,targetId : "<@compId>_endYears"}
+                 C_UICOM.makeSelectBox(endYearsArrayList, "single");
+                 C_UICOM.setSingleBox("<@compId>_endYears", dayjs().year());
+                 C_UICOM.addChangeListener("<@compId>_endYears", function(dataObj) {
+                	 <@compId>.checkDay();
+                 });
                  
-                 // 월
-                 var monthList = C_COM.getCodeList("STORE_MONTH");
-                 
-                 var selectBoxMonthList = { 
-                      data : monthList
-                     ,targetId : "<@compId>_selectBoxMonth" 
-                 }
-                 C_UICOM.makeSelectBox(selectBoxMonthList, "single");
-                 
-                 var selectStartBoxMonthList = { 
-                      data : monthList
-                     ,targetId : "<@compId>_selectStartBoxMonth" 
-                 }
-                 C_UICOM.makeSelectBox(selectStartBoxMonthList, "single");
+                 var endMonthsArrayList = { data : monthsArray,targetId : "<@compId>_endMonths"}
+                 C_UICOM.makeSelectBox(endMonthsArrayList, "single");
+                 C_UICOM.setSingleBox("<@compId>_endMonths", ("0"+(dayjs().month() + 1) ).slice(-2));
+                 C_UICOM.addChangeListener("<@compId>_endMonths", function(dataObj) {
+                     <@compId>.checkDay();
+                 });
              }
 
+             /* ******  UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    */
+             ,getMonthDifference : (start, end) =>{
+                 var startYear = parseInt(start.split('-')[0], 10);
+                 var startMonth = parseInt(start.split('-')[1], 10);
+                 var endYear = parseInt(end.split('-')[0], 10);
+                 var endMonth = parseInt(end.split('-')[1], 10);
+
+                 var yearDifference = endYear - startYear;
+                 var monthDifference = endMonth - startMonth;
+
+                 return yearDifference * 12 + monthDifference;
+              }
+
+             ,checkDay : () =>{
+
+                 var startYears  = C_UICOM.getData("<@compId>_startYears");
+                 var startMonths = C_UICOM.getData("<@compId>_startMonths");
+                 var endYears    = C_UICOM.getData("<@compId>_endYears");
+                 var endMonths   = C_UICOM.getData("<@compId>_endMonths");
+                 
+                 var startDate  = startYears+"-"+startMonths;
+                 var endDate    = endYears+"-"+endMonths;
+                 
+                 var dateStart  = startYears+startMonths;
+                 var dateEnd    = endYears+endMonths;
+                 
+                 //시작일이 종료일보다 클경우 종료일을 시작일로 변경
+                 if( Number(dateStart) > Number(dateEnd) ){
+                     C_UICOM.setSingleBox("<@compId>_endYears", startYears);
+                     C_UICOM.setSingleBox("<@compId>_endMonths", startMonths);
+                 }
+                 
+                 var monthDifference = <@compId>.getMonthDifference(startDate, endDate);
+                 
+                 //조회 기간은 12 개월이상일 경우 종료일을 12개월로 변경
+                 if( 12 <= monthDifference  ){
+
+                     var date = new Date(startYears, startMonths - 1);
+                     date.setMonth(date.getMonth() + 11);
+                     var resultYear = date.getFullYear();
+                     var resultMonth = ('0' + (date.getMonth() + 1)).slice(-2); // 월은 0부터 시작하므로 다시 1을 더해주고, 두 자리로 맞춤
+
+                     C_UICOM.setSingleBox("<@compId>_endYears", resultYear.toString());
+                     C_UICOM.setSingleBox("<@compId>_endMonths", resultMonth.toString());
+                     
+                 }
+             }
+             /* #######  UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    */
              ,brandIdSet : (brandId) => {
 
                  console.log("== Tab2 brandIdSet ===>");
@@ -80,7 +141,47 @@
                      <@compId>.supervisor = dataObj;
                  });
                  
+                 <@compId>.getSelectProduct();
                  
+             }
+
+
+             ,getSelectProduct : () => {
+                 
+            	 console.log("getSelectProduct 1 ");
+                 
+                 let requestParm = {};
+                 requestParm["brandId"]  = <@compId>.BRAND_ID ;
+                 var parm1 = {
+                         queryId  : "dashboardCorPerformance.getProductList"
+                        ,requestParm   : requestParm
+                 }
+
+                 C_COM.requestQuery(parm1, function(resultData) {
+                	 
+                     const DATA = resultData.data.map( item => [ item.PRODUCT_CD, item.PRODUCT_NM ]);
+                     
+                     if( DATA.length > 0 ){
+                    	 var selectBoxProductList = {
+                                 data : DATA
+                                ,targetId : "<@compId>_selectBoxProduct" 
+                         } 
+                    	 C_UICOM.makeSelectBox(selectBoxProductList, "single");
+                     }else{
+
+                         var selectBoxProductList = {
+
+                              defaultItem    : ["NOTTHING", "없음"]
+                             ,data : DATA
+                             ,targetId : "<@compId>_selectBoxProduct" 
+                         }
+                         C_UICOM.makeSelectBox(selectBoxProductList, "single");
+                     }
+                     
+                 });
+                 C_UICOM.addChangeListener("<@compId>_selectBoxProduct", function(dataObj) {
+                     <@compId>.selectProduct = dataObj;
+                 });
              }
              ,getSelectStore : () => {
 
@@ -112,13 +213,16 @@
                  });
              }
             ,searchList : () => {
-                
-                console.log("searchList 1");
-                
-                var years   = C_UICOM.getData("<@compId>_selectBoxYear");
-                var month   = C_UICOM.getData("<@compId>_selectBoxMonth");
-                var region  = C_UICOM.getData("<@compId>_selectBoxRegion");
-                var storeId = C_UICOM.getData("<@compId>_selectBoxStore");
+
+            	var startYears  = C_UICOM.getData("<@compId>_startYears");
+                var startMonths = C_UICOM.getData("<@compId>_startMonths");
+                var endYears    = C_UICOM.getData("<@compId>_endYears");
+                var endMonths   = C_UICOM.getData("<@compId>_endMonths");
+                var region      = C_UICOM.getData("<@compId>_selectBoxRegion");
+                var storeId     = C_UICOM.getData("<@compId>_selectBoxStore");
+                var productCd   = C_UICOM.getData("<@compId>_selectBoxProduct");
+                var startDate   = startYears+"-"+startMonths;
+                var endDate     = endYears+"-"+endMonths;
                 var brandId = <@parentId>.getParentBrandId();
 
                 if(brandId == undefined){
@@ -133,11 +237,12 @@
                 }
                 
                 let requestParm = {};
-                requestParm["brandId"]   = brandId;
-                requestParm["storeId"]   = storeId;
-                requestParm["year"]      = years;
-                requestParm["month"]     = month;
-                requestParm["region"]    = region;
+                requestParm["brandId"]      = brandId;
+                requestParm["storeId"]      = storeId;
+                requestParm["startDate"]    = startDate;
+                requestParm["endDate"]      = endDate;
+                requestParm["region"]       = region;
+                requestParm["productCd"]    = productCd;
                 
                 const listRange = C_UICOM.getData("<@compId>_pagingChunk");
 
@@ -155,7 +260,7 @@
                         ,listRange      : 10         // 리스트 범위
                         ,pageRange      : 5         // Page 범위
                         ,pagingDomId    : "<@compId>_pageDiv" // Page가 표시되는 Dom Id
-                        ,totalCntDomId  : "<@compId>_total"
+                        ,totalCntDomId  : "<@compId>_totalCnt"
                         ,onPageClickCallback : function(pageInfo) {
                          }
                     }
@@ -186,12 +291,23 @@
                     <!-- search area -->
                     <div class="search_area">
                         <div class="calendar_wrap">
-                            <div class="select_box fl" style="width:132px">
-                                <div id="<@compId>_selectBoxYear" style="width:132px"></div>
-                            </div>
-                            <div class="select_box fl" style="width:132px">
-                                <div id="<@compId>_selectBoxMonth" style="width:132px"></div>
-                            </div>
+				            <!-- 시작년월 선택 -->
+				            <div class="select_box fl" style="width:100px">
+				                <div id="<@compId>_startYears" style="width:100px"></div>
+				            </div>
+				            <div class="select_box fl" style="width:100px">
+				                <div id="<@compId>_startMonths" style="width:100px"></div>
+				            </div>
+				            <div class="calendar_wrap fl">
+				                <label for="to">~</label>
+				            </div>
+				            <!-- 종료년월 선택 -->
+				            <div class="select_box fl" style="width:100px">
+				                <div id="<@compId>_endYears" style="width:100px"></div>
+				            </div>
+				            <div class="select_box fl" style="width:100px">
+				                <div id="<@compId>_endMonths" style="width:100px"></div>
+				            </div>
 			                <span class="tit01 fl lh33">권역</span>
 			                <!-- 권역 선택 -->
 			                <div class="select_box fl" style="width:100px">
@@ -201,6 +317,10 @@
 			                <div class="select_box fl" style="width:170px">
 			                    <div id="<@compId>_selectBoxStore" style="width:170px"></div>
 			                </div>   
+			                <span class="tit01 fl lh33">상품</span>
+                            <div class="select_box fl" style="width:200px">
+                                <div id="<@compId>_selectBoxProduct" style="width:200px"></div>
+                            </div>
                             <div class="select_box fl" style="width:132px">
                                 <button type="button" class="btn select fl" id="<@compId>_searchBtn">조회</button>
                             </div>
@@ -233,7 +353,7 @@
                                     <th scope="col">재고물품</th>
                                     <th scope="col">재고량</th>
                                     <th scope="col">재고율</th>
-                                    <th scope="col">재고 기준량(g)</th>
+                                    <th scope="col">재고 기준량(g,ea)</th>
                                     <th scope="col">재고상태</th>
                                 </tr>
                             </thead>
@@ -242,14 +362,14 @@
                             <script type="text/x-jsrender" id="<@compId>_tableId_template">    
                                 {{for list}}
                                     <tr id="trId_{{:#index}}" name="<@compId>_tr_{{:#index}}" '>
-                                        <td>{{:#index + 1}}</td>
+                                        <td>{{:ROWNUM}}</td>
                                         <td>{{:STOCK_DATE}}</td>
                                         <td>{{:STORE_NM}}</td>
                                         <td>{{:PRODUCT_NM}}</td>
                                         <td>{{:QUANTITY}}</td>
                                         <td>{{:INVENTORY_RATE}}</td>
                                         <td>{{:FULL_QUANTITY}}</td>
-                                        <td>재고상태</td>
+                                        <td>{{:EVALUATION}}</td>
                                     </tr>
                                 {{/for}}
                             </script>

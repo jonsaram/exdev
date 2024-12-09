@@ -4,9 +4,9 @@
 
 <mapper namespace="dashboardCorPerformance">
 
-	<cache />
-	
-	<!-- 매출액 순위, 영업이익별 순위 -->
+    <cache />
+    
+    <!-- 매출액 순위, 영업이익별 순위 -->
     <select id="getSalesRanking" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getSalesRanking */
         SELECT SP_CSTM_ID
@@ -756,26 +756,14 @@
     <!--  -->
     <select id="getOpenCloseCntSummary" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getOpenCloseCntSummary */
-		SELECT SUM(ALL_CNT)   AS ALL_CNT
-		      ,SUM(CLOSE_CNT) AS CLOSE_CNT
-		      ,SUM(ALL_CNT) - SUM(CLOSE_CNT) AS OPEN_CNT
-		FROM   (
-		        SELECT COUNT(1) AS ALL_CNT
-		             , 0        AS CLOSE_CNT
-		        FROM TBL_EXP_STORE_INFO 
-		        WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
-                AND   BRAND_ID   = #{brandId}
-		        <if test=" !'ALL'.equals(region) ">
-		            AND    REGION     = #{region} 
-		        </if> 
-		        <if test=" !'ALL'.equals(supervisor) ">
-		            AND    SUPERVISOR = #{supervisor} 
-		        </if>
-		        UNION ALL
-		        SELECT 0        AS ALL_CNT 
-		              ,COUNT(1) AS CLOSE_CNT 
-		        FROM TBL_EXP_STORE_INFO 
-		        WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+        SELECT SUM(ALL_CNT)   AS ALL_CNT
+              ,SUM(CLOSE_CNT) AS CLOSE_CNT
+              ,SUM(ALL_CNT) - SUM(CLOSE_CNT) AS OPEN_CNT
+        FROM   (
+                SELECT COUNT(1) AS ALL_CNT
+                     , 0        AS CLOSE_CNT
+                FROM TBL_EXP_STORE_INFO 
+                WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
                 AND   BRAND_ID   = #{brandId}
                 <if test=" !'ALL'.equals(region) ">
                     AND    REGION     = #{region} 
@@ -783,26 +771,38 @@
                 <if test=" !'ALL'.equals(supervisor) ">
                     AND    SUPERVISOR = #{supervisor} 
                 </if>
-		        AND CLOSING_DATE IS NOT NULL
-		        )
+                UNION ALL
+                SELECT 0        AS ALL_CNT 
+                      ,COUNT(1) AS CLOSE_CNT 
+                FROM TBL_EXP_STORE_INFO 
+                WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+                AND   BRAND_ID   = #{brandId}
+                <if test=" !'ALL'.equals(region) ">
+                    AND    REGION     = #{region} 
+                </if> 
+                <if test=" !'ALL'.equals(supervisor) ">
+                    AND    SUPERVISOR = #{supervisor} 
+                </if>
+                AND CLOSING_DATE IS NOT NULL
+                )
     </select>
     
     <select id="getRegionCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getRegionCnt */
         SELECT REGION
-		      ,NVL(REGION_NM,'없음') AS  REGION_NM
-		      ,CNT 
-		FROM   (
-		        SELECT REGION
-		              ,GET_CODE_NM('STORE_REGION', REGION)      AS REGION_NM
-		              ,COUNT(1) AS CNT 
-		        FROM TBL_EXP_STORE_INFO 
-		        WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+              ,NVL(REGION_NM,'없음') AS  REGION_NM
+              ,CNT 
+        FROM   (
+                SELECT REGION
+                      ,GET_CODE_NM('STORE_REGION', REGION)      AS REGION_NM
+                      ,COUNT(1) AS CNT 
+                FROM TBL_EXP_STORE_INFO 
+                WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
                 AND   BRAND_ID   = #{brandId}
-		        AND CLOSING_DATE IS  NULL
-		        GROUP BY REGION
-		        )
-		ORDER BY CNT DESC 
+                AND CLOSING_DATE IS  NULL
+                GROUP BY REGION
+                )
+        ORDER BY CNT DESC 
     </select>
 
     <select id="getGoalAchieveRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -1589,32 +1589,32 @@
     </select>
     
     <select id="getWeekList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-	    /* dashboardCorPerformance.getWeekList */
-		WITH ISO AS(    
-		SELECT TO_CHAR(WEEK_START, 'YYYY-MM-DD') AS WEEK_START        
-		      ,TO_CHAR(WEEK_END, 'YYYY-MM-DD')   AS WEEK_END        
-		      ,TO_CHAR(WEEK_START, 'WW')         AS WEEK_OF_YEAR_ISO        
-		      ,TO_CHAR(WEEK_START, 'W')          AS WEEK_OF_MONTH    
-		FROM   (        
-		          SELECT    TRUNC(START_DT + LEVEL, 'D') WEEK_START            
-		                   ,TRUNC(START_DT + LEVEL, 'D') + 6 WEEK_END        
-		          FROM     (            
-		                      SELECT  TO_DATE( #{weekStart} , 'YYYYMMDD') - 1 START_DT                
-		                             ,TO_DATE( #{weekEnd} , 'YYYYMMDD') END_DT            
-		                      FROM DUAL        
-		                    )        
-		          CONNECT BY LEVEL <![CDATA[ <= ]]> END_DT - START_DT    
-		       )    
-		GROUP BY WEEK_START, WEEK_END    
-		ORDER BY WEEK_START
-		)
-		SELECT  ROWNUM AS WEEK_OF_YEAR
-		        ,A.WEEK_START 
-		        ,A.WEEK_END 
-		        ,A.WEEK_START||' ~ '||A.WEEK_END AS START_END
-		        ,A.WEEK_OF_YEAR_ISO 
-		        ,A.WEEK_OF_MONTH 
-		FROM ISO A   
+        /* dashboardCorPerformance.getWeekList */
+        WITH ISO AS(    
+        SELECT TO_CHAR(WEEK_START, 'YYYY-MM-DD') AS WEEK_START        
+              ,TO_CHAR(WEEK_END, 'YYYY-MM-DD')   AS WEEK_END        
+              ,TO_CHAR(WEEK_START, 'WW')         AS WEEK_OF_YEAR_ISO        
+              ,TO_CHAR(WEEK_START, 'W')          AS WEEK_OF_MONTH    
+        FROM   (        
+                  SELECT    TRUNC(START_DT + LEVEL, 'D') WEEK_START            
+                           ,TRUNC(START_DT + LEVEL, 'D') + 6 WEEK_END        
+                  FROM     (            
+                              SELECT  TO_DATE( #{weekStart} , 'YYYYMMDD') - 1 START_DT                
+                                     ,TO_DATE( #{weekEnd} , 'YYYYMMDD') END_DT            
+                              FROM DUAL        
+                            )        
+                  CONNECT BY LEVEL <![CDATA[ <= ]]> END_DT - START_DT    
+               )    
+        GROUP BY WEEK_START, WEEK_END    
+        ORDER BY WEEK_START
+        )
+        SELECT  ROWNUM AS WEEK_OF_YEAR
+                ,A.WEEK_START 
+                ,A.WEEK_END 
+                ,A.WEEK_START||' ~ '||A.WEEK_END AS START_END
+                ,A.WEEK_OF_YEAR_ISO 
+                ,A.WEEK_OF_MONTH 
+        FROM ISO A   
         WHERE 1 = 1
         AND   A.WEEK_START <![CDATA[ <= ]]> TO_CHAR(GET_KRDT(SYSDATE), 'YYYY-MM-DD')   
     </select>
@@ -1640,15 +1640,15 @@
                     WHERE  1 = 1
                     AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
                     AND    A.BRAND_ID   = #{brandId}
-			        <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
-			            AND    A.STORE_ID   = #{store}
-			        </if>
-			        <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
-			            AND    A.REGION   = #{region}
-			        </if>
-			        <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
-			            AND    A.SUPERVISOR   = #{supervisor}
-			        </if>
+                    <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                        AND    A.STORE_ID   = #{store}
+                    </if>
+                    <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                        AND    A.REGION   = #{region}
+                    </if>
+                    <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                        AND    A.SUPERVISOR   = #{supervisor}
+                    </if>
                     ORDER BY A.SP_CSTM_ID
                             ,A.STORE_ID
                             ,B.YEAR
@@ -3222,42 +3222,85 @@
     <!-- 지점별 재고 -->
     <select id="getInventoryManage" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getInventoryManage  */
-		SELECT  ROWNUM
-               ,A.STOCK_OF_DAY_ID
-		       ,A.BRAND_ID
-		       ,A.STORE_ID
-		       ,B.STORE_NM
-		       ,A.STOCK_MST_ID
-		       ,C.PRODUCT_CD
-		       ,C.PRODUCT_NM
-		       ,A.YEAR||'-'||A.MONTH||'-'||A.DAY AS STOCK_DATE
-		       ,A.QUANTITY
-		       ,D.FULL_QUANTITY  /* 기준수량 */
-		       ,CASE WHEN D.FULL_QUANTITY = 0 THEN 0 
-		             ELSE (A.QUANTITY / D.FULL_QUANTITY) * 100 
-		        END AS INVENTORY_RATE
-		       ,A.CREATE_USER
-		       ,A.CREATE_DATE
-		FROM   VINS_TBL_EXP_STOCK_OF_DAY A /* 일별 재고량 */
-		       JOIN VINS_TBL_EXP_STORE_MST B /* 지점 마스터 */
-		         ON  1 = 1
-		         AND A.STORE_ID = B.STORE_ID
-		       JOIN VINS_TBL_EXP_STOCK_MST C /* 재고마스터 */
-		         ON  1 = 1
-		         AND A.STOCK_MST_ID = C.STOCK_MST_ID
-		         AND C.PRODUCT_CD = 'obong_PD0028'
-		       JOIN VINS_TBL_EXP_STOCK_STORE_CFG D /* 지점재고관리설정 */
-		         ON  1 = 1
-		         AND A.BRAND_ID     = D.BRAND_ID
-		         AND A.STORE_ID     = D.STORE_ID
-		         AND A.STOCK_MST_ID = D.STOCK_MST_ID
-		WHERE  1 = 1
-		AND    A.BRAND_ID = 'obong'
-		AND    A.STORE_ID = '9469d91ec6ac4c31'
-		ORDER BY A.YEAR
-		        ,A.MONTH
-		        ,A.DAY
-    </select>   
+        SELECT ROWNUM
+              ,A.STOCK_OF_DAY_ID
+              ,A.BRAND_ID
+              ,A.STORE_ID
+              ,A.STORE_NM
+              ,A.STOCK_MST_ID
+              ,A.PRODUCT_CD
+              ,A.PRODUCT_NM
+              ,A.YEAR
+              ,A.MONTH
+              ,A.STOCK_DATE
+              ,A.QUANTITY
+              ,A.FULL_QUANTITY  /* 기준수량 */
+              ,ROUND(A.INVENTORY_RATE) AS INVENTORY_RATE
+              ,(SELECT DISTINCT EVALUATION
+                FROM   VINS_TBL_EXP_STOCK_EVALUATION_CRITERIA
+                WHERE  1 = 1
+                AND    BRAND_ID = 'obong'
+                AND    (ROUND(A.INVENTORY_RATE)  <![CDATA[>=]]> NVL(BOTTOM_VAL, -99999999)) 
+                AND    (ROUND(A.INVENTORY_RATE)  <![CDATA[<]]> NVL(TOP_VAL, 99999999))
+              ) AS EVALUATION
+              ,A.CREATE_USER
+              ,A.CREATE_DATE
+        FROM   (
+                    SELECT  A.STOCK_OF_DAY_ID
+                           ,A.BRAND_ID
+                           ,A.STORE_ID
+                           ,B.STORE_NM
+                           ,A.STOCK_MST_ID
+                           ,C.PRODUCT_CD
+                           ,C.PRODUCT_NM
+                           ,A.YEAR
+                           ,A.MONTH
+                           ,A.YEAR||'-'||A.MONTH||'-'||A.DAY AS STOCK_DATE
+                           ,A.QUANTITY
+                           ,D.FULL_QUANTITY  /* 기준수량 */
+                           ,CASE WHEN D.FULL_QUANTITY = 0 THEN 0 
+                                 ELSE (A.QUANTITY / D.FULL_QUANTITY) * 100 
+                            END AS INVENTORY_RATE
+                           ,A.CREATE_USER
+                           ,A.CREATE_DATE
+                    FROM   VINS_TBL_EXP_STOCK_OF_DAY A /* 일별 재고량 */
+                           JOIN VINS_TBL_EXP_STORE_MST B /* 지점 마스터 */
+                             ON  1 = 1
+                             AND A.STORE_ID   = B.STORE_ID
+                             AND A.BRAND_ID   = B.BRAND_ID
+                             <if test=" !'ALL'.equals(storeId) and storeId != null and storeId != ''  ">
+                                 AND B.STORE_CODE = #{storeId}
+                             </if>
+                           JOIN VINS_TBL_EXP_STOCK_MST C /* 재고마스터 */
+                             ON  1 = 1
+                             AND A.STOCK_MST_ID = C.STOCK_MST_ID
+                             <if test=" !'ALL'.equals(productCd) and productCd != null and productCd != ''  ">
+                                 AND C.PRODUCT_CD = #{productCd}
+                             </if>
+                           JOIN VINS_TBL_EXP_STOCK_STORE_CFG D /* 지점재고관리설정 */
+                             ON  1 = 1
+                             AND A.BRAND_ID     = D.BRAND_ID
+                             AND A.STORE_ID     = D.STORE_ID
+                             AND A.STOCK_MST_ID = D.STOCK_MST_ID
+                    WHERE  1 = 1
+                    AND    A.BRAND_ID = #{brandId} 
+               ) A
+        WHERE  1 = 1
+        AND    TO_DATE(A.YEAR||'-'||A.MONTH , 'YYYY-MM')  BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM') 
+        ORDER BY A.STORE_NM
+                ,A.PRODUCT_CD
+                ,A.STOCK_DATE
+    </select>
+       
+    <select id="getProductList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getProductList */
+        SELECT PRODUCT_CD
+              ,PRODUCT_NM
+        FROM   VINS_TBL_EXP_STOCK_MST
+        WHERE  1 = 1
+        AND    BRAND_ID = #{brandId}
+        ORDER BY PRODUCT_NM
+    </select>
     
     <select id="getInventoryManage1" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         <include refid="getInventoryManage_body"/>
