@@ -3158,8 +3158,8 @@
                    ,B.BASE_DATE
                    ,B.AMOUNT
                    ,B.PREDICT_METHOD
-            FROM    C##VINS.TBL_EXP_STORE_MST A
-                    JOIN C##VINS.TBL_EXP_STORE_FINANCIAL_PREDICT B
+            FROM    VINS_TBL_EXP_STORE_MST A
+                    JOIN VINS_TBL_EXP_STORE_FINANCIAL_PREDICT B
                       ON  1 = 1
                       AND A.BRAND_ID = B.BRAND_ID
                       AND A.STORE_CODE = B.STORE_CD
@@ -3195,8 +3195,8 @@
                    ,B.BASE_DATE
                    ,B.AMOUNT
                    ,B.PREDICT_METHOD
-            FROM    C##VINS.TBL_EXP_STORE_MST A
-                    JOIN C##VINS.TBL_EXP_STORE_FINANCIAL_PREDICT B
+            FROM    VINS_TBL_EXP_STORE_MST A
+                    JOIN VINS_TBL_EXP_STORE_FINANCIAL_PREDICT B
                       ON  1 = 1
                      AND    A.BRAND_ID = B.BRAND_ID
                      AND    A.STORE_CODE = B.STORE_CD
@@ -3238,15 +3238,15 @@
 		        END AS INVENTORY_RATE
 		       ,A.CREATE_USER
 		       ,A.CREATE_DATE
-		FROM   C##VINS.TBL_EXP_STOCK_OF_DAY A /* 일별 재고량 */
-		       JOIN C##VINS.TBL_EXP_STORE_MST B /* 지점 마스터 */
+		FROM   VINS_TBL_EXP_STOCK_OF_DAY A /* 일별 재고량 */
+		       JOIN VINS_TBL_EXP_STORE_MST B /* 지점 마스터 */
 		         ON  1 = 1
 		         AND A.STORE_ID = B.STORE_ID
-		       JOIN C##VINS.TBL_EXP_STOCK_MST C /* 재고마스터 */
+		       JOIN VINS_TBL_EXP_STOCK_MST C /* 재고마스터 */
 		         ON  1 = 1
 		         AND A.STOCK_MST_ID = C.STOCK_MST_ID
 		         AND C.PRODUCT_CD = 'obong_PD0028'
-		       JOIN C##VINS.TBL_EXP_STOCK_STORE_CFG D /* 지점재고관리설정 */
+		       JOIN VINS_TBL_EXP_STOCK_STORE_CFG D /* 지점재고관리설정 */
 		         ON  1 = 1
 		         AND A.BRAND_ID     = D.BRAND_ID
 		         AND A.STORE_ID     = D.STORE_ID
