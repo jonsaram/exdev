@@ -188,9 +188,11 @@
 				AND C.USE_YN = 'Y' AND C.DEL_YN = 'N'
 				AND R.USE_YN = 'Y' AND R.DEL_YN = 'N'
 				<if test=" USER_IDS != null and !USER_IDS.equals('') ">
-				    <foreach item="USER_ID" collection="USER_IDS" open="AND U.USER_ID  IN (" close=")" separator=",">
+					AND C.CONTRACT_ID  IN (  SELECT CONTRACT_ID FROM TBL_EXP_CONTRACT_MEMBER WHERE C.CONTRACT_ID = CONTRACT_ID
+				    <foreach item="USER_ID" collection="USER_IDS" open="AND USER_ID  IN (" close=")" separator=",">
 					#{USER_ID}
 					</foreach>
+					)
 				</if>  
 			)
 			WHERE RESULT_DATE_YM = #{RESULT_DATE_YM}
