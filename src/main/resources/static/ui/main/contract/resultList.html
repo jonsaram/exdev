@@ -63,16 +63,20 @@ var <@pageId> = {
 				C_COM.renderHtml("<@pageId>", rparm);
 				
 				<@pageId>.selectedResultList = resultData.data;
-	        	//mergeTableTD('<@pageId>_resultList', {startIdx : 8, endIdx : 8, startRowIdx : 1});
 	        	mergeTableTD('<@pageId>_resultList', {startIdx : 2, endIdx : 7, startRowIdx : 1});
 	        	
-	        	
+	        	let oldCotractId = "";
 				let sumTotalCost=0,sumIncome=0,sumCost=0,sumOrg=0;
 				resultData.data.forEach(item=>{
-					sumTotalCost		+=item.TOTAL_COST;
+					 
+					if( item.CONTRACT_ID != oldCotractId ){
+						sumTotalCost		+=item.TOTAL_COST;
+					}
 					sumIncome			+= isEmpty(item.INCOME) ? 0:item.INCOME;
 					sumCost				+= isEmpty(item.SUM_COST_PRICE) ? 0: item.SUM_COST_PRICE;
 					sumOrg				+= isEmpty(item.ORG_SELLING_PRICE) ? 0: item.ORG_SELLING_PRICE ;
+					
+					oldCotractId = item.CONTRACT_ID;
 				})
 
 				$("#<@pageId>_sumTotalCost").text(sumTotalCost.toLocaleString());
