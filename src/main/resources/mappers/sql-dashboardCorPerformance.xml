@@ -3239,7 +3239,7 @@
               ,(SELECT DISTINCT EVALUATION
                 FROM   VINS_TBL_EXP_STOCK_EVALUATION_CRITERIA
                 WHERE  1 = 1
-                AND    BRAND_ID = 'obong'
+                AND    BRAND_ID = #{brandId} 
                 AND    (ROUND(A.INVENTORY_RATE)  <![CDATA[>=]]> NVL(BOTTOM_VAL, -99999999)) 
                 AND    (ROUND(A.INVENTORY_RATE)  <![CDATA[<]]> NVL(TOP_VAL, 99999999))
               ) AS EVALUATION
@@ -3274,9 +3274,13 @@
                            JOIN VINS_TBL_EXP_STOCK_MST C /* 재고마스터 */
                              ON  1 = 1
                              AND A.STOCK_MST_ID = C.STOCK_MST_ID
-                             <if test=" !'ALL'.equals(productCd) and productCd != null and productCd != ''  ">
-                                 AND C.PRODUCT_CD = #{productCd}
-                             </if>
+                             
+                            <if test=" productList != null and productList.size() > 0">
+                                AND C.PRODUCT_CD    IN 
+                                <foreach item="productCd" collection="productList" open="(" close=")" separator=",">
+                                    #{productCd}        
+                                </foreach>  
+                            </if>
                            JOIN VINS_TBL_EXP_STOCK_STORE_CFG D /* 지점재고관리설정 */
                              ON  1 = 1
                              AND A.BRAND_ID     = D.BRAND_ID
@@ -3284,9 +3288,11 @@
                              AND A.STOCK_MST_ID = D.STOCK_MST_ID
                     WHERE  1 = 1
                     AND    A.BRAND_ID = #{brandId} 
+                    AND    A.YEAR     = #{year} 
+                    AND    A.MONTH    = #{month} 
+                    AND    A.DAY      = #{day} 
                ) A
         WHERE  1 = 1
-        AND    TO_DATE(A.YEAR||'-'||A.MONTH , 'YYYY-MM')  BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM') 
         ORDER BY A.STORE_NM
                 ,A.PRODUCT_CD
                 ,A.STOCK_DATE

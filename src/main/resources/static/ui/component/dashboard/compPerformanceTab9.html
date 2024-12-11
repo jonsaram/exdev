@@ -3,11 +3,54 @@
     var <@compId> = {
               searchedRows : [] // 페이지
              ,selectProduct : ''
-             ,searchDate : ''
              ,pageInit : () => {
-            	 
-            	 let today  = getToday(8, '-');
-                 $("#<@compId>_startDate").val(today);
+
+                 var now = new Date();   // 현재 날짜 및 시간
+                 var thisYear = now.getFullYear();   // 연도
+                 
+                 var startDate = new Date();
+                 startDate.setFullYear(startDate.getFullYear() - 5);// 현재년도의 과거 5년
+                 var startYear = startDate.getFullYear();   // 연도
+                 
+                 const yearsArray = Array.from({ length: 6 }, (_, index) => {
+                       const year = startYear + index;
+                       console.log("year ==>"+year);
+                       return [year.toString(), year + "년"];
+                 }).reverse();
+
+                 const monthsArray = Array.from({ length: 12 }, (_, index) => {
+                       const months = ("0"+(1 + index) ).slice(-2);
+                       return [months.toString(), months + "월"];
+                 });
+
+
+                 var startYearsArrayList = { data : yearsArray,targetId : "<@compId>_startYears"}
+                 C_UICOM.makeSelectBox(startYearsArrayList, "single");
+                 C_UICOM.setSingleBox("<@compId>_startYears", dayjs().year());
+                 C_UICOM.addChangeListener("<@compId>_startYears", function(dataObj) {
+                	 <@compId>.checkDay();
+                 });
+                 
+                 var startMonthsArrayList = { data : monthsArray,targetId : "<@compId>_startMonths"}
+                 C_UICOM.makeSelectBox(startMonthsArrayList, "single");
+                 C_UICOM.setSingleBox("<@compId>_startMonths", ("0"+(dayjs().month() + 1) ).slice(-2));
+                 C_UICOM.addChangeListener("<@compId>_startMonths", function(dataObj) {
+                	 <@compId>.checkDay();
+                 });
+                 
+                 var endYearsArrayList = { data : yearsArray,targetId : "<@compId>_endYears"}
+                 C_UICOM.makeSelectBox(endYearsArrayList, "single");
+                 C_UICOM.setSingleBox("<@compId>_endYears", dayjs().year());
+                 C_UICOM.addChangeListener("<@compId>_endYears", function(dataObj) {
+                	 <@compId>.checkDay();
+                 });
+                 
+                 var endMonthsArrayList = { data : monthsArray,targetId : "<@compId>_endMonths"}
+                 C_UICOM.makeSelectBox(endMonthsArrayList, "single");
+                 C_UICOM.setSingleBox("<@compId>_endMonths", ("0"+(dayjs().month() + 1) ).slice(-2));
+                 C_UICOM.addChangeListener("<@compId>_endMonths", function(dataObj) {
+                     <@compId>.checkDay();
+                 });
              }
 
              /* ******  UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    */
@@ -117,12 +160,23 @@
                  C_COM.requestQuery(parm1, function(resultData) {
                 	 
                      const DATA = resultData.data.map( item => [ item.PRODUCT_CD, item.PRODUCT_NM ]);
-                     var selectBoxProductList = {
-                             data : DATA
-                            ,targetId : "<@compId>_selectBoxProduct" 
-                     } 
-                     C_UICOM.makeSelectBox(selectBoxProductList, "multi");
                      
+                     if( DATA.length > 0 ){
+                    	 var selectBoxProductList = {
+                                 data : DATA
+                                ,targetId : "<@compId>_selectBoxProduct" 
+                         } 
+                    	 C_UICOM.makeSelectBox(selectBoxProductList, "single");
+                     }else{
+
+                         var selectBoxProductList = {
+
+                              defaultItem    : ["NOTTHING", "없음"]
+                             ,data : DATA
+                             ,targetId : "<@compId>_selectBoxProduct" 
+                         }
+                         C_UICOM.makeSelectBox(selectBoxProductList, "single");
+                     }
                      
                  });
                  C_UICOM.addChangeListener("<@compId>_selectBoxProduct", function(dataObj) {
@@ -159,22 +213,24 @@
                  });
              }
             ,searchList : () => {
-            	
-            	var startDate   = <@compId>.searchDate;//C_UICOM.getData("<@compId>_startDate");
+
+            	var startYears  = C_UICOM.getData("<@compId>_startYears");
+                var startMonths = C_UICOM.getData("<@compId>_startMonths");
+                var endYears    = C_UICOM.getData("<@compId>_endYears");
+                var endMonths   = C_UICOM.getData("<@compId>_endMonths");
                 var region      = C_UICOM.getData("<@compId>_selectBoxRegion");
                 var storeId     = C_UICOM.getData("<@compId>_selectBoxStore");
-                //var productCd   = C_UICOM.getData("<@compId>_selectBoxProduct");
-                var productList = C_UICOM.getData("<@compId>_selectBoxProduct");
-                var brandId     = <@parentId>.getParentBrandId();
-                
-                console.log("startDate ==>"+startDate);
-                const [year, month, day] = startDate.split('-');
+                var productCd   = C_UICOM.getData("<@compId>_selectBoxProduct");
+                var startDate   = startYears+"-"+startMonths;
+                var endDate     = endYears+"-"+endMonths;
+                var brandId = <@parentId>.getParentBrandId();
 
                 if(brandId == undefined){
                     C_POP.alert("브랜드가 없습니다.");
                     return;
                 }
                 
+                console.log("storeId ==>"+storeId);
                 if( "ALL" == storeId ){
                     C_POP.alert("지점을 선택해 주세요.");
                     return;
@@ -184,11 +240,9 @@
                 requestParm["brandId"]      = brandId;
                 requestParm["storeId"]      = storeId;
                 requestParm["startDate"]    = startDate;
+                requestParm["endDate"]      = endDate;
                 requestParm["region"]       = region;
-                requestParm["productList"]  = productList;
-                requestParm["year"]         = year;
-                requestParm["month"]        = month;
-                requestParm["day"]          = day;
+                requestParm["productCd"]    = productCd;
                 
                 const listRange = C_UICOM.getData("<@compId>_pagingChunk");
 
@@ -227,12 +281,6 @@
     C_COMP.onLoadComp("<@compId>", function(data) {
         <@compId>.pageInit();
         <@compId>.setHandler();
-        $("#<@compId>_startDate").datepicker({
-            onSelect: function(dateString) {
-                console.log("=== dateString ===>"+dateString);
-                <@compId>.searchDate = dateString;
-            }
-        });
     });
 </script>
 <div class="container">
@@ -243,8 +291,22 @@
                     <!-- search area -->
                     <div class="search_area">
                         <div class="calendar_wrap">
-				            <div class="select_box fl" style="width:114px">
-				                <input type="text" id="<@compId>_startDate" name="<@compId>_startDate" class="datepicker" style="width:114px">
+				            <!-- 시작년월 선택 -->
+				            <div class="select_box fl" style="width:100px">
+				                <div id="<@compId>_startYears" style="width:100px"></div>
+				            </div>
+				            <div class="select_box fl" style="width:100px">
+				                <div id="<@compId>_startMonths" style="width:100px"></div>
+				            </div>
+				            <div class="calendar_wrap fl">
+				                <label for="to">~</label>
+				            </div>
+				            <!-- 종료년월 선택 -->
+				            <div class="select_box fl" style="width:100px">
+				                <div id="<@compId>_endYears" style="width:100px"></div>
+				            </div>
+				            <div class="select_box fl" style="width:100px">
+				                <div id="<@compId>_endMonths" style="width:100px"></div>
 				            </div>
 			                <span class="tit01 fl lh33">권역</span>
 			                <!-- 권역 선택 -->
