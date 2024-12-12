@@ -3147,75 +3147,66 @@
     <!-- 매출 예측 -->
     <select id="getPredictSales" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getPredictSales */
-        WITH TBL_EXP_STORE_FINANCIAL_PREDICT AS
-        (     
-            SELECT  B.BRAND_ID
-                   ,A.STORE_ID 
-                   ,A.STORE_NM
-                   ,B.YEAR
-                   ,B.MONTH
-                   ,B.SUBJECT
-                   ,B.BASE_DATE
-                   ,B.AMOUNT
-                   ,B.PREDICT_METHOD
-            FROM    VINS_TBL_EXP_STORE_MST A
-                    JOIN VINS_TBL_EXP_STORE_FINANCIAL_PREDICT B
-                      ON  1 = 1
-                      AND A.BRAND_ID = B.BRAND_ID
-                      AND A.STORE_CODE = B.STORE_CD
-                      AND B.SUBJECT  = 'SUBJECT_001'
-                      AND B.YEAR     = #{year}
-                      AND B.MONTH    = #{month}
-            WHERE  1 = 1
-            AND    A.BRAND_ID   = #{brandId} 
-            AND    A.STORE_CODE = #{store}
-          
-        )
-        SELECT   BASE_DATE
-                ,STORE_NM 
-                ,FLOOR(SUM(CASE WHEN PREDICT_METHOD = 'MIXED_PREDICT' THEN AMOUNT ELSE 0 END)) AS MIXED_PREDICT
-                ,FLOOR(SUM(CASE WHEN PREDICT_METHOD = 'TREND' THEN AMOUNT ELSE 0 END)) AS TREND
-        FROM   TBL_EXP_STORE_FINANCIAL_PREDICT
-        GROUP BY BASE_DATE
-                ,STORE_NM 
-        ORDER BY BASE_DATE
+        SELECT  B.BRAND_ID,
+                A.STORE_ID,
+                A.STORE_NM,
+                B.YEAR,
+                B.MONTH,
+                B.YEAR||'-'||B.MONTH AS YEAR_MONTH,
+                SUM(CASE WHEN B.SUBJECT = 'SUBJECT_001' THEN ROUND(B.AMOUNT) ELSE 0 END) AS SUBJECT_001,
+                SUM(CASE WHEN B.SUBJECT = 'SUBJECT_002' THEN ROUND(B.AMOUNT) ELSE 0 END) AS SUBJECT_002,
+                SUM(CASE WHEN B.SUBJECT = 'SUBJECT_005' THEN ROUND(B.AMOUNT) ELSE 0 END) AS SUBJECT_005
+        FROM    VINS_TBL_EXP_STORE_MST A
+                JOIN VINS_TBL_EXP_STORE_FINANCIAL_PREDICT B
+                  ON A.BRAND_ID = B.BRAND_ID
+                 AND A.STORE_CODE = B.STORE_CD
+                 AND B.SUBJECT IN ('SUBJECT_001', 'SUBJECT_002', 'SUBJECT_005')
+                 AND B.PREDICT_METHOD = 'MONTHLY_START'
+                 AND TO_DATE(B.YEAR || '-' || B.MONTH, 'YYYY-MM') BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM') 
+        WHERE   A.BRAND_ID   = #{brandId} 
+          AND   A.STORE_CODE = #{store}
+        GROUP BY B.BRAND_ID,
+                 A.STORE_ID,
+                 A.STORE_NM,
+                 B.YEAR,
+                 B.MONTH
+        ORDER BY B.BRAND_ID,
+                 A.STORE_ID,
+                 A.STORE_NM,
+                 B.YEAR,
+                 B.MONTH
     </select>
     
     <!-- 영업이익 예측 -->
     <select id="getBusinessProfit" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getBusinessProfit */
-        WITH TBL_EXP_STORE_FINANCIAL_PREDICT AS
-        (     
-            SELECT  B.BRAND_ID
-                   ,A.STORE_ID 
-                   ,A.STORE_NM
-                   ,B.YEAR
-                   ,B.MONTH
-                   ,B.SUBJECT
-                   ,B.BASE_DATE
-                   ,B.AMOUNT
-                   ,B.PREDICT_METHOD
-            FROM    VINS_TBL_EXP_STORE_MST A
-                    JOIN VINS_TBL_EXP_STORE_FINANCIAL_PREDICT B
-                      ON  1 = 1
-                     AND    A.BRAND_ID = B.BRAND_ID
-                     AND    A.STORE_CODE = B.STORE_CD
-                     AND    B.SUBJECT  IN ('SUBJECT_005','SUBJECT_104')
-                     AND    B.YEAR     = #{year}
-                     AND    B.MONTH    = #{month}
-            WHERE  1 = 1
-            AND    A.BRAND_ID   = #{brandId} 
-            AND    A.STORE_CODE = #{store}
-          
-        )
-        SELECT   BASE_DATE
-                ,STORE_NM 
-                ,FLOOR(SUM(CASE WHEN SUBJECT = 'SUBJECT_005' THEN AMOUNT ELSE 0 END)) AS BUSINESS_PROFIT 
-                ,FLOOR(SUM(CASE WHEN SUBJECT = 'SUBJECT_104' THEN AMOUNT ELSE 0 END)) AS BUSINESS_PROFIT_RATIO
-        FROM   TBL_EXP_STORE_FINANCIAL_PREDICT
-        GROUP BY BASE_DATE
-                ,STORE_NM 
-        ORDER BY BASE_DATE
+        SELECT  B.BRAND_ID,
+                A.STORE_ID,
+                A.STORE_NM,
+                B.YEAR,
+                B.MONTH,
+                B.YEAR||'-'||B.MONTH AS YEAR_MONTH,
+                SUM(CASE WHEN B.SUBJECT = 'SUBJECT_104' THEN ROUND(B.AMOUNT * 100) ELSE 0 END) AS SUBJECT_104,
+                SUM(CASE WHEN B.SUBJECT = 'SUBJECT_005' THEN ROUND(B.AMOUNT      ) ELSE 0 END) AS SUBJECT_005
+        FROM    VINS_TBL_EXP_STORE_MST A
+                JOIN VINS_TBL_EXP_STORE_FINANCIAL_PREDICT B
+                  ON A.BRAND_ID = B.BRAND_ID
+                 AND A.STORE_CODE = B.STORE_CD
+                 AND B.SUBJECT IN ('SUBJECT_104', 'SUBJECT_005')
+                 AND B.PREDICT_METHOD = 'MONTHLY_START'
+                 AND TO_DATE(B.YEAR || '-' || B.MONTH, 'YYYY-MM') BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM')
+        WHERE   A.BRAND_ID = #{brandId} 
+        AND     A.STORE_CODE = #{store}
+        GROUP BY B.BRAND_ID,
+                 A.STORE_ID,
+                 A.STORE_NM,
+                 B.YEAR,
+                 B.MONTH
+        ORDER BY B.BRAND_ID,
+                 A.STORE_ID,
+                 A.STORE_NM,
+                 B.YEAR,
+                 B.MONTH
         
     </select>    
     

@@ -59,8 +59,6 @@
              }
              /* #######  UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    */
              ,brandIdSet : (brandId) => {
-
-                 console.log("== Tab2 brandIdSet ===>");
                  
                  <@compId>.BRAND_ID = brandId;
                  
@@ -104,8 +102,6 @@
 
 
              ,getSelectProduct : () => {
-                 
-            	 console.log("getSelectProduct 1 ");
                  
                  let requestParm = {};
                  requestParm["brandId"]  = <@compId>.BRAND_ID ;
@@ -167,7 +163,6 @@
                 var productList = C_UICOM.getData("<@compId>_selectBoxProduct");
                 var brandId     = <@parentId>.getParentBrandId();
                 
-                console.log("startDate ==>"+startDate);
                 const [year, month, day] = startDate.split('-');
 
                 if(brandId == undefined){
@@ -229,7 +224,6 @@
         <@compId>.setHandler();
         $("#<@compId>_startDate").datepicker({
             onSelect: function(dateString) {
-                console.log("=== dateString ===>"+dateString);
                 <@compId>.searchDate = dateString;
             }
         });
