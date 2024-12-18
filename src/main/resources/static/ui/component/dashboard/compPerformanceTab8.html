@@ -8,6 +8,7 @@
             	 
             	 let today  = getToday(8, '-');
                  $("#<@compId>_startDate").val(today);
+                 <@compId>.searchDate = today;
              }
 
              /* ******  UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    */
@@ -174,6 +175,12 @@
                     C_POP.alert("지점을 선택해 주세요.");
                     return;
                 }
+                
+                if (typeof productList === "undefined") {
+                    C_POP.alert("상품을 선택해 주세요.");
+                    return;
+                }
+                
                 
                 let requestParm = {};
                 requestParm["brandId"]      = brandId;

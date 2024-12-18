@@ -686,7 +686,7 @@
               ,REGION
               ,REGION_NM
               ,YEAR
-              ,AMOUNT
+              ,ROUND(AMOUNT) AS AMOUNT 
               ,ROUND(AMOUNT1) AS AMOUNT1
         FROM   (
                     SELECT B.SP_CSTM_ID
@@ -3159,12 +3159,12 @@
         FROM    VINS_TBL_EXP_STORE_MST A
                 JOIN VINS_TBL_EXP_STORE_FINANCIAL_PREDICT B
                   ON A.BRAND_ID = B.BRAND_ID
-                 AND A.STORE_CODE = B.STORE_CD
+                 AND A.STORE_CD = B.STORE_CD
                  AND B.SUBJECT IN ('SUBJECT_001', 'SUBJECT_002', 'SUBJECT_005')
                  AND B.PREDICT_METHOD = 'MONTHLY_START'
                  AND TO_DATE(B.YEAR || '-' || B.MONTH, 'YYYY-MM') BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM') 
         WHERE   A.BRAND_ID   = #{brandId} 
-          AND   A.STORE_CODE = #{store}
+          AND   A.STORE_CD   = #{store}
         GROUP BY B.BRAND_ID,
                  A.STORE_ID,
                  A.STORE_NM,
@@ -3191,12 +3191,12 @@
         FROM    VINS_TBL_EXP_STORE_MST A
                 JOIN VINS_TBL_EXP_STORE_FINANCIAL_PREDICT B
                   ON A.BRAND_ID = B.BRAND_ID
-                 AND A.STORE_CODE = B.STORE_CD
+                 AND A.STORE_CD = B.STORE_CD
                  AND B.SUBJECT IN ('SUBJECT_104', 'SUBJECT_005')
                  AND B.PREDICT_METHOD = 'MONTHLY_START'
                  AND TO_DATE(B.YEAR || '-' || B.MONTH, 'YYYY-MM') BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM')
         WHERE   A.BRAND_ID = #{brandId} 
-        AND     A.STORE_CODE = #{store}
+        AND     A.STORE_CD = #{store}
         GROUP BY B.BRAND_ID,
                  A.STORE_ID,
                  A.STORE_NM,
@@ -3260,7 +3260,7 @@
                              AND A.STORE_ID   = B.STORE_ID
                              AND A.BRAND_ID   = B.BRAND_ID
                              <if test=" !'ALL'.equals(storeId) and storeId != null and storeId != ''  ">
-                                 AND B.STORE_CODE = #{storeId}
+                                 AND B.STORE_CD = #{storeId}
                              </if>
                            JOIN VINS_TBL_EXP_STOCK_MST C /* 재고마스터 */
                              ON  1 = 1
