@@ -3259,13 +3259,8 @@
               ,A.AVG_QUANTITY  /* 적정재고 */
               ,A.SUM_QUANTITY  /* 현재재고 */
               ,A.RATE /*재고율*/
-              ,(SELECT DISTINCT EVALUATION
-                FROM   VINS_TBL_EXP_STOCK_EVALUATION_CRITERIA
-                WHERE  1 = 1
-                AND    BRAND_ID = #{brandId} 
-                AND    RATE  <![CDATA[>=]]> NVL(BOTTOM_VAL, -99999999) 
-                AND    RATE  <![CDATA[<]]> NVL(TOP_VAL, 99999999)
-              ) AS EVALUATION
+              ,B.EVALUATION
+              ,B.COLOR_CODE
         FROM  (
                 SELECT SM.STORE_NM
                       ,B.STOCK_MST_ID
@@ -3303,7 +3298,12 @@
                 ORDER BY STORE_NM
                         ,B.PRODUCT_CD 
                         
-              ) A 
+              ) A
+              LEFT OUTER JOIN VINS_TBL_EXP_STOCK_EVALUATION_CRITERIA B
+                ON  1 = 1
+                AND    B.BRAND_ID = #{brandId} 
+                AND    A.RATE   <![CDATA[>=]]>  NVL(B.BOTTOM_VAL, -99999999) 
+                AND    A.RATE   <![CDATA[<]]>  NVL(B.TOP_VAL, 99999999) 
     </select>  
     
     <!-- 지점별 재고 -->
