@@ -28,6 +28,7 @@
                 WHERE  1 = 1
                 AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
                 AND    A.BRAND_ID   = #{brandId} 
+                AND    A.AMOUNT   IS NOT NULL
                 <if test=" !'ALL'.equals(subject) ">
                     AND    A.SUBJECT    = #{subject}
                 </if>
@@ -691,7 +692,7 @@
         FROM   (
                     SELECT B.SP_CSTM_ID
                           ,B.REGION
-                          ,GET_CODE_NM('STORE_REGION', B.REGION) AS REGION_NM
+                          ,GET_BRAND_CD_NM(#{brandId},'STORE_REGION', B.REGION) AS REGION_NM
                           ,A.YEAR
                           ,SUM(A.AMOUNT)           AS AMOUNT
                           ,SUM(A.AMOUNT)/100000000 AS AMOUNT1
@@ -2475,7 +2476,7 @@
                                                 <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
                                                     AND B.YEAR   = #{year}
                                                 </if>
-                                                <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
+                                                <if test=" !'ALL'.equals(month) and year != null and year != ''  ">
                                                     AND B.MONTH   = #{month}
                                                 </if>
                                            JOIN TBL_EXP_STORE_MENU_MASTER C
