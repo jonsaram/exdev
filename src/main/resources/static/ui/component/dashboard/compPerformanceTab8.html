@@ -7,58 +7,9 @@
              ,pageInit : () => {
             	 
             	 let today  = getToday(8, '-');
-                 $("#<@compId>_startDate").val(today);
+                 //$("#<@compId>_startDate").val(today);
                  <@compId>.searchDate = today;
              }
-
-             /* ******  UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    */
-             ,getMonthDifference : (start, end) =>{
-                 var startYear = parseInt(start.split('-')[0], 10);
-                 var startMonth = parseInt(start.split('-')[1], 10);
-                 var endYear = parseInt(end.split('-')[0], 10);
-                 var endMonth = parseInt(end.split('-')[1], 10);
-
-                 var yearDifference = endYear - startYear;
-                 var monthDifference = endMonth - startMonth;
-
-                 return yearDifference * 12 + monthDifference;
-              }
-
-             ,checkDay : () =>{
-
-                 var startYears  = C_UICOM.getData("<@compId>_startYears");
-                 var startMonths = C_UICOM.getData("<@compId>_startMonths");
-                 var endYears    = C_UICOM.getData("<@compId>_endYears");
-                 var endMonths   = C_UICOM.getData("<@compId>_endMonths");
-                 
-                 var startDate  = startYears+"-"+startMonths;
-                 var endDate    = endYears+"-"+endMonths;
-                 
-                 var dateStart  = startYears+startMonths;
-                 var dateEnd    = endYears+endMonths;
-                 
-                 //시작일이 종료일보다 클경우 종료일을 시작일로 변경
-                 if( Number(dateStart) > Number(dateEnd) ){
-                     C_UICOM.setSingleBox("<@compId>_endYears", startYears);
-                     C_UICOM.setSingleBox("<@compId>_endMonths", startMonths);
-                 }
-                 
-                 var monthDifference = <@compId>.getMonthDifference(startDate, endDate);
-                 
-                 //조회 기간은 12 개월이상일 경우 종료일을 12개월로 변경
-                 if( 12 <= monthDifference  ){
-
-                     var date = new Date(startYears, startMonths - 1);
-                     date.setMonth(date.getMonth() + 11);
-                     var resultYear = date.getFullYear();
-                     var resultMonth = ('0' + (date.getMonth() + 1)).slice(-2); // 월은 0부터 시작하므로 다시 1을 더해주고, 두 자리로 맞춤
-
-                     C_UICOM.setSingleBox("<@compId>_endYears", resultYear.toString());
-                     C_UICOM.setSingleBox("<@compId>_endMonths", resultMonth.toString());
-                     
-                 }
-             }
-             /* #######  UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    UTIL    */
              ,brandIdSet : (brandId) => {
                  
                  <@compId>.BRAND_ID = brandId;
@@ -157,14 +108,14 @@
              }
             ,searchList : () => {
             	
-            	var startDate   = <@compId>.searchDate;//C_UICOM.getData("<@compId>_startDate");
+            	//var startDate   = <@compId>.searchDate;//C_UICOM.getData("<@compId>_startDate");
                 var region      = C_UICOM.getData("<@compId>_selectBoxRegion");
                 var storeId     = C_UICOM.getData("<@compId>_selectBoxStore");
                 //var productCd   = C_UICOM.getData("<@compId>_selectBoxProduct");
                 var productList = C_UICOM.getData("<@compId>_selectBoxProduct");
                 var brandId     = <@parentId>.getParentBrandId();
                 
-                const [year, month, day] = startDate.split('-');
+                //const [year, month, day] = startDate.split('-');
 
                 if(brandId == undefined){
                     C_POP.alert("브랜드가 없습니다.");
@@ -172,8 +123,8 @@
                 }
                 
                 if( "ALL" == storeId ){
-                    C_POP.alert("지점을 선택해 주세요.");
-                    return;
+                    //C_POP.alert("지점을 선택해 주세요.");
+                    //return;
                 }
                 
                 if (typeof productList === "undefined") {
@@ -185,12 +136,12 @@
                 let requestParm = {};
                 requestParm["brandId"]      = brandId;
                 requestParm["storeId"]      = storeId;
-                requestParm["startDate"]    = startDate;
+                //requestParm["startDate"]    = startDate;
                 requestParm["region"]       = region;
                 requestParm["productList"]  = productList;
-                requestParm["year"]         = year;
-                requestParm["month"]        = month;
-                requestParm["day"]          = day;
+                //requestParm["year"]         = year;
+                //requestParm["month"]        = month;
+                //requestParm["day"]          = day;
                 
                 const listRange = C_UICOM.getData("<@compId>_pagingChunk");
 
@@ -244,9 +195,6 @@
                     <!-- search area -->
                     <div class="search_area">
                         <div class="calendar_wrap">
-				            <div class="select_box fl" style="width:114px">
-				                <input type="text" id="<@compId>_startDate" name="<@compId>_startDate" class="datepicker" style="width:114px">
-				            </div>
 			                <span class="tit01 fl lh33">권역</span>
 			                <!-- 권역 선택 -->
 			                <div class="select_box fl" style="width:100px">
@@ -276,7 +224,6 @@
                             <caption>표 캡션</caption>
                             <colgroup>
                                 <col style="width:50px;"/>
-                                <col style="width:200px;"/>
                                 <col style="width:15%;"/>
                                 <col style="width:*"/>
                                 <col style="width:15%;"/>
@@ -287,12 +234,13 @@
                             <thead>
                                 <tr>
                                     <th scope="col">Num</th>
-                                    <th scope="col">날짜</th>
                                     <th scope="col">지점명</th>
                                     <th scope="col">재고물품</th>
-                                    <th scope="col">재고량</th>
+                                    <th scope="col">입고량</th>
+                                    <th scope="col">출고량</th>
+                                    <th scope="col">적정재고량</th>
+                                    <th scope="col">현재재고량</th>
                                     <th scope="col">재고율</th>
-                                    <th scope="col">재고 기준량(g,ea)</th>
                                     <th scope="col">재고상태</th>
                                 </tr>
                             </thead>
@@ -302,19 +250,20 @@
                                 {{for list}}
                                     <tr id="trId_{{:#index}}" name="<@compId>_tr_{{:#index}}" '>
                                         <td>{{:ROWNUM}}</td>
-                                        <td>{{:STOCK_DATE}}</td>
                                         <td>{{:STORE_NM}}</td>
                                         <td>{{:PRODUCT_NM}}</td>
-                                        <td>{{:QUANTITY}}</td>
-                                        <td>{{:INVENTORY_RATE}}</td>
-                                        <td>{{:FULL_QUANTITY}}</td>
+                                        <td>{{:IN_QUANTITY}}</td>
+                                        <td>{{:OUT_QUANTITY}}</td>
+                                        <td>{{:AVG_QUANTITY}}</td>
+                                        <td>{{:SUM_QUANTITY}}</td>
+                                        <td>{{:RATE}}</td>
                                         <td>{{:EVALUATION}}</td>
                                     </tr>
                                 {{/for}}
                             </script>
                             <script type="text/x-jsrender" id="<@compId>_tableId_noData_template">    
                                <tr>    
-                                   <td colspan=8>자료가 없습니다.</td>    
+                                   <td colspan=9>자료가 없습니다.</td>    
                                </tr>
                             </script>
                         </table>

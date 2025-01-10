@@ -3209,10 +3209,105 @@
                  B.YEAR,
                  B.MONTH
         
-    </select>    
-    
+    </select>   
+      
     <!-- 지점별 재고 -->
     <select id="getInventoryManage" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getInventoryManage  */
+        WITH STAVG AS (
+                SELECT STORE_ID
+                      ,STOCK_MST_ID
+                      ,PRODUCT_CD
+                      ,PRODUCT_NM
+                      ,UNIT
+                      ,ROUND(AVG(QUANTITY)) * SAVE_PERIOD AS AVG_QUANTITY
+                FROM   VIEW_STOCK_IN_OUT      
+                WHERE  1 = 1
+                AND    INOUT = 'OUT'
+                AND    BRAND_ID = #{brandId}
+                AND    YEAR    <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'YYYY') 
+                AND    MONTH   <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'MM') 
+                AND    DAY     <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'DD')
+                GROUP BY STORE_ID, STOCK_MST_ID, PRODUCT_CD, PRODUCT_NM, SAVE_PERIOD, UNIT   
+        )
+        , STSUM AS (
+                SELECT STORE_ID
+                      ,STOCK_MST_ID
+                      ,PRODUCT_CD
+                      ,PRODUCT_NM
+                      ,UNIT
+                      ,ROUND(SUM(CASE WHEN INOUT = 'IN' THEN QUANTITY WHEN INOUT = 'OUT' THEN -QUANTITY    ELSE 0 END) * 100) / 100 AS SUM_QUANTITY
+                      ,ROUND(SUM(CASE WHEN INOUT = 'IN' THEN QUANTITY WHEN INOUT = 'OUT' THEN 0          ELSE 0 END) * 100) / 100 AS IN_QUANTITY
+                      ,ROUND(SUM(CASE WHEN INOUT = 'IN' THEN 0        WHEN INOUT = 'OUT' THEN QUANTITY    ELSE 0 END) * 100) / 100 AS OUT_QUANTITY
+                FROM   VINS_VIEW_STOCK_IN_OUT      
+                WHERE  1 = 1
+                AND    BRAND_ID = #{brandId}
+                AND    YEAR    <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'YYYY') 
+                AND    MONTH   <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'MM') 
+                AND    DAY     <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'DD')
+                GROUP BY STORE_ID, STOCK_MST_ID, PRODUCT_CD, PRODUCT_NM, UNIT
+        )
+        
+        SELECT ROWNUM
+              ,A.STORE_NM
+              ,A.STOCK_MST_ID
+              ,A.PRODUCT_CD
+              ,A.PRODUCT_NM
+              ,A.UNIT
+              ,A.IN_QUANTITY   /* 입고 */
+              ,A.OUT_QUANTITY  /* 출고고 */
+              ,A.AVG_QUANTITY  /* 적정재고 */
+              ,A.SUM_QUANTITY  /* 현재재고 */
+              ,A.RATE /*재고율*/
+              ,(SELECT DISTINCT EVALUATION
+                FROM   VINS_TBL_EXP_STOCK_EVALUATION_CRITERIA
+                WHERE  1 = 1
+                AND    BRAND_ID = #{brandId} 
+                AND    RATE  <![CDATA[>=]]> NVL(BOTTOM_VAL, -99999999) 
+                AND    RATE  <![CDATA[<]]> NVL(TOP_VAL, 99999999)
+              ) AS EVALUATION
+        FROM  (
+                SELECT SM.STORE_NM
+                      ,B.STOCK_MST_ID
+                      ,B.PRODUCT_CD
+                      ,B.PRODUCT_NM
+                      ,B.UNIT
+                      ,B.IN_QUANTITY   /* 입고 */
+                      ,B.OUT_QUANTITY  /* 출고고 */
+                      ,A.AVG_QUANTITY  /* 적정재고 */
+                      ,B.SUM_QUANTITY  /* 현재재고 */
+                      ,ROUND(B.SUM_QUANTITY / NULLIF(A.AVG_QUANTITY, 0) * 1000) / 10  AS RATE /*재고율*/
+                FROM   VINS_TBL_EXP_STORE_MST SM
+                      ,STAVG A
+                      ,STSUM B
+                WHERE  1=1
+                AND    SM.BRAND_ID = #{brandId} 
+                AND    SM.STORE_ID        = A.STORE_ID 
+                <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                    AND    SM.REGION =  #{region} 
+                </if>
+                <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                    AND    SM.STORE_CD = #{store} 
+                </if>
+    
+                <if test=" productList != null and productList.size() > 0">
+                    AND A.PRODUCT_CD    IN 
+                    <foreach item="productCd" collection="productList" open="(" close=")" separator=",">
+                        #{productCd}        
+                    </foreach>  
+                </if>
+                AND    A.STOCK_MST_ID(+)  = B.STOCK_MST_ID 
+                AND    A.PRODUCT_CD(+)    = B.PRODUCT_CD
+                AND    A.PRODUCT_CD(+)    = B.PRODUCT_CD
+                AND    A.STORE_ID(+)      = B.STORE_ID 
+                ORDER BY STORE_NM
+                        ,B.PRODUCT_CD 
+                        
+              ) A 
+    </select>  
+    
+    <!-- 지점별 재고 -->
+    <select id="getInventoryManage_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getInventoryManage  */
         SELECT ROWNUM
               ,A.STOCK_OF_DAY_ID
