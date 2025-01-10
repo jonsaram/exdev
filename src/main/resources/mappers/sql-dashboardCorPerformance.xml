@@ -3225,9 +3225,9 @@
                 WHERE  1 = 1
                 AND    INOUT = 'OUT'
                 AND    BRAND_ID = #{brandId}
-                AND    YEAR    <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'YYYY') 
-                AND    MONTH   <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'MM') 
-                AND    DAY     <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'DD')
+                AND    YEAR    <![CDATA[>=]]> #{year}
+                AND    MONTH   <![CDATA[>=]]> #{month}
+                AND    DAY     <![CDATA[>=]]> #{day}
                 GROUP BY STORE_ID, STOCK_MST_ID, PRODUCT_CD, PRODUCT_NM, SAVE_PERIOD, UNIT   
         )
         , STSUM AS (
@@ -3242,9 +3242,9 @@
                 FROM   VINS_VIEW_STOCK_IN_OUT      
                 WHERE  1 = 1
                 AND    BRAND_ID = #{brandId}
-                AND    YEAR    <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'YYYY') 
-                AND    MONTH   <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'MM') 
-                AND    DAY     <![CDATA[>=]]> TO_CHAR(sysdate - 365, 'DD')
+                AND    YEAR    <![CDATA[>=]]> #{year}
+                AND    MONTH   <![CDATA[>=]]> #{month}
+                AND    DAY     <![CDATA[>=]]> #{day}
                 GROUP BY STORE_ID, STOCK_MST_ID, PRODUCT_CD, PRODUCT_NM, UNIT
         )
         
