@@ -471,7 +471,7 @@ var <@pageId> = {
 	 			,totalCntDomId		: "<@pageId>_totalCnt"
 	 			,queryId			: "rstMgn.getContractList"
 				,listRange			: 5
-				,pageRange			: 10
+				,pageRange			: 5
 	 			,parmFn				: function() {
 	 				let parm = requestParm
 	 				return 	parm;
@@ -480,6 +480,7 @@ var <@pageId> = {
 
 				 }
 				,makeListFn			: function(list) {
+					
 					<@pageId>.setHandler();
 				 }
 	 		});	
@@ -543,7 +544,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				</div>
 
 					<!-- 전체 계약 리스트 -->
-					<div class="cont_box right" style="height:425px!important;overflow:auto">
+					<div class="cont_box right" style="height:425px!important;">
 						<h3>전체 계약 리스트</h3>
 						<!-- search area -->
 						<div class="search_area">
@@ -567,14 +568,14 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<caption>표 캡션</caption>
 								<colgroup>
 									<col style="width:40px;"/>
-									<col style="width:40px;"/>
+									<col style="width:55px;"/>
 									<col style="width:40px;"/>
 									<col style="width:55px;"/>
 									<col style="width:75px;"/>
 									<col style="width:60px;"/>
 									<col style="width:11%;"/>
-									<col style="width:11%;"/>
-									<col style="width:15%;"/>
+									<col style="width:13%;"/>
+									<col style="width:13%;"/>
 									<col style="width:11%;"/>
 									<col style="width:12%;"/>
 								</colgroup>
@@ -586,11 +587,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<th scope="col">유입<br>경로</th>
 										<th scope="col">구분</th>
 										<th scope="col">담당자</th>
-										<th scope="col">사업자<br>등록번호</th>
-										<th scope="col">고객명</th>
-										<th scope="col">컨설팅명</th>
-										<th scope="col">총<br>계약 금액</th>
-										<th scope="col">입금액</th>
+										<th scope="col">사업자 번호</th>
+										<th scope="col" class='tc'>거래처</th>
+										<th scope="col" class='tc'>컨설팅명</th>
+										<th scope="col" class='tr'>총 계약금액</th>
+										<th scope="col" class='tr'>입금액</th>
 									</tr>
 								</thead>
 								<tbody id="<@pageId>_contractList"  style="min-height:350px!important">
@@ -607,8 +608,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<td id='COMPANY_REGNUM'	title='{{:COMPANY_REGNUM}}' 	class='tl'		>{{:COMPANY_REGNUM}}</td>
 										<td id='BUYER_NM'		title='{{:BUYER_NM}}' class='tl'				>{{:BUYER_NM}}</td>
 										<td id='CONSULTING_NM'	title='{{:CONSULTING_NM}}' class='tl'			>{{:CONSULTING_NM}}</td>
- 										<td id='TOTAL_COST'		title='{{numb:TOTAL_COST}}' class='tr'			>{{numb:TOTAL_COST}}</td>
- 										<td id='TOT_INCOME'		title='{{numb:TOT_INCOME}}' class='tr'			>{{numb:TOT_INCOME}}</td>
+ 										<td id='TOTAL_COST'	class='tr'title='{{numb:TOTAL_COST}}' class='tr'			>{{numb:TOTAL_COST}}</td>
+ 										<td id='TOT_INCOME'	class='tr'title='{{numb:TOT_INCOME}}' class='tr'			>{{numb:TOT_INCOME}}</td>
 									</tr>
 								{{/for}}
 								</script>

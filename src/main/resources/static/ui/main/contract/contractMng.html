@@ -229,11 +229,8 @@ var <@pageId> = {
 		    
 		}
 		,nameSearch : (e) => {
-			
-			 if (e.key === "Enter") {
-				 
+			 if (e.key === "Enter" ||$(e.currentTarget)?.hasClass("icon_search")) {
 					<@pageId>.searchList();
-					
 			}
 		}
 		,openPopup : (selectedRow) => {
@@ -372,7 +369,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				
 					<div class="search_inputWrap fl" style='width:150px;'>
 						<input type="search" id="<@pageId>_nmSearch" onkeydown="<@pageId>.nameSearch(event)">
-						<button class="search_btn"><i class="icon_search"></i></button>
+						<button class="search_btn"><i class="icon_search"  onclick="<@pageId>.nameSearch(event)"></i></button>
 					</div>
 				    
 				    <div style="margin-right: 8px; font-weight: 800; color: #27187F; margin-left:7px;">결재 상태 조회 :</div>
@@ -394,7 +391,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 					<table>
 						<caption>계약 리스트</caption>
 						<colgroup>
-								<col style="width:40px;"/>
+								<col style="width:35px;"/>
 								<col style="width:40px;"/>
 								<col style="width:70px;">
 								<col style="width:120px;"/>
@@ -402,8 +399,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<col style="width:80px;"/>
 								<col style="width:80px;"/>
 								<col style="width:90px;"/>
-								<col style="width:80px;"/>
-								<col style="width:80px;"/>
+								<col style="width:75px;"/>
+								<col style="width:75px;"/>
 								<col style="width:90px;"/>
 								<col style="width:130px;"/>
 								<col style="width:80px;"/>
@@ -422,7 +419,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<th scope="col">계약구분</th>
 								<th scope="col">계약일</th>
 								<th scope="col">만료일</th>
-								<th scope="col">계약금액</th>
+								<th scope="col" class='tr'>계약금액</th>
 								<th scope="col">컨설팅명</th>
 								<th scope="col">결재</th>
 								<th scope="col"><i class="icon_pen"></i></th>
@@ -434,7 +431,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 				<div class="tbl01 col tbl_body_scroll">
 					<table>
 						<colgroup>
-								<col style="width:40px;"/>
+								<col style="width:35px;"/>
 								<col style="width:40px;"/>
 								<col style="width:70px;">
 								<col style="width:120px;"/>
@@ -442,8 +439,8 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<col style="width:80px;"/>
 								<col style="width:80px;"/>
 								<col style="width:90px;"/>
-								<col style="width:80px;"/>
-								<col style="width:80px;"/>
+								<col style="width:75px;"/>
+								<col style="width:75px;"/>
 								<col style="width:90px;"/>
 								<col style="width:130px;"/>
 								<col style="width:80px;"/>
@@ -466,7 +463,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 								<td id='CONTRACT_DATE'		>{{:CONTRACT_DATE}}</td>
 								<td id='EXPIRE_DATE'		>{{:EXPIRE_DATE}}</td>
 								<td id='TOTAL_COST'	 title='{{numb:TOTAL_COST}}'	class='tr'>{{numb:TOTAL_COST}}</td>
-								<td id='CONSULTING_NM'	 title='{{:CONSULTING_NM}}'	class='tl'>{{:CONSULTING_NM}}</td>
+								<td id='CONSULTING_NM'	 title='{{:CONSULTING_NM}}'	class='tc'>{{:CONSULTING_NM}}</td>
 								<td class='tc'>
 								{{if APP_STATE_NM=="N/A" ~index=#index}} 
 									{{if PROCESS_STATE == "CONTRACTING"}}

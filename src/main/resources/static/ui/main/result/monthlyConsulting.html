@@ -257,13 +257,13 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
 									<col style="width:55px;"/>
-									<col style="width:55px;"/>
+									<col style="width:80px;"/><!-- 구분 -->
 									<col style="width:60px;"/>
-									<col style="width:11%;"/>
-									<col style="width:11%;"/>
-									<col style="width:15%;"/>
 									<col style="width:10%;"/>
-									<col style="width:15%;"/>
+									<col style="width:13%;"/>
+									<col style="width:12%;"/><!-- 컨설팅명 -->
+									<col style="width:12%;"/>
+									<col style="width:12%;"/>
 								</colgroup>
 								<thead>
 									<tr>
@@ -272,11 +272,11 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 										<th scope="col">유입<br>경로</th>
 										<th scope="col">구분</th>
 										<th scope="col">담당자</th>
-										<th scope="col">사업자<BR>등록번호</th>
+										<th scope="col">사업자 번호</th>
 										<th scope="col">거래처</th>
 										<th scope="col">컨설팅명</th>
-										<th scope="col">총<BR>계약금액</th>
-										<th scope="col">입금액</th>
+										<th scope="col" class='tr'>총 계약금액</th>
+										<th scope="col" class='tr'>입금액</th>
 									</tr>
 								</thead>
 								<tbody id="<@pageId>_contractList">
@@ -289,7 +289,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			 							<td title='{{:HOW_GET_NM}}'		>{{:HOW_GET_NM}}</td>
 			 							<td	title='{{:CONSULTING_TYPE_NM}}'>{{:CONSULTING_TYPE_NM}}</td>
 			 							<td title='{{:USER_NM}}'		>{{:USER_NM}}</td>
-										<td title='{{:COMPANY_REGNUM}}' class='tl'>{{:COMPANY_REGNUM}}</td>
+										<td title='{{:COMPANY_REGNUM}}' class='tc'>{{:COMPANY_REGNUM}}</td>
 										<td title='{{:BUYER_NM}}'		>{{:BUYER_NM}}</td>
 										<td title='{{:CONSULTING_NM}}'	>{{:CONSULTING_NM}}</td>
  										<td title='{{numb:TOTAL_COST}}'	class='tr'>{{numb:TOTAL_COST}}</td>
@@ -332,31 +332,31 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 							<table>
 								<caption>표 캡션</caption>
 								<colgroup>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
-									<col style="width:55px;"/>
+									<col style="width:50px;"/>
 									<col style="width:60px;"/>
-									<col style="width:11%;"/>
-									<col style="width:11%;"/>
-									<col style="width:15%;"/>
+									<col style="width:60px;"/>
+									<col style="width:70px;"/>
+									<col style="width:100px;"/><!-- 구분 -->
+									<col style="width:70px;"/>
+									<col style="width:12%;"/><!-- 사업자 등록번호 -->
+									<col style="width:14%;"/>
+									<col style="width:12%;"/>
 									<col style="width:10%;"/>
-									<col style="width:15%;"/>
+									<col style="width:10%;"/>
 								</colgroup>
 								<thead>
 									<tr id="<@pageId>_headingColName">
 										<th scope="col">NO.</th>
 										<th scope="col">년</th>
 										<th scope="col">월</th>
-										<th scope="col">유입<br>경로</th>
+										<th scope="col">유입 경로</th>
 										<th scope="col">구분</th>
 										<th scope="col">담당자</th>
-										<th scope="col">사업자<BR>등록번호</th>
-										<th scope="col">거래처</th>
+										<th scope="col">사업자 등록번호</th>
+										<th scope="col" >거래처</th>
 										<th scope="col">컨설팅명</th>
-										<th scope="col">총<BR>계약금액</th>
-										<th scope="col">입금액</th>
+										<th scope="col" class='tr'>총 계약금액</th>
+										<th scope="col" class='tr'>입금액</th>
 									</tr>
 								</thead>
 								<tbody id="<@pageId>_allContractList">
@@ -371,7 +371,7 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 			 							<td id='CONSULTING_TYPE_NM'	title='{{:CONSULTING_TYPE_NM}}'	value='{{:CONSULTING_TYPE_NM}}'	>{{:CONSULTING_TYPE_NM}}</td>
 			 							<td id='USER_NM'			title='{{:USER_NM}}' 		value='{{:USER_NM}}'			>{{:USER_NM}}</td>
 										<td id='COMPANY_REGNUM' 	title='{{:COMPANY_REGNUM}}'	value='{{:COMPANY_REGNUM}}'		>{{:COMPANY_REGNUM}}</td>
-										<td id='BUYER_NM'			title='{{:BUYER_NM}}'		value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
+										<td id='BUYER_NM'	class='tc'	title='{{:BUYER_NM}}'		value='{{:BUYER_NM}}'			>{{:BUYER_NM}}</td>
 										<td id='CONSULTING_NM'		title='{{:CONSULTING_NM}}'	value='{{:CONSULTING_NM}}'		>{{:CONSULTING_NM}}</td>
  										<td id='TOTAL_COST'	class='tr'	title='{{numb:TOTAL_COST}}' value='{{:TOTAL_COST}}'		>{{numb:TOTAL_COST}}</td>
  										<td id='TOT_INCOME'	class='tr'	title='{{numb:TOT_INCOME}}'	value='{{:TOT_INCOME}}'		>{{numb:TOT_INCOME}}</td>

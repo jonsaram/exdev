@@ -669,13 +669,13 @@
 						, ( SELECT USER_NM FROM TBL_EXP_USER WHERE USER_ID = A.USER_ID ) USER_NM 
 						FROM (
 						    SELECT B.BUYER_NM,B.HOW_GET,B.COMPANY_REGNUM, C.USER_ID,
-						    		(
+						    		NVL((
 						            SELECT SUM(R.INCOME)
 						            FROM TBL_EXP_RESULT R
 						            WHERE R.CONTRACT_ID = C.CONTRACT_ID
 						                AND R.USE_YN = 'Y'
 						                AND R.DEL_YN = 'N'
-						            ) SUM_INCOME
+						            ),0) SUM_INCOME
 									,CS.CONSULTING_NM
 									,CS.CONSULTING_TYPE
 									,C.TOTAL_COST
