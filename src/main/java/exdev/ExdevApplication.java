@@ -13,7 +13,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-
+import org.springframework.scheduling.annotation.EnableScheduling;
 //==== ASP.NET 파일전송 ====
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,6 +23,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 //==== #### ASP.NET 파일전송 #### ====
 
 @SpringBootApplication
+@EnableScheduling
 public class ExdevApplication extends SpringBootServletInitializer {
 	
 	public static void main(String[] args) {

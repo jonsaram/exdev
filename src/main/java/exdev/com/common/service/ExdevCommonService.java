@@ -1,7 +1,9 @@
 package exdev.com.common.service;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -262,17 +264,19 @@ public class ExdevCommonService extends ExdevBaseService
 		return map;
 	}
 
-    @Value("${file.savepath}")
-    private String directoryPath;
-    
-	//@Scheduled(cron = "0 0 0 * * ?") // 매일 0시 0분에 실행
-//    @Scheduled(fixedRate = 60000)  // 60000 밀리초 = 1분// 1분마다 실행
-//	public void batchClearGarbageUploadFiles() {
-//        
-//        try {
-//			fileSyncService.syncFilesWithDB(directoryPath);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}	
+
+    // 매일 0시 0분에 실행
+	//@Scheduled(cron = "0 0 0 * * ?") // 초:정각에 실행, 분, 시, * 매일, * 매월, ? 특정요일과 상관없음. 
+	//@Scheduled(fixedRate = 60000)  // 60000 밀리초 = 1분// 1분마다 실행
+	public void batchClearGarbageUploadFiles() {
+        
+        try {
+        	// 파일관리테이블의 OWNER CD 리스트.
+        	List<String> ownerCodeList = Arrays.asList("IMPORT_IMAGE", "EXCEL_TEMPLATE", "BOARD", "APPROVAL");
+			fileSyncService.syncFilesWithDB(ExdevConstants.FILE_DIRECTORY_PATH+File.separator+ExdevConstants.FILE_UPLOAD_PATH,ownerCodeList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+		
 }

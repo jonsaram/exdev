@@ -232,10 +232,33 @@
 			,CONVERT_YN      
 		FROM TBL_EXP_FILEMNG
 		WHERE 1=1
-		AND OWNER_CD IN ( 'IMPORT_IMAGE', 'EXCEL_TEMPLATE' , 'BOARD' , 'APPROVAL' )
+		AND OWNER_CD IN 
+	        <foreach collection="ONWER_CODE_LIST" item="code" open="(" separator="," close=")">#{code}</foreach>
+		AND FILE_PATH LIKE #{FILE_UPLOAD_PATH}||'%'
 		<if test=" SP_CSTM_ID != null and SP_CSTM_ID != '' " >
 		AND SP_CSTM_ID = #{sessionVo.spCstmId}
 		</if>
    	</select>
    	
+
+    <insert id="insertDeleteLog">
+        /*  Filemng.insertDeleteLog */
+		INSERT INTO TBL_EXP_LOG (
+		     USER_ID
+		    ,LOG_TYPE
+		    ,LOG_CONTENTS
+		    ,LOG_DESC
+		    ,CREATE_USER
+		    ,CREATE_DATE
+		)VALUES
+		(
+		     #{USER_ID}
+		    ,#{LOG_TYPE}
+		    ,#{LOG_CONTENTS}
+		    ,#{LOG_DESC}
+		    ,#{CREATE_USER}
+		    ,SYSDATE
+		
+		)
+    </insert>
 </mapper>

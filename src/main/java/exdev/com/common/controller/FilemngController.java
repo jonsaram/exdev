@@ -143,7 +143,7 @@ public class FilemngController {
                 filePathStr = (String)fileInfo.get("FILE_PATH");
             }
             
-            
+            filePathStr = filePathStr.replace("\\", "/"); // 모든 `\`를 `/`로 변환
             Path filePath = Paths.get(filePathStr);
             Resource resource = new UrlResource(filePath.toUri());
             
