@@ -6,7 +6,7 @@
              ,searchDate : ''
              ,pageInit : () => {
             	 
-            	 let today  = <@compId>.getToday(-3, '-');
+            	 let today  = <@compId>.getToday(-12, '-');
                  $("#<@compId>_startDate").val(today);
                  <@compId>.searchDate = today;
              }
@@ -246,6 +246,7 @@
                                 <col style="width:10%;"/>
                                 <col style="width:10%;"/>
                                 <col style="width:10%;"/>
+                                <col style="width:10%;"/>
                                 <col style="width:20%;"/>
                             </colgroup>
                             <thead>
@@ -253,6 +254,7 @@
                                     <th scope="col">Num</th>
                                     <th scope="col">지점명</th>
                                     <th scope="col">재고물품</th>
+                                    <th scope="col">단위</th>
                                     <th scope="col">입고량</th>
                                     <th scope="col">출고량</th>
                                     <th scope="col">적정재고량</th>
@@ -269,18 +271,19 @@
                                         <td>{{:ROWNUM}}</td>
                                         <td>{{:STORE_NM}}</td>
                                         <td>{{:PRODUCT_NM}}</td>
-                                        <td>{{:IN_QUANTITY}}</td>
-                                        <td>{{:OUT_QUANTITY}}</td>
-                                        <td>{{:AVG_QUANTITY}}</td>
-                                        <td>{{:SUM_QUANTITY}}</td>
-                                        <td>{{:RATE}}</td>
+                                        <td>{{:UNIT}}</td>
+                                        <td>{{numb:IN_QUANTITY}}</td>
+                                        <td>{{numb:OUT_QUANTITY}}</td>
+                                        <td>{{numb:AVG_QUANTITY}}</td>
+                                        <td>{{numb:SUM_QUANTITY}}</td>
+                                        <td>{{:RATE}}%</td>
                                         <td><font color="{{:COLOR_CODE}}">{{:EVALUATION}}</font></td>
                                     </tr>
                                 {{/for}}
                             </script>
                             <script type="text/x-jsrender" id="<@compId>_tableId_noData_template">    
                                <tr>    
-                                   <td colspan=9>자료가 없습니다.</td>    
+                                   <td colspan=10>자료가 없습니다.</td>    
                                </tr>
                             </script>
                         </table>

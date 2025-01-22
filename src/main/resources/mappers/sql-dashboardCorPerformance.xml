@@ -3304,6 +3304,7 @@
                 AND    B.BRAND_ID = #{brandId} 
                 AND    A.RATE   <![CDATA[>=]]>  NVL(B.BOTTOM_VAL, -99999999) 
                 AND    A.RATE   <![CDATA[<]]>  NVL(B.TOP_VAL, 99999999) 
+              ORDER BY A.STORE_NM, A.RATE DESC
     </select>  
     
     <!-- 지점별 재고 -->
