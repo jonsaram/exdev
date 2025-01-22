@@ -955,28 +955,21 @@
 		noData = noData | false;
 		
 		let formatter =  function() {
-
-					if( container == "#bubbleChart3")
-		            return '<span style="color:#27187F">\u25CF</span> ' + 
+					if( container == "#bubbleChart3"){
+		            	return '<span style="color:#27187F">\u25CF</span> ' + 
 							'<b>' + this.point.name + '</b><br>' +
 			                '계약건수: ' + this.y + '건<br>' +
 			                '매출: ' + this.x + unit+'<br>' +
 			                '전체계약대비: ' + this.point.z+'%';
-					else 
+					}
+					else {
 						return '<span style="color:#27187F">\u25CF</span> ' + 
 							'<b>' + this.point.name + '</b><br>' +
 			                '계약건수: ' + this.x + '건<br>' +
 			                '매출: ' + this.y + unit+'<br>' +
 			                '전체매출대비: ' + this.point.z+'%';
+					}
         }
-
-/*		if ( series.length == 0 ){
-			
-			series.push({data:{x:1,y:1,z:0,name:''}});
-			
-		}*/
-		
-		//if( container == "#bubbleChart2") formatter = ()=>{};
 		
 		$(container).highcharts({
 			chart: {
@@ -1020,7 +1013,8 @@
 		    tooltip: {
         		shared: true,
 		        formatter: formatter,
- 				enabled: !noData // 툴팁 비활성화
+ 				enabled: !noData, // 툴팁 비활성화
+				shared: false // 툴팁 공유 비활성화
 				
 			},
 		    series: series
