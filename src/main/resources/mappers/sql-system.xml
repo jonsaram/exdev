@@ -213,6 +213,9 @@
 		/*	system.updateMenu
 			메뉴 저장
 		*/
+	{ CALL
+		
+		BEGIN
 		MERGE INTO TBL_EXP_MENU T
 		USING (
 		  SELECT #{sessionVo.spCstmId} AS SP_CSTM_ID,
@@ -249,6 +252,39 @@
 		WHEN NOT MATCHED THEN 
 		  INSERT (  SP_CSTM_ID,   MENU_ID,   MENU_NM,   PARENT_MENU_ID,   MENU_DEPTH,   MENU_DESC,   PAGE_ID,   PARAMETER,   USE_YN,   DEL_YN,   SORT_ORDER,   UPDATE_USER,   UPDATE_DATE)
 		  VALUES (S.SP_CSTM_ID, S.MENU_ID, S.MENU_NM, S.PARENT_MENU_ID, S.MENU_DEPTH, S.MENU_DESC, S.PAGE_ID, S.PARAMETER, S.USE_YN, S.DEL_YN, S.SORT_ORDER, S.UPDATE_USER, S.UPDATE_DATE)
+		  ;
+		  
+		    FOR expRole IN (
+		        SELECT * FROM TBL_EXP_ROLE
+		    ) LOOP
+		        
+				MERGE INTO TBL_EXP_ROLEMENU T
+				USING (
+				  SELECT #{sessionVo.spCstmId} 	AS SP_CSTM_ID,expRole.ROLE_ID 	AS ROLE_ID,#{MENU_ID} 	AS MENU_ID
+				   ,CASE WHEN expRole.ROLE_ID = 'SYSTEM' OR expRole.ROLE_ID = 'MANAGER' THEN 'A' ELSE NULL END AS AUTH_TYPE
+		           ,#{sessionVo.userId} AS UPDATE_USER
+		           ,GET_KRDT(SYSDATE) AS UPDATE_DATE
+				  FROM dual
+				) S
+				ON (T.SP_CSTM_ID	= S.SP_CSTM_ID
+				AND T.ROLE_ID 		= S.ROLE_ID
+				AND T.MENU_ID 		= S.MENU_ID
+				)
+				WHEN MATCHED THEN
+				  UPDATE SET
+				    T.AUTH_TYPE		= S.AUTH_TYPE
+				    ,T.UPDATE_USER  = S.UPDATE_USER
+				    ,T.UPDATE_DATE  = S.UPDATE_DATE
+				WHEN NOT MATCHED THEN 
+		    		INSERT (  SP_CSTM_ID,   ROLE_ID,   MENU_ID,	  AUTH_TYPE)
+		   			VALUES (S.SP_CSTM_ID, S.ROLE_ID, S.MENU_ID, S.AUTH_TYPE)
+				;
+		        
+		    END LOOP;
+		    
+    	   COMMIT;
+		END
+	}		  
 	</update>
 	
 	<delete id="deleteMenu" parameterType="java.util.HashMap"  flushCache="true" >

@@ -131,7 +131,7 @@ C_POP.onLoadPopup("<@popupId>", function(data) {
 	
 	<@popupId>.recvData = data;
 	
-	if( isEmpty(data.param) ){
+	if( isEmpty(data.param) && isEmpty(data.parentMenu.PARNET_MENU_ID) ){
 		
 		data.parentMenu.MENU_DEPT = 0;
 		data.parentMenu.NEXT_ROOT_SORT_ORDER = 0;
