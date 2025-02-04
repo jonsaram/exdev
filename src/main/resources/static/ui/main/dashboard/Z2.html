@@ -857,14 +857,14 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
                                        <tr {{if ITEM_NAME == '경과기간' || ITEM_NAME == '(대표이사 나이)'}}class="bg_skyblue"{{/if}}
 											{{if ITEM_NAME == '1주당 주식가액' || ITEM_NAME == '기업가치' || ITEM_NAME == '기업가치 상승률'}}class="bg_gray"{{/if}}>
                                       	<td class="tl">{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
-						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR01}}</td>
-						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR02}}</td>
-						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR03}}</td>
-						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR04}}</td>
-						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR05}}</td>
-						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR06}}</td>
-						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR07}}</td>
-						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{:YEAR08}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{if ORDER_NO >= 3 && ORDER_NO <= 11}} {{numb:YEAR01}} {{else}} {{:YEAR01}} {{/if}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{if ORDER_NO >= 3 && ORDER_NO <= 11}} {{numb:YEAR02}} {{else}} {{:YEAR02}} {{/if}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{if ORDER_NO >= 3 && ORDER_NO <= 11}} {{numb:YEAR03}} {{else}} {{:YEAR03}} {{/if}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{if ORDER_NO >= 3 && ORDER_NO <= 11}} {{numb:YEAR04}} {{else}} {{:YEAR04}} {{/if}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{if ORDER_NO >= 3 && ORDER_NO <= 11}} {{numb:YEAR05}} {{else}} {{:YEAR05}} {{/if}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{if ORDER_NO >= 3 && ORDER_NO <= 11}} {{numb:YEAR06}} {{else}} {{:YEAR06}} {{/if}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{if ORDER_NO >= 3 && ORDER_NO <= 11}} {{numb:YEAR07}} {{else}} {{:YEAR07}} {{/if}}</td>
+						 	        	<td {{if ITEM_NAME != '경과기간' && ITEM_NAME != '(대표이사 나이)'}}class="tr"{{/if}}>{{if ORDER_NO >= 3 && ORDER_NO <= 11}} {{numb:YEAR08}} {{else}} {{:YEAR08}} {{/if}}</td>
                                        </tr>
 						 	        {{/for}}
 						            </script>
@@ -949,12 +949,12 @@ C_HM.onReturn("<@pageId>", function(pageId, data) {
 											{{if ITEM_NAME == '플랜 적용 전 기업가치' || ITEM_NAME == '배당 플랜 적용 후 기업가치' || ITEM_NAME == '배당&퇴직금 플랜 적용 후 기업가치'}}class="bg_gray"{{/if}}>
                                       	<td {{if ITEM_NAME == '(-)연단 배당금' || ITEM_NAME == '(-)대표이사 퇴직금'}}class="tl pl25"{{else}}class="tl"{{/if}}>
 												{{if DEPTH == '1'}}&nbsp;{{/if}}{{if DEPTH == '2'}}&nbsp;&nbsp;{{/if}}{{if DEPTH == '3'}}&nbsp;&nbsp;&nbsp;{{/if}}{{:ITEM_NAME}}</td>
-						 	        	<td class="tr">{{numb:YEAR01}}</td>
-                                        <td class="tr">{{numb:YEAR02}}</td>
-                                        <td class="tr">{{numb:YEAR03}}</td>
-                                        <td class="tr">{{numb:YEAR04}}</td>
-                                        <td class="tr">{{numb:YEAR05}}</td>
-                                        <td class="tr">{{numb:YEAR06}}</td>
+						 	        	<td class="tr">{{if ORDER_NO >= 2 && ORDER_NO <= 5}} {{numb:YEAR01}} {{else}} {{:YEAR01}} {{/if}}</td>
+                                        <td class="tr">{{if ORDER_NO >= 2 && ORDER_NO <= 5}} {{numb:YEAR02}} {{else}} {{:YEAR02}} {{/if}}</td>
+                                        <td class="tr">{{if ORDER_NO >= 2 && ORDER_NO <= 5}} {{numb:YEAR03}} {{else}} {{:YEAR03}} {{/if}}</td>
+                                        <td class="tr">{{if ORDER_NO >= 2 && ORDER_NO <= 5}} {{numb:YEAR04}} {{else}} {{:YEAR04}} {{/if}}</td>
+                                        <td class="tr">{{if ORDER_NO >= 2 && ORDER_NO <= 5}} {{numb:YEAR05}} {{else}} {{:YEAR05}} {{/if}}</td>
+                                        <td class="tr">{{if ORDER_NO >= 2 && ORDER_NO <= 5}} {{numb:YEAR06}} {{else}} {{:YEAR06}} {{/if}}</td>
                                        </tr>
 						 	        {{/for}}
 						            </script>
