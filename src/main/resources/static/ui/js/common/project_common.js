@@ -2156,11 +2156,11 @@ $.views.converters({
 	 // DateFormat 
 	 dt 	: function(value) {return getDateFormat(value, 8);}								//YYYY-MM-dd HH:mm:ss
 	,numb 	: function(value) {
-		if(typeof value == "string" || typeof value == "number" ) 	return addComma(value);
-		else														return nvl(value, "");
+		if(isNumber(value)) return addComma(value);
+		else				return nvl(value, "");
 	 }
 	,numb2 	: function(value) {
-		if(typeof value == "string" || typeof value == "number" ) {
+		if(isNumber(value)) {
 			let result = Math.round(value * 100) / 100; 
 			return addComma(result);
 		} 	
