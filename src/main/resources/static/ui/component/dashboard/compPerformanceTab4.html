@@ -27,7 +27,7 @@
                 var monthList = C_COM.getCodeList("STORE_MONTH");
                 
                 var selectBoxMonthList = {
-                	 defaultItem    : ["ALL", "전체"]
+                     defaultItem    : ["ALL", "전체"]
                     ,data : monthList
                     ,targetId : "<@compId>_selectBoxMonth" 
                 }
@@ -207,13 +207,13 @@
 
             /*============= 매출 비교 그래프    매출 비교 그래프    매출 비교 그s래프    매출 비교 그래프    매출 비교 그래프    =============*/
             ,searchList1 : (requestParm) => {
-            	
+                
                 var month = requestParm["month"];
                 var serviceUrl = '';
                 if( month == 'ALL'){
-                	serviceUrl = 'dashboardCorPerformance.getmenuSalesMonthTop5';
+                    serviceUrl = 'dashboardCorPerformance.getmenuSalesMonthTop5';
                 }else{
-                	serviceUrl = 'dashboardCorPerformance.getmenuSalesDayTop5';
+                    serviceUrl = 'dashboardCorPerformance.getmenuSalesDayTop5';
                 }
 
                 var parm = {
@@ -225,7 +225,7 @@
                     <@compId>.setChart1(resultData);
                 });
                  
-            	
+                
             }
 
             ,setChartData : function( resultData, menuKey) {
@@ -239,12 +239,12 @@
                 return resultList;
              }
             ,getSeriesArry : function( resultData) {
-            	let arr = [];
+                let arr = [];
                 //중복 제거된 메뉴 찾기
                 for (var i=0; i< resultData.data.length; i++){
-                	
+                    
                     let menuMap = {};
-                	menuMap.menuKey = resultData.data[i].MENU_KEY
+                    menuMap.menuKey = resultData.data[i].MENU_KEY
                     menuMap.menuNm  = resultData.data[i].MENU_NM
                     arr.push(menuMap);
                 }
@@ -274,9 +274,9 @@
                     
                     let dataMap = {};
                     if( <@compId>.selectMonth == 'ALL'){
-                    	dataMap.data = resultData.data[i].MONTH+"월";	
+                        dataMap.data = resultData.data[i].MONTH+"월";    
                     }else{
-                    	dataMap.data = resultData.data[i].DAY+"일";
+                        dataMap.data = resultData.data[i].DAY+"일";
                     }
                     arr.push(dataMap);
                 }
@@ -366,10 +366,10 @@
                         ,pagingDomId    : "<@compId>_pageDiv2" // Page가 표시되는 Dom Id
                         ,totalCntDomId  : "<@compId>_total2"
                         ,onPageClickCallback : function(pageInfo) {
-                        	if (isOnCall) {
+                            if (isOnCall) {
                                 <@compId>.setChart2(pageInfo);
                                 isOnCall = false;
-                        	}
+                            }
                          }
                     }
                     C_PAGING.renderHtml("<@compId>", rparm);
@@ -443,7 +443,7 @@
             
             /*============= 상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    상세메뉴 매출액    =============*/
             ,searchList3 : (requestParm) => {
-            	
+                
                 var parm = {
                         queryId       : 'dashboardCorPerformance.getMenuSalesRanking'
                        ,requestParm   : requestParm
@@ -460,10 +460,10 @@
                         ,pagingDomId    : "<@compId>_pageDiv3" // Page가 표시되는 Dom Id
                         ,totalCntDomId  : "<@compId>_total3"
                         ,onPageClickCallback : function(pageInfo) {
-                        	if (isOnCall) {
-                        		<@compId>.setChart3(pageInfo);
-                        		isOnCall = false;
-                        	}
+                            if (isOnCall) {
+                                <@compId>.setChart3(pageInfo);
+                                isOnCall = false;
+                            }
                          }
                     }
                     C_PAGING.renderHtml("<@compId>", rparm);
@@ -504,7 +504,7 @@
                 seriesArr.push(seriesMap);
                 
                 $("#<@compId>_chart3").highcharts({
-                	colors: ['#3399ff', '#66ff00','#ffcc00', '#006600', '#ff0000','#cc6633'],
+                    colors: ['#3399ff', '#66ff00','#ffcc00', '#006600', '#ff0000','#cc6633'],
                     chart: {
                         type: 'pie'
                     },
@@ -804,8 +804,8 @@
             ,setHandler : () => {
 
                 $("#<@compId>_searchBtn").click( () =>{
-                	
-                	var brandId = <@compId>.BRAND_ID;
+                    
+                    var brandId = <@compId>.BRAND_ID;
 
                     if(brandId == undefined){
                         C_POP.alert("브랜드가 없습니다.");

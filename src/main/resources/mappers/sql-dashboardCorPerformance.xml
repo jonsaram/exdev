@@ -6,8 +6,34 @@
 
     <cache />
     
-    <!-- 매출액 순위, 영업이익별 순위 -->
+    <!-- 매출액 순위 -->
     <select id="getSalesRanking" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getSalesRanking */
+        SELECT A.STORE_ID
+              ,A.STORE_NM
+              ,SUM(B.GROSS_SALES) AS AMOUNT
+              ,SUM(B.GROSS_SALES)/1000000 AS AMOUNT1
+        FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+               JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                 ON  1 = 1
+                 AND A.STORE_ID   = B.STORE_ID
+                 AND TO_DATE(B.YEAR||'-'||B.MONTH , 'YYYY-MM')  BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM')
+        WHERE  1 = 1
+        AND    A.BRAND_ID   = #{brandId} 
+        <if test=" !'ALL'.equals(region) ">
+            AND    A.REGION     = #{region}
+        </if>
+        
+        <if test=" !'ALL'.equals(supervisor) ">
+            AND    A.SUPERVISOR    = #{supervisor}
+        </if>
+        GROUP BY A.STORE_ID
+                ,A.STORE_NM
+        ORDER BY  SUM(B.GROSS_SALES) DESC
+    </select>
+    
+    <!-- 매출액 순위, 영업이익별 순위 -->
+    <select id="getSalesRanking_bak" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getSalesRanking */
         SELECT SP_CSTM_ID
               ,STORE_ID
@@ -47,107 +73,27 @@
         WHERE  1 = 1
     </select>
 
-    <sql id="getSalesRanking_bak_body">
-        SELECT ROW_NUMBER() OVER (ORDER BY AMOUNT DESC) AS RN
-              ,SP_CSTM_ID
-              ,REGION
-              ,REGION_NM
-              ,YEAR
-              ,AMOUNT
-              ,AMOUNT1
-        FROM   (
-                    SELECT B.SP_CSTM_ID
-                          ,B.REGION
-                          ,GET_CODE_NM('STORE_REGION', B.REGION) AS REGION_NM
-                          ,A.YEAR
-                          ,SUM(A.AMOUNT)           AS AMOUNT
-                          ,SUM(A.AMOUNT)/100000000 AS AMOUNT1
-                    FROM   TBL_EXP_STORE_FINANCIAL A
-                           JOIN TBL_EXP_STORE_INFO B
-                             ON  1 = 1
-                             AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                             AND A.STORE_ID   = B.STORE_ID
-                    WHERE  1 = 1
-                    AND    A.SP_CSTM_ID = #{parm.spCstmId}
-                    AND    A.YEAR       = #{parm.year}
-                    GROUP BY B.SP_CSTM_ID
-                            ,B.REGION
-                            ,GET_CODE_NM('STORE_REGION', B.REGION)
-                            ,A.YEAR
-               )
-        WHERE  1 = 1
-    </sql>  
-
-    <select id="getSalesRanking_bak" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /*  dashboardCorPerformance.getSalesRanking */
-        <include refid="getSalesRanking_bak_body"/>
-        ORDER BY AMOUNT 
-    </select>
-    
-    <select id="getSalesRanking_bak_totalCnt" resultType="Integer">
-        /* dashboardCorPerformance.getSalesRanking_totalCnt  */
-        <include refid="common.totalWrapStart"/>
-        <include refid="getSalesRanking_bak_body"/>
-        <include refid="common.totalWrapEnd"/>
-    </select>
-    
-    <select id="getSalesRanking_bak_paging" resultType="java.util.HashMap">
-        /* dashboardCorPerformance.getSalesRanking_paging  */
-        <include refid="common.pagingWrapStart"/>
-        <include refid="getSalesRanking_bak_body"/>
-        ORDER BY AMOUNT
-        <include refid="common.pagingWrapEnd"/>
-    </select>
     
     <select id="getMonthAccrue" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-        /*  dashboardCorPerformance.getMonthAccrue */
-        WITH TABLE_FINANCIAL AS (
-             SELECT    A.SP_CSTM_ID
-                      ,A.BRAND_ID
-                      ,A.YEAR
-                      ,A.MONTH
-                      ,A.SUBJECT_001
-                      ,A.SUBJECT_003
-                      ,A.SUBJECT_005
-                      ,A.SUBJECT_010
-                FROM   (
-                        SELECT B.SP_CSTM_ID
-                              ,B.BRAND_ID
-                              ,B.YEAR
-                              ,B.MONTH
-                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_001', AMOUNT, 0)) AS SUBJECT_001 /*매출액*/
-                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_003', AMOUNT, 0)) AS SUBJECT_003 /*매출총이익*/
-                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_005', AMOUNT, 0)) AS SUBJECT_005 /*영업이익*/
-                              ,SUM(DECODE(B.SUBJECT, 'SUBJECT_010', AMOUNT, 0)) AS SUBJECT_010 /*당기순이익 */  
-                        FROM   TBL_EXP_STORE_INFO A
-                               JOIN TBL_EXP_STORE_FINANCIAL B
-                                   ON  1 = 1
-                                   AND B.SUBJECT IN ('SUBJECT_001','SUBJECT_003','SUBJECT_010','SUBJECT_005')
-                                   AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                   AND A.STORE_ID   = B.STORE_ID
-                                   AND TO_DATE( (B.YEAR||'-'||B.MONTH||'-01') , 'YYYY-MM-DD') BETWEEN TO_DATE(#{startYMD} , 'YYYY-MM-DD') AND TO_DATE( #{endYMD} , 'YYYY-MM-DD')
-                        WHERE  1 = 1
-                        AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                        AND    A.BRAND_ID   = #{brandId} 
-                        <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
-                            AND    A.REGION =  #{region} 
-                        </if>
-                        <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
-                            AND    A.STORE_ID = #{store} 
-                        </if>
-                        <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
-                          AND    A.SUPERVISOR = #{supervisor}
-                        </if>
-                        GROUP BY  B.SP_CSTM_ID
-                                 ,B.BRAND_ID
-                                 ,B.YEAR
-                                 ,B.MONTH
-                ) A
-                WHERE 1 = 1 
-                ORDER BY A.SP_CSTM_ID
-                         ,A.BRAND_ID
-                         ,A.YEAR
-                         ,A.MONTH
+        /* dashboardCorPerformance.getMonthAccrue */        
+        WITH TABLE_SALES AS (
+                     /*  매출 */
+                    SELECT A.STORE_ID
+                          ,A.STORE_NM
+                          ,B.YEAR
+                          ,B.MONTH
+                          ,SUM(B.GROSS_SALES) AS AMOUNT
+                    FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                           JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                             ON  1 = 1
+                             AND A.STORE_ID   = B.STORE_ID
+                             AND TO_DATE(B.YEAR||'-'||B.MONTH , 'YYYY-MM')  BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM')
+                    WHERE  1 = 1
+                    AND    A.BRAND_ID   = #{brandId} 
+                    GROUP BY A.STORE_ID
+                            ,A.STORE_NM
+                            ,B.YEAR
+                            ,B.MONTH
         )
        ,TABLE_YEAR_MONTH  AS (
                 SELECT TO_CHAR(ADD_MONTHS(TRUNC(TO_DATE(#{startYMD}, 'YYYY-MM-DD'), 'MM'), LEVEL - 1), 'YYYY-MM')               AS YEAR_MONTH
@@ -158,21 +104,33 @@
                               TO_DATE(#{endYMD}, 'YYYY-MM-DD') AS END_DATE
                        FROM DUAL
                       ) A
-                CONNECT BY LEVEL <![CDATA[<=]]>  MONTHS_BETWEEN(TRUNC(A.END_DATE, 'MM'), TRUNC(A.START_DATE, 'MM')) + 1
+                CONNECT BY LEVEL  <![CDATA[<=]]>   MONTHS_BETWEEN(TRUNC(A.END_DATE, 'MM'), TRUNC(A.START_DATE, 'MM')) + 1
         )
-        SELECT TABLE_YEAR_MONTH.YEAR
-              ,TABLE_YEAR_MONTH.MONTH
-              ,NVL(TABLE_FINANCIAL.SUBJECT_001,0) AS SUBJECT_001 
-              ,NVL(TABLE_FINANCIAL.SUBJECT_003,0) AS SUBJECT_003
-              ,NVL(TABLE_FINANCIAL.SUBJECT_005,0) AS SUBJECT_005
-              ,NVL(TABLE_FINANCIAL.SUBJECT_010,0) AS SUBJECT_010
-        FROM   TABLE_YEAR_MONTH
-               LEFT OUTER JOIN TABLE_FINANCIAL
-                   ON  1 = 1
-                   AND TABLE_YEAR_MONTH.YEAR = TABLE_FINANCIAL.YEAR
-                   AND TABLE_YEAR_MONTH.MONTH = TABLE_FINANCIAL.MONTH
-        ORDER BY TABLE_YEAR_MONTH.YEAR
-               ,TABLE_YEAR_MONTH.MONTH
+        /* 매입 필요*/
+        SELECT A.YEAR
+              ,A.MONTH
+              ,NVL(A.AMOUNT_SALES,0)           AS AMOUNT_SALES
+              ,NVL(A.GROSS_PROFIT_OF_SALES,0)  AS GROSS_PROFIT_OF_SALES
+              ,NVL(A.NET_INCOME,0)             AS NET_INCOME
+              ,NVL(A.OPERATING_INCOME,0)       AS OPERATING_INCOME
+        FROM   (
+                 SELECT TABLE_YEAR_MONTH.YEAR
+                       ,TABLE_YEAR_MONTH.MONTH
+                       ,SUM(TABLE_SALES.AMOUNT) AS AMOUNT_SALES           /* 매출액 */
+                       ,SUM(TABLE_SALES.AMOUNT) AS GROSS_PROFIT_OF_SALES  /* 매출총이익 */
+                       ,SUM(TABLE_SALES.AMOUNT) AS NET_INCOME             /* 당기순이익 */  
+                       ,SUM(TABLE_SALES.AMOUNT) AS OPERATING_INCOME       /* 영업이익  */
+                 FROM   TABLE_YEAR_MONTH
+                        LEFT OUTER JOIN TABLE_SALES
+                            ON  1 = 1
+                            AND TABLE_YEAR_MONTH.YEAR  = TABLE_SALES.YEAR
+                            AND TABLE_YEAR_MONTH.MONTH = TABLE_SALES.MONTH
+                 GROUP BY  TABLE_YEAR_MONTH.YEAR
+                          ,TABLE_YEAR_MONTH.MONTH  
+                 
+               ) A  
+        ORDER BY  A.YEAR
+                 ,A.MONTH
     </select>
     
     <select id="getMonthSales" resultType="java.util.HashMap" flushCache="true"  useCache="false">
@@ -235,24 +193,20 @@
     
         <select id="SalesAndGoalSalesChartList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.SalesAndGoalSalesChartList */
-        SELECT A.SP_CSTM_ID
-              ,A.STORE_ID
-              ,A.STORE_NM3
-              ,SUM(A.GOAL_MONTH)  AS GOAL_MONTH
-              ,SUM(A.SALES_MONTH) AS SALES_MONTH
-        FROM   (
-                SELECT A.SP_CSTM_ID
-                      ,A.STORE_ID
-                      ,B.STORE_NM3
+
+                SELECT A.BRAND_ID
+                      ,A.STORE_CD
+                      ,B.STORE_NM
                       ,A.YEAR
                       ,A.MONTH
                       ,A.YYYY_MM_DD
                       ,A.GOAL_MONTH
                       ,A.SALES_MONTH
                 FROM   (
+
                         WITH STORE AS (
-                                       SELECT  A.SP_CSTM_ID    
-                                              ,A.STORE_ID      
+                                       SELECT  A.BRAND_ID    
+                                              ,A.STORE_CD      
                                               ,A.YEAR          
                                               ,NVL(A.MONTH1, 0) AS GOAL_MONTH1
                                               ,B.MONTH01        AS SALES_MONTH1
@@ -278,12 +232,11 @@
                                               ,B.MONTH11        AS SALES_MONTH11
                                               ,NVL(A.MONTH12,0) AS GOAL_MONTH12
                                               ,B.MONTH12        AS SALES_MONTH12
-                                       FROM   TBL_EXP_STORE_SALES_GOAL A
+                                       FROM   VINS_TBL_EXP_STORE_SALES_GOAL A
                                               JOIN (
                                                         /*=========================================================================================*/
-
-                                                        SELECT  SP_CSTM_ID
-                                                               ,STORE_ID
+                                                        SELECT  BRAND_ID
+                                                               ,STORE_CD
                                                                ,YEAR
                                                                ,SUM(MONTH01) AS MONTH01
                                                                ,SUM(MONTH02) AS MONTH02
@@ -297,95 +250,288 @@
                                                                ,SUM(MONTH10) AS MONTH10
                                                                ,SUM(MONTH11) AS MONTH11
                                                                ,SUM(MONTH12) AS MONTH12
-                                                        FROM   (
-                                                                        SELECT  A.SP_CSTM_ID
-                                                                               ,A.STORE_ID
-                                                                               ,A.YEAR
-                                                                               ,A.MONTH
-                                                                               ,CASE MONTH WHEN '01'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH01
-                                                                               ,CASE MONTH WHEN '02'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH02
-                                                                               ,CASE MONTH WHEN '03'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH03
-                                                                               ,CASE MONTH WHEN '04'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH04
-                                                                               ,CASE MONTH WHEN '05'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH05
-                                                                               ,CASE MONTH WHEN '06'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH06
-                                                                               ,CASE MONTH WHEN '07'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH07
-                                                                               ,CASE MONTH WHEN '08'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH08
-                                                                               ,CASE MONTH WHEN '09'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH09
-                                                                               ,CASE MONTH WHEN '10'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH10
-                                                                               ,CASE MONTH WHEN '11'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH11
-                                                                               ,CASE MONTH WHEN '12'  THEN SUM(A.NET_SALES)  ELSE 0 END AS MONTH12
-                                                                        FROM   TBL_EXP_STORE_SALES A
-                                                                        WHERE  1 = 1
-                                                                        AND    A.SP_CSTM_ID  = #{sessionVo.spCstmId}
-                                                                        AND    A.YEAR        = #{startYear}
-                                                                        AND    A.BRAND_ID    = #{brandId}
-                                                                        GROUP BY A.SP_CSTM_ID
-                                                                                ,A.STORE_ID
-                                                                                ,A.YEAR
-                                                                                ,A.MONTH
+                                                        FROM   (                                                                   
+                                                                    SELECT  A.BRAND_ID
+                                                                           ,A.STORE_ID
+                                                                           ,A.STORE_CD
+                                                                           ,B.YEAR
+                                                                           ,B.MONTH
+                                                                           ,CASE MONTH WHEN '01'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH01
+                                                                           ,CASE MONTH WHEN '02'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH02
+                                                                           ,CASE MONTH WHEN '03'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH03
+                                                                           ,CASE MONTH WHEN '04'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH04
+                                                                           ,CASE MONTH WHEN '05'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH05
+                                                                           ,CASE MONTH WHEN '06'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH06
+                                                                           ,CASE MONTH WHEN '07'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH07
+                                                                           ,CASE MONTH WHEN '08'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH08
+                                                                           ,CASE MONTH WHEN '09'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH09
+                                                                           ,CASE MONTH WHEN '10'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH10
+                                                                           ,CASE MONTH WHEN '11'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH11
+                                                                           ,CASE MONTH WHEN '12'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH12
+                                                                    FROM   VINS_TBL_EXP_STORE_MST A
+                                                                           JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                                                             ON  1 = 1
+                                                                             AND A.STORE_ID   = B.STORE_ID
+                                                                             AND B.YEAR       = #{startYear}
+                                                                    WHERE  1 = 1
+                                                                    AND    A.BRAND_ID    = #{brandId}
+                                                                    GROUP BY A.BRAND_ID
+                                                                            ,A.STORE_ID
+                                                                            ,A.STORE_CD
+                                                                            ,B.YEAR
+                                                                            ,B.MONTH
                                                         ) A
-                                                        GROUP BY A.SP_CSTM_ID
+                                                        GROUP BY A.BRAND_ID
                                                                 ,A.STORE_ID
+                                                                ,A.STORE_CD
                                                                 ,A.YEAR
                                                        /*=========================================================================================*/
                                                    ) B
                                                 ON  1 = 1
-                                                AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                                AND A.STORE_ID   = B.STORE_ID
+                                                AND A.BRAND_ID   = B.BRAND_ID
+                                                AND A.STORE_CD   = B.STORE_CD
                                                 AND A.YEAR       = B.YEAR
                                        WHERE  1 = 1
-                                       AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
                                        AND    A.YEAR      = #{startYear}
                                        AND    A.BRAND_ID  = #{brandId}
-                                       ORDER BY A.SP_CSTM_ID    
-                                               ,A.STORE_ID      
-                                               ,A.YEAR 
                         )
-                        SELECT A.SP_CSTM_ID
-                              ,A.STORE_ID
+                        SELECT A.BRAND_ID
+                              ,A.STORE_CD
                               ,TO_CHAR(A.YEAR)        AS YEAR
                               ,TO_CHAR(A.MONTH, '09') AS MONTH
                               ,TO_DATE(TO_CHAR(A.YEAR)||'-'||TO_CHAR(A.MONTH, '09')||'-'||'01', 'YYYY-MM-DD') AS YYYY_MM_DD
                               ,A.GOAL_MONTH
                               ,A.SALES_MONTH
                         FROM   (
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  1  AS MONTH, STORE.GOAL_MONTH1  AS  GOAL_MONTH,  STORE.SALES_MONTH1  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  2  AS MONTH, STORE.GOAL_MONTH2  AS  GOAL_MONTH,  STORE.SALES_MONTH2  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  3  AS MONTH, STORE.GOAL_MONTH3  AS  GOAL_MONTH,  STORE.SALES_MONTH3  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  4  AS MONTH, STORE.GOAL_MONTH4  AS  GOAL_MONTH,  STORE.SALES_MONTH4  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  5  AS MONTH, STORE.GOAL_MONTH5  AS  GOAL_MONTH,  STORE.SALES_MONTH5  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  6  AS MONTH, STORE.GOAL_MONTH6  AS  GOAL_MONTH,  STORE.SALES_MONTH6  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  7  AS MONTH, STORE.GOAL_MONTH7  AS  GOAL_MONTH,  STORE.SALES_MONTH7  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  8  AS MONTH, STORE.GOAL_MONTH8  AS  GOAL_MONTH,  STORE.SALES_MONTH8  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  9  AS MONTH, STORE.GOAL_MONTH9  AS  GOAL_MONTH,  STORE.SALES_MONTH9  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  10 AS MONTH, STORE.GOAL_MONTH10 AS  GOAL_MONTH,  STORE.SALES_MONTH10 AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  11 AS MONTH, STORE.GOAL_MONTH11 AS  GOAL_MONTH,  STORE.SALES_MONTH11 AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.SP_CSTM_ID, STORE.STORE_ID,YEAR,  12 AS MONTH, STORE.GOAL_MONTH12 AS  GOAL_MONTH,  STORE.SALES_MONTH12 AS SALES_MONTH FROM STORE
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  1  AS MONTH, STORE.GOAL_MONTH1  AS  GOAL_MONTH,  STORE.SALES_MONTH1  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  2  AS MONTH, STORE.GOAL_MONTH2  AS  GOAL_MONTH,  STORE.SALES_MONTH2  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  3  AS MONTH, STORE.GOAL_MONTH3  AS  GOAL_MONTH,  STORE.SALES_MONTH3  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  4  AS MONTH, STORE.GOAL_MONTH4  AS  GOAL_MONTH,  STORE.SALES_MONTH4  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  5  AS MONTH, STORE.GOAL_MONTH5  AS  GOAL_MONTH,  STORE.SALES_MONTH5  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  6  AS MONTH, STORE.GOAL_MONTH6  AS  GOAL_MONTH,  STORE.SALES_MONTH6  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  7  AS MONTH, STORE.GOAL_MONTH7  AS  GOAL_MONTH,  STORE.SALES_MONTH7  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  8  AS MONTH, STORE.GOAL_MONTH8  AS  GOAL_MONTH,  STORE.SALES_MONTH8  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  9  AS MONTH, STORE.GOAL_MONTH9  AS  GOAL_MONTH,  STORE.SALES_MONTH9  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  10 AS MONTH, STORE.GOAL_MONTH10 AS  GOAL_MONTH,  STORE.SALES_MONTH10 AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  11 AS MONTH, STORE.GOAL_MONTH11 AS  GOAL_MONTH,  STORE.SALES_MONTH11 AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  12 AS MONTH, STORE.GOAL_MONTH12 AS  GOAL_MONTH,  STORE.SALES_MONTH12 AS SALES_MONTH FROM STORE
                                ) A
-                        ORDER BY SP_CSTM_ID, STORE_ID,YEAR, MONTH
+                        ORDER BY BRAND_ID, STORE_CD,YEAR, MONTH
                        ) A
-                       JOIN TBL_EXP_STORE_INFO B
+                       JOIN VINS_TBL_EXP_STORE_MST B
                          ON  1 = 1
                          AND B.BRAND_ID    = #{brandId}
-                         AND A.SP_CSTM_ID  = B.SP_CSTM_ID
-                         AND A.STORE_ID    = B.STORE_ID
+                         AND A.BRAND_ID    = B.BRAND_ID
+                         AND A.STORE_CD    = B.STORE_CD
                 WHERE  1 = 1
                 AND    TO_CHAR(A.YYYY_MM_DD, 'YYYY-MM-DD') = #{startDate}
-                ORDER BY A.SP_CSTM_ID
-                        ,A.STORE_ID
-                        ,B.STORE_NM3
-                        ,A.YEAR
-                        ,A.MONTH
-                        ,A.GOAL_MONTH
-                        ,A.SALES_MONTH
+    </select> 
+    
+
+        <select id="SalesAndGoalSalesChartList_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.SalesAndGoalSalesChartList_BAK */
+        SELECT A.BRAND_ID
+              ,A.STORE_CD
+              ,A.STORE_NM
+              ,SUM(A.GOAL_MONTH)  AS GOAL_MONTH
+              ,SUM(A.SALES_MONTH) AS SALES_MONTH
+        FROM   (
+                SELECT A.BRAND_ID
+                      ,A.STORE_CD
+                      ,B.STORE_NM
+                      ,A.YEAR
+                      ,A.MONTH
+                      ,A.YYYY_MM_DD
+                      ,A.GOAL_MONTH
+                      ,A.SALES_MONTH
+                FROM   (
+
+                        WITH STORE AS (
+                                       SELECT  A.BRAND_ID    
+                                              ,A.STORE_CD      
+                                              ,A.YEAR          
+                                              ,NVL(A.MONTH1, 0) AS GOAL_MONTH1
+                                              ,B.MONTH01        AS SALES_MONTH1
+                                              ,NVL(A.MONTH2 ,0) AS GOAL_MONTH2
+                                              ,B.MONTH02        AS SALES_MONTH2 
+                                              ,NVL(A.MONTH3 ,0) AS GOAL_MONTH3
+                                              ,B.MONTH03        AS SALES_MONTH3 
+                                              ,NVL(A.MONTH4 ,0) AS GOAL_MONTH4
+                                              ,B.MONTH04        AS SALES_MONTH4 
+                                              ,NVL(A.MONTH5 ,0) AS GOAL_MONTH5
+                                              ,B.MONTH05        AS SALES_MONTH5 
+                                              ,NVL(A.MONTH6 ,0) AS GOAL_MONTH6
+                                              ,B.MONTH06        AS SALES_MONTH6 
+                                              ,NVL(A.MONTH7 ,0) AS GOAL_MONTH7
+                                              ,B.MONTH07        AS SALES_MONTH7 
+                                              ,NVL(A.MONTH8 ,0) AS GOAL_MONTH8
+                                              ,B.MONTH08        AS SALES_MONTH8 
+                                              ,NVL(A.MONTH9 ,0) AS GOAL_MONTH9
+                                              ,B.MONTH09        AS SALES_MONTH9 
+                                              ,NVL(A.MONTH10,0) AS GOAL_MONTH10
+                                              ,B.MONTH10        AS SALES_MONTH10
+                                              ,NVL(A.MONTH11,0) AS GOAL_MONTH11
+                                              ,B.MONTH11        AS SALES_MONTH11
+                                              ,NVL(A.MONTH12,0) AS GOAL_MONTH12
+                                              ,B.MONTH12        AS SALES_MONTH12
+                                       FROM   VINS_TBL_EXP_STORE_SALES_GOAL A
+                                              JOIN (
+                                                        /*=========================================================================================*/
+                                                        SELECT  BRAND_ID
+                                                               ,STORE_CD
+                                                               ,YEAR
+                                                               ,SUM(MONTH01) AS MONTH01
+                                                               ,SUM(MONTH02) AS MONTH02
+                                                               ,SUM(MONTH03) AS MONTH03
+                                                               ,SUM(MONTH04) AS MONTH04
+                                                               ,SUM(MONTH05) AS MONTH05
+                                                               ,SUM(MONTH06) AS MONTH06
+                                                               ,SUM(MONTH07) AS MONTH07
+                                                               ,SUM(MONTH08) AS MONTH08
+                                                               ,SUM(MONTH09) AS MONTH09
+                                                               ,SUM(MONTH10) AS MONTH10
+                                                               ,SUM(MONTH11) AS MONTH11
+                                                               ,SUM(MONTH12) AS MONTH12
+                                                        FROM   (        
+                                                                    SELECT  A.BRAND_ID
+                                                                           ,A.STORE_ID
+                                                                           ,A.STORE_CD
+                                                                           ,B.YEAR
+                                                                           ,B.MONTH
+                                                                           ,CASE MONTH WHEN '01'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH01
+                                                                           ,CASE MONTH WHEN '02'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH02
+                                                                           ,CASE MONTH WHEN '03'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH03
+                                                                           ,CASE MONTH WHEN '04'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH04
+                                                                           ,CASE MONTH WHEN '05'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH05
+                                                                           ,CASE MONTH WHEN '06'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH06
+                                                                           ,CASE MONTH WHEN '07'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH07
+                                                                           ,CASE MONTH WHEN '08'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH08
+                                                                           ,CASE MONTH WHEN '09'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH09
+                                                                           ,CASE MONTH WHEN '10'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH10
+                                                                           ,CASE MONTH WHEN '11'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH11
+                                                                           ,CASE MONTH WHEN '12'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH12
+                                                                    FROM   VINS_TBL_EXP_STORE_MST A
+                                                                           JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                                                             ON  1 = 1
+                                                                             AND A.STORE_ID   = B.STORE_ID
+                                                                             AND B.YEAR       = #{year}
+                                                                    WHERE  1 = 1
+                                                                    AND    A.BRAND_ID    = #{brandId}
+                                                                    <if test=" !'ALL'.equals(region) ">
+                                                                        AND    A.REGION =  #{region} 
+                                                                    </if>
+                                                                    <if test=" !'ALL'.equals(store) ">
+                                                                        AND    A.STORE_CD = #{store} 
+                                                                    </if>
+                                                                    <if test=" !'ALL'.equals(supervisor) ">
+                                                                        AND    A.SUPERVISOR = #{supervisor} 
+                                                                    </if>
+                                                                    GROUP BY A.BRAND_ID
+                                                                            ,A.STORE_ID
+                                                                            ,A.STORE_CD
+                                                                            ,B.YEAR
+                                                                            ,B.MONTH
+                                                        ) A
+                                                        GROUP BY A.BRAND_ID
+                                                                ,A.STORE_ID
+                                                                ,A.STORE_CD
+                                                                ,A.YEAR
+                                                       /*=========================================================================================*/
+                                                   ) B
+                                                ON  1 = 1
+                                                AND A.BRAND_ID   = B.BRAND_ID
+                                                AND A.STORE_CD   = B.STORE_CD
+                                                AND A.YEAR       = B.YEAR
+                                       WHERE  1 = 1
+                                       AND    A.YEAR      = #{year}
+                                       AND    A.BRAND_ID  = #{brandId}
+                        )
+                        SELECT A.BRAND_ID
+                              ,A.STORE_CD
+                              ,TO_CHAR(A.YEAR)        AS YEAR
+                              ,TO_CHAR(A.MONTH, '09') AS MONTH
+                              ,TO_DATE(TO_CHAR(A.YEAR)||'-'||TO_CHAR(A.MONTH, '09')||'-'||'01', 'YYYY-MM-DD') AS YYYY_MM_DD
+                              ,A.GOAL_MONTH
+                              ,A.SALES_MONTH
+                        FROM   (
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  1  AS MONTH, STORE.GOAL_MONTH1  AS  GOAL_MONTH,  STORE.SALES_MONTH1  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  2  AS MONTH, STORE.GOAL_MONTH2  AS  GOAL_MONTH,  STORE.SALES_MONTH2  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  3  AS MONTH, STORE.GOAL_MONTH3  AS  GOAL_MONTH,  STORE.SALES_MONTH3  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  4  AS MONTH, STORE.GOAL_MONTH4  AS  GOAL_MONTH,  STORE.SALES_MONTH4  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  5  AS MONTH, STORE.GOAL_MONTH5  AS  GOAL_MONTH,  STORE.SALES_MONTH5  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  6  AS MONTH, STORE.GOAL_MONTH6  AS  GOAL_MONTH,  STORE.SALES_MONTH6  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  7  AS MONTH, STORE.GOAL_MONTH7  AS  GOAL_MONTH,  STORE.SALES_MONTH7  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  8  AS MONTH, STORE.GOAL_MONTH8  AS  GOAL_MONTH,  STORE.SALES_MONTH8  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  9  AS MONTH, STORE.GOAL_MONTH9  AS  GOAL_MONTH,  STORE.SALES_MONTH9  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  10 AS MONTH, STORE.GOAL_MONTH10 AS  GOAL_MONTH,  STORE.SALES_MONTH10 AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  11 AS MONTH, STORE.GOAL_MONTH11 AS  GOAL_MONTH,  STORE.SALES_MONTH11 AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  12 AS MONTH, STORE.GOAL_MONTH12 AS  GOAL_MONTH,  STORE.SALES_MONTH12 AS SALES_MONTH FROM STORE
+                               ) A
+                        ORDER BY BRAND_ID, STORE_CD,YEAR, MONTH
+                       ) A
+                       JOIN VINS_TBL_EXP_STORE_MST B
+                         ON  1 = 1
+                         AND B.BRAND_ID    = #{brandId}
+                         AND A.BRAND_ID    = B.BRAND_ID
+                         AND A.STORE_CD    = B.STORE_CD
+                WHERE  1 = 1
+                AND    TO_CHAR(A.YYYY_MM_DD, 'YYYY-MM-DD') = #{startDate}
                ) A
-        GROUP BY A.SP_CSTM_ID
-                ,A.STORE_ID     
-                ,A.STORE_NM3  
+        GROUP BY A.BRAND_ID
+                ,A.STORE_CD     
+                ,A.STORE_NM  
         ORDER BY SALES_MONTH DESC
-    </select>
+    </select> 
+    
             
     <select id="SalesAndPreMonthSales" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+    /*  dashboardCorPerformance.SalesAndPreMonthSales */
+    SELECT A.BRAND_ID
+          ,A.STORE_ID
+          ,A.STORE_NM
+          ,SUM(A.NET_SALES)     AS NET_SALES
+          ,SUM(A.NET_SALES_PRE) AS NET_SALES_PRE
+    FROM   (
+                SELECT  A.BRAND_ID
+                       ,A.STORE_ID
+                       ,A.STORE_NM
+                       ,SUM(B.NET_SALES) AS NET_SALES
+                       ,0                AS NET_SALES_PRE
+                 FROM   VINS_TBL_EXP_STORE_MST A
+                       JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                         ON  1 = 1
+                         AND A.STORE_ID = B.STORE_ID
+                         AND B.YEAR       = #{year}
+                         AND B.MONTH      = #{month}
+                WHERE  1 = 1
+                AND    A.BRAND_ID    = #{brandId}
+                GROUP BY  A.BRAND_ID
+                         ,A.STORE_ID
+                         ,A.STORE_NM
+                UNION ALL
+                SELECT  A.BRAND_ID
+                       ,A.STORE_ID
+                       ,A.STORE_NM
+                       ,0                AS NET_SALES
+                       ,SUM(B.NET_SALES) AS NET_SALES_PRE
+                 FROM   VINS_TBL_EXP_STORE_MST A
+                       JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                         ON  1 = 1
+                         AND A.STORE_ID = B.STORE_ID
+                         AND B.YEAR       = #{prevYear}
+                         AND B.MONTH      = #{prevMonth}
+                WHERE  1 = 1
+                AND    A.BRAND_ID    = #{brandId}
+                GROUP BY  A.BRAND_ID
+                         ,A.STORE_ID
+                         ,A.STORE_NM
+
+    ) A
+    GROUP BY  A.BRAND_ID
+             ,A.STORE_ID
+             ,A.STORE_NM
+    </select>
+    <select id="SalesAndPreMonthSales_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
     /*  dashboardCorPerformance.SalesAndPreMonthSales */
     SELECT A.SP_CSTM_ID
           ,A.STORE_ID
@@ -620,8 +766,7 @@
     </select>
     
     <sql id="getStorePage_body">
-        SELECT ROW_NUMBER() OVER (ORDER BY  SP_CSTM_ID, STORE_ID) AS RN
-              ,SP_CSTM_ID
+        SELECT ROW_NUMBER() OVER (ORDER BY   STORE_ID) AS RN
               ,STORE_ID
               ,STORE_NM1
               ,STORE_NM2
@@ -646,9 +791,8 @@
               ,SUPERVISOR
               ,UPDATE_USER
               ,UPDATE_DATE
-        FROM   TBL_EXP_STORE_INFO
+        FROM   VINS_TBL_EXP_STORE_MST
         WHERE  1 = 1
-        AND    SP_CSTM_ID = #{sessionVo.spCstmId}
         AND    BRAND_ID   = #{parm.brandId} 
         <if test=" parm.dateStart != null and parm.dateStart != '' and parm.dateEnd != null and parm.dateEnd != '' " >
             AND    OPENING_DAY BETWEEN TO_DATE( #{parm.dateStart}, 'YYYY-MM') AND TO_DATE(#{parm.dateEnd}, 'YYYY-MM')
@@ -681,41 +825,72 @@
         <include refid="common.pagingWrapEnd"/>
     </select>
     
+    
+    <!-- 지역별 순위 -->
     <select id="getRegionsRanking" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getRegionsRanking */
-        SELECT SP_CSTM_ID
-              ,REGION
-              ,REGION_NM
-              ,YEAR
-              ,ROUND(AMOUNT) AS AMOUNT 
-              ,ROUND(AMOUNT1) AS AMOUNT1
-        FROM   (
-                    SELECT B.SP_CSTM_ID
-                          ,B.REGION
-                          ,GET_BRAND_CD_NM(#{brandId},'STORE_REGION', B.REGION) AS REGION_NM
-                          ,A.YEAR
-                          ,SUM(A.AMOUNT)           AS AMOUNT
-                          ,SUM(A.AMOUNT)/100000000 AS AMOUNT1
-                    FROM   TBL_EXP_STORE_FINANCIAL A
-                           JOIN TBL_EXP_STORE_INFO B
-                             ON  1 = 1
-                             AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                             AND A.BRAND_ID   = B.BRAND_ID
-                             AND A.STORE_ID   = B.STORE_ID
-                    WHERE  1 = 1
-                    AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                    AND    A.BRAND_ID   = #{brandId} 
-                    AND    TO_DATE(A.YEAR||'-'||A.MONTH , 'YYYY-MM')  BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM') 
-                    GROUP BY B.SP_CSTM_ID
-                            ,B.REGION
-                            ,GET_CODE_NM('STORE_REGION', B.REGION)
-                            ,A.YEAR
-                    ORDER BY  SUM(A.AMOUNT) DESC
-               )
-        WHERE  1 = 1
+        SELECT A.REGION
+              ,A.REGION_NM
+              ,SUM(A.GROSS_SALES) AS AMOUNT
+              ,SUM(A.GROSS_SALES) / 1000000 AS AMOUNT1
+        FROM (
+              SELECT A.REGION
+                    ,GET_BRAND_CODE_NM(#{brandId} , 'STORE_REGION', A.REGION) AS REGION_NM
+                    ,B.GROSS_SALES
+              FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                     JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                       ON  1 = 1
+                       AND A.STORE_ID   = B.STORE_ID
+                       AND TO_DATE(B.YEAR||'-'||B.MONTH , 'YYYY-MM')  BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM')
+              WHERE  1 = 1
+              AND    A.BRAND_ID   = #{brandId} 
+        )A
+        GROUP BY A.REGION, REGION_NM
+        ORDER BY SUM(A.GROSS_SALES) DESC
     </select>
     
     <select id="getOpenCloseCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false"> 
+        /*  dashboardCorPerformance.getOpenCloseCnt */
+        SELECT 'OPEN'  AS TYPE, COUNT(1) AS CNT 
+        FROM   VINS_TBL_EXP_STORE_MST 
+        WHERE  1 = 1 
+        AND    BRAND_ID   = #{brandId}
+        AND    TO_CHAR( OPENING_DAY,  'YYYY-MM') = #{seartDate}
+        <if test=" !'ALL'.equals(region) ">
+            AND    REGION     = #{region} 
+        </if> 
+        <if test=" !'ALL'.equals(supervisor) ">
+            AND    SUPERVISOR = #{supervisor} 
+        </if> 
+        UNION ALL
+        SELECT 'CLOSE' AS TYPE, COUNT(1) AS CNT 
+        FROM   VINS_TBL_EXP_STORE_MST 
+        WHERE  1 = 1
+        AND    BRAND_ID   = #{brandId}
+        AND    TO_CHAR( CLOSING_DATE, 'YYYY-MM') = #{seartDate} 
+        <if test=" !'ALL'.equals(region) ">
+            AND    REGION     = #{region} 
+        </if> 
+        <if test=" !'ALL'.equals(supervisor) ">
+            AND    SUPERVISOR = #{supervisor} 
+        </if>
+        UNION ALL 
+        SELECT 'ALL'   AS TYPE, COUNT(1) AS CNT 
+        FROM   VINS_TBL_EXP_STORE_MST 
+        WHERE  1 = 1
+        AND    BRAND_ID   = #{brandId}
+        <if test=" !'ALL'.equals(region) ">
+            AND    REGION     = #{region} 
+        </if> 
+        <if test=" !'ALL'.equals(supervisor) ">
+            AND    SUPERVISOR = #{supervisor} 
+        </if>
+        AND    TO_CHAR( OPENING_DAY,  'YYYY-MM') <![CDATA[<=]]> #{seartDate} 
+        AND    CLOSING_DATE IS NULL
+    </select>
+    
+    <select id="getOpenCloseCnt_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false"> 
+        /*  dashboardCorPerformance.getOpenCloseCnt_BAK */
         SELECT 'OPEN'  AS TYPE, COUNT(1) AS CNT 
         FROM   TBL_EXP_STORE_INFO 
         WHERE  SP_CSTM_ID = #{spCstmId} 
@@ -763,8 +938,8 @@
         FROM   (
                 SELECT COUNT(1) AS ALL_CNT
                      , 0        AS CLOSE_CNT
-                FROM TBL_EXP_STORE_INFO 
-                WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+                FROM VINS_TBL_EXP_STORE_MST 
+                WHERE 1 = 1
                 AND   BRAND_ID   = #{brandId}
                 <if test=" !'ALL'.equals(region) ">
                     AND    REGION     = #{region} 
@@ -775,8 +950,8 @@
                 UNION ALL
                 SELECT 0        AS ALL_CNT 
                       ,COUNT(1) AS CLOSE_CNT 
-                FROM TBL_EXP_STORE_INFO 
-                WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+                FROM VINS_TBL_EXP_STORE_MST 
+                WHERE 1 = 1
                 AND   BRAND_ID   = #{brandId}
                 <if test=" !'ALL'.equals(region) ">
                     AND    REGION     = #{region} 
@@ -797,8 +972,8 @@
                 SELECT REGION
                       ,GET_CODE_NM('STORE_REGION', REGION)      AS REGION_NM
                       ,COUNT(1) AS CNT 
-                FROM TBL_EXP_STORE_INFO 
-                WHERE SP_CSTM_ID = #{sessionVo.spCstmId}
+                FROM  VINS_TBL_EXP_STORE_MST 
+                WHERE 1 = 1
                 AND   BRAND_ID   = #{brandId}
                 AND CLOSING_DATE IS  NULL
                 GROUP BY REGION
@@ -806,7 +981,80 @@
         ORDER BY CNT DESC 
     </select>
 
+
     <select id="getGoalAchieveRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getGoalAchieveRatio */
+        SELECT  CASE '01'  WHEN '01'  THEN ROUND( (B.AMOUNT/A.MONTH1) *100, 2) 
+                               WHEN '02'  THEN ROUND( (B.AMOUNT/A.MONTH2) *100, 2)
+                               WHEN '03'  THEN ROUND( (B.AMOUNT/A.MONTH3) *100, 2)
+                               WHEN '04'  THEN ROUND( (B.AMOUNT/A.MONTH4) *100, 2)
+                               WHEN '05'  THEN ROUND( (B.AMOUNT/A.MONTH5) *100, 2)
+                               WHEN '06'  THEN ROUND( (B.AMOUNT/A.MONTH6) *100, 2)
+                               WHEN '07'  THEN ROUND( (B.AMOUNT/A.MONTH7) *100, 2)
+                               WHEN '08'  THEN ROUND( (B.AMOUNT/A.MONTH8) *100, 2)
+                               WHEN '09'  THEN ROUND( (B.AMOUNT/A.MONTH9) *100, 2)
+                               WHEN '10'  THEN ROUND( (B.AMOUNT/A.MONTH10) *100, 2)
+                               WHEN '11'  THEN ROUND( (B.AMOUNT/A.MONTH11) *100, 2)
+                               WHEN '12'  THEN ROUND( (B.AMOUNT/A.MONTH12) *100, 2)
+                               ELSE 0
+                END AS ACHIEVE
+        FROM   (
+                /* 매장별 목표 매출*/
+                SELECT SUM(B.MONTH1)      AS MONTH1
+                      ,SUM(B.MONTH2)      AS MONTH2 
+                      ,SUM(B.MONTH3)      AS MONTH3 
+                      ,SUM(B.MONTH4)      AS MONTH4 
+                      ,SUM(B.MONTH5)      AS MONTH5 
+                      ,SUM(B.MONTH6)      AS MONTH6 
+                      ,SUM(B.MONTH7)      AS MONTH7 
+                      ,SUM(B.MONTH8)      AS MONTH8 
+                      ,SUM(B.MONTH9)      AS MONTH9 
+                      ,SUM(B.MONTH10)     AS MONTH10
+                      ,SUM(B.MONTH11)     AS MONTH11
+                      ,SUM(B.MONTH12)     AS MONTH12
+                FROM   VINS_TBL_EXP_STORE_MST A
+                       JOIN VINS_TBL_EXP_STORE_SALES_GOAL B
+                           ON  1 = 1
+                           AND A.BRAND_ID   = B.BRAND_ID
+                           AND A.STORE_CD   = B.STORE_CD
+                           <if test=" !'ALL'.equals(region) ">
+                               AND    A.REGION =  #{region} 
+                           </if>
+                           <if test=" !'ALL'.equals(store) ">
+                               AND    A.STORE_ID = #{store} 
+                           </if>
+                           <if test=" !'ALL'.equals(supervisor) ">
+                               AND    A.SUPERVISOR = #{supervisor} 
+                           </if>
+                           AND B.YEAR = #{year}
+                WHERE  1 = 1
+                AND    A.BRAND_ID   =  #{brandId}
+
+                ) A
+               ,(
+                    SELECT SUM(B.GROSS_SALES) AS AMOUNT
+                    FROM   VINS_TBL_EXP_STORE_MST A
+                           JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                             ON  1 = 1
+                             AND A.STORE_ID   = B.STORE_ID
+                             AND B.YEAR       = #{year}
+                             AND B.MONTH      = #{month} 
+                    WHERE  1 = 1
+                    AND    A.BRAND_ID   =  #{brandId}
+                    <if test=" !'ALL'.equals(region) ">
+                        AND    A.REGION =  #{region} 
+                    </if>
+                    <if test=" !'ALL'.equals(store) ">
+                        AND    A.STORE_ID = #{store} 
+                    </if>
+                    <if test=" !'ALL'.equals(supervisor) ">
+                        AND    A.SUPERVISOR = #{supervisor} 
+                    </if>
+
+                ) B
+    </select>
+    
+    <select id="getGoalAchieveRatio_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getGoalAchieveRatio */
         SELECT  CASE #{month}  WHEN '01'  THEN ROUND( (B.AMOUNT/A.MONTH1) *100, 2) 
                                WHEN '02'  THEN ROUND( (B.AMOUNT/A.MONTH2) *100, 2)
@@ -883,6 +1131,57 @@
     </select>
 
     <select id="getTbRotationRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+    /*  dashboardCorPerformance.getTbRotationRatio */        
+    SELECT ROUND( AVG(NVL(RECEIPT_CNT2, 0)) ,2)  AS TB_ROTATION_GOAL
+    FROM   (
+            SELECT A.STORE_ID
+                  ,A.TB_ROTATION
+                  ,A.TB_ROTATION_GOAL
+                  ,B.YEAR
+                  ,B.MONTH
+                  ,SUM(B.RECEIPT_CNT) AS RECEIPT_CNT
+                  ,ROUND(SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT),2) AS RECEIPT_CNT2
+            FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                     ON  1 = 1
+                     AND A.STORE_ID   = B.STORE_ID
+                     AND B.YEAR       = #{year}
+                     AND B.MONTH      = #{month} 
+                   JOIN (
+                            SELECT B.STORE_ID
+                                  ,B.YEAR
+                                  ,B.MONTH
+                                  ,COUNT(1) DAY_CNT
+                            FROM   VINS_TBL_EXP_STORE_MST A
+                                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                     ON  1 = 1
+                                     AND A.STORE_ID = B.STORE_ID
+                                     AND B.YEAR       = #{year}
+                                     AND B.MONTH      = #{month} 
+                                     AND B.RECEIPT_CNT IS NOT NULL
+                                     AND B.RECEIPT_CNT != 0
+                            WHERE  1 = 1
+                            AND    A.BRAND_ID   = #{brandId}
+                            GROUP BY B.STORE_ID
+                                    ,B.YEAR
+                                    ,B.MONTH
+                        ) C
+                         ON  1 = 1
+                         AND B.STORE_ID   = C.STORE_ID
+                         AND B.YEAR       = C.YEAR
+                         AND B.MONTH      = C.MONTH
+            WHERE  1 = 1
+            AND    A.BRAND_ID   = #{brandId}
+            AND    A.TB_ROTATION IS NOT NULL
+            GROUP BY A.STORE_ID
+                    ,A.TB_ROTATION
+                    ,A.TB_ROTATION_GOAL
+                    ,B.YEAR
+                    ,B.MONTH  
+           )
+    </select> 
+    
+    <select id="getTbRotationRatio_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getTbRotationRatio */
         SELECT ROUND( AVG(NVL(RECEIPT_CNT2, 0)) ,2)  AS TB_ROTATION_GOAL
         FROM   (
@@ -947,6 +1246,56 @@
                     ELSE 0
                END AS GROWTH_RATE
         FROM   (
+                    /* 조회년도 */
+                    SELECT SUM(B.GROSS_SALES) AS AMOUNT1
+                          ,0                  AS AMOUNT2
+                    FROM   VINS_TBL_EXP_STORE_MST A
+                           JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                             ON  1 = 1
+                             AND A.STORE_ID   = B.STORE_ID
+                             AND B.YEAR       = #{year}
+                             AND B.MONTH      = #{month} 
+                    WHERE  1 = 1
+                    AND    A.BRAND_ID   =  #{brandId}
+                    <if test=" !'ALL'.equals(region) ">
+                        AND    A.REGION =  #{region} 
+                    </if>
+                    <if test=" !'ALL'.equals(store) ">
+                        AND    A.STORE_ID = #{store} 
+                    </if>
+                    <if test=" !'ALL'.equals(supervisor) ">
+                        AND    A.SUPERVISOR = #{supervisor} 
+                    </if>
+                    UNION ALL
+                    /* 조회 전년도 */
+                    SELECT 0                  AS AMOUNT1
+                          ,SUM(B.GROSS_SALES) AS AMOUNT2
+                    FROM   VINS_TBL_EXP_STORE_MST A
+                           JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                             ON  1 = 1
+                             AND A.STORE_ID   = B.STORE_ID
+                             AND B.YEAR       = #{previousYear}
+                             AND B.MONTH      = #{month} 
+                    WHERE  1 = 1
+                    AND    A.BRAND_ID   =  #{brandId}
+                    <if test=" !'ALL'.equals(region) ">
+                        AND    A.REGION =  #{region} 
+                    </if>
+                    <if test=" !'ALL'.equals(store) ">
+                        AND    A.STORE_ID = #{store} 
+                    </if>
+                    <if test=" !'ALL'.equals(supervisor) ">
+                        AND    A.SUPERVISOR = #{supervisor} 
+                    </if>
+                ) A
+    </select>    
+    
+    <select id="getGrowthRate_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getGrowthRate */
+        SELECT CASE WHEN MAX(A.AMOUNT1) != 0 AND MAX(A.AMOUNT2) !=  0 THEN ROUND((MAX(A.AMOUNT1)/MAX(A.AMOUNT2)) * 100,2)
+                    ELSE 0
+               END AS GROWTH_RATE
+        FROM   (
                 /* 조회년도 */
                 SELECT SUM(B.AMOUNT) AS AMOUNT1
                       ,0             AS AMOUNT2
@@ -981,7 +1330,107 @@
                 ) A   
     </select>    
 
-    <select id="getGoalAchieveRatioRank" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        <select id="getGoalAchieveRatioRank" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getGoalAchieveRatioRank */
+        SELECT A.BRAND_ID
+              ,A.STORE_ID
+              ,A.STORE_NM
+              ,A.YEAR
+              ,A.MONTH
+              ,A.GOLE_AMOUNT
+              ,A.AMOUNT
+              ,A.ACHIEVE_RATIO
+        FROM   (
+                SELECT A.BRAND_ID
+                      ,A.STORE_ID
+                      ,A.STORE_NM
+                      ,A.YEAR
+                      ,A.MONTH
+                      ,A.GOLE_AMOUNT
+                      ,B.AMOUNT
+                      ,CASE WHEN A.GOLE_AMOUNT != 0 THEN ROUND((B.AMOUNT / A.GOLE_AMOUNT) * 100, 2)
+                            ELSE NULL
+                       END AS ACHIEVE_RATIO
+                FROM   (
+                            SELECT A.BRAND_ID
+                                  ,A.STORE_ID
+                                  ,A.STORE_NM
+                                  ,B.YEAR
+                                  ,#{month} AS MONTH
+                                  ,CASE #{month}  WHEN '01'  THEN B.MONTH1
+                                                  WHEN '02'  THEN B.MONTH2
+                                                  WHEN '03'  THEN B.MONTH3
+                                                  WHEN '04'  THEN B.MONTH4
+                                                  WHEN '05'  THEN B.MONTH5
+                                                  WHEN '06'  THEN B.MONTH6
+                                                  WHEN '07'  THEN B.MONTH7
+                                                  WHEN '08'  THEN B.MONTH8
+                                                  WHEN '09'  THEN B.MONTH9
+                                                  WHEN '10'  THEN B.MONTH10
+                                                  WHEN '11'  THEN B.MONTH11
+                                                  WHEN '12'  THEN B.MONTH12
+                                                  ELSE 0
+                                    END AS GOLE_AMOUNT
+                            FROM   VINS_TBL_EXP_STORE_MST A
+                                   JOIN VINS_TBL_EXP_STORE_SALES_GOAL B
+                                       ON  1 = 1
+                                       AND A.BRAND_ID   = B.BRAND_ID
+                                       AND A.STORE_CD   = B.STORE_CD
+                                       AND B.MONTH1     IS NOT NULL
+                                       AND B.YEAR       = #{year}
+                            WHERE  1 = 1
+                            AND    A.BRAND_ID   = #{brandId}
+                            <if test=" !'ALL'.equals(region) ">
+                                AND    A.REGION =  #{region} 
+                            </if>
+                            <if test=" !'ALL'.equals(store) ">
+                                AND    A.STORE_ID = #{store} 
+                            </if>
+                            <if test=" !'ALL'.equals(supervisor) ">
+                                AND    A.SUPERVISOR = #{supervisor} 
+                            </if>
+
+                        ) A
+                        JOIN ( 
+                                 /*  매출 */
+                                SELECT A.STORE_ID
+                                      ,A.STORE_NM
+                                      ,B.YEAR
+                                      ,B.MONTH
+                                      ,SUM(B.GROSS_SALES) AS AMOUNT
+                                FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                                       JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                         ON  1 = 1
+                                         AND A.STORE_ID   = B.STORE_ID
+                                         AND B.YEAR       = #{year}
+                                         AND B.MONTH      = #{month}
+                                WHERE  1 = 1
+                                AND    A.BRAND_ID   = #{brandId}
+                                <if test=" !'ALL'.equals(region) ">
+                                    AND    A.REGION =  #{region} 
+                                </if>
+                                <if test=" !'ALL'.equals(store) ">
+                                    AND    A.STORE_ID = #{store} 
+                                </if>
+                                <if test=" !'ALL'.equals(supervisor) ">
+                                    AND    A.SUPERVISOR = #{supervisor} 
+                                </if>
+                                GROUP BY A.STORE_ID
+                                        ,A.STORE_NM
+                                        ,B.YEAR
+                                        ,B.MONTH
+
+                        ) B
+                        ON  1 = 1
+                        AND A.STORE_ID   = B.STORE_ID   
+                        AND A.YEAR       = B.YEAR     
+                        AND A.MONTH      = B.MONTH 
+               ) A
+        WHERE 1 = 1
+        AND   A.ACHIEVE_RATIO IS NOT NULL
+        ORDER BY A.ACHIEVE_RATIO DESC
+    </select>    
+    <select id="getGoalAchieveRatioRank_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getGoalAchieveRatioRank */
         SELECT A.SP_CSTM_ID
               ,A.STORE_ID
@@ -1086,6 +1535,66 @@
     
     <select id="getTbRotationRatioRank" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getTbRotationRatioRank */
+                SELECT A.STORE_ID
+                      ,A.STORE_NM 
+                      ,A.TB_ROTATION
+                      ,A.TB_ROTATION_GOAL
+                      ,B.YEAR
+                      ,B.MONTH
+                      ,ROUND((A.TB_ROTATION_GOAL/ROUND(SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT),2)) * 100,2)  AS TB_ROTATION_RATIO
+                FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                       JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                         ON  1 = 1
+                         AND A.STORE_ID   = B.STORE_ID
+                         AND B.YEAR       = #{year}
+                         AND B.MONTH      = #{month} 
+                       JOIN (
+                                SELECT B.STORE_ID
+                                      ,B.YEAR
+                                      ,B.MONTH
+                                      ,COUNT(1) DAY_CNT
+                                FROM   VINS_TBL_EXP_STORE_MST A
+                                       JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                         ON  1 = 1
+                                         AND A.STORE_ID = B.STORE_ID
+                                         AND B.YEAR       = #{year}
+                                         AND B.MONTH      = #{month} 
+                                         AND B.RECEIPT_CNT IS NOT NULL
+                                         AND B.RECEIPT_CNT != 0
+                                WHERE  1 = 1
+                                AND    A.BRAND_ID   = #{brandId}
+                                GROUP BY B.STORE_ID
+                                        ,B.YEAR
+                                        ,B.MONTH
+                            ) C
+                         ON  1 = 1
+                         AND B.STORE_ID   = C.STORE_ID
+                         AND B.YEAR       = C.YEAR
+                         AND B.MONTH      = C.MONTH
+                WHERE  1 = 1
+                AND    A.BRAND_ID   = #{brandId}
+                AND    A.TB_ROTATION IS NOT NULL
+                <if test=" !'ALL'.equals(region) ">
+                    AND    A.REGION =  #{region} 
+                </if>
+                <if test=" !'ALL'.equals(store) ">
+                    AND    A.STORE_ID = #{store} 
+                </if>
+                <if test=" !'ALL'.equals(supervisor) ">
+                    AND    A.SUPERVISOR = #{supervisor} 
+                </if>
+                GROUP BY A.STORE_ID
+                        ,A.STORE_NM
+                        ,A.TB_ROTATION
+                        ,A.TB_ROTATION_GOAL
+                        ,B.YEAR
+                        ,B.MONTH
+                ORDER BY ROUND((A.TB_ROTATION_GOAL/ROUND(SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT),2)) * 100,2) DESC
+    </select> 
+        
+        
+    <select id="getTbRotationRatioRank_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getTbRotationRatioRank */
                 SELECT A.SP_CSTM_ID
                       ,A.STORE_ID
                       ,A.STORE_NM3 
@@ -1150,6 +1659,70 @@
     </select> 
     
     <select id="getPreMonthAchieveRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getPreMonthAchieveRatio */
+        SELECT ROUND(AVG(PRE_MONTH_ACHIEVE_RATIO),2) AS PRE_MONTH_ACHIEVE_RATIO
+        FROM   (
+                    SELECT A.STORE_ID
+                          ,A.STORE_NM
+                          ,CASE WHEN SUM(A.PRE_AMOUNT) !=  0 THEN ROUND( (SUM(A.AMOUNT)/SUM(A.PRE_AMOUNT)) * 100 ,2)
+                                ELSE 0
+                           END AS PRE_MONTH_ACHIEVE_RATIO
+                    FROM   (
+                             /*  당월 */
+                            SELECT A.STORE_ID
+                                  ,A.STORE_NM
+                                  ,SUM(B.GROSS_SALES) AS AMOUNT
+                                  ,0                  AS PRE_AMOUNT
+                            FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                     ON  1 = 1
+                                     AND A.STORE_ID   = B.STORE_ID
+                                     AND B.YEAR       = #{year} 
+                                     AND B.MONTH      = #{month} 
+                            WHERE  1 = 1
+                            AND    A.BRAND_ID   = #{brandId}
+                            <if test=" !'ALL'.equals(region) ">
+                                AND    A.REGION =  #{region} 
+                            </if>
+                            <if test=" !'ALL'.equals(store) ">
+                                AND    A.STORE_ID = #{store} 
+                            </if>
+                            <if test=" !'ALL'.equals(supervisor) ">
+                                AND    A.SUPERVISOR = #{supervisor} 
+                            </if> 
+                            GROUP BY A.STORE_ID
+                                    ,A.STORE_NM
+                            UNION ALL
+                             /*  전월 */
+                            SELECT A.STORE_ID
+                                  ,A.STORE_NM
+                                  ,0                  AS AMOUNT
+                                  ,SUM(B.GROSS_SALES) AS PRE_AMOUNT
+                            FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                     ON  1 = 1
+                                     AND A.STORE_ID   = B.STORE_ID
+                                     AND B.YEAR       = #{prevYear}
+                                     AND B.MONTH      = #{prevMonth}
+                            WHERE  1 = 1
+                            AND    A.BRAND_ID   = #{brandId}
+                            <if test=" !'ALL'.equals(region) ">
+                                AND    A.REGION =  #{region} 
+                            </if>
+                            <if test=" !'ALL'.equals(store) ">
+                                AND    A.STORE_ID = #{store} 
+                            </if>
+                            <if test=" !'ALL'.equals(supervisor) ">
+                                AND    A.SUPERVISOR = #{supervisor} 
+                            </if> 
+                            GROUP BY A.STORE_ID
+                                    ,A.STORE_NM
+                           ) A
+                    GROUP BY  A.STORE_ID
+                             ,A.STORE_NM
+               ) A
+    </select> 
+    <select id="getPreMonthAchieveRatio_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getPreMonthAchieveRatio */
         SELECT  SP_CSTM_ID
                ,PRE_MONTH_ACHIEVE_RATIO
@@ -1220,9 +1793,90 @@
                     GROUP BY  A.SP_CSTM_ID
                ) A
     </select> 
-
     
     <select id="getPreMonthAchieveRatioRank" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /*  dashboardCorPerformance.getPreMonthAchieveRatioRank */
+        SELECT A.STORE_CD
+              ,A.STORE_NM
+              ,A.YEAR    
+              ,A.PRE_MONTH_ACHIEV_RATIO
+        FROM   (
+                SELECT A.STORE_CD
+                      ,A.STORE_NM
+                      ,A.YEAR
+                      ,SUM(A.AMOUNT)     AS AMOUNT
+                      ,SUM(A.PRE_AMOUNT) AS PRE_AMOUNT
+                      ,CASE WHEN SUM(A.PRE_AMOUNT) !=  0 THEN ROUND( (SUM(A.AMOUNT)/SUM(A.PRE_AMOUNT)) * 100 ,2)
+                            ELSE 0
+                       END AS PRE_MONTH_ACHIEV_RATIO
+                FROM   (
+                /* 당월 */
+                SELECT A.STORE_CD
+                      ,A.STORE_NM
+                      ,B.YEAR       
+                      ,B.MONTH
+                      ,SUM(B.GROSS_SALES) AS AMOUNT
+                      ,0             AS PRE_AMOUNT
+                FROM   VINS_TBL_EXP_STORE_MST A
+                       JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                         ON  1 = 1
+                         AND A.STORE_ID   = B.STORE_ID
+                         AND B.YEAR       = #{year} 
+                         AND B.MONTH      = #{month}  
+                WHERE  1 = 1
+                AND    A.BRAND_ID   = #{brandId} 
+               <if test=" !'ALL'.equals(region) ">
+                   AND    A.REGION =  #{region} 
+               </if>
+               <if test=" !'ALL'.equals(store) ">
+                   AND    A.STORE_ID = #{store} 
+               </if>
+               <if test=" !'ALL'.equals(supervisor) ">
+                   AND    A.SUPERVISOR = #{supervisor} 
+               </if>
+                GROUP BY A.STORE_CD
+                        ,A.STORE_NM
+                        ,B.YEAR
+                        ,B.MONTH
+                UNION ALL 
+                /* 전월 */
+                SELECT A.STORE_CD
+                      ,A.STORE_NM
+                      ,B.YEAR     
+                      ,B.MONTH       AS MONTH
+                      ,0             AS AMOUNT
+                      ,SUM(B.GROSS_SALES) AS PRE_AMOUNT
+                FROM   VINS_TBL_EXP_STORE_MST A
+                       JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                         ON  1 = 1
+                         AND A.STORE_ID   = B.STORE_ID
+                         AND B.YEAR       = #{prevYear}
+                         AND B.MONTH      = #{prevMonth}
+                WHERE  1 = 1
+                AND    A.BRAND_ID   = #{brandId} 
+               <if test=" !'ALL'.equals(region) ">
+                   AND    A.REGION =  #{region} 
+               </if>
+               <if test=" !'ALL'.equals(store) ">
+                   AND    A.STORE_ID = #{store} 
+               </if>
+               <if test=" !'ALL'.equals(supervisor) ">
+                   AND    A.SUPERVISOR = #{supervisor} 
+               </if>
+                GROUP BY A.STORE_CD
+                        ,A.STORE_NM
+                        ,B.YEAR
+                        ,B.MONTH
+                ) A
+                GROUP BY A.STORE_CD
+                        ,A.STORE_NM
+                        ,A.YEAR    
+        ) A
+        ORDER BY A.PRE_MONTH_ACHIEV_RATIO DESC
+ 
+    </select> 
+    
+    <select id="getPreMonthAchieveRatioRank_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getPreMonthAchieveRatioRank */
         SELECT A.STORE_ID
               ,A.STORE_NM3
@@ -1314,7 +1968,124 @@
         ORDER BY A.PRE_MONTH_ACHIEV_RATIO DESC
     </select> 
     
+    
     <select id="getPreMonthTbRotationRatioRank" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getPreMonthTbRotationRatioRank */
+        SELECT BRAND_ID
+              ,STORE_ID
+              ,STORE_NM
+              ,TB_ROTATION_RATIO
+        FROM   (
+            SELECT BRAND_ID
+                  ,STORE_ID
+                  ,STORE_NM
+                  ,CASE WHEN SUM(PRE_RECEIPT_CNT) !=  0 THEN  ROUND(SUM(RECEIPT_CNT)/SUM(PRE_RECEIPT_CNT) *100,2)
+                        ELSE 0
+                   END AS TB_ROTATION_RATIO
+            FROM  (
+                            /* 당월 */
+                            SELECT A.BRAND_ID
+                                  ,B.YEAR
+                                  ,B.MONTH
+                                  ,A.STORE_ID
+                                  ,A.STORE_NM 
+                                  ,CASE WHEN MAX(C.DAY_CNT) !=  0 THEN ROUND((SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT) )  ,2)
+                                        ELSE 0
+                                   END      AS RECEIPT_CNT
+                                  ,0        AS PRE_RECEIPT_CNT
+                            FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                     ON  1 = 1
+                                     AND A.STORE_ID   = B.STORE_ID
+                                     AND B.YEAR       = #{year} 
+                                     AND B.MONTH      = #{month} 
+                                   JOIN (
+                                            
+                                            SELECT B.STORE_ID
+                                                  ,B.YEAR
+                                                  ,B.MONTH
+                                                  ,COUNT(1) DAY_CNT
+                                            FROM   VINS_TBL_EXP_STORE_MST A
+                                                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                                     ON  1 = 1
+                                                     AND A.STORE_ID = B.STORE_ID
+                                                     AND B.YEAR       = #{year}
+                                                     AND B.MONTH      = #{month} 
+                                                     AND B.RECEIPT_CNT IS NOT NULL
+                                                     AND B.RECEIPT_CNT != 0
+                                            WHERE  1 = 1
+                                            AND    A.BRAND_ID   = #{brandId}
+                                            GROUP BY B.STORE_ID
+                                                    ,B.YEAR
+                                                    ,B.MONTH
+                                        ) C
+                                     ON  1 = 1
+                                     AND B.STORE_ID   = C.STORE_ID
+                                     AND B.YEAR       = C.YEAR
+                                     AND B.MONTH      = C.MONTH
+                            WHERE  1 = 1
+                            AND    A.BRAND_ID   = #{brandId}
+                            GROUP BY A.BRAND_ID
+                                    ,B.YEAR
+                                    ,B.MONTH
+                                    ,A.STORE_ID
+                                    ,A.STORE_NM
+                            UNION ALL
+                            /* 전월 */
+                            SELECT A.BRAND_ID
+                                  ,B.YEAR
+                                  ,B.MONTH
+                                  ,A.STORE_ID
+                                  ,A.STORE_NM
+                                  ,0        AS RECEIPT_CNT 
+                                  ,CASE WHEN MAX(C.DAY_CNT) !=  0 THEN ROUND((SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT) )  ,2)
+                                        ELSE 0
+                                   END       AS PRE_RECEIPT_CNT
+                            FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                     ON  1 = 1
+                                     AND A.STORE_ID   = B.STORE_ID
+                                     AND B.YEAR       = #{prevYear}
+                                     AND B.MONTH      = #{prevMonth} 
+                                   JOIN (   
+                                            SELECT B.STORE_ID
+                                                  ,B.YEAR
+                                                  ,B.MONTH
+                                                  ,COUNT(1) DAY_CNT
+                                            FROM   VINS_TBL_EXP_STORE_MST A
+                                                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                                     ON  1 = 1
+                                                     AND A.STORE_ID = B.STORE_ID
+                                                     AND B.YEAR       = #{prevYear}
+                                                     AND B.MONTH      = #{prevMonth}
+                                                     AND B.RECEIPT_CNT IS NOT NULL
+                                                     AND B.RECEIPT_CNT != 0
+                                            WHERE  1 = 1
+                                            AND    A.BRAND_ID   = #{brandId}
+                                            GROUP BY B.STORE_ID
+                                                    ,B.YEAR
+                                                    ,B.MONTH
+                                        ) C
+                                     ON  1 = 1
+                                     AND B.STORE_ID   = C.STORE_ID
+                                     AND B.YEAR       = C.YEAR
+                                     AND B.MONTH      = C.MONTH
+                            WHERE  1 = 1
+                            AND    A.BRAND_ID   = #{brandId}
+                            GROUP BY A.BRAND_ID
+                                    ,B.YEAR
+                                    ,B.MONTH
+                                    ,A.STORE_ID
+                                    ,A.STORE_NM
+            )
+             GROUP BY BRAND_ID
+                     ,STORE_ID
+                     ,STORE_NM
+        )
+         ORDER BY TB_ROTATION_RATIO DESC
+    </select> 
+    
+    <select id="getPreMonthTbRotationRatioRank_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
     /* dashboardCorPerformance.getPreMonthTbRotationRatioRank */
     SELECT SP_CSTM_ID
           ,STORE_ID
@@ -1456,6 +2227,114 @@
     </select> 
 
     <select id="getPreMonthTbRotationRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getPreMonthTbRotationRatio */
+        SELECT BRAND_ID
+              ,TB_ROTATION_RATIO
+        FROM   (
+            SELECT BRAND_ID
+                  ,CASE WHEN SUM(PRE_RECEIPT_CNT) !=  0 THEN  ROUND(SUM(RECEIPT_CNT)/SUM(PRE_RECEIPT_CNT) *100,2)
+                        ELSE 0
+                   END AS TB_ROTATION_RATIO
+            FROM  (
+                            /* 당월 */
+                            SELECT A.BRAND_ID
+                                  ,B.YEAR
+                                  ,B.MONTH
+                                  ,A.STORE_ID
+                                  ,A.STORE_NM 
+                                  ,CASE WHEN MAX(C.DAY_CNT) !=  0 THEN ROUND((SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT) )  ,2)
+                                        ELSE 0
+                                   END      AS RECEIPT_CNT
+                                  ,0        AS PRE_RECEIPT_CNT
+                            FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                     ON  1 = 1
+                                     AND A.STORE_ID   = B.STORE_ID
+                                     AND B.YEAR       = #{year} 
+                                     AND B.MONTH      = #{month} 
+                                   JOIN (
+                                            
+                                            SELECT B.STORE_ID
+                                                  ,B.YEAR
+                                                  ,B.MONTH
+                                                  ,COUNT(1) DAY_CNT
+                                            FROM   VINS_TBL_EXP_STORE_MST A
+                                                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                                     ON  1 = 1
+                                                     AND A.STORE_ID = B.STORE_ID
+                                                     AND B.YEAR       = #{year} 
+                                                     AND B.MONTH      = #{month} 
+                                                     AND B.RECEIPT_CNT IS NOT NULL
+                                                     AND B.RECEIPT_CNT != 0
+                                            WHERE  1 = 1
+                                            AND    A.BRAND_ID   = #{brandId} 
+                                            GROUP BY B.STORE_ID
+                                                    ,B.YEAR
+                                                    ,B.MONTH
+                                        ) C
+                                     ON  1 = 1
+                                     AND B.STORE_ID   = C.STORE_ID
+                                     AND B.YEAR       = C.YEAR
+                                     AND B.MONTH      = C.MONTH
+                            WHERE  1 = 1
+                            AND    A.BRAND_ID   = #{brandId}  
+                            GROUP BY A.BRAND_ID
+                                    ,B.YEAR
+                                    ,B.MONTH
+                                    ,A.STORE_ID
+                                    ,A.STORE_NM
+                            UNION ALL
+                            /* 전월 */
+                            SELECT A.BRAND_ID
+                                  ,B.YEAR
+                                  ,B.MONTH
+                                  ,A.STORE_ID
+                                  ,A.STORE_NM
+                                  ,0        AS RECEIPT_CNT 
+                                  ,CASE WHEN MAX(C.DAY_CNT) !=  0 THEN ROUND((SUM(B.RECEIPT_CNT) / MAX(C.DAY_CNT) )  ,2)
+                                        ELSE 0
+                                   END       AS PRE_RECEIPT_CNT
+                            FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                     ON  1 = 1
+                                     AND A.STORE_ID   = B.STORE_ID
+                                     AND B.YEAR       = #{prevYear}
+                                     AND B.MONTH      = #{prevMonth}
+                                   JOIN (   
+                                            SELECT B.STORE_ID
+                                                  ,B.YEAR
+                                                  ,B.MONTH
+                                                  ,COUNT(1) DAY_CNT
+                                            FROM   VINS_TBL_EXP_STORE_MST A
+                                                   JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                                                     ON  1 = 1
+                                                     AND A.STORE_ID = B.STORE_ID
+                                                     AND B.YEAR       = #{prevYear}
+                                                     AND B.MONTH      = #{prevMonth}
+                                                     AND B.RECEIPT_CNT IS NOT NULL
+                                                     AND B.RECEIPT_CNT != 0
+                                            WHERE  1 = 1
+                                            AND    A.BRAND_ID   = #{brandId} 
+                                            GROUP BY B.STORE_ID
+                                                    ,B.YEAR
+                                                    ,B.MONTH
+                                        ) C
+                                     ON  1 = 1
+                                     AND B.STORE_ID   = C.STORE_ID
+                                     AND B.YEAR       = C.YEAR
+                                     AND B.MONTH      = C.MONTH
+                            WHERE  1 = 1
+                            AND    A.BRAND_ID   = #{brandId} 
+                            GROUP BY A.BRAND_ID
+                                    ,B.YEAR
+                                    ,B.MONTH
+                                    ,A.STORE_ID
+                                    ,A.STORE_NM
+            )
+             GROUP BY BRAND_ID
+        )
+    </select> 
+    <select id="getPreMonthTbRotationRatio_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
     /* dashboardCorPerformance.getPreMonthTbRotationRatio */
     SELECT SP_CSTM_ID
           ,TB_ROTATION_RATIO
@@ -1622,6 +2501,86 @@
     
     <select id="getSalesByWeek" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getSalesByWeek */
+        WITH BASE_TB AS(    
+                    SELECT A.BRAND_ID
+                          ,A.STORE_ID
+                          ,A.STORE_NM
+                          ,TO_CHAR(B.YEAR) AS YEAR 
+                          ,TO_CHAR(B.MONTH) AS MONTH
+                          ,TO_CHAR(LPAD(B.DAY, 2, '0')) AS DAY 
+                          ,TO_DATE(TO_CHAR(B.YEAR)||TO_CHAR(B.MONTH)||TO_CHAR(LPAD(B.DAY, 2, '0')), 'YYYYMMDD') AS STR_DATE
+                          ,B.NET_SALES
+                          ,B.RECEIPT_CNT
+                    FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                           JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                             ON  1 = 1
+                             AND A.STORE_ID   = B.STORE_ID
+                    WHERE  1 = 1
+                    AND    A.BRAND_ID   = #{brandId}
+                    <if test=" !'ALL'.equals(region) ">
+                        AND    A.REGION =  #{region} 
+                    </if>
+                    <if test=" !'ALL'.equals(store) ">
+                        AND    A.STORE_CD = #{store} 
+                    </if>
+                    <if test=" !'ALL'.equals(supervisor) ">
+                        AND    A.SUPERVISOR = #{supervisor} 
+                    </if>
+                    ORDER BY A.BRAND_ID
+                            ,A.STORE_ID
+                            ,B.YEAR
+                            ,B.MONTH
+                            ,B.DAY
+                   )
+        SELECT A.BRAND_ID
+              ,A.STR_DATE     
+              ,TO_CHAR(TO_DATE(A.STR_DATE     , 'YYYY-MM-DD HH24:MI:SS') -7, 'YYYY-MM-DD')  AS PRE_STR_DATE
+              ,A.NET_SALES      
+              ,A.RECEIPT_CNT    
+              ,A.PRE_NET_SALES  
+              ,A.PRE_RECEIPT_CNT
+        FROM   (
+                SELECT A.BRAND_ID
+                      ,A.STR_DATE             AS STR_DATE
+                      ,SUM(A.NET_SALES)       AS NET_SALES
+                      ,SUM(A.RECEIPT_CNT)     AS RECEIPT_CNT
+                      ,SUM(A.PRE_NET_SALES)   AS PRE_NET_SALES
+                      ,SUM(A.PRE_RECEIPT_CNT) AS PRE_RECEIPT_CNT
+                FROM   (
+                        /*조회 주차*/
+                        SELECT  BASE_TB.BRAND_ID
+                               ,BASE_TB.STORE_ID
+                               ,BASE_TB.STORE_NM
+                               ,TO_CHAR(BASE_TB.STR_DATE,'YYYY-MM-DD') AS STR_DATE
+                               ,NET_SALES   AS NET_SALES
+                               ,RECEIPT_CNT AS RECEIPT_CNT
+                               ,0           AS PRE_NET_SALES
+                               ,0           AS PRE_RECEIPT_CNT
+                        FROM    BASE_TB
+                        WHERE   1 = 1
+                        AND     BASE_TB.STR_DATE BETWEEN TO_DATE( #{dateStart} , 'YYYY-MM-DD') AND TO_DATE( #{dateEnd} , 'YYYY-MM-DD')
+                        UNION ALL
+                        /*조회 전주차*/
+                        SELECT  BASE_TB.BRAND_ID
+                               ,BASE_TB.STORE_ID
+                               ,BASE_TB.STORE_NM
+                               ,TO_CHAR(STR_DATE+7,'YYYY-MM-DD') AS STR_DATE
+                               ,0           AS NET_SALES
+                               ,0           AS RECEIPT_CNT
+                               ,NET_SALES   AS PRE_NET_SALES
+                               ,RECEIPT_CNT AS PRE_RECEIPT_CNT
+                        FROM    BASE_TB
+                        WHERE   1 = 1
+                        AND     BASE_TB.STR_DATE BETWEEN TO_DATE( #{startDatePre} , 'YYYY-MM-DD') AND TO_DATE( #{endDatePre} , 'YYYY-MM-DD')
+                        ) A
+                GROUP BY A.BRAND_ID
+                        ,A.STR_DATE         
+                ORDER BY A.BRAND_ID
+                        ,A.STR_DATE    
+               ) A  
+    </select>
+    <select id="getSalesByWeek_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getSalesByWeek_BAK */
         WITH BASE_TB AS(    
                     SELECT A.SP_CSTM_ID
                           ,A.STORE_ID
@@ -1945,6 +2904,115 @@
 
     <select id="getmenuSalesMonthTop5" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getmenuSalesMonthTop5 */
+        WITH TOP5_MENU AS (
+            /* 매출상위 5개 메뉴 */
+            SELECT  BRAND_ID
+                   ,BRAND_MENU_ID
+            FROM   (
+                    SELECT A.BRAND_ID
+                          ,B.BRAND_MENU_ID
+                          ,SUM(D.SALES) AS SALES
+                    FROM   VINS_TBL_EXP_STORE_MST A
+                           JOIN VINS_TBL_EXP_BRAND_MENU_MASTER B
+                             ON   1 = 1
+                             AND  A.BRAND_ID = B.BRAND_ID
+                             <if test=" !'ALL'.equals(group1) and group1 != null and group1 != ''  ">
+                                 AND B.GROUP_1  = #{group1}
+                             </if>
+                             <if test=" !'ALL'.equals(group2) and group2 != null and group2 != ''  ">
+                                 AND B.GROUP_2  = #{group2}
+                             </if>
+                             <if test=" !'ALL'.equals(menu) and menu != null and menu != ''  ">
+                                 AND B.BRAND_MENU_CD  = #{menu}
+                             </if>
+                             
+                           JOIN VINS_TBL_EXP_STORE_MENU_MST C
+                             ON   1 = 1
+                             AND  B.BRAND_MENU_CD = C.BRAND_MENU_CD
+                             AND  A.STORE_ID      = C.STORE_ID
+                           JOIN VINS_TBL_EXP_STORE_MENU_SALES_MST D
+                             ON   1 = 1
+                             AND  C.MENU_ID = D.MENU_ID
+                    WHERE  1 = 1
+                    AND    A.BRAND_ID   = #{brandId}
+                    <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                        AND    A.STORE_CD   = #{store}
+                    </if>
+                    <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                        AND    A.REGION   = #{region}
+                    </if>
+                    <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                        AND    A.SUPERVISOR   = #{supervisor}
+                    </if>
+                    GROUP BY A.BRAND_ID
+                            ,B.BRAND_MENU_ID
+                    ORDER BY SUM(D.SALES) DESC
+                   )
+            WHERE  1 =1 
+            AND    ROWNUM <![CDATA[<=]]> 5
+        )
+       , MONTH_MENU AS (
+            /* 월별 메뉴 매출 */
+            
+            SELECT A.BRAND_ID
+                  ,B.BRAND_MENU_ID
+                  ,B.MENU_NM
+                  ,D.YEAR
+                  ,D.MONTH
+                  ,SUM(D.SALES) AS SALES
+            FROM   VINS_TBL_EXP_STORE_MST A
+                   JOIN VINS_TBL_EXP_BRAND_MENU_MASTER B
+                     ON   1 = 1
+                     AND  A.BRAND_ID = B.BRAND_ID
+                     <if test=" !'ALL'.equals(group1) and group1 != null and group1 != ''  ">
+                         AND B.GROUP_1  = #{group1}
+                     </if>
+                     <if test=" !'ALL'.equals(group2) and group2 != null and group2 != ''  ">
+                         AND B.GROUP_2  = #{group2}
+                     </if>
+                     <if test=" !'ALL'.equals(menu) and menu != null and menu != ''  ">
+                         AND B.BRAND_MENU_CD  = #{menu}
+                     </if>
+                   JOIN VINS_TBL_EXP_STORE_MENU_MST C
+                     ON   1 = 1
+                     AND  B.BRAND_MENU_CD = C.BRAND_MENU_CD
+                     AND  A.STORE_ID      = C.STORE_ID
+                   JOIN VINS_TBL_EXP_STORE_MENU_SALES_MST D
+                     ON   1 = 1
+                     AND  C.MENU_ID = D.MENU_ID
+            WHERE  1 = 1
+            AND    A.BRAND_ID   = #{brandId}
+            <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                AND    A.STORE_CD   = #{store}
+            </if>
+            <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                AND    A.REGION   = #{region}
+            </if>
+            <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                AND    A.SUPERVISOR   = #{supervisor}
+            </if>
+            GROUP BY A.BRAND_ID
+                    ,B.BRAND_MENU_ID
+                    ,B.MENU_NM
+                    ,D.YEAR
+                    ,D.MONTH
+             ORDER BY  D.MONTH
+                      ,SUM(D.SALES)  DESC
+        )
+        SELECT A.BRAND_ID
+              ,A.BRAND_MENU_ID
+              ,A.MENU_NM
+              ,A.MONTH
+              ,A.SALES
+        FROM   MONTH_MENU A
+               JOIN TOP5_MENU B
+                 ON  1 = 1
+                 AND A.BRAND_ID        = B.BRAND_ID
+                 AND A.BRAND_MENU_ID   = B.BRAND_MENU_ID
+    </select>
+
+    <select id="getmenuSalesMonthTop5_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getmenuSalesMonthTop5_BAK */
         WITH TOP5_MENU AS (
             SELECT  SP_CSTM_ID
                    ,BRAND_ID
@@ -3075,8 +4143,61 @@
         ORDER BY TABLE_YEAR_MONTH.YEAR
                ,TABLE_YEAR_MONTH.MONTH   
     </select>
-            
+
     <select id="getStoreRatio" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getStoreRatio */
+        WITH TABLE_SALES AS (
+                     /*  매출 */
+                    SELECT A.STORE_ID
+                          ,A.STORE_NM
+                          ,SUM(B.GROSS_SALES) AS AMOUNT
+                    FROM   VINS_TBL_EXP_STORE_MST  A/* 매장정보 */
+                           JOIN VINS_TBL_EXP_STORE_SALES_MST B
+                             ON  1 = 1
+                             AND A.STORE_ID   = B.STORE_ID
+                             AND TO_DATE(B.YEAR||'-'||B.MONTH , 'YYYY-MM')  BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{startDate}, 'YYYY-MM')
+                    WHERE  1 = 1
+                    AND    A.BRAND_ID   = 'obong'
+                    <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                        AND    A.REGION =  #{region} 
+                    </if>
+                    <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                        AND    A.STORE_CD = #{store} 
+                    </if>
+                    <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                        AND    A.SUPERVISOR = #{supervisor}
+                    </if> 
+                    GROUP BY A.STORE_ID
+                            ,A.STORE_NM
+        )
+        /* 매입 필요*/
+        SELECT A.STORE_ID
+              ,A.STORE_NM
+              ,CASE WHEN GROSS_PROFIT_OF_SALES = 0 THEN NULL
+                    ELSE ROUND(AMOUNT_SALES * 100 / GROSS_PROFIT_OF_SALES) 
+                    END AS GROSS_PROFIT_OF_SALES
+              ,CASE WHEN NET_INCOME = 0 THEN NULL
+                    ELSE ROUND(AMOUNT_SALES * 100 / NET_INCOME) 
+                    END AS NET_INCOME
+              ,CASE WHEN OPERATING_INCOME = 0 THEN NULL
+                    ELSE ROUND(AMOUNT_SALES * 100 / OPERATING_INCOME) 
+                    END AS OPERATING_INCOME
+        FROM   (
+                 SELECT TABLE_SALES.STORE_ID
+                       ,TABLE_SALES.STORE_NM
+                       ,SUM(TABLE_SALES.AMOUNT) AS AMOUNT_SALES           /* 매출액 */
+                       ,SUM(TABLE_SALES.AMOUNT) AS GROSS_PROFIT_OF_SALES  /* 매출총이익 */
+                       ,SUM(TABLE_SALES.AMOUNT) AS NET_INCOME             /* 당기순이익 */  
+                       ,SUM(TABLE_SALES.AMOUNT) AS OPERATING_INCOME       /* 영업이익  */
+                 FROM   TABLE_SALES
+                 GROUP BY  TABLE_SALES.STORE_ID
+                          ,TABLE_SALES.STORE_NM  
+
+               ) A  
+        ORDER BY  A.STORE_NM
+    </select>
+            
+    <select id="getStoreRatio_bak" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getStoreRatio */
              SELECT    A.SP_CSTM_ID
                       ,A.BRAND_ID

@@ -5,19 +5,19 @@
              ,selectProduct : ''
              ,searchDate : ''
              ,pageInit : () => {
-            	 
-            	 let today  = <@compId>.getToday(-12, '-');
+                 
+                 let today  = <@compId>.getToday(-12, '-');
                  $("#<@compId>_startDate").val(today);
                  <@compId>.searchDate = today;
              }
              ,getToday : (offsetMonths = 0, separator = '-') => {
-            	let today = new Date();
-           	    today.setMonth(today.getMonth() + offsetMonths);
-           	    let year = today.getFullYear();
-           	    let month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-           	    let date = String(today.getDate()).padStart(2, '0');
+                let today = new Date();
+                today.setMonth(today.getMonth() + offsetMonths);
+                let year = today.getFullYear();
+                let month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                let date = String(today.getDate()).padStart(2, '0');
 
-           	    return `${year}${separator}${month}${separator}${date}`;
+                return `${year}${separator}${month}${separator}${date}`;
              }
              
              ,brandIdSet : (brandId) => {
@@ -73,7 +73,7 @@
                  }
 
                  C_COM.requestQuery(parm1, function(resultData) {
-                	 
+                     
                      const DATA = resultData.data.map( item => [ item.PRODUCT_CD, item.PRODUCT_NM ]);
                      var selectBoxProductList = {
                              data : DATA
@@ -117,8 +117,8 @@
                  });
              }
             ,searchList : () => {
-            	
-            	var startDate   = <@compId>.searchDate;//C_UICOM.getData("<@compId>_startDate");
+                
+                var startDate   = <@compId>.searchDate;//C_UICOM.getData("<@compId>_startDate");
                 var region      = C_UICOM.getData("<@compId>_selectBoxRegion");
                 var storeId     = C_UICOM.getData("<@compId>_selectBoxStore");
                 //var productCd   = C_UICOM.getData("<@compId>_selectBoxProduct");
@@ -210,16 +210,16 @@
                             <div class="select_box fl" style="width:114px">
                                 <input type="text" id="<@compId>_startDate" name="<@compId>_startDate" class="datepicker" style="width:114px">
                             </div>
-			                <span class="tit01 fl lh33">권역</span>
-			                <!-- 권역 선택 -->
-			                <div class="select_box fl" style="width:100px">
-			                    <div id="<@compId>_selectBoxRegion" style="width:100px"></div>
-			                </div>
-			                <!-- 매장명 선택 -->
-			                <div class="select_box fl" style="width:170px">
-			                    <div id="<@compId>_selectBoxStore" style="width:170px"></div>
-			                </div>   
-			                <span class="tit01 fl lh33">상품</span>
+                            <span class="tit01 fl lh33">권역</span>
+                            <!-- 권역 선택 -->
+                            <div class="select_box fl" style="width:100px">
+                                <div id="<@compId>_selectBoxRegion" style="width:100px"></div>
+                            </div>
+                            <!-- 매장명 선택 -->
+                            <div class="select_box fl" style="width:170px">
+                                <div id="<@compId>_selectBoxStore" style="width:170px"></div>
+                            </div>   
+                            <span class="tit01 fl lh33">상품</span>
                             <div class="select_box fl" style="width:200px">
                                 <div id="<@compId>_selectBoxProduct" style="width:200px"></div>
                             </div>

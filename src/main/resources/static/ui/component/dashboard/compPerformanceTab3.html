@@ -1,9 +1,9 @@
 <meta charset="utf-8">
 <script type="text/javascript">
     var <@compId> = {
-    		 selectYear : ''
-    		,selectWeek : ''
-    		,TB_percent : ''
+             selectYear : ''
+            ,selectWeek : ''
+            ,TB_percent : ''
             ,TB_num     : ''
             ,TB_arrow   : ''
             ,SALES_percent : ''
@@ -11,14 +11,14 @@
             ,SALES_arrow   : ''
             ,BRAND_ID : ''
             ,pageInit : () => {
-            	var now = new Date();   // 현재 날짜 및 시간
-            	var thisYear = now.getFullYear();   // 연도
-            	
-            	var startDate = new Date();
-            	startDate.setFullYear(startDate.getFullYear() - 5);// 현재년도의 과거 5년
-            	
-            	var startYear = startDate.getFullYear();   // 연도
-            	
+                var now = new Date();   // 현재 날짜 및 시간
+                var thisYear = now.getFullYear();   // 연도
+                
+                var startDate = new Date();
+                startDate.setFullYear(startDate.getFullYear() - 5);// 현재년도의 과거 5년
+                
+                var startYear = startDate.getFullYear();   // 연도
+                
                 const yearsArray = Array.from({ length: 6 }, (_, index) => {
                       const year = startYear + index;
                       return [year.toString(), year + "년"];
@@ -137,7 +137,7 @@
                 });
             }
             ,getAddDay : (yyyy, mm, dd, value) => {
-            	
+                
                 let date = new Date(Number(yyyy), Number(mm)-1, Number(dd));
                 date.setDate(date.getDate() + value);// 7일전
                 
@@ -157,9 +157,9 @@
                }
                C_COM.requestQuery(parm, function(resultData) {
                    //챠트
-            	   <@compId>.setChartSalesByWeek( resultData );
+                   <@compId>.setChartSalesByWeek( resultData );
                    
-            	   //지난주차
+                   //지난주차
                    var rparm = {
                         targetId       : "<@compId>_tableId1"
                        ,list           : resultData.data
@@ -191,8 +191,8 @@
                    var totalPreTB = $('#<@compId>_totalPreTB').text().replace(/,/g, '');
                    
                    if(!(typeof totalPreTB == "undefined" || totalPreTB == null || totalPreTB == "0")){
-                	   var tableRate =  ((Number(totalTB) - Number(totalPreTB)) / Number(totalPreTB)) * 100;
-                	   var tableRateRound =  Math.ceil(tableRate * 100) / 100
+                       var tableRate =  ((Number(totalTB) - Number(totalPreTB)) / Number(totalPreTB)) * 100;
+                       var tableRateRound =  Math.ceil(tableRate * 100) / 100
                        
                        //css Class 삭제  
                        $('#<@compId>_table_percent').removeClass(<@compId>.TB_percent);//숫자변경
@@ -204,29 +204,29 @@
                        $('#<@compId>_table_percent_txt').text(tableRateRound+'%');                       
                        $('#<@compId>_table_num_txt').text(Number(totalTB-totalPreTB).toLocaleString('ko-KR'));
 
-                	   if( tableRateRound < 0){// 감소
-                		   <@compId>.TB_percent = "percent dec";
-                		   <@compId>.TB_num     = "num dec";
-                		   <@compId>.TB_arrow   = "comArrow arrow-bottom";
-                	   }else if( tableRateRound > 0){//증가
-                		   <@compId>.TB_percent = "percent inc";
-                		   <@compId>.TB_num     = "num inc";
-                		   <@compId>.TB_arrow   = "comArrow arrow-top";
-                		   
-                	   }else{//증감없음
+                       if( tableRateRound < 0){// 감소
+                           <@compId>.TB_percent = "percent dec";
+                           <@compId>.TB_num     = "num dec";
+                           <@compId>.TB_arrow   = "comArrow arrow-bottom";
+                       }else if( tableRateRound > 0){//증가
+                           <@compId>.TB_percent = "percent inc";
+                           <@compId>.TB_num     = "num inc";
+                           <@compId>.TB_arrow   = "comArrow arrow-top";
+                           
+                       }else{//증감없음
                            <@compId>.TB_percent = "percent zero";
                            <@compId>.TB_num     = "num zero";
                            <@compId>.TB_arrow   = "";
-                	   }
-                	   
-                	   $('#<@compId>_table_percent').addClass(<@compId>.TB_percent);//숫자변경
+                       }
+                       
+                       $('#<@compId>_table_percent').addClass(<@compId>.TB_percent);//숫자변경
                        $('#<@compId>_table_num').addClass(<@compId>.TB_num);//숫자변경
                        $('#<@compId>_table_percent_arrow').addClass(<@compId>.TB_arrow);//화살표 변경
                        $('#<@compId>_table_num_arrow').addClass(<@compId>.TB_arrow);//화살표 변경
                        
                                               
                    }else{
-                	   //$('#<@compId>_tableIncDecRate').text("");
+                       //$('#<@compId>_tableIncDecRate').text("");
                    }
                    
                    // 순매출액 증감률
@@ -269,7 +269,7 @@
                        $('#<@compId>_sales_percent_arrow').addClass(<@compId>.SALES_arrow);//화살표 변경
                        $('#<@compId>_sales_num_arrow').addClass(<@compId>.SALES_arrow);//화살표 변경
                    }else{
-                	   //$('#<@compId>_salesIncDecRate').text("");
+                       //$('#<@compId>_salesIncDecRate').text("");
                    }
                    
                });
@@ -280,8 +280,8 @@
                let totalTB   = 0;
                let totalSale = 0;
                for (var i=0; i<resultData.data.length; i++){
-            	   totalTB += resultData.data[i].RECEIPT_CNT;
-            	   totalSale += resultData.data[i].NET_SALES;
+                   totalTB += resultData.data[i].RECEIPT_CNT;
+                   totalSale += resultData.data[i].NET_SALES;
                }
                $('#<@compId>_totalTB').text(addComma(totalTB));
                $('#<@compId>_totalSale').text(addComma(totalSale));
@@ -311,7 +311,7 @@
                let storeNm   = '';
                
                for (var i=0; i< resultData.data.length; i++){
-            	   storeNm = resultData.data[i].STORE_NM3;
+                   storeNm = resultData.data[i].STORE_NM3;
                    categoriesList[i] = resultData.data[i].STR_DATE;
                    salesList[i]      = resultData.data[i].NET_SALES;
                    preSalesList[i]  = resultData.data[i].PRE_NET_SALES;

@@ -1,9 +1,9 @@
 <meta charset="utf-8">
 <script type="text/javascript">
 var <@compId> = {
-		BRAND_ID : ''
+        BRAND_ID : ''
        ,pageInit : () => {
-        	var now = new Date();   // 현재 날짜 및 시간111
+            var now = new Date();   // 현재 날짜 및 시간
             var thisYear = now.getFullYear();   // 연도
             
             var startDate = new Date();
@@ -53,7 +53,7 @@ var <@compId> = {
         }
         ,brandIdSet : (brandId) => {
 
-        	<@compId>.BRAND_ID = brandId;
+            <@compId>.BRAND_ID = brandId;
             // 권역
             //var regionList = C_COM.getCodeList("STORE_REGION");
             var regionList = C_COM.getBrandCodeList( brandId , "STORE_REGION");
@@ -79,7 +79,7 @@ var <@compId> = {
         }
         /* 1-1 *******  매출액 순위    매출액 순위    매출액 순위    매출액 순위    매출액 순위    매출액 순위    */
         ,searchList11 : (requestParm) => {
-        	
+            
             requestParm["subject"]  = "SUBJECT_001";
             
             var parm11 = {
@@ -88,8 +88,8 @@ var <@compId> = {
             }
    
             C_COM.requestQuery(parm11, function(resultData) {
-            	<@compId>.setTotal11(resultData);
-            	
+                <@compId>.setTotal11(resultData);
+                
                 var rparm = {
                      targetId       : "<@compId>_tableId11"
                     ,list           : resultData.data
@@ -108,9 +108,9 @@ var <@compId> = {
 
         ,setTotal11 : (resultData) =>{
             
-        	let total = 0;
+            let total = 0;
             for (var i=0; i<resultData.data.length; i++){
-            	total += resultData.data[i].AMOUNT;
+                total += resultData.data[i].AMOUNT;
             }
             $('#<@compId>_totalAmount11').text(addComma(total));
             
@@ -122,7 +122,7 @@ var <@compId> = {
 
             for (var i=0; i<resultData.list.length; i++){
                 
-                categoriesArr[i] = resultData.list[i].STORE_NM3;
+                categoriesArr[i] = resultData.list[i].STORE_NM;
                 dataArr[i] = resultData.list[i].AMOUNT1;
                  
             }
@@ -217,7 +217,7 @@ var <@compId> = {
         
         /* 1-2 *******  영업이익별 순위    영업이익별 순위    영업이익별 순위    영업이익별 순위    영업이익별 순위    */
         ,searchList12 : (requestParm) => {
-        	
+            
             requestParm["subject"]  = "SUBJECT_005";
             
             var parm = {
@@ -260,7 +260,7 @@ var <@compId> = {
 
             for (var i=0; i<resultData.list.length; i++){
                 
-                categoriesArr[i] = resultData.list[i].STORE_NM3;
+                categoriesArr[i] = resultData.list[i].STORE_NM;
                 dataArr[i] = resultData.list[i].AMOUNT1;
                  
             }
@@ -380,7 +380,7 @@ var <@compId> = {
                 C_PAGING.renderHtml("<@compId>", rparm);
                 
             });
-        	
+            
             
         }//searchList
 
@@ -502,7 +502,9 @@ var <@compId> = {
             }
    
             C_COM.requestQuery(parm, function(resultData) {
-            	<@compId>.setChart21( resultData );
+                <@compId>.setChart21( resultData );
+                <@compId>.setChart22( resultData );
+                <@compId>.setChart31( resultData );
             });
             
         }//searchList
@@ -531,10 +533,10 @@ var <@compId> = {
             let accrue4      = 0;
             
             for (var i=0; i< resultData.data.length; i++){
-               accrue1 =  accrue1 + resultData.data[i].SUBJECT_001;
-               accrue2 =  accrue2 + resultData.data[i].SUBJECT_003;
-               accrue3 =  accrue3 + resultData.data[i].SUBJECT_010;
-               accrue4 =  accrue4 + resultData.data[i].SUBJECT_005;
+               accrue1 =  accrue1 + resultData.data[i].AMOUNT_SALES; /* 매출액 */
+               accrue2 =  accrue2 + resultData.data[i].GROSS_PROFIT_OF_SALES;/* 매출총이익 */
+               accrue3 =  accrue3 + resultData.data[i].NET_INCOME;/* 당기순이익 */  
+               accrue4 =  accrue4 + resultData.data[i].OPERATING_INCOME;/* 영업이익  */
                
                categories1Arr[i] = accrue1;
                categories2Arr[i] = accrue2;
@@ -562,7 +564,7 @@ var <@compId> = {
                     }
                 },
                 yAxis: {
-                	format: '{value}',
+                    format: '{value}',
                     min: 0,
                     title: {
                         text: ''
@@ -619,7 +621,7 @@ var <@compId> = {
         
         /* 2-2 *******  월별 매출 그래프    월별 매출 그래프    월별 매출 그래프    월별 매출 그래프    월별 매출 그래프    */
         ,searchList22 : (requestParm) => {
-            
+            /*
             var parm = {
                     queryId  : "dashboardCorPerformance.getMonthAccrue"
                    ,requestParm   : requestParm
@@ -628,6 +630,7 @@ var <@compId> = {
             C_COM.requestQuery(parm, function(resultData) {
                 <@compId>.setChart22( resultData );
             });
+            */
             
         }//searchList
         ,setChart22 : (resultData) =>{
@@ -639,10 +642,11 @@ var <@compId> = {
             let categoryArr    = [];
             
             for (var i=0; i< resultData.data.length; i++){
-               categories1Arr[i] = resultData.data[i].SUBJECT_001;
-               categories2Arr[i] = resultData.data[i].SUBJECT_003;
-               categories3Arr[i] = resultData.data[i].SUBJECT_010;
-               categories4Arr[i] = resultData.data[i].SUBJECT_005;
+                
+               categories1Arr[i] = resultData.data[i].AMOUNT_SALES;          /* 매출액 */
+               categories2Arr[i] = resultData.data[i].GROSS_PROFIT_OF_SALES; /* 매출총이익 */
+               categories3Arr[i] = resultData.data[i].NET_INCOME;            /* 당기순이익 */ 
+               categories4Arr[i] = resultData.data[i].OPERATING_INCOME;      /* 영업이익  */
                
                categoryArr[i]    = resultData.data[i].MONTH +'월';
             }
@@ -710,7 +714,7 @@ var <@compId> = {
         
         /* 3-1 *******  월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    월별 비율 그래프    */
         ,searchList31 : (requestParm) => {
-
+            /*
             var parm = {
                     queryId  : "dashboardCorPerformance.getMonthRatio"
                    ,requestParm   : requestParm
@@ -719,6 +723,7 @@ var <@compId> = {
             C_COM.requestQuery(parm, function(resultData) {
                 <@compId>.setChart31( resultData );
             });
+            */
             
         }//searchList31
         ,setChart31 : (resultData) =>{
@@ -727,13 +732,24 @@ var <@compId> = {
              let categories2Arr = [];
              let categories3Arr = [];
              let categoryArr    = [];
-             
+
+             let amountSales          = 0; /* 매출액 */         
+             let grossProfitOfSales   = 0; /* 매출총이익 */       
+             let netIncome            = 0; /* 당기순이익 */       
+             let operatingIncome      = 0; /* 영업이익  */ 
              
              for (var i=0; i< resultData.data.length; i++){
-                categories1Arr[i] = resultData.data[i].SUBJECT_003;
-                categories2Arr[i] = resultData.data[i].SUBJECT_010;
-                categories3Arr[i] = resultData.data[i].SUBJECT_005;
-                categoryArr[i]    = resultData.data[i].MONTH +'월';     
+
+                 amountSales        = resultData.data[i].AMOUNT_SALES;          /* 매출액 */
+                 grossProfitOfSales = resultData.data[i].GROSS_PROFIT_OF_SALES; /* 매출총이익 */
+                 netIncome          = resultData.data[i].NET_INCOME;            /* 당기순이익 */ 
+                 operatingIncome    = resultData.data[i].OPERATING_INCOME;      /* 영업이익  */
+                 
+                 categories1Arr[i] = Math.round((grossProfitOfSales / amountSales) * 100);
+                 categories2Arr[i] = Math.round((netIncome / amountSales) * 100);
+                 categories3Arr[i] = Math.round((operatingIncome / amountSales) * 100);
+                 
+                 categoryArr[i]    = resultData.data[i].MONTH +'월';    
                 
              }
              
@@ -744,7 +760,7 @@ var <@compId> = {
                      align: 'left'
                  },
                  yAxis: {
-                	 labels: {
+                     labels: {
                          format: '{value} %'
                      },
                      title: {
@@ -820,10 +836,10 @@ var <@compId> = {
              
              
              for (var i=0; i< resultData.data.length; i++){
-                categories1Arr[i] = resultData.data[i].SUBJECT_003;
-                categories2Arr[i] = resultData.data[i].SUBJECT_010;
-                categories3Arr[i] = resultData.data[i].SUBJECT_005;
-                categoryArr[i]    = resultData.data[i].STORE_NM3;
+                 categories1Arr[i] = resultData.data[i].GROSS_PROFIT_OF_SALES;
+                 categories2Arr[i] = resultData.data[i].NET_INCOME;
+                 categories3Arr[i] = resultData.data[i].SUBJECT_005;
+                 categoryArr[i]    = resultData.data[i].STORE_NM;
              }
              
              $('#<@compId>_chart32').highcharts({
@@ -915,7 +931,7 @@ var <@compId> = {
             
             //시작일이 종료일보다 클경우 종료일을 시작일로 변경
             if( Number(dateStart) > Number(dateEnd) ){
-            	C_UICOM.setSingleBox("<@compId>_endYears", startYears);
+                C_UICOM.setSingleBox("<@compId>_endYears", startYears);
                 C_UICOM.setSingleBox("<@compId>_endMonths", startMonths);
             }
             
@@ -924,10 +940,10 @@ var <@compId> = {
             //조회 기간은 12 개월이상일 경우 종료일을 12개월로 변경
             if( 12 <= monthDifference  ){
 
-            	var date = new Date(startYears, startMonths - 1);
-            	date.setMonth(date.getMonth() + 11);
-            	var resultYear = date.getFullYear();
-            	var resultMonth = ('0' + (date.getMonth() + 1)).slice(-2); // 월은 0부터 시작하므로 다시 1을 더해주고, 두 자리로 맞춤
+                var date = new Date(startYears, startMonths - 1);
+                date.setMonth(date.getMonth() + 11);
+                var resultYear = date.getFullYear();
+                var resultMonth = ('0' + (date.getMonth() + 1)).slice(-2); // 월은 0부터 시작하므로 다시 1을 더해주고, 두 자리로 맞춤
 
                 C_UICOM.setSingleBox("<@compId>_endYears", resultYear.toString());
                 C_UICOM.setSingleBox("<@compId>_endMonths", resultMonth.toString());
@@ -939,27 +955,27 @@ var <@compId> = {
         ,setHandler : () => {
 
             $("#<@compId>_searchBtn").click( () =>{
-            	               
-            	var brandId     = <@parentId>.getParentBrandId();
-            	var startYears  = C_UICOM.getData("<@compId>_startYears");
-            	var startMonths = C_UICOM.getData("<@compId>_startMonths");
-            	var endYears    = C_UICOM.getData("<@compId>_endYears");
-            	var endMonths   = C_UICOM.getData("<@compId>_endMonths");
-            	var region      = C_UICOM.getData("<@compId>_selectBoxRegion");
-            	var supervisor  = C_UICOM.getData("<@compId>_selectBoxSupervisor");
-            	
-            	var startDate  = startYears+"-"+startMonths;
+                               
+                var brandId     = <@parentId>.getParentBrandId();
+                var startYears  = C_UICOM.getData("<@compId>_startYears");
+                var startMonths = C_UICOM.getData("<@compId>_startMonths");
+                var endYears    = C_UICOM.getData("<@compId>_endYears");
+                var endMonths   = C_UICOM.getData("<@compId>_endMonths");
+                var region      = C_UICOM.getData("<@compId>_selectBoxRegion");
+                var supervisor  = C_UICOM.getData("<@compId>_selectBoxSupervisor");
+                
+                var startDate  = startYears+"-"+startMonths;
                 var endDate    = endYears+"-"+endMonths;
                 
                 var dateStart  = startYears+startMonths;
                 var dateEnd    = endYears+endMonths;
                 
                 if(brandId == undefined){
-                	C_POP.alert("브랜드가 없습니다.");
-                	return;
+                    C_POP.alert("브랜드가 없습니다.");
+                    return;
                 }
                 
-            	let requestParm = {};
+                let requestParm = {};
                 requestParm["brandId"]    = brandId;
                 requestParm["year"]       = startYears;
                 requestParm["startDate"]  = startDate;
@@ -986,8 +1002,6 @@ var <@compId> = {
                 <@compId>.searchList12(requestParm);
                 <@compId>.searchList13(requestParm);
                 <@compId>.searchList21(requestParm);
-                <@compId>.searchList22(requestParm);
-                <@compId>.searchList31(requestParm);
                 <@compId>.searchList32(requestParm);
                 
             })            
@@ -1097,7 +1111,7 @@ C_HM.onReturn("<@compId>", function(pageId, data) {
                         {{for list}}
                         <tr>    
                             <td>{{:rownum}}</td>    
-                            <td>{{:STORE_NM3}}</td>
+                            <td>{{:STORE_NM}}</td>
                             <td>{{numb:AMOUNT}}</td>  
                         </tr>
                         {{/for}}
@@ -1149,7 +1163,7 @@ C_HM.onReturn("<@compId>", function(pageId, data) {
                         {{for list}}
                         <tr>    
                             <td>{{:rownum}}</td>    
-                            <td>{{:STORE_NM3}}</td> 
+                            <td>{{:STORE_NM}}</td> 
                             <td>{{numb:AMOUNT}}</td>  
                         </tr>
                         {{/for}}
