@@ -720,8 +720,7 @@
     <!-- 매장정보 조회 -->
     <select id="getStore" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /*  dashboardCorPerformance.getStore */
-        SELECT SP_CSTM_ID
-              ,STORE_ID
+        SELECT STORE_ID
               ,STORE_NM1
               ,STORE_NM2
               ,STORE_NM3
@@ -745,9 +744,8 @@
               ,SUPERVISOR
               ,UPDATE_USER
               ,UPDATE_DATE
-        FROM   TBL_EXP_STORE_INFO
+        FROM   VINS_TBL_EXP_STORE_MST
         WHERE  1 = 1
-        AND    SP_CSTM_ID = #{spCstmId}
         <if test=" brandId != null and brandId != '' ">
             AND    BRAND_ID   = #{brandId}
         </if>
