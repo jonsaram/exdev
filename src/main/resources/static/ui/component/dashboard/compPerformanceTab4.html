@@ -232,7 +232,7 @@
                 let resultList = [];
                 var j = 0;
                 for (var i=0; i< resultData.data.length; i++){
-                    if( resultData.data[i].MENU_KEY == menuKey ){
+                	if( resultData.data[i].BRAND_MENU_ID == menuKey ){
                         resultList[j++] = resultData.data[i].SALES;
                     }
                 }
@@ -244,7 +244,7 @@
                 for (var i=0; i< resultData.data.length; i++){
                     
                     let menuMap = {};
-                    menuMap.menuKey = resultData.data[i].MENU_KEY
+                    menuMap.menuKey = resultData.data[i].BRAND_MENU_ID
                     menuMap.menuNm  = resultData.data[i].MENU_NM
                     arr.push(menuMap);
                 }
@@ -841,6 +841,8 @@
                     <@compId>.searchList4(requestParm);//마진비교 
                     <@compId>.searchList5(requestParm);//상세메뉴 코스트
                     <@compId>.searchList6(requestParm);//상세메뉴 마진금액
+                    
+                    
                 })            
                 
             } 

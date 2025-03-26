@@ -195,7 +195,7 @@
         /*  dashboardCorPerformance.SalesAndGoalSalesChartList */
 
                 SELECT A.BRAND_ID
-                      ,A.STORE_CD
+                      ,A.STORE_ID
                       ,B.STORE_NM
                       ,A.YEAR
                       ,A.MONTH
@@ -206,7 +206,7 @@
 
                         WITH STORE AS (
                                        SELECT  A.BRAND_ID    
-                                              ,A.STORE_CD      
+                                              ,A.STORE_ID      
                                               ,A.YEAR          
                                               ,NVL(A.MONTH1, 0) AS GOAL_MONTH1
                                               ,B.MONTH01        AS SALES_MONTH1
@@ -236,7 +236,7 @@
                                               JOIN (
                                                         /*=========================================================================================*/
                                                         SELECT  BRAND_ID
-                                                               ,STORE_CD
+                                                               ,STORE_ID
                                                                ,YEAR
                                                                ,SUM(MONTH01) AS MONTH01
                                                                ,SUM(MONTH02) AS MONTH02
@@ -253,7 +253,6 @@
                                                         FROM   (                                                                   
                                                                     SELECT  A.BRAND_ID
                                                                            ,A.STORE_ID
-                                                                           ,A.STORE_CD
                                                                            ,B.YEAR
                                                                            ,B.MONTH
                                                                            ,CASE MONTH WHEN '01'  THEN SUM(B.NET_SALES)  ELSE 0 END AS MONTH01
@@ -277,52 +276,50 @@
                                                                     AND    A.BRAND_ID    = #{brandId}
                                                                     GROUP BY A.BRAND_ID
                                                                             ,A.STORE_ID
-                                                                            ,A.STORE_CD
                                                                             ,B.YEAR
                                                                             ,B.MONTH
                                                         ) A
                                                         GROUP BY A.BRAND_ID
                                                                 ,A.STORE_ID
-                                                                ,A.STORE_CD
                                                                 ,A.YEAR
                                                        /*=========================================================================================*/
                                                    ) B
                                                 ON  1 = 1
                                                 AND A.BRAND_ID   = B.BRAND_ID
-                                                AND A.STORE_CD   = B.STORE_CD
+                                                AND A.STORE_ID   = B.STORE_ID
                                                 AND A.YEAR       = B.YEAR
                                        WHERE  1 = 1
                                        AND    A.YEAR      = #{startYear}
                                        AND    A.BRAND_ID  = #{brandId}
                         )
                         SELECT A.BRAND_ID
-                              ,A.STORE_CD
+                              ,A.STORE_ID
                               ,TO_CHAR(A.YEAR)        AS YEAR
                               ,TO_CHAR(A.MONTH, '09') AS MONTH
                               ,TO_DATE(TO_CHAR(A.YEAR)||'-'||TO_CHAR(A.MONTH, '09')||'-'||'01', 'YYYY-MM-DD') AS YYYY_MM_DD
                               ,A.GOAL_MONTH
                               ,A.SALES_MONTH
                         FROM   (
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  1  AS MONTH, STORE.GOAL_MONTH1  AS  GOAL_MONTH,  STORE.SALES_MONTH1  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  2  AS MONTH, STORE.GOAL_MONTH2  AS  GOAL_MONTH,  STORE.SALES_MONTH2  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  3  AS MONTH, STORE.GOAL_MONTH3  AS  GOAL_MONTH,  STORE.SALES_MONTH3  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  4  AS MONTH, STORE.GOAL_MONTH4  AS  GOAL_MONTH,  STORE.SALES_MONTH4  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  5  AS MONTH, STORE.GOAL_MONTH5  AS  GOAL_MONTH,  STORE.SALES_MONTH5  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  6  AS MONTH, STORE.GOAL_MONTH6  AS  GOAL_MONTH,  STORE.SALES_MONTH6  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  7  AS MONTH, STORE.GOAL_MONTH7  AS  GOAL_MONTH,  STORE.SALES_MONTH7  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  8  AS MONTH, STORE.GOAL_MONTH8  AS  GOAL_MONTH,  STORE.SALES_MONTH8  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  9  AS MONTH, STORE.GOAL_MONTH9  AS  GOAL_MONTH,  STORE.SALES_MONTH9  AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  10 AS MONTH, STORE.GOAL_MONTH10 AS  GOAL_MONTH,  STORE.SALES_MONTH10 AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  11 AS MONTH, STORE.GOAL_MONTH11 AS  GOAL_MONTH,  STORE.SALES_MONTH11 AS SALES_MONTH FROM STORE UNION ALL
-                                    SELECT STORE.BRAND_ID, STORE.STORE_CD,YEAR,  12 AS MONTH, STORE.GOAL_MONTH12 AS  GOAL_MONTH,  STORE.SALES_MONTH12 AS SALES_MONTH FROM STORE
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  1  AS MONTH, STORE.GOAL_MONTH1  AS  GOAL_MONTH,  STORE.SALES_MONTH1  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  2  AS MONTH, STORE.GOAL_MONTH2  AS  GOAL_MONTH,  STORE.SALES_MONTH2  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  3  AS MONTH, STORE.GOAL_MONTH3  AS  GOAL_MONTH,  STORE.SALES_MONTH3  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  4  AS MONTH, STORE.GOAL_MONTH4  AS  GOAL_MONTH,  STORE.SALES_MONTH4  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  5  AS MONTH, STORE.GOAL_MONTH5  AS  GOAL_MONTH,  STORE.SALES_MONTH5  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  6  AS MONTH, STORE.GOAL_MONTH6  AS  GOAL_MONTH,  STORE.SALES_MONTH6  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  7  AS MONTH, STORE.GOAL_MONTH7  AS  GOAL_MONTH,  STORE.SALES_MONTH7  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  8  AS MONTH, STORE.GOAL_MONTH8  AS  GOAL_MONTH,  STORE.SALES_MONTH8  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  9  AS MONTH, STORE.GOAL_MONTH9  AS  GOAL_MONTH,  STORE.SALES_MONTH9  AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  10 AS MONTH, STORE.GOAL_MONTH10 AS  GOAL_MONTH,  STORE.SALES_MONTH10 AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  11 AS MONTH, STORE.GOAL_MONTH11 AS  GOAL_MONTH,  STORE.SALES_MONTH11 AS SALES_MONTH FROM STORE UNION ALL
+                                    SELECT STORE.BRAND_ID, STORE.STORE_ID,YEAR,  12 AS MONTH, STORE.GOAL_MONTH12 AS  GOAL_MONTH,  STORE.SALES_MONTH12 AS SALES_MONTH FROM STORE
                                ) A
-                        ORDER BY BRAND_ID, STORE_CD,YEAR, MONTH
+                        ORDER BY BRAND_ID, STORE_ID,YEAR, MONTH
                        ) A
                        JOIN VINS_TBL_EXP_STORE_MST B
                          ON  1 = 1
                          AND B.BRAND_ID    = #{brandId}
                          AND A.BRAND_ID    = B.BRAND_ID
-                         AND A.STORE_CD    = B.STORE_CD
+                         AND A.STORE_ID    = B.STORE_ID
                 WHERE  1 = 1
                 AND    TO_CHAR(A.YYYY_MM_DD, 'YYYY-MM-DD') = #{startDate}
     </select> 
@@ -1016,7 +1013,7 @@
                        JOIN VINS_TBL_EXP_STORE_SALES_GOAL B
                            ON  1 = 1
                            AND A.BRAND_ID   = B.BRAND_ID
-                           AND A.STORE_CD   = B.STORE_CD
+                           AND A.STORE_ID   = B.STORE_ID
                            <if test=" !'ALL'.equals(region) ">
                                AND    A.REGION =  #{region} 
                            </if>
@@ -1375,7 +1372,7 @@
                                    JOIN VINS_TBL_EXP_STORE_SALES_GOAL B
                                        ON  1 = 1
                                        AND A.BRAND_ID   = B.BRAND_ID
-                                       AND A.STORE_CD   = B.STORE_CD
+                                       AND A.STORE_ID   = B.STORE_ID
                                        AND B.MONTH1     IS NOT NULL
                                        AND B.YEAR       = #{year}
                             WHERE  1 = 1
@@ -2933,10 +2930,12 @@
                            JOIN VINS_TBL_EXP_STORE_MENU_SALES_MST D
                              ON   1 = 1
                              AND  C.MENU_ID = D.MENU_ID
+                             AND  D.YEAR  =  #{year}
+                             
                     WHERE  1 = 1
                     AND    A.BRAND_ID   = #{brandId}
                     <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
-                        AND    A.STORE_CD   = #{store}
+                        AND    A.STORE_ID   = #{store}
                     </if>
                     <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
                         AND    A.REGION   = #{region}
@@ -2980,10 +2979,11 @@
                    JOIN VINS_TBL_EXP_STORE_MENU_SALES_MST D
                      ON   1 = 1
                      AND  C.MENU_ID = D.MENU_ID
+                     AND  D.YEAR  =  #{year}
             WHERE  1 = 1
             AND    A.BRAND_ID   = #{brandId}
             <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
-                AND    A.STORE_CD   = #{store}
+                AND    A.STORE_ID   = #{store}
             </if>
             <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
                 AND    A.REGION   = #{region}
@@ -3136,132 +3136,110 @@
     <select id="getmenuSalesDayTop5" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getmenuSalesDayTop5 */
         WITH TOP5_MENU AS (
-            SELECT  SP_CSTM_ID
-                   ,BRAND_ID
-                   ,MENU_KEY
-                   ,MENU_NM
+            SELECT  BRAND_ID
+                   ,MONTH
+                   ,BRAND_MENU_ID
             FROM   (
-                     /* 1    1    1    1    1    1    1    1    */
-                     SELECT A.SP_CSTM_ID
-                           ,A.BRAND_ID
-                           ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID AS MENU_KEY
-                           ,C.MENU_NM
-                           ,B.MONTH
-                           ,SUM(B.SALES) SALES
-                     FROM   TBL_EXP_STORE_INFO A
-                            JOIN TBL_EXP_STORE_MENU_SALES B
-                                ON  1 = 1
-                                AND B.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                AND B.BRAND_ID   = #{brandId}
-                                AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                AND A.BRAND_ID   = B.BRAND_ID
-                                AND A.STORE_ID   = B.STORE_ID
-                                <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
-                                    AND B.YEAR   = #{year}
-                                </if>
-                                <if test=" !'ALL'.equals(month) and month != null and month != ''  ">
-                                    AND B.MONTH   = #{month}
-                                </if>
-                                <if test=" !'ALL'.equals(group1) and group1 != null and group1 != ''  ">
-                                    AND B.GROUP_1  = #{group1}
-                                </if>
-                                <if test=" !'ALL'.equals(group2) and group2 != null and group2 != ''  ">
-                                    AND B.GROUP_2  = #{group2}
-                                </if>
-                                <if test=" !'ALL'.equals(menu) and menu != null and menu != ''  ">
-                                    AND B.MENU_ID  = #{menu}
-                                </if>
-                           JOIN TBL_EXP_STORE_MENU_MASTER C
-                                ON  1 = 1
-                                AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                AND B.BRAND_ID   = C.BRAND_ID
-                                AND B.MENU_ID    = C.MENU_ID
-                                AND B.GROUP_1    = C.GROUP_1
-                                AND B.GROUP_2    = C.GROUP_2
-                     WHERE  1 = 1
-                     AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                     AND    A.BRAND_ID   = #{brandId}
-                     <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
-                         AND    A.STORE_ID   = #{store}
-                     </if>
-                     <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
-                         AND    A.REGION   = #{region}
-                     </if>
-                     <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
-                         AND    A.SUPERVISOR   = #{supervisor}
-                     </if>
-                     GROUP BY A.SP_CSTM_ID
-                             ,A.BRAND_ID
-                             ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID 
-                             ,C.MENU_NM
-                             ,B.MONTH
-                     ORDER BY SUM(B.SALES) DESC
-                     /* 1    1    1    1    1    1    1    1    */
+                    /* 매출상위 5개 메뉴 */
+                    SELECT A.BRAND_ID
+                          ,B.BRAND_MENU_ID
+                          ,D.MONTH
+                          ,SUM(D.SALES) AS SALES
+                    FROM   VINS_TBL_EXP_STORE_MST A
+                           JOIN VINS_TBL_EXP_BRAND_MENU_MASTER B
+                             ON   1 = 1
+                             AND  A.BRAND_ID = B.BRAND_ID
+                             <if test=" !'ALL'.equals(group1) and group1 != null and group1 != ''  ">
+                                 AND B.GROUP_1  = #{group1}
+                             </if>
+                             <if test=" !'ALL'.equals(group2) and group2 != null and group2 != ''  ">
+                                 AND B.GROUP_2  = #{group2}
+                             </if>
+                             <if test=" !'ALL'.equals(menu) and menu != null and menu != ''  ">
+                                 AND B.BRAND_MENU_CD  = #{menu}
+                             </if>
+                           JOIN VINS_TBL_EXP_STORE_MENU_MST C
+                             ON   1 = 1
+                             AND  B.BRAND_MENU_CD = C.BRAND_MENU_CD
+                             AND  A.STORE_ID      = C.STORE_ID
+                           JOIN VINS_TBL_EXP_STORE_MENU_SALES_MST D
+                             ON   1 = 1
+                             AND  C.MENU_ID = D.MENU_ID
+                             
+                             <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
+                                 AND D.YEAR   = #{year}
+                             </if>
+                             <if test=" !'ALL'.equals(month) and month != null and month != ''  ">
+                                 AND D.MONTH   = #{month}
+                             </if>
+                    WHERE  1 = 1
+                    AND    A.BRAND_ID   = #{brandId}
+                    <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                        AND    A.STORE_ID   = #{store}
+                    </if>
+                    <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                        AND    A.REGION   = #{region}
+                    </if>
+                    <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                        AND    A.SUPERVISOR   = #{supervisor}
+                    </if>
+                    GROUP BY A.BRAND_ID
+                            ,B.BRAND_MENU_ID
+                            ,D.MONTH
+                    ORDER BY SUM(D.SALES) DESC
             )
             WHERE  1 =1 
             AND    ROWNUM  <![CDATA[<=]]>  5
         )
        , DAY_MENU AS (
-                     SELECT A.SP_CSTM_ID
-                           ,A.BRAND_ID
-                           ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID AS MENU_KEY
-                           ,C.MENU_NM
-                           ,B.MONTH
-                           ,B.DAY
-                           ,SUM(B.SALES) SALES
-                     FROM   TBL_EXP_STORE_INFO A
-                            JOIN TBL_EXP_STORE_MENU_SALES B
-                                ON  1 = 1
-                                AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                AND A.BRAND_ID   = B.BRAND_ID
-                                AND A.STORE_ID   = B.STORE_ID
-                                <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
-                                    AND B.YEAR   = #{year}
-                                </if>
-                                <if test=" !'ALL'.equals(month) and month != null and month != ''  ">
-                                    AND B.MONTH   = #{month}
-                                </if>
-                                <if test=" !'ALL'.equals(group1) and group1 != null and group1 != ''  ">
-                                    AND B.GROUP_1  = #{group1}
-                                </if>
-                                <if test=" !'ALL'.equals(group2) and group2 != null and group2 != ''  ">
-                                    AND B.GROUP_2  = #{group2}
-                                </if>
-                                <if test=" !'ALL'.equals(menu) and menu != null and menu != ''  ">
-                                    AND B.MENU_ID  = #{menu}
-                                </if>
-                           JOIN TBL_EXP_STORE_MENU_MASTER C
-                                ON  1 = 1
-                                AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                AND B.BRAND_ID   = C.BRAND_ID
-                                AND B.MENU_ID    = C.MENU_ID
-                                AND B.GROUP_1    = C.GROUP_1
-                                AND B.GROUP_2    = C.GROUP_2
-                     WHERE  1 = 1
-                     AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                     AND    A.BRAND_ID   = #{brandId}
-                     <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
-                         AND    A.STORE_ID   = #{store}
-                     </if>
-                     <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
-                         AND    A.REGION   = #{region}
-                     </if>
-                     <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
-                         AND    A.SUPERVISOR   = #{supervisor}
-                     </if>
-                     GROUP BY A.SP_CSTM_ID
-                             ,A.BRAND_ID
-                             ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID
-                             ,C.MENU_NM
-                             ,B.MONTH
-                             ,B.DAY
-                     ORDER BY  B.MONTH
-                              ,B.DAY
-                              ,SUM(B.SALES) DESC
+                     /* 월별 메뉴 매출 */
+                    SELECT A.BRAND_ID
+                          ,B.BRAND_MENU_ID
+                          ,B.MENU_NM
+                          ,D.YEAR
+                          ,D.MONTH
+                          ,D.DAY
+                          ,SUM(D.SALES) AS SALES
+                    FROM   VINS_TBL_EXP_STORE_MST A
+                           JOIN VINS_TBL_EXP_BRAND_MENU_MASTER B
+                             ON   1 = 1
+                             AND  A.BRAND_ID = B.BRAND_ID
+                           JOIN VINS_TBL_EXP_STORE_MENU_MST C
+                             ON   1 = 1
+                             AND  B.BRAND_MENU_CD = C.BRAND_MENU_CD
+                             AND  A.STORE_ID      = C.STORE_ID
+                           JOIN VINS_TBL_EXP_STORE_MENU_SALES_MST D
+                             ON   1 = 1
+                             AND  C.MENU_ID = D.MENU_ID
+                             <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
+                                 AND D.YEAR   = #{year}
+                             </if>
+                             <if test=" !'ALL'.equals(month) and month != null and month != ''  ">
+                                 AND D.MONTH   = #{month}
+                             </if>
+                    WHERE  1 = 1
+                    AND    A.BRAND_ID   = #{brandId}
+                    <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                        AND    A.STORE_ID   = #{store}
+                    </if>
+                    <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                        AND    A.REGION   = #{region}
+                    </if>
+                    <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                        AND    A.SUPERVISOR   = #{supervisor}
+                    </if>
+                    GROUP BY A.BRAND_ID
+                            ,B.BRAND_MENU_ID
+                            ,B.MENU_NM
+                            ,D.YEAR
+                            ,D.MONTH
+                            ,D.DAY
+                     ORDER BY  D.MONTH
+                              ,D.DAY
+                              ,SUM(D.SALES)  DESC
        )
-        SELECT A.SP_CSTM_ID
-              ,A.BRAND_ID
-              ,A.MENU_KEY
+        SELECT A.BRAND_ID
+              ,A.BRAND_MENU_ID
               ,A.MENU_NM
               ,A.MONTH
               ,A.DAY
@@ -3269,10 +3247,9 @@
         FROM   DAY_MENU A
                JOIN TOP5_MENU B
                  ON  1 = 1
-                 AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                 AND A.BRAND_ID   = B.BRAND_ID
-                 AND A.MENU_KEY   = B.MENU_KEY
-    </select>    
+                 AND A.BRAND_ID        = B.BRAND_ID
+                 AND A.BRAND_MENU_ID   = B.BRAND_MENU_ID
+    </select>  
     
     <select id="getmenuMarginMonthTop5_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getmenuMarginMonthTop5 */
@@ -3421,251 +3398,231 @@
                 
     </select>  
 
-    <select id="getmenuMarginMonthTop5" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        <select id="getmenuMarginMonthTop5" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getmenuMarginMonthTop5 */
-                WITH BASE_TABLE AS (
-                    /* 메뉴별 월 판매금액과 마진율을 포함한 기본 데이터 */
-                    SELECT A.SP_CSTM_ID,
-                           A.BRAND_ID,
-                           B.MONTH,
-                           C.GROUP_1 || '-' || C.GROUP_2 || '-' || C.MENU_ID AS MENU_KEY,
-                           C.MENU_NM,
-                           SUM(B.SALES) AS SALES,
-                           CASE WHEN NVL(D.SELLING_PRICE, 0) != 0 THEN 1 - (D.COST_PRICE / D.SELLING_PRICE) ELSE 0 END AS MARGIN,
-                           CASE WHEN NVL(D.SELLING_PRICE, 0) != 0 THEN ROUND(SUM(B.SALES) * (1 - (D.COST_PRICE / D.SELLING_PRICE))) ELSE 0 END AS SALES_MARGIN
-                    FROM TBL_EXP_STORE_INFO A
-                          JOIN TBL_EXP_STORE_MENU_SALES B
-                            ON  A.SP_CSTM_ID = B.SP_CSTM_ID
-                            AND A.BRAND_ID   = B.BRAND_ID
-                            AND A.STORE_ID   = B.STORE_ID
-                            <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
-                                AND B.YEAR   = #{year}
-                            </if>
-                          JOIN TBL_EXP_STORE_MENU_MASTER C
-                            ON  B.SP_CSTM_ID = C.SP_CSTM_ID
-                            AND B.BRAND_ID   = C.BRAND_ID
-                            AND B.MENU_ID    = C.MENU_ID
-                            AND B.GROUP_1    = C.GROUP_1
-                            AND B.GROUP_2    = C.GROUP_2
-                          LEFT JOIN TBL_EXP_STORE_MENU_PRICE D
-                            ON  A.SP_CSTM_ID = D.SP_CSTM_ID
-                            AND A.BRAND_ID   = D.BRAND_ID
-                            AND C.MENU_ID    = D.MENU_ID
-                            AND B.MONTH      = D.MONTH
-                            <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
-                                AND D.YEAR   = #{year}
-                            </if>
-                            <if test=" !'ALL'.equals(group1) and group1 != null and group1 != ''  ">
-                                 AND D.GROUP_1  = #{group1}
-                            </if>
-                            <if test=" !'ALL'.equals(group2) and group2 != null and group2 != ''  ">
-                                 AND D.GROUP_2  = #{group2}
-                            </if>
-                            <if test=" !'ALL'.equals(menu) and menu != null and menu != ''  ">
-                                 AND D.MENU_ID  = #{menu}
-                            </if>
-                    WHERE A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                    AND   A.BRAND_ID   = #{brandId}
-                    <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
-                      AND    A.STORE_ID   = #{store}
-                    </if>
-                    <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
-                      AND    A.REGION   = #{region}
-                    </if>
-                    <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
-                      AND    A.SUPERVISOR   = #{supervisor}
-                    </if>
-                    GROUP BY A.SP_CSTM_ID
-                           , A.BRAND_ID
-                           , B.MONTH
-                           , C.GROUP_1 || '-' || C.GROUP_2 || '-' || C.MENU_ID
-                           , C.MENU_NM
-                           , D.COST_PRICE
-                           , D.SELLING_PRICE
-                ),
-                TOP5_MENUS AS (
-                    /* 판매 마진 기준으로 상위 5개의 메뉴를 선택 */
-                    SELECT SP_CSTM_ID,
-                           BRAND_ID,
-                           MENU_KEY,
-                           MENU_NM,
-                           SUM(SALES_MARGIN) AS TOTAL_MARGIN
-                    FROM BASE_TABLE
-                    GROUP BY SP_CSTM_ID, BRAND_ID, MENU_KEY, MENU_NM
-                    ORDER BY TOTAL_MARGIN DESC
-                    FETCH FIRST 5 ROWS ONLY
-                )
-                SELECT T.SP_CSTM_ID,
-                       T.BRAND_ID,
-                       T.MENU_KEY,
-                       T.MENU_NM,
-                       B.MONTH,
-                       B.SALES_MARGIN AS SALES
-                FROM TOP5_MENUS T
-                     JOIN BASE_TABLE B
-                       ON T.SP_CSTM_ID = B.SP_CSTM_ID
-                      AND T.BRAND_ID = B.BRAND_ID
-                      AND T.MENU_KEY = B.MENU_KEY
-                ORDER BY B.MONTH
-                       , T.TOTAL_MARGIN DESC
-                
-    </select>  
-
-    <select id="getmenuMarginDayTop5" resultType="java.util.HashMap" flushCache="true"  useCache="false">
-                /* dashboardCorPerformance.getmenuMarginDayTop5 */
-                WITH BASE_TABLE AS (
-                          /*==== 기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    ====*/
-                          SELECT A.SP_CSTM_ID 
-                                ,A.BRAND_ID      
-                                ,A.MONTH        
-                                ,A.DAY   
-                                ,A.MENU_KEY   
-                                ,A.MENU_NM      
-                                ,A.SALES      
-                                ,B.MARGIN
-                                ,CASE WHEN B.MARGIN != 0 THEN ROUND(A.SALES * B.MARGIN)
-                                      ELSE 0
-                                 END AS SALES_MARGIN
-                          FROM   (
-                                      /* 메뉴별 월 판매금액 */
-                                     SELECT A.SP_CSTM_ID
-                                           ,A.BRAND_ID
-                                           ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID AS MENU_KEY
-                                           ,C.MENU_NM
-                                           ,B.MONTH
-                                           ,B.DAY
-                                           ,SUM(B.SALES) SALES
-                                     FROM   TBL_EXP_STORE_INFO A
-                                            JOIN TBL_EXP_STORE_MENU_SALES B
-                                                ON  1 = 1
-                                                AND A.SP_CSTM_ID = B.SP_CSTM_ID
-                                                AND A.BRAND_ID   = B.BRAND_ID
-                                                AND A.STORE_ID   = B.STORE_ID
-                                                <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
-                                                    AND B.YEAR   = #{year}
-                                                </if>
-                                                <if test=" !'ALL'.equals(month) and year != null and year != ''  ">
-                                                    AND B.MONTH   = #{month}
-                                                </if>
-                                           JOIN TBL_EXP_STORE_MENU_MASTER C
-                                                ON  1 = 1
-                                                AND B.SP_CSTM_ID = C.SP_CSTM_ID
-                                                AND A.BRAND_ID   = B.BRAND_ID
-                                                AND B.MENU_ID    = C.MENU_ID
-                                                AND B.GROUP_1    = C.GROUP_1
-                                                AND B.GROUP_2    = C.GROUP_2
-                                     WHERE  1 = 1
-                                     AND    A.SP_CSTM_ID = #{sessionVo.spCstmId}
-                                     AND    A.BRAND_ID   = #{brandId}
-                                      <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
-                                          AND    A.STORE_ID   = #{store}
-                                      </if>
-                                      <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
-                                          AND    A.REGION   = #{region}
-                                      </if>
-                                      <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
-                                          AND    A.SUPERVISOR   = #{supervisor}
-                                      </if>
-                                     GROUP BY A.SP_CSTM_ID
-                                             ,A.BRAND_ID
-                                             ,C.GROUP_1||'-'||C.GROUP_2||'-'||C.MENU_ID
-                                             ,C.MENU_NM
-                                             ,B.MONTH
-                                             ,B.DAY
-                                     ORDER BY  B.MONTH
-                                              ,B.DAY
-                                              ,SUM(B.SALES) DESC
-                                 )  A
-                                 JOIN (
-                                     /* 메뉴, 월별 마진율 */
-                                     SELECT   A.SP_CSTM_ID    
-                                             ,A.BRAND_ID      
-                                             ,A.YEAR          
-                                             ,A.MONTH    
-                                             ,A.GROUP_1||'-'||A.GROUP_2||'-'||A.MENU_ID AS MENU_KEY
-                                             ,A.COST_PRICE    
-                                             ,A.SELLING_PRICE 
-                                             ,CASE WHEN A.SELLING_PRICE_NVL != 0 THEN 1 - (A.COST_PRICE/A.SELLING_PRICE)
-                                                   ELSE 0
-                                                 END AS MARGIN
-
-                                     FROM   (
-                                             SELECT   A.SP_CSTM_ID    
-                                                     ,A.BRAND_ID      
-                                                     ,A.MENU_ID       
-                                                     ,A.YEAR          
-                                                     ,A.GROUP_1       
-                                                     ,A.GROUP_2       
-                                                     ,A.MONTH         
-                                                     ,A.COST_PRICE    
-                                                     ,A.SELLING_PRICE 
-                                                     ,NVL(A.SELLING_PRICE, 0) AS SELLING_PRICE_NVL
-                                             FROM   TBL_EXP_STORE_MENU_PRICE A
-                                             WHERE  1 = 1
-                                             AND    A.BRAND_ID   = #{brandId}
-                                             <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
-                                                 AND A.YEAR   = #{year}
-                                             </if>
-                                             <if test=" !'ALL'.equals(month) and month != null and month != ''  ">
-                                                 AND A.MONTH   = #{month}
-                                             </if>
+        WITH BASE_TABLE AS (
+                            SELECT  A.BRAND_MENU_ID
+                                  , A.MENU_NM
+                                  , A.YEAR
+                                  , A.MONTH
+                                  , SUM(A.SALES) AS SALES
+                                  ,CASE WHEN NVL(MAX(B.SELLING_PRICE), 0) != 0 THEN 1 - ROUND((MAX(B.COST_PRICE) / MAX(B.SELLING_PRICE)),3) ELSE 0 END AS MARGIN
+                                  ,CASE WHEN NVL(MAX(B.SELLING_PRICE), 0) != 0 THEN ROUND(SUM(A.SALES) * (1 - (MAX(B.COST_PRICE) / MAX(B.SELLING_PRICE)))) ELSE 0 END AS SALES_MARGIN
+                            FROM  (
+                                   /* 월별로 합을 해야함 */
+                                   SELECT A.STORE_ID
+                                         ,A.BRAND_ID
+                                         ,B.BRAND_MENU_CD
+                                         ,B.MENU_ID
+                                         ,B.MENU_CD
+                                         ,BMM.BRAND_MENU_ID
+                                         ,BMM.MENU_NM
+                                         ,C.YEAR
+                                         ,C.MONTH
+                                         ,C.SALES
+                                   FROM   VINS_TBL_EXP_STORE_MST A
+                                          JOIN VINS_TBL_EXP_STORE_MENU_MST B 
+                                              ON A.STORE_ID = B.STORE_ID
+                                          JOIN VINS_TBL_EXP_BRAND_MENU_MASTER BMM 
+                                             ON B.BRAND_MENU_CD = BMM.BRAND_MENU_CD
                                              <if test=" !'ALL'.equals(group1) and group1 != null and group1 != ''  ">
-                                                 AND A.GROUP_1  = #{group1}
+                                                  AND BMM.GROUP_1  = #{group1}
                                              </if>
                                              <if test=" !'ALL'.equals(group2) and group2 != null and group2 != ''  ">
-                                                 AND A.GROUP_2  = #{group2}
+                                                  AND BMM.GROUP_2  = #{group2}
                                              </if>
                                              <if test=" !'ALL'.equals(menu) and menu != null and menu != ''  ">
-                                                 AND A.MENU_ID  = #{menu}
+                                                  AND BMM.BRAND_MENU_CD  = #{menu}
                                              </if>
-                                             ) A
-                                 )  B
-                                 ON  1 = 1
-                                 AND    B.MARGIN != 0
-                                 AND    A.SP_CSTM_ID  = B.SP_CSTM_ID
-                                 AND    A.BRAND_ID    = B.BRAND_ID
-                                 AND    A.MENU_KEY    = B.MENU_KEY
-                                 AND    A.MONTH       = B.MONTH
-                          WHERE  1 = 1
-                          /*#### 기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    기본 데이타    ####*/
-                )
-                SELECT A.SP_CSTM_ID
-                      ,A.BRAND_ID
-                      ,A.MENU_KEY
-                      ,A.MENU_NM
-                      ,B.MONTH
-                      ,B.DAY
-                      ,B.SALES_MARGIN AS SALES
-                FROM   (
-                        SELECT A.SP_CSTM_ID
-                              ,A.BRAND_ID
-                              ,A.MENU_KEY
-                              ,A.MENU_NM
-                        FROM   (
-                                SELECT BASE_TABLE.SP_CSTM_ID 
-                                      ,BASE_TABLE.BRAND_ID
-                                      ,BASE_TABLE.MENU_KEY   
-                                      ,BASE_TABLE.MENU_NM 
-                                      ,SUM(BASE_TABLE.SALES_MARGIN)
-                                FROM   BASE_TABLE
-                                GROUP BY BASE_TABLE.SP_CSTM_ID 
-                                        ,BASE_TABLE.BRAND_ID
-                                        ,BASE_TABLE.MENU_KEY   
-                                        ,BASE_TABLE.MENU_NM  
-                                ORDER BY SUM(BASE_TABLE.SALES_MARGIN) DESC
-                        ) A
-                        WHERE 1 = 1
-                        AND   ROWNUM  <![CDATA[<=]]>  5
-                      ) A
-                      JOIN BASE_TABLE B
-                          ON  1 = 1
-                          AND  A.SP_CSTM_ID = A.SP_CSTM_ID
-                          AND  A.BRAND_ID   = B.BRAND_ID
-                          AND  A.MENU_KEY   = B.MENU_KEY
-                WHERE  1 = 1
-                ORDER BY B.MONTH
-                        ,B.DAY
-    </select>  
+                                          JOIN (
+                                                   SELECT A.STORE_ID
+                                                         ,A.MENU_ID
+                                                         ,A.YEAR
+                                                         ,A.MONTH
+                                                         ,SUM(A.SALES) AS SALES
+                                                   FROM   VINS_TBL_EXP_STORE_MENU_SALES_MST A
+                                                          JOIN VINS_TBL_EXP_STORE_MST B
+                                                            ON  1 = 1
+                                                            AND B.BRAND_ID = #{brandId}
+                                                            AND A.STORE_ID = B.STORE_ID
+                                                   WHERE  1 = 1
+                                                   <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
+                                                       AND A.YEAR   = #{year}
+                                                   </if>
+                                                   GROUP BY A.STORE_ID
+                                                           ,A.MENU_ID
+                                                           ,A.YEAR
+                                                           ,A.MONTH
+                                               ) C 
+                                            ON  B.STORE_ID = C.STORE_ID 
+                                            AND B.MENU_ID  = C.MENU_ID 
+                                   WHERE  A.BRAND_ID = #{brandId}
+                                   <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                                     AND    A.STORE_ID   = #{store}
+                                   </if>
+                                   <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                                     AND    A.REGION   = #{region}
+                                   </if>
+                                   <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                                     AND    A.SUPERVISOR   = #{supervisor}
+                                   </if>
+                                ) A
+                                JOIN VINS_TBL_EXP_STORE_MENU_PRICE B
+                                  ON  1 = 1
+                                  AND A.BRAND_ID = B.BRAND_ID 
+                                  AND A.STORE_ID = B.STORE_ID 
+                                  AND A.MENU_CD  = B.MENU_CD 
+                                  AND A.YEAR     = B.YEAR 
+                                  AND A.MONTH    = B.MONTH 
+                            GROUP BY A.BRAND_MENU_ID
+                                  , A.MENU_NM
+                                  , A.YEAR
+                                  , A.MONTH      
+                            ORDER BY A.BRAND_MENU_ID
+                                  , A.MENU_NM
+                                  , A.YEAR
+                                  , A.MONTH  
+                        ),
+        TOP5_MENUS AS   (
+                            /* 판매 마진 기준으로 상위 5개의 메뉴를 선택 */
+                            SELECT BRAND_MENU_ID
+                                  ,MENU_NM
+                                  ,SUM(SALES_MARGIN) AS TOTAL_MARGIN
+                            FROM   BASE_TABLE
+                            GROUP BY BRAND_MENU_ID,  MENU_NM
+                            ORDER BY TOTAL_MARGIN DESC
+                            FETCH FIRST 5 ROWS ONLY
+                        )
+        SELECT T.BRAND_MENU_ID
+              ,T.MENU_NM
+              ,B.MONTH
+              ,B.SALES_MARGIN AS SALES
+        FROM TOP5_MENUS T
+             JOIN BASE_TABLE B
+              ON  1 = 1
+              AND T.BRAND_MENU_ID = B.BRAND_MENU_ID
+        ORDER BY B.MONTH
+               , T.TOTAL_MARGIN DESC
+    </select>
+
+    <select id="getmenuMarginDayTop5" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+        /* dashboardCorPerformance.getmenuMarginDayTop5 */
+        WITH BASE_TABLE AS (
+                            SELECT  A.BRAND_MENU_ID
+                                  , A.MENU_NM
+                                  , A.YEAR
+                                  , A.MONTH
+                                  , A.DAY
+                                  , SUM(A.SALES) AS SALES
+                                  ,CASE WHEN NVL(MAX(B.SELLING_PRICE), 0) != 0 THEN 1 - ROUND((MAX(B.COST_PRICE) / MAX(B.SELLING_PRICE)),3) ELSE 0 END AS MARGIN
+                                  ,CASE WHEN NVL(MAX(B.SELLING_PRICE), 0) != 0 THEN ROUND(SUM(A.SALES) * (1 - (MAX(B.COST_PRICE) / MAX(B.SELLING_PRICE)))) ELSE 0 END AS SALES_MARGIN
+                            FROM  (
+                                   /* 일별로 합을 해야함 */
+                                   SELECT A.STORE_ID
+                                         ,A.BRAND_ID
+                                         ,B.BRAND_MENU_CD
+                                         ,B.MENU_ID
+                                         ,B.MENU_CD
+                                         ,BMM.BRAND_MENU_ID
+                                         ,BMM.MENU_NM
+                                         ,C.YEAR
+                                         ,C.MONTH
+                                         ,C.DAY
+                                         ,C.SALES
+                                   FROM   VINS_TBL_EXP_STORE_MST A
+                                          JOIN VINS_TBL_EXP_STORE_MENU_MST B 
+                                              ON A.STORE_ID = B.STORE_ID
+                                          JOIN VINS_TBL_EXP_BRAND_MENU_MASTER BMM 
+                                             ON B.BRAND_MENU_CD = BMM.BRAND_MENU_CD
+                                             <if test=" !'ALL'.equals(group1) and group1 != null and group1 != ''  ">
+                                                  AND BMM.GROUP_1  = #{group1}
+                                             </if>
+                                             <if test=" !'ALL'.equals(group2) and group2 != null and group2 != ''  ">
+                                                  AND BMM.GROUP_2  = #{group2}
+                                             </if>
+                                             <if test=" !'ALL'.equals(menu) and menu != null and menu != ''  ">
+                                                  AND BMM.BRAND_MENU_CD  = #{menu}
+                                             </if>
+                                          JOIN (
+                                                   SELECT A.STORE_ID
+                                                         ,A.MENU_ID
+                                                         ,A.YEAR
+                                                         ,A.MONTH
+                                                         ,A.DAY
+                                                         ,SUM(A.SALES) AS SALES
+                                                   FROM   VINS_TBL_EXP_STORE_MENU_SALES_MST A
+                                                          JOIN VINS_TBL_EXP_STORE_MST B
+                                                            ON  1 = 1
+                                                            AND B.BRAND_ID = #{brandId}
+                                                            AND A.STORE_ID = B.STORE_ID
+                                                   WHERE  1 = 1
+                                                   <if test=" !'ALL'.equals(year) and year != null and year != ''  ">
+                                                       AND A.YEAR   = #{year}
+                                                   </if>
+                                                   <if test=" !'ALL'.equals(month) and month != null and month != ''  ">
+                                                       AND A.MONTH  = #{month}
+                                                   </if>
+                                                   GROUP BY A.STORE_ID
+                                                           ,A.MENU_ID
+                                                           ,A.YEAR
+                                                           ,A.MONTH
+                                                           ,A.DAY
+                                               ) C 
+                                            ON  B.STORE_ID = C.STORE_ID 
+                                            AND B.MENU_ID  = C.MENU_ID 
+                                   WHERE  A.BRAND_ID = #{brandId}
+                                     <if test=" !'ALL'.equals(store) and store != null and store != ''  ">
+                                         AND    A.STORE_ID   = #{store}
+                                     </if>
+                                     <if test=" !'ALL'.equals(region) and region != null and region != ''  ">
+                                         AND    A.REGION   = #{region}
+                                     </if>
+                                     <if test=" !'ALL'.equals(supervisor) and supervisor != null and supervisor != ''  ">
+                                         AND    A.SUPERVISOR   = #{supervisor}
+                                     </if>
+                                ) A
+                                JOIN VINS_TBL_EXP_STORE_MENU_PRICE B
+                                  ON  1 = 1
+                                  AND A.BRAND_ID = B.BRAND_ID 
+                                  AND A.STORE_ID = B.STORE_ID 
+                                  AND A.MENU_CD  = B.MENU_CD 
+                                  AND A.YEAR     = B.YEAR 
+                                  AND A.MONTH    = B.MONTH 
+                            GROUP BY A.BRAND_MENU_ID
+                                  , A.MENU_NM
+                                  , A.YEAR
+                                  , A.MONTH  
+                                  , A.DAY      
+                            ORDER BY A.BRAND_MENU_ID
+                                  , A.MENU_NM
+                                  , A.YEAR
+                                  , A.MONTH  
+                                  , A.DAY    
+                        ),
+        TOP5_MENUS AS   (
+                            /* 판매 마진 기준으로 상위 5개의 메뉴를 선택 */
+                            SELECT BRAND_MENU_ID
+                                  ,MENU_NM
+                                  ,SUM(SALES_MARGIN) AS TOTAL_MARGIN
+                            FROM   BASE_TABLE
+                            GROUP BY BRAND_MENU_ID,  MENU_NM
+                            ORDER BY TOTAL_MARGIN DESC
+                            FETCH FIRST 5 ROWS ONLY
+                        )
+        SELECT T.BRAND_MENU_ID
+              ,T.MENU_NM
+              ,B.MONTH
+              ,B.DAY
+              ,B.SALES_MARGIN AS SALES
+        FROM TOP5_MENUS T
+             JOIN BASE_TABLE B
+              ON  1 = 1
+              AND T.BRAND_MENU_ID = B.BRAND_MENU_ID
+        ORDER BY B.MONTH
+                ,B.DAY
+               , T.TOTAL_MARGIN DESC
+    </select>
+
     
     <select id="getmenuMarginRanking_BAK" resultType="java.util.HashMap" flushCache="true"  useCache="false">
         /* dashboardCorPerformance.getmenuMarginRanking */
