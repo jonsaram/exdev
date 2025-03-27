@@ -649,6 +649,7 @@ var <@compId> = {
                categories4Arr[i] = resultData.data[i].OPERATING_INCOME;      /* 영업이익  */
                
                categoryArr[i]    = resultData.data[i].MONTH +'월';
+
             }
             
             $('#<@compId>_chart22').highcharts({
@@ -665,7 +666,7 @@ var <@compId> = {
                 },
                 colors: ['#27187F', '#F29423','#66ff00', '#0099ff'],
                 xAxis: {
-                    categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                    categories: categoryArr,
                     accessibility: {
                         rangeDescription: '2'
                     }

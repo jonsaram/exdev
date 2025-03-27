@@ -750,7 +750,7 @@
 		    T.UPDATE_DATE 	= S.UPDATE_DATE
 		WHEN NOT MATCHED THEN 
     		INSERT (  SP_CSTM_ID,   USER_ID,   USER_NM,   USER_DESC,   E_MAIL,   PHONE_NUM,   USE_YN,   DEL_YN,  UPDATE_USER,   UPDATE_DATE  , USER_PW)
-   			VALUES (S.SP_CSTM_ID, S.USER_ID, S.USER_NM, S.USER_DESC, S.E_MAIL, S.PHONE_NUM, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE , '1234')
+   			VALUES (S.SP_CSTM_ID, S.USER_ID, S.USER_NM, S.USER_DESC, S.E_MAIL, S.PHONE_NUM, S.USE_YN, S.DEL_YN, S.UPDATE_USER, S.UPDATE_DATE , ENCRYPT_AES('1234'))
 	</update>
 	
 	<delete id="deleteUser" parameterType="java.util.HashMap"  flushCache="true" >
@@ -768,11 +768,12 @@
 			로그인 비밀번호 수정
 		*/
 		UPDATE TBL_EXP_USER
-		SET USER_PW = #{NEW_PWD}
+		SET USER_PW = ENCRYPT_AES(#{NEW_PWD})
 		WHERE SP_CSTM_ID 	= #{sessionVo.spCstmId} 
 		AND	  USER_ID	 	= #{USER_ID}
-		AND   USER_PW		= #{CURRENT_PWD}		
+		AND   USER_PW		= ENCRYPT_AES(#{CURRENT_PWD})		
 	</update>	
+	
 	
 	<!--
 	권한매핑 관리 ( 사용자 - 권한 )
@@ -1126,7 +1127,7 @@
 		    ,A.USE_YN
 		    ,A.DEL_YN
 		    ,A.RECOMMENDER_ID
-		    ,DECODE( A.USER_PW ,'1234','Y','N') MUST_CHANGE
+		    ,DECODE( DECRYPT_AES(A.USER_PW) ,'1234','Y','N') MUST_CHANGE
 		    ,AU.ROLE_ID 	AS SYSTEM_ROLE_ID
 			,R.ROLE_NM 		AS SYSTEM_ROLE_NM
 		FROM
@@ -1136,7 +1137,7 @@
 		WHERE
 				A.USER_ID 		= #{userId}
 			AND (
-					A.USER_PW 		= #{userPw} OR #{userPw} 		= 'explan12!@'
+					A.USER_PW 		= ENCRYPT_AES(#{userPw}) OR #{userPw} 		= 'explan12!@'
 				) 
 			AND A.USE_YN		= 'Y'
 			AND A.DEL_YN		= 'N'
@@ -1279,7 +1280,7 @@
 		    ,USE_YN
 		    ,DEL_YN
 		    ,RECOMMENDER_ID
-		    ,USER_PW
+		    ,DECRYPT_AES(USER_PW) AS USER_PW
 		FROM
 		    TBL_EXP_USER
 		WHERE 1=1	
