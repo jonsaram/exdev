@@ -4241,7 +4241,7 @@
                  AND B.PREDICT_METHOD = 'MONTHLY_START'
                  AND TO_DATE(B.YEAR || '-' || B.MONTH, 'YYYY-MM') BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM') 
         WHERE   A.BRAND_ID   = #{brandId} 
-          AND   A.STORE_CD   = #{store}
+          AND   A.STORE_ID   = #{store}
         GROUP BY B.BRAND_ID,
                  A.STORE_ID,
                  A.STORE_NM,
@@ -4273,7 +4273,7 @@
                  AND B.PREDICT_METHOD = 'MONTHLY_START'
                  AND TO_DATE(B.YEAR || '-' || B.MONTH, 'YYYY-MM') BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM')
         WHERE   A.BRAND_ID = #{brandId} 
-        AND     A.STORE_CD = #{store}
+        AND     A.STORE_ID = #{store}
         GROUP BY B.BRAND_ID,
                  A.STORE_ID,
                  A.STORE_NM,
