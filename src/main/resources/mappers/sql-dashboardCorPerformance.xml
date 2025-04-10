@@ -4240,6 +4240,7 @@
                  AND B.SUBJECT IN ('SUBJECT_001', 'SUBJECT_002', 'SUBJECT_005')
                  AND B.PREDICT_METHOD = 'MONTHLY_START'
                  AND TO_DATE(B.YEAR || '-' || B.MONTH, 'YYYY-MM') BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM') 
+                 AND LENGTH(B.MONTH) = 2
         WHERE   A.BRAND_ID   = #{brandId} 
           AND   A.STORE_ID   = #{store}
         GROUP BY B.BRAND_ID,
@@ -4272,6 +4273,7 @@
                  AND B.SUBJECT IN ('SUBJECT_104', 'SUBJECT_005')
                  AND B.PREDICT_METHOD = 'MONTHLY_START'
                  AND TO_DATE(B.YEAR || '-' || B.MONTH, 'YYYY-MM') BETWEEN TO_DATE( #{startDate}, 'YYYY-MM') AND TO_DATE( #{endDate}, 'YYYY-MM')
+                 AND LENGTH(B.MONTH) = 2
         WHERE   A.BRAND_ID = #{brandId} 
         AND     A.STORE_ID = #{store}
         GROUP BY B.BRAND_ID,
