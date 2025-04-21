@@ -166,6 +166,7 @@
 				if(isEmpty(retData)) return;
 				
 				let projectInfo = <@pageId>.projectList[idx];
+				<@pageId>.teamMemberList = retData;
 				if( projectInfo.BUYER_NM == "협업"){
  
 					var parm = {
@@ -195,8 +196,9 @@
 					}
 					C_COM.requestQuery(parm, function(resultData) {
 						
-						if( resultData.data =="S"){
+						if( resultData.state =="S"){
 							alert("협업 담당자 등록을 완료하였습니다.");
+							<@pageId>.loadData();
 							return;
 						}
 					});
