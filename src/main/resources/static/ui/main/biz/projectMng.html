@@ -161,13 +161,48 @@
 			let parm = {
 					projectInfo	: <@pageId>.projectList[idx]		
 			};
-			debugger;
 			
 			C_POP.open('popup_operation_projectTeamMemberPopup', parm, function(retData) {
 				if(isEmpty(retData)) return;
 				
 				let projectInfo = <@pageId>.projectList[idx];
-				
+				if( projectInfo.BUYER_NM == "협업"){
+ 
+					var parm = {
+						queryGroup : [
+							 {
+								 queryId 		: "contract.updateProject"
+								,requestParm	: {
+									 CONTRACT_ID 	: projectInfo.CONTRACT_ID
+						        	,PROCESS_STATE	: 'ADDED_COLLABO_MEMBERS'
+								}
+							 },
+							 {
+								 queryId 		: "contract.insertTeam"
+								,requestParm	: {
+									  CONTRACT_ID 	: projectInfo.CONTRACT_ID
+									 ,ALLOWED		: 'N'
+								}
+							 },
+							 {
+								 queryId 		: "contract.insertTeamMember"
+								,requestParmList: <@pageId>.teamMemberList
+								,requestParm	: {
+									CONTRACT_ID 	: projectInfo.CONTRACT_ID									
+								 }
+							 }
+						]
+					}
+					C_COM.requestQuery(parm, function(resultData) {
+						
+						if( resultData.data =="S"){
+							alert("협업 담당자 등록을 완료하였습니다.");
+							return;
+						}
+					});
+					return;
+					
+				}
 				<@pageId>.teamMemberList = retData;
 
 				<@pageId>.saveSalesUser(<@pageId>.teamMemberList[0],projectInfo);
@@ -286,7 +321,7 @@
 							<th scope="col">상품명</th>
 							<th scope="col">상태</th>
 							<th scope="col">등록/수정일</th>
-							<th scope="col">결재</th>
+							<th scope="col">결재/협업</th>
 							<th scope="col"><i class="icon_pen"></i> &nbsp;&nbsp; <i class="icon_trash"></i></th>
 						</tr>
 					</thead>
@@ -316,13 +351,32 @@
 							<td id="USER_NM"			>{{:USER_NM}}</td>
 							<td id="CONSULTANT_USER_NM"	>{{:CONSULTANT_USER_NM}}</td>
 							<td id="CONSULTING_NM"		>{{:CONSULTING_NM}}</td>
-							<td id="PROCESS_STATE_NM"	>{{:PROCESS_STATE_NM}}</td>
+							<td id="PROCESS_STATE_NM"	>
+														{{if BUYER_NM =="협업"}}
+															협업 프로젝트
+														{{else}}
+															{{:PROCESS_STATE_NM}}
+														{{/if}}
+							</td>
 							<td id="UPDATE_DATE"		>{{:UPDATE_DATE}}{{:#index}}</td>
 							<td>
 							{{if SHOW_BTN=="Y" ~index=#index}} 
-								<button type="button" class="btn fc tc" onclick="<@pageId>.makeTeamMember({{:~index}})">{{:APPR_BTN_TITLE}}</button>
+								<button type="button" class="btn fc tc" onclick="<@pageId>.makeTeamMember({{:~index}})">
+														{{if BUYER_NM =="협업"}}
+															협업 담당자 등록
+														{{else}}
+															{{:APPR_BTN_TITLE}}
+														{{/if}}
+
+									
+								</button>
 							{{else}}
-								{{:APP_STATE_NM}}	
+														{{if BUYER_NM =="협업"}}
+															협업 담당자 등록 완료
+														{{else}}
+															{{:APP_STATE_NM}}
+														{{/if}}
+									
 							{{/if}}
 							</td>
 							<td>

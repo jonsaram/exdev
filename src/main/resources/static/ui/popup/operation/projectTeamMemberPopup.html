@@ -15,6 +15,11 @@
 	    			return;
 	    		}
 	    		
+	    		if( <@popupId>.projectInfo.BUYER_NM == "협업"){
+	    			debugger;
+	    			retData.BUYER_NM = "협업";
+	    		}
+	    		
 	    		<@popupId>.etcMemberMap[retData.USER_ID] = retData;
 	    		
 	    		let index = $("#<@popupId> #projectMember tr").length + 1;
@@ -55,7 +60,7 @@
 				delete <@popupId>.etcMemberMap[USER_ID];
 			});
 		 }
-		,approval : function() {
+		,approval : function(gubun) {
 			
 			if( <@popupId>.projectInfo["CONSULTING_TYPE"] == "COWORK"){
 		
@@ -73,6 +78,8 @@
 			let idx = 0;
 			let coworkTotal		= 0;
 			let coworkErrorNum  = 0;
+			const isCollabo = gubun == "regMembers" ? "Y":"N";
+			
 			$.each(<@popupId>.etcMemberMap, function(key, obj) {
 
 				idx++;
@@ -120,9 +127,9 @@
 				C_POP.alert('실행 컨설턴트는 1명만 지정 할 수 있습니다.');
 			} else if	(execCheck 	== "N") {
 				C_POP.alert('실행 컨설턴트를 지정 하세요.'				);
-			} else if	(coworkErrorNum == 1) {
+			} else if	(coworkErrorNum == 1 && isCollabo =="N") {
 				C_POP.alert('Cowork Rate를 입력해주세요.'				);
-			} else if	(coworkErrorNum == 2) {
+			} else if	(coworkErrorNum == 2 && isCollabo =="N") {
 				C_POP.alert('Cowork Rate의 합은 100% 보다 작아야 합니다.');
 			} else {
 				// 성공
@@ -172,6 +179,14 @@
 		var parm = {queryId	: "system.getEtcUserInfo" ,requestParm	: {USER_ID : data.projectInfo.USER_ID} }
 		let resultData = C_COM.requestQuery(parm);
 		let userInfo = resultData.data[0]; 
+
+		if( <@popupId>.projectInfo.BUYER_NM == "협업"){
+			$("#okBtn").hide();
+			$("#saveBtn").show();
+			setTimeout(()=>{
+				$("[name='coworkRate']").hide();
+			},100);
+		}		
 		
 		userInfo["CONSULTING_TYPE"] =	<@popupId>.projectInfo["CONSULTING_TYPE"];
 		if( userInfo["CONSULTING_TYPE"] == "COWORK" && !in_array(G_VAL.session.roleId, ["MANAGER", "SYSTEM"])){
@@ -220,7 +235,7 @@
 						<col style="width:80px;"/>
 						<col style="width:80px;"/>
 						<col style="width:90px;"/>
-						<col style="width:90px;"/>
+						<col style="width:90px;" name="coworkRate"/>
 						<col style="width:80px" />
 						<col style="width:60px" />
 						<col style="width:45px" />
@@ -231,7 +246,7 @@
 							<th scope="col">담당자ID</th>
 							<th scope="col">담당자명</th>
 							<th scope="col">역할</th>
-							<th scope="col">Cowork Rate</th>
+							<th scope="col" name="coworkRate">Cowork Rate</th>
 							<th scope="col">등급</th>
 							<th scope="col">팀장</th>
 							<th scope="col">관리</th>
@@ -247,7 +262,7 @@
 						<col style="width:80px;"/>
 						<col style="width:80px;"/>
 						<col style="width:90px;"/>
-						<col style="width:90px;"/>
+						<col style="width:90px;" name="coworkRate"/>
 						<col style="width:80px" />
 						<col style="width:60px" />
 						<col style="width:45px" />
@@ -260,7 +275,9 @@
 							<td>{{:data.USER_ID}}</td>
 							<td>{{:data.USER_NM}}</td>
 							<td><div id="selectBox_{{:data.USER_ID}}"></div></td>
-							<td><input type="text" id="COWORK_RATE_{{:data.USER_ID}}" name="COWORK_RATE" style="width:60px" number fix="2" disabled/> %</td>
+							{{if data.BUYER_NM != "협업"}}
+							<td  name="coworkRate"><input type="text" id="COWORK_RATE_{{:data.USER_ID}}" name="COWORK_RATE" style="width:60px" number fix="2" disabled/> %</td>
+							{{/if}}
 							<td title="{{:data.GRADE_NM}}">{{:data.GRADE_NM}}</td>
 							<td><input name="headerCheck" id="headerCheck_{{:data.USER_ID}}" value="{{:data.USER_ID}}" type="checkbox" onclick="<@popupId>.setHeader('{{:data.USER_ID}}')" {{:checked}}/></td>
 							<td><a href="javascript:<@popupId>.deleteMember('{{:data.USER_ID}}','{{:data.USER_NM}}')"><i class="icon_trash"></i></a></td>
@@ -277,7 +294,7 @@
 								</div>
 							</td>
 							<td>영업</td>
-							<td>&nbsp;</td>
+							<td name="coworkRate">&nbsp;</td>
 							<td title="{{:data.GRADE_NM}}">{{:data.GRADE_NM}}</td>
 							<td></td>
 							<td></td>
@@ -288,6 +305,7 @@
 		</div>
 		<div class="modal_footer">
 			<button type="button" class="btn select" onclick="<@popupId>.approval()" id="okBtn">결재상신</button>
+			<button type="button" class="btn select" onclick="<@popupId>.approval('regMembers')" id="saveBtn" style="display:none;width:130px;">협업 Member 등록</button>
 			<button type="button" class="btn close" onclick="<@popupId>.close()">취소</button>
 		</div>
 	</div>

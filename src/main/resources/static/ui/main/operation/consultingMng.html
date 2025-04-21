@@ -99,7 +99,8 @@
 			const tabId = $("#<@pageId>_consultingMngUL .active a").attr("id");
 			const activeTab	= 	tabId.indexOf("monthly")	> -1	? "MONTHLY" :
 								tabId.indexOf("onlyOnce")	> -1 	? "ONCE":
-								tabId.indexOf("cowork")		> -1	? "COWORK": '';       
+								tabId.indexOf("cowork")		> -1	? "COWORK":
+								tabId.indexOf("collabo")	> -1	? "COLLABO": '';       
 			
 	 		C_POP.open('popup_operation_consultingUpdatePopup', { mode			:Object.keys(<@pageId>.selectedItem).length > 0 ? "U" : "I"
 	 															, param			:param 
@@ -141,6 +142,7 @@
 							<a id="#<@pageId>_monthly">월자문 컨설팅</a></li>
 						<li><a id="#<@pageId>_onlyOnce">일회성 컨설팅</a></li>
 						<li><a id="#<@pageId>_cowork">코웍 외주자문 컨설팅</a></li>
+						<li><a id="#<@pageId>_collabo">협업</a></li>
 					</ul>
 					<a href="javascript:<@pageId>.addProduct()" class="btn select small add">추가</a>
 					<div class="tab_content">
@@ -170,6 +172,17 @@
 							<ul class="listBtn" id="<@pageId>_consulting_COWORK">
 							</ul>
 							<script type="text/x-jsrender" id="<@pageId>_consulting_COWORK_template">	
+							{{for list}}
+							<li name="<@pageId>_li_{{:#index}}">   
+								<a href="#" class="btn active" id="{{:CONSULTING_ID}}">{{:CONSULTING_NM}}</a>
+							</li>
+							{{/for}}
+							</script>
+						</div>
+						<div id="<@pageId>_collabo" class="display">
+							<ul class="listBtn" id="<@pageId>_consulting_COLLABO">
+							</ul>
+							<script type="text/x-jsrender" id="<@pageId>_consulting_COLLABO_template">	
 							{{for list}}
 							<li name="<@pageId>_li_{{:#index}}">   
 								<a href="#" class="btn active" id="{{:CONSULTING_ID}}">{{:CONSULTING_NM}}</a>
