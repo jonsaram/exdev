@@ -167,6 +167,8 @@
 				
 				let projectInfo = <@pageId>.projectList[idx];
 				<@pageId>.teamMemberList = retData;
+				// 협업일때도 결재 똑같이 하도록 수정 ...
+				/*
 				if( projectInfo.BUYER_NM == "협업"){
  
 					var parm = {
@@ -205,6 +207,7 @@
 					return;
 					
 				}
+				*/
 				<@pageId>.teamMemberList = retData;
 
 				<@pageId>.saveSalesUser(<@pageId>.teamMemberList[0],projectInfo);
@@ -323,7 +326,7 @@
 							<th scope="col">상품명</th>
 							<th scope="col">상태</th>
 							<th scope="col">등록/수정일</th>
-							<th scope="col">결재/협업</th>
+							<th scope="col">결재</th>
 							<th scope="col"><i class="icon_pen"></i> &nbsp;&nbsp; <i class="icon_trash"></i></th>
 						</tr>
 					</thead>
@@ -353,32 +356,13 @@
 							<td id="USER_NM"			>{{:USER_NM}}</td>
 							<td id="CONSULTANT_USER_NM"	>{{:CONSULTANT_USER_NM}}</td>
 							<td id="CONSULTING_NM"		>{{:CONSULTING_NM}}</td>
-							<td id="PROCESS_STATE_NM"	>
-														{{if BUYER_NM =="협업"}}
-															협업 프로젝트
-														{{else}}
-															{{:PROCESS_STATE_NM}}
-														{{/if}}
-							</td>
+							<td id="PROCESS_STATE_NM"	>{{:PROCESS_STATE_NM}}</td>
 							<td id="UPDATE_DATE"		>{{:UPDATE_DATE}}{{:#index}}</td>
 							<td>
 							{{if SHOW_BTN=="Y" ~index=#index}} 
-								<button type="button" class="btn fc tc" onclick="<@pageId>.makeTeamMember({{:~index}})">
-														{{if BUYER_NM =="협업"}}
-															협업 담당자 등록
-														{{else}}
-															{{:APPR_BTN_TITLE}}
-														{{/if}}
-
-									
-								</button>
+								<button type="button" class="btn fc tc" onclick="<@pageId>.makeTeamMember({{:~index}})">{{:APPR_BTN_TITLE}}</button>
 							{{else}}
-														{{if BUYER_NM =="협업"}}
-															협업 담당자 등록 완료
-														{{else}}
-															{{:APP_STATE_NM}}
-														{{/if}}
-									
+								{{:APP_STATE_NM}}	
 							{{/if}}
 							</td>
 							<td>

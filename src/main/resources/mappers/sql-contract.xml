@@ -82,8 +82,6 @@
 		AND C.PROCESS_STATE != 'ON_CONTRACTING_APPR' 
 		AND C.CONTRACT_ID = TM.CONTRACT_ID(+)
 		AND TM.RELATION_TYPE(+) = 'EXECUTE'
-		<!--  CONSULTING TYPE 이 COLLABO(협업) 인것은 조회 제외 -->
-		AND CT.CONSULTING_TYPE !='COLLABO'
 		<choose>
 			<!-- 실적화면호출시 -->
 			<when test='PA_ROLE != null'> 
