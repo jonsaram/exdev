@@ -65,7 +65,7 @@ var <@popupId> = {
 					payment.RATE = payment.RATE_JI;
 				})
 				<@popupId>.updateItem( returnData ) 
-				<@popupId>.close() ;	
+				setTimeout(()=>{<@popupId>.close() ;},1000)	
 			})
 		} 
 		 
@@ -686,7 +686,7 @@ var <@popupId> = {
 		
 		// 입금액이 입력되면 , 1) 공급가,부가세 자동계산, 2) 잔금 - 공급가를 계산. 공급가가 더 큰경우 
 	    $('#<@popupId>_INCOME').off().on('input  focusout',function(event){
-			debugger;
+
 	        const val 			= $(this).nval();
 			const supplytax		= <@popupId>.supply_tax_cal(val);
 			
