@@ -78,8 +78,8 @@
 				if(this.CONTRACT_YN == "Y") myList.push(this);
 			});
 
-			const buyerList = myList.map( obj => { return [obj.BUYER_ID,obj.BUYER_NM]});
-			
+			let searchedRows = <@opener>.searchedRows.map( obj => {return [obj.BUYER_ID, obj.BUYER_NM]	});
+			const buyerList = searchedRows;
 			if( isEmpty(buyerList) ){
 				alert( "계약 업체가 존재하지 않습니다." );
 				return false;
