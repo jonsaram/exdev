@@ -6,7 +6,7 @@
              ,searchDate : ''
              ,pageInit : () => {
                  
-                 let today  = <@compId>.getToday(-0, '-');
+                 let today  = <@compId>.getToday(-12, '-');
                  $("#<@compId>_startDate").val(today);
                  <@compId>.searchDate = today;
              }
@@ -137,8 +137,7 @@
                     //C_POP.alert("지점을 선택해 주세요.");
                     //return;
                 }
-                
-                if (typeof productList === "undefined") {
+                if (productList == undefined || productList.length == 0) {
                     C_POP.alert("상품을 선택해 주세요.");
                     return;
                 }

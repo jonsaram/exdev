@@ -4299,7 +4299,7 @@
                       ,PRODUCT_NM
                       ,UNIT
                       ,ROUND(AVG(QUANTITY)) * SAVE_PERIOD AS AVG_QUANTITY
-                FROM   VIEW_STOCK_IN_OUT      
+                FROM   VINS_VIEW_STOCK_IN_OUT      
                 WHERE  1 = 1
                 AND    INOUT = 'OUT'
                 AND    BRAND_ID = #{brandId}
@@ -4356,7 +4356,7 @@
                     AND    SM.REGION =  #{region} 
                 </if>
                 <if test=" !'ALL'.equals(storeCd) and storeCd != null and storeCd != ''  ">
-                    AND    SM.STORE_CD = #{storeCd} 
+                    AND    SM.STORE_ID = #{storeCd} 
                 </if>
     
                 <if test=" productList != null and productList.size() > 0">
@@ -4467,6 +4467,7 @@
         FROM   VINS_TBL_EXP_STOCK_MST
         WHERE  1 = 1
         AND    BRAND_ID = #{brandId}
+        AND    USE_YN = 'Y'
         ORDER BY PRODUCT_NM
     </select>
     

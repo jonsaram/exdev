@@ -77,9 +77,17 @@
 			$.each(myBuyerList, function() {
 				if(this.CONTRACT_YN == "Y") myList.push(this);
 			});
-
-			let searchedRows = <@opener>.searchedRows.map( obj => {return [obj.BUYER_ID, obj.BUYER_NM]	});
+			
+			let dupMap = {}
+			let searchedRows = []
+			$.each(<@opener>.searchedRows, function() {
+				let obj = this;
+				if(dupMap[obj.BUYER_ID] == "Y") return true;
+				dupMap[obj.BUYER_ID] = "Y";
+				searchedRows.push([obj.BUYER_ID, obj.BUYER_NM]);	
+			});
 			const buyerList = searchedRows;
+			
 			if( isEmpty(buyerList) ){
 				alert( "계약 업체가 존재하지 않습니다." );
 				return false;
