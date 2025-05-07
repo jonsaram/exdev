@@ -9,7 +9,7 @@
 	<!--
 	급여 관리 
 	 -->
-<!-- 
+ 
 	<sql id="paymentList">
 		SELECT ROW_NUMBER() OVER(ORDER BY CONTRACT_ID , RESULT_DATE  ,UPDATE_DATE , PAYMENT_ID) RN
 		,CONTRACT_ID 
@@ -67,7 +67,6 @@
 					WHEN  CST.CONSULTING_TYPE !='MONTHLY'  THEN 'Y'
 					ELSE 'N' 
 				END 
-			AND C.USER_ID = U.USER_ID				
 			<if test=" USER_ID != null and !USER_ID.equals('')">
 			AND P.USER_ID		= #{USER_ID}
 			</if>
@@ -104,8 +103,8 @@
 		)
 		ORDER BY CONTRACT_ID , RESULT_DATE  , UPDATE_DATE , PAYMENT_ID
 	</sql>
--->
 
+<!--
 	<sql id="paymentList">
 		SELECT ROW_NUMBER() OVER(ORDER BY CONTRACT_ID , RESULT_DATE  ,UPDATE_DATE , PAYMENT_ID) RN
 		,CONTRACT_ID 
@@ -199,7 +198,7 @@
 		)
 		ORDER BY CONTRACT_ID , RESULT_DATE  , UPDATE_DATE , PAYMENT_ID
 	</sql>
-		
+-->		
 	<select id="getPaymentList" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	salary.getPaymentList
 			급여 리스트 조회 
