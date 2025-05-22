@@ -75,19 +75,21 @@
 
 			let myList = []
 			$.each(myBuyerList, function() {
-				if(this.CONTRACT_YN == "Y") myList.push(this);
+				if(this.CONTRACT_YN == "Y") myList.push([this.BUYER_ID, this.BUYER_NM]);
 			});
 			
-			let dupMap = {}
+/* 			let dupMap = {}
 			let searchedRows = []
 			$.each(<@opener>.searchedRows, function() {
 				let obj = this;
 				if(dupMap[obj.BUYER_ID] == "Y") return true;
 				dupMap[obj.BUYER_ID] = "Y";
 				searchedRows.push([obj.BUYER_ID, obj.BUYER_NM]);	
-			});
+			}); 
 			const buyerList = searchedRows;
-			
+*/
+
+			const buyerList = myList;
 			if( isEmpty(buyerList) ){
 				alert( "계약 업체가 존재하지 않습니다." );
 				return false;
@@ -210,13 +212,15 @@
 		// 상품명 조회
 		,setConsultingList : (buyerId , callback) =>{
 
-			if( isEmpty(buyerId) ) buyerId = G_VAL.myBuyerList[0].BUYER_ID;
+			let buyerIds = []
+			if( isEmpty(buyerId) ) buyerIds = G_VAL.myBuyerList.map( obj => obj.BUYER_ID );
 			const parm = {
 					 queryId 		: "custDashboard.getConsultingList"
 					,requestParm	: 
 									{
 										BUYER_ID		: buyerId
 										,MODE			: "<@mode>"
+										,BUYER_ID_LIST	: buyerIds
 									}
 			}
 
