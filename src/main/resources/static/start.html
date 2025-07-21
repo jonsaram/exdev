@@ -356,6 +356,30 @@
                 
              }
             ,moveMainMenu   : function(mainMenuIdx) {
+            	
+            	
+            	if( mainMenuIdx == 1){
+            		 
+		                let requestParm = {};   
+		                requestParm["id"]     		= G_VAL.session.USER_ID;         
+		                requestParm["menu"]   		= 'main_dashboard';
+		                requestParm["loginType"]   	= 'ADMIN';
+		                requestParm["jsonParam"]     ={abc:'abc'};
+		                
+		                var parm = {
+		                     serviceId              : "TokenLoginService.getJWT"
+		                    ,requestParm            : requestParm
+		                }
+		                C_COM.requestService(parm, function(resultData) {
+
+			                const token = resultData.data.jwt
+			                window.open(`http://localhost:8083/autoLogin?token=${token}`, '_blank');
+		                });
+                    
+            		return;
+            }
+            	
+            	
                 if(in_array(C_MENU.mainMenuList[mainMenuIdx].MENU_ID, ["MN_SCD", "MN_FDS"])) {
                     $("#subMenuList").hide();
                     $("#subMenuListForBuyer").hide();

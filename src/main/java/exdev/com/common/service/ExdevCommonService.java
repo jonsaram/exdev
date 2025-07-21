@@ -28,6 +28,7 @@ import exdev.com.service.ExdevContractService;
 import exdev.com.service.ExdevSampleService;
 import exdev.com.service.FileSyncService;
 import exdev.com.service.ScheduleService;
+import exdev.com.service.TokenLoginService;
 
 @Service("ExdevCommonService")
 @Transactional(rollbackFor = { Exception.class }, propagation = Propagation.REQUIRED)
@@ -51,6 +52,9 @@ public class ExdevCommonService extends ExdevBaseService
 	
 	@Autowired
 	private ExdevContractService exdevContractService;
+	
+	@Autowired
+	private TokenLoginService tokenLoginService;
 	
 	@Autowired
 	private FileSyncService fileSyncService;
@@ -104,6 +108,9 @@ public class ExdevCommonService extends ExdevBaseService
         } else if("ExdevContractService".equals(classId)) {
             targetService = exdevContractService;
             targetMethod = ExdevContractService.class.getMethod(methodId, Map.class);
+        } else if("TokenLoginService".equals(classId)) {
+            targetService = tokenLoginService;
+            targetMethod = TokenLoginService.class.getMethod(methodId, Map.class);
         }
 			
 		
