@@ -359,21 +359,22 @@
             	
             	
             	if( mainMenuIdx == 1){
-            		 
+ 
 		                let requestParm = {};   
 		                requestParm["id"]     		= G_VAL.session.USER_ID;         
-		                requestParm["menu"]   		= 'main_dashboard';
+		                requestParm["pageId"]  		= 'main_dashboard';
+		                //requestParm["pageId"]  		= 'main_headerManage_storeManage';//가맹점관리
 		                requestParm["loginType"]   	= 'ADMIN';
 		                requestParm["jsonParam"]     ={abc:'abc'};
 		                
 		                var parm = {
-		                     serviceId              : "TokenLoginService.getJWT"
+		                     serviceId              : "TokenLoginService.autoLogin"
 		                    ,requestParm            : requestParm
 		                }
 		                C_COM.requestService(parm, function(resultData) {
 
-			                const token = resultData.data.jwt
-			                window.open(`http://localhost:8083/autoLogin?token=${token}`, '_blank');
+			                const loginUrl=resultData.data.loginUrl
+			                window.open(loginUrl, '_blank');
 		                });
                     
             		return;
