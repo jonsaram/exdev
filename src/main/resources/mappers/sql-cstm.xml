@@ -88,6 +88,9 @@
 			<if test=" parm.HOW_GET != null and !parm.HOW_GET.equals('') ">
 				OR  UPPER(GET_CODE_NM( 'HOW_GET', B.HOW_GET )) = UPPER(#{parm.HOW_GET})
 			</if>
+			<if test=" parm.CREATE_USER != null and !parm.CREATE_USER.equals('') ">
+				OR  UPPER(GET_USER_NM( B.CREATE_USER )) = UPPER(#{parm.CREATE_USER})
+			</if>
 			
 		)
 		<if test=" parm.CHECK_BUYER_ID != null and !parm.CHECK_BUYER_ID.equals('') ">
@@ -97,7 +100,9 @@
 			<include refid="userContectedBuyers"/>
 		</if>
 		
-		ORDER BY CASE WHEN B.UPDATE_DATE > GET_KRDT(SYSDATE)-1 THEN 0 ELSE 1 END ,B.BUYER_NM		
+		ORDER BY 
+			 DECODE(B.CREATE_USER, #{sessionVo.userId}, 1, 2)
+			,CASE WHEN B.UPDATE_DATE > GET_KRDT(SYSDATE)-1 THEN 0 ELSE 1 END ,B.BUYER_NM		
 	</sql>
 	<sql id="userContectedBuyers">
 		/* 고객을 등록 / 고객과 연계된 계약의 멤버들 */

@@ -1,5 +1,5 @@
 
-const _HUNDRED_MILLION = 100000000 ;
+const _HUNDRED_MILLION = 1 ;
 
 
 function _yearMonthSelectBox(obj) {

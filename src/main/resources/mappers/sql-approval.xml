@@ -69,6 +69,7 @@
 		    AND A.USER_ID    	= #{sessionVo.userId	}
 		    AND A.SP_CSTM_ID 	= #{sessionVo.spCstmId	}
 		    AND '${holdYn}' = '${holdYn}'
+		    AND NOT A.STATE 	= 'DELETE'
 		ORDER BY APPROVAL_DATE DESC
     </select>
 

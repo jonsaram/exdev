@@ -19,7 +19,8 @@
 
 	            <@popupId>.apprData = resultData.data[0];
 
-	            if(<@popupId>.apprData.STATE == "ONGOING" && <@popupId>.apprData.USER_ID == G_VAL.session.USER_ID) $("#<@popupId>_cancelappr").show();
+	            if(in_array(<@popupId>.apprData.STATE, ["HOLD"]) && <@popupId>.apprData.USER_ID == G_VAL.session.USER_ID) $("#<@popupId>_deleteappr").show();
+	            if(<@popupId>.apprData.STATE == "REJECT" && <@popupId>.apprData.USER_ID == G_VAL.session.USER_ID) $("#<@popupId>_cancelappr").show();
 	        });
 
 	        /* 결재자 조회*/
@@ -73,6 +74,7 @@
 		,cancelAppr : function() {
 			
 			let apprInfo 			= <@popupId>.apprData;
+			
 			C_POP.confirm('결재상신을 취소 하시겠습니까?', function() {
 		        let parm = {
 	                queryId        : "approval.saveResultAppr"
@@ -107,6 +109,43 @@
 							C_POP.alert('결재상신이 취소 되었습니다.');
 							<@popupId>.close('reload');
 			            });
+					}else{
+						alert(resultData.msg)
+					}
+				});				
+				
+			});
+		 }
+		,deleteAppr : function() {
+			
+			let apprInfo 			= <@popupId>.apprData;
+			C_POP.confirm('삭제 하시겠습니까?', function() {
+		        let parm = {
+		            queryId        : "approval.saveResultAppr"
+		           ,requestParm    : {
+		        	   	 APPROVAL_ID 		: apprInfo.APPROVAL_ID
+		        	   	,APPROVAL_COMMENT 	: ""
+		        	   	,STATE				: 'DELETE'
+		        	}
+		    	}
+		    	let parmSnd = {
+		            queryId        : "approval.saveResultMainAppr"
+		           ,requestParm    : {
+		           	   	 APPROVAL_ID	: apprInfo.APPROVAL_ID
+		           	   	,STATE			: 'DELETE' 
+		           	}
+		    	}
+		    	lastParm = {
+		    		queryGroup : [
+		    			 parm
+		    			,parmSnd
+		    		]
+		    	}
+		        
+				C_COM.requestQuery(lastParm, function(resultData) {
+					if( resultData.state == "S"){
+						C_POP.alert('삭제 되었습니다.');
+						<@popupId>.close('reload');
 					}else{
 						alert(resultData.msg)
 					}
@@ -233,6 +272,7 @@
 			</div>
 		</div>
 		<div class="modal_footer">
+			<button type="button" class="btn select" onclick="<@popupId>.deleteAppr()" style="display:none" id="<@popupId>_deleteappr">삭제</button>
 			<button type="button" class="btn select" onclick="<@popupId>.cancelAppr()" style="display:none" id="<@popupId>_cancelappr">상신취소</button>
 			<button type="button" class="btn close" onclick="<@popupId>.close()">닫기</button>
 		</div>
