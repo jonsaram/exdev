@@ -149,8 +149,8 @@
                     // Just an event, 기간설정
                     id: 001,
                     title: 'Long Event',
-                    start: '2024-04-01',
-                    end: '2024-04-03',
+                    start: '2025-05-01',
+                    end: '2025-05-03',
                     className: 'scheduler_basic_event',
                     resourceEditable: true 
                   },
@@ -158,8 +158,8 @@
                     // Just an event, 기간설정
                     id: 011,
                     title: 'Long Event',
-                    start: '2024-03-27',
-                    end: '2024-04-03',
+                    start: '2025-03-27',
+                    end: '2025-05-03',
                     className: 'scheduler_basic_event',
                     resourceEditable: true 
                   },
@@ -167,8 +167,8 @@
                     // Just an event, 기간설정
                     id: 012,
                     title: 'Long Event',
-                    start: '2024-04-02T16:00:00',
-                    end: '2024-04-04T16:00:00',
+                    start: '2025-05-02T16:00:00',
+                    end: '2025-05-04T16:00:00',
                     className: 'scheduler_basic_event',
                     resourceEditable: true 
                   },
@@ -176,7 +176,7 @@
                     // Custom repeating event
                     id: 02,
                     title: '일정1',
-                    start: '2024-04-04T16:00:00',
+                    start: '2025-05-04T16:00:00',
                     className: 'scheduler_basic_event',
                     resourceEditable: true 
                   },
@@ -184,7 +184,7 @@
                     // Custom repeating event
                     id: 03,
                     title: '일정2',
-                    start: '2024-04-05T16:00:00',
+                    start: '2025-05-05T16:00:00',
                     className: 'scheduler_basic_event',
                     extendedProps: {
                         department: 'BioChemistry'
@@ -194,8 +194,8 @@
                       // Custom repeating event
                       id: 03,
                       title: '일정3',
-                      start: '2024-04-05T16:00:00',
-                      end: '2024-04-05T18:00:00',
+                      start: '2025-05-05T16:00:00',
+                      end: '2025-05-05T18:00:00',
                       className: 'scheduler_basic_event',
                       extendedProps: {
                           department: 'BioChemistry'
@@ -203,7 +203,7 @@
                     },
                   {
                       title  : 'event1',
-                      start  : '2024-04-06'
+                      start  : '2025-05-06'
                   }
               ],
               editable: true,
@@ -216,7 +216,7 @@
         calendar.on('dateClick', function(info) {
             console.log('clicked on ' + info.dateStr);
             
-            if( info.dateStr == "2024-05-01" ){
+            if( info.dateStr == "2025-05-01" ){
                 var eventSources = calendar.getEventSources();
                 console.log('EventSources => ' + eventSources);
                 var len = eventSources.length;
@@ -225,17 +225,17 @@
                     eventSources[i].remove(); 
                 } 
                 //calendar.removeAllEvents();
-            }else if( info.dateStr == "2024-05-02" ){
+            }else if( info.dateStr == "2025-05-02" ){
                 calendar.next();
-            }else if( info.dateStr == "2024-05-03" ){
+            }else if( info.dateStr == "2025-05-03" ){
                 calendar.destroy();
-            }else if( info.dateStr == "2024-05-04" ){
-                console.log('2024-05-04 => ');
+            }else if( info.dateStr == "2025-05-04" ){
+                console.log('2025-05-04 => ');
                 var obj = new Object();
-                obj.id    = '2024-05-04';
+                obj.id    = '2025-05-04';
                 obj.title = 'event';
-                obj.start = '2024-05-04T12:30:00';
-                obj.end   = '2024-05-04T15:30:00';
+                obj.start = '2025-05-04T12:30:00';
+                obj.end   = '2025-05-04T15:30:00';
                 obj.textColor = "#fff";
                 obj.color = "#8dcc76";
                 obj.test = "test";
@@ -254,10 +254,10 @@
                 
                 
                 var obj1 = new Object();
-                obj1.id    = '2024-05-05';
+                obj1.id    = '2025-05-05';
                 obj1.title = 'event1';
-                obj1.start = '2024-05-05T12:30:00';
-                obj1.end   = '2024-05-05T15:30:00';
+                obj1.start = '2025-05-05T12:30:00';
+                obj1.end   = '2025-05-05T15:30:00';
                 obj1.textColor = "#fff";
                 obj1.color = "#8dcc76";
                 obj1.test = "test";
@@ -278,8 +278,8 @@
                 var obj2 = new Object();
                 obj2.id    = '66';
                 obj2.title = 'event6';
-                obj2.start = '2024-05-06T12:30:00';
-                obj2.end   = '2024-05-08T15:30:00';
+                obj2.start = '2025-05-06T12:30:00';
+                obj2.end   = '2025-05-08T15:30:00';
                 obj2.textColor = "#fff";
                 obj2.color = "#8dcc76";
                 obj2.test = "test";
@@ -296,16 +296,16 @@
                 
                 calendar.addEvent(obj2);
                 
-            }else if( info.dateStr == "2024-05-05" ){
-                console.log('2024-05-05 => '+calendar.initialDate);
+            }else if( info.dateStr == "2025-05-05" ){
+                console.log('2025-05-05 => '+calendar.initialDate);
                 calendar.initialDate;
                 calendar.refetchEvents();
-            }else if( info.dateStr == "2024-05-06" ){
-                console.log('2024-05-06 => ');
+            }else if( info.dateStr == "2025-05-06" ){
+                console.log('2025-05-06 => ');
                 //calendar.fullCalendar( 'addEventSource', {id:123, stuff:'stuff'});
-            }else if( info.dateStr == "2024-05-07" ){
+            }else if( info.dateStr == "2025-05-07" ){
                 //calendar.fullCalendar( 'removeEvent', 222);
-                var event = calendar.getEventById('2024-05-04') 
+                var event = calendar.getEventById('2025-05-04') 
                 let shareYn = event.extendedProps.shareYn;
                 console.log("=== shareYn ==>"+shareYn);
                 if( shareYn == 'N' ){
@@ -314,7 +314,7 @@
                 	
                 }
                 
-            }else if( info.dateStr == "2024-05-08" ){
+            }else if( info.dateStr == "2025-05-08" ){
                 var eventSources = calendar.getEventSources();
                 console.log('EventSources => ' + eventSources);
                 var len = eventSources.length;
@@ -324,7 +324,7 @@
                     //console.log('obj.event.id => ' + obj.event.id); 
                 } 
                 //calendar.removeAllEvents();
-            }else if( info.dateStr == "2024-05-09" ){
+            }else if( info.dateStr == "2025-05-09" ){
             	var eventArray = calendar.getEvents();
             	eventArray.forEach(function(element) {
            		  console.log("id ==>"+element.id);

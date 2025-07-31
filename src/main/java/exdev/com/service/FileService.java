@@ -137,6 +137,8 @@ public class FileService extends ExdevBaseService{
 	@SuppressWarnings("unchecked")
 	public Map fileUploadMulti( HttpServletRequest request, List<MultipartFile> multiFileList, String  GRP_FILE_ID, String[] FILE_IDS, String  uploadPath, SessionVO sessionVo) throws Exception {
 		
+	    System.out.println("===== fileUpload   1 =====");
+	    
         Map returnMap = new HashMap();
 		
 		String fileDirectoryPath 		= ExdevConstants.FILE_DIRECTORY_PATH;
@@ -154,6 +156,8 @@ public class FileService extends ExdevBaseService{
 		
         String OWNER_CD 	   = request.getParameter("OWNER_CD"	);
         String CONVERT_TO_PDF  = request.getParameter("CONVERT_TO_PDF");
+        
+        System.out.println("===== fileUpload   2 =====");
         
 		for(int i = 0; i < multiFileList.size(); i++) {
 			String ORG_FILE_NM 	= multiFileList.get(i).getOriginalFilename();
@@ -192,9 +196,12 @@ public class FileService extends ExdevBaseService{
 				/* 테이블 입력    테이블 입력    테이블 입력    테이블 입력    테이블 입력    */
 				/***************************************************************************/
 
+				System.out.println("===== fileUpload   3 =====");
                 /* PDF 파일 변환 서버로 전송,이응규, 2024-07-25 */
 	            if( "Y".equals(CONVERT_TO_PDF) ) {
+	                System.out.println("===== fileUpload   4 =====");
 	                boolean reseult = sendFileToExternalServer( insertMap);
+	                System.out.println("===== fileUpload   5 =====");
 	                if( reseult ) {
 	                    //업데이트
 	                    insertMap.put("CONVERT_YN", "Y");
@@ -221,6 +228,9 @@ public class FileService extends ExdevBaseService{
 			for(int i = 0; i < multiFileList.size(); i++) {
 				new File((String)fileList.get(i).get("FILE_PATH")).delete();
 			}
+			System.out.println("===== fileUpload   4-6-3-3 =====");
+            System.out.println("fileUploadMulti IOException 메시지: " + e.getMessage());
+            
 			e.printStackTrace();
 			returnMap.put("msg", ExdevConstants.REQUEST_FAIL);
 		}
@@ -237,6 +247,8 @@ public class FileService extends ExdevBaseService{
      */
     public boolean sendFileToExternalServer( Map map ) throws Exception {
         
+        System.out.println("===== fileUpload   4-1 =====");
+        
         String fileType = (String)map.get("FILE_TYPE");
         //변환 대상파일
         if( !(".docx".equals(fileType)||".doc".equals(fileType)||".xlsx".equals(fileType)||".xls".equals(fileType)||".pptx".equals(fileType)||".ppt".equals(fileType))) {
@@ -247,13 +259,19 @@ public class FileService extends ExdevBaseService{
         String transforServerUrlConvert = ExdevConstants.TRANSFOR_SERVER_URL_CONVERT;
         String serverUrl = transforServerUrl +"/" + transforServerUrlConvert;
 
+        System.out.println("===== fileUpload   4-2 =====");
+        
         // PDF 파일 변환 서버가 살아있는지 확인
         boolean isServerAlive = isServerAlive(transforServerUrl);
+        
+        System.out.println("===== fileUpload   4-3 =====");
         
         if( !isServerAlive) { return false;}
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        
+        System.out.println("===== fileUpload   4-4 =====");
         // SSL 검증 무시
         TrustManager[] trustAll = new TrustManager[]{
             new X509TrustManager() {
@@ -262,6 +280,7 @@ public class FileService extends ExdevBaseService{
                 public void checkServerTrusted(X509Certificate[] certs, String authType) { }
             }
         };
+        System.out.println("===== fileUpload   4-5 =====");
         SSLContext sc = SSLContext.getInstance("SSL");
         sc.init(null, trustAll, new java.security.SecureRandom());
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
@@ -271,10 +290,12 @@ public class FileService extends ExdevBaseService{
             }
         });
         
+        System.out.println("===== fileUpload   4-6 =====");
         String path = (String)map.get("FILE_PATH");
         FileUtil.getDirectoryPath(path);
         // PDF 파일 변환 서버로 전송
         boolean returnVal = sendFile( serverUrl, new File( path), FileUtil.getDirectoryPath(path));
+        System.out.println("===== fileUpload   4-7 =====");
         return returnVal;
     }
 
@@ -353,6 +374,7 @@ public class FileService extends ExdevBaseService{
      * @수 정 자   :
      */
     public boolean sendFile(String serverUrl, File file, String filePath) {
+        System.out.println("===== fileUpload   4-6-1 =====");
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -365,15 +387,21 @@ public class FileService extends ExdevBaseService{
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
+        System.out.println("===== fileUpload   4-6-2 =====");
         ResponseEntity<byte[]> response = restTemplate.exchange(serverUrl, HttpMethod.POST, requestEntity, byte[].class);
         
+        System.out.println("===== fileUpload   4-6-3 =====");
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
             byte[] fileBytes = response.getBody();
             String fileName = getFileNameFromHeaders(response.getHeaders());
             try {
+                System.out.println("===== fileUpload   4-6-3-1 =====");
                 saveFile(fileBytes, fileName,filePath);
+                System.out.println("===== fileUpload   4-6-3-2 =====");
                 return true;
             } catch (IOException e) {
+                System.out.println("===== fileUpload   4-6-3-3 =====");
+                System.out.println("IOException 메시지: " + e.getMessage());
                 return false;
             }
         } else {

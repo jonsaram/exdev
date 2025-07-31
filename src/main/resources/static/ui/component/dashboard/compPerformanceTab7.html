@@ -138,7 +138,9 @@
                 return resultList;
              }
             ,setChart1 : (resultData) =>{
-
+                
+            	console.log("setChart1");
+                
                 let categories1Arr = [];
                 let categories2Arr = [];
                 let categories3Arr = [];
@@ -163,6 +165,7 @@
                    categoryArr[i]    = resultData.data[i].YEAR_MONTH;
                 }
                  $('#<@compId>_chart1').highcharts({
+                     credits: {enabled: false},// 하이차트 워터마크 삭제
                      chart: {
                          type: 'column'
                      },
@@ -192,7 +195,17 @@
                      plotOptions: {
                          column: {
                              pointPadding: 0.2,
-                             borderWidth: 0
+                             borderWidth: 0,
+                             dataLabels: {
+                                 enabled: true,
+                                 formatter: function () {
+                                     return Highcharts.numberFormat(this.y, 0, '.', ',');
+                                 },
+                                 style: {
+                                     fontSize: '11px',
+                                     color: '#000'
+                                 }
+                             }
                          }
                      },
                      series: [

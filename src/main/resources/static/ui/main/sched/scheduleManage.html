@@ -32,7 +32,6 @@
            C_POP.open('popup_sched_addSchedulePopup', requestParm, function(obj) {
                if( obj.refresh == 'Y' ){
             	   <@pageId>.getUserInfo();
-                   //<@pageId>.startGetScheduleProc(true);
                } 
            });
         }   
@@ -41,7 +40,6 @@
            C_POP.open('popup_sched_googleScheduleSetPopup', requestParm, function(obj) {
                if( obj.refresh == 'Y' ){
             	   <@pageId>.getUserInfo();
-                   //<@pageId>.startGetScheduleProc(true);
                } 
            });
         }  
@@ -54,24 +52,18 @@
                 height: '100%',
                 expandRows: true,
                 locale: 'ko', // 한국어 설정
-                // slotMinTime: '08:00',
-                // slotMaxTime: '20:00',
                 headerToolbar: {
-                    // left: 'prev,next today',
                     left: '',
                     center: 'title',
                     right: 'timeGridDay,timeGridWeek,dayGridMonth,prev,next'
-                    // right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                 },
 
                 views: {
                     dayGridMonth: { // name of view
                         titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' }
-                       // other view-specific options here
                     }
                 },
                 initialView: 'dayGridMonth',
-                //initialDate: '2024-01-08',  //달력 처음 로드될때 표시되는 날짜
                 navLinks: true, // 요일이랑 날짜 클릭시 일단위,주단위로 보여주는 화면으로 넘어감
                 editable: false, // 드래그해서 수정 가능한지, 길게 확장도 가능
                 selectable: true,
@@ -150,6 +142,9 @@
            
        }
        ,getAllschedule : function( requestParm ) {
+    	   
+    	   console.log("=== getAllschedule ===");
+    	   
            let cd = <@pageId>.calendar.getCurrentData();
            
            var start = cd.dateProfile.currentRange.start;
@@ -343,6 +338,8 @@
        }
        
        ,setCalendar : function(dateString) {
+
+           console.log("=== setCalendar ===");
            <@pageId>.calendar.gotoDate( new Date(dateString) );
            let parm = {};
            <@pageId>.getAllschedule(parm);
@@ -437,7 +434,7 @@
       /*=============================================================================================*/
       /* 일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스    일정 프로세스               */  
      ,startGetScheduleProc : function( is_pop_call ) {// 시작
-          
+    	 console.log("=== startGetScheduleProc ===");
           if( <@pageId>.IS_SCHEDULE_PROC_START ){  
               return;
           }
@@ -469,6 +466,9 @@
           }
       }
      ,getUserInfo : () =>  {
+    	 
+    	 console.log("getUserInfo");
+    	 
          let requestParm = {};
          let parm = {
               queryId        : "schedule.getUserInfo"
@@ -605,6 +605,7 @@
             });
       }
      ,synchProcess1 : () =>  {
+         console.log("=== synchProcess1 ===");
           try {
               // 구글:O,  EXP:O 일경우 수정
               let requestParm = {}; 
@@ -652,6 +653,7 @@
          
      }
      ,synchProcess3 : ( requestParm) =>  {
+         console.log("=== synchProcess3 ===");
          try {
              // 구글:X,  EXP:O 일경우
              // 1.EXP에서 입력후 오류로           구글 X,   EXP에 구글 ID 없음
@@ -689,6 +691,7 @@
      }
 
      ,synchProcess4 : ( saveEvents) =>  {
+         console.log("=== synchProcess4 ===");
          
          // 구글에 신규 입력후 받은 구글 id를 EXP에 적용한다.
          // 구글:O,  EXP:O 일경우 수정
