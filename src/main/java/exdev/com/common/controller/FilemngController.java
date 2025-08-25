@@ -54,37 +54,52 @@ public class FilemngController {
 	@PostMapping("/multiFileUpload.do")
 	public @ResponseBody Map<String, Object> multiFileUpload(@RequestParam("attach_file") List<MultipartFile> multiFileList,			
             HttpServletRequest request, HttpSession session)  throws Exception {
-	    
-        SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
-        
-        String spCstmId = sessionVo.getSpCstmId();
-        
-        Map<String, String> returnFileMap 			= new HashMap<String, String>();
-        Map<String, Object> returnMap 				= new HashMap<String, Object>();
-        
-        String GRP_FILE_ID 	= request.getParameter("GRP_FILE_ID");
-        String OWNER_CD 	= request.getParameter("OWNER_CD"	);
-        String uploadPath	= ExdevConstants.FILE_UPLOAD_PATH + File.separator + spCstmId + File.separator + OWNER_CD;
-		String[] FILE_IDS	= request.getParameterValues("FILE_IDS");
-		
-		returnFileMap = fileService.fileUploadMulti( request, multiFileList, GRP_FILE_ID, FILE_IDS, uploadPath, sessionVo);
-		
-		if( ExdevConstants.REQUEST_SUCCESS.equals(returnFileMap.get("msg").toString())) {
+		try {
+		    System.out.println("===== multiFileUpload   1 =====");
 		    
-		    returnMap.put("msg", "파일 업로드에 성공하였습니다.");
-            
-            List<String> list = new ArrayList<String>();
-            for(int i =0; i < FILE_IDS.length; i++ ) {
-                list.add(FILE_IDS[i]);
-            }
-            returnMap.put("list", list);
+	        SessionVO sessionVo = (SessionVO)session.getAttribute(ExdevConstants.SESSION_ID);
+	        
+		    System.out.println("===== multiFileUpload   2 =====");
+	        String spCstmId = sessionVo.getSpCstmId();
+	        
+		    System.out.println("===== multiFileUpload   3 =====");
+	        Map<String, String> returnFileMap 			= new HashMap<String, String>();
+	        Map<String, Object> returnMap 				= new HashMap<String, Object>();
+	        
+		    System.out.println("===== multiFileUpload   4 =====");
+	        String GRP_FILE_ID 	= request.getParameter("GRP_FILE_ID");
+	        String OWNER_CD 	= request.getParameter("OWNER_CD"	);
+	        String uploadPath	= ExdevConstants.FILE_UPLOAD_PATH + File.separator + spCstmId + File.separator + OWNER_CD;
+			String[] FILE_IDS	= request.getParameterValues("FILE_IDS");
 			
-		}else{
-            returnMap.put("msg", "파일 업로드에 실패하였습니다.");
-            
+		    System.out.println("===== multiFileUpload   5 =====");
+			returnFileMap = fileService.fileUploadMulti( request, multiFileList, GRP_FILE_ID, FILE_IDS, uploadPath, sessionVo);
+			
+		    System.out.println("===== multiFileUpload   6 =====");
+	
+		    if( ExdevConstants.REQUEST_SUCCESS.equals(returnFileMap.get("msg").toString())) {
+			    
+			    System.out.println("===== multiFileUpload   7 =====");
+			    returnMap.put("msg", "파일 업로드에 성공하였습니다.");
+	            
+	            List<String> list = new ArrayList<String>();
+	            for(int i =0; i < FILE_IDS.length; i++ ) {
+	                list.add(FILE_IDS[i]);
+	            }
+	            returnMap.put("list", list);
+	    	    System.out.println("===== multiFileUpload   8 =====");
+				
+			}else{
+	            returnMap.put("msg", "파일 업로드에 실패하였습니다.");
+	            
+			}
+			
+		    System.out.println("===== multiFileUpload   9 =====");
+			return returnMap;
+		} catch ( Exception e) {
+			e.printStackTrace();
+			throw e;
 		}
-		
-		return returnMap;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
