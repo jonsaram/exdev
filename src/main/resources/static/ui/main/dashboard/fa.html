@@ -177,8 +177,8 @@ var <@pageId> = {
 
 				const data = resultData.data[0];
 				
-				// (실행수수료 + 영업수수료) 1억이하 이고 당월수수료 300만원이하인경우 백만단위로 변경 
-				if(data.YEARLY_PAYMENT <= <@pageId>.ONE_HUNDRED_MILLION && data.SUM_PAYMENT <= 3000000 ){
+				// (실행수수료 + 영업수수료) 1억이하 이고 당월수수료 1000만원이하인경우 백만단위로 변경 
+				if(data.YEARLY_PAYMENT <= <@pageId>.ONE_HUNDRED_MILLION && data.SUM_PAYMENT <= 30000000 ){
 					<@pageId>.UNIT_TYPE = "SMALL";
 					
 				}else{
