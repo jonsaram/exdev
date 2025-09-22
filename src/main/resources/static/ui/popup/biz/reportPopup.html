@@ -199,7 +199,7 @@
 			
 			var parm = {
 					 GRP_FILE_ID 	: <@popupId>.BUYER_CONSULTING_ID
-					,OWNER_CD 		: "APPROVAL"
+					,OWNER_CD 		: "APPROVAL_REPORT"
 					,mode			: "M"
 			}
 			C_COMP.import("<@popupId>_importMultiFilemng", "component_compMultiFilemng", parm , function() {
@@ -207,7 +207,19 @@
 			});
 
 			$("#<@popupId><@popupId>_importMultiFilemng #title").remove();			
-			
+
+			var parm = {
+					 GRP_FILE_ID 	: <@popupId>.BUYER_CONSULTING_ID
+					,OWNER_CD 		: "APPROVAL_STUDY"
+					,mode			: "M"
+			}
+			C_COMP.import("<@popupId>_importMultiFilemngSTUDY", "component_compMultiFilemng", parm , function() {
+				
+			});
+
+			$("#<@popupId><@popupId>_importMultiFilemng #title").remove();
+			$("#<@popupId><@popupId>_importMultiFilemngSTUDY #title").remove();			
+
 		}
 		// 상품명 조회
 		,setConsultingList : (buyerId , callback) =>{
@@ -281,6 +293,7 @@
 			
 			if("<@mode>" == "V" ){
 				$("#popup_biz_reportPopuppopup_biz_reportPopup_importMultiFilemng button").hide();
+				$("#popup_biz_reportPopuppopup_biz_reportPopup_importMultiFilemngSTUDY button").hide();
 				$("#<@popupId>_reg").hide();
 			}
 		}
@@ -329,8 +342,13 @@
 								</td>
 							</tr>
 							<tr>
-								<th>첨부파일</th>
+								<th>레포트</th>
 								<td colspan="3"  class="tl" id="<@popupId>_importMultiFilemng" >
+								</td>
+							</tr>
+							<tr>
+								<th>연구일지</th>
+								<td colspan="3"  class="tl" id="<@popupId>_importMultiFilemngSTUDY" >
 								</td>
 							</tr>
 						</tbody>
