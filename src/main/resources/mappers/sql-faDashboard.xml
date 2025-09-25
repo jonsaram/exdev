@@ -220,6 +220,19 @@
 		<include refid="getContractedBy"/>
 	</select>
 	
+	<select id="getContractCnt" resultType="java.util.HashMap" flushCache="true"  useCache="false">
+		/*	faDashboard.getContractCnt
+		*/
+		SELECT  TO_CHAR(C.CONTRACT_DATE, 'YYYY-MM') C_MONTH
+		,		COUNT(1) CNT
+		FROM 	TBL_EXP_CONTRACT C 
+		WHERE   C.USE_YN = 'Y' 
+		AND 	C.DEL_YN = 'N' 
+		AND 	TO_CHAR(C.CONTRACT_DATE, 'YYYY') = #{CUR_YEAR_DATE}
+		GROUP 	BY TO_CHAR(C.CONTRACT_DATE, 'YYYY-MM') 
+		ORDER 	BY TO_CHAR(C.CONTRACT_DATE, 'YYYY-MM')
+	</select>
+	
 	<select id="getPaymentByMonth" resultType="java.util.HashMap" flushCache="true"  useCache="false">
 		/*	faDashboard.getPaymentByMonth
 			월별 수수료 조회 ( 수수료 합계 추이 구하기 위함 )

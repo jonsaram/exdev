@@ -100,26 +100,34 @@ var <@pageId> = {
 		// 전체 수수료 합계 추이
 		,searchConnectedByTrend	: () =>{
 
-			let queryId = "faDashboard.getContractedByAll";
-			
 			let ACHIEVE_RATE = 0;
-			var parm = {
-				 queryId 		: 	queryId
-				,requestParm	: 	{
+			var requestParm	 = 	{
 										 CUR_YEAR_DATE	: dayjs().format("YYYY")	
 										,CUR_MONTH_DATE : dayjs().format("YYYY-MM")	
 										,UNIT_TYPE		: <@pageId>.UNIT_TYPE
-									}
 			}
 			
+			var parm = {
+					queryGroup : [
+						 {
+							 queryId 		: "faDashboard.getContractedByAll"
+							,requestParm	: requestParm
+						 },
+						 {
+							 queryId 		: "faDashboard.getContractCnt"
+							,requestParm	: requestParm
+						 }
+					]
+			}
 			C_COM.requestQuery(parm, function(resultData) {
 
-			 	const data	= 	resultData.data;
-  				<@pageId>.firstStacked1LineChart(data) ;
+			 	const data	= 	resultData.data['faDashboard.getContractedByAll'];
+			 	const data2	= 	resultData.data['faDashboard.getContractCnt'];
+  				<@pageId>.firstStacked1LineChart(data,undefined,data2) ;
 			});  
 		}
 		// 전체 수수료 합계 추이 / 수수료 합계 추이 차트
-		,firstStacked1LineChart : (data,gubun) =>{
+		,firstStacked1LineChart : (data,gubun,contractMonthCnt) =>{
 			
 			const month =	Array.from({ length: 12 }, (_, i) => i < 9 ? '0' + (1+i) : '' + (1+i) );
 			
@@ -130,8 +138,8 @@ var <@pageId> = {
 			
 			const thisYear = dayjs().format("YYYY");
 			let accContractCnt= 0 
-			month. forEach ( m => {
-					
+			month. forEach ( (m,idx) => {
+					const cmCnt = contractMonthCnt[idx]?.CNT;
 					const month = thisYear+"-"+m;
 					const match = data.filter( d => d.MONTH === month);
 						
@@ -141,9 +149,9 @@ var <@pageId> = {
 						once.data.push		(match[0].ONCE_TOTAL_COST);
 						cowork.data.push	(match[0].COWORK_TOTAL_COST);
 						
-						accContractCnt += Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT) + Number(match[0].COWORK_CNT);
+						accContractCnt += cmCnt;
 						contractCnt.data.push(accContractCnt	);
-						contractCnt.data2.push(Number(match[0].MONTHLY_CNT) + Number(match[0].ONCE_CNT) + Number(match[0].COWORK_CNT))
+						contractCnt.data2.push(cmCnt)
 					
 					}else{
 						monthly.data.push(0);
