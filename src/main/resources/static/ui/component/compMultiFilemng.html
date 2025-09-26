@@ -239,7 +239,7 @@
         <@compId>.GRP_FILE_ID   = parm.GRP_FILE_ID  ;
         <@compId>.OWNER_CD      = parm.OWNER_CD     ;
         <@compId>.mode          = parm.mode         ;
-        
+
         // 기본값을 Y로 해서 PDF 파일변환을 한다.
         if( parm.mode == "N" ){
             <@compId>.convertToPdf  = "N";
@@ -264,6 +264,7 @@
             $("#<@compId>").hide();
         }
         // 버튼 노출 처리
+
         if(parm.hideButton == "Y") {
             $("#<@compId>_button").hide();
         }

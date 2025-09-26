@@ -258,17 +258,53 @@
         	C_COMP.import("textEditorComp", "component_compTextEditor", {content:data.CONTENTS}, function(data) {
                 <@popupId>.editorData = data.editorData;
             });
-            
-    		// 첨부파일 컴포넌트 추가
-        	var parm = {
-    			 GRP_FILE_ID 	: <@popupId>.APPROVAL_ID
-    			,OWNER_CD 		: "APPROVAL"
-    			,mode			: "M"
-    			,title			: "NA"
-    		}
-    		C_COMP.import("appFileMng", "component_compMultiFilemng", parm , function() {
-    			
-    		});
+
+        	
+        	
+        	if(isValid(data.OWNER_LIST)) {
+        		
+        		// 첨부파일 컴포넌트 추가
+            	var parm = {
+        			 GRP_FILE_ID 	: <@popupId>.APPROVAL_ID
+        			,OWNER_CD 		: data.OWNER_LIST[0]
+        			,mode			: "R"
+        			,title			: "NA"
+        		}
+        		C_COMP.import("<@popupId>_appFileMng", "component_compMultiFilemng", parm , function() {
+        			
+        		});
+        		
+        		if(isValid(data.OWNER_LIST[1])) {
+            		// 첨부파일 컴포넌트 추가2
+                	var parm = {
+            			 GRP_FILE_ID 	: <@popupId>.APPROVAL_ID
+            			,OWNER_CD 		: data.OWNER_LIST[1]
+            			,mode			: "R"
+            			,title			: "NA"
+            		}
+            		C_COMP.import("<@popupId>_appFileMng2", "component_compMultiFilemng", parm , function() {
+            			
+            		});
+                	$("#<@popupId>_appFileMngTitle").html("레포트");
+                	$("#<@popupId>_appFileMng2Title").html("연구일지");
+
+                	$("#<@popupId>_appFileMng2"		).show();
+                	$("#<@popupId>_appFileMng2Title").show();
+
+            		
+        		}
+        	} else {
+        		// 첨부파일 컴포넌트 추가
+            	var parm = {
+        			 GRP_FILE_ID 	: <@popupId>.APPROVAL_ID
+        			,OWNER_CD 		: "APPROVAL"
+        			,mode			: "M"
+        			,title			: "NA"
+        		}
+        		C_COMP.import("<@popupId>_appFileMng", "component_compMultiFilemng", parm , function() {
+        			
+        		});
+        	}
     		
     		// 기안자 추가
         	let reqMember = fn_copyObject(G_VAL.session);
@@ -329,7 +365,7 @@
    		    			,mode			: "M"
    		    			,title			: "NA"
    		    		}
-   		    		C_COMP.import("appFileMng", "component_compMultiFilemng", parm , function() {
+   		    		C_COMP.import("<@popupId>_appFileMng", "component_compMultiFilemng", parm , function() {
    		    			
    		    		});
    				}
@@ -413,8 +449,11 @@
 					</dd>
 					<dt>상신 내용</dt>
 					<dd><div id="textEditorComp"></div></dd>
-					<dt>첨부파일</dt>
-					<dd id="appFileMng">
+					<dt id="<@popupId>_appFileMngTitle">첨부파일</dt>
+					<dd id="<@popupId>_appFileMng">
+					</dd>
+					<dt id="<@popupId>_appFileMng2Title" style="display:none">첨부파일</dt>
+					<dd id="<@popupId>_appFileMng2" style="display:none">
 					</dd>
 				</dl>
 			</div>

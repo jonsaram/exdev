@@ -181,16 +181,49 @@
 
             C_COM.renderHtml("<@popupId>", rparm);
             
-            
-            // 첨부 파일
-			var parm = {
-				 GRP_FILE_ID 	: apprInfo.APPROVAL_ID
-				,OWNER_CD 		: "APPROVAL"
-				,mode			: "R"
-				,title			: "NA"
-			}
-			C_COMP.import("importMultiFilemng", "component_compMultiFilemng",parm , function() {
-			});
+        	// 기업자문 보고서 특화 처리
+        	if(resultData.data[0].TITLE.indexOf("기업 자문 보고서") > -1) {
+        		var parm = {
+    				 GRP_FILE_ID 	: resultData.data[0].APPROVAL_ID
+    				,OWNER_CD 		: "APPROVAL"
+    				,mode			: "R"
+    				,title			: "NA"
+    			}
+    			C_COMP.import("importMultiFilemng2", "component_compMultiFilemng", parm , function() {
+    			});
+        		parm = {
+    				 GRP_FILE_ID 	: resultData.data[0].APPROVAL_ID
+    				,OWNER_CD 		: "APPROVAL_STUDY"
+    				,mode			: "R"
+    				,title			: "NA"
+    			}
+    			C_COMP.import("importMultiFilemng3", "component_compMultiFilemng", parm , function() {
+    			});
+        		
+                $("#importMultiFilemng1"		).hide();
+                $("#importMultiFilemng1Title"	).hide();
+                $("#importMultiFilemng2"		).show();
+                $("#importMultiFilemng2Title"	).show();
+                $("#importMultiFilemng3"		).show();
+                $("#importMultiFilemng3Title"	).show();
+        	} else {
+                // 첨부 파일
+    			var parm = {
+    				 GRP_FILE_ID 	: apprInfo.APPROVAL_ID
+    				,OWNER_CD 		: "APPROVAL"
+    				,mode			: "R"
+    				,title			: "NA"
+    			}
+    			C_COMP.import("importMultiFilemng1", "component_compMultiFilemng",parm , function() {
+    			});
+
+                $("#importMultiFilemng1"		).show();
+                $("#importMultiFilemng1Title"	).show();
+                $("#importMultiFilemng2"		).hide();
+                $("#importMultiFilemng2Title"	).hide();
+                $("#importMultiFilemng3"		).hide();
+                $("#importMultiFilemng3Title"	).hide();
+        	}
             
         	
             // 담당자 의견
@@ -225,8 +258,12 @@
 					{{:info.CONTENTS}}
 					</div>
 				</dd>
-				<dt>첨부파일</dt>
-				<dd id="importMultiFilemng"></dd>
+				<dt id="importMultiFilemng1Title">첨부파일</dt>
+				<dd id="importMultiFilemng1"></dd>
+				<dt id="importMultiFilemng1Title">레포트</dt>
+				<dd id="importMultiFilemng2"></dd>
+				<dt id="importMultiFilemng1Title">연구파일</dt>
+				<dd id="importMultiFilemng3"></dd>
 				<dt>담당자 의견</dt>
 				<dd><div id="approvalComment"></div></dd>
             </script>

@@ -11,8 +11,37 @@
 	            ,requestParm    : requestParm
 	        }
 	        C_COM.requestQuery(parm, function(resultData) {
+	        	
+	        	// 기업자문 보고서 특화 처리
+	        	if(resultData.data[0].TITLE.indexOf("기업 자문 보고서") > -1) {
+	        		var parm = {
+        				 GRP_FILE_ID 	: resultData.data[0].APPROVAL_ID
+        				,OWNER_CD 		: "APPROVAL"
+        				,mode			: "R"
+        				,title			: "NA"
+        			}
+        			C_COMP.import("importMultiFilemng2", "component_compMultiFilemng", parm , function() {
+        			});
+	        		parm = {
+        				 GRP_FILE_ID 	: resultData.data[0].APPROVAL_ID
+        				,OWNER_CD 		: "APPROVAL_STUDY"
+        				,mode			: "R"
+        				,title			: "NA"
+        			}
+        			C_COMP.import("importMultiFilemng3", "component_compMultiFilemng", parm , function() {
+        			});
+	        		
+	        		$("#<@popupId>_addfile1").hide();
+	        		$("#<@popupId>_addfile2").show();
+	        		$("#<@popupId>_addfile3").show();
+	        	} else {
+	        		$("#<@popupId>_addfile1").show();
+	        		$("#<@popupId>_addfile2").hide();
+	        		$("#<@popupId>_addfile3").hide();
+	        	}
 				
-	            $('#<@popupId> #USER_NM'		).html(resultData.data[0].USER_NM);
+	        	
+	         	$('#<@popupId> #USER_NM'		).html(resultData.data[0].USER_NM);
 	            $('#<@popupId> #APPROVAL_DATE'	).html(resultData.data[0].APPROVAL_DATE);
 	            $('#<@popupId> #APPROVAL_TITLE'	).html(resultData.data[0].TITLE);
 	            $('#<@popupId> #CONTENTS'		).html(resultData.data[0].CONTENTS + "<br/>");
@@ -210,9 +239,19 @@
 								</div>
 							</td>
 						</tr>
-						<tr>
+						<tr id="<@popupId>_addfile1">
 							<th scope="row">첨부파일</th>
 							<td colspan="3" id="importMultiFilemng">
+							</td>
+						</tr>
+						<tr id="<@popupId>_addfile2">
+							<th scope="row">레포트</th>
+							<td colspan="3" id="importMultiFilemng2">
+							</td>
+						</tr>
+						<tr id="<@popupId>_addfile3">
+							<th scope="row">연구일지</th>
+							<td colspan="3" id="importMultiFilemng3">
 							</td>
 						</tr>
 					</tbody>
